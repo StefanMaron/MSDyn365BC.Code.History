@@ -1,0 +1,20 @@
+{
+    "folders": [
+        {
+            "name": "Base App",
+            "path": "BaseApp/Source/Base Application"
+        },
+        {
+            "name": "Base App Tests",
+            "path": "BaseApp/Test"
+        }
+    ],
+    "settings": {
+        "allint.enabled": false,
+        "al.enableCodeActions": false,
+        "al.enableCodeAnalysis": false,
+        "search.exclude": {
+            "**.xlf": true
+        }
+    }
+}

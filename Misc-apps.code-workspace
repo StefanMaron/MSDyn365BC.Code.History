@@ -1,0 +1,80 @@
+{
+    "folders": [
+        {
+            "name": "API V1 App",
+            "path": "APIV1/source"
+        },
+        {
+            "name": "API V1 Tests",
+            "path": "APIV1/test"
+        },
+        {
+            "name": "API V2 App",
+            "path": "APIV2/source"
+        },
+        {
+            "name": "API V2 Tests",
+            "path": "APIV2/test"
+        },
+        {
+            "name": "Client AddIns",
+            "path": "ClientAddIns/source"
+        },
+        {
+            "name": "Company Hub",
+            "path": "CompanyHub/source"
+        },
+        {
+            "name": "Headlines App",
+            "path": "EssentialBusinessHeadlines/source"
+        },
+        {
+            "name": "Headlines Tests",
+            "path": "EssentialBusinessHeadlines/test"
+        },
+        {
+            "name": "Late Payment Predictor App",
+            "path": "LatePaymentPredictor/source"
+        },
+        {
+            "name": "Late Payment Predictor Tests",
+            "path": "LatePaymentPredictor/test"
+        },
+        {
+            "name": "PayPal App",
+            "path": "paypalpaymentsstandard/source"
+        },
+        {
+            "name": "PayPal Tests",
+            "path": "paypalpaymentsstandard/test"
+        },
+        {
+            "name": "Sales/Inventory Forecast App",
+            "path": "salesandinventoryforecast/source"
+        },
+        {
+            "name": "Sales/Inventory Forecast Tests",
+            "path": "salesandinventoryforecast/test"
+        },
+        {
+            "name": "Send to Email Printer",
+            "path": "sendtoemailprinter/source"
+        },
+        {
+            "name": "UK send remittance advice",
+            "path": "uksendremittanceadvice/source"
+        },
+        {
+            "name": "Test Framework",
+            "path": "TestFramework"
+        },
+    ],
+    "settings": {
+        "allint.enabled": false,
+        "al.enableCodeActions": false,
+        "al.enableCodeAnalysis": false,
+        "search.exclude": {
+            "**.xlf": true
+        }
+    }
+}
