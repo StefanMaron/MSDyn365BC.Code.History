@@ -1,0 +1,21 @@
+{
+    "folders": [
+        {
+            "name": "System App",
+            "path": "system application/source"
+        },
+        {
+            "name": "System App Tests",
+            "path": "system application/test"
+        }
+    ],
+    "settings": {
+        "allint.enabled": false,
+        "al.enableCodeActions": false,
+        "al.enableCodeAnalysis": false,        
+        "al.backgroundCodeAnalysis": false,
+        "search.exclude": {
+            "**.xlf": true
+        }
+    }
+}
