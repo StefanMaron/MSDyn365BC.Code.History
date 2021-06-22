@@ -1644,19 +1644,19 @@ codeunit 139162 "CRM Integration Mgt Test"
 
         // [THEN] Job queue entries with respective No. of Minutes between Runs & Inactivity Timeout Period
         VerifyJobQueueEntriesInactivityTimeoutPeriod(30, 720,
-          ' CUSTOMER - Common Data Service synchronization job.');
+          ' CUSTOMER - Dataverse synchronization job.');
         VerifyJobQueueEntriesInactivityTimeoutPeriod(30, 720,
-          ' VENDOR - Common Data Service synchronization job.');
+          ' VENDOR - Dataverse synchronization job.');
         VerifyJobQueueEntriesInactivityTimeoutPeriod(30, 720,
-          ' CONTACT - Common Data Service synchronization job.');
+          ' CONTACT - Dataverse synchronization job.');
         VerifyJobQueueEntriesInactivityTimeoutPeriod(30, 720,
-          ' CURRENCY - Common Data Service synchronization job.');
+          ' CURRENCY - Dataverse synchronization job.');
         VerifyJobQueueEntriesInactivityTimeoutPeriod(30, 720,
           ' RESOURCE-PRODUCT - Dynamics 365 Sales synchronization job.');
         VerifyJobQueueEntriesInactivityTimeoutPeriod(30, 720,
           ' UNIT OF MEASURE - Dynamics 365 Sales synchronization job.');
         VerifyJobQueueEntriesInactivityTimeoutPeriod(30, 1440,
-          ' SALESPEOPLE - Common Data Service synchronization job.');
+          ' SALESPEOPLE - Dataverse synchronization job.');
         VerifyJobQueueEntriesInactivityTimeoutPeriod(30, 1440,
           ' ITEM-PRODUCT - Dynamics 365 Sales synchronization job.');
         VerifyJobQueueEntriesInactivityTimeoutPeriod(30, 1440,

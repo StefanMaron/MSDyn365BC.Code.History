@@ -169,6 +169,7 @@ codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
     var
         TempPriceListLine: Record "Price List Line" temporary;
         PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+        PriceAssetList: Codeunit "Price Asset List";
         GetPriceLine: Page "Get Price Line";
     begin
         if not HasAccess(CurrLineWithPrice.GetPriceType(), AmountType) then
@@ -177,6 +178,8 @@ codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
         if not CurrLineWithPrice.CopyToBuffer(PriceCalculationBufferMgt) then
             exit;
         if FindLines(AmountType, TempPriceListLine, PriceCalculationBufferMgt, ShowAll) then begin
+            PriceCalculationBufferMgt.GetAssets(PriceAssetList);
+            GetPriceLine.SetDataCaptionExpr(PriceAssetList);
             GetPriceLine.SetForLookup(CurrLineWithPrice, AmountType, TempPriceListLine);
             if GetPriceLine.RunModal() = ACTION::LookupOK then begin
                 GetPriceLine.GetRecord(TempPriceListLine);

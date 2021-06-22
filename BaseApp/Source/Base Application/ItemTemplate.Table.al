@@ -36,11 +36,9 @@ table 1301 "Item Template"
             Caption = 'Base Unit of Measure';
             TableRelation = "Unit of Measure";
         }
-        field(10; Type; Option)
+        field(10; Type; Enum "Item Type")
         {
             Caption = 'Type';
-            OptionCaption = 'Inventory,Service,Non-Inventory';
-            OptionMembers = Inventory,Service,"Non-Inventory";
 
             trigger OnValidate()
             begin

@@ -1,4 +1,4 @@
-table 167 Job
+﻿table 167 Job
 {
     Caption = 'Job';
     DataCaptionFields = "No.", Description;
@@ -1052,7 +1052,7 @@ table 167 Job
             else
                 CheckContactBillToCustomerBusRelation();
         end else
-            Error(ContactBusRelMissingErr, Cont."No.", Cont.Name);
+            ShowContactBillToCustomerBusRelationMissingError();
     end;
 
     local procedure CheckContactBillToCustomerBusRelation()
@@ -1066,6 +1066,18 @@ table 167 Job
 
         if "Bill-to Customer No." <> ContBusinessRelation."No." then
             Error(ContactBusRelErr, Cont."No.", Cont.Name, "Bill-to Customer No.");
+    end;
+
+    local procedure ShowContactBillToCustomerBusRelationMissingError()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeShowContactBillToCustomerBusRelationMissingError(Rec, Cont, IsHandled);
+        if IsHandled then
+            exit;
+
+        Error(ContactBusRelMissingErr, Cont."No.", Cont.Name);
     end;
 
     procedure UpdateCust()
@@ -1618,6 +1630,11 @@ table 167 Job
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckContactBillToCustomerBusRelation(var Job: Record Job; Contact: Record Contact; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowContactBillToCustomerBusRelationMissingError(var Job: Record Job; Contact: Record Contact; var IsHandled: Boolean)
     begin
     end;
 

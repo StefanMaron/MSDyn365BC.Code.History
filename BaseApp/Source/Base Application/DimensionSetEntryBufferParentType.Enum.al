@@ -16,4 +16,8 @@ enum 136 "Dimension Set Entry Buffer Parent Type"
     value(11; "Purchase Invoice Line") { Caption = 'Purchase Invoice Line'; }
     value(12; "General Ledger Entry") { Caption = 'General Ledger Entry'; }
     value(13; "Time Registration Entry") { Caption = 'Time Registration Entry'; }
+    value(14; "Sales Shipment") { Caption = 'Sales Shipment'; }
+    value(15; "Sales Shipment Line") { Caption = 'Sales Shipment Line'; }
+    value(16; "Purchase Receipt") { Caption = 'Purchase Receipt'; }
+    value(17; "Purchase Receipt Line") { Caption = 'Purchase Receipt Line'; }
 }

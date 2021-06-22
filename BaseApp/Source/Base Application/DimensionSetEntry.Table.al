@@ -3,7 +3,7 @@ table 480 "Dimension Set Entry"
     Caption = 'Dimension Set Entry';
     DrillDownPageID = "Dimension Set Entries";
     LookupPageID = "Dimension Set Entries";
-    Permissions = TableData "Dimension Set Entry" = ri,
+    Permissions = TableData "Dimension Set Entry" = rim,
                   TableData "Dimension Set Tree Node" = rim;
 
     fields
@@ -61,6 +61,10 @@ table 480 "Dimension Set Entry"
             Caption = 'Dimension Value Name';
             Editable = false;
             FieldClass = FlowField;
+        }
+        field(8; "Global Dimension No."; Integer)
+        {
+            Caption = 'Global Dimension No.';
         }
     }
 
@@ -166,6 +170,14 @@ table 480 "Dimension Set Entry"
                 DimSetEntry2."Dimension Set ID" := NewID;
                 DimSetEntry2.Insert();
             until DimSetEntry.Next = 0;
+    end;
+
+    procedure UpdateGlobalDimensionNo(DimensionCode: Code[20]; GlobalDimensionNo: Integer)
+    var
+        DimensionSetEntry: Record "Dimension Set Entry";
+    begin
+        DimensionSetEntry.SetRange("Dimension Code", DimensionCode);
+        DimensionSetEntry.ModifyAll("Global Dimension No.", GlobalDimensionNo);
     end;
 
     [IntegrationEvent(false, false)]

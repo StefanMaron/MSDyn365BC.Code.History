@@ -12,7 +12,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
         CurrencyNotExistsErr: Label 'The Currency does not exist.';
         ErrorMessageErr: Label 'Error message expected.';
         FieldMustHaveAValueErr: Label '%1 must have a value in %2';
-        MissingWriteInProductNoErr: Label '%1 %2 %3 contains a write-in product. You must choose the default write-in product in Sales & Receivables Setup window.', Comment = '%1 - CDS service name,%2 - document type (order or quote), %3 - document number';
+        MissingWriteInProductNoErr: Label '%1 %2 %3 contains a write-in product. You must choose the default write-in product in Sales & Receivables Setup window.', Comment = '%1 - Dataverse service name,%2 - document type (order or quote), %3 - document number';
         SalesQuotenoteNotFoundErr: Label 'Couldn''t find a note for sales quote %1 with note text %2.', Locked = true;
         LibraryCRMIntegration: Codeunit "Library - CRM Integration";
         LibraryERM: Codeunit "Library - ERM";

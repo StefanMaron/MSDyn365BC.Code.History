@@ -610,9 +610,11 @@ codeunit 99000774 "Calculate Routing Line"
             if "Ending Date-Time" > ResidualProdStartDateTime then begin
                 "Ending Date" := DT2Date(ResidualProdStartDateTime);
                 "Ending Time" := DT2Time(ResidualProdStartDateTime);
-                if "Ending Time" > CalendarEntry."Ending Time" then
-                    if (WaitTime = 0) or (MoveTime <> 0) then   // Wait Time can end outside of working hours, but only if Move Time = 0
-                        "Ending Time" := CalendarEntry."Ending Time";
+                FilterCalendarEntryBeforeOrOnDateTime(Type, "No.", "Ending Date", "Ending Time");
+                if CalendarEntry.FindLast() then
+                    if "Ending Time" > CalendarEntry."Ending Time" then
+                        if (WaitTime = 0) or (MoveTime <> 0) then   // Wait Time can end outside of working hours, but only if Move Time = 0
+                            "Ending Time" := CalendarEntry."Ending Time";
                 ProdStartingDate := "Ending Date";
                 ProdStartingTime := "Ending Time";
             end;
@@ -1941,6 +1943,13 @@ codeunit 99000774 "Calculate Routing Line"
             SetRange("Routing No.", ProdOrderRoutingLine."Routing No.");
             SetFilter("Routing Status", '<>%1', "Routing Status"::Finished);
         end;
+    end;
+
+    local procedure FilterCalendarEntryBeforeOrOnDateTime(CapacityType: Enum "Capacity Type"; WorkMachineCenterNo: Code[20]; DateValue: Date; TimeValue: Time)
+    begin
+        CalendarEntry.SetCapacityFilters(CapacityType, WorkMachineCenterNo);
+        CalendarEntry.SetRange("Starting Date-Time", 0DT, CreateDateTime(DateValue, TimeValue));
+        CalendarEntry.SetRange("Ending Date-Time", 0DT, CreateDateTime(DateValue + 1, TimeValue));
     end;
 
     [IntegrationEvent(false, false)]

@@ -962,6 +962,78 @@ codeunit 136312 "Job Reservation"
         JobPlanningLine.TestField(Planned, false);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure JobPlanningLineBelongsToJobOfPlanningTypeIsNotAutoReserved()
+    var
+        Item: Record Item;
+        PurchaseLine: Record "Purchase Line";
+        Job: Record Job;
+        JobPlanningLine: Record "Job Planning Line";
+    begin
+        // [SCENARIO 380618] Job planning line for a job of "Planning" status is not automatically reserved despite always reserve item.
+        Initialize(false);
+
+        // [GIVEN] Create an post purchase order for item "I".
+        CreateAndReceivePurchaseOrder(PurchaseLine, '');
+
+        // [GIVEN] Item "I" is set up for Reserve = Always.
+        Item.Get(PurchaseLine."No.");
+        Item.Validate(Reserve, Item.Reserve::Always);
+        Item.Modify(true);
+
+        // [GIVEN] Create job of "Planning" status.
+        LibraryJob.CreateJob(Job);
+        Job.Validate(Status, Job.Status::Planning);
+        Job.Modify(true);
+
+        // [GIVEN] Job planning line with item "I".
+        CreateJobTaskWithJobPlanningLineWithUsageLink(JobPlanningLine, Job, Item."No.", LibraryRandom.RandInt(5));
+
+        // [WHEN] Auto-reserve the job planning line.
+        JobPlanningLine.AutoReserve();
+
+        // [THEN] The job planning line is not reserved.
+        JobPlanningLine.CalcFields("Reserved Quantity");
+        JobPlanningLine.TestField("Reserved Quantity", 0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure JobPlanningLineBelongsToJobOfOpenTypeIsAutoReserved()
+    var
+        Item: Record Item;
+        PurchaseLine: Record "Purchase Line";
+        Job: Record Job;
+        JobPlanningLine: Record "Job Planning Line";
+    begin
+        // [SCENARIO 380618] Job planning line for a job of "Open" status is automatically reserved for always reserve item.
+        Initialize(false);
+
+        // [GIVEN] Create an post purchase order for item "I".
+        CreateAndReceivePurchaseOrder(PurchaseLine, '');
+
+        // [GIVEN] Item "I" is set up for Reserve = Always.
+        Item.Get(PurchaseLine."No.");
+        Item.Validate(Reserve, Item.Reserve::Always);
+        Item.Modify(true);
+
+        // [GIVEN] Create job of "Open" status.
+        LibraryJob.CreateJob(Job);
+        Job.Validate(Status, Job.Status::Open);
+        Job.Modify(true);
+
+        // [GIVEN] Job planning line with item "I".
+        CreateJobTaskWithJobPlanningLineWithUsageLink(JobPlanningLine, Job, Item."No.", LibraryRandom.RandInt(5));
+
+        // [WHEN] Auto-reserve the job planning line.
+        JobPlanningLine.AutoReserve();
+
+        // [THEN] The job planning line is fully reserved.
+        JobPlanningLine.CalcFields("Reserved Quantity");
+        JobPlanningLine.TestField("Reserved Quantity", JobPlanningLine.Quantity);
+    end;
+
     local procedure Initialize(Enable: Boolean)
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1158,6 +1230,18 @@ codeunit 136312 "Job Reservation"
     begin
         LibraryJob.CreateJob(Job);
         LibraryJob.CreateJobTask(Job, JobTask);
+    end;
+
+    local procedure CreateJobTaskWithJobPlanningLineWithUsageLink(var JobPlanningLine: Record "Job Planning Line"; Job: Record Job; ItemNo: Code[20]; Qty: Decimal)
+    var
+        JobTask: Record "Job Task";
+    begin
+        LibraryJob.CreateJobTask(Job, JobTask);
+        LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Budget, JobPlanningLine.Type::Item, JobTask, JobPlanningLine);
+        JobPlanningLine.Validate("No.", ItemNo);
+        JobPlanningLine.Validate("Usage Link", true);
+        JobPlanningLine.Validate(Quantity, Qty);
+        JobPlanningLine.Modify(true);
     end;
 
     local procedure CreateRequisitionLine(var RequisitionLine: Record "Requisition Line")

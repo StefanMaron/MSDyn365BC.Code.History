@@ -89,12 +89,14 @@ table 1514 "Sent Notification Entry"
         OutStream: OutStream;
     begin
         Clear(Rec);
+        OnNewRecordOnBeforeTransferFields(NotificationEntry);
         TransferFields(NotificationEntry);
         ID := GetLastEntryNo() + 1;
         "Notification Content".CreateOutStream(OutStream);
         OutStream.WriteText(NotificationContent);
         "Notification Method" := "Notification Method Type".FromInteger(NotificationMethod);
         "Sent Date-Time" := CurrentDateTime;
+        OnNewRecordOnBeforeInsert(Rec, NotificationEntry, NotificationContent, NotificationMethod);
         Insert(true);
     end;
 
@@ -110,6 +112,16 @@ table 1514 "Sent Notification Entry"
                 exit(FileMgt.BLOBExport(TempBlob, '*.txt', UseDialog));
             exit(FileMgt.BLOBExport(TempBlob, '*.htm', UseDialog))
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnNewRecordOnBeforeInsert(var SentNotificationEntry: Record "Sent Notification Entry"; NotificationEntry: Record "Notification Entry"; NotificationContent: Text; NotificationMethod: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnNewRecordOnBeforeTransferFields(var NotificationEntry: Record "Notification Entry")
+    begin
     end;
 }
 

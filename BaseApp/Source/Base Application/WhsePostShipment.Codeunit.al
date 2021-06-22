@@ -699,6 +699,7 @@
     var
         WhseComment: Record "Warehouse Comment Line";
         WhseComment2: Record "Warehouse Comment Line";
+        RecordLinkManagement: Codeunit "Record Link Management";
     begin
         LastShptNo := LastShptNo2;
         PostingDate := PostingDate2;
@@ -727,6 +728,7 @@
         PostedWhseShptHeader."External Document No." := WhseShptHeader."External Document No.";
         OnBeforePostedWhseShptHeaderInsert(PostedWhseShptHeader, WhseShptHeader);
         PostedWhseShptHeader.Insert();
+        RecordLinkManagement.CopyLinks(WhseShptHeader, PostedWhseShptHeader);
         OnAfterPostedWhseShptHeaderInsert(PostedWhseShptHeader, LastShptNo);
 
         WhseComment.SetRange("Table Name", WhseComment."Table Name"::"Whse. Shipment");

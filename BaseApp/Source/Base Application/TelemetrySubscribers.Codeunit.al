@@ -263,13 +263,15 @@ codeunit 1351 "Telemetry Subscribers"
     [EventSubscriber(ObjectType::Codeunit, 453, 'OnAfterEnqueueJobQueueEntry', '', false, false)]
     local procedure SendTraceOnAfterEnqueueJobQueueEntry(var JobQueueEntry: Record "Job Queue Entry")
     var
+        TranslationHelper: Codeunit "Translation Helper";
         Dimensions: Dictionary of [Text, Text];
     begin
         if not IsSaaS() then
             exit;
 
-        Session.LogMessage('0000AIX', StrSubstNo(JobQueueEntryEnqueuedTxt, JobQueueEntry.ID, JobQueueEntry."Object Type to Run", JobQueueEntry."Object ID to Run", JobQueueEntry."Recurring Job", JobQueueEntry.Status), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', JobQueueEntriesCategoryTxt);
+        TranslationHelper.SetGlobalLanguageToDefault();
 
+        Session.LogMessage('0000AIX', StrSubstNo(JobQueueEntryEnqueuedTxt, JobQueueEntry.ID, JobQueueEntry."Object Type to Run", JobQueueEntry."Object ID to Run", JobQueueEntry."Recurring Job", JobQueueEntry.Status), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', JobQueueEntriesCategoryTxt);
         Dimensions.Add('Category', JobQueueEntriesCategoryTxt);
         Dimensions.Add('JobQueueId', Format(JobQueueEntry.ID, 0, 4));
         Dimensions.Add('JobQueueObjectType', Format(JobQueueEntry."Object Type to Run"));
@@ -277,30 +279,35 @@ codeunit 1351 "Telemetry Subscribers"
         Dimensions.Add('JobQueueStatus', Format(JobQueueEntry.Status));
         Dimensions.Add('JobQueueIsRecurring', Format(JobQueueEntry."Recurring Job"));
         Session.LogMessage('0000E24', StrSubstNo(JobQueueEntryEnqueuedAllTxt, Format(JobQueueEntry.ID, 0, 4)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
+
+        TranslationHelper.RestoreGlobalLanguage();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 448, 'OnBeforeExecuteJob', '', false, false)]
     local procedure SendTraceOnJobQueueEntryStarted(var JobQueueEntry: Record "Job Queue Entry")
     var
+        TranslationHelper: Codeunit "Translation Helper";
         Dimensions: Dictionary of [Text, Text];
     begin
         if not IsSaaS() then
             exit;
 
-        Session.LogMessage('000082B', StrSubstNo(JobQueueEntryStartedTxt, JobQueueEntry.ID, JobQueueEntry."Object Type to Run", JobQueueEntry."Object ID to Run"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', JobQueueEntriesCategoryTxt);
+        TranslationHelper.SetGlobalLanguageToDefault();
 
+        Session.LogMessage('000082B', StrSubstNo(JobQueueEntryStartedTxt, JobQueueEntry.ID, JobQueueEntry."Object Type to Run", JobQueueEntry."Object ID to Run"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', JobQueueEntriesCategoryTxt);
         Dimensions.Add('Category', JobQueueEntriesCategoryTxt);
         Dimensions.Add('JobQueueId', Format(JobQueueEntry.ID, 0, 4));
         Dimensions.Add('JobQueueObjectType', Format(JobQueueEntry."Object Type to Run"));
         Dimensions.Add('JobQueueObjectId', Format(JobQueueEntry."Object ID to Run"));
         Dimensions.Add('JobQueueStatus', Format(JobQueueEntry.Status));
         Session.LogMessage('0000E25', StrSubstNo(JobQueueEntryStartedAllTxt, Format(JobQueueEntry.ID, 0, 4)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
+
+        TranslationHelper.RestoreGlobalLanguage();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 448, 'OnAfterExecuteJob', '', false, false)]
     local procedure SendTraceOnJobQueueEntryFinished(var JobQueueEntry: Record "Job Queue Entry"; WasSuccess: Boolean)
     var
-        Language: Codeunit Language;
         TranslationHelper: Codeunit "Translation Helper";
         Result: Text[10];
     begin
@@ -312,7 +319,7 @@ codeunit 1351 "Telemetry Subscribers"
         else
             Result := 'Fail';
 
-        TranslationHelper.SetGlobalLanguageById(Language.GetDefaultApplicationLanguageId());
+        TranslationHelper.SetGlobalLanguageToDefault();
 
         Session.LogMessage('000082C', StrSubstNo(JobQueueEntryFinishedTxt, JobQueueEntry.ID, JobQueueEntry."Object Type to Run",
             JobQueueEntry."Object ID to Run", Result), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', JobQueueEntriesCategoryTxt);
@@ -323,7 +330,6 @@ codeunit 1351 "Telemetry Subscribers"
     [EventSubscriber(ObjectType::Codeunit, 448, 'OnAfterHandleRequest', '', false, false)]
     local procedure SendTraceOnJobQueueEntryRequestFinished(var JobQueueEntry: Record "Job Queue Entry"; WasSuccess: Boolean; JobQueueExecutionTime: Integer)
     var
-        Language: Codeunit Language;
         TranslationHelper: Codeunit "Translation Helper";
         Result: Text[10];
         Dimensions: Dictionary of [Text, Text];
@@ -336,7 +342,7 @@ codeunit 1351 "Telemetry Subscribers"
         else
             Result := 'Fail';
 
-        TranslationHelper.SetGlobalLanguageById(Language.GetDefaultApplicationLanguageId());
+        TranslationHelper.SetGlobalLanguageToDefault();
 
         Dimensions.Add('Category', JobQueueEntriesCategoryTxt);
         Dimensions.Add('JobQueueId', Format(JobQueueEntry.ID, 0, 4));

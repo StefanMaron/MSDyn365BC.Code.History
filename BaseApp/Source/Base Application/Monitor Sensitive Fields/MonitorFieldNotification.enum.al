@@ -16,4 +16,8 @@ enum 1366 "Monitor Field Notification"
     {
         Caption = 'Sending Email Failed';
     }
+    value(3; "Email Enqueued")
+    {
+        Caption = 'Email Enqueued';
+    }
 }

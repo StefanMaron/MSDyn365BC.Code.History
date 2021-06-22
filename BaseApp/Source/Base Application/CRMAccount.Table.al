@@ -2,7 +2,7 @@ table 5341 "CRM Account"
 {
     // Dynamics CRM Version: 7.1.0.2040
 
-    Caption = 'CDS Account';
+    Caption = 'Dataverse Account';
     Description = 'Business that represents a customer or potential customer. The company that is billed in business transactions.';
     ExternalName = 'account';
     TableType = CRM;

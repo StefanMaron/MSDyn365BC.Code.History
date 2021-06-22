@@ -16,6 +16,7 @@ codeunit 134325 "ERM Purchase Quote"
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryRandom: Codeunit "Library - Random";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryResource: Codeunit "Library - Resource";
         IsInitialized: Boolean;
@@ -467,8 +468,31 @@ codeunit 134325 "ERM Purchase Quote"
         Assert.ExpectedError(BlockedResourceErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderFromPurchaseQuoteWithTransactionType()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [FEATURE] [Order]
+        // [SCENARIO 379229] "Transaction Type" is populated from Intrastat Setup on Purchase Order from Purchase Quote
+        Initialize();
+
+        // [GIVEN] Set Default Transaction Types on Intrastat Setup and created Purchase Quote
+        LibraryERM.SetDefaultTransactionTypesInIntrastatSetup();
+        CreatePurchaseQuote(PurchaseHeader, PurchaseLine, CreateVendor());
+
+        // [WHEN] Create Purchase Order from Purchase Quote.
+        CODEUNIT.Run(CODEUNIT::"Purch.-Quote to Order", PurchaseHeader);
+
+        // [THEN] Verify that New Purchase Order created from Purchase Quote has Transaction Type on Header and Line
+        VerifyTransactionTypeOnOrder(PurchaseHeader, PurchaseHeader."No.");
+    end;
+    
     local procedure Initialize()
     var
+        IntrastatSetup: Record "Intrastat Setup";
         PurchaseHeader: Record "Purchase Header";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
@@ -482,10 +506,29 @@ codeunit 134325 "ERM Purchase Quote"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Purchase Quote");
 
         LibraryERMCountryData.UpdateGeneralPostingSetup;
+        if not IntrastatSetup.Get() then begin
+            IntrastatSetup.Init();
+            IntrastatSetup.Insert();
+        end;
+        LibrarySetupStorage.Save(DATABASE::"Intrastat Setup");
 
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Purchase Quote");
+    end;
+
+    local procedure VerifyTransactionTypeOnOrder(PurchaseHeader: Record "Purchase Header"; QuoteNo: Code[20])
+    var
+        IntrastatSetup: Record "Intrastat Setup";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        IntrastatSetup.Get();
+        PurchaseHeader.SetRange("Quote No.", QuoteNo);
+        PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
+        PurchaseHeader.FindFirst();
+        PurchaseHeader.TestField("Transaction Type", IntrastatSetup."Default Trans. - Purchase");
+        FindPurchaseLine(PurchaseLine, QuoteNo);
+        PurchaseLine.TestField("Transaction Type", IntrastatSetup."Default Trans. - Purchase");
     end;
 
     local procedure CreateVendor(): Code[20]

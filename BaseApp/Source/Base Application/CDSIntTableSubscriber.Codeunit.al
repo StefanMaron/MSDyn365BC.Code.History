@@ -10,15 +10,15 @@ codeunit 7205 "CDS Int. Table. Subscriber"
         CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
         CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
         CRMSynchHelper: Codeunit "CRM Synch. Helper";
-        UserCDSSetupTxt: Label 'Common Data Service User Setup';
-        CannotResolveUserFromConnectionSetupErr: Label 'The integration user that is specified in the Common Data Service connection setup does not exist.';
-        RecordMustBeCoupledErr: Label '%1 %2 must be coupled to a Common Data Service record.', Comment = '%1 = table caption, %2 = primary key value';
-        RecordMustBeCoupledExtErr: Label '%1 %2 must be coupled to a %3 record.', Comment = '%1 = BC table caption, %2 = primary key value, %3 - Common Data Service table caption';
+        UserCDSSetupTxt: Label 'Dataverse User Setup';
+        CannotResolveUserFromConnectionSetupErr: Label 'The integration user that is specified in the Dataverse connection setup does not exist.';
+        RecordMustBeCoupledErr: Label '%1 %2 must be coupled to a Dataverse record.', Comment = '%1 = table caption, %2 = primary key value';
+        RecordMustBeCoupledExtErr: Label '%1 %2 must be coupled to a %3 record.', Comment = '%1 = BC table caption, %2 = primary key value, %3 - Dataverse table caption';
         RecordNotFoundErr: Label 'Cannot find %1 in table %2.', Comment = '%1 = The lookup value when searching for the source record, %2 = Source table caption';
         ContactMustBeRelatedToCustomerOrVendorErr: Label 'The contact %1 must have a contact company that has a business relation to a customer or vendor.', Comment = '%1 = Contact No.';
         NewCodePatternTxt: Label 'SP NO. %1', Locked = true;
         SalespersonPurchaserCodeFilterLbl: Label 'SP NO. 0*', Locked = true;
-        CouplingsNeedToBeResetErr: Label 'Common Data Service integration is enabled. The existing couplings need to be reset to enable other companies access to records coupled to the company being deleted.';
+        CouplingsNeedToBeResetErr: Label 'Dataverse integration is enabled. The existing couplings need to be reset to enable other companies access to records coupled to the company being deleted.';
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"CRM Integration Management", 'OnInitCDSConnection', '', true, true)]
     local procedure HandleOnInitCDSConnection(var ConnectionName: Text; var handled: Boolean)
@@ -725,7 +725,7 @@ codeunit 7205 "CDS Int. Table. Subscriber"
                 RecRef.GetTable(Vendor);
                 IntegrationTableMapping.GET('VENDOR');
                 RecordModifiedAfterLastSync := IntegrationRecSynchInvoke.WasModifiedAfterLastSynch(IntegrationTableMapping, RecRef);
-                Vendor."Primary Contact No." := Vendor."No.";
+                Vendor."Primary Contact No." := Contact."No.";
                 Vendor.Modify();
                 if not RecordModifiedAfterLastSync then begin
                     CRMIntegrationRecord.SetRange("Integration ID", Vendor.SystemId);

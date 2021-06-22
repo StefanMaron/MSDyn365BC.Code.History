@@ -1,4 +1,4 @@
-codeunit 99000813 "Carry Out Action"
+﻿codeunit 99000813 "Carry Out Action"
 {
     Permissions = TableData "Prod. Order Capacity Need" = rid;
     TableNo = "Requisition Line";
@@ -881,6 +881,7 @@ codeunit 99000813 "Carry Out Action"
             NextLineNo := 10000;
 
         TransLine.Init();
+        OnInsertTransLineOnAfterTransLineInit(TransLine, ReqLine);
         TransLine.BlockDynamicTracking(true);
         TransLine."Document No." := TransHeader."No.";
         TransLine."Line No." := NextLineNo;
@@ -1708,6 +1709,11 @@ codeunit 99000813 "Carry Out Action"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertTransHeaderOnBeforeTransHeaderModify(var TransHeader: Record "Transfer Header"; ReqLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertTransLineOnAfterTransLineInit(var TransLine: Record "Transfer Line"; ReqLine: Record "Requisition Line")
     begin
     end;
 

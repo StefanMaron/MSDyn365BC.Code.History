@@ -11,6 +11,10 @@ codeunit 134156 "Service Table Fields UT"
     var
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryService: Codeunit "Library - Service";
+        LibrarySales: Codeunit "Library - Sales";
+        Assert: Codeunit Assert;
+        IsInitialized: Boolean;
 
     [Test]
     [Scope('OnPrem')]
@@ -33,6 +37,56 @@ codeunit 134156 "Service Table Fields UT"
         ServiceCrMemoHeader.TestField(
           "Amount Including VAT",
           ServiceCrMemoLine[2]."Amount Including VAT" + ServiceCrMemoLine[3]."Amount Including VAT");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RunIsCreditTypeOnServiceDocumentsUT()
+    var
+        ServiceHeader: Record "Service Header";
+        CustomerNo: Code[20];
+    begin
+        // [SCENARIO 378446] Run IsCreditType function of Service Header table on Service Documents.
+        Initialize();
+        CustomerNo := LibrarySales.CreateCustomerNo();
+
+        // [GIVEN] Service Invoice.
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, CustomerNo);
+
+        // [WHEN] Run IsCreditType function on Service Invoice.
+        // [THEN] The function retuns False.
+        Assert.IsFalse(ServiceHeader.IsCreditDocType(), '');
+
+        // [GIVEN] Service Order.
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CustomerNo);
+
+        // [WHEN] Run IsCreditType function on Service Order.
+        // [THEN] The function retuns False.
+        Assert.IsFalse(ServiceHeader.IsCreditDocType(), '');
+
+        // [GIVEN] Service Quote.
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Quote, CustomerNo);
+
+        // [WHEN] Run IsCreditType function on Service Quote.
+        // [THEN] The function retuns False.
+        Assert.IsFalse(ServiceHeader.IsCreditDocType(), '');
+
+        // [GIVEN] Service Credit Memo.
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", CustomerNo);
+
+        // [WHEN] Run IsCreditType function on Service Credit Memo.
+        // [THEN] The function retuns True.
+        Assert.IsTrue(ServiceHeader.IsCreditDocType(), '');
+    end;
+
+    local procedure Initialize()
+    begin
+        if IsInitialized then
+            exit;
+
+        LibraryService.SetupServiceMgtNoSeries();
+
+        IsInitialized := true;
     end;
 
     local procedure MockServiceCrMemoHeader(var ServiceCrMemoHeader: Record "Service Cr.Memo Header")

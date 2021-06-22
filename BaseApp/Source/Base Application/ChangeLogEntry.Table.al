@@ -190,6 +190,7 @@ table 405 "Change Log Entry"
         end;
     end;
 
+    [Obsolete('Replaced by GetFullPrimaryKeyFriendlyName procedure.', '18.0')]
     procedure GetPrimaryKeyFriendlyName(): Text[250]
     var
         RecRef: RecordRef;
@@ -207,6 +208,33 @@ table 405 "Change Log Entry"
         RecRef.SetPosition("Primary Key");
         FriendlyName := RecRef.GetPosition(true);
         RecRef.Close;
+
+        FriendlyName := DelChr(FriendlyName, '=', '()');
+        p := StrPos(FriendlyName, 'CONST');
+        while p > 0 do begin
+            FriendlyName := DelStr(FriendlyName, p, 5);
+            p := StrPos(FriendlyName, 'CONST');
+        end;
+        exit(FriendlyName);
+    end;
+
+    procedure GetFullPrimaryKeyFriendlyName(): Text
+    var
+        RecRef: RecordRef;
+        FriendlyName: Text;
+        p: Integer;
+    begin
+        if "Primary Key" = '' then
+            exit('');
+
+        // Retain existing formatting of old data
+        if (StrPos("Primary Key", 'CONST(') = 0) and (StrPos("Primary Key", '0(') = 0) then
+            exit("Primary Key");
+
+        RecRef.Open("Table No.");
+        RecRef.SetPosition("Primary Key");
+        FriendlyName := RecRef.GetPosition(true);
+        RecRef.Close();
 
         FriendlyName := DelChr(FriendlyName, '=', '()');
         p := StrPos(FriendlyName, 'CONST');

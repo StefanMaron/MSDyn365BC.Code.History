@@ -64,6 +64,22 @@ table 7001 "Price List Line"
                 PriceSource.Validate("Parent Source No.", "Parent Source No.");
                 CopyFrom(PriceSource);
             end;
+
+            trigger OnLookup()
+            var
+                JobPriceSource: Record "Price Source";
+            begin
+                if "Source Type" <> "Source Type"::"Job Task" then
+                    exit;
+
+                JobPriceSource."Source Group" := JobPriceSource."Source Group"::Job;
+                JobPriceSource."Source Type" := "Price Source Type"::Job;
+                if JobPriceSource.LookupNo() then begin
+                    "Parent Source No." := JobPriceSource."Source No.";
+                    "Source No." := '';
+                    TestHeadersValue(FieldNo("Parent Source No."));
+                end;
+            end;
         }
         field(6; "Source ID"; Guid)
         {
@@ -430,6 +446,12 @@ table 7001 "Price List Line"
         }
     }
 
+    trigger OnDelete()
+    begin
+        if Status = Status::Active then
+            Error(CannotDeleteActivePriceListLineErr, "Price List Code", "Line No.");
+    end;
+
     protected var
         PriceListHeader: Record "Price List Header";
         PriceAsset: Record "Price Asset";
@@ -440,6 +462,7 @@ table 7001 "Price List Line"
         FieldNotAllowedForAmountTypeErr: Label 'Field %1 is not allowed in the price list line where %2 is %3.',
             Comment = '%1 - the field caption; %2 - Amount Type field caption; %3 - amount type value: Discount or Price';
         LineSourceTypeErr: Label 'cannot be set to %1 if the header''s source type is %2.', Comment = '%1 and %2 - the source type value.';
+        CannotDeleteActivePriceListLineErr: Label 'You cannot delete the active price list line %1 %2.', Comment = '%1 - the price list code, %2 - line no';
 
     procedure IsAssetItem(): Boolean;
     begin
@@ -448,7 +471,7 @@ table 7001 "Price List Line"
 
     procedure IsAssetResource(): Boolean;
     begin
-        exit("Asset Type" = "Asset Type"::Resource);
+        exit("Asset Type" in ["Asset Type"::Resource, "Asset Type"::"Resource Group"]);
     end;
 
     procedure IsEditable() Result: Boolean;
@@ -495,20 +518,27 @@ table 7001 "Price List Line"
             Error(FieldNotAllowedForAmountTypeErr, FldCaption, FieldCaption("Amount Type"), Format("Amount Type"));
     end;
 
-    procedure CopyFrom(PriceListHeader: Record "Price List Header")
+    procedure CopySourceFrom(PriceListHeader: Record "Price List Header")
     begin
-        "Price Type" := PriceListHeader."Price Type";
-        Status := PriceListHeader.Status;
         "Source Type" := PriceListHeader."Source Type";
         "Parent Source No." := PriceListHeader."Parent Source No.";
         "Source No." := PriceListHeader."Source No.";
         "Source ID" := PriceListHeader."Source ID";
+    end;
+
+    procedure CopyFrom(PriceListHeader: Record "Price List Header")
+    begin
+        "Price Type" := PriceListHeader."Price Type";
+        Status := PriceListHeader.Status;
+        if not PriceListHeader."Allow Updating Defaults" then begin
+            CopySourceFrom(PriceListHeader);
+            "Starting Date" := PriceListHeader."Starting Date";
+            "Ending Date" := PriceListHeader."Ending Date";
+            "Currency Code" := PriceListHeader."Currency Code";
+        end;
         if PriceListHeader."Amount Type" <> "Price Amount Type"::Any then
             Validate("Amount Type", PriceListHeader."Amount Type");
 
-        "Starting Date" := PriceListHeader."Starting Date";
-        "Ending Date" := PriceListHeader."Ending Date";
-        "Currency Code" := PriceListHeader."Currency Code";
         "Price Includes VAT" := PriceListHeader."Price Includes VAT";
         "VAT Bus. Posting Gr. (Price)" := PriceListHeader."VAT Bus. Posting Gr. (Price)";
         "Allow Invoice Disc." := PriceListHeader."Allow Invoice Disc.";
@@ -669,37 +699,40 @@ table 7001 "Price List Line"
         case FieldId of
             FieldNo(Status):
                 TestField(Status, PriceListHeader.Status);
-            FieldNo("Currency Code"):
-                TestField("Currency Code", PriceListHeader."Currency Code");
-            FieldNo("Starting Date"):
-                TestField("Starting Date", PriceListHeader."Starting Date");
-            FieldNo("Ending Date"):
-                TestField("Ending Date", PriceListHeader."Ending Date");
             FieldNo("Price Includes VAT"):
                 TestField("Price Includes VAT", PriceListHeader."Price Includes VAT");
             FieldNo("VAT Bus. Posting Gr. (Price)"):
                 TestField("VAT Bus. Posting Gr. (Price)", PriceListHeader."VAT Bus. Posting Gr. (Price)");
-            FieldNo("Source Type"):
-                if PriceListHeader."Source No." <> '' then
-                    TestField("Source Type", PriceListHeader."Source Type")
-                else begin
-                    LineSourceTypeError :=
-                        StrSubstNo(LineSourceTypeErr, "Source Type", PriceListHeader."Source Type");
-                    if "Source Type".AsInteger() < PriceListHeader."Source Type".AsInteger() then
-                        FieldError("Source Type", LineSourceTypeError);
-                    if not IsSourceTypeSupported() then
-                        FieldError("Source Type", LineSourceTypeError);
-                end;
-            FieldNo("Source No."):
-                if PriceListHeader."Source No." <> '' then
-                    TestField("Source No.", PriceListHeader."Source No.");
-            FieldNo("Source Id"):
-                if PriceListHeader."Source No." <> '' then
-                    TestField("Source Id", PriceListHeader."Source Id");
-            FieldNo("Parent Source No."):
-                if PriceListHeader."Parent Source No." <> '' then
-                    TestField("Parent Source No.", PriceListHeader."Parent Source No.");
         end;
+        if not PriceListHeader."Allow Updating Defaults" then
+            case FieldId of
+                FieldNo("Currency Code"):
+                    TestField("Currency Code", PriceListHeader."Currency Code");
+                FieldNo("Starting Date"):
+                    TestField("Starting Date", PriceListHeader."Starting Date");
+                FieldNo("Ending Date"):
+                    TestField("Ending Date", PriceListHeader."Ending Date");
+                FieldNo("Source Type"):
+                    if PriceListHeader."Source No." <> '' then
+                        TestField("Source Type", PriceListHeader."Source Type")
+                    else begin
+                        LineSourceTypeError :=
+                            StrSubstNo(LineSourceTypeErr, "Source Type", PriceListHeader."Source Type");
+                        if "Source Type".AsInteger() < PriceListHeader."Source Type".AsInteger() then
+                            FieldError("Source Type", LineSourceTypeError);
+                        if not IsSourceTypeSupported() then
+                            FieldError("Source Type", LineSourceTypeError);
+                    end;
+                FieldNo("Source No."):
+                    if PriceListHeader."Source No." <> '' then
+                        TestField("Source No.", PriceListHeader."Source No.");
+                FieldNo("Source Id"):
+                    if PriceListHeader."Source No." <> '' then
+                        TestField("Source Id", PriceListHeader."Source Id");
+                FieldNo("Parent Source No."):
+                    if PriceListHeader."Parent Source No." <> '' then
+                        TestField("Parent Source No.", PriceListHeader."Parent Source No.");
+            end;
     end;
 
     local procedure TestStatusDraft()

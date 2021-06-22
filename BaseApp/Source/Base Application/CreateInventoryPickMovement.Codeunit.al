@@ -628,7 +628,9 @@ codeunit 7322 "Create Inventory Pick/Movement"
 
     procedure RunCreatePickOrMoveLine(NewWhseActivLine: Record "Warehouse Activity Line"; var RemQtyToPickBase: Decimal; OutstandingQtyBase: Decimal; ReservationExists: Boolean)
     begin
+        OnBeforeRunCreatePickOrMoveLine(WhseActivHeader, WhseRequest);
         CreatePickOrMoveLine(NewWhseActivLine, RemQtyToPickBase, OutstandingQtyBase, ReservationExists);
+        OnAfterRunCreatePickOrMoveLine(WhseActivHeader, WhseRequest);
     end;
 
     local procedure CreatePickOrMoveLine(NewWhseActivLine: Record "Warehouse Activity Line"; var RemQtyToPickBase: Decimal; OutstandingQtyBase: Decimal; ReservationExists: Boolean)
@@ -1810,6 +1812,16 @@ codeunit 7322 "Create Inventory Pick/Movement"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeWhseItemTrackingLineInsert(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; TrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterRunCreatePickOrMoveLine(var WhseActivHeader: Record "Warehouse Activity Header"; var WhseRequest: Record "Warehouse Request")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunCreatePickOrMoveLine(var WhseActivHeader: Record "Warehouse Activity Header"; var WhseRequest: Record "Warehouse Request")
     begin
     end;
 

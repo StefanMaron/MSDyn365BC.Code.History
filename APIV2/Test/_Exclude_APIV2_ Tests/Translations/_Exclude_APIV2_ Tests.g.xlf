@@ -568,6 +568,21 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Purchase Invoices E2E - NamedType InvoiceStatusErr</note>
         </trans-unit>
+        <trans-unit id="Codeunit 2250018065 - NamedType 944609706" size-unit="char" translate="yes" xml:space="preserve">
+          <source>purchaseReceipts</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Purchase Receipts E2E - NamedType ReceiptServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2917974457 - NamedType 944609706" size-unit="char" translate="yes" xml:space="preserve">
+          <source>purchaseReceipts</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Purch. Rcpt. Lines E2E - NamedType ReceiptServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2917974457 - NamedType 4076106517" size-unit="char" translate="yes" xml:space="preserve">
+          <source>purchaseReceiptLines</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Purch. Rcpt. Lines E2E - NamedType ReceiptServiceLinesNameTxt</note>
+        </trans-unit>
         <trans-unit id="Codeunit 1064767583 - NamedType 866661614" size-unit="char" translate="yes" xml:space="preserve">
           <source>retainedEarningsStatement</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -822,6 +837,21 @@
           <source>Response body should be empty.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Quotes E2E - NamedType NotEmptyResponseErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3761880774 - NamedType 321285238" size-unit="char" translate="yes" xml:space="preserve">
+          <source>salesShipments</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Ship. Lines E2E - NamedType ShipmentServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3761880774 - NamedType 2088495305" size-unit="char" translate="yes" xml:space="preserve">
+          <source>salesShipmentLines</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Ship. Lines E2E - NamedType ShipmentServiceLinesNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1847149212 - NamedType 321285238" size-unit="char" translate="yes" xml:space="preserve">
+          <source>salesShipments</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Sales Shipments E2E - NamedType ShipmentServiceNameTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 3499984185 - NamedType 1427565258" size-unit="char" translate="yes" xml:space="preserve">
           <source>My description.</source>

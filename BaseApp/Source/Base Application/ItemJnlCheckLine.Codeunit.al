@@ -107,15 +107,7 @@ codeunit 21 "Item Jnl.-Check Line"
             end;
 
             if not "Phys. Inventory" then begin
-                if "Entry Type" = "Entry Type"::Output then begin
-                    if ("Output Quantity (Base)" = 0) and ("Scrap Quantity (Base)" = 0) and
-                       TimeIsEmpty and ("Invoiced Qty. (Base)" = 0)
-                    then
-                        Error(Text007)
-                end else begin
-                    if ("Quantity (Base)" = 0) and ("Invoiced Qty. (Base)" = 0) then
-                        Error(Text007);
-                end;
+                CheckEmptyQuantity(ItemJnlLine);
                 TestField("Qty. (Calculated)", 0);
                 TestField("Qty. (Phys. Inventory)", 0);
             end else
@@ -182,6 +174,27 @@ codeunit 21 "Item Jnl.-Check Line"
         end;
 
         OnAfterCheckItemJnlLine(ItemJnlLine, CalledFromInvtPutawayPick, CalledFromAdjustment);
+    end;
+
+    local procedure CheckEmptyQuantity(ItemJnlLine: Record "Item Journal Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckEmptyQuantity(ItemJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        with ItemJnlLine do
+            if "Entry Type" = "Entry Type"::Output then begin
+                if ("Output Quantity (Base)" = 0) and ("Scrap Quantity (Base)" = 0) and
+                   TimeIsEmpty and ("Invoiced Qty. (Base)" = 0)
+                then
+                    Error(Text007)
+            end else begin
+                if ("Quantity (Base)" = 0) and ("Invoiced Qty. (Base)" = 0) then
+                    Error(Text007);
+            end;
     end;
 
     local procedure GetLocation(LocationCode: Code[10])
@@ -550,6 +563,11 @@ codeunit 21 "Item Jnl.-Check Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckPhysInventory(ItemJnlLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckEmptyQuantity(ItemJnlLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
 }

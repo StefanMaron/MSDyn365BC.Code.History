@@ -60,7 +60,6 @@ table 9657 "Custom Report Selection"
         {
             CalcFormula = Lookup("Custom Report Layout".Description WHERE(Code = FIELD("Custom Report Layout Code")));
             Caption = 'Custom Report Description';
-            Editable = false;
             FieldClass = FlowField;
         }
         field(9; "Send To Email"; Text[200])

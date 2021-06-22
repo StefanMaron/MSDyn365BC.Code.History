@@ -61,7 +61,7 @@ page 5330 "CRM Connection Setup"
                 {
                     ApplicationArea = Suite;
                     Caption = 'Enabled', Comment = 'Name of tickbox which shows whether the connection is enabled or disabled';
-                    ToolTip = 'Specifies if the connection to Dynamics 365 Sales is enabled. When you check this checkbox, you will be prompted to sign-in to Common Data Service with an administrator user account. The account will be used one time to give consent to, install and configure applications and components that the integration requires.';
+                    ToolTip = 'Specifies if the connection to Dynamics 365 Sales is enabled. When you check this checkbox, you will be prompted to sign-in to Dataverse with an administrator user account. The account will be used one time to give consent to, install and configure applications and components that the integration requires.';
 
                     trigger OnValidate()
                     begin
@@ -628,15 +628,15 @@ page 5330 "CRM Connection Setup"
         SynchronizeModifiedQst: Label 'This will synchronize all modified records in all integration table mappings.\The synchronization will run in the background so you can continue with other tasks.\\Do you want to continue?';
         ReadyScheduledSynchJobsTok: Label '%1 of %2', Comment = '%1 = Count of scheduled job queue entries in ready or in process state, %2 count of all scheduled jobs';
         ScheduledSynchJobsRunning: Text;
-        CurrentuserIsMappedToCRMUserMsg: Label '%2 user (%1) is mapped to a %3 user.', Comment = '%1 = Current User ID, %2 - product name, %3 = CDS service name';
-        CurrentuserIsNotMappedToCRMUserMsg: Label 'Because the %2 Users Must Map to %4 Users field is set, %3 integration is not enabled for %1.\\To enable %3 integration for %2 user %1, the authentication email must match the primary email of a %3 user.', Comment = '%1 = Current User ID, %2 - product name, %3 = CRM product name, %4 = CDS service name';
+        CurrentuserIsMappedToCRMUserMsg: Label '%2 user (%1) is mapped to a %3 user.', Comment = '%1 = Current User ID, %2 - product name, %3 = Dataverse service name';
+        CurrentuserIsNotMappedToCRMUserMsg: Label 'Because the %2 Users Must Map to %4 Users field is set, %3 integration is not enabled for %1.\\To enable %3 integration for %2 user %1, the authentication email must match the primary email of a %3 user.', Comment = '%1 = Current User ID, %2 - product name, %3 = CRM product name, %4 = Dataverse service name';
         EnableServiceQst: Label 'The %1 is not enabled. Are you sure you want to exit?', Comment = '%1 = This Page Caption (Microsoft Dynamics 365 Connection Setup)';
         PartialScheduledJobsAreRunningMsg: Label 'An active job queue is available but only %1 of the %2 scheduled synchronization jobs are ready or in process.', Comment = '%1 = Count of scheduled job queue entries in ready or in process state, %2 count of all scheduled jobs';
         JobQueueIsNotRunningMsg: Label 'There is no job queue started. Scheduled synchronization jobs require an active job queue to process jobs.\\Contact your administrator to get a job queue configured and started.';
         AllScheduledJobsAreRunningMsg: Label 'An job queue is started and all scheduled synchronization jobs are ready or already processing.';
         SetupSuccessfulMsg: Label 'The default setup for %1 synchronization has completed successfully.', Comment = '%1 = CRM product name';
         Office365AuthTxt: Label 'AuthType=Office365', Locked = true;
-        CategoryTok: Label 'AL Common Data Service Integration', Locked = true;
+        CategoryTok: Label 'AL Dataverse Integration', Locked = true;
         CRMConnEnabledOnPageTxt: Label 'CRM Connection has been enabled from CRMConnectionSetupPage', Locked = true;
         ScheduledSynchJobsRunningStyleExpr: Text;
         CRMSolutionInstalledStyleExpr: Text;

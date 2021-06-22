@@ -380,10 +380,10 @@ table 5330 "CRM Connection Setup"
         UserHasNoRolesErr: Label 'User %1 has no user roles assigned on server %2.', Comment = '%1 user name, %2 - server address';
         BCIntegrationAdministratorRoleIdTxt: Label '{8c8d4f51-a72b-e511-80d9-3863bb349780}', Locked = true;
         BCIntegrationUserRoleIdTxt: Label '{6f960e32-a72b-e511-80d9-3863bb349780}', Locked = true;
-        CDSConnectionMustBeEnabledErr: Label 'You must enable the connection to Common Data Service before you can set up the connection to %1.\\Open the page %2 to enable the connection to Common Data Service.', Comment = '%1 = CRM product name, %2 = Common Data Service Connection Setup page caption.';
+        CDSConnectionMustBeEnabledErr: Label 'You must enable the connection to Dataverse before you can set up the connection to %1.\\Open the page %2 to enable the connection to Dataverse.', Comment = '%1 = CRM product name, %2 = Dataverse Connection Setup page caption.';
         DeploySucceedMsg: Label 'The solution, user roles, and entities have been deployed.';
         DeployFailedMsg: Label 'The deployment of the solution, user roles, and entities failed.';
-        CategoryTok: Label 'AL Common Data Service Integration', Locked = true;
+        CategoryTok: Label 'AL Dataverse Integration', Locked = true;
         CRMConnDisabledTxt: Label 'CRM connection has been disabled.', Locked = true;
         CRMConnEnabledTxt: Label 'CRM connection has been enabled.', Locked = true;
         IsolatedStorageManagement: Codeunit "Isolated Storage Management";

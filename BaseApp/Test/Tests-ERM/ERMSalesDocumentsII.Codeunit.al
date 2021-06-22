@@ -3699,6 +3699,64 @@ codeunit 134386 "ERM Sales Documents II"
         Assert.ExpectedError(ExpectedRenameErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ItemLedgerentryCountryRegionAfterPostingSalesDocumentWithoutShipToCode()
+    var
+        CountryRegion: Record "Country/Region";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [SCENARIO 377153] Posting Sales document with Ship-to Country/Region code and empty Ship-to code creates Item Ledger with Country/Region code.
+        Initialize();
+
+        // [GIVEN] Sales document with Ship-to Country/Region code and empty Ship-to code.
+        CreateSalesDocument(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo, SalesLine.Type::Item, '');
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        SalesHeader.Validate("Ship-to Country/Region Code", CountryRegion.Code);
+        SalesHeader.Modify(true);
+
+        // [WHEN] Sales document is posted.
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] Resulting Item Ledger entry has Country/Region code.
+        FindItemLedgerEntry(
+          ItemLedgerEntry, SalesLine."No.", ItemLedgerEntry."Entry Type"::Sale, ItemLedgerEntry."Document Type"::"Sales Shipment");
+        ItemLedgerEntry.TestField("Country/Region Code", CountryRegion.Code);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ItemLedgerentryCountryRegionAfterPostingSalesReturnOrderWithSellToCountryRegion()
+    var
+        Customer: Record Customer;
+        CountryRegion: Record "Country/Region";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [SCENARIO 377153] Posting Sales Return Order with Sell-To Country/Region code creates Item Ledger with Country/Region code.
+        Initialize();
+
+        // [GIVEN] Sales Return Order with Sell-to Country/Region code and empty Ship-to code.
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Country/Region Code", CountryRegion.Code);
+        Customer.Modify(true);
+        CreateSalesDocument(
+            SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", Customer."No.", SalesLine.Type::Item, '');
+
+        // [WHEN] Sales Return Order is posted.
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] Resulting Item Ledger entry has Country/Region code.
+        FindItemLedgerEntry(
+          ItemLedgerEntry, SalesLine."No.", ItemLedgerEntry."Entry Type"::Sale, ItemLedgerEntry."Document Type"::"Sales Return Receipt");
+        ItemLedgerEntry.TestField("Country/Region Code", CountryRegion.Code);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -4673,6 +4731,14 @@ codeunit 134386 "ERM Sales Documents II"
         Customer.Modify(true);
     end;
 
+    local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; SalesLineNo: Code[20]; EntryType: Option; DocumentType: Option)
+    begin
+        ItemLedgerEntry.SetRange("Item No.", SalesLineNo);
+        ItemLedgerEntry.SetRange("Entry Type", EntryType);
+        ItemLedgerEntry.SetRange("Document Type", DocumentType);
+        ItemLedgerEntry.FindFirst();
+    end;
+
     local procedure FindItemTrackingCode(): Code[10]
     var
         ItemTrackingCode: Record "Item Tracking Code";
@@ -4697,7 +4763,7 @@ codeunit 134386 "ERM Sales Documents II"
             SetRange("Document Type", DocumentType);
             SetRange("Document No.", DocumentNo);
             SetFilter(Type, '<>%1', Type::" ");
-            FindSet;
+            FindSet();
         end;
     end;
 

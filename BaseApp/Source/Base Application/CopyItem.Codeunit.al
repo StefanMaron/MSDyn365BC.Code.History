@@ -209,13 +209,12 @@
             ItemUnitOfMeasure.SetRange("Item No.", FromItem."No.");
             RecRef.GetTable(ItemUnitOfMeasure);
             CopyItemRelatedTableFromRecRef(RecRef, ItemUnitOfMeasure.FieldNo("Item No."), FromItem."No.", ToItem."No.");
-        end else
-            if CopyItemBuffer."General Item Information" then begin
-                ToItem."Base Unit of Measure" := '';
-                ToItem."Sales Unit of Measure" := '';
-                ToItem."Purch. Unit of Measure" := '';
-                ToItem."Put-away Unit of Measure Code" := '';
-            end;
+        end else begin
+            ToItem."Base Unit of Measure" := '';
+            ToItem."Sales Unit of Measure" := '';
+            ToItem."Purch. Unit of Measure" := '';
+            ToItem."Put-away Unit of Measure Code" := '';
+        end;
     end;
 
     local procedure CopyItemVariants(FromItemNo: Code[20]; ToItemNo: Code[20]; ToItemId: Guid)
@@ -328,11 +327,10 @@
         if CopyItemBuffer.Dimensions then begin
             ToItem."Global Dimension 1 Code" := FromItem."Global Dimension 1 Code";
             ToItem."Global Dimension 2 Code" := FromItem."Global Dimension 2 Code";
-        end else
-            if CopyItemBuffer."General Item Information" then begin
-                ToItem."Global Dimension 1 Code" := '';
-                ToItem."Global Dimension 2 Code" := '';
-            end;
+        end else begin
+            ToItem."Global Dimension 1 Code" := '';
+            ToItem."Global Dimension 2 Code" := '';
+        end;
     end;
 
     local procedure CopyTroubleshootingSetup(FromItemNo: Code[20]; ToItemNo: Code[20])

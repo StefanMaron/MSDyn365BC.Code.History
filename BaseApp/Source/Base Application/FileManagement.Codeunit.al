@@ -873,6 +873,11 @@ codeunit 419 "File Management"
         exit('');
     end;
 
+#if CLEAN17
+    [Scope('OnPrem')]
+#else
+    [Obsolete('Business Central online uses RunOnClient from .NET, which caused the Web client to crash. The OnPrem scope will be applied to the function.', '17.3')]
+#endif
     procedure SelectFolderDialog(WindowTitle: Text; var SelectedFolder: Text): Boolean
     var
         [RunOnClient]
@@ -989,6 +994,11 @@ codeunit 419 "File Management"
         StreamWriter.Close;
     end;
 
+#if CLEAN17
+    [Scope('OnPrem')]
+#else
+    [Obsolete('Business Central online uses RunOnClient from .NET, which caused the Web client to crash. The OnPrem scope will be applied to the function.', '17.3')]
+#endif
     procedure BrowseForFolderDialog(WindowTitle: Text[50]; DefaultFolderName: Text; ShowNewFolderButton: Boolean): Text
     var
         [RunOnClient]

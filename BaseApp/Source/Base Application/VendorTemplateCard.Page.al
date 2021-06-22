@@ -160,6 +160,7 @@ page 1344 "Vendor Template Card"
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies how the vendor calculates finance charges.';
+                    Visible = false;
                 }
                 field("Block Payment Tolerance"; "Block Payment Tolerance")
                 {

@@ -142,7 +142,13 @@ page 1651 "Curr. Exch. Rate Service Card"
     begin
         WebServiceURL := GetWebServiceURL(ServiceURL);
         if WebServiceURL <> '' then
-            GenerateXMLStructure;
+            if not GenerateXMLStructure() then begin
+                if PreviousWebServiceURL <> ServiceUrl then
+                    Message(TheXMLStructureCannotBeReadMsg);
+                PreviousWebServiceURL := ServiceURL;
+                ClearLastError();
+                exit;
+            end;
 
         UpdateSimpleMappingsPart;
         UpdateBasedOnEnable;
@@ -182,6 +188,8 @@ page 1651 "Curr. Exch. Rate Service Card"
         NotEnabledAndCurrPageEditable: Boolean;
         EnabledWarningTok: Label 'You must disable the service before you can make changes.';
         DisableEnableQst: Label 'Do you want to disable currency exchange rate service?';
+        TheXMLStructureCannotBeReadMsg: Label 'The XML structure cannot be read. Try to verify if the service is valid.';
+        PreviousWebServiceURL: Text;
         EnabledAndCurrPageEditable: Boolean;
         IsSoftwareAsService: Boolean;
         ShowEnableWarning: Text;
@@ -196,6 +204,7 @@ page 1651 "Curr. Exch. Rate Service Card"
         CurrPage.SimpleDataExchSetup.PAGE.SetSourceToBeMandatory("Web Service URL".HasValue);
     end;
 
+    [TryFunction]
     local procedure GenerateXMLStructure()
     var
         ServiceURL: Text;

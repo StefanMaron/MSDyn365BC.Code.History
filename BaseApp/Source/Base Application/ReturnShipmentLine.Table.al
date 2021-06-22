@@ -609,9 +609,12 @@
             PurchLine."Document Type" := TempPurchLine."Document Type";
             PurchLine."Document No." := TempPurchLine."Document No.";
             PurchLine.Description := StrSubstNo(Text000, "Document No.");
-            OnInsertInvLineFromRetShptLineOnBeforePurchLineInsert(Rec, PurchLine, NextLineNo);
-            PurchLine.Insert();
-            NextLineNo := NextLineNo + 10000;
+            IsHandled := false;
+            OnInsertInvLineFromRetShptLineOnBeforePurchLineInsert(Rec, PurchLine, NextLineNo, IsHandled);
+            if not IsHandled then begin
+                PurchLine.Insert();
+                NextLineNo := NextLineNo + 10000;
+            end;
         end;
 
         OnInsertInvLineFromRetShptLineOnBeforeClearLineNumbers(Rec, PurchLine, NextLineNo, TempPurchLine);
@@ -862,7 +865,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertInvLineFromRetShptLineOnBeforePurchLineInsert(var ReturnShipmentLine: Record "Return Shipment Line"; var PurchaseLine: Record "Purchase Line"; var NextLineNo: Integer)
+    local procedure OnInsertInvLineFromRetShptLineOnBeforePurchLineInsert(var ReturnShipmentLine: Record "Return Shipment Line"; var PurchaseLine: Record "Purchase Line"; var NextLineNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

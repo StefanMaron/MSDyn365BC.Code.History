@@ -1343,7 +1343,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 2252641548 - NamedType 3371301238" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Company Hub</source>
-          <target state="translated">Virksomheds-hub</target>
+          <target state="translated">Virksomhedshub</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit COHUB Core - NamedType ActivityContextTxt</note>
         </trans-unit>
@@ -1427,13 +1427,13 @@
         </trans-unit>
         <trans-unit id="Codeunit 1604991389 - NamedType 3371301238" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Company Hub</source>
-          <target state="translated">Virksomheds-hub</target>
+          <target state="translated">Virksomhedshub</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit COHUB Delete Activity Log - NamedType ActivityContextTxt</note>
         </trans-unit>
         <trans-unit id="Page 2379616563 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Company Hub</source>
-          <target state="translated">Firmahub</target>
+          <target state="translated">Virksomhedshub</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Companies Overview - Property Caption</note>
         </trans-unit>
@@ -1463,7 +1463,7 @@
         </trans-unit>
         <trans-unit id="Page 2379616563 - Action 1268314337 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Show the list of enviroments that you have access to in the Company Hub.</source>
-          <target state="translated">Vis listen over miljøer, som du har adgang til i firmahubben.</target>
+          <target state="translated">Vis listen over miljøer, som du har adgang til i virksomhedshubben.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Companies Overview - Action Manage Environment Links - Property ToolTip</note>
         </trans-unit>
@@ -1523,7 +1523,7 @@
         </trans-unit>
         <trans-unit id="Page 2174524830 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Company Hub</source>
-          <target state="translated">Firmahub</target>
+          <target state="translated">Virksomhedshub</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Company Short Summary - Property Caption</note>
         </trans-unit>
@@ -2339,7 +2339,7 @@
         </trans-unit>
         <trans-unit id="Page 1623714640 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Company Hub</source>
-          <target state="translated">Virksomheds-hub</target>
+          <target state="translated">Virksomhedshub</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Role Center - Property Caption</note>
         </trans-unit>
@@ -2351,7 +2351,7 @@
         </trans-unit>
         <trans-unit id="Page 1623714640 - Action 3084187460 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Company Hub</source>
-          <target state="translated">Firmahub</target>
+          <target state="translated">Virksomhedshub</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Role Center - Action CompanyHub - Property Caption</note>
         </trans-unit>
@@ -2387,7 +2387,7 @@
         </trans-unit>
         <trans-unit id="Page 1623714640 - Action 1268314337 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Show the list of enviroments that you have access to in the Company Hub.</source>
-          <target state="translated">Vis listen over miljøer, som du har adgang til i firmahubben.</target>
+          <target state="translated">Vis listen over miljøer, som du har adgang til i virksomhedshubben.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Role Center - Action Manage Environment Links - Property ToolTip</note>
         </trans-unit>
@@ -2891,13 +2891,13 @@
         </trans-unit>
         <trans-unit id="Profile 3084187460 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Company Hub</source>
-          <target state="translated">Firmahub</target>
+          <target state="translated">Virksomhedshub</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Profile CompanyHub - Property Caption</note>
         </trans-unit>
         <trans-unit id="Profile 3084187460 - Property 4111922599" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>For users that primarily do work in other companies. Company Hub gives you a list of links to the companies you work in.</source>
-          <target state="translated">Til brugere, der primært arbejder i andre virksomheder. Firmahubben giver dig en oversigt over link til de virksomheder, du arbejder i.</target>
+          <target state="translated">Til brugere, der primært arbejder i andre virksomheder. Virksomhedshuben giver dig en oversigt over link til de virksomheder, du arbejder i.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Profile CompanyHub - Property ProfileDescription</note>
         </trans-unit>

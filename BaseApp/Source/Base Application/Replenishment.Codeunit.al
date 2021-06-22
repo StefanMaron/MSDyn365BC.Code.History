@@ -339,7 +339,7 @@ codeunit 7308 Replenishment
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeFindReplenishmtBin(var TempWhseWkshLine: Record "Whse. Worksheet Line" temporary; ToBinContent: Record "Bin Content"; AllowBreakBulk: Boolean; NextLineNo: Integer; WhseWkshTemplateName: Code[10]; WhseWkshName: Code[10]; LocationCode: Code[10]; DoNotFillQtytoHandle: Boolean; RemainQtyToReplenishBase: Decimal; var IsHandled: Boolean)
+    local procedure OnBeforeFindReplenishmtBin(var TempWhseWkshLine: Record "Whse. Worksheet Line" temporary; ToBinContent: Record "Bin Content"; AllowBreakBulk: Boolean; var  NextLineNo: Integer; WhseWkshTemplateName: Code[10]; WhseWkshName: Code[10]; LocationCode: Code[10]; DoNotFillQtytoHandle: Boolean; RemainQtyToReplenishBase: Decimal; var IsHandled: Boolean)
     begin
     end;
 }

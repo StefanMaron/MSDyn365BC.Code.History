@@ -356,7 +356,7 @@
                 until Next = 0;
         end;
 
-        OnAfterCalcBestUnitPrice(SalesPrice);
+        OnAfterCalcBestUnitPrice(SalesPrice, BestSalesPrice);
 
         // No price found in agreement
         if not BestSalesPriceFound then begin
@@ -1628,7 +1628,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCalcBestUnitPrice(var SalesPrice: Record "Sales Price")
+    local procedure OnAfterCalcBestUnitPrice(var SalesPrice: Record "Sales Price"; var BestSalesPrice: Record "Sales Price")
     begin
     end;
 

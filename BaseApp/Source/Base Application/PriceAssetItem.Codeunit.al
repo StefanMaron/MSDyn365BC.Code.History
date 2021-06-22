@@ -1,4 +1,4 @@
-codeunit 7041 "Price Asset - Item" implements "Price Asset"
+﻿codeunit 7041 "Price Asset - Item" implements "Price Asset"
 {
     var
         Item: Record Item;
@@ -132,6 +132,7 @@ codeunit 7041 "Price Asset - Item" implements "Price Asset"
             PriceAssetList.SetLevel(PriceAsset.Level);
             PriceAssetList.Add(PriceAsset."Asset Type"::"Item Discount Group", Item."Item Disc. Group");
         end;
+        OnAfterPutRelatedAssetsToList(PriceAsset, PriceAssetList);
     end;
 
     procedure FillFromBuffer(var PriceAsset: Record "Price Asset"; PriceCalculationBuffer: Record "Price Calculation Buffer")
@@ -177,6 +178,11 @@ codeunit 7041 "Price Asset - Item" implements "Price Asset"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFillBestLine(PriceCalculationBuffer: Record "Price Calculation Buffer"; AmountType: Enum "Price Amount Type"; var PriceListLine: Record "Price List Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPutRelatedAssetsToList(PriceAsset: Record "Price Asset"; var PriceAssetList: Codeunit "Price Asset List")
     begin
     end;
 }

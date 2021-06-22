@@ -31,7 +31,7 @@
     procedure ApplyVendorTemplate(var Vendor: Record Vendor; VendorTempl: Record "Vendor Templ.")
     begin
         ApplyTemplate(Vendor, VendorTempl);
-        InsertDimensions(Vendor."No.", VendorTempl.Code);
+        InsertDimensions(Vendor."No.", VendorTempl.Code, Database::Vendor, Database::"Vendor Templ.");
     end;
 
     [Obsolete('Replaced by ApplyVendorTemplate with different set of parameters', '18.0')]
@@ -101,18 +101,18 @@
         exit(false);
     end;
 
-    local procedure InsertDimensions(VendorNo: Code[20]; VendorTemplCode: Code[20])
+    local procedure InsertDimensions(DestNo: Code[20]; SourceNo: Code[20]; DestTableId: Integer; SourceTableId: Integer)
     var
         SourceDefaultDimension: Record "Default Dimension";
         DestDefaultDimension: Record "Default Dimension";
     begin
-        SourceDefaultDimension.SetRange("Table ID", Database::"Vendor Templ.");
-        SourceDefaultDimension.SetRange("No.", VendorTemplCode);
+        SourceDefaultDimension.SetRange("Table ID", SourceTableId);
+        SourceDefaultDimension.SetRange("No.", SourceNo);
         if SourceDefaultDimension.FindSet() then
             repeat
                 DestDefaultDimension.Init();
-                DestDefaultDimension.Validate("Table ID", Database::Vendor);
-                DestDefaultDimension.Validate("No.", VendorNo);
+                DestDefaultDimension.Validate("Table ID", DestTableId);
+                DestDefaultDimension.Validate("No.", DestNo);
                 DestDefaultDimension.Validate("Dimension Code", SourceDefaultDimension."Dimension Code");
                 DestDefaultDimension.Validate("Dimension Value Code", SourceDefaultDimension."Dimension Value Code");
                 DestDefaultDimension.Validate("Value Posting", SourceDefaultDimension."Value Posting");
@@ -206,6 +206,101 @@
         exit(true);
     end;
 
+    procedure SaveAsTemplate(Vendor: Record Vendor)
+    var
+        IsHandled: Boolean;
+    begin
+        OnSaveAsTemplate(Vendor, IsHandled);
+    end;
+
+    procedure CreateTemplateFromVendor(Vendor: Record Vendor; var IsHandled: Boolean)
+    var
+        VendorTempl: Record "Vendor Templ.";
+    begin
+        if not IsEnabled() then
+            exit;
+
+        IsHandled := true;
+
+        InsertTemplateFromVendor(VendorTempl, Vendor);
+        InsertDimensions(VendorTempl.Code, Vendor."No.", Database::"Vendor Templ.", Database::Vendor);
+        VendorTempl.Get(VendorTempl.Code);
+        ShowVendorTemplCard(VendorTempl);
+    end;
+
+    local procedure InsertTemplateFromVendor(var VendorTempl: Record "Vendor Templ."; Vendor: Record Vendor)
+    begin
+        VendorTempl.Init();
+        VendorTempl.Code := GetVendorTemplCode();
+
+        VendorTempl.City := Vendor.City;
+        VendorTempl."Vendor Posting Group" := Vendor."Vendor Posting Group";
+        VendorTempl."Currency Code" := Vendor."Currency Code";
+        VendorTempl."Language Code" := Vendor."Language Code";
+        VendorTempl."Payment Terms Code" := Vendor."Payment Terms Code";
+        VendorTempl."Fin. Charge Terms Code" := Vendor."Fin. Charge Terms Code";
+        VendorTempl."Invoice Disc. Code" := Vendor."Invoice Disc. Code";
+        VendorTempl."Country/Region Code" := Vendor."Country/Region Code";
+        VendorTempl."Pay-to Vendor No." := Vendor."Pay-to Vendor No.";
+        VendorTempl."Payment Method Code" := Vendor."Payment Method Code";
+        VendorTempl."Application Method" := Vendor."Application Method";
+        VendorTempl."Prices Including VAT" := Vendor."Prices Including VAT";
+        VendorTempl."Gen. Bus. Posting Group" := Vendor."Gen. Bus. Posting Group";
+        VendorTempl."Post Code" := Vendor."Post Code";
+        VendorTempl.County := Vendor.County;
+        VendorTempl."VAT Bus. Posting Group" := Vendor."VAT Bus. Posting Group";
+        VendorTempl."Block Payment Tolerance" := Vendor."Block Payment Tolerance";
+        VendorTempl."Validate EU Vat Reg. No." := Vendor."Validate EU Vat Reg. No.";
+        VendorTempl.Blocked := Vendor.Blocked;
+        VendorTempl.Insert();
+    end;
+
+    local procedure GetVendorTemplCode() VendorTemplCode: Code[20]
+    var
+        Vendor: Record Vendor;
+        VendorTempl: Record "Vendor Templ.";
+    begin
+        if VendorTempl.FindLast() and (IncStr(VendorTempl.Code) <> '') then
+            VendorTemplCode := VendorTempl.Code
+        else
+            VendorTemplCode := CopyStr(Vendor.TableCaption, 1, 4) + '000001';
+
+        while VendorTempl.Get(VendorTemplCode) do
+            VendorTemplCode := IncStr(VendorTemplCode);
+    end;
+
+    local procedure ShowVendorTemplCard(VendorTempl: Record "Vendor Templ.")
+    var
+        VendorTemplCard: Page "Vendor Templ. Card";
+    begin
+        if not GuiAllowed then
+            exit;
+
+        Commit();
+        VendorTemplCard.SetRecord(VendorTempl);
+        VendorTemplCard.LookupMode := true;
+        if VendorTemplCard.RunModal() = Action::LookupCancel then begin
+            VendorTempl.Get(VendorTempl.Code);
+            VendorTempl.Delete(true);
+        end;
+    end;
+
+    procedure ShowTemplates()
+    var
+        IsHandled: Boolean;
+    begin
+        OnShowTemplates(IsHandled);
+    end;
+
+    local procedure ShowVendorTemplList(var IsHandled: Boolean)
+    begin
+        if not IsEnabled() then
+            exit;
+
+        IsHandled := true;
+        Page.Run(Page::"Vendor Templ. List");
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterIsEnabled(var Result: Boolean)
     begin
@@ -233,6 +328,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateVendorsFromTemplate(var Vendor: Record Vendor; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSaveAsTemplate(Vendor: Record Vendor; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowTemplates(var IsHandled: Boolean)
     begin
     end;
 
@@ -270,5 +375,23 @@
             exit;
 
         UpdateMultipleFromTemplate(Vendor, IsHandled);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Vendor Templ. Mgt.", 'OnSaveAsTemplate', '', false, false)]
+    local procedure OnSaveAsTemplateHandler(Vendor: Record Vendor; var IsHandled: Boolean)
+    begin
+        if IsHandled then
+            exit;
+
+        CreateTemplateFromVendor(Vendor, IsHandled);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Vendor Templ. Mgt.", 'OnShowTemplates', '', false, false)]
+    local procedure OnShowTemplatesHandler(var IsHandled: Boolean)
+    begin
+        if IsHandled then
+            exit;
+
+        ShowVendorTemplList(IsHandled);
     end;
 }

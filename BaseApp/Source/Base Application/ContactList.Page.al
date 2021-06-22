@@ -269,7 +269,7 @@ page 5052 "Contact List"
             }
             group(ActionGroupCRM)
             {
-                Caption = 'Common Data Service';
+                Caption = 'Dataverse';
                 Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
                 action(CRMGotoContact)
                 {
@@ -277,7 +277,7 @@ page 5052 "Contact List"
                     Caption = 'Contact';
                     Enabled = (Type <> Type::Company) AND ("Company No." <> '');
                     Image = CoupledContactPerson;
-                    ToolTip = 'Open the coupled Common Data Service contact.';
+                    ToolTip = 'Open the coupled Dataverse contact.';
 
                     trigger OnAction()
                     var
@@ -293,7 +293,7 @@ page 5052 "Contact List"
                     Caption = 'Synchronize';
                     Enabled = (Type <> Type::Company) AND ("Company No." <> '');
                     Image = Refresh;
-                    ToolTip = 'Send or get updated data to or from Common Data Service.';
+                    ToolTip = 'Send or get updated data to or from Dataverse.';
 
                     trigger OnAction()
                     var
@@ -317,14 +317,14 @@ page 5052 "Contact List"
                     Caption = 'Coupling', Comment = 'Coupling is a noun';
                     Enabled = (Type <> Type::Company) AND ("Company No." <> '');
                     Image = LinkAccount;
-                    ToolTip = 'Create, change, or delete a coupling between the Business Central record and a Common Data Service record.';
+                    ToolTip = 'Create, change, or delete a coupling between the Business Central record and a Dataverse record.';
                     action(ManageCRMCoupling)
                     {
                         AccessByPermission = TableData "CRM Integration Record" = IM;
                         ApplicationArea = Suite;
                         Caption = 'Set Up Coupling';
                         Image = LinkAccount;
-                        ToolTip = 'Create or modify the coupling to a Common Data Service contact.';
+                        ToolTip = 'Create or modify the coupling to a Dataverse contact.';
 
                         trigger OnAction()
                         var
@@ -340,7 +340,7 @@ page 5052 "Contact List"
                         Caption = 'Delete Coupling';
                         Enabled = CRMIsCoupledToRecord;
                         Image = UnLinkAccount;
-                        ToolTip = 'Delete the coupling to a Common Data Service contact.';
+                        ToolTip = 'Delete the coupling to a Dataverse contact.';
 
                         trigger OnAction()
                         var
@@ -361,10 +361,10 @@ page 5052 "Contact List"
                     action(CreateInCRM)
                     {
                         ApplicationArea = Suite;
-                        Caption = 'Create Contact in Common Data Service';
+                        Caption = 'Create Contact in Dataverse';
                         Enabled = (Type <> Type::Company) AND ("Company No." <> '');
                         Image = NewCustomer;
-                        ToolTip = 'Create a contact in Common Data Service that is linked to a contact in your company.';
+                        ToolTip = 'Create a contact in Dataverse that is coupled to a contact in your company.';
 
                         trigger OnAction()
                         var
@@ -380,7 +380,7 @@ page 5052 "Contact List"
                         ApplicationArea = Suite;
                         Caption = 'Create Contact in Business Central';
                         Image = NewCustomer;
-                        ToolTip = 'Create a contact here in your company that is linked to the Common Data Service contact.';
+                        ToolTip = 'Create a contact here in your company that is coupled to the Dataverse contact.';
 
                         trigger OnAction()
                         var

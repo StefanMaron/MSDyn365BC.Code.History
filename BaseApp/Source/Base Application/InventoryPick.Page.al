@@ -338,11 +338,13 @@ page 7377 "Inventory Pick"
 
     local procedure PostPickYesNo()
     begin
+        OnBeforePostPickYesNo(Rec);
         CurrPage.WhseActivityLines.PAGE.PostPickYesNo;
     end;
 
     local procedure PostAndPrintLine()
     begin
+        OnBeforePostAndPrintLine(Rec);
         CurrPage.WhseActivityLines.PAGE.PostAndPrint;
     end;
 
@@ -350,6 +352,16 @@ page 7377 "Inventory Pick"
     begin
         CurrPage.Update;
         CurrPage.WhseActivityLines.PAGE.UpdateForm;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostPickYesNo(var WarehouseActivityHeader: Record "Warehouse Activity Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostAndPrintLine(var WarehouseActivityHeader: Record "Warehouse Activity Header")
+    begin
     end;
 }
 

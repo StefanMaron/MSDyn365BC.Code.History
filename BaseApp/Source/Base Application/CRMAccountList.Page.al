@@ -1,8 +1,8 @@
 page 5341 "CRM Account List"
 {
     ApplicationArea = Suite;
-    Caption = 'Accounts - Common Data Service';
-    AdditionalSearchTerms = 'Accounts CDS';
+    Caption = 'Accounts - Dataverse';
+    AdditionalSearchTerms = 'Accounts CDS, Accounts Common Data Service';
     Editable = false;
     PageType = List;
     SourceTable = "CRM Account";
@@ -21,55 +21,55 @@ page 5341 "CRM Account List"
                     ApplicationArea = Suite;
                     Caption = 'Name';
                     StyleExpr = FirstColumnStyle;
-                    ToolTip = 'Specifies data from a corresponding field in a Common Data Service entity. For more information about Common Data Service, see Common Data Service Help Center.';
+                    ToolTip = 'Specifies data from a corresponding field in a Dataverse entity. For more information about Dataverse, see Dataverse Help Center.';
                 }
                 field(Address1_PrimaryContactName; Address1_PrimaryContactName)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Primary Contact Name';
-                    ToolTip = 'Specifies data from a corresponding field in a Common Data Service entity. For more information about Common Data Service, see Common Data Service Help Center.';
+                    ToolTip = 'Specifies data from a corresponding field in a Dataverse entity. For more information about Dataverse, see Dataverse Help Center.';
                 }
                 field(CustomerTypeCode; CustomerTypeCode)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Relationship Type';
-                    ToolTip = 'Specifies data from a corresponding field in a Common Data Service entity. For more information about Common Data Service, see Common Data Service Help Center.';
+                    ToolTip = 'Specifies data from a corresponding field in a Dataverse entity. For more information about Dataverse, see Dataverse Help Center.';
                 }
                 field(Address1_Line1; Address1_Line1)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Street 1';
-                    ToolTip = 'Specifies data from a corresponding field in a Common Data Service entity. For more information about Common Data Service, see Common Data Service Help Center.';
+                    ToolTip = 'Specifies data from a corresponding field in a Dataverse entity. For more information about Dataverse, see Dataverse Help Center.';
                 }
                 field(Address1_Line2; Address1_Line2)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Street 2';
-                    ToolTip = 'Specifies data from a corresponding field in a Common Data Service entity. For more information about Common Data Service, see Common Data Service Help Center.';
+                    ToolTip = 'Specifies data from a corresponding field in a Dataverse entity. For more information about Dataverse, see Dataverse Help Center.';
                 }
                 field(Address1_PostalCode; Address1_PostalCode)
                 {
                     ApplicationArea = Suite;
                     Caption = 'ZIP/Postal Code';
-                    ToolTip = 'Specifies data from a corresponding field in a Common Data Service entity. For more information about Common Data Service, see Common Data Service Help Center.';
+                    ToolTip = 'Specifies data from a corresponding field in a Dataverse entity. For more information about Dataverse, see Dataverse Help Center.';
                 }
                 field(Address1_City; Address1_City)
                 {
                     ApplicationArea = Suite;
                     Caption = 'City';
-                    ToolTip = 'Specifies data from a corresponding field in a Common Data Service entity. For more information about Common Data Service, see Common Data Service Help Center.';
+                    ToolTip = 'Specifies data from a corresponding field in a Dataverse entity. For more information about Dataverse, see Dataverse Help Center.';
                 }
                 field(Address1_Country; Address1_Country)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Country/Region';
-                    ToolTip = 'Specifies data from a corresponding field in a Common Data Service entity. For more information about Common Data Service, see Common Data Service Help Center.';
+                    ToolTip = 'Specifies data from a corresponding field in a Dataverse entity. For more information about Dataverse, see Dataverse Help Center.';
                 }
                 field(Coupled; Coupled)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Coupled';
-                    ToolTip = 'Specifies if the Common Data Service record is coupled to Business Central.';
+                    ToolTip = 'Specifies if the Dataverse record is coupled to Business Central.';
                 }
             }
         }
@@ -86,7 +86,7 @@ page 5341 "CRM Account List"
                 Image = NewCustomer;
                 Promoted = true;
                 PromotedCategory = Process;
-                ToolTip = 'Generate the entity from the coupled Common Data Service account.';
+                ToolTip = 'Generate the entity from the coupled Dataverse account.';
 
                 trigger OnAction()
                 var

@@ -114,7 +114,7 @@ codeunit 139184 "CRM Bus. Logic Simulator Test"
             TransactionCurrencyId := CreateGuid;
             ISOCurrencyCode := '12345';
             asserterror Insert; // handled by ValidateCurrencyOnInsert
-            Assert.ExpectedError('Exchange Rate must have a value in CDS Transactioncurrency');
+            Assert.ExpectedError('Exchange Rate must have a value in Dataverse Transactioncurrency');
         end;
     end;
 

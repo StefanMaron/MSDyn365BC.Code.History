@@ -312,13 +312,13 @@
         </trans-unit>
         <trans-unit id="Codeunit 1780013033 - NamedType 853623346" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The first time that the Email Accounts page is opened, show a notification saying that legacy SMTP settings has been copied to the new email setup.</source>
-          <target state="translated">Při prvním otevření stránky e-mailové účty, zobrazit oznámení, že starší nastavení SMTP byla zkopírována do nového nastavení e-mailu.</target>
+          <target state="translated">Při prvním otevření stránky e-mailové účty zobrazit oznámení, že starší nastavení SMTP byla zkopírována do nového nastavení e-mailu.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType SmtpNotificationDescTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 607767707 - NamedType 2104307454" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The From address %1 could not be parsed correctly.</source>
-          <target state="translated">Adresu od %1 nelze správně analyzovat.</target>
+          <target state="translated">Adresu Od %1 nelze správně analyzovat.</target>
           <note from="Developer" annotates="general" priority="2">%1=The email address</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Message - NamedType FromEmailParseFailureErr</note>
         </trans-unit>

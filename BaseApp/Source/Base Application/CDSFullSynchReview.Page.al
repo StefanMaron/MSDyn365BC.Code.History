@@ -1,6 +1,6 @@
 page 7208 "CDS Full Synch. Review"
 {
-    Caption = 'Common Data Service Full Synchronization Review', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
+    Caption = 'Dataverse Full Synchronization Review', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
     Editable = false;
     PageType = List;
     SourceTable = "CRM Full Synch. Review Line";
@@ -34,8 +34,8 @@ page 7208 "CDS Full Synch. Review"
                 field("CDS Page Id"; CDSPageName)
                 {
                     ApplicationArea = Suite;
-                    Caption = 'Common Data Service', Locked = true;
-                    ToolTip = 'Open the selected page and present the existing Common Data Service records.', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
+                    Caption = 'Dataverse', Locked = true;
+                    ToolTip = 'Open the selected page and present the existing Dataverse records.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
                     Width = 10;
                     trigger OnDrillDown()
                     begin

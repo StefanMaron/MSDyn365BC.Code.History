@@ -149,6 +149,7 @@ table 1252 "Bank Pmt. Appl. Rule"
         exit(MatchConfidence in ["Match Confidence"::None, "Match Confidence"::Low, "Match Confidence"::Medium, "Match Confidence"::High]);
     end;
 
+    [Obsolete('Replaced by BankAccReconciliationLine.GetMatchedAutomaticallyFilter()', '18.0')]
     procedure GetMatchedAutomaticallyFilter(): Text
     begin
         exit(StrSubstNo('=%1|%2|%3|%4', "Match Confidence"::None, "Match Confidence"::Low, "Match Confidence"::Medium, "Match Confidence"::High));

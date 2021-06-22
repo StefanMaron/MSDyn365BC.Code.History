@@ -1291,8 +1291,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table Recurrence Schedule - Field End Date - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1656495825 - Field 2756380846 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>CaptureIndex</source>
-          <target state="translated">CaptureIndex</target>
+          <source>Capture Index</source>
+          <target state="translated">Index erfassen</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Captures - Field CaptureIndex - Property Caption</note>
         </trans-unit>
@@ -1303,8 +1303,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table Captures - Field Index - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1656495825 - Field 3060051996 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>ValueBlob</source>
-          <target state="translated">ValueBlob</target>
+          <source>Value</source>
+          <target state="translated">Wert</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Captures - Field ValueBlob - Property Caption</note>
         </trans-unit>
@@ -1315,8 +1315,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table Captures - Field Length - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 28344312 - Field 1139687811 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>GroupIndex</source>
-          <target state="translated">GroupIndex</target>
+          <source>Group Index</source>
+          <target state="translated">Gruppenindex</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Groups - Field GroupIndex - Property Caption</note>
         </trans-unit>
@@ -1333,8 +1333,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table Groups - Field Name - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 28344312 - Field 3060051996 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>ValueBlob</source>
-          <target state="translated">ValueBlob</target>
+          <source>Values</source>
+          <target state="translated">Werte</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Groups - Field ValueBlob - Property Caption</note>
         </trans-unit>
@@ -1351,8 +1351,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table Groups - Field Success - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1641495975 - Field 2038629119 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>MatchIndex</source>
-          <target state="translated">MatchIndex</target>
+          <source>Match Index</source>
+          <target state="translated">Index abgleichen</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Matches - Field MatchIndex - Property Caption</note>
         </trans-unit>
@@ -1363,8 +1363,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table Matches - Field Index - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1641495975 - Field 3060051996 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>ValueBlob</source>
-          <target state="translated">ValueBlob</target>
+          <source>Value</source>
+          <target state="translated">Wert</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Matches - Field ValueBlob - Property Caption</note>
         </trans-unit>
@@ -1381,8 +1381,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table Matches - Field Success - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2794189023 - Field 1001505280 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>IgnoreCase</source>
-          <target state="translated">IgnoreCase</target>
+          <source>Ignore Case</source>
+          <target state="translated">Groß-/Kleinschreibung ignorieren</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Regex Options - Field IgnoreCase - Property Caption</note>
         </trans-unit>
@@ -1393,8 +1393,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table Regex Options - Field Multiline - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2794189023 - Field 3963650414 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>ExplicitCapture</source>
-          <target state="translated">ExplicitCapture</target>
+          <source>Explicit Capture</source>
+          <target state="translated">Explizite Erfassung</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Regex Options - Field ExplicitCapture - Property Caption</note>
         </trans-unit>
@@ -1411,32 +1411,32 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table Regex Options - Field Singleline - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2794189023 - Field 2272751685 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>IgnorePatternWhitespace</source>
-          <target state="translated">IgnorePatternWhitespace</target>
+          <source>Ignore Pattern Whitespace</source>
+          <target state="translated">Musterleerzeichen ignorieren</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Regex Options - Field IgnorePatternWhitespace - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2794189023 - Field 2612374468 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>RightToLeft</source>
-          <target state="translated">RightToLeft</target>
+          <source>Right To Left</source>
+          <target state="translated">Von rechts nach links</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Regex Options - Field RightToLeft - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2794189023 - Field 61155663 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>ECMAScript</source>
-          <target state="translated">ECMAScript</target>
+          <source>ECMA Script</source>
+          <target state="translated">ECMA-Skript</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Regex Options - Field ECMAScript - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2794189023 - Field 3024051472 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>CultureInvariant</source>
-          <target state="translated">CultureInvariant</target>
+          <source>Culture Invariant</source>
+          <target state="translated">Kultur-Invariante</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Regex Options - Field CultureInvariant - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2794189023 - Field 3798167227 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>MatchTimeoutInMs</source>
-          <target state="translated">MatchTimeoutInMs</target>
+          <source>Match Timeout In Milliseconds</source>
+          <target state="translated">Timeout in Millisekunden abgleichen</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Regex Options - Field MatchTimeoutInMs - Property Caption</note>
         </trans-unit>
@@ -3078,6 +3078,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Extension Installation Impl - NamedType NotSufficientPermissionErr</note>
         </trans-unit>
+        <trans-unit id="Page 2005578726 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Extension Management</source>
+          <target state="translated">Erweiterungsverwaltung</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Extension Management - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 2005578726 - Property 3863440606" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>app,add-in,customize,plug-in,appsource</source>
           <target state="translated">App,Add-In,Anpassen,Plug-In,Appsource</target>
@@ -3359,6 +3365,12 @@
           <note from="Developer" annotates="general" priority="2">"%1=name of extension"</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Extension Marketplace - NamedType ExtensionInstallationFailureErr</note>
         </trans-unit>
+        <trans-unit id="Page 3666029466 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Extension Marketplace</source>
+          <target state="translated">Marketplace für Erweiterungen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Extension Marketplace - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Codeunit 4126082712 - NamedType 3784204251" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>We are installing the extension. You can view the progress on the Status page.</source>
           <target state="translated">Wir installieren die Erweiterung. Sie können den Fortschritt auf der Seite „Status“ anzeigen.</target>
@@ -3406,24 +3418,6 @@
           <target state="translated">Melden Sie sich ab und anschließend wieder an, um die Änderungen zu übernehmen.</target>
           <note from="Developer" annotates="general" priority="2">"sign out" and "sign in" are the same terms as shown in the Business Central client.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Feature Management Impl. - NamedType SignInAgainMsg</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1384518899 - NamedType 3529764358" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Error on the feature data update task for feature %1 in company %2: %3</source>
-          <target state="translated">Fehler bei der Datenaktualisierungsaufgabe für Funktion %1 im Unternehmen %2: %3</target>
-          <note from="Developer" annotates="general" priority="2">%1- Feature id; %2 - CompanyName; %3 - error message</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Feature Management Impl. - NamedType ErrorTraceTagMsg</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1384518899 - NamedType 2102046325" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The feature data update task is scheduled feature %1 in company %2 to start on %3.</source>
-          <target state="translated">Die Datenaktualisierungsaufgabe ist eine geplante Funktion %1 im Unternehmen %2, um mit %3 zu beginnen.</target>
-          <note from="Developer" annotates="general" priority="2">%1- Feature id; %2 - CompanyName; %3 - datetime</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Feature Management Impl. - NamedType ScheduledTraceTagMsg</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1384518899 - NamedType 24821158" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Feature Data Update</source>
-          <target state="translated">Funktionsdatenaktualisierung</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Feature Management Impl. - NamedType TagCategoryTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 162089418 - NamedType 1388208873" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>TODAY</source>
@@ -3599,11 +3593,11 @@
           <note from="Developer" annotates="general" priority="2">%1 is a whole number, ex. 10</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Page Summary Provider Impl. - NamedType PageTxt</note>
         </trans-unit>
-        <trans-unit id="Codeunit 4038952900 - NamedType 4068714964" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The bookmark format is not valid</source>
-          <target state="translated">Das Lesezeichen hat kein gültiges Format.</target>
+        <trans-unit id="Codeunit 4038952900 - NamedType 728330450" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The bookmark is invalid</source>
+          <target state="translated">Das Lesezeichen ist ungültig</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Page Summary Provider Impl. - NamedType InvalidBookmarkErr</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Page Summary Provider Impl. - NamedType InvalidBookmarkErrorMessageTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 3991262771 - NamedType 4047091786" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The passwords that you entered do not match.</source>
@@ -4469,6 +4463,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Editor - Control SubjectField - Property ToolTip</note>
         </trans-unit>
+        <trans-unit id="Page 2282749623 - Control 2711331125 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source> </source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Editor - Control HTMLFormattedBody - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 2282749623 - Control 2282749623 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Message</source>
           <target state="translated">Nachricht</target>
@@ -4480,6 +4479,11 @@
           <target state="translated">Gibt den Inhalt der E-Mail an.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Editor - Control Email Editor - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2282749623 - Control 2113973523 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source> </source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Editor - Control RawTextBody - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2282749623 - Control 4234547318 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Message</source>
@@ -4546,6 +4550,12 @@
           <target state="translated">Als Entwurf im E-Mail-Ausgang behalten,E-Mail verwerfen</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Editor - NamedType OptionsOnClosePageNewEmailLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2282749623 - NamedType 690053247" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Compose an Email</source>
+          <target state="translated">E-Mail verfassen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Editor - NamedType PageCaptionTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 4021082514 - NamedType 3931068423" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You can only open your own email messages.</source>
@@ -4631,6 +4641,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Viewer - Control SubjectField - Property ToolTip</note>
         </trans-unit>
+        <trans-unit id="Page 4021082514 - Control 2711331125 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source> </source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Viewer - Control HTMLFormattedBody - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 4021082514 - Control 2282749623 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Message</source>
           <target state="translated">Nachricht</target>
@@ -4642,6 +4657,11 @@
           <target state="translated">Gibt den Inhalt der E-Mail an.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Viewer - Control Email Editor - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4021082514 - Control 2113973523 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source> </source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Viewer - Control RawTextBody - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4021082514 - Control 4234547318 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Message</source>
@@ -4684,6 +4704,12 @@
           <target state="translated">E-Mail bearbeiten und senden.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Viewer - Action EditAndSend - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4021082514 - NamedType 690053247" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sent Email</source>
+          <target state="translated">E-Mail gesendet</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Viewer - NamedType PageCaptionTxt</note>
         </trans-unit>
         <trans-unit id="Page 906691248 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Waiting for a response - do not close this page</source>
@@ -5134,6 +5160,12 @@
           <target state="translated">Auf das Medium im Gerät konnte nicht zugegriffen werden. Stellen Sie sicher, dass Sie die App für Windows, Android oder iOS verwenden.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Media Upload - Control UploadingNotSupported - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 176588632 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Data Encryption Management</source>
+          <target state="translated">Datenverschlüsselungsverwaltung</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Encryption Management - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 176588632 - Property 3863440606" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>data security management</source>
@@ -5775,6 +5807,12 @@
           <target state="translated">Sie müssen die Klassifizierung der Felder überprüfen, bevor Sie fortfahren können.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Wizard - NamedType ReviewFieldsErr</note>
+        </trans-unit>
+        <trans-unit id="Page 1105213220 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Data Classification Worksheet</source>
+          <target state="translated">Datenklassifizierungsarbeitsblatt</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Worksheet - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1105213220 - Property 2019332006" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>New,Process,Report,Manage,View</source>
@@ -7425,6 +7463,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Fields Lookup - Control Field Caption - Property ToolTip</note>
         </trans-unit>
+        <trans-unit id="Page 1750020835 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Languages</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Languages - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 1750020835 - Property 3863440606" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>multilanguage</source>
           <target state="translated">Mehrere Sprachen</target>
@@ -8918,6 +8961,12 @@
           <target state="translated">Gibt das Ablaufdatum an. Datensätze, die am oder vor diesem Datum erstellt wurden, werden gelöscht.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Retention Periods - Control Expiration Date - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 658335382 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Retention Policy Log Entries</source>
+          <target state="translated">Aufbewahrungsrichtlinienprotokoll</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Retention Policy Log Entries - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 658335382 - Control 883711285 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the entry number that is assigned to the entry.</source>

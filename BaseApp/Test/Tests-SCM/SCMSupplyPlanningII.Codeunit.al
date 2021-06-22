@@ -2786,6 +2786,69 @@ codeunit 137071 "SCM Supply Planning -II"
         Assert.RecordCount(RequisitionLine, NoOfSalesOrders);
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingPageHandlerForAssignSN,QuantityToCreatePageHandler,MessageHandler2')]
+    [Scope('OnPrem')]
+    procedure PostingInvtPickForItemWithNonSpecificItemTrackingAndPlannedFromReqLine()
+    var
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        ItemTrackingCode: Record "Item Tracking Code";
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        RequisitionWkshName: Record "Requisition Wksh. Name";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Item Tracking] [Reservation] [Order Tracking] [Inventory Pick]
+        // [SCENARIO 374737] Inventory pick for sales order tracked against requisition line can be posted. The item is set up for non-specific serial no. tracking.
+        Initialize();
+        Qty := LibraryRandom.RandIntInRange(5, 10);
+
+        // [GIVEN] Location with required pick.
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, true, false, false);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
+        // [GIVEN] Item tracking code set up for non-specific serial no. tracking of sales orders.
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, false);
+        ItemTrackingCode.Validate("SN Sales Outbound Tracking", true);
+        ItemTrackingCode.Modify(true);
+
+        // [GIVEN] Lot-for-lot item with just created item tracking code.
+        LibraryInventory.CreateTrackedItem(Item, '', LibraryUtility.GetGlobalNoSeriesCode(), ItemTrackingCode.Code);
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
+        Item.Modify(true);
+
+        // [GIVEN] Post 5 pcs of the item to inventory.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", Location.Code, '', Qty);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] First sales order "A" for 4 pcs.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", Qty - 1, Location.Code, WorkDate());
+
+        // [GIVEN] Second sales order "B" for 4 pcs.
+        // [GIVEN] Assign 4 serial nos.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", Qty - 1, Location.Code, LibraryRandom.RandDate(5));
+        SalesLine.OpenItemTrackingLines();
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [GIVEN] Open requisition worksheet and calculate plan.
+        Item.SetRecFilter();
+        LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, LibraryPlanning.SelectRequisitionTemplateName());
+        LibraryPlanning.CalculatePlanForReqWksh(
+          Item, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name, WorkDate(), WorkDate() + 30);
+
+        // [WHEN] Create and post inventory pick from the second (tracked) sales order "B".
+        CreateAndPostInventoryPickFromSalesOrder(SalesHeader."No.", Location.Code);
+
+        // [THEN] The sales order "B" has been successfully shipped.
+        SalesLine.Find();
+        SalesLine.TestField("Quantity Shipped", SalesLine.Quantity);
+    end;
+
     local procedure Initialize()
     var
         RequisitionLine: Record "Requisition Line";
@@ -3033,7 +3096,7 @@ codeunit 137071 "SCM Supply Planning -II"
           WhseActivityHeader."Source Document"::"Sales Order", SalesHeaderNo, false, true, false);
         FindWhseActivityHeader(WhseActivityHeader, WhseActivityHeader.Type::"Invt. Pick", LocationCode);
         LibraryWarehouse.AutoFillQtyInventoryActivity(WhseActivityHeader);
-        LibraryWarehouse.PostInventoryActivity(WhseActivityHeader, true);
+        LibraryWarehouse.PostInventoryActivity(WhseActivityHeader, false);
     end;
 
     local procedure UpdateForecastOnManufacturingSetup(CurrentProductionForecast: Code[10])

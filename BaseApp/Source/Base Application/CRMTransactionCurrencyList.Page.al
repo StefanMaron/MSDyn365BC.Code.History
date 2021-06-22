@@ -1,8 +1,8 @@
 page 5345 "CRM TransactionCurrency List"
 {
     ApplicationArea = Suite;
-    Caption = 'Transaction Currencies - Common Data Service';
-    AdditionalSearchTerms = 'Transaction Currencies CDS';
+    Caption = 'Transaction Currencies - Dataverse';
+    AdditionalSearchTerms = 'Transaction Currencies CDS, Transaction Currencies Common Data Service';
     Editable = false;
     PageType = List;
     SourceTable = "CRM Transactioncurrency";
@@ -21,7 +21,7 @@ page 5345 "CRM TransactionCurrency List"
                     ApplicationArea = Suite;
                     Caption = 'ISO Currency Code';
                     StyleExpr = FirstColumnStyle;
-                    ToolTip = 'Specifies the ISO currency code, which is required in Common Data Service.';
+                    ToolTip = 'Specifies the ISO currency code, which is required in Dataverse.';
                 }
                 field(CurrencyName; CurrencyName)
                 {
@@ -33,7 +33,7 @@ page 5345 "CRM TransactionCurrency List"
                 {
                     ApplicationArea = Suite;
                     Caption = 'Coupled';
-                    ToolTip = 'Specifies if the Common Data Service record is coupled to Business Central.';
+                    ToolTip = 'Specifies if the Dataverse record is coupled to Business Central.';
                 }
             }
         }

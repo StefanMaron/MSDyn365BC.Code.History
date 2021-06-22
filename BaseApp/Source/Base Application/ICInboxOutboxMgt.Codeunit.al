@@ -2218,6 +2218,7 @@
                         MoveICDocDimToHandled(
                           DATABASE::"IC Outbox Purchase Line", DATABASE::"Handled IC Outbox Purch. Line", ICOutboxPurchHdr."IC Transaction No.",
                           ICOutboxPurchHdr."IC Partner Code", ICOutboxPurchHdr."Transaction Source", ICOutboxPurchLine."Line No.");
+                        OnMoveOutboxTransToHandledOutboxOnBeforeICOutboxPurchLineDelete(ICOutboxPurchLine, HandledICOutboxPurchLine);
                         ICOutboxPurchLine.Delete();
                     until ICOutboxPurchLine.Next = 0;
                 ICOutboxPurchHdr.Delete();
@@ -3020,6 +3021,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnMoveOutboxTransToHandledOutboxOnBeforeHandledICOutboxTransTransferFields(var HandledICOutboxTrans: Record "Handled IC Outbox Trans."; var ICOutboxTrans: Record "IC Outbox Transaction")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMoveOutboxTransToHandledOutboxOnBeforeICOutboxPurchLineDelete(ICOutboxPurchLine: Record "IC Outbox Purchase Line"; HandledICOutboxPurchLine: Record "Handled IC Outbox Purch. Line")
     begin
     end;
 

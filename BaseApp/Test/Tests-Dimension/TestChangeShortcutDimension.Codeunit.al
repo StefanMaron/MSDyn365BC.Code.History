@@ -1,4 +1,4 @@
-codeunit 134482 "Test Change Shortcut Dimension"
+﻿codeunit 134482 "Test Change Shortcut Dimension"
 {
     Subtype = Test;
     TestPermissions = NonRestrictive;
@@ -17,6 +17,7 @@ codeunit 134482 "Test Change Shortcut Dimension"
     procedure TestClearAllShortCutDims()
     var
         DimensionValue: Record "Dimension Value";
+        DimensionSetEntry: Record "Dimension Set Entry";
     begin
         // Exercise
         ClearShortCutDims;
@@ -24,6 +25,9 @@ codeunit 134482 "Test Change Shortcut Dimension"
         // Validate
         DimensionValue.SetRange("Global Dimension No.", 3, 8);
         Assert.AreEqual(0, DimensionValue.Count, '');
+
+        DimensionSetEntry.SetRange("Global Dimension No.", 3, 8);
+        Assert.AreEqual(0, DimensionSetEntry.Count, '');
     end;
 
     [Test]
@@ -237,6 +241,7 @@ codeunit 134482 "Test Change Shortcut Dimension"
     local procedure VerifyDimValueGlobalDimNo(DimCode: Code[20]; DimNo: Integer)
     var
         DimensionValue: Record "Dimension Value";
+        DimensionSetEntry: Record "Dimension Set Entry";
     begin
         if DimCode = '' then
             exit;
@@ -245,6 +250,12 @@ codeunit 134482 "Test Change Shortcut Dimension"
             repeat
                 Assert.AreEqual(DimNo, DimensionValue."Global Dimension No.", '');
             until DimensionValue.Next = 0;
+
+        DimensionSetEntry.SetRange("Dimension Code", DimCode);
+        if DimensionSetEntry.FindSet then
+            repeat
+                Assert.AreEqual(DimNo, DimensionSetEntry."Global Dimension No.", '');
+            until DimensionSetEntry.Next = 0;
     end;
 }
 

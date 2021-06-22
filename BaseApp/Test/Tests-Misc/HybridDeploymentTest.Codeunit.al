@@ -57,6 +57,7 @@ codeunit 139065 "Hybrid Deployment Test"
 
     [Test]
     [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmDialogNo')]
     procedure DisableReplicationHandlesErrorCode()
     var
         HybridDeploymentTest: Codeunit "Hybrid Deployment Test";
@@ -279,6 +280,12 @@ codeunit 139065 "Hybrid Deployment Test"
     local procedure GenerateJsonFailureOutput(ErrorCode: Text) Output: Text
     begin
         Output := StrSubstNo('{ "ErrorCode": "%1" }', ErrorCode);
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmDialogNo(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := false;
     end;
 
     [Scope('OnPrem')]

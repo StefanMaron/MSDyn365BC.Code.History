@@ -164,7 +164,6 @@ report 5754 "Create Pick"
                         ApplicationArea = Warehouse;
                         Caption = 'Sorting Method for Pick Lines';
                         MultiLine = true;
-                        OptionCaption = ' ,Item,Document,Shelf/Bin No.,Due Date,Destination,Bin Ranking,Action Type';
                         ToolTip = 'Specifies that you want to select from the available options to sort lines in the created pick document.';
                     }
                     field(BreakbulkFilter; BreakbulkFilter)

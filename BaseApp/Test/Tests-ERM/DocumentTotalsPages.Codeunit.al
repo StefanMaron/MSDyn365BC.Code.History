@@ -37,11 +37,11 @@ codeunit 134344 "Document Totals Pages"
     begin
         // [FEATURE] [Sales] [Quote] [FCY]
         // [SCENARIO 280259] "Invoice Discount Amount" remains unchanged after Currency Factor updated on Sales Quote card page
-        Initialize;
+        Initialize();
 
         CreateSalesHeaderWithCurrency(SalesHeader, SalesHeader."Document Type"::Quote);
 
-        SalesQuote.OpenEdit;
+        SalesQuote.OpenEdit();
         SalesQuote.GotoRecord(SalesHeader);
 
         SalesQuote.SalesLines."Invoice Disc. Pct.".SetValue(LibraryRandom.RandIntInRange(10, 20));
@@ -71,11 +71,11 @@ codeunit 134344 "Document Totals Pages"
     begin
         // [FEATURE] [Sales] [Invoice] [FCY]
         // [SCENARIO 280259] "Invoice Discount Amount" remains unchanged after Currency Factor updated on Sales Invoice card page
-        Initialize;
+        Initialize();
 
         CreateSalesHeaderWithCurrency(SalesHeader, SalesHeader."Document Type"::Invoice);
 
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.GotoRecord(SalesHeader);
 
         SalesInvoice.SalesLines."Invoice Disc. Pct.".SetValue(LibraryRandom.RandIntInRange(10, 20));
@@ -116,11 +116,11 @@ codeunit 134344 "Document Totals Pages"
     begin
         // [FEATURE] [Sales] [Order] [FCY]
         // [SCENARIO 280259] "Invoice Discount Amount" remains unchanged after Currency Factor updated on Sales Order card page
-        Initialize;
+        Initialize();
 
         CreateSalesHeaderWithCurrency(SalesHeader, SalesHeader."Document Type"::Order);
 
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
 
         SalesOrder.SalesLines."Invoice Disc. Pct.".SetValue(LibraryRandom.RandIntInRange(10, 20));
@@ -161,11 +161,11 @@ codeunit 134344 "Document Totals Pages"
     begin
         // [FEATURE] [Sales] [Credit Memo] [FCY]
         // [SCENARIO 280259] Invoice discount amount remains unchanged after Currency Factor updated on Sales Credit Memo card page
-        Initialize;
+        Initialize();
 
         CreateSalesHeaderWithCurrency(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
 
-        SalesCreditMemo.OpenEdit;
+        SalesCreditMemo.OpenEdit();
         SalesCreditMemo.GotoRecord(SalesHeader);
 
         SalesCreditMemo.SalesLines."Invoice Disc. Pct.".SetValue(LibraryRandom.RandIntInRange(10, 20));
@@ -206,11 +206,11 @@ codeunit 134344 "Document Totals Pages"
     begin
         // [FEATURE] [Sales] [Return Order] [FCY]
         // [SCENARIO 280259] "Invoice Discount Amount" remains unchanged after Currency Factor updated on Sales Return Order card page
-        Initialize;
+        Initialize();
 
         CreateSalesHeaderWithCurrency(SalesHeader, SalesHeader."Document Type"::"Return Order");
 
-        SalesReturnOrder.OpenEdit;
+        SalesReturnOrder.OpenEdit();
         SalesReturnOrder.GotoRecord(SalesHeader);
 
         SalesReturnOrder.SalesLines."Invoice Disc. Pct.".SetValue(LibraryRandom.RandIntInRange(10, 20));
@@ -251,11 +251,11 @@ codeunit 134344 "Document Totals Pages"
     begin
         // [FEATURE] [Sales] [Blanket Order] [FCY]
         // [SCENARIO 280259] "Invoice Discount Amount" remains unchanged after Currency Factor updated on Sales Return Order card page
-        Initialize;
+        Initialize();
 
         CreateSalesHeaderWithCurrency(SalesHeader, SalesHeader."Document Type"::"Blanket Order");
 
-        BlanketSalesOrder.OpenEdit;
+        BlanketSalesOrder.OpenEdit();
         BlanketSalesOrder.GotoRecord(SalesHeader);
 
         BlanketSalesOrder.SalesLines."Invoice Disc. Pct.".SetValue(LibraryRandom.RandIntInRange(10, 20));
@@ -285,11 +285,11 @@ codeunit 134344 "Document Totals Pages"
     begin
         // [FEATURE] [Purchase] [Quote] [FCY]
         // [SCENARIO 280259] "Invoice Discount Amount" remains unchanged after Currency Factor updated on Purchase Quote card page
-        Initialize;
+        Initialize();
 
         CreatePurchaseHeaderWithCurrency(PurchaseHeader, PurchaseHeader."Document Type"::Quote);
 
-        PurchaseQuote.OpenEdit;
+        PurchaseQuote.OpenEdit();
         PurchaseQuote.GotoRecord(PurchaseHeader);
 
         PurchaseQuote.PurchLines."Invoice Discount Amount".SetValue(Round(PurchaseHeader.Amount / 3));
@@ -319,11 +319,11 @@ codeunit 134344 "Document Totals Pages"
     begin
         // [FEATURE] [Purchase] [Invoice] [FCY]
         // [SCENARIO 280259] "Invoice Discount Amount" remains unchanged after Currency Factor updated on Purchase Invoice card page
-        Initialize;
+        Initialize();
 
         CreatePurchaseHeaderWithCurrency(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
 
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.GotoRecord(PurchaseHeader);
 
         PurchaseInvoice.PurchLines."Invoice Disc. Pct.".SetValue(LibraryRandom.RandIntInRange(10, 20));
@@ -364,11 +364,11 @@ codeunit 134344 "Document Totals Pages"
     begin
         // [FEATURE] [Purchase] [Order] [FCY]
         // [SCENARIO 280259] "Invoice Discount Amount" remains unchanged after Currency Factor updated on Purchase Order card page
-        Initialize;
+        Initialize();
 
         CreatePurchaseHeaderWithCurrency(PurchaseHeader, PurchaseHeader."Document Type"::Order);
 
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.GotoRecord(PurchaseHeader);
 
         PurchaseOrder.PurchLines."Invoice Discount Amount".SetValue(Round(PurchaseHeader.Amount / 3));
@@ -409,11 +409,11 @@ codeunit 134344 "Document Totals Pages"
     begin
         // [FEATURE] [Purchase] [Credit Memo] [FCY]
         // [SCENARIO 280259] Invoice discount amount remains unchanged after Currency Factor updated on Purchase Credit Memo card page
-        Initialize;
+        Initialize();
 
         CreatePurchaseHeaderWithCurrency(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo");
 
-        PurchaseCreditMemo.OpenEdit;
+        PurchaseCreditMemo.OpenEdit();
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
 
         PurchaseCreditMemo.PurchLines."Invoice Discount Amount".SetValue(Round(PurchaseHeader.Amount / 3));
@@ -454,11 +454,11 @@ codeunit 134344 "Document Totals Pages"
     begin
         // [FEATURE] [Purchase] [Return Order] [FCY]
         // [SCENARIO 280259] "Invoice Discount Amount" remains unchanged after Currency Factor updated on Purchase Return Order card page
-        Initialize;
+        Initialize();
 
         CreatePurchaseHeaderWithCurrency(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order");
 
-        PurchaseReturnOrder.OpenEdit;
+        PurchaseReturnOrder.OpenEdit();
         PurchaseReturnOrder.GotoRecord(PurchaseHeader);
 
         PurchaseReturnOrder.PurchLines."Invoice Discount Amount".SetValue(Round(PurchaseHeader.Amount / 3));
@@ -499,11 +499,11 @@ codeunit 134344 "Document Totals Pages"
     begin
         // [FEATURE] [Purchase] [Blanket Order] [FCY]
         // [SCENARIO 280259] "Invoice Discount Amount" remains unchanged after Currency Factor updated on Purchase Return Order card page
-        Initialize;
+        Initialize();
 
         CreatePurchaseHeaderWithCurrency(PurchaseHeader, PurchaseHeader."Document Type"::"Blanket Order");
 
-        BlanketPurchaseOrder.OpenEdit;
+        BlanketPurchaseOrder.OpenEdit();
         BlanketPurchaseOrder.GotoRecord(PurchaseHeader);
 
         BlanketPurchaseOrder.PurchLines."Invoice Discount Amount".SetValue(Round(PurchaseHeader.Amount / 3));
@@ -531,14 +531,14 @@ codeunit 134344 "Document Totals Pages"
     begin
         // [FEATURE] [UI] [Invoice Discount] [Sales] [Quote]
         // [SCENARIO 296939] Stan can change posistion on sales quote lines in case of active Calc. Invoice Discount
-        Initialize;
+        Initialize();
 
         LibrarySales.SetCalcInvDiscount(true);
 
         CreateSalesDocumentWithCustInvDiscItemExtText(SalesHeader, SalesLine, SalesHeader."Document Type"::Quote);
         Commit(); // It is important to COMMIT changes
 
-        SalesQuote.OpenEdit;
+        SalesQuote.OpenEdit();
         SalesQuote.FILTER.SetFilter("No.", SalesHeader."No.");
         SalesQuote.SalesLines.Quantity.SetValue(LibraryRandom.RandIntInRange(2, 5));
 
@@ -558,14 +558,14 @@ codeunit 134344 "Document Totals Pages"
     begin
         // [FEATURE] [UI] [Invoice Discount] [Sales] [Order]
         // [SCENARIO 296939] Stan can change posistion on sales order lines in case of active Calc. Invoice Discount
-        Initialize;
+        Initialize();
 
         LibrarySales.SetCalcInvDiscount(true);
 
         CreateSalesDocumentWithCustInvDiscItemExtText(SalesHeader, SalesLine, SalesHeader."Document Type"::Order);
         Commit(); // It is important to COMMIT changes
 
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", SalesHeader."No.");
         SalesOrder.SalesLines.Quantity.SetValue(LibraryRandom.RandIntInRange(2, 5));
 
@@ -585,14 +585,14 @@ codeunit 134344 "Document Totals Pages"
     begin
         // [FEATURE] [UI] [Invoice Discount] [Sales] [Invoice]
         // [SCENARIO 296939] Stan can change posistion on sales invoice lines in case of active Calc. Invoice Discount
-        Initialize;
+        Initialize();
 
         LibrarySales.SetCalcInvDiscount(true);
 
         CreateSalesDocumentWithCustInvDiscItemExtText(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice);
         Commit(); // It is important to COMMIT changes
 
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.FILTER.SetFilter("No.", SalesHeader."No.");
         SalesInvoice.SalesLines.Quantity.SetValue(LibraryRandom.RandIntInRange(2, 5));
 
@@ -612,14 +612,14 @@ codeunit 134344 "Document Totals Pages"
     begin
         // [FEATURE] [UI] [Invoice Discount] [Sales] [Credit Memo]
         // [SCENARIO 296939] Stan can change posistion on sales credit memo lines in case of active Calc. Invoice Discount
-        Initialize;
+        Initialize();
 
         LibrarySales.SetCalcInvDiscount(true);
 
         CreateSalesDocumentWithCustInvDiscItemExtText(SalesHeader, SalesLine, SalesHeader."Document Type"::"Credit Memo");
         Commit(); // It is important to COMMIT changes
 
-        SalesCreditMemo.OpenEdit;
+        SalesCreditMemo.OpenEdit();
         SalesCreditMemo.FILTER.SetFilter("No.", SalesHeader."No.");
         SalesCreditMemo.SalesLines.Quantity.SetValue(LibraryRandom.RandIntInRange(2, 5));
 
@@ -639,14 +639,14 @@ codeunit 134344 "Document Totals Pages"
     begin
         // [FEATURE] [UI] [Invoice Discount] [Sales] [Return Order]
         // [SCENARIO 296939] Stan can change posistion on sales return order lines in case of active Calc. Invoice Discount
-        Initialize;
+        Initialize();
 
         LibrarySales.SetCalcInvDiscount(true);
 
         CreateSalesDocumentWithCustInvDiscItemExtText(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order");
         Commit(); // It is important to COMMIT changes
 
-        SalesReturnOrder.OpenEdit;
+        SalesReturnOrder.OpenEdit();
         SalesReturnOrder.FILTER.SetFilter("No.", SalesHeader."No.");
         SalesReturnOrder.SalesLines.Quantity.SetValue(LibraryRandom.RandIntInRange(2, 5));
 
@@ -666,14 +666,14 @@ codeunit 134344 "Document Totals Pages"
     begin
         // [FEATURE] [UI] [Invoice Discount] [Sales] [Blanket Order]
         // [SCENARIO 296939] Stan can change posistion on blanket sales order lines in case of active Calc. Invoice Discount
-        Initialize;
+        Initialize();
 
         LibrarySales.SetCalcInvDiscount(true);
 
         CreateSalesDocumentWithCustInvDiscItemExtText(SalesHeader, SalesLine, SalesHeader."Document Type"::"Blanket Order");
         Commit(); // It is important to COMMIT changes
 
-        BlanketSalesOrder.OpenEdit;
+        BlanketSalesOrder.OpenEdit();
         BlanketSalesOrder.FILTER.SetFilter("No.", SalesHeader."No.");
         BlanketSalesOrder.SalesLines.Quantity.SetValue(LibraryRandom.RandIntInRange(2, 5));
 
@@ -694,14 +694,14 @@ codeunit 134344 "Document Totals Pages"
     begin
         // [FEATURE] [UI] [Invoice Discount] [Purchase] [Quote]
         // [SCENARIO 296939] Stan can change posistion on purchase quote lines in case of active Calc. Invoice Discount
-        Initialize;
+        Initialize();
 
         LibraryPurchase.SetCalcInvDiscount(true);
         CreateItemWithExtendedText(Item);
 
         CreatePurchaseDocumentWithCustInvDiscItemExtText(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Quote);
 
-        PurchaseQuote.OpenEdit;
+        PurchaseQuote.OpenEdit();
         PurchaseQuote.FILTER.SetFilter("No.", PurchaseHeader."No.");
         PurchaseQuote.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
         PurchaseQuote.PurchLines."No.".SetValue(Item."No.");
@@ -724,14 +724,14 @@ codeunit 134344 "Document Totals Pages"
     begin
         // [FEATURE] [UI] [Invoice Discount] [Purchase] [Order]
         // [SCENARIO 296939] Stan can change posistion on purchase order lines in case of active Calc. Invoice Discount
-        Initialize;
+        Initialize();
 
         LibraryPurchase.SetCalcInvDiscount(true);
         CreateItemWithExtendedText(Item);
 
         CreatePurchaseDocumentWithCustInvDiscItemExtText(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order);
 
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
         PurchaseOrder.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
         PurchaseOrder.PurchLines."No.".SetValue(Item."No.");
@@ -754,14 +754,14 @@ codeunit 134344 "Document Totals Pages"
     begin
         // [FEATURE] [UI] [Invoice Discount] [Purchase] [Invoice]
         // [SCENARIO 296939] Stan can change posistion on purchase invoice lines in case of active Calc. Invoice Discount
-        Initialize;
+        Initialize();
 
         LibraryPurchase.SetCalcInvDiscount(true);
         CreateItemWithExtendedText(Item);
 
         CreatePurchaseDocumentWithCustInvDiscItemExtText(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice);
 
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.FILTER.SetFilter("No.", PurchaseHeader."No.");
         PurchaseInvoice.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
         PurchaseInvoice.PurchLines."No.".SetValue(Item."No.");
@@ -784,14 +784,14 @@ codeunit 134344 "Document Totals Pages"
     begin
         // [FEATURE] [UI] [Invoice Discount] [Purchase] [Credit Memo]
         // [SCENARIO 296939] Stan can change posistion on purchase credit memo lines in case of active Calc. Invoice Discount
-        Initialize;
+        Initialize();
 
         LibraryPurchase.SetCalcInvDiscount(true);
         CreateItemWithExtendedText(Item);
 
         CreatePurchaseDocumentWithCustInvDiscItemExtText(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Credit Memo");
 
-        PurchaseCreditMemo.OpenEdit;
+        PurchaseCreditMemo.OpenEdit();
         PurchaseCreditMemo.FILTER.SetFilter("No.", PurchaseHeader."No.");
         PurchaseCreditMemo.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
         PurchaseCreditMemo.PurchLines."No.".SetValue(Item."No.");
@@ -814,14 +814,14 @@ codeunit 134344 "Document Totals Pages"
     begin
         // [FEATURE] [UI] [Invoice Discount] [Purchase] [Return Order]
         // [SCENARIO 296939] Stan can change posistion on purchase return order lines in case of active Calc. Invoice Discount
-        Initialize;
+        Initialize();
 
         LibraryPurchase.SetCalcInvDiscount(true);
         CreateItemWithExtendedText(Item);
 
         CreatePurchaseDocumentWithCustInvDiscItemExtText(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Return Order");
 
-        PurchaseReturnOrder.OpenEdit;
+        PurchaseReturnOrder.OpenEdit();
         PurchaseReturnOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
         PurchaseReturnOrder.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
         PurchaseReturnOrder.PurchLines."No.".SetValue(Item."No.");
@@ -844,14 +844,14 @@ codeunit 134344 "Document Totals Pages"
     begin
         // [FEATURE] [UI] [Invoice Discount] [Purchase] [Blanket Order]
         // [SCENARIO 296939] Stan can change posistion on blanket purchase order lines in case of active Calc. Invoice Discount
-        Initialize;
+        Initialize();
 
         LibraryPurchase.SetCalcInvDiscount(true);
         CreateItemWithExtendedText(Item);
 
         CreatePurchaseDocumentWithCustInvDiscItemExtText(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Blanket Order");
 
-        BlanketPurchaseOrder.OpenEdit;
+        BlanketPurchaseOrder.OpenEdit();
         BlanketPurchaseOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
         BlanketPurchaseOrder.PurchLines.Type.SetValue(PurchaseLine.Type::Item);
         BlanketPurchaseOrder.PurchLines."No.".SetValue(Item."No.");
@@ -861,6 +861,66 @@ codeunit 134344 "Document Totals Pages"
 
         Assert.IsTrue(BlanketPurchaseOrder.PurchLines.Next, 'Stan must be able to go to next line');
         Assert.AreEqual('', GetLastErrorCallstack, 'Unexpected error has been thrown');
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesOrderStatisticsModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesOrderStatisticsUpdatesInvoiceDiscountAmount()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesOrder: TestPage "Sales Order";
+    begin
+        // [FEATURE] [UI] [Invoice Discount] [Sales]
+        // [SCENARIO 378462] "Invoice Discount Amount" on Sales Order page is updated after it changed on Statistics page.
+        Initialize();
+
+        // [GIVEN] Sales Order with two Sales Lines with Unit Price = 5 and 10000.
+        CreateSalesHeaderWithTwoLines(
+            SalesHeader, SalesHeader."Document Type"::Order, LibraryRandom.RandInt(5), LibraryRandom.RandInt(5),
+            LibraryRandom.RandInt(5), LibraryRandom.RandIntInRange(10000, 20000));
+
+        // [GIVEN] Sales Order is opened on Sales Order page.
+        SalesOrder.OpenEdit();
+        SalesOrder.FILTER.SetFilter("No.", SalesHeader."No.");
+
+        // [WHEN] "Invoice Discount Amount" is set to 10 on Statistics page opened from Sales Order page.
+        LibraryVariableStorage.Enqueue(LibraryRandom.RandDec(1, 2));
+        SalesOrder.Statistics.Invoke();
+
+        // [THEN] "Invoice Discount Amount" is equal to 10 on Sales Order page.
+        SalesHeader.Find();
+        SalesOrder.SalesLines."Invoice Discount Amount".AssertEquals(SalesHeader."Invoice Discount Value");
+    end;
+
+    [Test]
+    [HandlerFunctions('PurchaseOrderStatisticsModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderStatisticsUpdatesInvoiceDiscountAmount()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseOrder: TestPage "Purchase Order";
+    begin
+        // [FEATURE] [UI] [Invoice Discount] [Purchase]
+        // [SCENARIO 378462] "Invoice Discount Amount" on Purchase Order page is updated after it changed on Statistics page.
+        Initialize();
+
+        // [GIVEN] Purchase Order with two Purchase Lines with Direct Unit Cost = 5 and 10000.
+        CreatePurchaseHeaderWithTwoLines(
+            PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryRandom.RandInt(5), LibraryRandom.RandInt(5),
+            LibraryRandom.RandInt(5), LibraryRandom.RandIntInRange(10000, 20000));
+
+        // [GIVEN] Purchase Order is opened on Purchase Order page.
+        PurchaseOrder.OpenEdit();
+        PurchaseOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
+
+        // [WHEN] "Invoice Discount Amount" is set to 10 on Statistics page opened from Purchase Order page.
+        LibraryVariableStorage.Enqueue(LibraryRandom.RandDec(1, 2));
+        PurchaseOrder.Statistics.Invoke();
+
+        // [THEN] "Invoice Discount Amount" is equal to 10 on Purchase Order page.
+        PurchaseHeader.Find();
+        PurchaseOrder.PurchLines."Invoice Discount Amount".AssertEquals(PurchaseHeader."Invoice Discount Value");
     end;
 
     local procedure Initialize()
@@ -946,6 +1006,19 @@ codeunit 134344 "Document Totals Pages"
         SalesLine.Modify(true);
     end;
 
+    local procedure CreateSalesHeaderWithTwoLines(var SalesHeader: Record "Sales Header"; Type: Option; Qty1: Decimal; UnitPrice1: Decimal; Qty2: Decimal; UnitPrice2: Decimal)
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, Type, LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, '', Qty1);
+        SalesLine.Validate("Unit Price", UnitPrice1);
+        SalesLine.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, '', Qty2);
+        SalesLine.Validate("Unit Price", UnitPrice2);
+        SalesLine.Modify(true);
+    end;
+
     local procedure CreatePurchaseHeaderWithCurrency(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type")
     var
         PurchaseLine: Record "Purchase Line";
@@ -964,6 +1037,19 @@ codeunit 134344 "Document Totals Pages"
         PurchaseLine.Modify(true);
 
         PurchaseHeader.CalcFields(Amount);
+    end;
+
+    local procedure CreatePurchaseHeaderWithTwoLines(var PurchaseHeader: Record "Purchase Header"; Type: Option; Qty1: Decimal; UnitPrice1: Decimal; Qty2: Decimal; UnitPrice2: Decimal)
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, Type, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, '', Qty1);
+        PurchaseLine.Validate("Direct Unit Cost", UnitPrice1);
+        PurchaseLine.Modify(true);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, '', Qty2);
+        PurchaseLine.Validate("Direct Unit Cost", UnitPrice2);
+        PurchaseLine.Modify(true);
     end;
 
     local procedure CreateSalesDocumentWithCustInvDiscItemExtText(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type")
@@ -994,8 +1080,8 @@ codeunit 134344 "Document Totals Pages"
     [Scope('OnPrem')]
     procedure ChangeExchangeRateMPH(var ChangeExchangeRate: TestPage "Change Exchange Rate")
     begin
-        ChangeExchangeRate.CurrentExchRate.SetValue(LibraryVariableStorage.DequeueDecimal);
-        ChangeExchangeRate.OK.Invoke;
+        ChangeExchangeRate.CurrentExchRate.SetValue(LibraryVariableStorage.DequeueDecimal());
+        ChangeExchangeRate.OK.Invoke();
     end;
 
     local procedure VerifySalesHeaderInvoiceDiscountAmount(var SalesHeader: Record "Sales Header"; InvoiceDiscountAmount: Decimal)
@@ -1021,6 +1107,22 @@ codeunit 134344 "Document Totals Pages"
     [Scope('OnPrem')]
     procedure MessageHandlerSimple(MessageText: Text[1024])
     begin
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SalesOrderStatisticsModalPageHandler(var SalesOrderStatistics: TestPage "Sales Order Statistics")
+    begin
+        SalesOrderStatistics.InvDiscountAmount_General.SetValue(LibraryVariableStorage.DequeueDecimal());
+        SalesOrderStatistics.OK.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderStatisticsModalPageHandler(var PurchaseOrderStatistics: TestPage "Purchase Order Statistics")
+    begin
+        PurchaseOrderStatistics.InvDiscountAmount_General.SetValue(LibraryVariableStorage.DequeueDecimal());
+        PurchaseOrderStatistics.OK.Invoke();
     end;
 }
 

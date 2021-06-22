@@ -1938,6 +1938,70 @@ codeunit 134421 "Report Selections Tests"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('CustomerReportSelectionsHandler,CustomReportLayoutsHandler')]
+    [Scope('OnPrem')]
+    procedure CustomerDocumentLayoutsSelectCustomReportLayout()
+    var
+        Customer: Record Customer;
+        CustomReportSelection: Record "Custom Report Selection";
+        CustomReportLayout: Record "Custom Report Layout";
+        CustomerCard: TestPage "Customer Card";
+    begin
+        // [FEATURE] [UI] [Custom Report Layout]
+        // [SCENARIO 380458] User is able to select custom report layout in the customer document layouts
+        Initialize();
+
+        // [GIVEN] Customer with custom report selection "CRS" and new custom report layout "CRL"
+        LibrarySales.CreateCustomer(Customer);
+        CreateSalesQuoteCustomReportSelection(CustomReportSelection, Customer."No.");
+        CreateSalesQuoteCustomLayout(CustomReportLayout);
+        LibraryVariableStorage.Enqueue(CustomReportLayout.Code);
+        LibraryVariableStorage.Enqueue(CustomReportLayout.Description);
+
+        // [WHEN] Select custom report layout from document layouts (CustomerReportSelectionsHandler, CustomReportLayoutsHandler)
+        CustomerCard.OpenView();
+        CustomerCard.GoToRecord(Customer);
+        CustomerCard.CustomerReportSelections.Invoke();
+
+        // [THEN] CRS."Customer Layout Description" = CRL."Description" (verified in CustomerReportSelectionsHandler)
+        // [THEN] CRS."Custom Report Layout Code" = CRL."Code"
+        CustomReportSelection.Get(CustomReportSelection."Source Type", CustomReportSelection."Source No.", CustomReportSelection.Usage, CustomReportSelection.Sequence);
+        Assert.AreEqual(CustomReportLayout.Code, CustomReportSelection."Custom Report Layout Code", 'Wrong custom report layout code');
+    end;
+
+    [Test]
+    [HandlerFunctions('VendorReportSelectionsHandler,CustomReportLayoutsHandler')]
+    [Scope('OnPrem')]
+    procedure VendorDocumentLayoutsSelectCustomReportLayout()
+    var
+        Vendor: Record Vendor;
+        CustomReportSelection: Record "Custom Report Selection";
+        CustomReportLayout: Record "Custom Report Layout";
+        VendorCard: TestPage "Vendor Card";
+    begin
+        // [FEATURE] [UI] [Custom Report Layout]
+        // [SCENARIO 380458] User is able to select custom report layout in the vendor document layouts
+        Initialize();
+
+        // [GIVEN] Vendor with custom report selection "CRS" and new custom report layout "CRL"
+        LibraryPurchase.CreateVendor(Vendor);
+        CreatePurchaseQuoteCustomReportSelection(CustomReportSelection, Vendor."No.");
+        CreatePurchaseQuoteCustomLayout(CustomReportLayout);
+        LibraryVariableStorage.Enqueue(CustomReportLayout.Code);
+        LibraryVariableStorage.Enqueue(CustomReportLayout.Description);
+
+        // [WHEN] Select custom report layout from document layouts (VendorReportSelectionsHandler, CustomReportLayoutsHandler)
+        VendorCard.OpenView();
+        VendorCard.GoToRecord(Vendor);
+        VendorCard.VendorReportSelections.Invoke();
+
+        // [THEN] CRS."Vendor Layout Description" = CRL."Description" (verified in VendorReportSelectionsHandler)
+        // [THEN] CRS."Custom Report Layout Code" = CRL."Code"
+        CustomReportSelection.Get(CustomReportSelection."Source Type", CustomReportSelection."Source No.", CustomReportSelection.Usage, CustomReportSelection.Sequence);
+        Assert.AreEqual(CustomReportLayout.Code, CustomReportSelection."Custom Report Layout Code", 'Wrong custom report layout code');
+    end;
+
     local procedure Initialize()
     var
         ReportSelections: Record "Report Selections";
@@ -2516,6 +2580,30 @@ codeunit 134421 "Report Selections Tests"
         Customer.Modify();
     end;
 
+    local procedure CreateSalesQuoteCustomLayout(var CustomReportLayout: Record "Custom Report Layout")
+    begin
+        CustomReportLayout.Init();
+        CustomReportLayout."Report ID" := 1304;
+        CustomReportLayout.Type := CustomReportLayout.Type::Word;
+        CustomReportLayout.Description := LibraryUtility.GenerateGUID();
+        CustomReportLayout.Insert(true);
+    end;
+
+    local procedure CreatePurchaseQuoteCustomLayout(var CustomReportLayout: Record "Custom Report Layout")
+    begin
+        Clear(CustomReportLayout);
+        CustomReportLayout."Report ID" := 404;
+        CustomReportLayout.Type := CustomReportLayout.Type::Word;
+        CustomReportLayout.Description := LibraryUtility.GenerateGUID();
+        CustomReportLayout.Insert(true);
+
+        Clear(CustomReportLayout);
+        CustomReportLayout."Report ID" := 404;
+        CustomReportLayout.Type := CustomReportLayout.Type::Word;
+        CustomReportLayout.Description := LibraryUtility.GenerateGUID();
+        CustomReportLayout.Insert(true);
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure StandardSalesInvoiceRequestPageHandler(var StandardSalesInvoice: TestRequestPage "Standard Sales - Invoice")
@@ -2731,6 +2819,32 @@ codeunit 134421 "Report Selections Tests"
         until Contact.Next() = 0;
 
         ContactList.Cancel().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure CustomerReportSelectionsHandler(var CustomerReportSelections: TestPage "Customer Report Selections")
+    begin
+        CustomerReportSelections.First();
+        CustomerReportSelections."Custom Report Description".Drilldown();
+        CustomerReportSelections."Custom Report Description".AssertEquals(LibraryVariableStorage.DequeueText());
+    end;
+
+    [ModalPageHandler]
+    procedure CustomReportLayoutsHandler(var CustomReportLayouts: TestPage "Custom Report Layouts")
+    var
+        CustomReportLayout: Record "Custom Report Layout";
+    begin
+        CustomReportLayout.Get(LibraryVariableStorage.DequeueText());
+        CustomReportLayouts.GoToRecord(CustomReportLayout);
+        CustomReportLayouts.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure VendorReportSelectionsHandler(var VendorReportSelections: TestPage "Vendor Report Selections")
+    begin
+        VendorReportSelections.First();
+        VendorReportSelections."Custom Report Description".Drilldown();
+        VendorReportSelections."Custom Report Description".AssertEquals(LibraryVariableStorage.DequeueText());
     end;
 }
 

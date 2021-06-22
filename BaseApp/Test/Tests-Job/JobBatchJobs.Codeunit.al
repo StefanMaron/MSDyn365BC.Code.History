@@ -27,6 +27,7 @@ codeunit 136310 "Job Batch Jobs"
         LibraryResource: Codeunit "Library - Resource";
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryUTUtility: Codeunit "Library UT Utility";
         JobCreateInvoice: Codeunit "Job Create-Invoice";
@@ -1183,6 +1184,72 @@ codeunit 136310 "Job Batch Jobs"
 
         // [THEN] Job Invoices page contains created invoice "I"
         Assert.AreEqual(InvoiceNo, LibraryVariableStorage.DequeueText(), 'Invalid document number');
+    end;
+
+    [Test]
+    [HandlerFunctions('JobTransferToSalesInvoiceWithPostingDateHandler,ConfirmHandlerTrue,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure RunCreateSalesInvoiceJobPlanningLineWithBin()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        Bin: array[2] of Record Bin;
+        ItemJournalLine: Record "Item Journal Line";
+        JobTask: Record "Job Task";
+        JobJournalLine: Record "Job Journal Line";
+        JobPlanningLine: Record "Job Planning Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Job Create Invoice] [Bin]
+        // [SCENARIO 377653]
+        Initialize();
+        Qty := LibraryRandom.RandInt(10);
+
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create location with two bins - "B1", "B2".
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, false, false, false);
+        LibraryWarehouse.CreateBin(Bin[1], Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        LibraryWarehouse.CreateBin(Bin[2], Location.Code, LibraryUtility.GenerateGUID(), '', '');
+
+        // [GIVEN] Post 10 pcs of an item into each bin.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", Location.Code, Bin[1].Code, Qty);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", Location.Code, Bin[2].Code, Qty);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Job, job task.
+        // [GIVEN] Create and post job journal line for 10 pcs from bin "B2".
+        // [GIVEN] The bin "B2" is now empty.
+        CreateJobAndJobTask(JobTask);
+        LibraryJob.CreateJobJournalLine(LibraryJob.UsageLineTypeBoth, JobTask, JobJournalLine);
+        JobJournalLine.Validate(Type, JobJournalLine.Type::Item);
+        JobJournalLine.Validate("No.", Item."No.");
+        JobJournalLine.Validate("Location Code", Location.Code);
+        JobJournalLine.Validate("Bin Code", Bin[2].Code);
+        JobJournalLine.Validate(Quantity, Qty);
+        JobJournalLine.Modify(true);
+        LibraryJob.PostJobJournal(JobJournalLine);
+
+        // [WHEN] Find the job planning line and run "Create Sales Invoice".
+        FindJobPlanningLine(JobPlanningLine, JobTask);
+        TransferJobToSales(JobPlanningLine, false);
+
+        // [THEN] The sales invoice has been created. Bin Code on the sales line = "B2".
+        SalesHeader.Get(
+          SalesHeader."Document Type"::Invoice, FindSalesHeader(JobTask."Job No.", SalesHeader."Document Type"::Invoice));
+        FindSalesLine(SalesLine, SalesHeader."Document Type", SalesHeader."No.", Item."No.");
+        SalesLine.TestField("Job No.", JobTask."Job No.");
+        SalesLine.TestField("Location Code", Location.Code);
+        SalesLine.TestField("Bin Code", Bin[2].Code);
+
+        // [THEN] The sales invoice can be posted.
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        JobPlanningLine.FindLast();
+        JobPlanningLine.CalcFields("Qty. Invoiced");
+        JobPlanningLine.TestField("Qty. Invoiced", Qty);
     end;
 
     local procedure Initialize()

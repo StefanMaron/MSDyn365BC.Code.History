@@ -358,12 +358,7 @@ codeunit 9200 "Matrix Management"
         RecordPosition := Calendar.GetPosition;
 
         repeat
-            CurrSetLength := CurrSetLength + 1;
-            if UseNameForCaption then
-                CaptionSet[CurrSetLength] := Format(Calendar."Period Name")
-            else
-                CaptionSet[CurrSetLength] := PeriodFormMgt.CreatePeriodFormat(PeriodType, Calendar."Period Start");
-            PeriodRecords[CurrSetLength].Copy(Calendar);
+            GeneratePeriodAndCaption(CaptionSet, PeriodRecords, CurrSetLength, Calendar, UseNameForCaption, PeriodType);
         until (CurrSetLength = MaximumSetLength) or (PeriodFormMgt.NextDate(1, Calendar, PeriodType) <> 1);
 
         if CurrSetLength = 1 then
@@ -373,6 +368,24 @@ codeunit 9200 "Matrix Management"
 
         AdjustPeriodWithDateFilter(DateFilter, PeriodRecords[1]."Period Start",
           PeriodRecords[CurrSetLength]."Period End");
+    end;
+
+    local procedure GeneratePeriodAndCaption(var CaptionSet: array[32] of Text[80]; var PeriodRecords: array[32] of Record Date temporary; var CurrSetLength: Integer; var Calendar: Record Date; UseNameForCaption: Boolean; PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period")
+    var
+        PeriodFormMgt: Codeunit PeriodFormManagement;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGeneratePeriodAndCaption(PeriodType, Calendar, IsHandled);
+        if IsHandled then
+            exit;
+
+        CurrSetLength := CurrSetLength + 1;
+        if UseNameForCaption then
+            CaptionSet[CurrSetLength] := Format(Calendar."Period Name")
+        else
+            CaptionSet[CurrSetLength] := PeriodFormMgt.CreatePeriodFormat(PeriodType, Calendar."Period Start");
+        PeriodRecords[CurrSetLength].Copy(Calendar);
     end;
 
     local procedure FindDate(SearchString: Text[3]; var Calendar: Record Date; PeriodType: Option; ErrorWhenNotFound: Boolean): Boolean
@@ -503,6 +516,11 @@ codeunit 9200 "Matrix Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetCaption(var RecRef: RecordRef; CaptionFieldNo: Integer; var Caption: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGeneratePeriodAndCaption(PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period"; Calendar: Record Date; var IsHandled: Boolean)
     begin
     end;
 }

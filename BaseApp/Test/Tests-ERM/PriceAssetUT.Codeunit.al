@@ -337,18 +337,27 @@ codeunit 134119 "Price Asset UT"
     end;
 
     [Test]
-    procedure T034_WorkTypeCodeNotAllowedForResourceGroup()
+    procedure T034_WorkTypeCodeAllowedForResourceGroup()
     var
         PriceAsset: Record "Price Asset";
+        ResourceGroup: Record "Resource Group";
+        WorkType: Record "Work Type";
     begin
-        // [SCENARIO] "Work Type Code" canot be filled for product type 'Resource Group'
+        // [SCENARIO] "Work Type Code" can be filled for product type 'Resource Group'
         Initialize();
         // [GIVEN] Price Asset, where "Asset Type" is 'Resource Group' 
         PriceAsset.Validate("Asset Type", PriceAsset."Asset Type"::"Resource Group");
-        // [WHEN] Validate "Work Type Code" with a valid code
-        asserterror PriceAsset.Validate("Work Type Code", GetWorkTypeCode(''));
-        // [THEN] Error message: 'Work Type Code must be empty'
-        Assert.ExpectedError(AssetTypeMustBeResourceErr);
+        LibraryResource.CreateResourceGroup(ResourceGroup);
+        PriceAsset.Validate("Asset No.", ResourceGroup."No.");
+        // [GIVEN] Work Type 'WT', where "Unit Of Measure" is 'WT-UOM' 
+        WorkType.Get(GetWorkTypeCode(''));
+
+        // [WHEN] Validate "Work Type Code" with a valid code 'WT'
+        PriceAsset.Validate("Work Type Code", WorkType.Code);
+
+        // [THEN] Asset, where 'Work Type Code' is 'WT', "Unit Of Measure" is 'WT-UOM' 
+        PriceAsset.TestField("Work Type Code", WorkType.Code);
+        PriceAsset.TestField("Unit of Measure Code", WorkType."Unit of Measure Code");
     end;
 
     [Test]

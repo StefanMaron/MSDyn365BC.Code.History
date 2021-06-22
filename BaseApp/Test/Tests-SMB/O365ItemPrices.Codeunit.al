@@ -864,6 +864,7 @@ codeunit 138019 "O365 Item Prices"
         CreateItem(Item);
         CreateSalesPrices(Item."No.");
         SalesPrice.ModifyAll("Price Includes VAT", not Item."Price Includes VAT");
+        EditSalesSetupWithVATBusPostGrPrice();
 
         ItemCard.OpenEdit;
         ItemCard.Filter.SetFilter("No.", Item."No.");
@@ -888,6 +889,7 @@ codeunit 138019 "O365 Item Prices"
         CreateItem(Item);
         CreateSalesPrices(Item."No.");
         SalesPrice.ModifyAll("Price Includes VAT", not Item."Price Includes VAT");
+        EditSalesSetupWithVATBusPostGrPrice();
 
         ItemCard.OpenEdit;
         ItemCard.Filter.SetFilter("No.", Item."No.");
@@ -1509,6 +1511,17 @@ codeunit 138019 "O365 Item Prices"
             Delete(true);
             Next;
         end;
+    end;
+
+    local procedure EditSalesSetupWithVATBusPostGrPrice()
+    var
+        SalesSetup: Record "Sales & Receivables Setup";
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        SalesSetup.Get();
+        SalesSetup."VAT Bus. Posting Gr. (Price)" := VATPostingSetup."VAT Bus. Posting Group";
+        SalesSetup.Modify();
     end;
 
     [ConfirmHandler]

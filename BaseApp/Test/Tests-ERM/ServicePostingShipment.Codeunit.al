@@ -1494,6 +1494,119 @@ codeunit 136107 "Service Posting - Shipment"
         VerifyResourceEntriesAfterUndoShipment(TempServiceLine."Document No.");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CountryRegionItemLedgerEntryPostServiceOrder()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        CountryRegion: Record "Country/Region";
+        ItemLedgerDocType: Enum "Item Ledger Document Type";
+    begin
+        // [SCENARIO 378446] Country/Region Code on Item Ledger Entry when post Service Order with Ship-to Country/Region Code different from Country/Region Code.
+        Initialize();
+
+        // [GIVEN] Service Order with Ship-to Country/Region Code = 'R' which is not equal to Country/Region Code.
+        CreateServiceOrder(ServiceHeader);
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        UpdateCountryRegionOnServiceHeader(ServiceHeader, CountryRegion.Code);
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        UpdateShipToCountryRegionOnServiceHeader(ServiceHeader, CountryRegion.Code);
+
+        // [GIVEN] Service Line with Item.
+        CreateServiceLineForItem(ServiceLine, ServiceHeader);
+        UpdateQuantity(ServiceLine);
+
+        // [WHEN] Post Service Order as Invoice and Ship.
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
+
+        // [THEN] Item Ledger Entry is created, it has Country/Region Code = 'R'.
+        VerifyCountryRegionCodeOnItemLedgerEntry(ServiceHeader."No.", ItemLedgerDocType::"Service Shipment", CountryRegion.Code);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CountryRegionItemLedgerEntryPostServiceOrderBlankShipToCntrRgnCode()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        CountryRegion: Record "Country/Region";
+        ItemLedgerDocType: Enum "Item Ledger Document Type";
+    begin
+        // [SCENARIO 378446] Country/Region Code on Item Ledger Entry when post Service Order with blank Ship-to Country/Region Code and nonblank Country/Region Code.
+        Initialize();
+
+        // [GIVEN] Service Order with blank Ship-to Country/Region Code and nonblank Country/Region Code = 'C'.
+        CreateServiceOrder(ServiceHeader);
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        UpdateCountryRegionOnServiceHeader(ServiceHeader, CountryRegion.Code);
+        UpdateShipToCountryRegionOnServiceHeader(ServiceHeader, '');
+
+        // [GIVEN] Service Line with Item.
+        CreateServiceLineForItem(ServiceLine, ServiceHeader);
+        UpdateQuantity(ServiceLine);
+
+        // [WHEN] Post Service Order as Invoice and Ship.
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
+
+        // [THEN] Item Ledger Entry is created, it has Country/Region Code = 'C'.
+        VerifyCountryRegionCodeOnItemLedgerEntry(ServiceHeader."No.", ItemLedgerDocType::"Service Shipment", CountryRegion.Code);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CountryRegionItemLedgerEntryPostServiceOrderBlankCntrRgnCodes()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        ItemLedgerDocType: Enum "Item Ledger Document Type";
+    begin
+        // [SCENARIO 378446] Country/Region Code on Item Ledger Entry when post Service Order with blank Ship-to Country/Region Code and blank Country/Region Code.
+        Initialize();
+
+        // [GIVEN] Service Order with blank Ship-to Country/Region Code and blank Country/Region Code.
+        CreateServiceOrder(ServiceHeader);
+        UpdateCountryRegionOnServiceHeader(ServiceHeader, '');
+        UpdateShipToCountryRegionOnServiceHeader(ServiceHeader, '');
+
+        // [GIVEN] Service Line with Item.
+        CreateServiceLineForItem(ServiceLine, ServiceHeader);
+        UpdateQuantity(ServiceLine);
+
+        // [WHEN] Post Service Order as Invoice and Ship.
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
+
+        // [THEN] Item Ledger Entry is created, it has blank Country/Region Code.
+        VerifyCountryRegionCodeOnItemLedgerEntry(ServiceHeader."No.", ItemLedgerDocType::"Service Shipment", '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CountryRegionItemLedgerEntryPostServiceCreditMemo()
+    var
+        ServiceHeader: Record "Service Header";
+        CountryRegion: Record "Country/Region";
+        ItemLedgerDocType: Enum "Item Ledger Document Type";
+        CountryRegionCode: Code[10];
+    begin
+        // [SCENARIO 378446] Country/Region Code on Item Ledger Entry when post Service Credit Memo with Ship-to Country/Region Code different from Country/Region Code.
+        Initialize();
+
+        // [GIVEN] Service Credit Memo with Ship-to Country/Region Code = 'R' which is not equal to Country/Region Code = 'C'.
+        CreateServiceCreditMemo(ServiceHeader);
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        CountryRegionCode := CountryRegion.Code;
+        UpdateCountryRegionOnServiceHeader(ServiceHeader, CountryRegionCode);
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        UpdateShipToCountryRegionOnServiceHeader(ServiceHeader, CountryRegion.Code);
+
+        // [WHEN] Post Service Credit Memo as Invoice and Ship.
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
+
+        // [THEN] Item Ledger Entry is created, it has Country/Region Code = 'C'.
+        VerifyCountryRegionCodeOnItemLedgerEntry(ServiceHeader."No.", ItemLedgerDocType::"Service Credit Memo", CountryRegionCode);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1554,6 +1667,17 @@ codeunit 136107 "Service Posting - Shipment"
         CreateServiceOrder(ServiceHeader);
         CreateServiceLineForResource(ServiceLine, ServiceHeader);
         CreateServiceLineForCost(ServiceLine, ServiceHeader);
+    end;
+
+    local procedure CreateServiceCreditMemo(var ServiceHeader: Record "Service Header")
+    var
+        ServiceLine: Record "Service Line";
+    begin
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo);
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
+        ServiceLine.Validate(Quantity, LibraryRandom.RandDecInRange(10, 20, 2));
+        ServiceLine.Validate("Unit Price", LibraryRandom.RandDecInRange(100, 200, 2));
+        ServiceLine.Modify(true);
     end;
 
     local procedure CreateServiceItemLine(ServiceHeader: Record "Service Header")
@@ -1945,6 +2069,18 @@ codeunit 136107 "Service Posting - Shipment"
         end;
     end;
 
+    local procedure UpdateShipToCountryRegionOnServiceHeader(var ServiceHeader: Record "Service Header"; CountryRegionCode: Code[10])
+    begin
+        ServiceHeader.Validate("Ship-to Country/Region Code", CountryRegionCode);
+        ServiceHeader.Modify(true);
+    end;
+
+    local procedure UpdateCountryRegionOnServiceHeader(var ServiceHeader: Record "Service Header"; CountryRegionCode: Code[10])
+    begin
+        ServiceHeader.Validate("Country/Region Code", CountryRegionCode);
+        ServiceHeader.Modify(true);
+    end;
+
     local procedure VerifyBinContent(ServiceLine: Record "Service Line"; Quantity: Decimal)
     var
         BinContent: Record "Bin Content";
@@ -2046,6 +2182,17 @@ codeunit 136107 "Service Posting - Shipment"
             ItemLedgerEntry.FindLast;  // Find the Item Ledger Entry for the second shipment.
             ItemLedgerEntry.TestField(Quantity, -TempServiceLine."Qty. to Ship (Base)");
         until TempServiceLine.Next = 0;
+    end;
+
+    local procedure VerifyCountryRegionCodeOnItemLedgerEntry(OrderNo: Code[20]; DocumentType: Enum "Item Ledger Document Type"; CountryRegionCode: Code[10])
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        ItemLedgerEntry.SetRange("Document Type", DocumentType);
+        ItemLedgerEntry.SetRange("Order Type", ItemLedgerEntry."Order Type"::Service);
+        ItemLedgerEntry.SetRange("Order No.", OrderNo);
+        ItemLedgerEntry.FindFirst();
+        ItemLedgerEntry.TestField("Country/Region Code", CountryRegionCode);
     end;
 
     local procedure VerifyValueEntry(var TempServiceLine: Record "Service Line" temporary)

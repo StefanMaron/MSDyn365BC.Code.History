@@ -2,7 +2,7 @@ table 5342 "CRM Contact"
 {
     // Dynamics CRM Version: 7.1.0.2040
 
-    Caption = 'CDS Contact';
+    Caption = 'Dataverse Contact';
     Description = 'Person with whom a business unit has a relationship, such as customer, supplier, and colleague.';
     ExternalName = 'contact';
     TableType = CRM;

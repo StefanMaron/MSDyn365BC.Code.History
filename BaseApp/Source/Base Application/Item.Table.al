@@ -1,4 +1,4 @@
-table 27 Item
+﻿table 27 Item
 {
     Caption = 'Item';
     DataCaptionFields = "No.", Description;
@@ -793,8 +793,8 @@ table 27 Item
             begin
                 if "Price Includes VAT" then begin
                     SalesSetup.Get();
-                    if SalesSetup."VAT Bus. Posting Gr. (Price)" <> '' then
-                        "VAT Bus. Posting Gr. (Price)" := SalesSetup."VAT Bus. Posting Gr. (Price)";
+                    SalesSetup.TestField("VAT Bus. Posting Gr. (Price)");
+                    "VAT Bus. Posting Gr. (Price)" := SalesSetup."VAT Bus. Posting Gr. (Price)";
                     VATPostingSetup.Get("VAT Bus. Posting Gr. (Price)", "VAT Prod. Posting Group");
                 end;
                 Validate("Price/Profit Calculation");
@@ -2669,8 +2669,15 @@ table 27 Item
         OnAfterDeleteRelatedData(Rec);
     end;
 
-    procedure AssistEdit(): Boolean
+    procedure AssistEdit() Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeAssistEdit(Rec, xRec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         GetInvtSetup;
         InvtSetup.TestField("Item Nos.");
         if NoSeriesMgt.SelectSeries(InvtSetup."Item Nos.", xRec."No. Series", "No. Series") then begin
@@ -2700,13 +2707,7 @@ table 27 Item
                 ItemVend."Vendor Item No." := SKU."Vendor Item No.";
             ItemVend."Lead Time Calculation" := SKU."Lead Time Calculation";
         end;
-        if Format(ItemVend."Lead Time Calculation") = '' then begin
-            GetPlanningParameters.AtSKU(SKU, "No.", ItemVend."Variant Code", LocationCode);
-            ItemVend."Lead Time Calculation" := SKU."Lead Time Calculation";
-            if Format(ItemVend."Lead Time Calculation") = '' then
-                if Vend.Get(ItemVend."Vendor No.") then
-                    ItemVend."Lead Time Calculation" := Vend."Lead Time Calculation";
-        end;
+        ItemVend.FindLeadTimeCalculation(Rec, SKU, LocationCode);
         ItemVend.Reset();
     end;
 
@@ -2874,11 +2875,23 @@ table 27 Item
             exit;
         if not ItemTrackingCode3.Get(ItemRec."Item Tracking Code") then
             exit;
+        CheckSNSpecificTrackingInteger(ItemTrackingCode3, ItemRec, FieldName);
+    end;
+
+    local procedure CheckSNSpecificTrackingInteger(ItemTrackingCode3: Record "Item Tracking Code"; ItemRec: Record Item; FieldName: Text[30])
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckSNSpecificTrackingInteger(ItemRec, IsHandled);
+        if IsHandled then
+            exit;
+
         if ItemTrackingCode3."SN Specific Tracking" then
             Error(Text025,
               FieldName,
               TableCaption,
-              ItemNo,
+              ItemRec."No.",
               ItemTrackingCode3.FieldCaption("SN Specific Tracking"));
     end;
 
@@ -3369,11 +3382,11 @@ table 27 Item
     local procedure CreateNewItem(ItemName: Text[100]; ShowItemCard: Boolean): Code[20]
     var
         Item: Record Item;
-        ItemTemplate: Record "Item Template";
+        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
         ItemCard: Page "Item Card";
     begin
         OnBeforeCreateNewItem(Item, ItemName);
-        if not ItemTemplate.NewItemFromTemplate(Item) then
+        if not ItemTemplMgt.InsertItemFromTemplate(Item) then
             Error(SelectItemErr);
 
         Item.Description := ItemName;
@@ -3582,6 +3595,16 @@ table 27 Item
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var Item: Record Item; xItem: Record Item; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAssistEdit(var Item: Record Item; var xItem: Record Item; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckSNSpecificTrackingInteger(var Item: Record Item; var IsHandled: Boolean)
     begin
     end;
 

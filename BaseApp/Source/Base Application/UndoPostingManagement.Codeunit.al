@@ -643,6 +643,7 @@
                             "Qty. to Receive" := 0
                         else
                             InitQtyToShip;
+                        OnUpdatePurchLineOnAfterSetQtyToShip(PurchLine);
                         UpdateWithWarehouseReceive;
                     end;
                 "Document Type"::Order:
@@ -654,6 +655,7 @@
                             "Qty. to Receive" := 0
                         else
                             InitQtyToReceive;
+                        OnUpdatePurchLineOnAfterSetQtyToReceive(PurchLine);
                         UpdateWithWarehouseReceive;
                     end;
                 else
@@ -1093,6 +1095,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTestWarehouseActivityLine2(var WarehouseActivityLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdatePurchLineOnAfterSetQtyToShip(var PurchLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdatePurchLineOnAfterSetQtyToReceive(var PurchLine: Record "Purchase Line")
     begin
     end;
 }

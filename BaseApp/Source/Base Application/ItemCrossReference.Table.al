@@ -94,6 +94,9 @@ table 5717 "Item Cross Reference"
 
     fieldgroups
     {
+        fieldgroup(DropDown; "Item No.", "Cross-Reference Type", "Cross-Reference Type No.", "Cross-Reference No.", Description)
+        {
+        }
     }
 
     trigger OnDelete()

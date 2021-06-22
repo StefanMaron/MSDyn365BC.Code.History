@@ -11,6 +11,8 @@ codeunit 135301 "O365 Sales Item Charge Tests"
     var
         LibrarySales: Codeunit "Library - Sales";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryInventory: Codeunit "Library - Inventory";
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Assert: Codeunit Assert;
@@ -18,31 +20,6 @@ codeunit 135301 "O365 Sales Item Charge Tests"
         IncorrectAmountOfLinesErr: Label 'ENU=The amount of lines must be greater than 0.';
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
         isInitialized: Boolean;
-
-    local procedure Initialize()
-    var
-        SalesReceivablesSetup: Record "Sales & Receivables Setup";
-        LibraryApplicationArea: Codeunit "Library - Application Area";
-    begin
-        LibraryTestInitialize.OnTestInitialize(Codeunit::"O365 Sales Item Charge Tests");
-
-        LibraryVariableStorage.Clear;
-        if IsInitialized then
-            exit;
-
-        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"O365 Sales Item Charge Tests");
-
-        LibraryApplicationArea.EnableItemChargeSetup;
-
-        SalesReceivablesSetup.Get();
-        SalesReceivablesSetup."Shipment on Invoice" := true;
-        SalesReceivablesSetup.Modify(true);
-
-        Commit();
-        IsInitialized := true;
-
-        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"O365 Sales Item Charge Tests");
-    end;
 
     [Test]
     [HandlerFunctions('ItemChargeAssignmentPageHandler,SuggestItemChargeAssgntByAmountHandler')]
@@ -184,6 +161,92 @@ codeunit 135301 "O365 Sales Item Charge Tests"
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
     end;
 
+    [Test]
+    [HandlerFunctions('ItemChargeAssignmentGetShipmentLinesModalPageHandler')]
+    procedure CancelInvoiceWithChargeItemAssignedToMultipleShipmentLines()
+    var
+        Item: array[4] of Record Item;
+        Customer: Record Customer;
+        SalesHeaderOrder: Record "Sales Header";
+        SalesHeaderInvoice: Record "Sales Header";
+        SalesLineOrder: array[4] of Record "Sales Line";
+        SalesLineInvoice: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        ValueEntry: Record "Value Entry";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+        Index: Integer;
+    begin
+        // [FEATURE] [Copy Document]
+        // [SCENARIO 376402] System get Sales Amount (Actual) value from invoice's value entries when it copies document from Invoice to Credit Memo
+        Initialize();
+
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateSalesHeader(SalesHeaderOrder, SalesHeaderOrder."Document Type"::Order, Customer."No.");
+
+        for Index := 1 to ArrayLen(Item) do begin
+            LibraryInventory.CreateItem(Item[Index]);
+            LibrarySales.CreateSalesLine(
+              SalesLineOrder[Index], SalesHeaderOrder, SalesLineOrder[Index].Type::Item,
+              Item[Index]."No.", LibraryRandom.RandIntInRange(5, 20));
+            SalesLineOrder[Index].Validate("Unit Price", LibraryRandom.RandIntInRange(100, 200));
+            SalesLineOrder[Index].Modify(true);
+        end;
+
+        LibrarySales.PostSalesDocument(SalesHeaderOrder, true, true);
+
+        LibrarySales.CreateSalesHeader(SalesHeaderInvoice, SalesHeaderInvoice."Document Type"::Invoice, Customer."No.");
+        LibrarySales.CreateSalesLine(
+          SalesLineInvoice, SalesHeaderInvoice, SalesLineInvoice.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo(), 1);
+        SalesLineInvoice.Validate("Unit Price", LibraryRandom.RandIntInRange(100, 200));
+        SalesLineInvoice.Modify(true);
+
+        LibraryVariableStorage.Enqueue(ArrayLen(Item));
+        for Index := 1 to ArrayLen(SalesLineOrder) do
+            LibraryVariableStorage.Enqueue(Index * 0.1);
+
+        GetShipmentLinesForItemCharge(SalesLineInvoice);
+        Commit();
+
+        SalesLineInvoice.ShowItemChargeAssgnt();
+
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeaderInvoice, true, true));
+
+        CorrectPostedSalesInvoice.CancelPostedInvoice(SalesInvoiceHeader);
+
+        VerifySalesAmountOnValueEntries(Item, SalesLineInvoice, ValueEntry."Document Type"::"Sales Invoice", 1);
+        VerifySalesAmountOnValueEntries(Item, SalesLineInvoice, ValueEntry."Document Type"::"Sales Credit Memo", -1);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    local procedure Initialize()
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        LibraryApplicationArea: Codeunit "Library - Application Area";
+    begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"O365 Sales Item Charge Tests");
+
+        LibraryVariableStorage.Clear;
+        if IsInitialized then
+            exit;
+
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"O365 Sales Item Charge Tests");
+
+        LibraryApplicationArea.EnableItemChargeSetup;
+
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup."Shipment on Invoice" := true;
+        SalesReceivablesSetup.Modify(true);
+
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateVATPostingSetup();
+
+        Commit();
+        IsInitialized := true;
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"O365 Sales Item Charge Tests");
+    end;
+
     local procedure PostAndVerifyCorrectiveCreditMemo(SalesHeader: Record "Sales Header")
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
@@ -243,6 +306,30 @@ codeunit 135301 "O365 Sales Item Charge Tests"
         exit(LibraryRandom.RandDecInRange(1, 5, LibraryRandom.RandIntInRange(1, 5)));
     end;
 
+    local procedure GetShipmentLinesForItemCharge(SalesLineSource: Record "Sales Line")
+    var
+        SalesShipmentLine: Record "Sales Shipment Line";
+        ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
+        ItemChargeAssgntSales: Codeunit "Item Charge Assgnt. (Sales)";
+    begin
+        SalesLineSource.TestField("Qty. to Invoice");
+
+        SalesShipmentLine.SetRange("Sell-to Customer No.", SalesLineSource."Sell-to Customer No.");
+        SalesShipmentLine.FindFirst();
+
+        ItemChargeAssignmentSales."Document Type" := SalesLineSource."Document Type";
+        ItemChargeAssignmentSales."Document No." := SalesLineSource."Document No.";
+        ItemChargeAssignmentSales."Document Line No." := SalesLineSource."Line No.";
+        ItemChargeAssignmentSales."Item Charge No." := SalesLineSource."No.";
+
+        ItemChargeAssignmentSales.SetRange("Document Type", SalesLineSource."Document Type");
+        ItemChargeAssignmentSales.SetRange("Document No.", SalesLineSource."Document No.");
+        ItemChargeAssignmentSales.SetRange("Document Line No.", SalesLineSource."Line No.");
+
+        ItemChargeAssignmentSales."Unit Cost" := SalesLineSource."Unit Price";
+        ItemChargeAssgntSales.CreateShptChargeAssgnt(SalesShipmentLine, ItemChargeAssignmentSales);
+    end;
+
     local procedure CreateCurrencyWithCurrencyFactor(var SalesHeader: Record "Sales Header")
     var
         Currency: Record Currency;
@@ -292,12 +379,46 @@ codeunit 135301 "O365 Sales Item Charge Tests"
         until SalesLine.Next = 0;
     end;
 
+    local procedure VerifySalesAmountOnValueEntries(var Item: array[4] of Record Item; SalesLine: Record "Sales Line"; ValueEntryDocumentType: Option; Sign: Integer)
+    var
+        ValueEntry: Record "Value Entry";
+        Index: Integer;
+    begin
+        ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::"Direct Cost");
+        ValueEntry.SetRange("Document Type", ValueEntryDocumentType);
+        for Index := 1 to ArrayLen(Item) do begin
+            ValueEntry.SetRange("Item No.", Item[Index]."No.");
+            ValueEntry.SetRange("Item Charge No.", SalesLine."No.");
+            ValueEntry.FindFirst();
+            ValueEntry.TestField("Sales Amount (Actual)", Sign * SalesLine.Amount * Index / 10);
+        end;
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemChargeAssignmentPageHandler(var ItemChargeAssignmentSales: TestPage "Item Charge Assignment (Sales)")
     begin
         ItemChargeAssignmentSales.SuggestItemChargeAssignment.Invoke;
         ItemChargeAssignmentSales.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    procedure ItemChargeAssignmentGetShipmentLinesModalPageHandler(var ItemChargeAssignmentSales: TestPage "Item Charge Assignment (Sales)")
+    var
+        Index: Integer;
+        "Count": Integer;
+    begin
+        Count := LibraryVariableStorage.DequeueInteger();
+
+        ItemChargeAssignmentSales.First();
+        ItemChargeAssignmentSales."Qty. to Assign".SetValue(LibraryVariableStorage.DequeueDecimal());
+
+        for Index := 2 to Count do begin
+            ItemChargeAssignmentSales.Next();
+            ItemChargeAssignmentSales."Qty. to Assign".SetValue(LibraryVariableStorage.DequeueDecimal());
+        end;
+
+        ItemChargeAssignmentSales.OK.Invoke();
     end;
 
     [StrMenuHandler]

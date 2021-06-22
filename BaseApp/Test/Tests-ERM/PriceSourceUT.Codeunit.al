@@ -22,7 +22,6 @@ codeunit 134120 "Price Source UT"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
-        MustHaveValueErr: Label '%1 must have a value', Comment = '%1 - field name';
         ParentErr: Label 'Parent Source No. must be blank for %1 source type.', Comment = '%1 - source type value';
 
     [Test]
@@ -219,10 +218,12 @@ codeunit 134120 "Price Source UT"
         JobTask.DeleteAll();
 
         // [WHEN] Validate "Parent Source No." as <blank>
-        asserterror PriceSource.Validate("Parent Source No.", '');
+        PriceSource.Validate("Parent Source No.", '');
 
-        // [THEN] Error message: 'Parent Source No. must have a value'
-        Assert.ExpectedError(StrSubstNo(MustHaveValueErr, PriceSource.FieldCaption("Parent Source No.")));
+        // [THEN] "Parent Source No.", "Filter Source No." and "Source No." are <blank>
+        PriceSource.Testfield("Parent Source No.", '');
+        PriceSource.Testfield("Source No.", '');
+        PriceSource.Testfield("Filter Source No.", '');
     end;
 
     [Test]
@@ -294,12 +295,12 @@ codeunit 134120 "Price Source UT"
     end;
 
     [Test]
-    [HandlerFunctions('FreeJobTasksMPHandler,CancelJobsMPHandler')]
+    [HandlerFunctions('CancelJobsMPHandler')]
     procedure T019_JobTask_IsLookupOKCancelJob()
     var
         PriceSource: Record "Price Source";
+        xPriceSource: Record "Price Source";
         NewPriceSource: Record "Price Source";
-        //IPriceSource: Interface "Price Source";
         IPriceSource: Codeunit "Price Source - Job Task";
         SourceType: Enum "Price Source Type";
     begin
@@ -307,18 +308,16 @@ codeunit 134120 "Price Source UT"
         Initialize();
         // [GIVEN] Two PriceSources, where "Source Type" = 'Job Task', "Parent Source No." = 'J1' and 'J2' "Source No." is 'JT'
         NewSourceJobTask(PriceSource);
+        xPriceSource := PriceSource;
         NewSourceJobTask(NewPriceSource);
 
         // [WHEN] Lookup source on Job Task 'A', and cancel "Job List"
-        LibraryVariableStorage.Enqueue(NewPriceSource."Parent Source No."); // new Job No. for JobsMPHandler
-        LibraryVariableStorage.Enqueue(NewPriceSource."Source No."); // new Job Task No. for JobTasksMPHandler
-        //IPriceSource := PriceSource."Source Type";
-        Assert.IsTrue(IPriceSource.IsLookupOK(PriceSource), 'Lookup');
+        Assert.IsFalse(IPriceSource.IsLookupOK(PriceSource), 'Lookup');
 
-        // [THEN] Open page "Job List" and "Job Task List" and returned Job task, where "Parent Source No." = 'J2' 
-        PriceSource.TestField("Parent Source No.", NewPriceSource."Parent Source No.");
-        PriceSource.TestField("Source No.", NewPriceSource."Source No.");
-        PriceSource.TestField("Filter Source No.", NewPriceSource."Parent Source No.");
+        // [THEN] Open page "Job List" and "Job Task List" and returned Job task, where "Parent Source No." = 'J1' 
+        PriceSource.TestField("Parent Source No.", xPriceSource."Parent Source No.");
+        PriceSource.TestField("Source No.", xPriceSource."Source No.");
+        PriceSource.TestField("Filter Source No.", xPriceSource."Parent Source No.");
         LibraryVariableStorage.AssertEmpty();
     end;
 
@@ -2103,7 +2102,6 @@ codeunit 134120 "Price Source UT"
     [ModalPageHandler]
     procedure CancelJobsMPHandler(var JobList: TestPage "Job List")
     begin
-        LibraryVariableStorage.Enqueue(''); // no filter for JobTasksMPHandler
         JobList.Cancel().Invoke();
     end;
 

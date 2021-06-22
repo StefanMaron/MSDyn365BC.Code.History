@@ -205,7 +205,7 @@ codeunit 5702 "Dist. Integration"
         DeleteItemCrossReference(xItemVend);
 
         // insert the updated item cross references - faster then RENAME
-        CreateItemCrossReference(ItemVend);
+        InsertItemCrossReference(ItemVend);
     end;
 
     local procedure FindOrSelectICROnCrossReferenceList(var ItemCrossReferenceToReturn: Record "Item Cross Reference"; ShowDialog: Boolean; ItemNo: Code[20]; CrossRefNo: Code[20]; CrossRefTypeNo: Code[30]; CrossRefType: Integer)

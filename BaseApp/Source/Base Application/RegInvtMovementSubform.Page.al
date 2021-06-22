@@ -25,7 +25,6 @@ page 7385 "Reg. Invt. Movement Subform"
                 field("Source Document"; "Source Document")
                 {
                     ApplicationArea = Warehouse;
-                    OptionCaption = ',,,,,,,,,,,Prod. Consumption,,,,,,,,,Assembly Consumption';
                     ToolTip = 'Specifies the type of document that the line relates to.';
                     Visible = false;
                 }

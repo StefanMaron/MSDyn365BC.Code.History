@@ -84,7 +84,7 @@ table 7603 "Customized Calendar Entry"
         OnAfterUpdateExceptionEntry(CustomizedCalendarChange, Rec);
     end;
 
-    procedure GetCaption(): Text[250]
+    procedure GetCaption() TableCaption: Text[250]
     var
         Customer: Record Customer;
         Vendor: Record Vendor;
@@ -110,6 +110,8 @@ table 7603 "Customized Calendar Entry"
             "Source Type"::Service:
                 if ServMgtSetup.Get then
                     exit("Source Code" + ' ' + ServMgtsetup.TableCaption);
+            else
+                OnGetCaptionOnCaseElse(Rec, TableCaption);
         end;
     end;
 
@@ -132,6 +134,11 @@ table 7603 "Customized Calendar Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateExceptionEntry(var CustomizedCalendarChange: Record "Customized Calendar Change"; CustomizedCalendarEntry: Record "Customized Calendar Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetCaptionOnCaseElse(var CustomizedCalendarEntry: Record "Customized Calendar Entry"; var TableCaption: Text[250])
     begin
     end;
 }

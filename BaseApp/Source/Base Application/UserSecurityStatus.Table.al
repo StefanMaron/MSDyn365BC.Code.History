@@ -68,7 +68,7 @@ table 9062 "User Security Status"
         field(25; "CDS Integration Errors"; Integer)
         {
             CalcFormula = Count("Integration Synch. Job Errors");
-            Caption = 'Common Data Service Integration Errors';
+            Caption = 'Dataverse Integration Errors';
             FieldClass = FlowField;
         }
         field(26; "Coupled Data Synch Errors"; Integer)

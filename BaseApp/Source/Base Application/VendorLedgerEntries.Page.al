@@ -1,4 +1,4 @@
-page 29 "Vendor Ledger Entries"
+﻿page 29 "Vendor Ledger Entries"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Vendor Ledger Entries';
@@ -75,14 +75,14 @@ page 29 "Vendor Ledger Entries"
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
-                    Visible = false;
+                    Visible = Dim1Visible;
                 }
                 field("Global Dimension 2 Code"; "Global Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
-                    Visible = false;
+                    Visible = Dim2Visible;
                 }
                 field("IC Partner Code"; "IC Partner Code")
                 {
@@ -317,6 +317,48 @@ page 29 "Vendor Ledger Entries"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the bank account to transfer the amount to.';
+                }
+                field("Shortcut Dimension 3 Code"; "Shortcut Dimension 3 Code")
+                {
+                    ApplicationArea = Dimensions;
+                    Editable = false;
+                    ToolTip = 'Specifies the code for Shortcut Dimension 3, which is one of dimension codes that you set up in the General Ledger Setup window.';
+                    Visible = Dim3Visible;
+                }
+                field("Shortcut Dimension 4 Code"; "Shortcut Dimension 4 Code")
+                {
+                    ApplicationArea = Dimensions;
+                    Editable = false;
+                    ToolTip = 'Specifies the code for Shortcut Dimension 4, which is one of dimension codes that you set up in the General Ledger Setup window.';
+                    Visible = Dim4Visible;
+                }
+                field("Shortcut Dimension 5 Code"; "Shortcut Dimension 5 Code")
+                {
+                    ApplicationArea = Dimensions;
+                    Editable = false;
+                    ToolTip = 'Specifies the code for Shortcut Dimension 5, which is one of dimension codes that you set up in the General Ledger Setup window.';
+                    Visible = Dim5Visible;
+                }
+                field("Shortcut Dimension 6 Code"; "Shortcut Dimension 6 Code")
+                {
+                    ApplicationArea = Dimensions;
+                    Editable = false;
+                    ToolTip = 'Specifies the code for Shortcut Dimension 6, which is one of dimension codes that you set up in the General Ledger Setup window.';
+                    Visible = Dim6Visible;
+                }
+                field("Shortcut Dimension 7 Code"; "Shortcut Dimension 7 Code")
+                {
+                    ApplicationArea = Dimensions;
+                    Editable = false;
+                    ToolTip = 'Specifies the code for Shortcut Dimension 7, which is one of dimension codes that you set up in the General Ledger Setup window.';
+                    Visible = Dim7Visible;
+                }
+                field("Shortcut Dimension 8 Code"; "Shortcut Dimension 8 Code")
+                {
+                    ApplicationArea = Dimensions;
+                    Editable = false;
+                    ToolTip = 'Specifies the code for Shortcut Dimension 8, which is one of dimension codes that you set up in the General Ledger Setup window.';
+                    Visible = Dim8Visible;
                 }
             }
         }
@@ -639,6 +681,7 @@ page 29 "Vendor Ledger Entries"
     trigger OnOpenPage()
     begin
         SetControlVisibility;
+        SetDimVisibility();
         if GetFilters <> '' then
             if FindFirst then;
     end;
@@ -654,6 +697,23 @@ page 29 "Vendor Ledger Entries"
         DebitCreditVisible: Boolean;
         VendNameVisible: Boolean;
         ExportToPaymentFileConfirmTxt: Label 'Editing the Exported to Payment File field will change the payment suggestions in the Payment Journal. Edit this field only if you must correct a mistake.\Do you want to continue?';
+
+    protected var
+        Dim1Visible: Boolean;
+        Dim2Visible: Boolean;
+        Dim3Visible: Boolean;
+        Dim4Visible: Boolean;
+        Dim5Visible: Boolean;
+        Dim6Visible: Boolean;
+        Dim7Visible: Boolean;
+        Dim8Visible: Boolean;
+
+    local procedure SetDimVisibility()
+    var
+        DimensionManagement: Codeunit DimensionManagement;
+    begin
+        DimensionManagement.UseShortcutDims(Dim1Visible, Dim2Visible, Dim3Visible, Dim4Visible, Dim5Visible, Dim6Visible, Dim7Visible, Dim8Visible);
+    end;
 
     local procedure SetControlVisibility()
     var

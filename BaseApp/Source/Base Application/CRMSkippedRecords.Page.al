@@ -213,7 +213,7 @@ page 5333 "CRM Skipped Records"
                 Promoted = true;
                 PromotedCategory = Category4;
                 PromotedIsBig = true;
-                ToolTip = 'View the status of jobs for uncoupling records, for example, in integrations with Dynamics 365 Sales or Common Data Service. The jobs were run either from the job queue, or manually, in Business Central.';
+                ToolTip = 'View the status of jobs for uncoupling records, for example, in integrations with Dynamics 365 Sales or Dataverse. The jobs were run either from the job queue, or manually, in Business Central.';
 
                 trigger OnAction()
                 var
@@ -335,7 +335,7 @@ page 5333 "CRM Skipped Records"
         DoBothOfRecordsExist: Boolean;
         SetOutside: Boolean;
         TooManyErrorsNotificationTxt: Label 'Only 100 coupled record synchronization errors are loaded. When you have resolved them, choose the Load More Errors action to load more.';
-        CategoryTok: Label 'AL Common Data Service Integration', Locked = true;
+        CategoryTok: Label 'AL Dataverse Integration', Locked = true;
         UserRetriedAllTxt: Label 'User invoked the Retry All function to set the Skipped flag to false on all records.', Locked = true;
 
     local procedure LoadData();
