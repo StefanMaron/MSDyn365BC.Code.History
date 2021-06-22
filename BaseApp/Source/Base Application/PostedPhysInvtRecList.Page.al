@@ -1,0 +1,81 @@
+page 5888 "Posted Phys. Invt. Rec. List"
+{
+    ApplicationArea = Warehouse;
+    Caption = 'Posted Phys. Invt. Rec. List';
+    CardPageID = "Posted Phys. Invt. Recording";
+    Editable = false;
+    PageType = List;
+    SourceTable = "Pstd. Phys. Invt. Record Hdr";
+    UsageCategory = History;
+
+    layout
+    {
+        area(content)
+        {
+            repeater(Control40)
+            {
+                ShowCaption = false;
+                field("Order No."; "Order No.")
+                {
+                    ApplicationArea = Warehouse;
+                    ToolTip = 'Specifies the Order No. of the table physical inventory recording header.';
+                }
+                field("Recording No."; "Recording No.")
+                {
+                    ApplicationArea = Warehouse;
+                    ToolTip = 'Specifies the Recording No. of the table physical inventory recording header.';
+                }
+                field(Description; Description)
+                {
+                    ApplicationArea = Warehouse;
+                    ToolTip = 'Specifies the Description of the table physical inventory recording header.';
+                }
+                field("Person Responsible"; "Person Responsible")
+                {
+                    ApplicationArea = Warehouse;
+                    ToolTip = 'Specifies the Person Responsible of the table physical inventory recording header.';
+                }
+                field("Date Recorded"; "Date Recorded")
+                {
+                    ApplicationArea = Warehouse;
+                    ToolTip = 'Specifies the Date Recorded of the table physical inventory recording header.';
+                }
+                field("Time Recorded"; "Time Recorded")
+                {
+                    ApplicationArea = Warehouse;
+                    ToolTip = 'Specifies the Time Recorded of the table physical inventory recording header.';
+                }
+                field("Person Recorded"; "Person Recorded")
+                {
+                    ApplicationArea = Warehouse;
+                    ToolTip = 'Specifies the Person Recorded of the table physical inventory recording header.';
+                }
+            }
+        }
+    }
+
+    actions
+    {
+        area(reporting)
+        {
+            action("&Print")
+            {
+                ApplicationArea = Warehouse;
+                Caption = '&Print';
+                Image = "Report";
+                Promoted = false;
+                //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
+                //PromotedCategory = "Report";
+                ToolTip = 'Print inventory count order recording.';
+
+                trigger OnAction()
+                var
+                    DocumentPrint: Codeunit "Document-Print";
+                begin
+                    DocumentPrint.PrintPostedInvtRecording(Rec, true);
+                end;
+            }
+        }
+    }
+}
+

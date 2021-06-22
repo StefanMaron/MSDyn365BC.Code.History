@@ -1,0 +1,83 @@
+table 906 "Assembly Comment Line"
+{
+    Caption = 'Assembly Comment Line';
+    DrillDownPageID = "Prod. Order Comment List";
+    LookupPageID = "Prod. Order Comment List";
+
+    fields
+    {
+        field(1; "Document Type"; Option)
+        {
+            Caption = 'Document Type';
+            OptionCaption = 'Quote,Assembly Order,,,Blanket Order,Posted Assembly';
+            OptionMembers = Quote,"Assembly Order",,,"Blanket Order","Posted Assembly";
+        }
+        field(2; "Document No."; Code[20])
+        {
+            Caption = 'Document No.';
+            NotBlank = true;
+            TableRelation = IF ("Document Type" = FILTER("Posted Assembly")) "Posted Assembly Header"."No."
+            ELSE
+            "Assembly Header"."No." WHERE("Document Type" = FIELD("Document Type"));
+        }
+        field(3; "Document Line No."; Integer)
+        {
+            Caption = 'Document Line No.';
+        }
+        field(4; "Line No."; Integer)
+        {
+            Caption = 'Line No.';
+        }
+        field(10; Date; Date)
+        {
+            Caption = 'Date';
+        }
+        field(11; "Code"; Code[10])
+        {
+            Caption = 'Code';
+        }
+        field(12; Comment; Text[80])
+        {
+            Caption = 'Comment';
+        }
+    }
+
+    keys
+    {
+        key(Key1; "Document Type", "Document No.", "Document Line No.", "Line No.")
+        {
+            Clustered = true;
+        }
+    }
+
+    fieldgroups
+    {
+    }
+
+    trigger OnInsert()
+    begin
+        if Date = 0D then
+            Date := WorkDate
+    end;
+
+    procedure SetupNewLine()
+    var
+        AssemblyCommentLine: Record "Assembly Comment Line";
+    begin
+        AssemblyCommentLine.SetRange("Document Type", "Document Type");
+        AssemblyCommentLine.SetRange("Document No.", "Document No.");
+        AssemblyCommentLine.SetRange("Document Line No.", "Document Line No.");
+        AssemblyCommentLine.SetRange("Line No.", "Line No.");
+        AssemblyCommentLine.SetRange(Date, WorkDate);
+        if not AssemblyCommentLine.FindFirst then
+            Date := WorkDate;
+
+        OnAfterSetUpNewLine(Rec, AssemblyCommentLine);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetUpNewLine(var AssemblyCommentLineRec: Record "Assembly Comment Line"; var AssemblyCommentLineFilter: Record "Assembly Comment Line")
+    begin
+    end;
+}
+

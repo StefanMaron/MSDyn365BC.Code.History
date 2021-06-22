@@ -1,0 +1,181 @@
+report 813 "Inventory Picking List"
+{
+    DefaultLayout = RDLC;
+    RDLCLayout = './InventoryPickingList.rdlc';
+    AccessByPermission = TableData Location = R;
+    ApplicationArea = Warehouse;
+    Caption = 'Inventory Picking List';
+    UsageCategory = ReportsAndAnalysis;
+
+    dataset
+    {
+        dataitem(Item; Item)
+        {
+            PrintOnlyIfDetail = true;
+            RequestFilterFields = "No.", "Search Description", "Assembly BOM", "Inventory Posting Group", "Shelf No.";
+            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            {
+            }
+            column(GetItemCurrentKey; GetItemCurrentKey)
+            {
+            }
+            column(GetSalesLineCurrentKey; GetSalesLineCurrentKey)
+            {
+            }
+            column(ItemTblCapItemFilter; TableCaption + ': ' + ItemFilter)
+            {
+            }
+            column(ItemFilter; ItemFilter)
+            {
+            }
+            column(SalesOrderLineSalesLine; StrSubstNo(Text000, SalesLineFilter))
+            {
+            }
+            column(SalesLineFilter; SalesLineFilter)
+            {
+            }
+            column(ShelfNo_Item; "Shelf No.")
+            {
+                IncludeCaption = true;
+            }
+            column(No_Item; "No.")
+            {
+            }
+            column(Description_Item; Description)
+            {
+            }
+            column(BaseUnitofMeasure_Item; "Base Unit of Measure")
+            {
+                IncludeCaption = true;
+            }
+            column(InventoryPickingListCaption; InventoryPickingListCaptionLbl)
+            {
+            }
+            column(PageCaption; PageCaptionLbl)
+            {
+            }
+            column(CustomerCaption; CustomerCaptionLbl)
+            {
+            }
+            column(ShipmentDateCaption; ShipmentDateCaptionLbl)
+            {
+            }
+            dataitem("Sales Line"; "Sales Line")
+            {
+                DataItemLink = "No." = FIELD("No."), "Variant Code" = FIELD("Variant Filter"), "Location Code" = FIELD("Location Filter"), "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"), "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"), "Bin Code" = FIELD("Bin Filter");
+                DataItemTableView = SORTING("Document Type", Type, "No.", "Variant Code", "Drop Shipment", "Location Code", "Shipment Date") WHERE(Type = CONST(Item), "Document Type" = CONST(Order), "Qty. to Ship" = FILTER(<> 0));
+                RequestFilterFields = "Shipment Date", "Location Code";
+                RequestFilterHeading = 'Sales Order Line';
+                column(DocumentNo_SalesLine; "Document No.")
+                {
+                    IncludeCaption = true;
+                }
+                column(CustName; Cust.Name)
+                {
+                }
+                column(ShipmentDate_SalesLine; Format("Shipment Date"))
+                {
+                }
+                column(QtytoShipBase_SalesLine; "Qty. to Ship (Base)")
+                {
+                    IncludeCaption = true;
+                }
+                column(ReservedQtyBase_SalesLine; "Reserved Qty. (Base)")
+                {
+                    IncludeCaption = true;
+                }
+                column(BinCode_SalesLine; "Bin Code")
+                {
+                    IncludeCaption = true;
+                }
+                column(UnitofMeasure_SalesLIne; "Unit of Measure Code")
+                {
+                    IncludeCaption = true;
+                }
+                column(QtytoShip_SalesLine; "Qty. to Ship")
+                {
+                    IncludeCaption = true;
+                }
+                column(VariantCode_SalesLine; "Variant Code")
+                {
+                    IncludeCaption = true;
+                }
+                column(LocationCode_SalesLine; "Location Code")
+                {
+                    IncludeCaption = true;
+                }
+                column(ItemVariantDescription; ItemVariant.Description)
+                {
+                }
+                column(GroupTotal; GroupTotal)
+                {
+                }
+
+                trigger OnAfterGetRecord()
+                begin
+                    Cust.Get("Sell-to Customer No.");
+                    CalcFields("Reserved Qty. (Base)");
+
+                    if GroupTotal then
+                        if "Variant Code" <> '' then
+                            ItemVariant.Get("No.", "Variant Code")
+                        else
+                            ItemVariant.Description := Item.Description;
+                end;
+            }
+        }
+    }
+
+    requestpage
+    {
+        SaveValues = true;
+
+        layout
+        {
+            area(content)
+            {
+                group(Options)
+                {
+                    Caption = 'Options';
+                    field(GroupTotal; GroupTotal)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Print group totals';
+                        ToolTip = 'Specifies if you want to include service orders in the cash flow forecast.';
+                    }
+                }
+            }
+        }
+
+        actions
+        {
+        }
+    }
+
+    labels
+    {
+    }
+
+    trigger OnPreReport()
+    begin
+        GetItemCurrentKey := Item.CurrentKey;
+        GetSalesLineCurrentKey := "Sales Line".CurrentKey;
+        ItemFilter := Item.GetFilters;
+        SalesLineFilter := "Sales Line".GetFilters;
+    end;
+
+    var
+        Text000: Label 'Sales Order Line: %1';
+        Cust: Record Customer;
+        ItemVariant: Record "Item Variant";
+        ItemFilter: Text;
+        SalesLineFilter: Text;
+        GroupTotal: Boolean;
+        GetSalesLineCurrentKey: Text[250];
+        GetItemCurrentKey: Text[250];
+        InventoryPickingListCaptionLbl: Label 'Inventory Picking List';
+        PageCaptionLbl: Label 'Page';
+        CustomerCaptionLbl: Label 'Customer';
+        ShipmentDateCaptionLbl: Label 'Shipment Date';
+}
+

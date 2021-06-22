@@ -1,0 +1,364 @@
+table 279 "Extended Text Header"
+{
+    Caption = 'Extended Text Header';
+    DataCaptionFields = "No.", "Language Code", "Text No.";
+    LookupPageID = "Extended Text List";
+
+    fields
+    {
+        field(1; "Table Name"; Option)
+        {
+            Caption = 'Table Name';
+            OptionCaption = 'Standard Text,G/L Account,Item,Resource';
+            OptionMembers = "Standard Text","G/L Account",Item,Resource;
+        }
+        field(2; "No."; Code[20])
+        {
+            Caption = 'No.';
+            TableRelation = IF ("Table Name" = CONST("Standard Text")) "Standard Text"
+            ELSE
+            IF ("Table Name" = CONST("G/L Account")) "G/L Account"
+            ELSE
+            IF ("Table Name" = CONST(Item)) Item
+            ELSE
+            IF ("Table Name" = CONST(Resource)) Resource;
+        }
+        field(3; "Language Code"; Code[10])
+        {
+            Caption = 'Language Code';
+            TableRelation = Language;
+
+            trigger OnValidate()
+            begin
+                if "Language Code" <> '' then
+                    "All Language Codes" := false;
+            end;
+        }
+        field(4; "Text No."; Integer)
+        {
+            Caption = 'Text No.';
+            Editable = false;
+        }
+        field(5; "Starting Date"; Date)
+        {
+            Caption = 'Starting Date';
+        }
+        field(6; "Ending Date"; Date)
+        {
+            Caption = 'Ending Date';
+        }
+        field(7; "All Language Codes"; Boolean)
+        {
+            Caption = 'All Language Codes';
+            InitValue = true;
+
+            trigger OnValidate()
+            begin
+                if "All Language Codes" then
+                    "Language Code" := ''
+            end;
+        }
+        field(8; Description; Text[100])
+        {
+            Caption = 'Description';
+        }
+        field(11; "Sales Quote"; Boolean)
+        {
+            AccessByPermission = TableData "Sales Header" = R;
+            Caption = 'Sales Quote';
+            InitValue = true;
+        }
+        field(12; "Sales Invoice"; Boolean)
+        {
+            AccessByPermission = TableData "Sales Header" = R;
+            Caption = 'Sales Invoice';
+            InitValue = true;
+        }
+        field(13; "Sales Order"; Boolean)
+        {
+            AccessByPermission = TableData "Sales Shipment Header" = R;
+            Caption = 'Sales Order';
+            InitValue = true;
+        }
+        field(14; "Sales Credit Memo"; Boolean)
+        {
+            AccessByPermission = TableData "Sales Header" = R;
+            Caption = 'Sales Credit Memo';
+            InitValue = true;
+        }
+        field(15; "Purchase Quote"; Boolean)
+        {
+            AccessByPermission = TableData "Purchase Header" = R;
+            Caption = 'Purchase Quote';
+            InitValue = true;
+
+            trigger OnValidate()
+            begin
+                if "Purchase Quote" then
+                    NoResourcePurch;
+            end;
+        }
+        field(16; "Purchase Invoice"; Boolean)
+        {
+            AccessByPermission = TableData "Purchase Header" = R;
+            Caption = 'Purchase Invoice';
+            InitValue = true;
+
+            trigger OnValidate()
+            begin
+                if "Purchase Invoice" then
+                    NoResourcePurch;
+            end;
+        }
+        field(17; "Purchase Order"; Boolean)
+        {
+            AccessByPermission = TableData "Purch. Rcpt. Header" = R;
+            Caption = 'Purchase Order';
+            InitValue = true;
+
+            trigger OnValidate()
+            begin
+                if "Purchase Order" then
+                    NoResourcePurch;
+            end;
+        }
+        field(18; "Purchase Credit Memo"; Boolean)
+        {
+            AccessByPermission = TableData "Purchase Header" = R;
+            Caption = 'Purchase Credit Memo';
+            InitValue = true;
+
+            trigger OnValidate()
+            begin
+                if "Purchase Credit Memo" then
+                    NoResourcePurch;
+            end;
+        }
+        field(19; Reminder; Boolean)
+        {
+            AccessByPermission = TableData Customer = R;
+            Caption = 'Reminder';
+            InitValue = true;
+        }
+        field(20; "Finance Charge Memo"; Boolean)
+        {
+            AccessByPermission = TableData Customer = R;
+            Caption = 'Finance Charge Memo';
+            InitValue = true;
+        }
+        field(21; "Sales Blanket Order"; Boolean)
+        {
+            AccessByPermission = TableData "Sales Shipment Header" = R;
+            Caption = 'Sales Blanket Order';
+            InitValue = true;
+        }
+        field(22; "Purchase Blanket Order"; Boolean)
+        {
+            AccessByPermission = TableData "Purch. Rcpt. Header" = R;
+            Caption = 'Purchase Blanket Order';
+            InitValue = true;
+
+            trigger OnValidate()
+            begin
+                if "Purchase Blanket Order" then
+                    NoResourcePurch;
+            end;
+        }
+        field(23; "Prepmt. Sales Invoice"; Boolean)
+        {
+            AccessByPermission = TableData "Sales Header" = R;
+            Caption = 'Prepmt. Sales Invoice';
+            InitValue = true;
+        }
+        field(24; "Prepmt. Sales Credit Memo"; Boolean)
+        {
+            AccessByPermission = TableData "Sales Header" = R;
+            Caption = 'Prepmt. Sales Credit Memo';
+            InitValue = true;
+        }
+        field(25; "Prepmt. Purchase Invoice"; Boolean)
+        {
+            AccessByPermission = TableData "Purchase Header" = R;
+            Caption = 'Prepmt. Purchase Invoice';
+            InitValue = true;
+        }
+        field(26; "Prepmt. Purchase Credit Memo"; Boolean)
+        {
+            AccessByPermission = TableData "Purchase Header" = R;
+            Caption = 'Prepmt. Purchase Credit Memo';
+            InitValue = true;
+        }
+        field(5900; "Service Order"; Boolean)
+        {
+            AccessByPermission = TableData "Service Header" = R;
+            Caption = 'Service Order';
+            InitValue = true;
+        }
+        field(5901; "Service Quote"; Boolean)
+        {
+            AccessByPermission = TableData "Service Header" = R;
+            Caption = 'Service Quote';
+            InitValue = true;
+        }
+        field(5902; "Service Invoice"; Boolean)
+        {
+            AccessByPermission = TableData "Service Header" = R;
+            Caption = 'Service Invoice';
+            InitValue = true;
+        }
+        field(5903; "Service Credit Memo"; Boolean)
+        {
+            AccessByPermission = TableData "Service Header" = R;
+            Caption = 'Service Credit Memo';
+            InitValue = true;
+        }
+        field(6600; "Sales Return Order"; Boolean)
+        {
+            AccessByPermission = TableData "Return Receipt Header" = R;
+            Caption = 'Sales Return Order';
+            InitValue = true;
+        }
+        field(6605; "Purchase Return Order"; Boolean)
+        {
+            AccessByPermission = TableData "Return Shipment Header" = R;
+            Caption = 'Purchase Return Order';
+            InitValue = true;
+        }
+    }
+
+    keys
+    {
+        key(Key1; "Table Name", "No.", "Language Code", "Text No.")
+        {
+            Clustered = true;
+        }
+        key(Key2; "Table Name", "No.", "Language Code", "All Language Codes", "Starting Date", "Ending Date")
+        {
+        }
+    }
+
+    fieldgroups
+    {
+    }
+
+    trigger OnDelete()
+    var
+        ExtTextLine: Record "Extended Text Line";
+    begin
+        ExtTextLine.SetRange("Table Name", "Table Name");
+        ExtTextLine.SetRange("No.", "No.");
+        ExtTextLine.SetRange("Language Code", "Language Code");
+        ExtTextLine.SetRange("Text No.", "Text No.");
+        ExtTextLine.DeleteAll(true);
+    end;
+
+    trigger OnInsert()
+    begin
+        IncrementTextNo;
+
+        if "Table Name" = "Table Name"::Resource then begin
+            "Purchase Quote" := false;
+            "Purchase Invoice" := false;
+            "Purchase Blanket Order" := false;
+            "Purchase Order" := false;
+            "Purchase Credit Memo" := false;
+        end;
+    end;
+
+    trigger OnRename()
+    begin
+        if ("Table Name" <> xRec."Table Name") or ("No." <> xRec."No.") then
+            Error(RenameRecordErr, FieldCaption("Table Name"), FieldCaption("No."));
+
+        IncrementTextNo;
+
+        RecreateTextLines;
+    end;
+
+    var
+        UntitledMsg: Label 'untitled';
+        Text001: Label 'You cannot purchase resources.';
+        RenameRecordErr: Label 'You cannot rename %1 or %2.', Comment = '%1 is TableName Field %2 is No.Table Field';
+
+    local procedure NoResourcePurch()
+    begin
+        if "Table Name" = "Table Name"::Resource then
+            Error(Text001);
+    end;
+
+    procedure IncrementTextNo()
+    var
+        ExtTextHeader: Record "Extended Text Header";
+    begin
+        ExtTextHeader.SetRange("Table Name", "Table Name");
+        ExtTextHeader.SetRange("No.", "No.");
+        ExtTextHeader.SetRange("Language Code", "Language Code");
+
+        if ExtTextHeader.FindLast then
+            "Text No." := ExtTextHeader."Text No." + 1
+        else
+            "Text No." := 1;
+    end;
+
+    local procedure RecreateTextLines()
+    var
+        ExtTextLine: Record "Extended Text Line";
+        TmpExtTextLine: Record "Extended Text Line";
+    begin
+        ExtTextLine.SetRange("Table Name", "Table Name");
+        ExtTextLine.SetRange("No.", "No.");
+        ExtTextLine.SetRange("Language Code", xRec."Language Code");
+        ExtTextLine.SetRange("Text No.", xRec."Text No.");
+
+        if ExtTextLine.Find('-') then
+            repeat
+                TmpExtTextLine := ExtTextLine;
+                TmpExtTextLine."Text No." := "Text No.";
+                TmpExtTextLine."Language Code" := "Language Code";
+                TmpExtTextLine.Insert;
+            until ExtTextLine.Next = 0;
+
+        ExtTextLine.DeleteAll;
+    end;
+
+    procedure GetCaption(): Text
+    var
+        GLAcc: Record "G/L Account";
+        Item: Record Item;
+        Res: Record Resource;
+        StandardText: Record "Standard Text";
+        Descr: Text[100];
+    begin
+        if "Text No." <> 0 then begin
+            case "Table Name" of
+                "Table Name"::"Standard Text":
+                    begin
+                        if StandardText.Code <> "No." then
+                            StandardText.Get("No.");
+                        Descr := StandardText.Description;
+                    end;
+                "Table Name"::"G/L Account":
+                    begin
+                        if GLAcc."No." <> "No." then
+                            GLAcc.Get("No.");
+                        Descr := GLAcc.Name;
+                    end;
+                "Table Name"::Item:
+                    begin
+                        if Item."No." <> "No." then
+                            Item.Get("No.");
+                        Descr := Item.Description;
+                    end;
+                "Table Name"::Resource:
+                    begin
+                        if Res."No." <> "No." then
+                            Res.Get("No.");
+                        Descr := Res.Name;
+                    end;
+            end;
+            exit(StrSubstNo('%1 %2 %3 %4', "No.", Descr, "Language Code", Format("Text No.")));
+        end;
+        exit(UntitledMsg);
+    end;
+}
+

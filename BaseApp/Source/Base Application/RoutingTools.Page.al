@@ -1,0 +1,48 @@
+page 99000835 "Routing Tools"
+{
+    AutoSplitKey = true;
+    Caption = 'Routing Tools';
+    DataCaptionExpression = Caption;
+    MultipleNewLines = true;
+    PageType = List;
+    SourceTable = "Routing Tool";
+
+    layout
+    {
+        area(content)
+        {
+            repeater(Control1)
+            {
+                ShowCaption = false;
+                field("No."; "No.")
+                {
+                    ApplicationArea = Manufacturing;
+                    ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
+                }
+                field(Description; Description)
+                {
+                    ApplicationArea = Manufacturing;
+                    ToolTip = 'Specifies a description for the routing tool.';
+                }
+            }
+        }
+        area(factboxes)
+        {
+            systempart(Control1900383207; Links)
+            {
+                ApplicationArea = RecordLinks;
+                Visible = false;
+            }
+            systempart(Control1905767507; Notes)
+            {
+                ApplicationArea = Notes;
+                Visible = false;
+            }
+        }
+    }
+
+    actions
+    {
+    }
+}
+

@@ -1,0 +1,164 @@
+page 20011 "APIV1 - Company Information"
+{
+    APIVersion = 'v1.0';
+    Caption = 'companyInformation', Locked = true;
+    DelayedInsert = true;
+    DeleteAllowed = false;
+    EntityName = 'companyInformation';
+    EntitySetName = 'companyInformation';
+    InsertAllowed = false;
+    ODataKeyFields = Id;
+    PageType = API;
+    SaveValues = true;
+    SourceTable = 79;
+    Extensible = false;
+
+    layout
+    {
+        area(content)
+        {
+            repeater(Group)
+            {
+                field(id; Id)
+                {
+                    ApplicationArea = All;
+                    Caption = 'id', Locked = true;
+                    Editable = false;
+                }
+                field(displayName; Name)
+                {
+                    ApplicationArea = All;
+                    Caption = 'displayName', Locked = true;
+                }
+                field(address; PostalAddressJSON)
+                {
+                    ApplicationArea = All;
+                    Caption = 'address', Locked = true;
+                    ODataEDMType = 'POSTALADDRESS';
+                    ToolTip = 'Specifies the company''s primary business address.';
+                }
+                field(phoneNumber; "Phone No.")
+                {
+                    ApplicationArea = All;
+                    Caption = 'phoneNumber', Locked = true;
+                }
+                field(faxNumber; "Fax No.")
+                {
+                    ApplicationArea = All;
+                    Caption = 'faxNumber', Locked = true;
+                }
+                field(email; "E-Mail")
+                {
+                    ApplicationArea = All;
+                    Caption = 'email', Locked = true;
+                }
+                field(website; "Home Page")
+                {
+                    ApplicationArea = All;
+                    Caption = 'website', Locked = true;
+                }
+                field(taxRegistrationNumber; "VAT Registration No.")
+                {
+                    ApplicationArea = All;
+                    Caption = 'taxRegistrationNumber', Locked = true;
+                }
+                field(currencyCode; CurrencyCode)
+                {
+                    ApplicationArea = All;
+                    Caption = 'currencyCode', Locked = true;
+                    Editable = false;
+                }
+                field(currentFiscalYearStartDate; FiscalYearStart)
+                {
+                    ApplicationArea = All;
+                    Caption = 'currentFiscalYearStartDate', Locked = true;
+                    Editable = false;
+                }
+                field(industry; "Industrial Classification")
+                {
+                    ApplicationArea = All;
+                    Caption = 'industry', Locked = true;
+                }
+                field(picture; Picture)
+                {
+                    ApplicationArea = All;
+                    Caption = 'picture', Locked = true;
+                    Editable = false;
+                }
+                field(lastModifiedDateTime; "Last Modified Date Time")
+                {
+                    ApplicationArea = All;
+                    Caption = 'lastModifiedDateTime', Locked = true;
+                }
+            }
+        }
+    }
+
+    actions
+    {
+    }
+
+    trigger OnAfterGetRecord()
+    begin
+        SetCalculatedFields();
+    end;
+
+    trigger OnModifyRecord(): Boolean
+    var
+        CompanyInformation: Record "Company Information";
+        GraphMgtCompanyInfo: Codeunit "Graph Mgt - Company Info.";
+        GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
+    begin
+        IF xRec.Id <> Id THEN
+            GraphMgtGeneralTools.ErrorIdImmutable();
+        CompanyInformation.SETRANGE(Id, Id);
+        CompanyInformation.FINDFIRST();
+
+        GraphMgtCompanyInfo.ProcessComplexTypes(Rec, PostalAddressJSON);
+
+        IF Id = CompanyInformation.Id THEN
+            MODIFY(TRUE);
+
+        SetCalculatedFields();
+    end;
+
+    trigger OnNewRecord(BelowxRec: Boolean)
+    begin
+        ClearCalculatedFields();
+    end;
+
+    var
+        CurrencyCode: Code[10];
+        FiscalYearStart: Date;
+        PostalAddressJSON: Text;
+        BusinessId: Text[250];
+
+    local procedure SetCalculatedFields()
+    var
+        AccountingPeriod: Record "Accounting Period";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GraphIntegrationRecord: Record "Graph Integration Record";
+        GraphMgtCompanyInfo: Codeunit "Graph Mgt - Company Info.";
+    begin
+        PostalAddressJSON := GraphMgtCompanyInfo.PostalAddressToJSON(Rec);
+
+        GeneralLedgerSetup.GET();
+        CurrencyCode := GeneralLedgerSetup."LCY Code";
+
+        AccountingPeriod.SETRANGE("New Fiscal Year", TRUE);
+        IF AccountingPeriod.FINDLAST() THEN
+            FiscalYearStart := AccountingPeriod."Starting Date";
+
+        GraphIntegrationRecord.SETRANGE("Integration ID", Id);
+        IF GraphIntegrationRecord.FINDFIRST() THEN
+            BusinessId := GraphIntegrationRecord."Graph ID";
+    end;
+
+    local procedure ClearCalculatedFields()
+    begin
+        CLEAR(Id);
+        CLEAR(PostalAddressJSON);
+        CLEAR(BusinessId);
+    end;
+}
+

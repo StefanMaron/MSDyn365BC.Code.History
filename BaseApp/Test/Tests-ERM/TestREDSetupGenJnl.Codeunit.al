@@ -1,0 +1,1725 @@
+codeunit 134803 "Test RED Setup Gen. Jnl."
+{
+    Subtype = Test;
+    TestPermissions = NonRestrictive;
+
+    trigger OnRun()
+    begin
+        // [FEATURE] [Revenue Expense Deferral] [Deferral]
+        isInitialized := false;
+        Initialize;
+    end;
+
+    var
+        Assert: Codeunit Assert;
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryRandom: Codeunit "Library - Random";
+        LibraryUtility: Codeunit "Library - Utility";
+        LibraryERM: Codeunit "Library - ERM";
+        LibrarySales: Codeunit "Library - Sales";
+        LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryReportDataset: Codeunit "Library - Report Dataset";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryJournals: Codeunit "Library - Journals";
+        DeferralUtilities: Codeunit "Deferral Utilities";
+        CalcMethod: Option "Straight-Line","Equal per Period","Days per Period","User-Defined";
+        DeferralDocType: Option Purchase,Sales,"G/L";
+        StartDate: Option "Posting Date","Beginning of Period","End of Period","Beginning of Next Period";
+        isInitialized: Boolean;
+        DecimalPlacesInDeferralPctErr: Label 'Wrong decimal places count in "Defferal %" field.';
+        AccTypeMustBeGLAccountErr: Label 'Account Type must be equal to ''G/L Account''';
+        PostedDeferralHeaderNumberErr: Label 'The number of Posted Deferral Headers with given parameters is not equal to expected.';
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure TestCreationOfDeferralCode()
+    var
+        DeferralTemplate: Record "Deferral Template";
+        DeferralCode: Code[10];
+        GoodAccountNumber: Code[20];
+    begin
+        // [SCENARIO 127727] Phyllis can setup a Deferral template in the system
+        // Setup
+        DeferralCode := LibraryUtility.GenerateRandomCode(DeferralTemplate.FieldNo("Deferral Code"), DATABASE::"Deferral Template");
+        GoodAccountNumber := LibraryERM.CreateGLAccountNo;
+
+        // Exercise
+        DeferralTemplate.Init;
+        DeferralTemplate."Deferral Code" := DeferralCode;
+
+        // Test for error message when trying to use an invalid account
+        asserterror DeferralTemplate.Validate("Deferral Account", CopyStr(Format(CreateGuid), 1, 20));
+
+        DeferralTemplate."Deferral Account" := GoodAccountNumber;
+        DeferralTemplate."Calc. Method" := CalcMethod::"Straight-Line";
+        DeferralTemplate."Start Date" := StartDate::"Posting Date";
+
+        // Number of periods cannot be less than 1
+        asserterror DeferralTemplate.Validate("No. of Periods", 0);
+        DeferralTemplate."No. of Periods" := 6;
+
+        DeferralTemplate."Deferral Code" := DeferralCode;
+        // Deferral percentage cannot be less than 0
+        asserterror DeferralTemplate.Validate("Deferral %", -5.0);
+
+        // Deferral percentage cannot be greater than 100
+        asserterror DeferralTemplate.Validate("Deferral %", 105.0);
+        DeferralTemplate."Deferral %" := 100.0;
+        DeferralTemplate."Period Description" := '%1 Deferral %5';
+        DeferralTemplate.Insert;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AssignDefaultCodeToItem()
+    var
+        DeferralTemplate: Record "Deferral Template";
+        Item: Record Item;
+        DeferralCode: Code[10];
+        ItemNumber: Code[20];
+    begin
+        // [SCENARIO 127729] Apply Default template to Item Card
+        DeferralCode := CreateDeferralCode;
+
+        ItemNumber := LibraryUtility.GenerateRandomCode(Item.FieldNo("No."), DATABASE::Item);
+        Item.Init;
+        Item."No." := ItemNumber;
+        // Try to insert with an invalid deferral code
+        asserterror Item.Validate("Default Deferral Template Code", CopyStr(Format(CreateGuid), 1, 10));
+        Item."Default Deferral Template Code" := DeferralCode;
+        Item.Insert;
+
+        // Try to delete the deferral code that is now attached to the item
+        if DeferralTemplate.Get(DeferralCode) then
+            asserterror DeferralTemplate.Delete;
+
+        Item.Delete;
+        if DeferralTemplate.Get(DeferralCode) then
+            DeferralTemplate.Delete;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AssignDefaultCodeToAccount()
+    var
+        DeferralTemplate: Record "Deferral Template";
+        GLAccount: Record "G/L Account";
+        DeferralCode: Code[10];
+        AccountNumber: Code[20];
+    begin
+        // [SCENARIO 127731] Apply default template to G/L Account card
+        DeferralCode := CreateDeferralCode;
+
+        AccountNumber := LibraryUtility.GenerateRandomCode(GLAccount.FieldNo("No."), DATABASE::"G/L Account");
+        GLAccount.Init;
+        GLAccount."No." := AccountNumber;
+        // Try to insert with an invalid deferral code
+        asserterror GLAccount.Validate("Default Deferral Template Code", CopyStr(Format(CreateGuid), 1, 10));
+        GLAccount."Default Deferral Template Code" := DeferralCode;
+        GLAccount.Insert;
+
+        // Try to delete the deferral code that is now attached to the account
+        if DeferralTemplate.Get(DeferralCode) then
+            asserterror DeferralTemplate.Delete;
+
+        GLAccount.Delete;
+        if DeferralTemplate.Get(DeferralCode) then
+            DeferralTemplate.Delete;
+    end;
+
+    [Test]
+    [TestPermissions(TestPermissions::Disabled)]
+    [Scope('OnPrem')]
+    procedure AssignDefaultCodeToResource()
+    var
+        DeferralTemplate: Record "Deferral Template";
+        Resource: Record Resource;
+        DeferralCode: Code[10];
+        ResourceNumber: Code[20];
+    begin
+        // [SCENARIO 127730] Apply default template to Resource Card
+        DeferralCode := CreateDeferralCode;
+
+        ResourceNumber := LibraryUtility.GenerateRandomCode(Resource.FieldNo("No."), DATABASE::Resource);
+        Resource.Init;
+        Resource."No." := ResourceNumber;
+        // Try to insert with an invalid deferral code
+        asserterror Resource.Validate("Default Deferral Template Code", CopyStr(Format(CreateGuid), 1, 10));
+        Resource."Default Deferral Template Code" := DeferralCode;
+        Resource.Insert;
+
+        // Try to delete the deferral code that is now attached to the resource
+        if DeferralTemplate.Get(DeferralCode) then
+            asserterror DeferralTemplate.Delete;
+
+        Resource.Delete;
+        if DeferralTemplate.Get(DeferralCode) then
+            DeferralTemplate.Delete;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreateGLTrxandVerifySchedule()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        GLAccount: Record "G/L Account";
+        DeferralHeader: Record "Deferral Header";
+        DeferralCode: Code[10];
+        DeferralCode99: Code[10];
+        DeferralCodeDays: Code[10];
+    begin
+        // [SCENARIO 127776] Too many deferrals periods give warning about accounting periods
+        // Setup - create deferral codes
+        DeferralCode := CreateStraightLine6Periods;
+        DeferralCodeDays := CreateDaysPerPeriod6Periods;
+        DeferralCode99 := CreateDaysPerPeriod99Periods;
+
+        // Create new GL Account
+        LibraryERM.CreateGLAccount(GLAccount);
+
+        // Assign the deferral code to new GL Account
+        GLAccount."Default Deferral Template Code" := DeferralCode;
+        GLAccount.Modify;
+
+        // Generate GL trx with new account, give it an amount
+        CreateGeneralJournalBatch(GenJournalBatch);
+        CreateGenJournalLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          GenJournalLine."Document Type"::" ",
+          GenJournalLine."Account Type"::"G/L Account", GLAccount."No.",
+          GenJournalBatch."Bal. Account Type", GenJournalBatch."Bal. Account No.", 100.55);
+        GenJournalLine.Validate("Bal. Account No.", '');
+        GenJournalLine.Validate("Deferral Code");
+        Commit;
+        // Validate : Using a deferral code with too many periods will give warning about accounting periods not being set up
+        asserterror GenJournalLine.Validate("Deferral Code", DeferralCode99);
+        DeferralCode99 := CreateUserDefined99Periods; // For code coverage
+        asserterror GenJournalLine.Validate("Deferral Code", DeferralCode99);
+        GenJournalLine.Modify(true);
+        Commit;
+
+        // Validate : Gen Journal Line contains the Deferral Code
+        GenJournalLine.TestField("Deferral Code", DeferralCode);
+
+        // Validate : Deferral Schedule Exists given the key values for GL.
+        if not DeferralHeader.Get(DeferralDocType::"G/L",
+             GenJournalLine."Journal Template Name",
+             GenJournalLine."Journal Batch Name", 0, '',
+             GenJournalLine."Line No.")
+        then
+            asserterror;
+
+        // Validate : For positive amount, you cannot enter an amount for the deferral schedule larger than the line amount, or less than 0
+        asserterror DeferralHeader.Validate("Amount to Defer", 200);
+        asserterror DeferralHeader.Validate("Amount to Defer", -200);
+        GenJournalLine.Validate("Deferral Code", DeferralCodeDays); // Code to create deferral using days per period, for code coverage
+
+        // Code coverage for covering the 2 uncovered settings for Start Date
+        DeferralCodeDays := CreateDaysPerPeriod6PeriodsEOP;
+        GenJournalLine.Validate("Deferral Code", DeferralCodeDays);
+        DeferralCodeDays := CreateDaysPerPeriod6PeriodsBONP;
+        GenJournalLine.Validate("Deferral Code", DeferralCodeDays);
+
+        DeferralCode := CreateStraightLine6PeriodsEOP;
+        GenJournalLine.Validate("Deferral Code", DeferralCode);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreateGLTrxForNegativeAmount()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        GLAccount: Record "G/L Account";
+        DeferralHeader: Record "Deferral Header";
+        DeferralCode: Code[10];
+    begin
+        // [SCENARIO 127776] Enter an amount for the deferral schedule larger than\less than
+        // Setup - create deferral code
+        DeferralCode := CreateStraightLine6Periods;
+
+        // Create new GL Account
+        LibraryERM.CreateGLAccount(GLAccount);
+
+        // Assign the deferral code to new GL Account
+        GLAccount."Default Deferral Template Code" := DeferralCode;
+        GLAccount.Modify;
+
+        // Generate GL trx with new account, give it an amount
+        CreateGeneralJournalBatch(GenJournalBatch);
+        CreateGenJournalLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          GenJournalLine."Document Type"::" ",
+          GenJournalLine."Account Type"::"G/L Account", GLAccount."No.",
+          GenJournalBatch."Bal. Account Type", GenJournalBatch."Bal. Account No.", -100.0);
+        GenJournalLine.Validate("Bal. Account No.", '');
+        GenJournalLine.Validate("Deferral Code");
+        GenJournalLine.Modify(true);
+        Commit;
+
+        // Validate : Gen Journal Line contains the Deferral Code
+        GenJournalLine.TestField("Deferral Code", DeferralCode);
+
+        // Validate : Deferral Schedule Exists given the key values for GL.
+        if not DeferralHeader.Get(DeferralDocType::"G/L",
+             GenJournalLine."Journal Template Name",
+             GenJournalLine."Journal Batch Name", 0, '',
+             GenJournalLine."Line No.")
+        then
+            asserterror;
+
+        // Validate : For positive amount, you cannot enter an amount for the deferral schedule larger than the line amount, or less than 0
+        asserterror DeferralHeader.Validate("Amount to Defer", -200.0);
+        asserterror DeferralHeader.Validate("Amount to Defer", 100.0);
+    end;
+
+    [Test]
+    [HandlerFunctions('GeneralJournalTemplateHandler,DeferralScheduleHandler,DocumentNoIsBlankMessageHandler')]
+    [Scope('OnPrem')]
+    procedure CreateGLTrxandVerifyScheduleUI()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GLAccount: Record "G/L Account";
+        DeferralTemplate: Record "Deferral Template";
+        GeneralJournal: TestPage "General Journal";
+        DeferralCode: Code[10];
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 127776] Deferral schedule from general journal
+        // [GIVEN] Created deferral code 'X', where "Start Date" is 'Posting Date'
+        DeferralCode := CreateStraightLine6Periods;
+
+        // [GIVEN] Create new GL Account, where "Default Deferral Template Code" is 'X'
+        LibraryERM.CreateGLAccount(GLAccount);
+        GLAccount."Default Deferral Template Code" := DeferralCode;
+        GLAccount.Modify;
+
+        // [GIVEN] Create General Journal Line, where "Posting Date" is '10.01.18'
+        CreateGeneralJournalLineByPage(GeneralJournal, GLAccount, GenJournalLine, 100.56);
+
+        // [WHEN] Run "Deferral Schedule" action
+        GeneralJournal.DeferralSchedule.Invoke;
+
+        // [THEN] Page "Deferral Schedule" is open, where "Posting Date" is '10.01.18', "Start Date Calc. Method" is 'Posting Date'
+        Assert.AreEqual(GenJournalLine."Posting Date", LibraryVariableStorage.DequeueDate, 'Posting Date');
+        DeferralTemplate.Get(DeferralCode);
+        Assert.AreEqual(Format(DeferralTemplate."Start Date"), LibraryVariableStorage.DequeueText, 'Start Date method');
+        // [THEN] Posting Date of the first schedule line is '10.01.18'
+        Assert.AreEqual(GenJournalLine."Posting Date", LibraryVariableStorage.DequeueDate, 'Posting Date in line');
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('GeneralJournalTemplateHandler,DeferralScheduleHandler,DocumentNoIsBlankMessageHandler')]
+    [Scope('OnPrem')]
+    procedure CreateGLTrxandVerifyScheduleUINewCode()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GLAccount: Record "G/L Account";
+        DeferralHeader: Record "Deferral Header";
+        DeferralTemplate: Record "Deferral Template";
+        GeneralJournal: TestPage "General Journal";
+        DeferralCode: Code[10];
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 127776] Create deferral schedule based on transaction and template
+        // [GIVEN] Created deferral code 'X', where "Start Date" is 'Beginning of Period'
+        DeferralCode := CreateStraightLine2Periods;
+        DeferralTemplate.Get(DeferralCode);
+
+        // [GIVEN] Create new GL Account, where "Default Deferral Template Code" is 'X'
+        LibraryERM.CreateGLAccount(GLAccount);
+        GLAccount."Default Deferral Template Code" := DeferralCode;
+        GLAccount.Modify;
+
+        // [GIVEN] Create General Journal Line, where "Posting Date" is '10.01.18'
+        CreateGeneralJournalLineByPage(GeneralJournal, GLAccount, GenJournalLine, 100.56);
+
+        // [GIVEN] Removed deferral schedule lines.
+        DeferralHeader.Get(
+          DeferralDocType::"G/L", GenJournalLine."Journal Template Name",
+          GenJournalLine."Journal Batch Name", 0, '', GenJournalLine."Line No.");
+        DeferralUtilities.RemoveOrSetDeferralSchedule('', DeferralDocType::"G/L", GenJournalLine."Journal Template Name",
+          GenJournalLine."Journal Batch Name", 0, '', GenJournalLine."Line No.", 0, 0D, '', '', true);
+        DeferralHeader."Amount to Defer" := 0;
+        DeferralHeader."No. of Periods" := 0;
+        DeferralHeader.Insert;
+
+        // [GIVEN] Action "Deferral Schedule" is invoked, but as no schedule, window contains no lines
+        GeneralJournal.DeferralSchedule.Invoke;
+        Assert.AreEqual(GenJournalLine."Posting Date", LibraryVariableStorage.DequeueDate, 'Posting Date #1');
+        Assert.AreEqual(Format(DeferralTemplate."Start Date"), LibraryVariableStorage.DequeueText, 'Start Date method #1');
+        LibraryVariableStorage.AssertEmpty;
+
+        // [GIVEN] Created deferral schedule
+        DeferralUtilities.RemoveOrSetDeferralSchedule(DeferralCode, DeferralDocType::"G/L", GenJournalLine."Journal Template Name",
+          GenJournalLine."Journal Batch Name", 0, '', GenJournalLine."Line No.", GenJournalLine.Amount, GenJournalLine."Posting Date",
+          '', GenJournalLine."Currency Code", true);
+
+        // [WHEN] Run "Deferral Schedule" action
+        GeneralJournal.DeferralSchedule.Invoke;
+        // [THEN] Page "Deferral Schedule" is open, where "Posting Date" is '10.01.18', "Start Date Calc. Method" is 'Beginning of Period'
+        Assert.AreEqual(GenJournalLine."Posting Date", LibraryVariableStorage.DequeueDate, 'Posting Date #2');
+        Assert.AreEqual(Format(DeferralTemplate."Start Date"), LibraryVariableStorage.DequeueText, 'Start Date method #2');
+        // [THEN] Posting Date of the first schedule line is '01.01.18'
+        Assert.AreEqual(CalcDate('<-CM>', GenJournalLine."Posting Date"), LibraryVariableStorage.DequeueDate, 'Posting Date in line #2');
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreateGLTrxandVerifyPosting()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        DeferralTemplate: Record "Deferral Template";
+        DeferralCode: Code[10];
+    begin
+        // [SCENARIO 127776] Post general journal line with deferral
+
+        // [GIVEN] General Journal Line with Deferral
+        DeferralCode := CreateGenJournalLineWithDeferral(GenJournalLine);
+
+        // [WHEN] Post General Journal Lines.
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] Verify the count of posted GL Entries with total number of lines entered for deferral schedule.
+        VerifyTotalNumberOfPostedGLEntries(GenJournalLine, 14);
+
+        // [THEN] Description in total deferral line matches Gen. Journal Line's Description (TFS 203345)
+        DeferralTemplate.Get(DeferralCode);
+        VerifyDescriptionOnTotalDeferralLine(
+          GenJournalLine."Document No.", DeferralTemplate."Deferral Account", GenJournalLine."Posting Date", GenJournalLine.Description);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreateGLTrxandVerifyPostingAmounts()
+    var
+        DeferralLine: Record "Deferral Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        GLAccount: Record "G/L Account";
+        GLEntry: Record "G/L Entry";
+        DeferralCode: Code[10];
+        DeferralAmount: Decimal;
+    begin
+        // [SCENARIO 127776] Post general journal after manually typed deferral line
+        // Setup - create deferral code
+        DeferralCode := CreateEqual5Periods80Percent;
+
+        // Create new GL Account
+        LibraryERM.CreateGLAccount(GLAccount);
+
+        // Assign the deferral code to new GL Account
+        GLAccount."Default Deferral Template Code" := DeferralCode;
+        GLAccount.Modify;
+
+        // Create General Journal Line.
+        // Generate GL trx with new account, give it an amount
+        CreateGeneralJournalBatch(GenJournalBatch);
+        CreateGenJournalLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          GenJournalLine."Document Type"::" ",
+          GenJournalLine."Account Type"::"G/L Account", GLAccount."No.",
+          GenJournalBatch."Bal. Account Type", GenJournalBatch."Bal. Account No.", 100);
+        GenJournalLine.Validate("Bal. Account No.");
+        GenJournalLine.Validate("Deferral Code");
+        GenJournalLine.Modify(true);
+        Commit;
+
+        // Trap the amount created for the Deferral Schedule
+        DeferralLine.SetRange("Deferral Doc. Type", DeferralDocType::"G/L");
+        DeferralLine.SetRange("Gen. Jnl. Template Name", GenJournalLine."Journal Template Name");
+        DeferralLine.SetRange("Gen. Jnl. Batch Name", GenJournalLine."Journal Batch Name");
+        DeferralLine.SetRange("Document Type", 0);
+        DeferralLine.SetRange("Document No.", '');
+        DeferralLine.SetRange("Line No.", GenJournalLine."Line No.");
+        if DeferralLine.FindFirst then
+            DeferralAmount := DeferralLine.Amount;
+
+        // 2. Exercise: Post General Journal Lines.
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // 3. Verify: Verify the count of posted GL Entries with correct value
+        // Initial value = 100, 80%=80, each period = 16.00
+        GLEntry.SetRange("Document No.", GenJournalLine."Document No.");
+        GLEntry.SetRange(Amount, DeferralAmount);
+        Assert.AreEqual(5, GLEntry.Count, 'An incorrect number of lines was posted');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreateGLTrxandVerifyDaysSchedule()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        GLAccount: Record "G/L Account";
+        DeferralHeader: Record "Deferral Header";
+        DeferralLine: Record "Deferral Line";
+        RunningDeferralTotal: Decimal;
+    begin
+        // [SCENARIO TFSID 157047] Incorrect deferral amounts for "Days per Period" in GB Localization
+        // Test is valid for all countries.
+
+        // Create new GL Account
+        LibraryERM.CreateGLAccount(GLAccount);
+
+        // Assign the deferral code to new GL Account
+        GLAccount."Default Deferral Template Code" := CreateDaysPerPeriod6Periods;
+        GLAccount.Modify;
+
+        // Generate GL trx with new account, give it an amount
+        CreateGeneralJournalBatch(GenJournalBatch);
+        CreateGenJournalLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          GenJournalLine."Document Type"::" ",
+          GenJournalLine."Account Type"::"G/L Account", GLAccount."No.",
+          GenJournalBatch."Bal. Account Type", GenJournalBatch."Bal. Account No.", 100.55);
+        GenJournalLine.Validate("Bal. Account No.", '');
+        GenJournalLine.Validate("Deferral Code");
+        Commit;
+
+        // Validate : Deferral Schedule Exists given the key values for GL.
+        if not DeferralHeader.Get(DeferralDocType::"G/L",
+             GenJournalLine."Journal Template Name",
+             GenJournalLine."Journal Batch Name", 0, '',
+             GenJournalLine."Line No.")
+        then
+            asserterror;
+
+        // Validate : Deferral Schedule is not adding their lines together, as per TFSID 157047
+        // If this behavior is happening, the last line's amount will be negative and greater than the total deferral amount,
+        // or the sum of the lines will not equal the total deferral amount.
+        DeferralLine.SetRange("Deferral Doc. Type", DeferralHeader."Deferral Doc. Type");
+        DeferralLine.SetRange("Gen. Jnl. Template Name", DeferralHeader."Gen. Jnl. Template Name");
+        DeferralLine.SetRange("Gen. Jnl. Batch Name", DeferralHeader."Gen. Jnl. Batch Name");
+        DeferralLine.SetRange("Document Type", DeferralHeader."Document Type");
+        DeferralLine.SetRange("Document No.", DeferralHeader."Document No.");
+        DeferralLine.SetRange("Line No.", DeferralHeader."Line No.");
+        RunningDeferralTotal := 0;
+        if DeferralLine.FindSet then
+            repeat
+                RunningDeferralTotal := RunningDeferralTotal + DeferralLine.Amount;
+            until (DeferralLine.Next = 0) or (DeferralLine.Amount = 0.0);
+
+        if RunningDeferralTotal > DeferralHeader."Amount to Defer" then
+            asserterror;
+        if Abs(DeferralLine.Amount) > Abs(DeferralHeader."Amount to Defer") then
+            asserterror;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateInvalidPostingDateForLine()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GLAccount: Record "G/L Account";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        DeferralLine: Record "Deferral Line";
+        DeferralCode: Code[10];
+        OutOfBoundsDate: Date;
+    begin
+        // Set a date that is outside of set up accounting periods...20 years should do...
+        OutOfBoundsDate := CalcDate('<20Y>', WorkDate);
+        // Setup - create deferral code
+        DeferralCode := CreateStraightLine6Periods;
+
+        // Create new GL Account
+        LibraryERM.CreateGLAccount(GLAccount);
+
+        // Assign the deferral code to new GL Account
+        GLAccount."Default Deferral Template Code" := DeferralCode;
+        GLAccount.Modify;
+
+        // Generate GL trx with new account, give it an amount
+        CreateGeneralJournalBatch(GenJournalBatch);
+        CreateGenJournalLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          GenJournalLine."Document Type"::" ",
+          GenJournalLine."Account Type"::"G/L Account", GLAccount."No.",
+          GenJournalBatch."Bal. Account Type", GenJournalBatch."Bal. Account No.", -100.0);
+        GenJournalLine.Validate("Bal. Account No.", '');
+        GenJournalLine.Validate("Deferral Code");
+        GenJournalLine.Modify(true);
+        Commit;
+
+        DeferralLine.SetRange("Deferral Doc. Type", DeferralDocType::"G/L");
+        DeferralLine.SetRange("Gen. Jnl. Template Name", GenJournalLine."Journal Template Name");
+        DeferralLine.SetRange("Gen. Jnl. Batch Name", GenJournalLine."Journal Batch Name");
+        DeferralLine.SetRange("Document Type", 0);
+        DeferralLine.SetRange("Document No.", '');
+        DeferralLine.SetRange("Line No.", GenJournalLine."Line No.");
+        if DeferralLine.FindLast then
+            // Validate : Changing the posting date to the "out of bounds" date should give an error.
+            asserterror DeferralLine.Validate("Posting Date", OutOfBoundsDate);
+    end;
+
+    [Test]
+    [HandlerFunctions('GLDeferralSummaryReportHandler')]
+    [Scope('OnPrem')]
+    procedure GLDeferralSummaryReport()
+    var
+        PostedDeferralHeader: Record "Posted Deferral Header";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        GLAccount: Record "G/L Account";
+        DeferralSummaryGL: Report "Deferral Summary - G/L";
+        DeferralCode: Code[10];
+    begin
+        // [SCENARIO 127756] Phyllis can view a deferral report
+        // Test and verify Deferral Summary - G/L Report.
+
+        // 1. Setup: Create Deferral Template, post General Journal entry using this template code
+        // Setup - create deferral code
+        DeferralCode := CreateEqual5Periods;
+
+        // Create new GL Account
+        LibraryERM.CreateGLAccount(GLAccount);
+
+        // Assign the deferral code to new GL Account
+        GLAccount."Default Deferral Template Code" := DeferralCode;
+        GLAccount.Modify;
+
+        // Create General Journal Line.
+        // Generate GL trx with new account, give it an amount
+        CreateGeneralJournalBatch(GenJournalBatch);
+
+        CreateGenJournalLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          GenJournalLine."Document Type"::" ",
+          GenJournalLine."Account Type"::"G/L Account", GLAccount."No.",
+          GenJournalBatch."Bal. Account Type", GenJournalBatch."Bal. Account No.", 100.0);
+        GenJournalLine.Validate("Bal. Account No.");
+        GenJournalLine.Validate("Deferral Code");
+        GenJournalLine.Modify(true);
+        Commit;
+
+        // Post General Journal Lines.
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // 2. Exercise: Run Deferral Summary - G/L Report.
+        Commit;
+        PostedDeferralHeader.SetRange("Deferral Doc. Type", PostedDeferralHeader."Deferral Doc. Type"::"G/L");
+        PostedDeferralHeader.SetRange("Gen. Jnl. Document No.", GenJournalLine."Document No.");
+        PostedDeferralHeader.SetRange("Account No.", GLAccount."No.");
+        PostedDeferralHeader.SetRange("Document Type", 0);
+        PostedDeferralHeader.SetRange("Document No.", '');
+        PostedDeferralHeader.SetRange("Line No.", GenJournalLine."Line No.");
+        Clear(DeferralSummaryGL);
+        DeferralSummaryGL.SetTableView(PostedDeferralHeader);
+        DeferralSummaryGL.Run;
+
+        // 3. Verify: Verify Values on Deferral Summary - G/L Report.
+        PostedDeferralHeader.SetRange("Deferral Doc. Type", PostedDeferralHeader."Deferral Doc. Type"::"G/L");
+        PostedDeferralHeader.SetRange("Gen. Jnl. Document No.", GenJournalLine."Document No.");
+        PostedDeferralHeader.SetRange("Account No.", GLAccount."No.");
+        PostedDeferralHeader.SetRange("Document Type", 0);
+        PostedDeferralHeader.SetRange("Document No.", '');
+        PostedDeferralHeader.SetRange("Line No.", GenJournalLine."Line No.");
+        PostedDeferralHeader.FindFirst;
+        VerifyValuesonGLDeferralSummary(PostedDeferralHeader);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ItemMiniListShowsDeferralTemplateColumn()
+    var
+        Item: Record Item;
+        ItemList: TestPage "Item List";
+        DeferralCode: Code[10];
+    begin
+        // [SCENARIO 143447] Item List should have Default Deferral Template field displayed.
+        DeferralCode := CreateDeferralCode;
+
+        Item.Init;
+        Item."Default Deferral Template Code" := DeferralCode;
+        Item.Insert(true);
+
+        ItemList.OpenView;
+        ItemList.GotoRecord(Item);
+        ItemList."Default Deferral Template Code".AssertEquals(Item."Default Deferral Template Code");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ItemMiniCardShowsDeferralTemplateColumn()
+    var
+        Item: Record Item;
+        ItemCard: TestPage "Item Card";
+        DeferralCode: Code[10];
+    begin
+        // [SCENARIO 143447] Item Card should have Default Deferral Template field displayed.
+        DeferralCode := CreateDeferralCode;
+
+        Item.Init;
+        Item."Default Deferral Template Code" := DeferralCode;
+        Item.Insert(true);
+
+        ItemCard.OpenView;
+        ItemCard.GotoRecord(Item);
+        ItemCard."Default Deferral Template Code".AssertEquals(Item."Default Deferral Template Code");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DeferralPctUT()
+    var
+        DummyDeferralTemplate: Record "Deferral Template";
+    begin
+        // [FEATURE] [Deferral] [UT]
+        // [SCENARIO] "Deferral %" field of Deferral Template must not show empty decimals
+        DummyDeferralTemplate.Validate("Deferral %", 10);
+        Assert.AreEqual('10', Format(DummyDeferralTemplate."Deferral %"), DecimalPlacesInDeferralPctErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DeferralPctUIUT()
+    var
+        DeferralTemplate: Record "Deferral Template";
+        DeferralTemplateList: TestPage "Deferral Template List";
+    begin
+        // [FEATURE] [Deferral] [UT]
+        // [SCENARIO] "Deferral %" field of Deferral Template (1700) must not show empty decimals in Deferral Templates page (1701)
+        DeferralTemplate.Init;
+        DeferralTemplate.Validate("Deferral %", 10);
+        DeferralTemplate.Insert;
+        DeferralTemplateList.Trap;
+        PAGE.Run(PAGE::"Deferral Template List", DeferralTemplate);
+        Assert.AreEqual('10', Format(DeferralTemplateList."Deferral %"), DecimalPlacesInDeferralPctErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreateGLTrxandVerifyPostingCustomer()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        GLEntry: Record "G/L Entry";
+        CustomerPostingGroup: Record "Customer Posting Group";
+        InvoiceNo: Code[20];
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 377994] Posted GL trx for Customer must have G/L entry for Customer Posting Group's Receivable Account with the posted amount
+        Initialize;
+
+        // [GIVEN] Defferal setup - 5 equal periods
+        // [GIVEN] Invoice with Customer Posting Group "G" and Amount = 100
+        // [GIVEN] "G"."Receivables Account" = "A"
+        CreateSalesInvoiceWithLineDeferral(SalesHeader, SalesLine, CreateEqual5Periods, SalesHeader."Document Type"::Invoice);
+
+        // [WHEN] Post Sales Invoice.
+        InvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] "G/L Entry" for "G/L Account" "G" created with Amount = 100
+        CustomerPostingGroup.Get(SalesHeader."Customer Posting Group");
+        GLEntry.SetRange("G/L Account No.", CustomerPostingGroup.GetReceivablesAccount);
+        GLEntry.SetRange("Document No.", InvoiceNo);
+        GLEntry.FindFirst;
+        GLEntry.TestField(Amount, SalesLine."Amount Including VAT");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreateGLTrxandVerifyPostingVendor()
+    var
+        GLEntry: Record "G/L Entry";
+        VendorPostingGroup: Record "Vendor Posting Group";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        InvoiceNo: Code[20];
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 377994] Posted GL trx for Vendor must have G/L entry for Vendo Posting Group's Receivable Account with the posted amount
+        Initialize;
+
+        // [GIVEN] Defferal setup - 5 equal periods
+        // [GIVEN] Invoice with Vendor Posting Group "G" and Amount = 100
+        // [GIVEN] "G"."Receivaables Account" = "A"
+        CreatePurchInvoiceWithLineDeferral(PurchaseHeader, PurchaseLine, CreateEqual5Periods, PurchaseHeader."Document Type"::Invoice);
+
+        // [WHEN] Post General Journal Line.
+        InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] "G/L Entry" for "G/L Account" "G" created with Amount = 100
+        VendorPostingGroup.Get(PurchaseHeader."Vendor Posting Group");
+        GLEntry.SetRange("G/L Account No.", VendorPostingGroup.GetPayablesAccount);
+        GLEntry.SetRange("Document No.", InvoiceNo);
+        GLEntry.FindFirst;
+        GLEntry.TestField(Amount, -PurchaseLine."Amount Including VAT");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateDeferralCodeWithCustAccountType()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // [SCENARIO 379538] User cannot use deferral code for gen. journal line with Account Type = Customer
+        // Unlocking this scenario must extend test case for PostGenJournalForGLAccountWithDifferentSourceCode TFS 217437
+        Initialize;
+
+        // [GIVEN] Gen. Journal Line with Account Type = Customer
+        GenJournalLine.Validate("Account Type", GenJournalLine."Account Type"::Customer);
+
+        // [WHEN] User tries to set Deferral Code
+        asserterror GenJournalLine.Validate("Deferral Code", CreateEqual5Periods);
+
+        // [THEN] Error "You cannot specify a deferral code for this type of account." appears
+        Assert.ExpectedError(AccTypeMustBeGLAccountErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateDeferralCodeWithVendAccountType()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // [SCENARIO 379538] User cannot use deferral code for gen. journal line with Account Type = Vendor
+        // Unlocking this scenario must extend test case for PostGenJournalForGLAccountWithDifferentSourceCode TFS 217437
+        Initialize;
+
+        // [GIVEN] Gen. Journal Line with Account Type = Vendor
+        GenJournalLine.Validate("Account Type", GenJournalLine."Account Type"::Vendor);
+
+        // [WHEN] User tries to set Deferral Code
+        asserterror GenJournalLine.Validate("Deferral Code", CreateEqual5Periods);
+
+        // [THEN] Error "You cannot specify a deferral code for this type of account." appears
+        Assert.ExpectedError(AccTypeMustBeGLAccountErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateDeferralCodeWithBankAccountType()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // [SCENARIO 379538] User cannot use deferral code for gen. journal line with Account Type = Bank Account
+        // Unlocking this scenario must extend test case for PostGenJournalForGLAccountWithDifferentSourceCode TFS 217437
+        Initialize;
+
+        // [GIVEN] Gen. Journal Line with Account Type = Vendor
+        GenJournalLine.Validate("Account Type", GenJournalLine."Account Type"::"Bank Account");
+
+        // [WHEN] User tries to set Deferral Code
+        asserterror GenJournalLine.Validate("Deferral Code", CreateEqual5Periods);
+
+        // [THEN] Error "You cannot specify a deferral code for this type of account." appears
+        Assert.ExpectedError(AccTypeMustBeGLAccountErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateDeferralCodeWithFAAccountType()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // [SCENARIO 379538] User cannot use deferral code for gen. journal line with Account Type = Fixed Asset
+        // Unlocking this scenario must extend test case for PostGenJournalForGLAccountWithDifferentSourceCode TFS 217437
+        Initialize;
+
+        // [GIVEN] Gen. Journal Line with Account Type = Vendor
+        GenJournalLine.Validate("Account Type", GenJournalLine."Account Type"::"Fixed Asset");
+
+        // [WHEN] User tries to set Deferral Code
+        asserterror GenJournalLine.Validate("Deferral Code", CreateEqual5Periods);
+
+        // [THEN] Error "You cannot specify a deferral code for this type of account." appears
+        Assert.ExpectedError(AccTypeMustBeGLAccountErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateDeferralCodeWithICPartnerAccountType()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // [SCENARIO 379538] User cannot use deferral code for gen. journal line with Account Type = IC Partner
+        // Unlocking this scenario must extend test case for PostGenJournalForGLAccountWithDifferentSourceCode TFS 217437
+        Initialize;
+
+        // [GIVEN] Gen. Journal Line with Account Type = Vendor
+        GenJournalLine.Validate("Account Type", GenJournalLine."Account Type"::"IC Partner");
+
+        // [WHEN] User tries to set Deferral Code
+        asserterror GenJournalLine.Validate("Deferral Code", CreateEqual5Periods);
+
+        // [THEN] Error "You cannot specify a deferral code for this type of account." appears
+        Assert.ExpectedError(AccTypeMustBeGLAccountErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostGenJournalForGLAccountWithDifferentSourceCode()
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // [FEATURE] [General Journal] [Source Code]
+        // [SCENARIO 217437] Cassie can post general journal with deferrals when "Source Code" differs from setup.
+        Initialize;
+
+        // [GIVEN] Source codes "X" and "Y". "Source Code Setup".General = "X"
+        // [GIVEN] General journal template "T" with "Source Code" = "Y"
+        UpdateGeneralJournalInSourceCodeSetup;
+        CreateGeneralGenJournalTemplateWithSourceCode(GenJournalTemplate);
+
+        // [GIVEN] Deferral Template "D" where "Deferral Account" = "A", "Type" = "Equal per Period" and "No. of Periods" = 5
+        // [GIVEN] General journal line where "General Journal Template" = "T", "Account Type" = "G/L Account" and "Deferral Code" = "D"
+        CreateGenJournalLineWithTemplate(
+          GenJournalLine, GenJournalTemplate, GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo);
+
+        // [WHEN] Post journal
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [WHEN] System generates 6 (5 periods + 1 total balancing) G/L Entries for "A"
+        VerifyTotalNumberOfPostedGLEntries(GenJournalLine, 14);
+        VerifyTotalNumberOfPostedDeferralGLEntries(GenJournalLine, 6);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure DeferralHeaderIsDeletedWhenGLTrxIsReversed()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        TransactionNo: Integer;
+    begin
+        // [FEATURE] [General Journal] [Reverse]
+        // [SCENARIO 232837] Posted Deferral Entries are deleted on reversal of posted G/L entries.
+
+        // [GIVEN] General Journal Line with Deferral.
+        CreateGenJournalLineWithDeferral(GenJournalLine);
+
+        // [GIVEN] Post General Journal Line.
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] Posted Deferral Header "PDH" created for Transaction.
+        VerifyPostedDeferralHeadersNumber(GenJournalLine."Document No.", 1);
+
+        // [WHEN] Reverse Transaction.
+        TransactionNo := GetTransactionNumberFromGenJournalLine(GenJournalLine);
+        LibraryERM.ReverseTransaction(TransactionNo);
+
+        // [THEN] "PDH" is deleted.
+        VerifyPostedDeferralHeadersNumber(GenJournalLine."Document No.", 0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostSalesGLAccountWithVAT()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // [FEATURE] [General Journal] [G/L Account] [VAT] [Sales]
+        // [SCENARIO 251252] G/L Entry with VAT has been created when post general journal for a sales G/L Account with deferral
+        Initialize;
+
+        // [GIVEN] General journal line with sales G/L Account "A" and deferral setup
+        CreateSalesGenJournalLineWithDeferral(GenJournalLine);
+
+        // [WHEN] Post the journal
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] There is a G/L Entry for a posting account "A" with VAT
+        // [THEN] There is a pair of initial deferral G/L Entries for a posting account (TFS 258121)
+        VerifyVATGLEntryForPostingAccount(GenJournalLine);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostPurchaseGLAccountWithVAT()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // [FEATURE] [General Journal] [G/L Account] [VAT] [Purchase]
+        // [SCENARIO 251252] G/L Entry with VAT has been created when post general journal for a purchase G/L Account with deferral
+        Initialize;
+
+        // [GIVEN] General journal line with purchase G/L Account "A" and deferral setup
+        CreatePurchaseGenJournalLineWithDeferral(GenJournalLine);
+
+        // [WHEN] Post the journal
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] There is a G/L Entry for a posting account "A" with VAT
+        // [THEN] There is a pair of initial deferral G/L Entries for a posting account (TFS 258121)
+        VerifyVATGLEntryForPostingAccount(GenJournalLine);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RemoveOrSetDefScheduleGenJournalBatchUT()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        SalesHeader: Record "Sales Header";
+        DeferralHeader: Record "Deferral Header";
+        DeferralUtilities: Codeunit "Deferral Utilities";
+        LongDescription: Text[100];
+        DeferralCode: Code[10];
+    begin
+        // [FEATURE] [Deferral schedule] [UT]
+        // [SCENARIO 304205] Calling RemoveOrSetDeferralSchedule with GenJournalBatchName <> '' and max length Description creates Deferral Description from these fields
+        Initialize;
+
+        // [GIVEN] Deferral Code
+        DeferralCode := CreateEqual5Periods80Percent;
+        // [GIVEN] Sales Invoice
+        LibrarySales.CreateSalesInvoice(SalesHeader);
+        // [GIVEN] Gen. Journal Batch with Name = 'ABC'
+        CreateGeneralJournalBatch(GenJournalBatch);
+
+        // [WHEN] DeferralCodeOnValidate with long description = 'Deferral12346589....112233'
+        LongDescription := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(LongDescription)), 1, MaxStrLen(LongDescription));
+        DeferralUtilities.RemoveOrSetDeferralSchedule(
+          DeferralCode, DeferralDocType::Sales, GenJournalBatch."Journal Template Name",
+          GenJournalBatch.Name, SalesHeader."Document Type", SalesHeader."No.", 1, 0,
+          SalesHeader."Posting Date", LongDescription, '', false);
+
+        // [THEN] Schedule Description = 'ABC-Deferral12346589....11'
+        DeferralHeader.Get(
+          DeferralDocType::Sales, GenJournalBatch."Journal Template Name",
+          GenJournalBatch.Name, SalesHeader."Document Type", SalesHeader."No.", 1);
+        DeferralHeader.TestField(
+          "Schedule Description",
+          CopyStr(StrSubstNo('%1-%2', GenJournalBatch.Name, LongDescription), 1, MaxStrLen(DeferralHeader."Schedule Description")));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RemoveOrSetDefScheduleDocNoUT()
+    var
+        SalesHeader: Record "Sales Header";
+        DeferralHeader: Record "Deferral Header";
+        DeferralUtilities: Codeunit "Deferral Utilities";
+        LongDescription: Text[100];
+        DeferralCode: Code[10];
+    begin
+        // [FEATURE] [Deferral schedule] [UT]
+        // [SCENARIO 304205] Calling RemoveOrSetDeferralSchedule with GenJournalBatchName = '' and max length Description creates Deferral Description with DocNo
+        Initialize;
+
+        // [GIVEN] Deferral Code
+        DeferralCode := CreateEqual5Periods80Percent;
+        // [GIVEN] Sales Invoice with No. = 'INV'
+        LibrarySales.CreateSalesInvoice(SalesHeader);
+
+        // [WHEN] DeferralCodeOnValidate with long description = 'Deferral12346589....112233' and GenJnlBatchName = ''
+        LongDescription := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(LongDescription)), 1, MaxStrLen(LongDescription));
+        DeferralUtilities.RemoveOrSetDeferralSchedule(
+          DeferralCode, DeferralDocType::Sales, '', '', SalesHeader."Document Type",
+          SalesHeader."No.", 1, 0, SalesHeader."Posting Date", LongDescription, '', false);
+
+        // [THEN] Schedule Description = 'INV-Deferral12346589....11'
+        DeferralHeader.Get(DeferralDocType::Sales, '', '', SalesHeader."Document Type", SalesHeader."No.", 1);
+        DeferralHeader.TestField(
+          "Schedule Description",
+          CopyStr(StrSubstNo('%1-%2', SalesHeader."No.", LongDescription), 1, MaxStrLen(DeferralHeader."Schedule Description")));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DeferralCodeOnValidateGenJournalBatchUT()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        SalesHeader: Record "Sales Header";
+        DeferralHeader: Record "Deferral Header";
+        DeferralUtilities: Codeunit "Deferral Utilities";
+        LongDescription: Text[100];
+        DeferralCode: Code[10];
+    begin
+        // [FEATURE] [Deferral schedule] [UT]
+        // [SCENARIO 304205] Calling DeferralCodeOnValidate with GenJournalBatchName <> '' and max length Description creates Deferral Description from these fields
+        Initialize;
+
+        // [GIVEN] Deferral Code
+        DeferralCode := CreateEqual5Periods80Percent;
+        // [GIVEN] Sales Invoice
+        LibrarySales.CreateSalesInvoice(SalesHeader);
+        // [GIVEN] Gen. Journal Batch with Name = 'ABC'
+        CreateGeneralJournalBatch(GenJournalBatch);
+
+        // [WHEN] DeferralCodeOnValidate with long description = 'Deferral12346589....112233'
+        LongDescription := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(LongDescription)), 1, MaxStrLen(LongDescription));
+        DeferralUtilities.DeferralCodeOnValidate(
+          DeferralCode, DeferralDocType::Sales, GenJournalBatch."Journal Template Name",
+          GenJournalBatch.Name, SalesHeader."Document Type", SalesHeader."No.", 1, 0,
+          SalesHeader."Posting Date", LongDescription, '');
+
+        // [THEN] Schedule Description = 'ABC-Deferral12346589....11'
+        DeferralHeader.Get(
+          DeferralDocType::Sales, GenJournalBatch."Journal Template Name",
+          GenJournalBatch.Name, SalesHeader."Document Type", SalesHeader."No.", 1);
+        DeferralHeader.TestField(
+          "Schedule Description",
+          CopyStr(StrSubstNo('%1-%2', GenJournalBatch.Name, LongDescription), 1, MaxStrLen(DeferralHeader."Schedule Description")));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DeferralCodeOnValidateDocNoUT()
+    var
+        SalesHeader: Record "Sales Header";
+        DeferralHeader: Record "Deferral Header";
+        DeferralUtilities: Codeunit "Deferral Utilities";
+        LongDescription: Text[100];
+        DeferralCode: Code[10];
+    begin
+        // [FEATURE] [Deferral schedule] [UT]
+        // [SCENARIO 304205] Calling DeferralCodeOnValidate with GenJournalBatchName = '' and max length Description creates Deferral Description with DocNo
+        Initialize;
+
+        // [GIVEN] Deferral Code
+        DeferralCode := CreateEqual5Periods80Percent;
+        // [GIVEN] Sales Invoice with No. = 'INV'
+        LibrarySales.CreateSalesInvoice(SalesHeader);
+
+        // [WHEN] DeferralCodeOnValidate with long description = 'Deferral12346589....112233' and GenJnlBatchName = ''
+        LongDescription := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(LongDescription)), 1, MaxStrLen(LongDescription));
+        DeferralUtilities.DeferralCodeOnValidate(
+          DeferralCode, DeferralDocType::Sales, '', '', SalesHeader."Document Type",
+          SalesHeader."No.", 1, 0, SalesHeader."Posting Date", LongDescription, '');
+
+        // [THEN] Schedule Description = 'INV-Deferral12346589....11'
+        DeferralHeader.Get(DeferralDocType::Sales, '', '', SalesHeader."Document Type", SalesHeader."No.", 1);
+        DeferralHeader.TestField(
+          "Schedule Description",
+          CopyStr(StrSubstNo('%1-%2', SalesHeader."No.", LongDescription), 1, MaxStrLen(DeferralHeader."Schedule Description")));
+    end;
+
+    [Test]
+    [HandlerFunctions('DeferralScheduleHandler')]
+    [Scope('OnPrem')]
+    procedure OpenLineScheduleEditGenJournalBatchUT()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        SalesHeader: Record "Sales Header";
+        DeferralHeader: Record "Deferral Header";
+        DeferralUtilities: Codeunit "Deferral Utilities";
+        LongDescription: Text[100];
+        DeferralCode: Code[10];
+    begin
+        // [FEATURE] [Deferral schedule] [UT]
+        // [SCENARIO 304205] Calling OpenLineScheduleEdit with GenJournalBatchName <> '' and max length Description creates Deferral Description from these fields
+        Initialize;
+
+        // [GIVEN] Deferral Code
+        DeferralCode := CreateEqual5Periods80Percent;
+        // [GIVEN] Sales Invoice
+        LibrarySales.CreateSalesInvoice(SalesHeader);
+        // [GIVEN] Gen. Journal Batch with Name = 'ABC'
+        CreateGeneralJournalBatch(GenJournalBatch);
+
+        // [WHEN] DeferralCodeOnValidate with long description = 'Deferral12346589....112233'
+        LongDescription := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(LongDescription)), 1, MaxStrLen(LongDescription));
+        DeferralUtilities.OpenLineScheduleEdit(
+          DeferralCode, DeferralDocType::Sales, GenJournalBatch."Journal Template Name",
+          GenJournalBatch.Name, SalesHeader."Document Type", SalesHeader."No.", 1, 0,
+          SalesHeader."Posting Date", LongDescription, '');
+
+        // [THEN] Schedule Description = 'ABC-Deferral12346589....11'
+        DeferralHeader.Get(
+          DeferralDocType::Sales, GenJournalBatch."Journal Template Name",
+          GenJournalBatch.Name, SalesHeader."Document Type", SalesHeader."No.", 1);
+        DeferralHeader.TestField(
+          "Schedule Description",
+          CopyStr(StrSubstNo('%1-%2', GenJournalBatch.Name, LongDescription), 1, MaxStrLen(DeferralHeader."Schedule Description")));
+    end;
+
+    [Test]
+    [HandlerFunctions('DeferralScheduleHandler')]
+    [Scope('OnPrem')]
+    procedure OpenLineScheduleEditDocNoUT()
+    var
+        SalesHeader: Record "Sales Header";
+        DeferralHeader: Record "Deferral Header";
+        DeferralUtilities: Codeunit "Deferral Utilities";
+        LongDescription: Text[100];
+        DeferralCode: Code[10];
+    begin
+        // [FEATURE] [Deferral schedule] [UT]
+        // [SCENARIO 304205] Calling OpenLineScheduleEdit with GenJournalBatchName = '' and max length Description creates Deferral Description with DocNo
+        Initialize;
+
+        // [GIVEN] Deferral Code
+        DeferralCode := CreateEqual5Periods80Percent;
+        // [GIVEN] Sales Invoice with No. = 'INV'
+        LibrarySales.CreateSalesInvoice(SalesHeader);
+
+        // [WHEN] DeferralCodeOnValidate with long description = 'Deferral12346589....112233' and GenJnlBatchName = ''
+        LongDescription := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(LongDescription)), 1, MaxStrLen(LongDescription));
+        DeferralUtilities.OpenLineScheduleEdit(
+          DeferralCode, DeferralDocType::Sales, '', '', SalesHeader."Document Type",
+          SalesHeader."No.", 1, 0, SalesHeader."Posting Date", LongDescription, '');
+
+        // [THEN] Schedule Description = 'INV-Deferral12346589....11'
+        DeferralHeader.Get(DeferralDocType::Sales, '', '', SalesHeader."Document Type", SalesHeader."No.", 1);
+        DeferralHeader.TestField(
+          "Schedule Description",
+          CopyStr(StrSubstNo('%1-%2', SalesHeader."No.", LongDescription), 1, MaxStrLen(DeferralHeader."Schedule Description")));
+    end;
+
+    local procedure Initialize()
+    var
+        AccountingPeriod: Record "Accounting Period";
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        LibraryApplicationArea: Codeunit "Library - Application Area";
+        Index: Integer;
+        CurrentPeriod: Date;
+    begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Test RED Setup Gen. Jnl.");
+        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryVariableStorage.Clear;
+        LibrarySetupStorage.Restore;
+
+        if isInitialized then
+            exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Test RED Setup Gen. Jnl.");
+
+        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
+        LibrarySetupStorage.Save(DATABASE::"Source Code Setup");
+
+        // Create the next 5 periods if not exist
+        for Index := 1 to 5 do begin
+            CurrentPeriod := CalcDate(StrSubstNo('<+%1M>', Index), WorkDate);
+            AccountingPeriod.SetRange("Starting Date", CurrentPeriod);
+            if not AccountingPeriod.FindFirst then begin
+                AccountingPeriod."Starting Date" := CurrentPeriod;
+                AccountingPeriod."New Fiscal Year" := true;
+                AccountingPeriod.Insert;
+            end;
+        end;
+
+        isInitialized := true;
+        Commit;
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Test RED Setup Gen. Jnl.");
+    end;
+
+    local procedure CreateDeferralCode() DeferralCode: Code[10]
+    var
+        DeferralTemplate: Record "Deferral Template";
+    begin
+        DeferralTemplate.Init;
+        DeferralTemplate."Deferral Code" :=
+          LibraryUtility.GenerateRandomCode(DeferralTemplate.FieldNo("Deferral Code"), DATABASE::"Deferral Template");
+
+        DeferralTemplate.Insert;
+        DeferralCode := DeferralTemplate."Deferral Code";
+
+        exit(DeferralCode);
+    end;
+
+    [Scope('OnPrem')]
+    procedure CreateMasterDeferralRecord(CalcMethod: Option "Straight-Line","Equal per Period","Days per Period","User-Defined"; StartDate: Option "Posting Date","Beginning of Period","End of Period","Beginning of Next Period"; NumOfPeriods: Integer; PeriodDescription: Text[50]; DeferralPercentage: Decimal) "Code": Code[10]
+    var
+        DeferralTemplate: Record "Deferral Template";
+        DeferralCode: Code[10];
+        GLAccountNumber: Code[20];
+    begin
+        // Setup
+        DeferralCode := LibraryUtility.GenerateRandomCode(DeferralTemplate.FieldNo("Deferral Code"), DATABASE::"Deferral Template");
+        GLAccountNumber := LibraryERM.CreateGLAccountNo;
+
+        DeferralTemplate.Init;
+        DeferralTemplate."Deferral Code" := DeferralCode;
+        DeferralTemplate."Deferral Account" := GLAccountNumber;
+        DeferralTemplate."Calc. Method" := CalcMethod;
+        DeferralTemplate."Start Date" := StartDate;
+        DeferralTemplate."No. of Periods" := NumOfPeriods;
+        DeferralTemplate."Period Description" := PeriodDescription;
+        DeferralTemplate."Deferral %" := DeferralPercentage;
+        DeferralTemplate.Insert;
+
+        Code := DeferralTemplate."Deferral Code";
+
+        exit(Code);
+    end;
+
+    local procedure CreateEqual5Periods80Percent() DeferralCode: Code[10]
+    begin
+        DeferralCode :=
+          CreateMasterDeferralRecord(CalcMethod::"Equal per Period", StartDate::"Posting Date", 5, '%1 Deferral %5', 80.0);
+        exit(DeferralCode);
+    end;
+
+    local procedure CreateEqual5Periods() DeferralCode: Code[10]
+    begin
+        DeferralCode :=
+          CreateMasterDeferralRecord(CalcMethod::"Equal per Period", StartDate::"Posting Date", 5, '%1 Deferral %5', 100.0);
+        exit(DeferralCode);
+    end;
+
+    local procedure CreateStraightLine2Periods() DeferralCode: Code[10]
+    begin
+        DeferralCode :=
+          CreateMasterDeferralRecord(CalcMethod::"Straight-Line", StartDate::"Beginning of Period", 2, '%1 Deferral %5', 100.0);
+        exit(DeferralCode);
+    end;
+
+    local procedure CreateStraightLine6Periods() DeferralCode: Code[10]
+    begin
+        DeferralCode :=
+          CreateMasterDeferralRecord(CalcMethod::"Straight-Line", StartDate::"Posting Date", 6, '%1 Deferral %5', 100.0);
+        exit(DeferralCode);
+    end;
+
+    local procedure CreateStraightLine6PeriodsEOP() DeferralCode: Code[10]
+    begin
+        DeferralCode :=
+          CreateMasterDeferralRecord(CalcMethod::"Straight-Line", StartDate::"End of Period", 6, '%1 Deferral %5', 100.0);
+        exit(DeferralCode);
+    end;
+
+    local procedure CreateDaysPerPeriod6Periods() DeferralCode: Code[10]
+    begin
+        DeferralCode :=
+          CreateMasterDeferralRecord(CalcMethod::"Days per Period", StartDate::"Beginning of Period", 6, '%1 Deferral %5', 100.0);
+        exit(DeferralCode);
+    end;
+
+    local procedure CreateDaysPerPeriod6PeriodsEOP() DeferralCode: Code[10]
+    begin
+        DeferralCode :=
+          CreateMasterDeferralRecord(CalcMethod::"Days per Period", StartDate::"End of Period", 6, '%1 Deferral %5', 100.0);
+        exit(DeferralCode);
+    end;
+
+    local procedure CreateDaysPerPeriod6PeriodsBONP() DeferralCode: Code[10]
+    begin
+        DeferralCode :=
+          CreateMasterDeferralRecord(CalcMethod::"Days per Period", StartDate::"Beginning of Next Period", 6, '%1 Deferral %5', 100.0);
+        exit(DeferralCode);
+    end;
+
+    local procedure CreateDaysPerPeriod99Periods() DeferralCode: Code[10]
+    begin
+        DeferralCode :=
+          CreateMasterDeferralRecord(CalcMethod::"Days per Period", StartDate::"Beginning of Next Period", 99, '%1 Deferral %5', 100.0);
+        exit(DeferralCode);
+    end;
+
+    local procedure CreateUserDefined99Periods() DeferralCode: Code[10]
+    begin
+        DeferralCode :=
+          CreateMasterDeferralRecord(CalcMethod::"User-Defined", StartDate::"Posting Date", 99, '%1 Deferral %5', 100.0);
+        exit(DeferralCode);
+    end;
+
+    local procedure CreateGeneralJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        GenJournalBatch.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+        GenJournalBatch.Modify(true);
+    end;
+
+    local procedure CreateGeneralJournalLineByPage(var GeneralJournal: TestPage "General Journal"; GLAccount: Record "G/L Account"; var GenJournalLine: Record "Gen. Journal Line"; Amount: Decimal)
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        // Find General Journal Template and Create General Journal Batch.
+        CreateGeneralJournalBatch(GenJournalBatch);
+        LibraryVariableStorage.Enqueue(GenJournalBatch."Journal Template Name");
+        Commit;
+
+        // Create General Journal Line.
+        GeneralJournal.OpenEdit;
+        GeneralJournal."Account Type".SetValue(GenJournalLine."Account Type"::"G/L Account");
+        GeneralJournal."Account No.".SetValue(GLAccount."No.");
+        GeneralJournal.Amount.SetValue(Amount);
+        GeneralJournal."Document No.".SetValue(GenJournalBatch.Name);
+
+        GenJournalLine.Validate("Deferral Code");
+        Commit;
+
+        // Create G/L Account No for Bal. Account No.
+        GLAccount.SetFilter("No.", '<>%1', GLAccount."No.");
+        LibraryERM.CreateGLAccount(GLAccount);
+        GeneralJournal."Bal. Account Type".SetValue(GenJournalLine."Account Type"::"G/L Account");
+        GeneralJournal."Bal. Account No.".SetValue(GLAccount."No.");
+
+        GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+        GenJournalLine.FindFirst;
+    end;
+
+    local procedure CreateSalesInvoiceWithLineDeferral(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DeferralCode: Code[10]; DocumentType: Option)
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        LibraryERM.CreateVATPostingSetupWithAccounts(
+          VATPostingSetup,
+          VATPostingSetup."VAT Calculation Type"::"Normal VAT",
+          LibraryRandom.RandIntInRange(10, 20));
+
+        LibrarySales.CreateSalesHeader(
+          SalesHeader,
+          DocumentType,
+          LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account",
+          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, 0), 1);
+
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(100, 200, 2));
+        SalesLine.Validate("Deferral Code", DeferralCode);
+        SalesLine.Modify(true);
+    end;
+
+    local procedure CreatePurchInvoiceWithLineDeferral(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DeferralCode: Code[10]; DocumentType: Option)
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        LibraryERM.CreateVATPostingSetupWithAccounts(
+          VATPostingSetup,
+          VATPostingSetup."VAT Calculation Type"::"Normal VAT",
+          LibraryRandom.RandIntInRange(10, 20));
+
+        LibraryPurchase.CreatePurchHeader(
+          PurchaseHeader,
+          DocumentType,
+          LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
+          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, 0), 1);
+
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(100, 200, 2));
+        PurchaseLine.Validate("Deferral Code", DeferralCode);
+        PurchaseLine.Modify(true);
+    end;
+
+    local procedure CreateGenJournalLineWithTemplate(var GenJournalLine: Record "Gen. Journal Line"; GenJournalTemplate: Record "Gen. Journal Template"; AccountType: Option; AccountNo: Code[20])
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+
+        LibraryJournals.CreateGenJournalLine(
+          GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name,
+          GenJournalLine."Document Type"::" ", AccountType, AccountNo,
+          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo,
+          LibraryRandom.RandDecInRange(1000, 2000, 2));
+
+        GenJournalLine.Validate(Description, LibraryUtility.GenerateGUID);
+        GenJournalLine.Validate("Source Code", GenJournalTemplate."Source Code");
+        GenJournalLine.Validate("Deferral Code", CreateEqual5Periods);
+        GenJournalLine.Modify(true);
+    end;
+
+    local procedure CreateGeneralGenJournalTemplateWithSourceCode(var GenJournalTemplate: Record "Gen. Journal Template")
+    var
+        SourceCode: Record "Source Code";
+    begin
+        LibraryERM.CreateSourceCode(SourceCode);
+
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        GenJournalTemplate.Validate(Type, GenJournalTemplate.Type::General);
+        GenJournalTemplate.Validate("Source Code", SourceCode.Code);
+        GenJournalTemplate.Modify(true);
+    end;
+
+    local procedure CreateGenJournalLineWithDeferral(var GenJournalLine: Record "Gen. Journal Line"): Code[10]
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GLAccount: Record "G/L Account";
+        DeferralCode: Code[10];
+    begin
+        // Create Deferral Template with 5 periods
+        DeferralCode := CreateEqual5Periods;
+
+        // Create new GL Account
+        LibraryERM.CreateGLAccount(GLAccount);
+
+        // Assign the deferral code to new GL Account
+        GLAccount."Default Deferral Template Code" := DeferralCode;
+        GLAccount.Modify;
+
+        // Create General Journal Line.
+        // Generate GL trx with new account, give it an amount
+        CreateGeneralJournalBatch(GenJournalBatch);
+
+        CreateGenJournalLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          GenJournalLine."Document Type"::" ",
+          GenJournalLine."Account Type"::"G/L Account", GLAccount."No.",
+          GenJournalBatch."Bal. Account Type", GenJournalBatch."Bal. Account No.", LibraryRandom.RandDec(1000, 2));
+
+        exit(DeferralCode);
+    end;
+
+    local procedure CreateSalesGenJournalLineWithDeferral(var GenJournalLine: Record "Gen. Journal Line")
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GLAccount: Record "G/L Account";
+    begin
+        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
+        GLAccount."Default Deferral Template Code" := CreateEqual5Periods;
+        GLAccount.Modify;
+
+        CreateGeneralJournalBatch(GenJournalBatch);
+        with GenJournalLine do
+            CreateGenJournalLine(
+              GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+              "Document Type"::" ", "Account Type"::"G/L Account", GLAccount."No.",
+              "Bal. Account Type"::Customer, LibrarySales.CreateCustomerNo, LibraryRandom.RandDec(1000, 2));
+    end;
+
+    local procedure CreatePurchaseGenJournalLineWithDeferral(var GenJournalLine: Record "Gen. Journal Line")
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GLAccount: Record "G/L Account";
+    begin
+        GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup);
+        GLAccount."Default Deferral Template Code" := CreateEqual5Periods;
+        GLAccount.Modify;
+
+        CreateGeneralJournalBatch(GenJournalBatch);
+        with GenJournalLine do
+            CreateGenJournalLine(
+              GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+              "Document Type"::" ", "Account Type"::"G/L Account", GLAccount."No.",
+              "Bal. Account Type"::Vendor, LibraryPurchase.CreateVendorNo, LibraryRandom.RandDec(1000, 2));
+    end;
+
+    local procedure UpdateGeneralJournalInSourceCodeSetup()
+    var
+        SourceCodeSetup: Record "Source Code Setup";
+        SourceCode: Record "Source Code";
+    begin
+        LibraryERM.CreateSourceCode(SourceCode);
+
+        SourceCodeSetup.Get;
+        SourceCodeSetup.Validate("General Journal", SourceCode.Code);
+        SourceCodeSetup.Modify(true);
+    end;
+
+    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; BalAccountType: Option; BalAccountNo: Code[20]; Amount: Decimal)
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        NoSeries: Record "No. Series";
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+        RecRef: RecordRef;
+    begin
+        // Find a balanced template/batch pair.
+        GenJournalBatch.Get(JournalTemplateName, JournalBatchName);
+
+        // Create a General Journal Entry.
+        GenJournalLine.Init;
+        GenJournalLine.Validate("Journal Template Name", JournalTemplateName);
+        GenJournalLine.Validate("Journal Batch Name", JournalBatchName);
+        RecRef.GetTable(GenJournalLine);
+        GenJournalLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, GenJournalLine.FieldNo("Line No.")));
+        GenJournalLine.Insert(true);
+        GenJournalLine.Validate("Posting Date", WorkDate);  // Defaults to work date.
+        GenJournalLine.Validate("Document Type", DocumentType);
+        GenJournalLine.Validate("Account Type", AccountType);
+        GenJournalLine.Validate("Account No.", AccountNo);
+        GenJournalLine.Validate(Amount, Amount);
+        if NoSeries.Get(GenJournalBatch."No. Series") then
+            GenJournalLine.Validate("Document No.", NoSeriesMgt.GetNextNo(GenJournalBatch."No. Series", WorkDate, false)) // Unused but required field for posting.
+        else
+            GenJournalLine.Validate(
+              "Document No.", LibraryUtility.GenerateRandomCode(GenJournalLine.FieldNo("Document No."), DATABASE::"Gen. Journal Line"));
+        GenJournalLine.Validate("External Document No.", GenJournalLine."Document No.");  // Unused but required for vendor posting.
+        GenJournalLine.Validate("Source Code", LibraryERM.FindGeneralJournalSourceCode);  // Unused but required for AU, NZ builds
+        GenJournalLine.Validate("Bal. Account Type", BalAccountType);
+        GenJournalLine.Validate("Bal. Account No.", BalAccountNo);
+        GenJournalLine.Modify(true);
+    end;
+
+    local procedure FilterGLEntryGroups(var GLEntry: Record "G/L Entry"; GenJournalLine: Record "Gen. Journal Line")
+    begin
+        with GLEntry do begin
+            SetRange("Gen. Posting Type", GenJournalLine."Gen. Posting Type");
+            SetRange("VAT Bus. Posting Group", GenJournalLine."VAT Bus. Posting Group");
+            SetRange("VAT Prod. Posting Group", GenJournalLine."VAT Prod. Posting Group");
+            SetRange("Gen. Bus. Posting Group", GenJournalLine."Gen. Bus. Posting Group");
+            SetRange("Gen. Prod. Posting Group", GenJournalLine."Gen. Prod. Posting Group");
+        end;
+    end;
+
+    local procedure GetTransactionNumberFromGenJournalLine(GenJournalLine: Record "Gen. Journal Line"): Integer
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        with GLEntry do begin
+            SetRange("Document Type", GenJournalLine."Document Type");
+            SetRange("Document No.", GenJournalLine."Document No.");
+            FindFirst;
+            exit("Transaction No.");
+        end;
+    end;
+
+    local procedure VerifyValuesonGLDeferralSummary(PostedDeferralHeader: Record "Posted Deferral Header")
+    var
+        GLAccount: Record "G/L Account";
+        GLEntry: Record "G/L Entry";
+    begin
+        LibraryReportDataset.LoadDataSetFile;
+
+        LibraryReportDataset.SetRange('GenJnlDocNo', PostedDeferralHeader."Gen. Jnl. Document No.");
+        LibraryReportDataset.SetRange('No_GLAcc', PostedDeferralHeader."Account No.");
+        LibraryReportDataset.SetRange('DocumentType', PostedDeferralHeader."Document Type");
+        LibraryReportDataset.GetNextRow;
+
+        if GLAccount.Get(PostedDeferralHeader."Account No.") then
+            LibraryReportDataset.AssertCurrentRowValueEquals(
+              'AccountName',
+              GLAccount.Name);
+
+        if GLEntry.Get(PostedDeferralHeader."Entry No.") then begin
+            LibraryReportDataset.AssertCurrentRowValueEquals(
+              'PostingDate',
+              Format(GLEntry."Posting Date"));
+
+            LibraryReportDataset.AssertCurrentRowValueEquals(
+              'DocumentType',
+              GLEntry."Document Type");
+        end;
+
+        LibraryReportDataset.AssertCurrentRowValueEquals(
+          'DeferralAccount',
+          PostedDeferralHeader."Deferral Account");
+
+        LibraryReportDataset.AssertCurrentRowValueEquals(
+          'DeferralStartDate',
+          Format(PostedDeferralHeader."Start Date"));
+
+        LibraryReportDataset.AssertCurrentRowValueEquals(
+          'NumOfPeriods',
+          PostedDeferralHeader."No. of Periods");
+
+        LibraryReportDataset.AssertCurrentRowValueEquals(
+          'TotalAmtDeferred',
+          PostedDeferralHeader."Amount to Defer (LCY)");
+    end;
+
+    local procedure VerifyDescriptionOnTotalDeferralLine(DocNo: Code[20]; GLAccNo: Code[20]; PostingDate: Date; DefDescription: Text[100])
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        GLEntry.SetRange("Document No.", DocNo);
+        GLEntry.SetRange("G/L Account No.", GLAccNo);
+        GLEntry.SetRange("Posting Date", PostingDate);
+        GLEntry.FindFirst;
+        GLEntry.TestField(Description, DefDescription);
+    end;
+
+    local procedure VerifyTotalNumberOfPostedGLEntries(GenJournalLine: Record "Gen. Journal Line"; ExpectedGLEntriesCount: Integer)
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        GLEntry.SetRange("Document No.", GenJournalLine."Document No.");
+        Assert.RecordCount(GLEntry, ExpectedGLEntriesCount);
+    end;
+
+    local procedure VerifyTotalNumberOfPostedDeferralGLEntries(GenJournalLine: Record "Gen. Journal Line"; ExpectedGLEntriesCount: Integer)
+    var
+        GLEntry: Record "G/L Entry";
+        DeferralTemplate: Record "Deferral Template";
+    begin
+        GLEntry.SetRange("Document No.", GenJournalLine."Document No.");
+        DeferralTemplate.Get(GenJournalLine."Deferral Code");
+        GLEntry.SetRange("G/L Account No.", DeferralTemplate."Deferral Account");
+        Assert.RecordCount(GLEntry, ExpectedGLEntriesCount);
+    end;
+
+    local procedure VerifyPostedDeferralHeadersNumber(GenJnlDocumentNo: Code[20]; ExpectedNumber: Integer)
+    var
+        PostedDeferralHeader: Record "Posted Deferral Header";
+        DeferralUtilities: Codeunit "Deferral Utilities";
+    begin
+        with PostedDeferralHeader do begin
+            Reset;
+            SetRange("Deferral Doc. Type", DeferralUtilities.GetGLDeferralDocType);
+            SetRange("Gen. Jnl. Document No.", GenJnlDocumentNo);
+            Assert.AreEqual(ExpectedNumber, Count, PostedDeferralHeaderNumberErr);
+        end;
+    end;
+
+    local procedure VerifyVATGLEntryForPostingAccount(GenJournalLine: Record "Gen. Journal Line")
+    var
+        GLEntry: Record "G/L Entry";
+        DummyGenJournalLine: Record "Gen. Journal Line";
+        PairAmount: Decimal;
+    begin
+        with GLEntry do begin
+            SetRange("Document Type", GenJournalLine."Document Type");
+            SetRange("Document No.", GenJournalLine."Document No.");
+            SetRange("G/L Account No.", GenJournalLine."Account No.");
+            SetFilter("VAT Amount", '<>%1', 0);
+            FilterGLEntryGroups(GLEntry, GenJournalLine);
+            Assert.RecordCount(GLEntry, 1);
+            FindFirst;
+            PairAmount := Amount;
+
+            // Verify paired GLEntry
+            SetRange("VAT Amount");
+            SetFilter(Amount, '<%1', 0);
+            FilterGLEntryGroups(GLEntry, DummyGenJournalLine);
+            Assert.RecordCount(GLEntry, 1);
+            FindFirst;
+            TestField(Amount, -PairAmount);
+        end;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure GeneralJournalTemplateHandler(var GeneralJournalTemplateHandler: TestPage "General Journal Template List")
+    begin
+        // General Journal Template Name filter with GeneralJournalTemplateName Global Variable.
+        GeneralJournalTemplateHandler.FILTER.SetFilter(Name, LibraryVariableStorage.DequeueText);
+        GeneralJournalTemplateHandler.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure DeferralScheduleHandler(var DeferralSchedule: TestPage "Deferral Schedule")
+    begin
+        Assert.IsFalse(DeferralSchedule.PostingDate.Editable, 'PostingDate.EDITABLE');
+        LibraryVariableStorage.Enqueue(DeferralSchedule.PostingDate.AsDate);
+        Assert.IsFalse(DeferralSchedule.StartDateCalcMethod.Editable, 'StartDateCalcMethod.EDITABLE');
+        LibraryVariableStorage.Enqueue(DeferralSchedule.StartDateCalcMethod.Value);
+        if DeferralSchedule.DeferralSheduleSubform.First then
+            LibraryVariableStorage.Enqueue(DeferralSchedule.DeferralSheduleSubform."Posting Date".AsDate);
+        DeferralSchedule.OK.Invoke;
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure GLDeferralSummaryReportHandler(var DeferralSummaryGL: TestRequestPage "Deferral Summary - G/L")
+    begin
+        DeferralSummaryGL.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerTrue(Message: Text[1024]; var Response: Boolean)
+    begin
+        Response := true;
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandler(Message: Text[1024])
+    begin
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure DocumentNoIsBlankMessageHandler(Message: Text[1024])
+    begin
+    end;
+}
+

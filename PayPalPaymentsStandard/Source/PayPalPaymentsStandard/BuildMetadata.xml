@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <Countries>All</Countries>
+  <IncludeInSaaS>Yes</IncludeInSaaS>
+  <IncludeOnPrem>Yes</IncludeOnPrem>
+  <IncludeInInvoicing>Yes</IncludeInInvoicing>
+  <Translate>Yes</Translate>
+</root>

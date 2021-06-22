@@ -1,0 +1,40 @@
+page 1827 "Business Units Setup Subform"
+{
+    Caption = 'Business Units Setup Subform';
+    DeleteAllowed = false;
+    InsertAllowed = false;
+    PageType = ListPart;
+    SourceTable = "Business Unit Setup";
+    SourceTableTemporary = false;
+
+    layout
+    {
+        area(content)
+        {
+            repeater(Group)
+            {
+                field(Include; Include)
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies if the business unit is include on the subform.';
+                }
+                field("Company Name"; "Company Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    ToolTip = 'Specifies the name of the company.';
+                }
+            }
+        }
+    }
+
+    actions
+    {
+    }
+
+    trigger OnOpenPage()
+    begin
+        CurrPage.Caption := '';
+    end;
+}
+

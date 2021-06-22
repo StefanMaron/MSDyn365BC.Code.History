@@ -1,0 +1,2557 @@
+codeunit 134006 "ERM Apply Unapply Customer"
+{
+    Permissions = TableData "Cust. Ledger Entry" = rimd;
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    trigger OnRun()
+    begin
+        // [FEATURE] [Apply] [Unapply] [Sales]
+        isInitialized := false;
+    end;
+
+    var
+        LibrarySales: Codeunit "Library - Sales";
+        LibraryERM: Codeunit "Library - ERM";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryInventory: Codeunit "Library - Inventory";
+        LibraryPmtDiscSetup: Codeunit "Library - Pmt Disc Setup";
+        LibraryRandom: Codeunit "Library - Random";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        Assert: Codeunit Assert;
+        isInitialized: Boolean;
+        AdditionalCurrencyErr: Label 'Additional Currency Amount must be %1.', Locked = true;
+        TotalAmountErr: Label 'Total Amount must be %1 in %2 table for %3 field : %4.', Locked = true;
+        UnappliedErr: Label '%1 %2 field must be true after Unapply entries.', Locked = true;
+        ApplicationEntryErr: Label '%1 No. %2 does not have an application entry.', Locked = true;
+        UnapplyErr: Label '%1 must be equal to ''Application''  in %2: %3=%4. Current value is ''Initial Entry''.', Locked = true;
+        UnapplyErrorDetailedEntryErr: Label 'Unapplied must be equal to ''No''  in %1: %2=%3. Current value is ''Yes''.', Locked = true;
+        AmountErr: Label '%1 must be %2 in %3.', Locked = true;
+        UapplyExchangeRateErr: Label 'You cannot unapply the entry with the posting date %1, because the exchange rate for the additional reporting currency has been changed.', Locked = true;
+        WrongFieldErr: Label 'Wrong value of field %1 in table %2.', Locked = true;
+        UnnecessaryVATEntriesFoundErr: Label 'Unnecessary VAT Entries found.', Locked = true;
+        PaymentMethodCodeErr: Label 'Open must be equal to ''Yes''  in Cust. Ledger Entry: Entry No.=%1. Current value is ''No''.', Locked = true;
+        NonzeroACYErr: Label 'Non-zero Additional Currency Amount in G/L Entry.', Locked = true;
+        GLEntryCntErr: Label 'Wrong count of created G/L Entries.';
+        DimBalanceErr: Label 'Wrong balance by Dimension.';
+        SelectionFilterErr: Label 'Problem with selection filter: Original selection: %1. Returned selection: %2.', Comment = '%1: original selection filter;%2: returned selection filter';
+        NoEntriesAppliedErr: Label 'Cannot post because you did not specify which entry to apply. You must specify an entry in the Applies-to ID field for one or more open entries.';
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ApplyUnapplyPayment()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // Check that Detailed Ledger Unapplied field is set to TRUE and Customer Ledger Entry and G/L entry have correct
+        // Remaining Amount and Additional Currency amount after Apply and Unapply Ledger Entry as well.
+        Initialize;
+        ApplyUnapplyCustEntries(
+          GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, LibraryRandom.RandInt(500));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ApplyUnapplyRefund()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // Check that Detailed Ledger Unapplied field is set to TRUE and Customer Ledger Entry and G/L entry have correct
+        // Remaining Amount and Additional Currency amount for Credit Memo and Refund after Apply and Unapply Ledger Entry as well.
+        Initialize;
+        ApplyUnapplyCustEntries(
+          GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, -LibraryRandom.RandInt(500));
+    end;
+
+    local procedure ApplyUnapplyCustEntries(DocumentType: Option; DocumentType2: Option; Amount: Decimal)
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // Setup.
+        LibraryERM.SetAddReportingCurrency(CreateCurrency);
+
+        // Create, Post, Apply and Unapply General journal Lines.
+        PostApplyUnapplyGenJournalLine(GenJournalLine, DocumentType, DocumentType2, Amount);
+
+        // Verify: Detailed Ledger Unapplied field is set to TRUE, Customer Ledger Entry for Remaining amount
+        // after Unapply applied entries and Additional Currency Amount on G/L Entry.
+        VerifyUnappliedDtldLedgEntry(GenJournalLine."Document No.", DocumentType);
+        VerifyCustLedgerEntryForRemAmt(GenJournalLine."Document Type", GenJournalLine."Document No.");
+        VerifyAddCurrencyAmount(GenJournalLine."Document No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ApplyUnapplyAndApplyPayment()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // Check that Detailed Customer Ledger Entry and G/L entry have Amount Zero and Additional Currency amount after
+        // Apply, Unapply and again Apply Unapplied Ledger Entry as well.
+        Initialize;
+        ApplyUnapplyApplyCustEntries(
+          GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, LibraryRandom.RandInt(500));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ApplyUnapplyApplyRefund()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // Check that Detailed Customer Ledger Entry and G/L entry have Amount Zero and Additional Currency amount for Credit Memo
+        // and Refund Entries after Apply, Unapply and again Apply Unapplied Ledger Entry as well.
+        Initialize;
+        ApplyUnapplyApplyCustEntries(
+          GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, -LibraryRandom.RandInt(500));
+    end;
+
+    local procedure ApplyUnapplyApplyCustEntries(DocumentType: Option; DocumentType2: Option; Amount: Decimal)
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // Setup.
+        LibraryERM.SetAddReportingCurrency(CreateCurrency);
+
+        // Create, Post, Apply, Unapply and again Apply Unapplied General journal Lines.
+        PostApplyUnapplyGenJournalLine(GenJournalLine, DocumentType, DocumentType2, Amount);
+        ApplyAndPostCustomerEntry(
+          GenJournalLine."Document No.", GenJournalLine."Document No.", -GenJournalLine.Amount, DocumentType, DocumentType2);
+
+        // Verify: Detailed Customer Ledger Entry for Total Amount and Additional Currency Amount on G/L Entry.
+        VerifyDetailedLedgerEntry(GenJournalLine."Document No.", DocumentType);
+        VerifyAddCurrencyAmount(GenJournalLine."Document No.");
+    end;
+
+    local procedure PostApplyUnapplyGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; DocumentType2: Option; Amount: Decimal)
+    var
+        NoOfLines: Integer;
+    begin
+        NoOfLines := 2 * LibraryRandom.RandInt(2);
+        CreateAndPostGenJournalLine(GenJournalLine, DocumentType, DocumentType2, NoOfLines, Amount);
+
+        // Exercise: Apply and Unapply Posted General Lines for Customer Ledger Entry.
+        ApplyAndPostCustomerEntry(
+          GenJournalLine."Document No.", GenJournalLine."Document No.", -GenJournalLine.Amount, DocumentType, DocumentType2);
+        UnapplyCustLedgerEntry(DocumentType2, GenJournalLine."Document No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UnapplyInvFromCustLedger()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // Unapply Invoice from Customer Ledger Entry and verify error message.
+        // Use Random Number Generator for Amount.
+        Initialize;
+        UnapplyFromCustLedgerEntry(GenJournalLine."Document Type"::Invoice, LibraryRandom.RandDec(100, 2));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UnapplyPaymentFromCustLedger()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // Unapply Payment from Customer Ledger Entry and verify error message.
+        // Use Random Number Generator for Amount.
+        Initialize;
+        UnapplyFromCustLedgerEntry(GenJournalLine."Document Type"::Payment, -LibraryRandom.RandDec(100, 2));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UnapplyCrMemoFromCustLedger()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // Unapply Credit Memo from Customer Ledger Entry and verify error message.
+        // Use Random Number Generator for Amount.
+        Initialize;
+        UnapplyFromCustLedgerEntry(GenJournalLine."Document Type"::"Credit Memo", -LibraryRandom.RandDec(100, 2));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UnapplyRefundFromCustLedger()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // Unapply Refund from Customer Ledger Entry and verify error message.
+        // Use Random Number Generator for Amount.
+        Initialize;
+        UnapplyFromCustLedgerEntry(GenJournalLine."Document Type"::Refund, LibraryRandom.RandDec(100, 2));
+    end;
+
+    local procedure UnapplyFromCustLedgerEntry(DocumentType: Option; Amount: Decimal)
+    var
+        Customer: Record Customer;
+        GenJournalLine: Record "Gen. Journal Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        CustEntryApplyPostedEntries: Codeunit "CustEntry-Apply Posted Entries";
+    begin
+        // Setup: Create Customer,create and post General Journal Line,find Customer Ledger Entry.
+        // Using 1 to create single General Journal Line.
+        LibrarySales.CreateCustomer(Customer);
+        SelectGenJournalBatch(GenJournalBatch, false);
+        CreateGeneralJournalLines(GenJournalLine, GenJournalBatch, 1, Customer."No.", DocumentType, Amount);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocumentType, GenJournalLine."Document No.");
+
+        // Exercise: Unapply Invoice/Payment/Credit Memo/Refund from Customer Ledger Entry.
+        asserterror CustEntryApplyPostedEntries.UnApplyCustLedgEntry(CustLedgerEntry."Entry No.");
+
+        // Verify: verify error message on Customer Ledger Entry.
+        Assert.ExpectedError(StrSubstNo(ApplicationEntryErr, CustLedgerEntry.TableCaption, CustLedgerEntry."Entry No."));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UnapplyInvFromDtldCustLedger()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // Unapply Invoice from Detailed Customer Ledger Entry and verify error message.
+        // Use Random Number Generator for Amount.
+        Initialize;
+        UnapplyFromDtldCustLedgerEntry(GenJournalLine."Document Type"::Invoice, LibraryRandom.RandDec(100, 2));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UnapplyPaymentDtldCustLedger()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // Unapply Payment from Detailed Customer Ledger Entry and verify error message.
+        // Use Random Number Generator for Amount.
+        Initialize;
+        UnapplyFromDtldCustLedgerEntry(GenJournalLine."Document Type"::Payment, -LibraryRandom.RandDec(100, 2));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UnapplyCrMemoDtldCustLedger()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // Unapply Credit Memo from Detailed Customer Ledger Entry and verify error message.
+        // Use Random Number Generator for Amount.
+        Initialize;
+        UnapplyFromDtldCustLedgerEntry(GenJournalLine."Document Type"::"Credit Memo", -LibraryRandom.RandDec(100, 2));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UnapplyRefundDtldCustLedger()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // Unapply Refund from Detailed Customer Ledger Entry and verify error message.
+        // Use Random Number Generator for Amount.
+        Initialize;
+        UnapplyFromDtldCustLedgerEntry(GenJournalLine."Document Type"::Refund, LibraryRandom.RandDec(100, 2));
+    end;
+
+    local procedure UnapplyFromDtldCustLedgerEntry(DocumentType: Option; Amount: Decimal)
+    var
+        Customer: Record Customer;
+        GenJournalLine: Record "Gen. Journal Line";
+        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        CustEntryApplyPostedEntries: Codeunit "CustEntry-Apply Posted Entries";
+    begin
+        // Setup: Create Customer, create and post General Journal Line,find Detailed Customer Ledger Entry.
+        // Using 1 to create single General Journal Line.
+        LibrarySales.CreateCustomer(Customer);
+        SelectGenJournalBatch(GenJournalBatch, false);
+        CreateGeneralJournalLines(GenJournalLine, GenJournalBatch, 1, Customer."No.", DocumentType, Amount);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        FindDetailedCustLedgerEntry(
+          DetailedCustLedgEntry, GenJournalLine."Document No.", DocumentType, DetailedCustLedgEntry."Entry Type"::"Initial Entry");
+
+        // Exercise: Unapply Invoice/Payment/Credit Memo/Refund from Detailed Customer Ledger Entry.
+        asserterror CustEntryApplyPostedEntries.UnApplyDtldCustLedgEntry(DetailedCustLedgEntry);
+
+        // Verify: verify error message on Detailed Customer Ledger Entry.
+        Assert.ExpectedError(
+          StrSubstNo(
+            UnapplyErr, DetailedCustLedgEntry.FieldCaption("Entry Type"), DetailedCustLedgEntry.TableCaption,
+            DetailedCustLedgEntry.FieldCaption("Entry No."), DetailedCustLedgEntry."Entry No."));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UnapplyInvoiceCustLedger()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // Unapply Invoice from Customer Ledger Entry and Check that Detailed Ledger Unapplied field is set to TRUE and G/L entry have
+        // correct Additional Currency amount.
+        Initialize;
+        UnapplyCustEntries(
+          GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, LibraryRandom.RandInt(500));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UnapplyCreditMemoCustLedger()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // Unapply Credit Memo from Customer Ledger Entry and Check that Detailed Ledger Unapplied field is set to TRUE and G/L entry have
+        // correct Additional Currency amount.
+        Initialize;
+        UnapplyCustEntries(
+          GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, -LibraryRandom.RandInt(500));
+    end;
+
+    local procedure UnapplyCustEntries(DocumentType: Option; DocumentType2: Option; Amount: Decimal)
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        NoOfLines: Integer;
+    begin
+        // Setup.
+        NoOfLines := 2 * LibraryRandom.RandInt(2);
+        LibraryERM.SetAddReportingCurrency(CreateCurrency);
+        CreateAndPostGenJournalLine(GenJournalLine, DocumentType, DocumentType2, NoOfLines, Amount);
+
+        // Exercise: Apply and Unapply Posted General Lines for Customer Ledger Entry.
+        ApplyAndPostCustomerEntry(
+          GenJournalLine."Document No.", GenJournalLine."Document No.", -GenJournalLine.Amount, DocumentType, DocumentType2);
+        UnapplyCustLedgerEntry(DocumentType, GenJournalLine."Document No.");
+
+        // Verify: Detailed Ledger Unapplied field is set to TRUE after Unapply applied entries and Additional Currency Amount on G/L Entry.
+        VerifyUnappliedDtldLedgEntry(GenJournalLine."Document No.", DocumentType);
+        VerifyAddCurrencyAmount(GenJournalLine."Document No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure LedgerEntryInvoiceUnapplyError()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // Check Unapply Error on Customer Ledger Entry when do the Unapply again on Unapplied Entries.
+        Initialize;
+        ApplyAndUnapplyLedgerEntry(
+          GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, LibraryRandom.RandDec(100, 2));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure LedgerEntryCrMemoUnapplyError()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // Check Unapply Error on Customer Ledger Entry when do the Unapply again on Unapplied Entries for Credit Memo.
+        Initialize;
+        ApplyAndUnapplyLedgerEntry(
+          GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, -LibraryRandom.RandDec(100, 2));
+    end;
+
+    local procedure ApplyAndUnapplyLedgerEntry(DocumentType: Option; DocumentType2: Option; Amount: Decimal)
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        CustEntryApplyPostedEntries: Codeunit "CustEntry-Apply Posted Entries";
+        DocumentNo: Code[20];
+    begin
+        // Setup: Apply and Unapply Posted General Lines.
+        DocumentNo := CreateLinesApplyAndUnapply(DocumentType, DocumentType2, Amount);
+
+        // Exercise: Find Customer Ledger Entry and Try to Unapply Again.
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocumentType, DocumentNo);
+        asserterror CustEntryApplyPostedEntries.UnApplyCustLedgEntry(CustLedgerEntry."Entry No.");
+
+        // Verify: Verify Unapply Error on Customer Ledger Entry.
+        Assert.ExpectedError(StrSubstNo(ApplicationEntryErr, CustLedgerEntry.TableCaption, CustLedgerEntry."Entry No."));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DetldEntryInvoiceUnapplyError()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // Check Unapply Error on Detailed Customer Ledger Entry when do the Unapply again on Unapplied Entries.
+        Initialize;
+        ApplyAndUnapplyDetldEntry(
+          GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, LibraryRandom.RandDec(100, 2));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DetldEntryCrMemoUnapplyError()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // Check Unapply Error on Detailed Customer Ledger Entry when do the Unapply again on Unapplied Entries for Credit Memo.
+        Initialize;
+        ApplyAndUnapplyDetldEntry(
+          GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, -LibraryRandom.RandDec(100, 2));
+    end;
+
+    local procedure ApplyAndUnapplyDetldEntry(DocumentType: Option; DocumentType2: Option; Amount: Decimal)
+    var
+        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+        CustEntryApplyPostedEntries: Codeunit "CustEntry-Apply Posted Entries";
+        DocumentNo: Code[20];
+    begin
+        // Setup: Apply and Unapply Posted General Lines.
+        DocumentNo := CreateLinesApplyAndUnapply(DocumentType, DocumentType2, Amount);
+
+        // Exercise: Find Detailed Ledger Entry and Try to Unapply.
+        DetailedCustLedgEntry.SetRange("Entry Type", DetailedCustLedgEntry."Entry Type"::Application);
+        DetailedCustLedgEntry.SetRange("Document No.", DocumentNo);
+        DetailedCustLedgEntry.FindFirst;
+        asserterror CustEntryApplyPostedEntries.UnApplyDtldCustLedgEntry(DetailedCustLedgEntry);
+
+        // Verify: Verify Unapply Error on Detailed Customer Ledger Entry.
+        Assert.ExpectedError(
+          StrSubstNo(
+            UnapplyErrorDetailedEntryErr, DetailedCustLedgEntry.TableCaption, DetailedCustLedgEntry.FieldCaption("Entry No."),
+            DetailedCustLedgEntry."Entry No."));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ApplySalesInvoice()
+    var
+        SalesLine: Record "Sales Line";
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // Check Detailed Customer Ledger Entry after Creating and Post Sales Invoice and Apply with Payment.
+        Initialize;
+        CreateAndApplySales(
+          SalesLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, LibraryRandom.RandDec(100, 2));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ApplySalesCreditMemo()
+    var
+        SalesLine: Record "Sales Line";
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // Check Detailed Customer Ledger Entry after Creating and Post Sales Credit Memo and Apply with Refund.
+        Initialize;
+        CreateAndApplySales(
+          SalesLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, -LibraryRandom.RandDec(100, 2));
+    end;
+
+    local procedure CreateAndApplySales(DocumentType: Option; DocumentType2: Option; UnitPrice: Decimal)
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+    begin
+        // Create and Post Sales Document with Apply Payment.
+        CreatePostSalesAndGenLine(GenJournalLine, DocumentType, DocumentType2, UnitPrice);
+
+        // Verify: Verify Detailed Ledger Entry after Apply.
+        VerifyInvDetailedLedgerEntry(
+          GenJournalLine."Document No.", DocumentType2, GenJournalLine.Amount, DetailedCustLedgEntry."Entry Type"::Application);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ApplyUnapplySalesInvoice()
+    var
+        SalesLine: Record "Sales Line";
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // Check Detailed Customer Ledger Entry after Creating and Post Sales Invoice and Apply then Unapply with Payment.
+        Initialize;
+        CreateAndApplyUnapplySales(
+          SalesLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, LibraryRandom.RandDec(100, 2));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ApplyUnapplySalesCreditMemo()
+    var
+        SalesLine: Record "Sales Line";
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // Check Detailed Customer Ledger Entry after Creating and Post Sales Credit Memo and Apply then Unapply with Refund.
+        Initialize;
+        CreateAndApplyUnapplySales(
+          SalesLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, -LibraryRandom.RandDec(100, 2));
+    end;
+
+    local procedure CreateAndApplyUnapplySales(DocumentType: Option; DocumentType2: Option; UnitPrice: Decimal)
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // Create and Post Sales Document with Apply Payment.
+        CreatePostSalesAndGenLine(GenJournalLine, DocumentType, DocumentType2, UnitPrice);
+
+        // Exericse: Unapply Applied Entries.
+        UnapplyCustLedgerEntry(GenJournalLine."Document Type", GenJournalLine."Document No.");
+
+        // Verify: Verify Detailed Ledger Entry after Apply and Unapply.
+        VerifyDetailedLedgerEntry(GenJournalLine."Document No.", GenJournalLine."Document Type");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UnapplyPaymentCheckSourceCode()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // Test that correct Source Code updated on Detailed Customer Ledger Entry after Unapply Payment from Customer Ledger Entry.
+        // Use Random Number Generator for Amount.
+        Initialize;
+        ApplyUnapplyAndCheckSourceCode(
+          GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, LibraryRandom.RandDec(100, 2));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UnapplyRefundCheckSourceCode()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // Test that correct Source Code updated on Detailed Customer Ledger Entry after Unapply Refund from Customer Ledger Entry.
+        // Use Random Number Generator for Amount.
+        Initialize;
+        ApplyUnapplyAndCheckSourceCode(
+          GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, -LibraryRandom.RandDec(100, 2));
+    end;
+
+    local procedure ApplyUnapplyAndCheckSourceCode(DocumentType: Option; DocumentType2: Option; Amount: Decimal)
+    var
+        SourceCode: Record "Source Code";
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // Setup: Create Source Code, update Source Code Setup, create and post General Journal Lines.
+        LibraryERM.CreateSourceCode(SourceCode);
+        CreateAndUpdateSourceCodeSetup(SourceCode.Code);
+        CreateAndPostGenJournalLine(GenJournalLine, DocumentType, DocumentType2, 1, Amount);
+        // Using 1 to create one line for Payment/Refund.
+
+        // Exercise: Apply and Unapply Payment/Refund from Customer Ledger Entry.
+        ApplyAndPostCustomerEntry(
+          GenJournalLine."Document No.", GenJournalLine."Document No.", -GenJournalLine.Amount, DocumentType, DocumentType2);
+        UnapplyCustLedgerEntry(GenJournalLine."Document Type", GenJournalLine."Document No.");
+
+        // Verify: Verify that correct Source Code updated on Detailed Customer Ledger Entry.
+        VerifySourceCodeDtldCustLedger(DocumentType, GenJournalLine."Document No.", SourceCode.Code);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ChangeExchRateUnapplyPayment()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // Check that Payment cannot be Unapplied after Exchange Rate has been changed.
+        // Use Random Nunber Generator for Amount.
+        Initialize;
+        ChangeExchRateUnapply(
+          GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, LibraryRandom.RandInt(500));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ChangeExchRateUnapplyRefund()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // Check that Refund cannot be Unapplied after Exchange Rate has been changed.
+        // Use Random Nunber Generator for Amount.
+        Initialize;
+        ChangeExchRateUnapply(
+          GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, -LibraryRandom.RandInt(500));
+    end;
+
+    local procedure ChangeExchRateUnapply(DocumentType: Option; DocumentType2: Option; Amount: Decimal)
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+        CustEntryApplyPostedEntries: Codeunit "CustEntry-Apply Posted Entries";
+        PostingDate: Date;
+    begin
+        // Setup: Update General Ledger Setup, Create and post General Journal Lines, Apply Payment/Refund from Customer Ledger Entry.
+        LibraryERM.SetAddReportingCurrency(CreateCurrency);
+        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'M>', WorkDate);
+        CreateAndPostGenJournalLine(GenJournalLine, DocumentType, DocumentType2, 1, Amount);  // Using 1 to create single Payment/Refund line.
+        ApplyAndPostCustomerEntry(
+          GenJournalLine."Document No.", GenJournalLine."Document No.", -GenJournalLine.Amount, DocumentType, DocumentType2);
+        CreateNewExchangeRate(PostingDate);
+        FindDetailedCustLedgerEntry(
+          DetailedCustLedgEntry, GenJournalLine."Document No.", DocumentType, DetailedCustLedgEntry."Entry Type"::Application);
+
+        // Exercise: Unapply Payment/Refund from Customer Ledger Entry.
+        asserterror CustEntryApplyPostedEntries.PostUnApplyCustomer(DetailedCustLedgEntry, GenJournalLine."Document No.", PostingDate);
+
+        // Verify: Verify error on Unapply after Exchange Rate has been changed.
+        Assert.ExpectedError(StrSubstNo(UapplyExchangeRateErr, WorkDate));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PaymentDiscApplyInvoice()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // Check Payment Discount Entry for Customer after Apply Payment with Invoice.
+        Initialize;
+        ApplyPaymentDiscount(
+          GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, LibraryRandom.RandDec(100, 2));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PaymentDiscApplyCM()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // Check Payment Discount Entry for Customer after Apply Refund with Credit Memo.
+        Initialize;
+        ApplyPaymentDiscount(
+          GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, -LibraryRandom.RandDec(100, 2));
+    end;
+
+    local procedure ApplyPaymentDiscount(DocumentType: Option; DocumentType2: Integer; Amount: Decimal)
+    var
+        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+        DocumentNo: Code[20];
+    begin
+        // Check Payment Discount Entry for Customer after Apply Payment with Invoice.
+        Amount := CreateAndApplyGenLines(DocumentNo, DocumentType, DocumentType2, Amount);
+
+        // Verify: Verify Detailed Customer Ledger Entry for Payment Discount Amount after Apply.
+        VerifyInvDetailedLedgerEntry(DocumentNo, DocumentType2, -Amount, DetailedCustLedgEntry."Entry Type"::"Payment Discount");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PaymentDiscApplyUnapplyInvoice()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // Check Payment Discount Entry for Customer after Apply and Unapply Payment with Invoice.
+        Initialize;
+        ApplyUnapplyPaymentDiscount(
+          GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, LibraryRandom.RandDec(100, 2));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PaymentDiscApplyUnapplyCM()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // Check Payment Discount Entry for Customer after Apply and Unapply Refund with Credit Memo.
+        Initialize;
+        ApplyUnapplyPaymentDiscount(
+          GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, -LibraryRandom.RandDec(100, 2));
+    end;
+
+    local procedure ApplyUnapplyPaymentDiscount(DocumentType: Option; DocumentType2: Integer; Amount: Decimal)
+    var
+        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+        DocumentNo: Code[20];
+    begin
+        // Check Payment Discount Entry for Customer after Apply and Unapply Payment with Invoice.
+        Amount := CreateAndApplyGenLines(DocumentNo, DocumentType, DocumentType2, Amount);
+
+        // Exercise.
+        UnapplyCustLedgerEntry(DocumentType2, DocumentNo);
+
+        // Verify: Verify Detailed Customer Ledger Entry for Payment Discount Amount after Apply and Unapply.
+        VerifyInvDetailedLedgerEntry(DocumentNo, DocumentType2, -Amount, DetailedCustLedgEntry."Entry Type"::"Payment Discount");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ChangeDocumentNoUnapplyPayment()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // Check Document No can be change when Unapply Payment from Customer Ledger Entry.
+        // Use Random Number Generator for Amount.
+        Initialize;
+        ChangeDocumentNoAndUnapply(
+          GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, LibraryRandom.RandDec(100, 2));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ChangeDocumentNoUnapplyRefund()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // Check Document No can be change when Unapply Refund from Customer Ledger Entry.
+        // Use Random Number Generator for Amount.
+        Initialize;
+        ChangeDocumentNoAndUnapply(
+          GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, -LibraryRandom.RandDec(100, 2));
+    end;
+
+    local procedure ChangeDocumentNoAndUnapply(DocumentType: Option; DocumentType2: Option; Amount: Decimal)
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+        CustEntryApplyPostedEntries: Codeunit "CustEntry-Apply Posted Entries";
+        DocumentNo: Code[20];
+    begin
+        // Setup: Create and post General Journal Lines, Apply Payment/Refund from Customer Ledger Entry.
+        CreateAndPostGenJournalLine(GenJournalLine, DocumentType, DocumentType2, 1, Amount);  // Using 1 to create single Payment/Refund line.
+        ApplyAndPostCustomerEntry(
+          GenJournalLine."Document No.", GenJournalLine."Document No.", -GenJournalLine.Amount, DocumentType, DocumentType2);
+        FindDetailedCustLedgerEntry(
+          DetailedCustLedgEntry, GenJournalLine."Document No.", DocumentType, DetailedCustLedgEntry."Entry Type"::Application);
+        DocumentNo := GenJournalLine."Account No.";
+
+        // Exercise: Change Document No and Unapply Payment/Refund from Customer Ledger Entry.
+        CustEntryApplyPostedEntries.PostUnApplyCustomer(
+          DetailedCustLedgEntry, GenJournalLine."Account No.", GenJournalLine."Posting Date");
+
+        // Verify: Verify Detailed Customer Ledger Entry with updated Document No exist after Unapply.
+        Assert.IsTrue(
+          FindDetailedCustLedgerEntry(DetailedCustLedgEntry, DocumentNo, DocumentType, DetailedCustLedgEntry."Entry Type"::Application),
+          'Not found Application entry with updated Document No.');
+    end;
+
+    [Test]
+    [HandlerFunctions('ApplyCustomerEntriesPageHandler')]
+    [Scope('OnPrem')]
+    procedure RemainingAmountOnCustLedgerEntryWithoutCurrency()
+    var
+        Customer: Record Customer;
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        SalesHeader: Record "Sales Header";
+        PostedDocumentNo: Code[20];
+        Amount: Decimal;
+    begin
+        // Check Remaining Amount on Customer Ledger Entry after Creating and Posting Sales Invoice without Currency and Apply with Partial Payment.
+
+        // Setup: Create and Post Sales Invoice, Create a Customer Payment and apply it to posted Invoice.
+        Initialize;
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        CreateAndModifySalesLine(SalesHeader, LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(100, 2));
+        PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        SelectGenJournalBatch(GenJournalBatch, false);
+        CreateGeneralJournalLines(
+          GenJournalLine, GenJournalBatch, 1, SalesHeader."Sell-to Customer No.", GenJournalLine."Document Type"::Payment, 0);  // Taken 1 and 0 to create only one General Journal line with zero amount.
+        Amount := OpenGeneralJournalPage(GenJournalLine."Document No.", GenJournalLine."Document Type");
+        GenJournalLine.Find;
+        GenJournalLine.Validate(Amount, GenJournalLine.Amount + Amount);
+        GenJournalLine.Modify(true);
+
+        // Exericse.
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // Verify: Verify Remaining Amount on Customer Ledger Entry.
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, SalesHeader."Document Type", PostedDocumentNo);
+        CustLedgerEntry.CalcFields("Remaining Amount");
+        CustLedgerEntry.TestField("Remaining Amount", Amount);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RemainingAmountOnCustLedgerEntryWithCurrency()
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        SalesHeader: Record "Sales Header";
+        PostedDocumentNo: Code[20];
+        Amount: Decimal;
+    begin
+        // Check Remaining Amount on Customer Ledger Entry after Creating and Posting Sales Invoice with Currency and Apply with Partial Payment.
+
+        // Setup: Create and Post Sales Invoice with Currency, Create a Customer Payment without Currency and apply it to posted Invoice after modifying Payment Amount.
+        Initialize;
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomerWithCurrency(CreateCurrency));
+        ModifyCurrency(SalesHeader."Currency Code", LibraryRandom.RandDec(10, 2));  // Taken Random value for Rounding Precision.
+        Amount := CreateAndModifySalesLine(SalesHeader, LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(100, 2));
+        Amount := LibraryERM.ConvertCurrency(Amount, SalesHeader."Currency Code", '', WorkDate);
+        PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        SelectGenJournalBatch(GenJournalBatch, false);
+        CreateGeneralJournalLines(
+          GenJournalLine, GenJournalBatch, 1, SalesHeader."Sell-to Customer No.", GenJournalLine."Document Type"::Payment, 0);  // Taken 1 and 0 to create only one General Journal line with zero amount.
+        UpdateGenJournalLine(GenJournalLine, '', PostedDocumentNo, -Amount);
+
+        // Exericse.
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // Verify: Verify Remaining Amount on Customer Ledger Entry.
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, SalesHeader."Document Type", PostedDocumentNo);
+        CustLedgerEntry.CalcFields("Remaining Amount");
+        CustLedgerEntry.TestField("Remaining Amount", 0);  // Taken 0 for Remaining Amount as after application it must be zero due to Currency's Appln. Rounding Precision.
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesOrderUsingPaymentMethodWithBalanceAccount()
+    var
+        Customer: Record Customer;
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        DocumentNo: Code[20];
+    begin
+        // Check General Ledger, Customer Ledger and Detailed Customer ledger entries after Posting Sales Order with Currency and Payment method with a balance account.
+
+        // Setup: Modify General Ledger setup for Appln. Rounding Precision and Create Customer with Currency and with Payment method with a balance account.
+        Initialize;
+        LibraryERM.SetApplnRoundingPrecision(LibraryRandom.RandDec(10, 2));  // Taken Random value for Rounding Precision.
+        CreateAndModifyCustomer(Customer, Customer."Application Method"::Manual, FindPaymentMethodWithBalanceAccount);  // Taken Zero value for Currency Application Rounding Precision.
+
+        // Exercise: Create and post Sales Order with Random Quantity and Unit Price.
+        DocumentNo :=
+          CreateAndPostSalesDocument(
+            SalesLine, WorkDate, Customer."No.", LibraryInventory.CreateItemNo, SalesHeader."Document Type"::Order,
+            LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(100, 2));
+
+        // Verify: Verify GL, Customer and Detailed Customer ledger entries.
+        VerifyEntriesAfterPostingSalesDocument(CustLedgerEntry."Document Type"::Payment, DocumentNo, DocumentNo);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ModifyPaymentMethodCodeInCustLedgEntryClosed()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        DocumentNo: Code[20];
+    begin
+        // Setup.
+        Initialize;
+        CreateAndModifyCustomer(Customer, Customer."Application Method"::Manual, FindPaymentMethodWithBalanceAccount);
+
+        // Exercise: Create and post Sales Order.
+        DocumentNo :=
+          CreateAndPostSalesDocument(
+            SalesLine, WorkDate, Customer."No.", LibraryInventory.CreateItemNo, SalesHeader."Document Type"::Order,
+            LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(100, 2));
+
+        // Verify: Try to modify Payment Method Code in Customer Ledger Entry.
+        VerifyErrorAfterModifyPaymentMethod(DocumentNo);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesDocumentUsingApplicationMethodApplyToOldest()
+    var
+        Customer: Record Customer;
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        Item: Record Item;
+        PaymentMethod: Record "Payment Method";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        DocumentNo: Code[20];
+        DocumentNo2: Code[20];
+    begin
+        // Check General Ledger, Customer Ledger and Detailed Customer ledger entries after posting Sales documents with Currency and Apply to Oldest Application Method.
+
+        // Setup: Modify General Ledger setup for Appln. Rounding Precision and Create Customer with Currency and with Apply to Oldest Application Method, Create and post Sales Invoice with Random Quantity and Unit Price.
+        Initialize;
+        LibraryERM.SetApplnRoundingPrecision(LibraryRandom.RandDec(10, 2));  // Taken Random value for Rounding Precision.
+        LibraryERM.FindPaymentMethod(PaymentMethod);
+        CreateAndModifyCustomer(Customer, Customer."Application Method"::"Apply to Oldest", PaymentMethod.Code);
+        ModifyCurrency(Customer."Currency Code", LibraryRandom.RandDec(10, 2));  // Taken Random value for Rounding Precision.
+        LibraryInventory.CreateItem(Item);
+        DocumentNo :=
+          CreateAndPostSalesDocument(
+            SalesLine, WorkDate, Customer."No.", Item."No.", SalesHeader."Document Type"::Invoice,
+            LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(100, 2));
+
+        // Exercise: Create and post Sales Credit Memo.
+        DocumentNo2 :=
+          CreateAndPostSalesDocument(
+            SalesLine, WorkDate, Customer."No.", Item."No.", SalesHeader."Document Type"::"Credit Memo",
+            SalesLine.Quantity, SalesLine."Unit Price");
+
+        // Verify: Verify GL, Customer and Detailed Customer ledger entries.
+        VerifyEntriesAfterPostingSalesDocument(CustLedgerEntry."Document Type"::"Credit Memo", DocumentNo, DocumentNo2);
+    end;
+
+    [Test]
+    [HandlerFunctions('CustomerLedgerEntriesPageHandler,ApplyCustomerEntriesPageHandler')]
+    [Scope('OnPrem')]
+    procedure AmountToApplyAfterApplyToEntryForInvoice()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        DocumentNo: Code[20];
+    begin
+        // Verify Amount To Apply on Customer Ledger Entries after Invoking Apply Customer Entries for Invoice.
+
+        // Setup: Post Invoice and Payment for Customer.
+        Initialize;
+        LibrarySales.CreateCustomer(Customer);
+        DocumentNo := CreateAndPostSalesInvoiceAndPayment(Customer."No.", GenJournalLine); // Do not invoke set applies to ID action
+
+        // Exercise: Run Page Customer Ledger Entries to invoke Apply Customer Entries.
+        RunCustomerLedgerEntries(Customer."No.", DocumentNo);
+
+        // Verify: Verify Amount To Apply on Customer Ledger Entries for Document Type Invoice.
+        VerifyAmountToApplyOnCustomerLedgerEntries(DocumentNo, SalesHeader."Document Type"::Invoice);
+    end;
+
+    [Test]
+    [HandlerFunctions('CustomerLedgerEntriesPageHandler,ApplyCustomerEntriesPageHandler')]
+    [Scope('OnPrem')]
+    procedure AmountToApplyAfterApplyToEntryForPayment()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        Customer: Record Customer;
+    begin
+        // Verify Amount To Apply on Customer Ledger Entries after Invoking Apply Customer Entries for Payment.
+
+        // Setup: Post Invoice and Payment for Customer.
+        Initialize;
+        LibrarySales.CreateCustomer(Customer);
+        CreateAndPostSalesInvoiceAndPayment(Customer."No.", GenJournalLine); // Do not invoke set applies to ID action
+
+        // Exercise: Run Page Customer Ledger Entries to invoke Apply Customer Entries.
+        RunCustomerLedgerEntries(Customer."No.", GenJournalLine."Document No.");
+
+        // Verify: Verify Amount To Apply on Customer Ledger Entries for Document Type Payment.
+        VerifyAmountToApplyOnCustomerLedgerEntries(GenJournalLine."Document No.", GenJournalLine."Document Type"::Payment);
+    end;
+
+    [Test]
+    [HandlerFunctions('CustomerLedgerEntriesPageHandler,ApplyAndVerifyCustomerEntriesPageHandler')]
+    [Scope('OnPrem')]
+    procedure AppliedAmountDifferentCurrencies()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        Customer: Record Customer;
+        CurrencyCode: Code[10];
+        ExchangeRateAmount: Decimal;
+        InvoiceAmount: Decimal;
+        PaymentAmount: Decimal;
+    begin
+        // Verify Applied Amount on Apply Entries Page when applying entries in different currencies
+
+        // Setup
+        Initialize;
+        LibrarySales.CreateCustomer(Customer);
+        SelectGenJournalBatch(GenJournalBatch, false);
+        ExchangeRateAmount := LibraryRandom.RandDecInRange(10, 50, 2);
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, ExchangeRateAmount, ExchangeRateAmount);
+        PaymentAmount := LibraryRandom.RandDecInRange(100, 1000, 2);
+        InvoiceAmount := PaymentAmount * LibraryRandom.RandIntInRange(3, 5);
+
+        // Exercise
+        CreateAndPostGenJnlLineWithCurrency(
+          GenJournalLine, GenJournalBatch, WorkDate, GenJournalLine."Document Type"::Invoice,
+          Customer."No.", '', InvoiceAmount);
+        CreateAndPostGenJnlLineWithCurrency(
+          GenJournalLine, GenJournalBatch, WorkDate, GenJournalLine."Document Type"::"Credit Memo",
+          Customer."No.", '', -PaymentAmount);
+        CreateAndPostGenJnlLineWithCurrency(
+          GenJournalLine, GenJournalBatch, WorkDate, GenJournalLine."Document Type"::Payment,
+          Customer."No.", CurrencyCode, -PaymentAmount);
+
+        LibraryVariableStorage.Enqueue(PaymentAmount);
+        LibraryVariableStorage.Enqueue(InvoiceAmount);
+        LibraryVariableStorage.Enqueue(ExchangeRateAmount);
+
+        // Verify: verification in page handler
+        RunCustomerLedgerEntries(Customer."No.", GenJournalLine."Document No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckDiscountValueWithPmtDiscExclVATWithBalAccTypeVAT()
+    begin
+        // To verify that program calculate correct payment discount value in customer ledger entry when Pmt. Disc. Excl. VAT is true while Bal Account Type having VAT.
+        Initialize;
+        CreateAndPostGenJournalLineWithPmtDiscExclVAT(true, LibraryERM.CreateGLAccountWithSalesSetup);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckDiscountValueWithPmtDiscExclVATWithOutBalAccTypeVAT()
+    begin
+        // To verify that program calculate correct payment discount value in customer ledger entry when Pmt. Disc. Excl. VAT is true while Bal Account Type does not having VAT.
+        Initialize;
+        CreateAndPostGenJournalLineWithPmtDiscExclVAT(true, LibraryERM.CreateGLAccountNo);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckDiscountValueWithOutPmtDiscExclVATWithBalAccTypeVAT()
+    begin
+        // To verify that program calculate correct payment discount value in customer ledger entry when Pmt. Disc. Excl. VAT is false while Bal Account Type having VAT.
+        Initialize;
+        CreateAndPostGenJournalLineWithPmtDiscExclVAT(false, LibraryERM.CreateGLAccountWithSalesSetup);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckDiscountValueWithOutPmtDiscExclVATWithOutBalAccTypeVAT()
+    begin
+        // To verify that program calculate correct payment discount value in customer ledger entry when Pmt. Disc. Excl. VAT is false while Bal Account Type does not having VAT.
+        Initialize;
+        CreateAndPostGenJournalLineWithPmtDiscExclVAT(false, LibraryERM.CreateGLAccountNo);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckDiscountValueWithPmtDiscExclVatWithBalVATAmount()
+    var
+        Customer: Record Customer;
+        GenJournalLine: Record "Gen. Journal Line";
+        PaymentTerms: Record "Payment Terms";
+        LibraryPmtDiscSetup: Codeunit "Library - Pmt Disc Setup";
+        PmtDiscAmount: Decimal;
+    begin
+        // To verify that program calculate correct payment discount value in customer ledger entry when Pmt. Disc. Excl. VAT is true while Bal VAT. Amount is not equal to zero.
+
+        // Setup: Create customer and Create Gen Journal Line with Bal Account No.
+        Initialize;
+        LibraryPmtDiscSetup.SetAdjustForPaymentDisc(false);
+        LibraryPmtDiscSetup.SetPmtDiscExclVAT(true);
+        CreateCustomerWithPaymentTerm(Customer);
+
+        // Exercise:Create - Post Gen. Journal Line.
+        CreatePostGenJnlLineWithBalAccount(GenJournalLine, Customer."No.");
+
+        // Verify: Verify Customer Ledger Entry.
+        PaymentTerms.Get(Customer."Payment Terms Code");
+        PmtDiscAmount :=
+          Round((GenJournalLine.Amount + Abs(GenJournalLine."Bal. VAT Amount (LCY)")) * PaymentTerms."Discount %" / 100);
+        VerifyDiscountValueInCustomerLedger(GenJournalLine, PmtDiscAmount);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ApplyUnapplySalesInvoicesWithDimVals()
+    begin
+        // Verify that Dimension Set ID and Global Dimension values are correct after unapply of Customer Ledger Entries with different Dimension Set IDs.
+        Initialize;
+        ApplyUnapplyCustEntriesWithMiscDimSetIDs(LibraryRandom.RandIntInRange(3, 10));
+    end;
+
+    [Test]
+    [HandlerFunctions('ApplyCustomerEntriesPHAndPageControlValuesVerification')]
+    [Scope('OnPrem')]
+    procedure RoundingAndBalanceAmountsOnInvoiceApplication()
+    var
+        Customer: Record Customer;
+        Currency: Record Currency;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        Item: Record Item;
+        LineAmount: Decimal;
+        CurrencyFactor: Decimal;
+        ApplicationRoundingPrecision: Decimal;
+    begin
+        // Verify Application Rounding and Balance amounts
+        // Setup.
+        ApplicationRoundingPrecision := 1;
+        LineAmount := 99;
+        // prime numbers are required to obtain non-whole number after currency conversion
+        CurrencyFactor := 7 / 3;
+        LibraryERM.SetApplnRoundingPrecision(ApplicationRoundingPrecision);
+        LibraryERM.CreateCurrency(Currency);
+        Currency.Validate("Invoice Rounding Precision", 0.01);
+        Currency.Modify(true);
+        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate, CurrencyFactor, CurrencyFactor);
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Currency Code", Currency.Code);
+        Customer.Modify(true);
+        SelectGenJournalBatch(GenJournalBatch, false);
+
+        // Excercise
+        CreateAndPostSalesDocument(
+          SalesLine, WorkDate, Customer."No.", LibraryInventory.CreateItem(Item), SalesHeader."Document Type"::Invoice,
+          1, LineAmount);
+        LineAmount := SalesLine."Amount Including VAT";
+        CreateGeneralJournalLines(
+          GenJournalLine, GenJournalBatch, 1, Customer."No.", GenJournalLine."Document Type"::Payment,
+          -1 * Round(LineAmount / CurrencyFactor, ApplicationRoundingPrecision, '<'));
+        GenJournalLine.Validate("Currency Code", '');
+        GenJournalLine.Modify(true);
+
+        // Verify is done in page handler
+        LibraryVariableStorage.Enqueue(Round(LineAmount / CurrencyFactor, Currency."Invoice Rounding Precision"));
+        LibraryVariableStorage.Enqueue(GenJournalLine.Amount);
+        CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Apply", GenJournalLine);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SetAppliesToCrMemoDocNoForRefund()
+    var
+        Customer: Record Customer;
+        GenJnlBatch: Record "Gen. Journal Batch";
+        GenJnlLine: Record "Gen. Journal Line";
+        CustLedgEntry: Record "Cust. Ledger Entry";
+    begin
+        // Verify that "Applies To Doc. No." can be validated with "Credit Memo" for Refund journal line.
+
+        // Setup: Post credit memo and create empty refund line without customer and amount.
+        Initialize;
+        SelectGenJournalBatch(GenJnlBatch, false);
+        LibrarySales.CreateCustomer(Customer);
+        CreateGeneralJournalLines(
+          GenJnlLine, GenJnlBatch, 1, Customer."No.", GenJnlLine."Document Type"::"Credit Memo", -LibraryRandom.RandDec(100, 2));
+        LibraryERM.PostGeneralJnlLine(GenJnlLine);
+        LibraryERM.FindCustomerLedgerEntry(
+          CustLedgEntry, CustLedgEntry."Document Type"::"Credit Memo", GenJnlLine."Document No.");
+
+        CreateGeneralJournalLines(GenJnlLine, GenJnlBatch, 1, '', GenJnlLine."Document Type"::Refund, 0);
+
+        // Exercise: Set open Credit Memo No. for "Applies To Doc. No".
+        GenJnlLine.Validate("Applies-to Doc. No.", CustLedgEntry."Document No.");
+        GenJnlLine.Modify(true);
+
+        // Verify: Customer No. and "Applies To Doc. Type" are filled correctly.
+        Assert.AreEqual(
+          CustLedgEntry."Customer No.", GenJnlLine."Account No.",
+          StrSubstNo(WrongFieldErr, GenJnlLine.FieldCaption("Account No."), GenJnlLine.TableCaption));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure NoVATEntriesWhenUnapplyZeroDiscEntryWithAdjForPmtDisc()
+    var
+        SalesLine: Record "Sales Line";
+        GenJnlLine: Record "Gen. Journal Line";
+        CustLedgEntry: Record "Cust. Ledger Entry";
+        GLEntry: Record "G/L Entry";
+        PostedDocumentNo: Code[20];
+        EmptyDocumentType: Option;
+    begin
+        // [FEATURE] [Reverse Charge VAT] [Adjust For Payment Discount]
+        // [SCENARIO 229786] There are no VAT and G/L Entries created when unapplies the entry without discount but with Reverse Charge and "Adjust For Payment Discount"
+        Initialize;
+        LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
+        EmptyDocumentType := GenJnlLine."Document Type"::" ";
+
+        // [GIVEN] Posted invoice with Reverse Charge VAT setup with "Adjust For Payment Discount"
+        PostedDocumentNo :=
+          CreatePostSalesInvWithReverseChargeVATAdjForPmtDisc(SalesLine);
+        LibraryERM.FindCustomerLedgerEntry(CustLedgEntry, CustLedgEntry."Document Type"::Invoice, PostedDocumentNo);
+        CustLedgEntry.CalcFields("Amount (LCY)");
+
+        // [GIVEN] Post and apply document with empty document type
+        CreateGenJnlLineWithPostingGroups(GenJnlLine, SalesLine."Sell-to Customer No.",
+          EmptyDocumentType, -CustLedgEntry."Amount (LCY)", SalesLine);
+        GenJnlLine.Validate("Applies-to Doc. Type", GenJnlLine."Applies-to Doc. Type"::Invoice);
+        GenJnlLine.Validate("Applies-to Doc. No.", PostedDocumentNo);
+        GenJnlLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJnlLine);
+
+        // [WHEN] Unapply the empty document application
+        GLEntry.FindLast;
+        LibraryERM.FindCustomerLedgerEntry(CustLedgEntry, EmptyDocumentType, GenJnlLine."Document No.");
+        LibraryERM.UnapplyCustomerLedgerEntry(CustLedgEntry);
+
+        // [THEN] There is no VAT and G/L Entries have been created on unapplication
+        VerifyNoVATEntriesOnUnapplication(EmptyDocumentType, GenJnlLine."Document No.");
+        GLEntry.SetFilter("Entry No.", '>%1', GLEntry."Entry No.");
+        Assert.RecordIsEmpty(GLEntry);
+
+        // Cleanup: Return back the old value of "Adjust For Payment Discount".
+        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup;
+    end;
+
+    [Test]
+    [HandlerFunctions('UnapplyCustomerEntriesModalPageHandler,ConfirmHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure ConsistentUnapplyInvoiceToPayment()
+    var
+        SalesLine: Record "Sales Line";
+        GenJournalLine: Record "Gen. Journal Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        CustEntryApplyPostedEntries: Codeunit "CustEntry-Apply Posted Entries";
+        CustomerNo: Code[20];
+        ItemNo: Code[20];
+        AdditionalCurrencyCode: Code[10];
+        ForeignCurrencyCode: Code[10];
+        DocumentNo: Code[20];
+        InvoiceDate: Date;
+    begin
+        // [SCENARIO] Apply / Unapply Payment in additional currency to Invoice in foreigh currency with certain exchange rates
+
+        // [GIVEN] No VAT setup, Foreign Currency and Additional Currency.
+        Initialize;
+        SetupSpecificExchRates(ForeignCurrencyCode, AdditionalCurrencyCode, InvoiceDate);
+        CreateCustomerAndItem(CustomerNo, ItemNo, ForeignCurrencyCode);
+        LibraryERM.SetAddReportingCurrency(AdditionalCurrencyCode);
+
+        // [GIVEN] Posted Sales Invoice for Customer with foreigh currency
+        DocumentNo :=
+          CreateAndPostSalesDocument(
+            SalesLine, InvoiceDate, CustomerNo, ItemNo, SalesLine."Document Type"::Invoice, 1, 5000);
+        // [GIVEN] Payment in ACY applied to Sales Invoice
+        PostApplyPaymentForeignCurrency(
+          GenJournalLine, CustomerNo, AdditionalCurrencyCode, -4132.91,
+          GenJournalLine."Applies-to Doc. Type"::Invoice, DocumentNo);
+
+        // [WHEN] Invoice unapplied from payment
+        LibraryERM.FindCustomerLedgerEntry(
+          CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, GenJournalLine."Document No.");
+        CustEntryApplyPostedEntries.UnApplyCustLedgEntry(CustLedgerEntry."Entry No."); // cannot repro via LibraryERM.UnapplyCustomerLedgerEntry
+
+        // [THEN] Reversal G/L Entries have zero ACY Amounts
+        VerifyACYInGLEntriesOnUnapplication(0, CustLedgerEntry."Document Type"::Payment, GenJournalLine."Document No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('UnapplyCustomerEntriesModalPageHandler,ConfirmHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure ApplyUnapplySeveralInvAndPmtWithDifferentDimValues()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        Customer: Record Customer;
+        CustLedgEntry: Record "Cust. Ledger Entry";
+        GLEntry: Record "G/L Entry";
+        LibraryPmtDiscSetup: Codeunit "Library - Pmt Disc Setup";
+        CustEntryApplyPostedEntries: Codeunit "CustEntry-Apply Posted Entries";
+        InvDimSetIDs: array[10] of Integer;
+        PmtDimSetIDs: array[10] of Integer;
+        Amounts: array[10] of Decimal;
+        DiscountedAmounts: array[10] of Decimal;
+        DiscountPercent: Integer;
+        NoOfDocuments: Integer;
+        LastGLEntryNo: Integer;
+        i: Integer;
+    begin
+        // [SCENARIO 121881] Verify balance by dimensions = 0 after Apply/Unapply several Payments to Invoices with different dimensions
+        Initialize;
+
+        // [GIVEN] Last "G/L Entry" = LastGLEntryNo
+        GLEntry.FindLast;
+        LastGLEntryNo := GLEntry."Entry No.";
+
+        // [GIVEN] Customer with possible discount
+        DiscountPercent := LibraryRandom.RandIntInRange(1, 10);
+        LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
+        CreateCustomerWithGivenPaymentTerm(Customer, CreatePaymentTermsWithDiscount(DiscountPercent));
+
+        NoOfDocuments := LibraryRandom.RandIntInRange(3, 10);
+        for i := 1 to NoOfDocuments do begin
+            Amounts[i] := 100 * LibraryRandom.RandIntInRange(1, 100);
+            DiscountedAmounts[i] := Amounts[i] * (100 - DiscountPercent) / 100;
+        end;
+
+        // [GIVEN] Post "N" Invoices with different dimensions "InvDims[i]" and amounts "Amounts[i]"
+        SelectGenJournalBatch(GenJournalBatch, false);
+        CreatePostGenJnlLinesWithDimSetIDs(
+          GenJournalLine, GenJournalBatch, InvDimSetIDs, NoOfDocuments,
+          Customer."No.", GenJournalLine."Document Type"::Invoice, Amounts, 1);
+
+        // [GIVEN] Create "N" Gen. Journal Lines with different dimensions "PmtDims[i]" and "Document Type" = Payment
+        CreateGenJnlLinesWithDimSetIDs(
+          GenJournalLine, GenJournalBatch, PmtDimSetIDs, NoOfDocuments,
+          Customer."No.", GenJournalLine."Document Type"::Payment, DiscountedAmounts, -1);
+
+        // [GIVEN] Set Gen. Journal Lines "Applies-to ID" and select customer Invoices Ledger Entries
+        ApplyCustLedgerEntriesToID(Customer."No.", GenJournalLine."Document No.", DiscountedAmounts);
+
+        // [GIVEN] Post Gen. Journal Lines
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [WHEN] Unapply "N" Invoices Ledger Entries
+        for i := 1 to NoOfDocuments do begin
+            FindClosedInvLedgerEntry(CustLedgEntry, Customer."No.");
+            CustEntryApplyPostedEntries.UnApplyCustLedgEntry(CustLedgEntry."Entry No.");
+        end;
+
+        // [THEN] Count of created "G/L Entries" with "Entry No." > LastGLEntryNo is "N" * (2 (Inv) + 3 (Apply) + 2 (UnApply))
+        GLEntry.SetFilter("Entry No.", '>%1', LastGLEntryNo);
+        Assert.AreEqual(NoOfDocuments * (2 + 3 + 2), GLEntry.Count, GLEntryCntErr);
+
+        // [THEN] Balance by "InvDims[i]" and "PmtDims[i]" = 0 for the "Entry No." > LastGLEntryNo
+        for i := 1 to NoOfDocuments do begin
+            Assert.AreEqual(0, CalcBalanceByDimension(GLEntry, InvDimSetIDs[i]), DimBalanceErr);
+            Assert.AreEqual(0, CalcBalanceByDimension(GLEntry, PmtDimSetIDs[i]), DimBalanceErr);
+        end;
+
+        // [THEN] Balance by "InvDims[i]" = 0 for the Invoice "G/L Entries" with "Entry No." in [LastGLEntryNo + 1,LastGLEntryNo + 2 * "N"]
+        GLEntry.SetRange("Entry No.", LastGLEntryNo + 1, LastGLEntryNo + 2 * NoOfDocuments);
+        for i := 1 to NoOfDocuments do
+            Assert.AreEqual(0, CalcBalanceByDimension(GLEntry, InvDimSetIDs[i]), DimBalanceErr);
+
+        // [THEN] Balance by "InvDims[i]" = 0, by "PmtDims[i]" = 0 for the Apply "G/L Entries" with "Entry No." in [LastGLEntryNo + 2 * "N" + 1,LastGLEntryNo + (2 + 3) * "N"]
+        GLEntry.SetRange("Entry No.", LastGLEntryNo + 2 * NoOfDocuments + 1, LastGLEntryNo + (2 + 3) * NoOfDocuments);
+        for i := 1 to NoOfDocuments do begin
+            Assert.AreEqual(0, CalcBalanceByDimension(GLEntry, InvDimSetIDs[i]), DimBalanceErr);
+            Assert.AreEqual(0, CalcBalanceByDimension(GLEntry, PmtDimSetIDs[i]), DimBalanceErr);
+        end;
+
+        // [THEN] Balance by "InvDims[i]" = 0, by "PmtDims[i]" = 0 for the UnApply "G/L Entries" with "Entry No." in [LastGLEntryNo + (2 + 3) * "N" + 1,LastGLEntryNo + (2 + 3 + 2) * "N"]
+        GLEntry.SetRange("Entry No.", LastGLEntryNo + (2 + 3) * NoOfDocuments + 1, LastGLEntryNo + (2 + 3 + 2) * NoOfDocuments);
+        for i := 1 to NoOfDocuments do begin
+            Assert.AreEqual(0, CalcBalanceByDimension(GLEntry, InvDimSetIDs[i]), DimBalanceErr);
+            Assert.AreEqual(0, CalcBalanceByDimension(GLEntry, PmtDimSetIDs[i]), DimBalanceErr);
+        end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetSelectionFilterForCustomerWithSortDescending()
+    var
+        Customer: Record Customer;
+        SelectionFilterManagement: Codeunit SelectionFilterManagement;
+        OriginalSelection: Text;
+        ReturnedSelection: Text;
+    begin
+        // [FEATURE] [UT] [Selection Filter Management]
+        // [SCENARIO 379971] When select filter for customers with sort descending, filter must shows selection result
+        Initialize;
+
+        // [GIVEN] Customer record with descending order
+        Customer.Ascending(false);
+
+        // [GIVEN] Customer's filter on "No." field = "1000..1001"
+        OriginalSelection := SetFilterForCustomerWithSortDescending(Customer);
+
+        // [WHEN] Call SelectionFilterManagement.GetSelectionFilterForCustomer
+        ReturnedSelection := SelectionFilterManagement.GetSelectionFilterForCustomer(Customer);
+
+        // [THEN] Return filter = "1000..1001"
+        Assert.AreEqual(OriginalSelection, ReturnedSelection, StrSubstNo(SelectionFilterErr, OriginalSelection, ReturnedSelection));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetSelectionFilterForCustomerWithSortAscending()
+    var
+        Customer: Record Customer;
+        SelectionFilterManagement: Codeunit SelectionFilterManagement;
+        OriginalSelection: Text;
+        ReturnedSelection: Text;
+    begin
+        // [FEATURE] [UT] [Selection Filter Management]
+        // [SCENARIO 379971] When select filter for customers with sort ascending, filter must shows selection result
+        Initialize;
+
+        // [GIVEN] Customer record with ascending order
+
+        // [GIVEN] Customer's filter on "No." field = "1000..1001"
+        OriginalSelection := SetFilterForCustomerWithSortDescending(Customer);
+
+        // [WHEN] Call SelectionFilterManagement.GetSelectionFilterForCustomer
+        ReturnedSelection := SelectionFilterManagement.GetSelectionFilterForCustomer(Customer);
+
+        // [THEN] Return filter = "1000..1001"
+        Assert.AreEqual(OriginalSelection, ReturnedSelection, StrSubstNo(SelectionFilterErr, OriginalSelection, ReturnedSelection));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ErrorMessageOnApplyWithoutAplliesToID()
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        DummyGenJournalLine: Record "Gen. Journal Line";
+        CustEntryApplyPostedEntries: Codeunit "CustEntry-Apply Posted Entries";
+        Amount: Decimal;
+        DocNo: Code[20];
+    begin
+        // [SCENARIO 380040] During application, if there is no "Applies-to ID", then "The application could not be posted, because no entry
+        // [SCENARIO] has been selected to be applied / for none of the open entries the "Applies-to ID" has been specfied." error message should appear
+
+        Initialize;
+
+        // [GIVEN] Customer CCC
+        // [GIVEN] Gen. Journal Batch GJB with two lines
+        // [GIVEN] Gen. Journal Line JL1: an invoice for Customer CCC with "Document No" = 123 and "Amount" = -1000
+        // [GIVEN] Gen. Journal Line JL2: a payment for Customer CCC with "Document No" = 123 (same as JL1) and "Amount" = 1000
+        // [GIVEN] Batch GJB posted
+        Amount := LibraryRandom.RandDec(1000, 2);
+        DocNo := LibraryERM.CreateAndPostTwoGenJourLinesWithSameBalAccAndDocNo(
+            DummyGenJournalLine, DummyGenJournalLine."Bal. Account Type"::Customer, LibrarySales.CreateCustomerNo, -Amount);
+
+        // [GIVEN] Openned Customer Ledger Entries for Customer CCC, selected Payment JL2 and called action "Apply Entries"
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, DocNo);
+
+        // [WHEN] Apply Payment to Invoice
+        asserterror CustEntryApplyPostedEntries.Apply(CustLedgerEntry, DocNo, WorkDate);
+
+        // [THEN] The following message appears: Cannot post because you did not specify which entry to apply. You must specify an entry in the Applies-to ID field for one or more open entries.
+        Assert.ExpectedError(NoEntriesAppliedErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('UnapplyCustomerEntriesModalPageHandler,ConfirmHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure UnapplyEntryWithLaterAdjustedExchRate()
+    var
+        Customer: Record Customer;
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: array[2] of Record "Gen. Journal Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        CustEntryApplyPostedEntries: Codeunit "CustEntry-Apply Posted Entries";
+        Amount: array[2] of Decimal;
+        PostingDate: array[3] of Date;
+        CurrencyCode: Code[10];
+        Rate: Decimal;
+    begin
+        // [FEATURE] [FCY] [Adjust Exchange Rate]
+        // [SCENARIO 304391] "Remaining Amt. (LCY)" should match "Adjusted Currency Factor" after Unapply of the entry being adjusted on the later date.
+        Initialize;
+
+        // [GIVEN] USD has different exchange rates on 01.01, 15.01, 31.01.
+        PostingDate[1] := WorkDate;
+        PostingDate[2] := PostingDate[1] + 1;
+        PostingDate[3] := PostingDate[2] + 1;
+        Rate := LibraryRandom.RandDec(10, 2);
+        CurrencyCode := CreateCurrencyAndExchangeRate(Rate, 1, PostingDate[1]);
+        CreateExchangeRate(CurrencyCode, Rate * 1.2, 1, PostingDate[2]);
+        CreateExchangeRate(CurrencyCode, Rate * 0.85, 1, PostingDate[3]);
+
+        // [GIVEN] Invoice of 100 USD posted on 01.01, where "Document No." is 'INV001'
+        LibrarySales.CreateCustomer(Customer);
+        SelectGenJournalBatch(GenJournalBatch, false);
+        Amount[1] := LibraryRandom.RandDecInRange(10000, 20000, 2);
+        CreateAndPostGenJnlLineWithCurrency(
+          GenJournalLine[1], GenJournalBatch, PostingDate[1],
+          GenJournalLine[1]."Document Type"::Invoice, Customer."No.", CurrencyCode, Amount[1]);
+
+        // [GIVEN] Payment of 150 USD posted on 15.01, applied to Invoice
+        Amount[2] := Round(-Amount[1] * 1.5, 0.01);
+        CreateAndPostGenJnlLineWithCurrency(
+          GenJournalLine[2], GenJournalBatch, PostingDate[2],
+          GenJournalLine[2]."Document Type"::Payment, Customer."No.", CurrencyCode, Amount[2]);
+        ApplyAndPostCustomerEntry(
+          GenJournalLine[1]."Document No.", GenJournalLine[2]."Document No.", Amount[1],
+          GenJournalLine[1]."Document Type", GenJournalLine[2]."Document Type");
+
+        // [GIVEN] Payment has been adjusted by "Adjust Exchange Rate" on 31.01
+        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, PostingDate[3], PostingDate[3]);
+
+        // [WHEN] Unapply Invoice and Payment on 15.01
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, GenJournalLine[1]."Document Type", GenJournalLine[1]."Document No.");
+        CustEntryApplyPostedEntries.UnApplyCustLedgEntry(CustLedgerEntry."Entry No.");
+
+        // [THEN] This Payment is balanced to its adjusted exchange rate
+        VerifyCustLedgerEntryRemAmtLCYisBalanced(GenJournalLine[1]."Document No.", GenJournalLine[1]."Document Type");
+
+        // [THEN] This invoice is balanced to its adjusted exchange rate
+        VerifyCustLedgerEntryRemAmtLCYisBalanced(GenJournalLine[2]."Document No.", GenJournalLine[2]."Document Type");
+    end;
+
+    local procedure Initialize()
+    var
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        LibraryApplicationArea: Codeunit "Library - Application Area";
+    begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Apply Unapply Customer");
+        LibraryApplicationArea.EnableFoundationSetup;
+        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear;
+
+        // Lazy Setup.
+        if isInitialized then
+            exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Apply Unapply Customer");
+
+        LibrarySales.SetInvoiceRounding(false);
+        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibraryERMCountryData.CreateGeneralPostingSetupData;
+        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateAccountInCustomerPostingGroup;
+        LibraryERMCountryData.RemoveBlankGenJournalTemplate;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        isInitialized := true;
+        LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
+        LibrarySetupStorage.Save(DATABASE::"Source Code Setup");
+
+        Commit;
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Apply Unapply Customer");
+    end;
+
+    local procedure ApplyAndPostCustomerEntry(DocumentNo: Code[20]; DocumentNo2: Code[20]; AmountToApply: Decimal; DocumentType: Option; DocumentType2: Option)
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        CustLedgerEntry2: Record "Cust. Ledger Entry";
+    begin
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocumentType, DocumentNo);
+        LibraryERM.SetApplyCustomerEntry(CustLedgerEntry, AmountToApply);
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry2, DocumentType2, DocumentNo2);
+        CustLedgerEntry2.FindSet;
+        repeat
+            CustLedgerEntry2.CalcFields("Remaining Amount");
+            CustLedgerEntry2.Validate("Amount to Apply", CustLedgerEntry2."Remaining Amount");
+            CustLedgerEntry2.Modify(true);
+        until CustLedgerEntry2.Next = 0;
+
+        LibraryERM.SetAppliestoIdCustomer(CustLedgerEntry2);
+        LibraryERM.PostCustLedgerApplication(CustLedgerEntry);
+    end;
+
+    local procedure CreateAndModifyCustomer(var Customer: Record Customer; ApplicationMethod: Option; PaymentMethodCode: Code[10])
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Payment Method Code", PaymentMethodCode);
+        Customer.Validate("Application Method", ApplicationMethod);
+        Customer.Validate("Currency Code", CreateCurrency);
+        Customer.Modify(true);
+    end;
+
+    local procedure CreateAndApplyGenLines(var DocumentNo: Code[20]; DocumentType: Option; DocumentType2: Option; Amount: Decimal): Decimal
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        // Setup: Create 1 Invoice General Line and Post it.
+        SelectGenJournalBatch(GenJournalBatch, false);
+        CreateGeneralJournalLines(GenJournalLine, GenJournalBatch, 1, CreateCustomer, DocumentType, Amount);
+        DocumentNo := GenJournalLine."Document No.";
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // Find Discount Amount and Post 1 Payment General Line.
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocumentType, GenJournalLine."Document No.");
+        CreateGeneralJournalLines(
+          GenJournalLine, GenJournalBatch, 1, GenJournalLine."Account No.", DocumentType2,
+          -GenJournalLine.Amount + CustLedgerEntry."Original Pmt. Disc. Possible");
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // Exercise: Apply Posted Entry.
+        ApplyAndPostCustomerEntry(GenJournalLine."Document No.", DocumentNo, GenJournalLine.Amount, DocumentType2, DocumentType);
+        DocumentNo := GenJournalLine."Document No.";
+        exit(CustLedgerEntry."Original Pmt. Disc. Possible");
+    end;
+
+    local procedure CreateAndPostGenJournalLineWithPmtDiscExclVAT(PmtDiscExclVAT: Boolean; GLAccountNo: Code[20])
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        Customer: Record Customer;
+        LibraryPmtDiscSetup: Codeunit "Library - Pmt Disc Setup";
+    begin
+        // Setup:Update Pmt. Disc. Excl. VAT in General Ledger & Create Customer with Payment Terms & Create Gen. Journal Line.
+        LibraryPmtDiscSetup.SetAdjustForPaymentDisc(false);
+        LibraryPmtDiscSetup.SetPmtDiscExclVAT(PmtDiscExclVAT);
+        CreateCustomerWithPaymentTerm(Customer);
+
+        // Exercise:Create - Post Gen. Journal Line.
+        CreatePostBalancedGenJnlLines(GenJournalLine, Customer."No.", GLAccountNo);
+
+        // Verify: Verify Customer Ledger Entry.
+        VerifyDiscountValueInCustomerLedger(
+          GenJournalLine, GetPaymentDiscountAmount(GenJournalLine, GetPaymentTermsDiscount(Customer."Payment Terms Code"), PmtDiscExclVAT));
+    end;
+
+    local procedure CreatePostSalesAndGenLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; DocumentType2: Option; UnitPrice: Decimal)
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        SalesLine: Record "Sales Line";
+        DocumentNo: Code[20];
+    begin
+        // Setup: Create and Post Sales Document and done 1 Payment with Posted Document.
+        SelectGenJournalBatch(GenJournalBatch, false);
+        DocumentNo :=
+          CreateAndPostSalesDocument(
+            SalesLine, WorkDate, LibrarySales.CreateCustomerNo, LibraryInventory.CreateItemNo, DocumentType,
+            LibraryRandom.RandInt(100), Abs(UnitPrice));
+        CreateGeneralJournalLines(GenJournalLine, GenJournalBatch, 1, SalesLine."Sell-to Customer No.", DocumentType2, -UnitPrice);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // Exericse.
+        ApplyAndPostCustomerEntry(GenJournalLine."Document No.", DocumentNo, GenJournalLine.Amount, DocumentType2, DocumentType);
+    end;
+
+    local procedure CreateAndPostSalesDocument(var SalesLine: Record "Sales Line"; PostingDate: Date; CustomerNo: Code[20]; ItemNo: Code[20]; DocumentType: Option; Quantity: Decimal; UnitPrice: Decimal): Code[20]
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
+        SalesHeader.Validate("Posting Date", PostingDate);
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
+        SalesLine.Validate("Unit Price", UnitPrice);
+        SalesLine.Modify(true);
+        exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+    end;
+
+    local procedure CreatePostGenJnlLineWithBalAccount(var GenJournalLine: Record "Gen. Journal Line"; CustomerNo: Code[20])
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        SelectGenJournalBatch(GenJournalBatch, false);
+        CreateGenJnlLine(
+          GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::Customer, CustomerNo, LibraryRandom.RandInt(100));
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountWithSalesSetup);
+        GenJournalLine.Validate("Sales/Purch. (LCY)", 0);
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+    end;
+
+    local procedure CreatePostBalancedGenJnlLines(var GenJournalLine: Record "Gen. Journal Line"; CustomerNo: Code[20]; GLAccountNo: Code[20])
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        DocumentNo: Code[20];
+    begin
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        CreateGenJnlLine(
+          GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::Customer, CustomerNo, LibraryRandom.RandInt(100));
+        DocumentNo := GenJournalLine."Document No.";
+        CreateGenJnlLine(GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::"G/L Account", GLAccountNo, -GenJournalLine.Amount);
+        GenJournalLine.Validate("Document No.", DocumentNo);
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+    end;
+
+    local procedure CreatePostSalesInvWithReverseChargeVATAdjForPmtDisc(var SalesLine: Record "Sales Line"): Code[20]
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesHeader: Record "Sales Header";
+        ItemNo: Code[20];
+        VendNo: Code[20];
+    begin
+        LibraryERM.FindGeneralPostingSetupInvtFull(GeneralPostingSetup);
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
+        VATPostingSetup.Validate("Adjust for Payment Discount", true);
+        VATPostingSetup.Modify(true);
+        VendNo :=
+          CreateCustomerWithPostingSetup(GeneralPostingSetup."Gen. Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        ItemNo :=
+          CreateItemWithPostingSetup(GeneralPostingSetup."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, VendNo);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandInt(100));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        SalesLine.Modify(true);
+        exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+    end;
+
+    local procedure CreateItemWithPostingSetup(GenProdPostingGroup: Code[20]; VATProductPostingGroup: Code[20]): Code[20]
+    var
+        Item: Record Item;
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Gen. Prod. Posting Group", GenProdPostingGroup);
+        Item.Validate("VAT Prod. Posting Group", VATProductPostingGroup);
+        Item.Modify(true);
+        exit(Item."No.");
+    end;
+
+    local procedure CreateCurrency(): Code[10]
+    var
+        Currency: Record Currency;
+    begin
+        LibraryERM.CreateCurrency(Currency);
+        LibraryERM.SetCurrencyGainLossAccounts(Currency);
+        Currency.Validate("Residual Gains Account", Currency."Realized Gains Acc.");
+        Currency.Validate("Residual Losses Account", Currency."Realized Losses Acc.");
+        Currency.Modify(true);
+        LibraryERM.CreateRandomExchangeRate(Currency.Code);
+        exit(Currency.Code);
+    end;
+
+    local procedure CreateCurrencyAndExchangeRate(Rate: Decimal; RelationalRate: Decimal; FromDate: Date): Code[10]
+    var
+        Currency: Record Currency;
+    begin
+        LibraryERM.CreateCurrency(Currency);
+        LibraryERM.SetCurrencyGainLossAccounts(Currency);
+        with Currency do begin
+            Validate("Residual Gains Account", "Realized Gains Acc.");
+            Validate("Residual Losses Account", "Realized Losses Acc.");
+            Modify(true);
+            CreateExchangeRate(Code, Rate, RelationalRate, FromDate);
+            exit(Code);
+        end;
+    end;
+
+    local procedure CreateExchangeRate(CurrencyCode: Code[10]; Rate: Decimal; RelationalRate: Decimal; FromDate: Date)
+    var
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+    begin
+        with CurrencyExchangeRate do begin
+            LibraryERM.CreateExchRate(CurrencyExchangeRate, CurrencyCode, FromDate);
+            Validate("Exchange Rate Amount", Rate);
+            Validate("Adjustment Exch. Rate Amount", Rate);
+            Validate("Relational Exch. Rate Amount", RelationalRate);
+            Validate("Relational Adjmt Exch Rate Amt", RelationalRate);
+            Modify(true);
+        end;
+    end;
+
+    local procedure CreateCustomer(): Code[20]
+    var
+        Customer: Record Customer;
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Payment Terms Code", CreatePaymentTerms);
+        Customer.Modify(true);
+        exit(Customer."No.");
+    end;
+
+    local procedure CreateCustomerWithPostingSetup(GenBusPostingGroupCode: Code[20]; VATBusPostingGroupCode: Code[20]): Code[20]
+    var
+        Customer: Record Customer;
+    begin
+        with Customer do begin
+            LibrarySales.CreateCustomer(Customer);
+            Validate("Gen. Bus. Posting Group", GenBusPostingGroupCode);
+            Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
+            Modify(true);
+            exit("No.");
+        end;
+    end;
+
+    local procedure CreateCustomerWithCurrency(CurrencyCode: Code[10]): Code[20]
+    var
+        Customer: Record Customer;
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Currency Code", CurrencyCode);
+        Customer.Modify(true);
+        exit(Customer."No.");
+    end;
+
+    local procedure CreateBankAccountWithCurrency(CurrencyCode: Code[10]): Code[20]
+    var
+        BankAccount: Record "Bank Account";
+    begin
+        LibraryERM.CreateBankAccount(BankAccount);
+        with BankAccount do begin
+            Validate("Currency Code", CurrencyCode);
+            Modify;
+            exit("No.");
+        end;
+    end;
+
+    local procedure CreateCustomerWithPaymentTerm(var Customer: Record Customer)
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Payment Terms Code", CreatePaymentTermCode);
+        Customer.Modify(true);
+    end;
+
+    local procedure CreateGeneralJournalLines(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; NoofLines: Integer; CustomerNo: Code[20]; DocumentType: Option; Amount: Decimal)
+    var
+        Counter: Integer;
+    begin
+        for Counter := 1 to NoofLines do
+            LibraryERM.CreateGeneralJnlLine(
+              GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType,
+              GenJournalLine."Account Type"::Customer, CustomerNo, Amount);
+    end;
+
+    local procedure CreateGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountType: Option; AccountNo: Code[20]; Amount: Decimal)
+    begin
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
+          AccountType, AccountNo, Amount);
+    end;
+
+    local procedure CreateAndPostGenJnlLineWithCurrency(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; PostingDate: Date; DocumentType: Option; AccountNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal)
+    begin
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType,
+          GenJournalLine."Account Type"::Customer, AccountNo, Amount);
+        GenJournalLine.Validate("Posting Date", PostingDate);
+        GenJournalLine.Validate("Currency Code", CurrencyCode);
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+    end;
+
+    local procedure CreateAndPostSalesInvoiceAndPayment(CustomerNo: Code[20]; var GenJournalLine: Record "Gen. Journal Line"): Code[20]
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        DocumentNo: Code[20];
+    begin
+        DocumentNo :=
+          CreateAndPostSalesDocument(
+            SalesLine, WorkDate,
+            CustomerNo, LibraryInventory.CreateItemNo, SalesHeader."Document Type"::Invoice,
+            LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(100, 2));
+        SelectGenJournalBatch(GenJournalBatch, false);
+        CreateGeneralJournalLines(
+          GenJournalLine, GenJournalBatch, 1, CustomerNo, GenJournalLine."Document Type"::Payment,
+          -1 * LibraryRandom.RandDec(100, 2));
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        LibraryVariableStorage.Enqueue(false); // Do not invoke set applies to ID action
+
+        exit(DocumentNo);
+    end;
+
+    local procedure CreatePaymentTerms(): Code[10]
+    var
+        PaymentTerms: Record "Payment Terms";
+    begin
+        // Take Random Values for Payment Terms.
+        LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, true);
+        exit(PaymentTerms.Code);
+    end;
+
+    local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; DocumentType2: Option; NoOfLines: Integer; Amount: Decimal)
+    var
+        Customer: Record Customer;
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        // Create Customer, General Journal Line for 1 Invoice, Credit Memo and more than 1 for Payment, Refund
+        // and Random Amount for General Journal Line.
+        SelectGenJournalBatch(GenJournalBatch, false);
+        LibrarySales.CreateCustomer(Customer);
+        CreateGeneralJournalLines(GenJournalLine, GenJournalBatch, 1, Customer."No.", DocumentType, Amount);
+        CreateGeneralJournalLines(
+          GenJournalLine, GenJournalBatch, NoOfLines, GenJournalLine."Account No.", DocumentType2, -GenJournalLine.Amount / NoOfLines);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+    end;
+
+    local procedure CreateAndModifySalesLine(SalesHeader: Record "Sales Header"; LineQuantity: Decimal; LinePrice: Decimal): Decimal
+    var
+        Customer: Record Customer;
+        SalesLine: Record "Sales Line";
+    begin
+        // Create Sales line using Random Quantity and Amount.
+        Customer.Get(SalesHeader."Sell-to Customer No.");
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader,
+          SalesLine.Type::"G/L Account", CreateNoVATPostingGLAccount(Customer."VAT Bus. Posting Group"),
+          LineQuantity);
+        SalesLine.Validate("Unit Price", LinePrice);
+        SalesLine.Modify(true);
+        exit(SalesLine."Line Amount");
+    end;
+
+    local procedure CreateLinesApplyAndUnapply(DocumentType: Option; DocumentType2: Option; Amount: Decimal): Code[20]
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        NoOfLines: Integer;
+    begin
+        // Setup: Apply and Unapply Posted General Lines for Customer Ledger Entry.
+        NoOfLines := 2 * LibraryRandom.RandInt(2);
+        CreateAndPostGenJournalLine(GenJournalLine, DocumentType, DocumentType2, NoOfLines, Amount);
+        ApplyAndPostCustomerEntry(
+          GenJournalLine."Document No.", GenJournalLine."Document No.", -GenJournalLine.Amount, DocumentType, DocumentType2);
+        UnapplyCustLedgerEntry(DocumentType, GenJournalLine."Document No.");
+        exit(GenJournalLine."Document No.");
+    end;
+
+    local procedure CreateAndUpdateSourceCodeSetup(UnappliedSalesEntryAppln: Code[10])
+    var
+        SourceCodeSetup: Record "Source Code Setup";
+    begin
+        SourceCodeSetup.Get;
+        SourceCodeSetup.Validate("Unapplied Sales Entry Appln.", UnappliedSalesEntryAppln);
+        SourceCodeSetup.Modify(true);
+    end;
+
+    local procedure CreateNewExchangeRate(PostingDate: Date)
+    var
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+    begin
+        // Use Random Number Generator for Exchange Rate.
+        CurrencyExchangeRate.SetRange("Currency Code", LibraryERM.GetAddReportingCurrency);
+        CurrencyExchangeRate.FindFirst;
+        LibraryERM.CreateExchRate(CurrencyExchangeRate, LibraryERM.GetAddReportingCurrency, PostingDate);
+        CurrencyExchangeRate.Validate("Exchange Rate Amount", LibraryRandom.RandInt(100));
+        CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", CurrencyExchangeRate."Exchange Rate Amount");
+        CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", CurrencyExchangeRate."Exchange Rate Amount");
+        CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", CurrencyExchangeRate."Exchange Rate Amount");
+        CurrencyExchangeRate.Modify(true);
+    end;
+
+    local procedure CreateNoVATPostingGLAccount(VATBusPostingGroup: Code[20]): Code[20]
+    var
+        GLAccount: Record "G/L Account";
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        VATPostingSetup."VAT Bus. Posting Group" := VATBusPostingGroup;
+        VATPostingSetup."VAT Prod. Posting Group" := FindNoVATPostingSetup(VATBusPostingGroup);
+        exit(LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Sale));
+    end;
+
+    local procedure CreateCustomerAndItem(var CustomerNo: Code[20]; var ItemNo: Code[20]; ForeignCurrencyCode: Code[10])
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        VATPostingSetup: Record "VAT Posting Setup";
+        Customer: Record Customer;
+    begin
+        LibraryERM.FindGeneralPostingSetupInvtFull(GeneralPostingSetup);
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0);
+
+        ItemNo :=
+          CreateItemWithPostingSetup(
+            GeneralPostingSetup."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        CustomerNo :=
+          CreateCustomerWithPostingSetup(
+            GeneralPostingSetup."Gen. Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        with Customer do begin
+            Get(CustomerNo);
+            Validate("Currency Code", ForeignCurrencyCode);
+            Modify(true);
+        end;
+    end;
+
+    local procedure SetupSpecificExchRates(var ForeignCurrencyCode: Code[10]; var AdditionalCurrencyCode: Code[10]; var DocumentDate: Date)
+    begin
+        DocumentDate := CalcDate('<-' + Format(LibraryRandom.RandIntInRange(10, 20)) + 'D>', WorkDate);
+        ForeignCurrencyCode := CreateCurrencyAndExchangeRate(100, 46.0862, DocumentDate);
+        AdditionalCurrencyCode := CreateCurrencyAndExchangeRate(100, 55.7551, DocumentDate);
+        CreateExchangeRate(AdditionalCurrencyCode, 100, 50, WorkDate);
+    end;
+
+    local procedure CreatePaymentTermCode(): Code[10]
+    var
+        PaymentTerms: Record "Payment Terms";
+    begin
+        LibraryERM.CreatePaymentTerms(PaymentTerms);
+        PaymentTerms.Validate("Discount %", LibraryRandom.RandDec(5, 2));
+        PaymentTerms.Modify(true);
+        exit(PaymentTerms.Code);
+    end;
+
+    local procedure FindDetailedCustLedgerEntry(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; DocumentNo: Code[20]; DocumentType: Option; EntryType: Option): Boolean
+    begin
+        DetailedCustLedgEntry.SetRange("Entry Type", EntryType);
+        DetailedCustLedgEntry.SetRange("Document No.", DocumentNo);
+        DetailedCustLedgEntry.SetRange("Document Type", DocumentType);
+        exit(DetailedCustLedgEntry.FindSet);
+    end;
+
+    local procedure FindNoVATPostingSetup(VATBusPostingGroup: Code[20]): Code[20]
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        with VATPostingSetup do begin
+            SetRange("VAT %", 0);
+            SetRange("VAT Bus. Posting Group", VATBusPostingGroup);
+            SetRange("VAT Calculation Type", "VAT Calculation Type"::"Normal VAT");
+            FindFirst;
+            if "Sales VAT Account" = '' then
+                Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo);
+            if "Purchase VAT Account" = '' then
+                Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo);
+            Modify(true);
+            exit("VAT Prod. Posting Group");
+        end;
+    end;
+
+    local procedure FindPaymentMethodWithBalanceAccount(): Code[10]
+    var
+        PaymentMethod: Record "Payment Method";
+    begin
+        PaymentMethod.SetFilter("Bal. Account No.", '<>''''');
+        PaymentMethod.FindFirst;
+        exit(PaymentMethod.Code);
+    end;
+
+    local procedure FindClosedInvLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20])
+    begin
+        CustLedgerEntry.SetRange(Open, false);
+        CustLedgerEntry.SetRange("Customer No.", CustomerNo);
+        CustLedgerEntry.FindFirst;
+    end;
+
+    local procedure GetPaymentDiscountAmount(GenJournalLine: Record "Gen. Journal Line"; DiscountPercentage: Decimal; PmtDiscExclVAT: Boolean): Decimal
+    begin
+        if PmtDiscExclVAT then
+            exit(Round(-GenJournalLine."VAT Base Amount" * DiscountPercentage / 100));
+        exit(Round(-GenJournalLine.Amount * DiscountPercentage / 100))
+    end;
+
+    local procedure GetPaymentTermsDiscount(PaymentTermsCode: Code[10]): Decimal
+    var
+        PaymentTerms: Record "Payment Terms";
+    begin
+        PaymentTerms.Get(PaymentTermsCode);
+        exit(PaymentTerms."Discount %");
+    end;
+
+    local procedure ModifyCurrency("Code": Code[10]; ApplnRoundingPrecision: Decimal)
+    var
+        Currency: Record Currency;
+    begin
+        Currency.Get(Code);
+        Currency.Validate("Appln. Rounding Precision", ApplnRoundingPrecision);
+        Currency.Modify(true);
+    end;
+
+    local procedure OpenGeneralJournalPage(DocumentNo: Code[20]; DocumentType: Option) Amount: Decimal
+    var
+        GeneralJournal: TestPage "General Journal";
+    begin
+        GeneralJournal.OpenEdit;
+        GeneralJournal.FILTER.SetFilter("Document No.", DocumentNo);
+        GeneralJournal.FILTER.SetFilter("Document Type", Format(DocumentType));
+        LibraryVariableStorage.Enqueue(true); // Invoke set applies to ID action
+        GeneralJournal."Apply Entries".Invoke;
+        Amount := LibraryRandom.RandDec(10, 2);  // Used Random value to make difference in General Journal line Amount.
+        GeneralJournal.OK.Invoke;
+    end;
+
+    local procedure PostApplyPaymentForeignCurrency(var GenJournalLine: Record "Gen. Journal Line"; CustomerNo: Code[20]; CurrencyCode: Code[10]; PaymentAmount: Decimal; AppliedDocumentType: Option; AppliedDocumentNo: Code[20])
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        SelectGenJournalBatch(GenJournalBatch, false);
+        with GenJournalLine do begin
+            CreateGeneralJournalLines(
+              GenJournalLine, GenJournalBatch, 1, CustomerNo, "Document Type"::Payment, 0);
+            Validate("Currency Code", CurrencyCode);
+            Validate(Amount, PaymentAmount);
+            Validate("Applies-to Doc. Type", AppliedDocumentType);
+            Validate("Applies-to Doc. No.", AppliedDocumentNo);
+            Validate("Bal. Account Type", "Bal. Account Type"::"Bank Account");
+            Validate("Bal. Account No.", CreateBankAccountWithCurrency(CurrencyCode));
+            Modify(true);
+            LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        end;
+    end;
+
+    local procedure RunCustomerLedgerEntries(CustomerNo: Code[20]; DocumentNo: Code[20])
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        CustLedgerEntry.SetRange("Customer No.", CustomerNo);
+        CustLedgerEntry.SetRange("Document No.", DocumentNo);
+        PAGE.Run(PAGE::"Customer Ledger Entries", CustLedgerEntry);
+    end;
+
+    local procedure SelectGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; SetNoSeries: Boolean)
+    begin
+        // Select General Journal Batch and clear General Journal Lines to make sure that no line exits before creating
+        // General Journal Lines.
+        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
+        if SetNoSeries then begin
+            GenJournalBatch.Validate("No. Series", LibraryERM.CreateNoSeriesCode);
+            GenJournalBatch.Modify(true);
+        end;
+        LibraryERM.ClearGenJournalLines(GenJournalBatch)
+    end;
+
+    local procedure SetFilterForCustomerWithSortDescending(var Customer: Record Customer): Text
+    var
+        SelectionFilterManagement: Codeunit SelectionFilterManagement;
+        SelectionString: Text;
+    begin
+        SelectionString :=
+          SelectionFilterManagement.AddQuotes(LibrarySales.CreateCustomerNo) + '..' +
+          SelectionFilterManagement.AddQuotes(LibrarySales.CreateCustomerNo);
+        Customer.SetFilter("No.", SelectionString);
+        exit(SelectionString);
+    end;
+
+    local procedure UpdateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; CurrencyCode: Code[10]; AppliestoDocNo: Code[20]; Amount: Decimal)
+    begin
+        GenJournalLine.Validate("Currency Code", CurrencyCode);
+        GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
+        GenJournalLine.Validate("Applies-to Doc. No.", AppliestoDocNo);
+        GenJournalLine.Validate(Amount, Amount + LibraryRandom.RandDec(5, 2));  // Modify Amount using Random value.
+        GenJournalLine.Modify(true);
+    end;
+
+    local procedure UnapplyCustLedgerEntry(DocumentType: Option; DocumentNo: Code[20])
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocumentType, DocumentNo);
+        LibraryERM.UnapplyCustomerLedgerEntry(CustLedgerEntry);
+    end;
+
+    local procedure CalcBalanceByDimension(var GLEntry: Record "G/L Entry"; DimSetID: Integer) Result: Integer
+    begin
+        Result := 0;
+        with GLEntry do begin
+            SetRange("Dimension Set ID", DimSetID);
+            if FindSet then
+                repeat
+                    Result += Amount;
+                until Next = 0;
+        end;
+    end;
+
+    local procedure VerifyAmountToApplyOnCustomerLedgerEntries(DocumentNo: Code[20]; DocumentType: Option)
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocumentType, DocumentNo);
+        CustLedgerEntry.TestField("Amount to Apply", 0);
+    end;
+
+    local procedure VerifyEntriesAfterPostingSalesDocument(DocumentType: Option; DocumentNo: Code[20]; DocumentNo2: Code[20])
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, DocumentNo);
+        CustLedgerEntry.TestField(Open, false);
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocumentType, DocumentNo2);
+        CustLedgerEntry.TestField(Open, false);
+        VerifyGLEntries(DocumentNo2);
+        VerifyDetailedLedgerEntry(DocumentNo2, DocumentType);
+    end;
+
+    local procedure VerifyErrorAfterModifyPaymentMethod(DocumentNo: Code[20])
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, DocumentNo);
+        asserterror CustLedgerEntry.Validate("Payment Method Code", '');
+        Assert.ExpectedError(
+          StrSubstNo(PaymentMethodCodeErr, CustLedgerEntry."Entry No."));
+    end;
+
+    local procedure VerifyInvDetailedLedgerEntry(DocumentNo: Code[20]; DocumentType: Option; Amount: Decimal; EntryType: Option)
+    var
+        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+    begin
+        FindDetailedCustLedgerEntry(DetailedCustLedgEntry, DocumentNo, DocumentType, EntryType);
+        Assert.AreEqual(
+          Amount, DetailedCustLedgEntry.Amount,
+          StrSubstNo(AmountErr, DetailedCustLedgEntry.FieldCaption(Amount), Amount, DetailedCustLedgEntry.TableCaption));
+    end;
+
+    local procedure VerifyDetailedLedgerEntry(DocumentNo: Code[20]; DocumentType: Option)
+    var
+        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+        TotalAmount: Decimal;
+    begin
+        FindDetailedCustLedgerEntry(DetailedCustLedgEntry, DocumentNo, DocumentType, DetailedCustLedgEntry."Entry Type"::Application);
+        repeat
+            TotalAmount += DetailedCustLedgEntry.Amount;
+        until DetailedCustLedgEntry.Next = 0;
+        Assert.AreEqual(
+          0, TotalAmount,
+          StrSubstNo(
+            TotalAmountErr, 0, DetailedCustLedgEntry.TableCaption, DetailedCustLedgEntry.FieldCaption("Entry Type"),
+            DetailedCustLedgEntry."Entry Type"));
+    end;
+
+    local procedure VerifyDiscountValueInCustomerLedger(GenJournalLine: Record "Gen. Journal Line"; Amount: Decimal)
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, GenJournalLine."Document Type"::Invoice, GenJournalLine."Document No.");
+        CustLedgerEntry.TestField("Original Pmt. Disc. Possible", Round(Amount));
+        CustLedgerEntry.TestField("Remaining Pmt. Disc. Possible", CustLedgerEntry."Original Pmt. Disc. Possible");
+    end;
+
+    local procedure VerifyUnappliedDtldLedgEntry(DocumentNo: Code[20]; DocumentType: Option)
+    var
+        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+    begin
+        FindDetailedCustLedgerEntry(DetailedCustLedgEntry, DocumentNo, DocumentType, DetailedCustLedgEntry."Entry Type"::Application);
+        repeat
+            Assert.IsTrue(
+              DetailedCustLedgEntry.Unapplied, StrSubstNo(UnappliedErr, DetailedCustLedgEntry.TableCaption, DetailedCustLedgEntry.Unapplied));
+        until DetailedCustLedgEntry.Next = 0;
+    end;
+
+    local procedure VerifyCustLedgerEntryForRemAmt(DocumentType: Option; DocumentNo: Code[20])
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocumentType, DocumentNo);
+        repeat
+            CustLedgerEntry.CalcFields("Remaining Amount", Amount);
+            CustLedgerEntry.TestField("Remaining Amount", CustLedgerEntry.Amount);
+        until CustLedgerEntry.Next = 0;
+    end;
+
+    local procedure VerifyCustLedgerEntryRemAmtLCYisBalanced(DocumentNo: Code[20]; DocumentType: Option)
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        with CustLedgerEntry do begin
+            SetRange("Document No.", DocumentNo);
+            SetRange("Document Type", DocumentType);
+            FindFirst;
+            CalcFields("Remaining Amount", "Remaining Amt. (LCY)");
+            TestField("Remaining Amt. (LCY)", Round("Remaining Amount" / "Adjusted Currency Factor", 0.01));
+        end;
+    end;
+
+    local procedure VerifyGLEntries(DocumentNo: Code[20])
+    var
+        GLEntry: Record "G/L Entry";
+        TotalAmount: Decimal;
+    begin
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.FindSet;
+        repeat
+            TotalAmount += GLEntry.Amount;
+        until GLEntry.Next = 0;
+        Assert.AreEqual(
+          0, TotalAmount, StrSubstNo(TotalAmountErr, 0, GLEntry.TableCaption, GLEntry.FieldCaption("Document No."), GLEntry."Document No."));
+    end;
+
+    local procedure VerifyAddCurrencyAmount(DocumentNo: Code[20])
+    var
+        GLEntry: Record "G/L Entry";
+        Currency: Record Currency;
+        AddCurrAmt: Decimal;
+    begin
+        Currency.Get(LibraryERM.GetAddReportingCurrency);
+        Currency.InitRoundingPrecision;
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.FindSet;
+        repeat
+            AddCurrAmt := LibraryERM.ConvertCurrency(GLEntry.Amount, '', Currency.Code, WorkDate);
+            Assert.AreNearlyEqual(
+              AddCurrAmt, GLEntry."Additional-Currency Amount", Currency."Amount Rounding Precision",
+              StrSubstNo(AdditionalCurrencyErr, AddCurrAmt));
+        until GLEntry.Next = 0;
+    end;
+
+    local procedure VerifySourceCodeDtldCustLedger(DocumentType: Option; DocumentNo: Code[20]; SourceCode: Code[10])
+    var
+        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+    begin
+        DetailedCustLedgEntry.SetRange("Document No.", DocumentNo);
+        DetailedCustLedgEntry.SetRange("Document Type", DocumentType);
+        DetailedCustLedgEntry.SetRange("Source Code", SourceCode);
+        Assert.IsTrue(DetailedCustLedgEntry.FindFirst, 'Detailed Customer Ledger Entry must found.');
+    end;
+
+    local procedure VerifyNoVATEntriesOnUnapplication(DocType: Option; DocNo: Code[20])
+    var
+        VATEntry: Record "VAT Entry";
+    begin
+        with VATEntry do begin
+            SetRange("Document Type", DocType);
+            SetRange("Document No.", DocNo);
+            SetRange("Transaction No.", GetTransactionNoFromUnappliedDtldEntry(DocType, DocNo));
+            Assert.IsTrue(IsEmpty, UnnecessaryVATEntriesFoundErr);
+        end;
+    end;
+
+    local procedure VerifyACYInGLEntriesOnUnapplication(ExpectedACY: Decimal; DocType: Option; DocNo: Code[20])
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        with GLEntry do begin
+            SetRange("Document Type", DocType);
+            SetRange("Document No.", DocNo);
+            SetRange("Transaction No.", GetTransactionNoFromUnappliedDtldEntry(DocType, DocNo));
+            FindSet;
+            repeat
+                Assert.AreEqual(ExpectedACY, "Additional-Currency Amount", NonzeroACYErr);
+            until Next = 0;
+        end;
+    end;
+
+    local procedure ApplyUnapplyCustEntriesWithMiscDimSetIDs(NoOfLines: Integer)
+    var
+        Customer: Record Customer;
+        LibraryPmtDiscSetup: Codeunit "Library - Pmt Disc Setup";
+        DimSetIDs: array[10] of Integer;
+        DiscountPercent: Integer;
+        Amounts: array[10] of Decimal;
+        DiscountedAmounts: array[10] of Decimal;
+        DocNo: Code[20];
+        i: Integer;
+    begin
+        // Setup
+        LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
+        DiscountPercent := LibraryRandom.RandIntInRange(1, 10);
+        CreateCustomerWithGivenPaymentTerm(Customer, CreatePaymentTermsWithDiscount(DiscountPercent));
+
+        for i := 1 to NoOfLines do begin
+            Amounts[i] := 100 * LibraryRandom.RandIntInRange(1, 100);
+            DiscountedAmounts[i] := Amounts[i] * (100 - DiscountPercent) / 100;
+        end;
+
+        // Exercise
+        DocNo := ApplyUnapplyWithDimSetIDs(NoOfLines, Customer."No.", DimSetIDs, Amounts, DiscountedAmounts);
+
+        // Exercise and Verify
+        for i := 1 to NoOfLines do
+            Amounts[i] -= DiscountedAmounts[i];
+        VerifyGLEntriesWithDimSetIDs(DocNo, Amounts, DimSetIDs, NoOfLines);
+    end;
+
+    local procedure CreateGenJnlLinesWithDimSetIDs(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; var DimSetIDs: array[10] of Integer; NoOfDocuments: Integer; CustomerNo: Code[20]; DocumentType: Option; Amounts: array[10] of Decimal; SignFactor: Integer)
+    var
+        i: Integer;
+    begin
+        for i := 1 to NoOfDocuments do
+            CreateGenJnlLineWithDimSetID(GenJournalLine, GenJournalBatch, DimSetIDs[i], CustomerNo, DocumentType, Amounts[i] * SignFactor);
+    end;
+
+    local procedure CreatePostGenJnlLinesWithDimSetIDs(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; var DimSetIDs: array[10] of Integer; NoOfDocuments: Integer; CustomerNo: Code[20]; DocumentType: Option; Amounts: array[10] of Decimal; SignFactor: Integer)
+    var
+        i: Integer;
+    begin
+        for i := 1 to NoOfDocuments do begin
+            CreateGenJnlLineWithDimSetID(GenJournalLine, GenJournalBatch, DimSetIDs[i], CustomerNo, DocumentType, Amounts[i] * SignFactor);
+            LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        end;
+    end;
+
+    local procedure CreateGenJnlLineWithDimSetID(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; var DimSetID: Integer; CustomerNo: Code[20]; DocumentType: Option; Amount: Decimal)
+    var
+        DimVal: Record "Dimension Value";
+        LibraryDimension: Codeunit "Library - Dimension";
+    begin
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType,
+          GenJournalLine."Account Type"::Customer, CustomerNo, Amount);
+        LibraryDimension.CreateDimensionValue(DimVal, LibraryERM.GetGlobalDimensionCode(1));
+        with GenJournalLine do begin
+            Validate("Applies-to ID", "Document No.");
+            Validate("Shortcut Dimension 1 Code", DimVal.Code);
+            Modify(true);
+            DimSetID := "Dimension Set ID";
+        end;
+    end;
+
+    local procedure CreateGenJnlLinesWithGivenDimSetIDs(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; DimSetIDs: array[10] of Integer; NoOfLines: Integer; CustomerNo: Code[20]; DocumentType: Option; Amounts: array[10] of Decimal)
+    var
+        DimMgt: Codeunit DimensionManagement;
+        Counter: Integer;
+    begin
+        for Counter := 1 to NoOfLines do begin
+            LibraryERM.CreateGeneralJnlLine(
+              GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType,
+              GenJournalLine."Account Type"::Customer, CustomerNo, -Amounts[Counter]);
+            with GenJournalLine do begin
+                Validate("Bal. Account No.", '');
+                Validate("Applies-to ID", "Document No.");
+                Validate("Dimension Set ID", DimSetIDs[Counter]);
+                DimMgt.UpdateGlobalDimFromDimSetID(
+                  "Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+                Modify(true);
+            end;
+        end;
+    end;
+
+    local procedure CreateGenJnlLineWithPostingGroups(var GenJnlLine: Record "Gen. Journal Line"; VendorNo: Code[20]; DocumentType: Option; Amount: Decimal; SalesLine: Record "Sales Line")
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        SelectGenJournalBatch(GenJournalBatch, false);
+        CreateGeneralJournalLines(GenJnlLine, GenJournalBatch, 1, VendorNo, DocumentType, Amount);
+        with GenJnlLine do begin
+            Validate("Bal. Gen. Posting Type", "Bal. Gen. Posting Type"::Sale);
+            Validate("Bal. Gen. Bus. Posting Group", SalesLine."Gen. Bus. Posting Group");
+            Validate("Bal. Gen. Prod. Posting Group", SalesLine."Gen. Prod. Posting Group");
+            Validate("Bal. VAT Bus. Posting Group", SalesLine."VAT Bus. Posting Group");
+            Validate("Bal. VAT Prod. Posting Group", SalesLine."VAT Prod. Posting Group");
+            Modify(true);
+        end;
+    end;
+
+    local procedure ApplyCustLedgerEntriesToID(CustomerNo: Code[20]; AppliesToID: Code[50]; AmountsToApply: array[10] of Decimal)
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        i: Integer;
+    begin
+        with CustLedgerEntry do begin
+            SetRange("Customer No.", CustomerNo);
+            if FindSet then
+                repeat
+                    i += 1;
+                    Validate("Applying Entry", true);
+                    Validate("Applies-to ID", AppliesToID);
+                    Validate("Amount to Apply", AmountsToApply[i]);
+                    Modify(true);
+                until Next = 0;
+        end;
+    end;
+
+    local procedure CreatePaymentTermsWithDiscount(DiscountPercent: Decimal): Code[10]
+    var
+        PaymentTerms: Record "Payment Terms";
+    begin
+        LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, true);
+        PaymentTerms.Validate("Discount %", DiscountPercent);
+        PaymentTerms.Modify(true);
+        exit(PaymentTerms.Code);
+    end;
+
+    local procedure CreateCustomerWithGivenPaymentTerm(var Customer: Record Customer; PaymentTermsCode: Code[10])
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Payment Terms Code", PaymentTermsCode);
+        Customer.Modify(true);
+    end;
+
+    local procedure VerifyGLEntriesWithDimSetIDs(DocumentNo: Code[20]; Amounts: array[10] of Decimal; DimSetIDs: array[10] of Integer; DimSetArrLen: Integer)
+    var
+        GLEntry: Record "G/L Entry";
+        Index: Integer;
+        TotalAmount: Decimal;
+    begin
+        with GLEntry do begin
+            SetCurrentKey("Transaction No.");
+            SetRange("Document No.", DocumentNo);
+            FindLast;
+            SetRange("Transaction No.", "Transaction No.");
+            Assert.RecordCount(GLEntry, DimSetArrLen + 1);
+            FindSet;
+            for Index := 1 to DimSetArrLen do begin
+                TestField("Dimension Set ID", DimSetIDs[1]);
+                TestField(Amount, -Amounts[Index]);
+                TotalAmount += Amounts[Index];
+                Next;
+            end;
+            TestField("Dimension Set ID", DimSetIDs[1]);
+            TestField(Amount, TotalAmount);
+        end;
+    end;
+
+    local procedure GetTransactionNoFromUnappliedDtldEntry(DocType: Option; DocNo: Code[20]): Integer
+    var
+        DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+    begin
+        with DtldCustLedgEntry do begin
+            SetRange("Document Type", DocType);
+            SetRange("Document No.", DocNo);
+            SetRange(Unapplied, true);
+            FindLast;
+            exit("Transaction No.");
+        end;
+    end;
+
+    local procedure ApplyUnapplyWithDimSetIDs(NoOfLines: Integer; CustomerNo: Code[20]; var DimSetIDs: array[10] of Integer; Amounts: array[10] of Decimal; DiscountedAmounts: array[10] of Decimal): Code[20]
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        BankAccount: Record "Bank Account";
+        TotalDiscountedAmount: Decimal;
+        i: Integer;
+    begin
+        SelectGenJournalBatch(GenJournalBatch, true);
+        CreatePostGenJnlLinesWithDimSetIDs(
+          GenJournalLine, GenJournalBatch, DimSetIDs, NoOfLines,
+          CustomerNo, GenJournalLine."Document Type"::Invoice, Amounts, 1);
+
+        CreateGenJnlLinesWithGivenDimSetIDs(
+          GenJournalLine, GenJournalBatch, DimSetIDs, NoOfLines,
+          CustomerNo, GenJournalLine."Document Type"::Payment, DiscountedAmounts);
+        ApplyCustLedgerEntriesToID(CustomerNo, GenJournalLine."Document No.", DiscountedAmounts);
+
+        for i := 1 to NoOfLines do
+            TotalDiscountedAmount += DiscountedAmounts[i];
+
+        CreateGeneralJournalLines(
+          GenJournalLine, GenJournalBatch, 1, CustomerNo,
+          GenJournalLine."Document Type"::Payment, TotalDiscountedAmount);
+        BankAccount.SetRange(Blocked, false);
+        BankAccount.FindFirst;
+        with GenJournalLine do begin
+            Validate("Account Type", "Account Type"::"Bank Account");
+            Validate("Account No.", BankAccount."No.");
+            Validate("Bal. Account No.", '');
+            Modify(true);
+        end;
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        UnapplyCustLedgerEntry(GenJournalLine."Document Type"::Payment, GenJournalLine."Document No.");
+        exit(GenJournalLine."Document No.");
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ApplyCustomerEntriesPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
+    var
+        SetAppliesToIDValue: Variant;
+        SetAppliesToID: Boolean;
+    begin
+        LibraryVariableStorage.Dequeue(SetAppliesToIDValue);
+        SetAppliesToID := SetAppliesToIDValue;  // Assign Variant to Boolean.
+        if SetAppliesToID then
+            ApplyCustomerEntries."Set Applies-to ID".Invoke;
+        ApplyCustomerEntries.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ApplyAndVerifyCustomerEntriesPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
+    var
+        QueueValue: Variant;
+        PaymentAmount: Decimal;
+        InvoiceAmount: Decimal;
+        ExchangeRate: Decimal;
+    begin
+        with LibraryVariableStorage do begin
+            Dequeue(QueueValue);
+            PaymentAmount := QueueValue;
+            Dequeue(QueueValue);
+            InvoiceAmount := QueueValue;
+            Dequeue(QueueValue);
+            ExchangeRate := QueueValue;
+        end;
+
+        with ApplyCustomerEntries do begin
+            // verify cr. memo entry
+            "Set Applies-to ID".Invoke; // apply entry
+            AppliedAmount.AssertEquals(Round(-PaymentAmount * ExchangeRate, LibraryERM.GetAmountRoundingPrecision));
+            "Set Applies-to ID".Invoke; // unapply
+
+            // verify invoice entry
+            Next;
+            "Set Applies-to ID".Invoke; // apply next entry
+            AppliedAmount.AssertEquals(Round(InvoiceAmount * ExchangeRate, LibraryERM.GetAmountRoundingPrecision));
+
+            OK.Invoke;
+        end;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ApplyCustomerEntriesPHAndPageControlValuesVerification(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
+    var
+        Value: Variant;
+        SalesLineAmountLCY: Decimal;
+        JournalLineAmount: Decimal;
+        PageControlValue: Decimal;
+    begin
+        LibraryVariableStorage.Dequeue(Value);
+        SalesLineAmountLCY := Value;
+        LibraryVariableStorage.Dequeue(Value);
+        JournalLineAmount := Value;
+        ApplyCustomerEntries."Set Applies-to ID".Invoke;
+
+        Evaluate(PageControlValue, ApplyCustomerEntries.ApplnRounding.Value);
+        Assert.AreEqual(
+          SalesLineAmountLCY + JournalLineAmount, -PageControlValue, ApplyCustomerEntries.ApplnRounding.Caption);
+
+        Evaluate(PageControlValue, ApplyCustomerEntries.ControlBalance.Value);
+        Assert.AreEqual(
+          0, PageControlValue, ApplyCustomerEntries.ControlBalance.Caption);
+
+        ApplyCustomerEntries.OK.Invoke;
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure CustomerLedgerEntriesPageHandler(var CustomerLedgerEntries: TestPage "Customer Ledger Entries")
+    begin
+        CustomerLedgerEntries."Apply Entries".Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure UnapplyCustomerEntriesModalPageHandler(var UnapplyCustomerEntries: TestPage "Unapply Customer Entries")
+    begin
+        UnapplyCustomerEntries.Unapply.Invoke;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandler(Message: Text[1024])
+    begin
+    end;
+}
+

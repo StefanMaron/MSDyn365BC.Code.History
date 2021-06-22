@@ -1,0 +1,81 @@
+report 810 "Assembly BOM - Raw Materials"
+{
+    DefaultLayout = RDLC;
+    RDLCLayout = './AssemblyBOMRawMaterials.rdlc';
+    AdditionalSearchTerms = 'bill of material raw';
+    ApplicationArea = Assembly;
+    Caption = 'BOM - Raw Materials';
+    UsageCategory = ReportsAndAnalysis;
+
+    dataset
+    {
+        dataitem(Item; Item)
+        {
+            DataItemTableView = WHERE("Assembly BOM" = CONST(false));
+            RequestFilterFields = "No.", "Base Unit of Measure", "Shelf No.";
+            column(CompanyName_Item; COMPANYPROPERTY.DisplayName)
+            {
+            }
+            column(ItemTableCaptionItemFilter; TableCaption + ': ' + ItemFilter)
+            {
+            }
+            column(No_Item; "No.")
+            {
+                IncludeCaption = true;
+            }
+            column(Description_Item; Description)
+            {
+                IncludeCaption = true;
+            }
+            column(BaseUnitofMeasure_Item; "Base Unit of Measure")
+            {
+                IncludeCaption = true;
+            }
+            column(Inventory_Item; Inventory)
+            {
+                IncludeCaption = true;
+            }
+            column(VendorNo_Item; "Vendor No.")
+            {
+                IncludeCaption = true;
+            }
+            column(LeadTimeCalculation_Item; "Lead Time Calculation")
+            {
+                IncludeCaption = true;
+            }
+            column(BOMRawMaterialsCaption; BOMRawMaterialsCaptionLbl)
+            {
+            }
+            column(CurrReportPageNoCaption; CurrReportPageNoCaptionLbl)
+            {
+            }
+        }
+    }
+
+    requestpage
+    {
+
+        layout
+        {
+        }
+
+        actions
+        {
+        }
+    }
+
+    labels
+    {
+    }
+
+    trigger OnPreReport()
+    begin
+        ItemFilter := Item.GetFilters;
+    end;
+
+    var
+        ItemFilter: Text;
+        BOMRawMaterialsCaptionLbl: Label 'BOM - Raw Materials';
+        CurrReportPageNoCaptionLbl: Label 'Page';
+}
+

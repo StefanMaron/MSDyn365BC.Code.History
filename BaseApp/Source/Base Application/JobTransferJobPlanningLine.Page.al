@@ -1,0 +1,135 @@
+page 1014 "Job Transfer Job Planning Line"
+{
+    Caption = 'Job Transfer Job Planning Line';
+    PageType = StandardDialog;
+    SaveValues = true;
+    SourceTable = "Job Journal Template";
+
+    layout
+    {
+        area(content)
+        {
+            group(General)
+            {
+                Caption = 'General';
+                field(PostingDate; PostingDate)
+                {
+                    ApplicationArea = Jobs;
+                    Caption = 'Posting Date';
+                    ToolTip = 'Specifies the posting date for the document.';
+                }
+                field(JobJournalTemplateName; JobJournalTemplateName)
+                {
+                    ApplicationArea = Jobs;
+                    Caption = 'Job Journal Template';
+                    Lookup = true;
+                    TableRelation = "Job Journal Template".Name WHERE("Page ID" = CONST(201),
+                                                                       Recurring = CONST(false));
+                    ToolTip = 'Specifies the journal template that is used for the job journal.';
+
+                    trigger OnLookup(var Text: Text): Boolean
+                    begin
+                        SelectJobJournalTemplate;
+                    end;
+                }
+                field(JobJournalBatchName; JobJournalBatchName)
+                {
+                    ApplicationArea = Jobs;
+                    Caption = 'Job Journal Batch';
+                    Lookup = true;
+                    TableRelation = "Job Journal Batch".Name WHERE("Journal Template Name" = FIELD(Name));
+                    ToolTip = 'Specifies the journal batch that is used for the job journal.';
+
+                    trigger OnLookup(var Text: Text): Boolean
+                    begin
+                        SelectJobJournalBatch;
+                    end;
+                }
+            }
+        }
+    }
+
+    actions
+    {
+    }
+
+    trigger OnOpenPage()
+    begin
+        InitializeValues;
+    end;
+
+    var
+        JobJournalTemplateName: Code[10];
+        JobJournalBatchName: Code[10];
+        PostingDate: Date;
+
+    procedure InitializeValues()
+    var
+        JobJnlTemplate: Record "Job Journal Template";
+        JobJnlBatch: Record "Job Journal Batch";
+    begin
+        PostingDate := WorkDate;
+
+        JobJnlTemplate.SetRange("Page ID", PAGE::"Job Journal");
+        JobJnlTemplate.SetRange(Recurring, false);
+
+        if JobJnlTemplate.Count = 1 then begin
+            JobJnlTemplate.FindFirst;
+            JobJournalTemplateName := JobJnlTemplate.Name;
+
+            JobJnlBatch.SetRange("Journal Template Name", JobJournalTemplateName);
+
+            if JobJnlBatch.Count = 1 then begin
+                JobJnlBatch.FindFirst;
+                JobJournalBatchName := JobJnlBatch.Name;
+            end;
+        end;
+    end;
+
+    local procedure SelectJobJournalTemplate()
+    var
+        JobJnlTemplate: Record "Job Journal Template";
+        JobJnlBatch: Record "Job Journal Batch";
+    begin
+        JobJnlTemplate.SetRange("Page ID", PAGE::"Job Journal");
+        JobJnlTemplate.SetRange(Recurring, false);
+
+        if PAGE.RunModal(0, JobJnlTemplate) = ACTION::LookupOK then begin
+            JobJournalTemplateName := JobJnlTemplate.Name;
+
+            JobJnlBatch.SetRange("Journal Template Name", JobJournalTemplateName);
+
+            if JobJnlBatch.Count = 1 then begin
+                JobJnlBatch.FindFirst;
+                JobJournalBatchName := JobJnlBatch.Name;
+            end else
+                JobJournalBatchName := '';
+        end;
+    end;
+
+    local procedure SelectJobJournalBatch()
+    var
+        JobJnlBatch: Record "Job Journal Batch";
+    begin
+        JobJnlBatch.SetRange("Journal Template Name", JobJournalTemplateName);
+
+        if PAGE.RunModal(0, JobJnlBatch) = ACTION::LookupOK then
+            JobJournalBatchName := JobJnlBatch.Name;
+    end;
+
+    procedure GetPostingDate(): Date
+    begin
+        exit(PostingDate);
+    end;
+
+    procedure GetJobJournalTemplateName(): Code[10]
+    begin
+        exit(JobJournalTemplateName);
+    end;
+
+    procedure GetJobJournalBatchName(): Code[10]
+    begin
+        exit(JobJournalBatchName);
+    end;
+}
+
