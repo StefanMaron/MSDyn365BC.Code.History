@@ -1,0 +1,96 @@
+report 1105 "Resource Statistics"
+{
+    DefaultLayout = RDLC;
+    RDLCLayout = './ResourceStatistics.rdlc';
+    ApplicationArea = Jobs;
+    Caption = 'Resource Statistics';
+    UsageCategory = ReportsAndAnalysis;
+
+    dataset
+    {
+        dataitem(Resource; Resource)
+        {
+            DataItemTableView = SORTING("No.");
+            RequestFilterFields = "No.", "Date Filter";
+            column(TodayFormatted; Format(Today))
+            {
+            }
+            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            {
+            }
+            column(TableCaptionResFilter; TableCaption + ': ' + ResFilter)
+            {
+            }
+            column(ResFilter; ResFilter)
+            {
+            }
+            column(No_Resource; "No.")
+            {
+                IncludeCaption = true;
+            }
+            column(Name_Resource; Name)
+            {
+                IncludeCaption = true;
+            }
+            column(InvdPct; InvdPct)
+            {
+                DecimalPlaces = 1 : 1;
+            }
+            column(SalesPrice_Resource; "Sales (Price)")
+            {
+                IncludeCaption = true;
+            }
+            column(UsagePrice_Resource; "Usage (Price)")
+            {
+                IncludeCaption = true;
+            }
+            column(ResourceStatisticsCaption; ResourceStatisticsCaptionLbl)
+            {
+            }
+            column(CurrReportPageNoCaption; CurrReportPageNoCaptionLbl)
+            {
+            }
+            column(InvdPctCaption; InvdPctCaptionLbl)
+            {
+            }
+            column(ResUsageTotalPriceCaption; ResUsageTotalPriceCaptionLbl)
+            {
+            }
+
+            trigger OnAfterGetRecord()
+            begin
+                CalcFields("Usage (Price)", "Sales (Price)");
+            end;
+        }
+    }
+
+    requestpage
+    {
+
+        layout
+        {
+        }
+
+        actions
+        {
+        }
+    }
+
+    labels
+    {
+    }
+
+    trigger OnPreReport()
+    begin
+        ResFilter := Resource.GetFilters;
+    end;
+
+    var
+        InvdPct: Decimal;
+        ResFilter: Text;
+        ResourceStatisticsCaptionLbl: Label 'Resource Statistics';
+        CurrReportPageNoCaptionLbl: Label 'Page';
+        InvdPctCaptionLbl: Label 'Invoiced %';
+        ResUsageTotalPriceCaptionLbl: Label 'Total';
+}
+

@@ -1,0 +1,1090 @@
+codeunit 9178 "Application Area Mgmt."
+{
+
+    trigger OnRun()
+    begin
+    end;
+
+    var
+        OnlyBasicAppAreaMsg: Label 'You do not have access to this page, because your experience is set to Basic.';
+        ValuesNotAllowedErr: Label 'The selected experience is not supported.\\In the Application Area window, you define what is shown in the user interface.';
+        InvoicingExpTierErr: Label 'The Invoicing application area must be the only enabled area.';
+        HideApplicationAreaError: Boolean;
+        PremiumSubscriptionNeededMsg: Label 'To use the Premium experience, you must first buy the Premium plan.';
+        AppAreaNotSupportedErr: Label 'Application area Basic %1 is not supported.', Comment = '%1 = application area';
+
+    local procedure GetApplicationAreaSetupRec(var ApplicationAreaSetup: Record "Application Area Setup"): Boolean
+    var
+        ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
+        AllProfile: Record "All Profile";
+    begin
+        if not ApplicationAreaSetup.Get('', '', UserId) then begin
+            ConfPersonalizationMgt.GetCurrentProfileNoError(AllProfile);
+            if not ApplicationAreaSetup.Get('', AllProfile."Profile ID") then
+                if not GetApplicationAreaSetupRecFromCompany(ApplicationAreaSetup, CompanyName) then
+                    exit(ApplicationAreaSetup.Get);
+        end;
+        exit(true);
+    end;
+
+    [Scope('OnPrem')]
+    procedure GetApplicationAreaSetupRecFromCompany(var ApplicationAreaSetup: Record "Application Area Setup"; CompanyName: Text): Boolean
+    begin
+        exit(ApplicationAreaSetup.Get(CompanyName));
+    end;
+
+    [Scope('OnPrem')]
+    procedure GetApplicationAreaSetup() ApplicationAreas: Text
+    var
+        ApplicationAreaSetup: Record "Application Area Setup";
+        RecRef: RecordRef;
+        FieldRef: FieldRef;
+        FieldIndex: Integer;
+    begin
+        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
+            exit(ApplicationAreas);
+
+        RecRef.GetTable(ApplicationAreaSetup);
+
+        for FieldIndex := 1 to RecRef.FieldCount do begin
+            FieldRef := RecRef.FieldIndex(FieldIndex);
+            if not IsInPrimaryKey(FieldRef) then
+                if FieldRef.Value then
+                    if ApplicationAreas = '' then
+                        ApplicationAreas := '#' + DelChr(FieldRef.Name)
+                    else
+                        ApplicationAreas := ApplicationAreas + ',#' + DelChr(FieldRef.Name);
+        end;
+    end;
+
+    [Scope('OnPrem')]
+    procedure GetApplicationAreaBuffer(var TempApplicationAreaBuffer: Record "Application Area Buffer" temporary)
+    var
+        ApplicationAreaSetup: Record "Application Area Setup";
+        RecRef: RecordRef;
+        FieldRef: FieldRef;
+        FieldIndex: Integer;
+    begin
+        GetApplicationAreaSetupRec(ApplicationAreaSetup);
+        RecRef.GetTable(ApplicationAreaSetup);
+
+        for FieldIndex := GetFirstPublicAppAreaFieldIndex to RecRef.FieldCount do begin
+            FieldRef := RecRef.FieldIndex(FieldIndex);
+            if not IsInPrimaryKey(FieldRef) then begin
+                TempApplicationAreaBuffer."Field No." := FieldRef.Number;
+                TempApplicationAreaBuffer."Application Area" :=
+                  CopyStr(FieldRef.Caption, 1, MaxStrLen(TempApplicationAreaBuffer."Application Area"));
+                TempApplicationAreaBuffer.Selected := FieldRef.Value;
+                TempApplicationAreaBuffer.Insert(true);
+            end;
+        end;
+    end;
+
+    local procedure SaveApplicationArea(var TempApplicationAreaBuffer: Record "Application Area Buffer" temporary; ApplicationAreaSetup: Record "Application Area Setup"; NoApplicationAreasExist: Boolean)
+    var
+        ExistingTempApplicationAreaBuffer: Record "Application Area Buffer" temporary;
+        UserPreference: Record "User Preference";
+        RecRef: RecordRef;
+        FieldRef: FieldRef;
+        ApplicationAreasChanged: Boolean;
+    begin
+        GetApplicationAreaBuffer(ExistingTempApplicationAreaBuffer);
+        RecRef.GetTable(ApplicationAreaSetup);
+
+        TempApplicationAreaBuffer.FindFirst;
+        ExistingTempApplicationAreaBuffer.FindFirst;
+        repeat
+            FieldRef := RecRef.Field(TempApplicationAreaBuffer."Field No.");
+            FieldRef.Value := TempApplicationAreaBuffer.Selected;
+            if TempApplicationAreaBuffer.Selected <> ExistingTempApplicationAreaBuffer.Selected then
+                ApplicationAreasChanged := true;
+        until (TempApplicationAreaBuffer.Next = 0) and (ExistingTempApplicationAreaBuffer.Next = 0);
+
+        if NoApplicationAreasExist then begin
+            if ApplicationAreasChanged then
+                RecRef.Insert(true);
+        end else
+            RecRef.Modify(true);
+
+        UserPreference.SetFilter("User ID", UserId);
+        UserPreference.DeleteAll;
+
+        SetupApplicationArea;
+    end;
+
+    local procedure TrySaveApplicationArea(var TempApplicationAreaBuffer: Record "Application Area Buffer" temporary; ApplicationAreaSetup: Record "Application Area Setup"; NoApplicationAreaExist: Boolean) IsApplicationAreaChanged: Boolean
+    var
+        OldApplicationArea: Text;
+    begin
+        OldApplicationArea := ApplicationArea;
+        SaveApplicationArea(TempApplicationAreaBuffer, ApplicationAreaSetup, NoApplicationAreaExist);
+        IsApplicationAreaChanged := OldApplicationArea <> ApplicationArea;
+    end;
+
+    [Scope('OnPrem')]
+    procedure TrySaveApplicationAreaCurrentCompany(var TempApplicationAreaBuffer: Record "Application Area Buffer" temporary) IsApplicationAreaChanged: Boolean
+    var
+        ApplicationAreaSetup: Record "Application Area Setup";
+        NoCompanyApplicationAreasExist: Boolean;
+    begin
+        if not ApplicationAreaSetup.Get(CompanyName) then begin
+            ApplicationAreaSetup."Company Name" := CompanyName;
+            NoCompanyApplicationAreasExist := true;
+        end;
+
+        IsApplicationAreaChanged :=
+          TrySaveApplicationArea(TempApplicationAreaBuffer, ApplicationAreaSetup, NoCompanyApplicationAreasExist);
+    end;
+
+    [Scope('OnPrem')]
+    procedure TrySaveApplicationAreaCurrentUser(var TempApplicationAreaBuffer: Record "Application Area Buffer" temporary) IsApplicationAreaChanged: Boolean
+    var
+        ApplicationAreaSetup: Record "Application Area Setup";
+        NoUserApplicationAreasExist: Boolean;
+    begin
+        if not ApplicationAreaSetup.Get('', '', UserId) then begin
+            ApplicationAreaSetup."User ID" := UserId;
+            NoUserApplicationAreasExist := true;
+        end;
+
+        IsApplicationAreaChanged :=
+          TrySaveApplicationArea(TempApplicationAreaBuffer, ApplicationAreaSetup, NoUserApplicationAreasExist);
+    end;
+
+    [Scope('OnPrem')]
+    procedure SetupApplicationArea()
+    begin
+        ApplicationArea(GetApplicationAreaSetup);
+    end;
+
+    [Scope('OnPrem')]
+    procedure IsFoundationEnabled(): Boolean
+    var
+        ApplicationAreaSetup: Record "Application Area Setup";
+    begin
+        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
+            exit(false);
+
+        exit(ApplicationAreaSetup.Basic or ApplicationAreaSetup.Suite);
+    end;
+
+    [Scope('OnPrem')]
+    procedure IsBasicOnlyEnabled(): Boolean
+    var
+        ApplicationAreaSetup: Record "Application Area Setup";
+    begin
+        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
+            exit(false);
+
+        exit(ApplicationAreaSetup.Basic and not ApplicationAreaSetup.Suite and not ApplicationAreaSetup.Advanced);
+    end;
+
+    [Scope('OnPrem')]
+    procedure IsAdvancedEnabled(): Boolean
+    begin
+        exit(not IsFoundationEnabled);
+    end;
+
+    [Scope('OnPrem')]
+    procedure IsFixedAssetEnabled(): Boolean
+    var
+        ApplicationAreaSetup: Record "Application Area Setup";
+    begin
+        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
+            exit(false);
+
+        exit(ApplicationAreaSetup."Fixed Assets");
+    end;
+
+    [Scope('OnPrem')]
+    procedure IsJobsEnabled(): Boolean
+    var
+        ApplicationAreaSetup: Record "Application Area Setup";
+    begin
+        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
+            exit(false);
+
+        exit(ApplicationAreaSetup.Jobs);
+    end;
+
+    [Scope('OnPrem')]
+    procedure IsBasicHREnabled(): Boolean
+    var
+        ApplicationAreaSetup: Record "Application Area Setup";
+    begin
+        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
+            exit(false);
+
+        exit(ApplicationAreaSetup.BasicHR);
+    end;
+
+    [Scope('OnPrem')]
+    procedure IsDimensionEnabled(): Boolean
+    var
+        ApplicationAreaSetup: Record "Application Area Setup";
+    begin
+        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
+            exit(false);
+
+        exit(ApplicationAreaSetup.Dimensions);
+    end;
+
+    [Scope('OnPrem')]
+    procedure IsLocationEnabled(): Boolean
+    var
+        ApplicationAreaSetup: Record "Application Area Setup";
+    begin
+        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
+            exit(false);
+
+        exit(ApplicationAreaSetup.Location);
+    end;
+
+    [Scope('OnPrem')]
+    procedure IsAssemblyEnabled(): Boolean
+    var
+        ApplicationAreaSetup: Record "Application Area Setup";
+    begin
+        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
+            exit(false);
+
+        exit(ApplicationAreaSetup.Assembly);
+    end;
+
+    [Scope('OnPrem')]
+    procedure IsItemChargesEnabled(): Boolean
+    var
+        ApplicationAreaSetup: Record "Application Area Setup";
+    begin
+        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
+            exit(false);
+
+        exit(ApplicationAreaSetup."Item Charges");
+    end;
+
+    [Scope('OnPrem')]
+    procedure IsItemTrackingEnabled(): Boolean
+    var
+        ApplicationAreaSetup: Record "Application Area Setup";
+    begin
+        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
+            exit(false);
+
+        exit(ApplicationAreaSetup."Item Tracking");
+    end;
+
+    [Scope('OnPrem')]
+    procedure IsIntercompanyEnabled(): Boolean
+    var
+        ApplicationAreaSetup: Record "Application Area Setup";
+    begin
+        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
+            exit(false);
+
+        exit(ApplicationAreaSetup.Intercompany);
+    end;
+
+    [Scope('OnPrem')]
+    procedure IsSalesReturnOrderEnabled(): Boolean
+    var
+        ApplicationAreaSetup: Record "Application Area Setup";
+    begin
+        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
+            exit(false);
+
+        exit(ApplicationAreaSetup."Sales Return Order");
+    end;
+
+    [Scope('OnPrem')]
+    procedure IsPurchaseReturnOrderEnabled(): Boolean
+    var
+        ApplicationAreaSetup: Record "Application Area Setup";
+    begin
+        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
+            exit(false);
+
+        exit(ApplicationAreaSetup."Purch Return Order");
+    end;
+
+    [Scope('OnPrem')]
+    procedure IsCostAccountingEnabled(): Boolean
+    var
+        ApplicationAreaSetup: Record "Application Area Setup";
+    begin
+        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
+            exit(false);
+
+        exit(ApplicationAreaSetup."Cost Accounting");
+    end;
+
+    [Scope('OnPrem')]
+    procedure IsSalesBudgetEnabled(): Boolean
+    var
+        ApplicationAreaSetup: Record "Application Area Setup";
+    begin
+        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
+            exit(false);
+
+        exit(ApplicationAreaSetup."Sales Budget");
+    end;
+
+    [Scope('OnPrem')]
+    procedure IsPurchaseBudgetEnabled(): Boolean
+    var
+        ApplicationAreaSetup: Record "Application Area Setup";
+    begin
+        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
+            exit(false);
+
+        exit(ApplicationAreaSetup."Purchase Budget");
+    end;
+
+    [Scope('OnPrem')]
+    procedure IsItemBudgetEnabled(): Boolean
+    var
+        ApplicationAreaSetup: Record "Application Area Setup";
+    begin
+        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
+            exit(false);
+
+        exit(ApplicationAreaSetup."Item Budget");
+    end;
+
+    [Scope('OnPrem')]
+    procedure IsSalesAnalysisEnabled(): Boolean
+    var
+        ApplicationAreaSetup: Record "Application Area Setup";
+    begin
+        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
+            exit(false);
+
+        exit(ApplicationAreaSetup."Sales Analysis");
+    end;
+
+    [Scope('OnPrem')]
+    procedure IsPurchaseAnalysisEnabled(): Boolean
+    var
+        ApplicationAreaSetup: Record "Application Area Setup";
+    begin
+        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
+            exit(false);
+
+        exit(ApplicationAreaSetup."Purchase Analysis");
+    end;
+
+    [Scope('OnPrem')]
+    procedure IsInventoryAnalysisEnabled(): Boolean
+    var
+        ApplicationAreaSetup: Record "Application Area Setup";
+    begin
+        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
+            exit(false);
+
+        exit(ApplicationAreaSetup."Inventory Analysis");
+    end;
+
+    [Scope('OnPrem')]
+    procedure IsReservationEnabled(): Boolean
+    var
+        ApplicationAreaSetup: Record "Application Area Setup";
+    begin
+        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
+            exit(false);
+
+        exit(ApplicationAreaSetup.Reservation);
+    end;
+
+    [Scope('OnPrem')]
+    procedure IsInvoicingOnlyEnabled(): Boolean
+    var
+        ApplicationAreaSetup: Record "Application Area Setup";
+    begin
+        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
+            exit(false);
+
+        if not ApplicationAreaSetup.Invoicing then
+            exit(false);
+
+        exit(SelectedAppAreaCount(ApplicationAreaSetup) = 0);
+    end;
+
+    [Scope('OnPrem')]
+    procedure IsManufacturingEnabled(): Boolean
+    var
+        ApplicationAreaSetup: Record "Application Area Setup";
+    begin
+        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
+            exit(false);
+
+        exit(ApplicationAreaSetup.Manufacturing);
+    end;
+
+    [Scope('OnPrem')]
+    procedure IsPlanningEnabled(): Boolean
+    var
+        ApplicationAreaSetup: Record "Application Area Setup";
+    begin
+        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
+            exit(false);
+
+        exit(ApplicationAreaSetup.Planning);
+    end;
+
+    [Scope('OnPrem')]
+    procedure IsRelationshipMgmtEnabled(): Boolean
+    var
+        ApplicationAreaSetup: Record "Application Area Setup";
+    begin
+        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
+            exit(false);
+
+        exit(ApplicationAreaSetup."Relationship Mgmt");
+    end;
+
+    [Scope('OnPrem')]
+    procedure IsServiceEnabled(): Boolean
+    var
+        ApplicationAreaSetup: Record "Application Area Setup";
+    begin
+        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
+            exit(false);
+
+        exit(ApplicationAreaSetup.Service);
+    end;
+
+    [Scope('OnPrem')]
+    procedure IsWarehouseEnabled(): Boolean
+    var
+        ApplicationAreaSetup: Record "Application Area Setup";
+    begin
+        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
+            exit(false);
+
+        exit(ApplicationAreaSetup.Warehouse);
+    end;
+
+    [Scope('OnPrem')]
+    procedure IsOrderPromisingEnabled(): Boolean
+    var
+        ApplicationAreaSetup: Record "Application Area Setup";
+    begin
+        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
+            exit(false);
+
+        exit(ApplicationAreaSetup."Order Promising");
+    end;
+
+    [Scope('OnPrem')]
+    procedure IsCommentsEnabled(): Boolean
+    var
+        ApplicationAreaSetup: Record "Application Area Setup";
+    begin
+        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
+            exit(false);
+
+        exit(ApplicationAreaSetup.Comments);
+    end;
+
+    [Scope('OnPrem')]
+    procedure IsRecordLinksEnabled(): Boolean
+    var
+        ApplicationAreaSetup: Record "Application Area Setup";
+    begin
+        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
+            exit(false);
+
+        exit(ApplicationAreaSetup."Record Links");
+    end;
+
+    [Scope('OnPrem')]
+    procedure IsNotesEnabled(): Boolean
+    var
+        ApplicationAreaSetup: Record "Application Area Setup";
+    begin
+        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
+            exit(false);
+
+        exit(ApplicationAreaSetup.Notes);
+    end;
+
+    procedure IsVATEnabled(): Boolean
+    var
+        ApplicationAreaSetup: Record "Application Area Setup";
+    begin
+        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
+            exit(false);
+
+        exit(ApplicationAreaSetup.VAT);
+    end;
+
+    procedure IsSalesTaxEnabled(): Boolean
+    var
+        ApplicationAreaSetup: Record "Application Area Setup";
+    begin
+        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
+            exit(false);
+
+        exit(ApplicationAreaSetup."Sales Tax");
+    end;
+
+    procedure IsBasicCountryEnabled(CountryCode: Code[10]): Boolean
+    var
+        ApplicationAreaSetup: Record "Application Area Setup";
+        IsHandled: Boolean;
+        IsEnabled: Boolean;
+    begin
+        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
+            exit(false);
+
+        case CountryCode of
+            // used for functinality specific to all EU countries
+            'EU':
+                exit(ApplicationAreaSetup."Basic EU");
+            // used for country specific functionality
+            'AU':
+                exit(ApplicationAreaSetup."Basic AU");
+            'AT':
+                exit(ApplicationAreaSetup."Basic AT");
+            'CH':
+                exit(ApplicationAreaSetup."Basic CH");
+            'DE':
+                exit(ApplicationAreaSetup."Basic DE");
+            'BE':
+                exit(ApplicationAreaSetup."Basic BE");
+            'CA':
+                exit(ApplicationAreaSetup."Basic CA");
+            'CZ':
+                exit(ApplicationAreaSetup."Basic CZ");
+            'DK':
+                exit(ApplicationAreaSetup."Basic DK");
+            'ES':
+                exit(ApplicationAreaSetup."Basic ES");
+            'FI':
+                exit(ApplicationAreaSetup."Basic FI");
+            'FR':
+                exit(ApplicationAreaSetup."Basic FR");
+            'GB':
+                exit(ApplicationAreaSetup."Basic GB");
+            'IS':
+                exit(ApplicationAreaSetup."Basic IS");
+            'IT':
+                exit(ApplicationAreaSetup."Basic IT");
+            'MX':
+                exit(ApplicationAreaSetup."Basic MX");
+            'NL':
+                exit(ApplicationAreaSetup."Basic NL");
+            'NO':
+                exit(ApplicationAreaSetup."Basic NO");
+            'NZ':
+                exit(ApplicationAreaSetup."Basic NZ");
+            'RU':
+                exit(ApplicationAreaSetup."Basic RU");
+            'SE':
+                exit(ApplicationAreaSetup."Basic SE");
+            'US':
+                exit(ApplicationAreaSetup."Basic US");
+            else begin
+                    IsHandled := false;
+                    OnIsBasicCountryEnabled(CountryCode, IsEnabled, IsHandled);
+                    if IsHandled then
+                        exit(IsEnabled);
+                    Error(AppAreaNotSupportedErr, CountryCode);
+                end;
+        end;
+    end;
+
+    [Scope('OnPrem')]
+    procedure IsSuiteEnabled(): Boolean
+    var
+        ApplicationAreaSetup: Record "Application Area Setup";
+    begin
+        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
+            exit(false);
+
+        exit(ApplicationAreaSetup.Suite);
+    end;
+
+    [Scope('OnPrem')]
+    procedure IsAllDisabled(): Boolean
+    begin
+        exit(not IsAnyEnabled);
+    end;
+
+    local procedure IsAnyEnabled(): Boolean
+    var
+        ApplicationAreaSetup: Record "Application Area Setup";
+    begin
+        if not GetApplicationAreaSetupRec(ApplicationAreaSetup) then
+            exit(false);
+        exit(SelectedAppAreaCount(ApplicationAreaSetup) > 0);
+    end;
+
+    [Scope('OnPrem')]
+    procedure IsPremiumEnabled(): Boolean
+    var
+        PlanIds: Codeunit "Plan Ids";
+        AzureADPlan: Codeunit "Azure AD Plan";
+    begin
+        if AzureADPlan.IsPlanAssignedToUser(PlanIds.GetPremiumPlanId) then
+            exit(true);
+
+        if AzureADPlan.IsPlanAssignedToUser(PlanIds.GetPremiumISVPlanId) then
+            exit(true);
+
+        if AzureADPlan.IsPlanAssignedToUser(PlanIds.GetViralSignupPlanId) then
+            exit(true);
+    end;
+
+    [Scope('OnPrem')]
+    procedure CheckAppAreaOnlyBasic()
+    begin
+        if IsBasicOnlyEnabled then begin
+            Message(OnlyBasicAppAreaMsg);
+            Error('');
+        end;
+    end;
+
+    [Scope('OnPrem')]
+    procedure IsValidExperienceTierSelected(SelectedExperienceTier: Text): Boolean
+    var
+        ExperienceTierSetup: Record "Experience Tier Setup";
+    begin
+        if (SelectedExperienceTier <> ExperienceTierSetup.FieldName(Premium)) or IsPremiumEnabled then
+            exit(true);
+
+        Message(PremiumSubscriptionNeededMsg);
+        exit(false);
+    end;
+
+    local procedure SelectedAppAreaCount(ApplicationAreaSetup: Record "Application Area Setup"): Integer
+    var
+        RecRef: RecordRef;
+        FieldRef: FieldRef;
+        FieldIndex: Integer;
+        "Count": Integer;
+    begin
+        RecRef.GetTable(ApplicationAreaSetup);
+
+        for FieldIndex := GetFirstPublicAppAreaFieldIndex to RecRef.FieldCount do begin
+            FieldRef := RecRef.FieldIndex(FieldIndex);
+            if not IsInPrimaryKey(FieldRef) then
+                if FieldRef.Value then
+                    Count += 1;
+        end;
+        exit(Count);
+    end;
+
+    local procedure IsInPrimaryKey(FieldRef: FieldRef): Boolean
+    var
+        RecRef: RecordRef;
+        KeyRef: KeyRef;
+        FieldIndex: Integer;
+    begin
+        RecRef := FieldRef.Record;
+
+        KeyRef := RecRef.KeyIndex(1);
+        for FieldIndex := 1 to KeyRef.FieldCount do
+            if KeyRef.FieldIndex(FieldIndex).Number = FieldRef.Number then
+                exit(true);
+
+        exit(false);
+    end;
+
+    [Scope('OnPrem')]
+    procedure GetFirstPublicAppAreaFieldIndex(): Integer
+    var
+        ApplicationAreaSetup: Record "Application Area Setup";
+        RecRef: RecordRef;
+        FirstPublicAppAreaFieldRef: FieldRef;
+        i: Integer;
+    begin
+        RecRef.GetTable(ApplicationAreaSetup);
+        FirstPublicAppAreaFieldRef := RecRef.Field(ApplicationAreaSetup.FieldNo(Basic));
+        for i := 1 to RecRef.FieldCount do
+            if RecRef.FieldIndex(i).Number = FirstPublicAppAreaFieldRef.Number then
+                exit(i);
+    end;
+
+    local procedure GetExperienceTierRec(var ExperienceTierSetup: Record "Experience Tier Setup"): Boolean
+    begin
+        exit(ExperienceTierSetup.Get(CompanyName));
+    end;
+
+    [Scope('OnPrem')]
+    procedure GetExperienceTierBuffer(var TempExperienceTierBuffer: Record "Experience Tier Buffer" temporary)
+    var
+        ExperienceTierSetup: Record "Experience Tier Setup";
+        RecRef: RecordRef;
+        FieldRef: FieldRef;
+        FieldIndex: Integer;
+    begin
+        GetExperienceTierRec(ExperienceTierSetup);
+        RecRef.GetTable(ExperienceTierSetup);
+
+        for FieldIndex := 1 to RecRef.FieldCount do begin
+            FieldRef := RecRef.FieldIndex(FieldIndex);
+            if not IsInPrimaryKey(FieldRef) then begin
+                TempExperienceTierBuffer."Field No." := FieldRef.Number;
+                TempExperienceTierBuffer."Experience Tier" := FieldRef.Caption;
+                TempExperienceTierBuffer.Selected := FieldRef.Value;
+                TempExperienceTierBuffer.Insert(true);
+            end;
+        end;
+    end;
+
+    [Scope('OnPrem')]
+    procedure LookupExperienceTier(var NewExperienceTier: Text): Boolean
+    var
+        TempExperienceTierBuffer: Record "Experience Tier Buffer" temporary;
+        ExperienceTierSetup: Record "Experience Tier Setup";
+    begin
+        GetExperienceTierBuffer(TempExperienceTierBuffer);
+        if NewExperienceTier <> '' then begin
+            TempExperienceTierBuffer.SetRange("Experience Tier", NewExperienceTier);
+            if TempExperienceTierBuffer.FindFirst then;
+            TempExperienceTierBuffer.SetRange("Experience Tier");
+        end;
+
+        // Always remove Preview from ExpTier options, because Preview features have gradated to premium
+        if TempExperienceTierBuffer.Get(ExperienceTierSetup.FieldNo(Preview)) then
+            TempExperienceTierBuffer.Delete;
+
+        // Always remove Advanced from ExpTier options
+        if TempExperienceTierBuffer.Get(ExperienceTierSetup.FieldNo(Advanced)) then
+            TempExperienceTierBuffer.Delete;
+
+        if TempExperienceTierBuffer.Get(ExperienceTierSetup.FieldNo(Basic)) then
+            TempExperienceTierBuffer.Delete;
+
+        GetExperienceTierRec(ExperienceTierSetup);
+        if not ExperienceTierSetup.Custom then
+            if TempExperienceTierBuffer.Get(ExperienceTierSetup.FieldNo(Custom)) then
+                TempExperienceTierBuffer.Delete;
+
+        if not ExperienceTierSetup.Invoicing then
+            if TempExperienceTierBuffer.Get(ExperienceTierSetup.FieldNo(Invoicing)) then
+                TempExperienceTierBuffer.Delete;
+
+        OnBeforeLookupExperienceTier(TempExperienceTierBuffer);
+        if PAGE.RunModal(0, TempExperienceTierBuffer, TempExperienceTierBuffer."Experience Tier") = ACTION::LookupOK then begin
+            NewExperienceTier := TempExperienceTierBuffer."Experience Tier";
+            exit(true);
+        end;
+    end;
+
+    [Scope('OnPrem')]
+    procedure SaveExperienceTierCurrentCompany(NewExperienceTier: Text) ExperienceTierChanged: Boolean
+    var
+        TempExperienceTierBuffer: Record "Experience Tier Buffer" temporary;
+        ExperienceTierSetup: Record "Experience Tier Setup";
+        Company: Record Company;
+        RecRef: RecordRef;
+        FieldRef: FieldRef;
+        CurrentExperienceTier: Text;
+        SelectedAlreadySaved: Boolean;
+    begin
+        GetExperienceTierCurrentCompany(CurrentExperienceTier);
+        ExperienceTierChanged := CurrentExperienceTier <> NewExperienceTier;
+
+        GetExperienceTierBuffer(TempExperienceTierBuffer);
+        TempExperienceTierBuffer.SetRange("Experience Tier", NewExperienceTier);
+        if not TempExperienceTierBuffer.FindFirst then
+            exit(false);
+
+        if not GetExperienceTierRec(ExperienceTierSetup) then begin
+            ExperienceTierSetup."Company Name" := CompanyName;
+            ExperienceTierSetup.Insert;
+        end else
+            if not ExperienceTierChanged then begin
+                Company.Get(CompanyName);
+                if (NewExperienceTier = ExperienceTierSetup.FieldCaption(Custom)) or Company."Evaluation Company" then
+                    exit(false);
+            end;
+
+        RecRef.GetTable(ExperienceTierSetup);
+        FieldRef := RecRef.Field(TempExperienceTierBuffer."Field No.");
+        SelectedAlreadySaved := FieldRef.Value;
+        if not SelectedAlreadySaved then begin
+            RecRef.Init;
+            FieldRef.Value := true;
+            RecRef.SetTable(ExperienceTierSetup);
+            ExperienceTierSetup.Modify;
+        end;
+
+        SetExperienceTierCurrentCompany(ExperienceTierSetup);
+    end;
+
+    [Scope('OnPrem')]
+    procedure GetExperienceTierCurrentCompany(var ExperienceTier: Text): Boolean
+    var
+        TempExperienceTierBuffer: Record "Experience Tier Buffer" temporary;
+    begin
+        Clear(ExperienceTier);
+        GetExperienceTierBuffer(TempExperienceTierBuffer);
+        TempExperienceTierBuffer.SetRange(Selected, true);
+        if TempExperienceTierBuffer.FindFirst then
+            ExperienceTier := TempExperienceTierBuffer."Experience Tier";
+        exit(ExperienceTier <> '');
+    end;
+
+    local procedure SetExperienceTier(CompanyName: Text; ExperienceTierSetup: Record "Experience Tier Setup")
+    var
+        ApplicationAreaSetup: Record "Application Area Setup";
+        TempApplicationAreaSetup: Record "Application Area Setup" temporary;
+        ApplicationAreasSet: Boolean;
+    begin
+        if ExperienceTierSetup.Custom then
+            Error(ValuesNotAllowedErr);
+
+        if not GetApplicationAreaSetupRecFromCompany(ApplicationAreaSetup, CompanyName) then begin
+            ApplicationAreaSetup."Company Name" := CopyStr(CompanyName, 1, StrLen(CompanyName));
+            ApplicationAreaSetup.Insert;
+        end;
+
+        case true of
+            ExperienceTierSetup.Basic:
+                GetBasicExperienceAppAreas(TempApplicationAreaSetup);
+            ExperienceTierSetup.Essential:
+                GetEssentialExperienceAppAreas(TempApplicationAreaSetup);
+            ExperienceTierSetup.Premium:
+                GetPremiumExperienceAppAreas(TempApplicationAreaSetup);
+            ExperienceTierSetup.Invoicing:
+                begin
+                    TempApplicationAreaSetup.Init;
+                    TempApplicationAreaSetup.Invoicing := true;
+                end;
+            else begin
+                    OnSetExperienceTier(ExperienceTierSetup, TempApplicationAreaSetup, ApplicationAreasSet);
+                    if not ApplicationAreasSet then
+                        exit;
+                end;
+        end;
+
+        if not ValidateApplicationAreasSet(ExperienceTierSetup, TempApplicationAreaSetup) then begin
+            if HideApplicationAreaError then
+                exit;
+            Error(GetLastErrorText);
+        end;
+
+        ApplicationAreaSetup.TransferFields(TempApplicationAreaSetup, false);
+        ApplicationAreaSetup.Modify;
+        SetupApplicationArea;
+    end;
+
+    [Scope('OnPrem')]
+    procedure SetExperienceTierCurrentCompany(ExperienceTierSetup: Record "Experience Tier Setup")
+    begin
+        SetExperienceTier(CompanyName, ExperienceTierSetup);
+    end;
+
+    [Scope('OnPrem')]
+    procedure SetExperienceTierOtherCompany(ExperienceTierSetup: Record "Experience Tier Setup"; CompanyName: Text)
+    begin
+        SetExperienceTier(CompanyName, ExperienceTierSetup);
+    end;
+
+    local procedure ApplicationAreaSetupsMatch(ApplicationAreaSetup: Record "Application Area Setup"; TempApplicationAreaSetup: Record "Application Area Setup" temporary; CheckBaseOnly: Boolean): Boolean
+    var
+        RecRef: RecordRef;
+        RecRef2: RecordRef;
+        FieldRef: FieldRef;
+        FieldRef2: FieldRef;
+        FieldIndex: Integer;
+    begin
+        RecRef.GetTable(ApplicationAreaSetup);
+        RecRef2.GetTable(TempApplicationAreaSetup);
+
+        for FieldIndex := 1 to RecRef.FieldCount do begin
+            FieldRef := RecRef.FieldIndex(FieldIndex);
+            if CheckBaseOnly and (FieldRef.Number >= 49999) then
+                exit(true);
+            FieldRef2 := RecRef2.FieldIndex(FieldIndex);
+            if not IsInPrimaryKey(FieldRef) then
+                if not (FieldRef.Value = FieldRef2.Value) then
+                    exit(false);
+        end;
+        exit(true);
+    end;
+
+    [Scope('OnPrem')]
+    procedure IsBasicExperienceEnabled(): Boolean
+    var
+        ApplicationAreaSetup: Record "Application Area Setup";
+        TempApplicationAreaSetup: Record "Application Area Setup" temporary;
+    begin
+        if not GetApplicationAreaSetupRecFromCompany(ApplicationAreaSetup, CompanyName) then
+            exit(false);
+
+        GetBasicExperienceAppAreas(TempApplicationAreaSetup);
+
+        exit(ApplicationAreaSetupsMatch(ApplicationAreaSetup, TempApplicationAreaSetup, false));
+    end;
+
+    [Scope('OnPrem')]
+    procedure IsEssentialExperienceEnabled(): Boolean
+    var
+        ApplicationAreaSetup: Record "Application Area Setup";
+        TempApplicationAreaSetup: Record "Application Area Setup" temporary;
+    begin
+        if not GetApplicationAreaSetupRecFromCompany(ApplicationAreaSetup, CompanyName) then
+            exit(false);
+
+        GetEssentialExperienceAppAreas(TempApplicationAreaSetup);
+
+        exit(ApplicationAreaSetupsMatch(ApplicationAreaSetup, TempApplicationAreaSetup, false));
+    end;
+
+    [Scope('OnPrem')]
+    procedure IsPremiumExperienceEnabled(): Boolean
+    var
+        ApplicationAreaSetup: Record "Application Area Setup";
+        TempApplicationAreaSetup: Record "Application Area Setup" temporary;
+    begin
+        if not GetApplicationAreaSetupRecFromCompany(ApplicationAreaSetup, CompanyName) then
+            exit(false);
+
+        GetPremiumExperienceAppAreas(TempApplicationAreaSetup);
+
+        exit(ApplicationAreaSetupsMatch(ApplicationAreaSetup, TempApplicationAreaSetup, false));
+    end;
+
+    [Scope('OnPrem')]
+    procedure IsCustomExperienceEnabled(): Boolean
+    var
+        IsPreDefinedExperience: Boolean;
+    begin
+        IsPreDefinedExperience :=
+          IsBasicExperienceEnabled or IsEssentialExperienceEnabled or IsPremiumExperienceEnabled or
+          IsAdvancedExperienceEnabled or IsInvoicingOnlyEnabled;
+
+        exit(not IsPreDefinedExperience);
+    end;
+
+    [Scope('OnPrem')]
+    procedure IsAdvancedExperienceEnabled(): Boolean
+    var
+        ApplicationAreaSetup: Record "Application Area Setup";
+        TempApplicationAreaSetup: Record "Application Area Setup" temporary;
+        EnvironmentInfo: Codeunit "Environment Information";
+    begin
+        if EnvironmentInfo.IsSandbox then
+            exit(true);
+
+        if not GetApplicationAreaSetupRecFromCompany(ApplicationAreaSetup, CompanyName) then
+            exit(true);
+
+        exit(ApplicationAreaSetupsMatch(ApplicationAreaSetup, TempApplicationAreaSetup, false));
+    end;
+
+    local procedure GetBasicExperienceAppAreas(var TempApplicationAreaSetup: Record "Application Area Setup" temporary)
+    begin
+        TempApplicationAreaSetup.Basic := true;
+        TempApplicationAreaSetup.VAT := true;
+        TempApplicationAreaSetup."Basic EU" := true;
+        TempApplicationAreaSetup."Relationship Mgmt" := true;
+        TempApplicationAreaSetup."Record Links" := true;
+        TempApplicationAreaSetup.Notes := true;
+
+        OnGetBasicExperienceAppAreas(TempApplicationAreaSetup);
+    end;
+
+    local procedure GetEssentialExperienceAppAreas(var TempApplicationAreaSetup: Record "Application Area Setup" temporary)
+    begin
+        GetBasicExperienceAppAreas(TempApplicationAreaSetup);
+        TempApplicationAreaSetup.Suite := true;
+        TempApplicationAreaSetup.Jobs := true;
+        TempApplicationAreaSetup."Fixed Assets" := true;
+        TempApplicationAreaSetup.Location := true;
+        TempApplicationAreaSetup.BasicHR := true;
+        TempApplicationAreaSetup.Assembly := true;
+        TempApplicationAreaSetup."Item Charges" := true;
+        TempApplicationAreaSetup.Intercompany := true;
+        TempApplicationAreaSetup."Sales Return Order" := true;
+        TempApplicationAreaSetup."Purch Return Order" := true;
+        TempApplicationAreaSetup.Prepayments := true;
+        TempApplicationAreaSetup."Cost Accounting" := true;
+        TempApplicationAreaSetup."Sales Budget" := true;
+        TempApplicationAreaSetup."Purchase Budget" := true;
+        TempApplicationAreaSetup."Item Budget" := true;
+        TempApplicationAreaSetup."Sales Analysis" := true;
+        TempApplicationAreaSetup."Purchase Analysis" := true;
+        TempApplicationAreaSetup."Inventory Analysis" := true;
+        TempApplicationAreaSetup."Item Tracking" := true;
+        TempApplicationAreaSetup.Warehouse := true;
+        TempApplicationAreaSetup.XBRL := true;
+        TempApplicationAreaSetup."Order Promising" := true;
+        TempApplicationAreaSetup.Reservation := true;
+        TempApplicationAreaSetup.Dimensions := true;
+        TempApplicationAreaSetup.ADCS := true;
+        TempApplicationAreaSetup.Planning := true;
+        TempApplicationAreaSetup.Comments := true;
+
+        OnGetEssentialExperienceAppAreas(TempApplicationAreaSetup);
+    end;
+
+    local procedure GetPremiumExperienceAppAreas(var TempApplicationAreaSetup: Record "Application Area Setup" temporary)
+    begin
+        GetEssentialExperienceAppAreas(TempApplicationAreaSetup);
+        TempApplicationAreaSetup.Service := true;
+        TempApplicationAreaSetup.Manufacturing := true;
+
+        OnGetPremiumExperienceAppAreas(TempApplicationAreaSetup);
+    end;
+
+    [TryFunction]
+    local procedure ValidateApplicationAreasSet(ExperienceTierSetup: Record "Experience Tier Setup"; TempApplicationAreaSetup: Record "Application Area Setup" temporary)
+    var
+        TempApplicationAreaSetup2: Record "Application Area Setup" temporary;
+    begin
+        if TempApplicationAreaSetup.Invoicing then begin
+            TempApplicationAreaSetup2.Invoicing := true;
+            if not ApplicationAreaSetupsMatch(TempApplicationAreaSetup, TempApplicationAreaSetup2, false) then
+                Error(InvoicingExpTierErr);
+        end else
+            TempApplicationAreaSetup.TestField(Basic, true);
+
+        OnValidateApplicationAreas(ExperienceTierSetup, TempApplicationAreaSetup);
+    end;
+
+    [IntegrationEvent(FALSE, FALSE)]
+    local procedure OnGetBasicExperienceAppAreas(var TempApplicationAreaSetup: Record "Application Area Setup" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(FALSE, FALSE)]
+    local procedure OnGetEssentialExperienceAppAreas(var TempApplicationAreaSetup: Record "Application Area Setup" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(FALSE, FALSE)]
+    local procedure OnGetPremiumExperienceAppAreas(var TempApplicationAreaSetup: Record "Application Area Setup" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupExperienceTier(var TempExperienceTierBuffer: Record "Experience Tier Buffer" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnIsBasicCountryEnabled(CountryCode: Code[10]; var IsEnabled: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetExperienceTier(ExperienceTierSetup: Record "Experience Tier Setup"; var TempApplicationAreaSetup: Record "Application Area Setup" temporary; var ApplicationAreasSet: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateApplicationAreas(ExperienceTierSetup: Record "Experience Tier Setup"; TempApplicationAreaSetup: Record "Application Area Setup" temporary)
+    begin
+    end;
+
+    [Scope('OnPrem')]
+    procedure SetHideApplicationAreaError(NewHideApplicationAreaError: Boolean)
+    begin
+        HideApplicationAreaError := NewHideApplicationAreaError;
+    end;
+}
+

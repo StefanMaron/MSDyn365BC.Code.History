@@ -1,0 +1,2979 @@
+codeunit 137047 "SCM Warehouse I"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    trigger OnRun()
+    begin
+        // [FEATURE] [Warehouse] [SCM]
+        isInitialized := false;
+    end;
+
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        Assert: Codeunit Assert;
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryDimension: Codeunit "Library - Dimension";
+        LibraryPurchase: Codeunit "Library - Purchase";
+        LibrarySales: Codeunit "Library - Sales";
+        LibraryWarehouse: Codeunit "Library - Warehouse";
+        LibraryInventory: Codeunit "Library - Inventory";
+        LibraryItemTracking: Codeunit "Library - Item Tracking";
+        LibraryPlanning: Codeunit "Library - Planning";
+        LibraryUtility: Codeunit "Library - Utility";
+        LibraryRandom: Codeunit "Library - Random";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        isInitialized: Boolean;
+        ErrInvalidDimensionTransfer: Label 'The dimensions that are used in transfer order %1, line no. %2 are not valid.';
+        ErrItemBlocked: Label 'Blocked must be equal to ''No''  in Item: No.=%1.';
+        ErrNoRecord: Label 'There must not be any record within the filter. ';
+        EmptyTableErr: Label 'There must be %1 records in %2 within the filter %3.';
+        SortingOrderErr: Label 'Wrong sorting order in %1';
+        NoWhseReceiptLinesCreatedErr: Label 'There are no Warehouse Receipt Lines created.';
+        NoWhseShipmentLinesCreatedErr: Label 'There are no Warehouse Shipment Lines created.';
+        CannotReclassifyLocationErr: Label 'You cannot reclassify location %1 because it is set up with Directed Put-away and Pick';
+        CannotUseLocationErr: Label 'You cannot use a %1 because %2 %3 is set up with %4';
+        ShipmentDateMustNotChangeErr: Label 'Shipment Date must not be changed when a Warehouse Shipment Line for this Sales Line exists';
+        OrderToOrderBindingOnSalesLineQst: Label 'Registering the pick will remove the existing order-to-order reservation for the sales order.\Do you want to continue?';
+        RegisterInterruptedErr: Label 'The action has been interrupted to respect the warning.';
+        WrongMessageTextErr: Label 'Serial No must be avaliable.';
+        SelectDimForCVErr: Label 'Select a Dimension Value Code for the Dimension Code AREA for %1 %2.';
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ShowPostingErrorSalesOrder()
+    var
+        WarehouseSetup: Record "Warehouse Setup";
+        Location: Record Location;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesHeader2: Record "Sales Header";
+        Customer: Record Customer;
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+    begin
+        // Setup: Create setups, Item and Customer with Dimensions.
+        Initialize;
+        WarehouseSetup.Get;
+        UpdateWarehouseSetup(
+          WarehouseSetup."Shipment Posting Policy"::"Stop and show the first posting error",
+          WarehouseSetup."Receipt Posting Policy"::"Posting errors are not processed");
+        CreateItem(Item);
+        CreateLocationSetup(Location, false, true, true);
+        UpdateItemInventory(Item."No.", Location.Code);
+        CreateCustomer(Customer, Location.Code);
+
+        // Create Sales Order Setup. Create Warehouse Shipment using Filters to get Source document.
+        CreateSalesSetup(SalesHeader, SalesHeader2, SalesHeader."Document Type"::Order, Item."No.", Location.Code, Customer."No.");
+        UseFiltersToGetSrcDocShipment(WarehouseShipmentHeader, Customer."No.", '', Location.Code, '');
+
+        // Exercise: Post Warehouse Shipment.
+        asserterror LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
+
+        // Verify: Error Message - Dimensions are invalid.
+        Assert.ExpectedError(StrSubstNo(SelectDimForCVErr, Customer.TableCaption, Customer."No."));
+
+        // Verify that correct shipment line has been posted.
+        VerifyPostedShipmentLinesSales(WarehouseShipmentHeader."No.", Item."No.", SalesHeader."No.");
+
+        // Teardown.
+        UpdateWarehouseSetup(WarehouseSetup."Shipment Posting Policy", WarehouseSetup."Receipt Posting Policy");
+    end;
+
+    [Test]
+    [HandlerFunctions('StringMenuHandler,ShipLinesMessageHandler')]
+    [Scope('OnPrem')]
+    procedure ErrorNotProcessedSalesOrder()
+    var
+        WarehouseSetup: Record "Warehouse Setup";
+        Location: Record Location;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesHeader2: Record "Sales Header";
+        Customer: Record Customer;
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+    begin
+        // Setup: Create setups, Item and Customer with Dimensions.
+        Initialize;
+        WarehouseSetup.Get;
+        UpdateWarehouseSetup(
+          WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
+          WarehouseSetup."Receipt Posting Policy"::"Posting errors are not processed");
+        CreateItem(Item);
+        CreateLocationSetup(Location, false, true, true);
+        UpdateItemInventory(Item."No.", Location.Code);
+        CreateCustomer(Customer, Location.Code);
+
+        // Create Sales Order Setup. Create Warehouse Shipment using Filters to get Source document.
+        CreateSalesSetup(SalesHeader, SalesHeader2, SalesHeader."Document Type"::Order, Item."No.", Location.Code, Customer."No.");
+        UseFiltersToGetSrcDocShipment(WarehouseShipmentHeader, Customer."No.", '', Location.Code, '');
+
+        // Exercise: Post Warehouse Shipment such that it generates the posting confirmation message.
+        LibraryWarehouse.PostWhseShptWithShipInvoiceMsg(WarehouseShipmentHeader."No.");
+
+        // Verify: Check message inside Handler and verify that correct shipment line has been posted.
+        VerifyPostedShipmentLinesSales(WarehouseShipmentHeader."No.", Item."No.", SalesHeader."No.");
+
+        // Teardown.
+        UpdateWarehouseSetup(WarehouseSetup."Shipment Posting Policy", WarehouseSetup."Receipt Posting Policy");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ShowPostingErrorPurchRetOrder()
+    var
+        WarehouseSetup: Record "Warehouse Setup";
+        Location: Record Location;
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseHeader2: Record "Purchase Header";
+        Vendor: Record Vendor;
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+    begin
+        // Setup: Create setups, Item and Vendor with Dimensions.
+        Initialize;
+        WarehouseSetup.Get;
+        UpdateWarehouseSetup(
+          WarehouseSetup."Shipment Posting Policy"::"Stop and show the first posting error",
+          WarehouseSetup."Receipt Posting Policy"::"Posting errors are not processed");
+        CreateItem(Item);
+        CreateLocationSetup(Location, false, true, true);
+        UpdateItemInventory(Item."No.", Location.Code);
+        CreateVendor(Vendor, Location.Code);
+
+        // Create Purchase Return Order setup. Create Warehouse Shipment using Filters to get Source document.
+        // False - Purchase Return Shipment.
+        CreatePurchaseSetup(
+          PurchaseHeader, PurchaseHeader2, PurchaseHeader."Document Type"::"Return Order", Item."No.", Location.Code, Vendor."No.");
+        UseFiltersToGetSrcDocShipment(WarehouseShipmentHeader, '', Vendor."No.", Location.Code, '');
+
+        // Exercise: Post Warehouse Shipment.
+        asserterror LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
+
+        // Verify: Error Message - Dimensions are invalid.
+        Assert.ExpectedError(StrSubstNo(SelectDimForCVErr, Vendor.TableCaption, Vendor."No."));
+
+        // Verify that correct shipment line has been posted.
+        VerifyPostedShipmentLinesPurch(WarehouseShipmentHeader."No.", Item."No.", PurchaseHeader."No.");
+
+        // Teardown.
+        UpdateWarehouseSetup(WarehouseSetup."Shipment Posting Policy", WarehouseSetup."Receipt Posting Policy");
+    end;
+
+    [Test]
+    [HandlerFunctions('StringMenuHandler,ShipLinesMessageHandler')]
+    [Scope('OnPrem')]
+    procedure ErrorNotProcessedPurchRetOrder()
+    var
+        WarehouseSetup: Record "Warehouse Setup";
+        Location: Record Location;
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseHeader2: Record "Purchase Header";
+        Vendor: Record Vendor;
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+    begin
+        // Setup: Create setups, Item and Vendor with Dimensions.
+        Initialize;
+        WarehouseSetup.Get;
+        UpdateWarehouseSetup(
+          WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
+          WarehouseSetup."Receipt Posting Policy"::"Posting errors are not processed");
+        CreateItem(Item);
+        CreateLocationSetup(Location, false, true, true);
+        UpdateItemInventory(Item."No.", Location.Code);
+        CreateVendor(Vendor, Location.Code);
+
+        // Create Purchase Return Order setup. Create Warehouse Shipment using Filters to get Source document.
+        CreatePurchaseSetup(
+          PurchaseHeader, PurchaseHeader2, PurchaseHeader."Document Type"::"Return Order", Item."No.", Location.Code, Vendor."No.");
+        UseFiltersToGetSrcDocShipment(WarehouseShipmentHeader, '', Vendor."No.", Location.Code, '');
+
+        // Exercise: Post Warehouse Shipment such that it generates the posting confirmation message.
+        LibraryWarehouse.PostWhseShptWithShipInvoiceMsg(WarehouseShipmentHeader."No.");
+
+        // Verify: Check message inside Handler and Verify that correct shipment line has been posted.
+        VerifyPostedShipmentLinesPurch(WarehouseShipmentHeader."No.", Item."No.", PurchaseHeader."No.");
+
+        // Teardown.
+        UpdateWarehouseSetup(WarehouseSetup."Shipment Posting Policy", WarehouseSetup."Receipt Posting Policy");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ShowPostingErrorTransferOrder()
+    var
+        WarehouseSetup: Record "Warehouse Setup";
+        LocationFrom: Record Location;
+        LocationTo: Record Location;
+        LocationInTransit: Record Location;
+        Item: Record Item;
+        TransferHeader: Record "Transfer Header";
+        TransferHeader2: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+    begin
+        // Setup: Create setups, Item and Transfer Locations.
+        Initialize;
+        WarehouseSetup.Get;
+        UpdateWarehouseSetup(
+          WarehouseSetup."Shipment Posting Policy"::"Stop and show the first posting error",
+          WarehouseSetup."Receipt Posting Policy"::"Posting errors are not processed");
+        CreateItem(Item);
+        CreateTransferLocations(LocationFrom, LocationTo, LocationInTransit);
+        UpdateItemInventory(Item."No.", LocationFrom.Code);
+
+        // Create Transfer Order setup. Create Warehouse Shipment using Filters to get Source document.
+        CreateTransferOrderSetup(
+          TransferHeader, TransferHeader2, Item."No.", LocationFrom.Code, LocationTo.Code, LocationInTransit.Code);
+        UseFiltersToGetSrcDocShipment(WarehouseShipmentHeader, '', '', LocationFrom.Code, LocationTo.Code);
+
+        // Exercise: Post Warehouse Shipment.
+        asserterror LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
+
+        // Verify: Error Message - Dimensions are invalid.
+        TransferLine.SetRange("Document No.", TransferHeader2."No.");
+        TransferLine.FindFirst;
+        Assert.ExpectedError(StrSubstNo(ErrInvalidDimensionTransfer, TransferHeader2."No.", TransferLine."Line No."));
+
+        // Verify that correct shipment line has been posted.
+        VerifyPostedShipmentLinesTrans(WarehouseShipmentHeader."No.", Item."No.", TransferHeader."No.");
+
+        // Teardown.
+        UpdateWarehouseSetup(WarehouseSetup."Shipment Posting Policy", WarehouseSetup."Receipt Posting Policy");
+    end;
+
+    [Test]
+    [HandlerFunctions('StringMenuHandler,ShipLinesMessageHandler')]
+    [Scope('OnPrem')]
+    procedure ErrorNotProcessedTransferOrder()
+    var
+        WarehouseSetup: Record "Warehouse Setup";
+        LocationFrom: Record Location;
+        LocationTo: Record Location;
+        LocationInTransit: Record Location;
+        Item: Record Item;
+        TransferHeader: Record "Transfer Header";
+        TransferHeader2: Record "Transfer Header";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+    begin
+        // Setup: Create setups, Item and Transfer Locations.
+        Initialize;
+        WarehouseSetup.Get;
+        UpdateWarehouseSetup(
+          WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
+          WarehouseSetup."Receipt Posting Policy"::"Posting errors are not processed");
+        CreateItem(Item);
+        CreateTransferLocations(LocationFrom, LocationTo, LocationInTransit);
+        UpdateItemInventory(Item."No.", LocationFrom.Code);
+
+        // Create Transfer Order Setup. Create Warehouse Shipment using Filters to get Source document.
+        CreateTransferOrderSetup(
+          TransferHeader, TransferHeader2, Item."No.", LocationFrom.Code, LocationTo.Code, LocationInTransit.Code);
+        UseFiltersToGetSrcDocShipment(WarehouseShipmentHeader, '', '', LocationFrom.Code, LocationTo.Code);
+
+        // Exercise: Post Warehouse Shipment such that it generates the posting confirmation message.
+        LibraryWarehouse.PostWhseShptWithShipInvoiceMsg(WarehouseShipmentHeader."No.");
+
+        // Verify: Check message inside Handler and verify that correct shipment line has been posted.
+        VerifyPostedShipmentLinesTrans(WarehouseShipmentHeader."No.", Item."No.", TransferHeader."No.");
+
+        // Teardown.
+        UpdateWarehouseSetup(WarehouseSetup."Shipment Posting Policy", WarehouseSetup."Receipt Posting Policy");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ShowPostingErrorSalesRetOrder()
+    var
+        WarehouseSetup: Record "Warehouse Setup";
+        Location: Record Location;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesHeader2: Record "Sales Header";
+        Customer: Record Customer;
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+    begin
+        // Setup: Create setups, Item and Customer with Dimensions.
+        Initialize;
+        WarehouseSetup.Get;
+        UpdateWarehouseSetup(
+          WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
+          WarehouseSetup."Receipt Posting Policy"::"Stop and show the first posting error");
+        CreateItem(Item);
+        CreateLocationSetup(Location, false, true, true);
+        UpdateItemInventory(Item."No.", Location.Code);
+        CreateCustomer(Customer, Location.Code);
+
+        // Create Sales Return Order setup. Create Warehouse Receipt using Filters to get Source document.
+        CreateSalesSetup(
+          SalesHeader, SalesHeader2, SalesHeader."Document Type"::"Return Order", Item."No.", Location.Code, Customer."No.");
+        UseFiltersToGetSrcDocReceipt(WarehouseReceiptHeader, Customer."No.", '', Location.Code);
+
+        // Exercise: Post Warehouse Receipt.
+        asserterror LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
+
+        // Verify: Error Message - Dimensions are invalid.
+        Assert.ExpectedError(StrSubstNo(SelectDimForCVErr, Customer.TableCaption, Customer."No."));
+
+        // Verify that correct receipt line has been posted.
+        VerifyPostedReceiptLinesSales(WarehouseReceiptHeader."No.", Item."No.", SalesHeader."No.");
+
+        // Teardown.
+        UpdateWarehouseSetup(WarehouseSetup."Shipment Posting Policy", WarehouseSetup."Receipt Posting Policy");
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,SourceDocMessageHandler')]
+    [Scope('OnPrem')]
+    procedure ErrorNotProcessedSalesRetOrder()
+    var
+        WarehouseSetup: Record "Warehouse Setup";
+        Location: Record Location;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesHeader2: Record "Sales Header";
+        Customer: Record Customer;
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+    begin
+        // Setup: Create setups, Item and Customer with Dimensions.
+        Initialize;
+        WarehouseSetup.Get;
+        UpdateWarehouseSetup(
+          WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
+          WarehouseSetup."Receipt Posting Policy"::"Posting errors are not processed");
+        CreateItem(Item);
+        CreateLocationSetup(Location, false, true, true);
+        UpdateItemInventory(Item."No.", Location.Code);
+        CreateCustomer(Customer, Location.Code);
+
+        // Create Sales Return Order setup. Create Warehouse Receipt using Filters to get Source document.
+        CreateSalesSetup(
+          SalesHeader, SalesHeader2, SalesHeader."Document Type"::"Return Order", Item."No.", Location.Code, Customer."No.");
+        UseFiltersToGetSrcDocReceipt(WarehouseReceiptHeader, Customer."No.", '', Location.Code);
+
+        // Exercise: Post Warehouse Receipt such that it generates the posting confirmation message.
+        LibraryWarehouse.PostWhseRcptWithConfirmMsg(WarehouseReceiptHeader."No.");
+
+        // Verify: Check message inside Handler and verify that correct receipt line has been posted.
+        VerifyPostedReceiptLinesSales(WarehouseReceiptHeader."No.", Item."No.", SalesHeader."No.");
+
+        // Teardown.
+        UpdateWarehouseSetup(WarehouseSetup."Shipment Posting Policy", WarehouseSetup."Receipt Posting Policy");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ShowPostingErrorPurchaseOrder()
+    var
+        WarehouseSetup: Record "Warehouse Setup";
+        Location: Record Location;
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseHeader2: Record "Purchase Header";
+        Vendor: Record Vendor;
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+    begin
+        // Setup: Create setups, Item and Vendor with Dimensions.
+        Initialize;
+        WarehouseSetup.Get;
+        UpdateWarehouseSetup(
+          WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
+          WarehouseSetup."Receipt Posting Policy"::"Stop and show the first posting error");
+        CreateItem(Item);
+        CreateLocationSetup(Location, false, true, true);
+        UpdateItemInventory(Item."No.", Location.Code);
+        CreateVendor(Vendor, Location.Code);
+
+        // Create Purchase Order setup. Create Warehouse Receipt using Filters to get Source document.
+        CreatePurchaseSetup(
+          PurchaseHeader, PurchaseHeader2, PurchaseHeader."Document Type"::Order, Item."No.", Location.Code, Vendor."No.");
+        UseFiltersToGetSrcDocReceipt(WarehouseReceiptHeader, '', Vendor."No.", Location.Code);
+
+        // Exercise: Post Warehouse Receipt.
+        asserterror LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
+
+        // Verify: Error Message - Dimensions are invalid.
+        Assert.ExpectedError(StrSubstNo(SelectDimForCVErr, Vendor.TableCaption, Vendor."No."));
+
+        // Verify that correct receipt line has been posted.
+        VerifyPostedReceiptLinesPurch(WarehouseReceiptHeader."No.", Item."No.", PurchaseHeader."No.");
+
+        // Teardown.
+        UpdateWarehouseSetup(WarehouseSetup."Shipment Posting Policy", WarehouseSetup."Receipt Posting Policy");
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,SourceDocMessageHandler')]
+    [Scope('OnPrem')]
+    procedure ErrorNotProcessedPurchaseOrder()
+    var
+        WarehouseSetup: Record "Warehouse Setup";
+        Location: Record Location;
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseHeader2: Record "Purchase Header";
+        Vendor: Record Vendor;
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+    begin
+        // Setup: Create setups, Item and Vendor with Dimensions.
+        Initialize;
+        WarehouseSetup.Get;
+        UpdateWarehouseSetup(
+          WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
+          WarehouseSetup."Receipt Posting Policy"::"Posting errors are not processed");
+        CreateItem(Item);
+        CreateLocationSetup(Location, false, true, true);
+        UpdateItemInventory(Item."No.", Location.Code);
+        CreateVendor(Vendor, Location.Code);
+
+        // Create Purchase Order setup. Create Warehouse Receipt using Filters to get Source document.
+        CreatePurchaseSetup(
+          PurchaseHeader, PurchaseHeader2, PurchaseHeader."Document Type"::Order, Item."No.", Location.Code, Vendor."No.");
+        UseFiltersToGetSrcDocReceipt(WarehouseReceiptHeader, '', Vendor."No.", Location.Code);
+
+        // Exercise: Post Warehouse Receipt such that it generates the posting confirmation message.
+        LibraryWarehouse.PostWhseRcptWithConfirmMsg(WarehouseReceiptHeader."No.");
+
+        // Verify: Check message inside Handler and verify that correct receipt line has been posted.
+        VerifyPostedReceiptLinesPurch(WarehouseReceiptHeader."No.", Item."No.", PurchaseHeader."No.");
+
+        // Teardown.
+        UpdateWarehouseSetup(WarehouseSetup."Shipment Posting Policy", WarehouseSetup."Receipt Posting Policy");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ShowErrorSalesOrderBlocked()
+    var
+        WarehouseSetup: Record "Warehouse Setup";
+        Location: Record Location;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        Customer: Record Customer;
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+    begin
+        // Setup: Create setups, Item, Customer with Dimensions.
+        Initialize;
+        WarehouseSetup.Get;
+        UpdateWarehouseSetup(
+          WarehouseSetup."Shipment Posting Policy"::"Stop and show the first posting error",
+          WarehouseSetup."Receipt Posting Policy"::"Posting errors are not processed");
+        CreateItem(Item);
+        CreateLocationSetup(Location, false, true, true);
+        CreateCustomer(Customer, Location.Code);
+
+        // Create Sales Order. Create Warehouse Shipment using Filters to get Source document.
+        CreateAndReleaseSalesDocument(SalesHeader, SalesHeader."Document Type"::Order, Item."No.", Location.Code, Customer."No.", true);
+        UseFiltersToGetSrcDocShipment(WarehouseShipmentHeader, Customer."No.", '', Location.Code, '');
+        BlockItemForPosting(Item."No.", true);
+
+        // Exercise: Post Warehouse Shipment.
+        asserterror LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
+
+        // Verify: Error Message - Blocked must be 'No' in Item.
+        Assert.ExpectedError(StrSubstNo(ErrItemBlocked, Item."No."));
+
+        // Teardown.
+        UpdateWarehouseSetup(WarehouseSetup."Shipment Posting Policy", WarehouseSetup."Receipt Posting Policy");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ShowErrorPurchReturnBlocked()
+    var
+        WarehouseSetup: Record "Warehouse Setup";
+        Location: Record Location;
+        Item: Record Item;
+        Item2: Record Item;
+        SalesHeader: Record "Sales Header";
+        Customer: Record Customer;
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // Setup: Create setups, Item, Customer and Vendor with Dimensions.
+        Initialize;
+        WarehouseSetup.Get;
+        UpdateWarehouseSetup(
+          WarehouseSetup."Shipment Posting Policy"::"Stop and show the first posting error",
+          WarehouseSetup."Receipt Posting Policy"::"Posting errors are not processed");
+        CreateItem(Item);
+        CreateItem(Item2);
+        CreateLocationSetup(Location, false, true, true);
+        CreateCustomer(Customer, Location.Code);
+        CreateVendor(Vendor, Location.Code);
+
+        // Create Sales Order and Purchase Return Order. Create Warehouse Shipment using Filters to get Source document.
+        CreateAndReleaseSalesDocument(SalesHeader, SalesHeader."Document Type"::Order, Item."No.", Location.Code, Customer."No.", true);
+        CreateAndReleasePurchDocument(
+          PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", Item2."No.", Location.Code, Vendor."No.", true);
+        UseFiltersToGetSrcDocShipment(WarehouseShipmentHeader, Customer."No.", Vendor."No.", Location.Code, '');
+        BlockItemForPosting(Item2."No.", true);
+
+        // Exercise: Post Warehouse Shipment.
+        asserterror LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
+
+        // Verify: Error Message - Blocked must be 'No' in Item, and posted Sales shipment.
+        Assert.ExpectedError(StrSubstNo(ErrItemBlocked, Item2."No."));
+        VerifyPostedShipmentLinesSales(WarehouseShipmentHeader."No.", Item."No.", SalesHeader."No.");
+
+        // Teardown.
+        UpdateWarehouseSetup(WarehouseSetup."Shipment Posting Policy", WarehouseSetup."Receipt Posting Policy");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ShowErrorSalesPurchRetBlocked()
+    var
+        WarehouseSetup: Record "Warehouse Setup";
+        Location: Record Location;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        Customer: Record Customer;
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PostedWhseShipmentLine: Record "Posted Whse. Shipment Line";
+    begin
+        // Setup: Create setups, Item, Customer, and Vendor with Dimensions.
+        Initialize;
+        WarehouseSetup.Get;
+        UpdateWarehouseSetup(
+          WarehouseSetup."Shipment Posting Policy"::"Stop and show the first posting error",
+          WarehouseSetup."Receipt Posting Policy"::"Posting errors are not processed");
+        CreateItem(Item);
+        CreateLocationSetup(Location, false, true, true);
+        CreateCustomer(Customer, Location.Code);
+        CreateVendor(Vendor, Location.Code);
+
+        // Create Sales Order and Purchase Return Order. Create Warehouse Shipment using Filters to get Source document.
+        CreateAndReleaseSalesDocument(SalesHeader, SalesHeader."Document Type"::Order, Item."No.", Location.Code, Customer."No.", true);
+        CreateAndReleasePurchDocument(
+          PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", Item."No.", Location.Code, Vendor."No.", true);
+        UseFiltersToGetSrcDocShipment(WarehouseShipmentHeader, Customer."No.", Vendor."No.", Location.Code, '');
+        BlockItemForPosting(Item."No.", true);
+
+        // Exercise: Post Warehouse Shipment.
+        asserterror LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
+
+        // Verify: Error Message - Blocked must be 'No' in Item, and posted entries.
+        Assert.ExpectedError(StrSubstNo(ErrItemBlocked, Item."No."));
+
+        // Verify: Verify nothing is posted.
+        PostedWhseShipmentLine.SetFilter("Whse. Shipment No.", '%1', WarehouseShipmentHeader."No.");
+        Assert.AreEqual(0, PostedWhseShipmentLine.Count, ErrNoRecord);
+
+        // Teardown.
+        UpdateWarehouseSetup(WarehouseSetup."Shipment Posting Policy", WarehouseSetup."Receipt Posting Policy");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ShowErrorAndUnblockAllShipment()
+    var
+        WarehouseSetup: Record "Warehouse Setup";
+        LocationFrom: Record Location;
+        LocationTo: Record Location;
+        LocationInTransit: Record Location;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        Customer: Record Customer;
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        TransferHeader: Record "Transfer Header";
+    begin
+        // Setup: Create setups, Item, Customer and Vendor with Dimensions.
+        Initialize;
+        WarehouseSetup.Get;
+        UpdateWarehouseSetup(
+          WarehouseSetup."Shipment Posting Policy"::"Stop and show the first posting error",
+          WarehouseSetup."Receipt Posting Policy"::"Posting errors are not processed");
+        CreateItem(Item);
+        CreateTransferLocations(LocationFrom, LocationTo, LocationInTransit);
+        UpdateItemInventory(Item."No.", LocationFrom.Code);
+        CreateCustomer(Customer, LocationFrom.Code);
+        CreateVendor(Vendor, LocationFrom.Code);
+
+        // Create Sales Order, Purchase Return Order, and Transfer Order.
+        // Create Warehouse Shipment using Filters to get Source document.
+        CreateAndReleaseSalesDocument(SalesHeader, SalesHeader."Document Type"::Order, Item."No.", LocationFrom.Code, Customer."No.", true);
+        CreateAndReleasePurchDocument(
+          PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", Item."No.", LocationFrom.Code, Vendor."No.", true);
+        CreateAndReleaseTransferOrder(TransferHeader, Item."No.", LocationFrom.Code, LocationTo.Code, LocationInTransit.Code, true);
+        UseFiltersToGetSrcDocShipment(WarehouseShipmentHeader, Customer."No.", Vendor."No.", LocationFrom.Code, LocationTo.Code);
+        BlockItemForPosting(Item."No.", true);
+
+        // Exercise: Post Warehouse Shipment.
+        asserterror LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
+
+        // Verify: Error Message - Blocked must be 'No' in Item, and posted entries.
+        Assert.ExpectedError(StrSubstNo(ErrItemBlocked, Item."No."));
+
+        // Exercise: Unblock Item and Post successfully.
+        BlockItemForPosting(Item."No.", false);
+        LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
+
+        // Verify: Verify posted shipment lines.
+        VerifyPostedShipmentLinesSales(WarehouseShipmentHeader."No.", Item."No.", SalesHeader."No.");
+        VerifyPostedShipmentLinesPurch(WarehouseShipmentHeader."No.", Item."No.", PurchaseHeader."No.");
+        VerifyPostedShipmentLinesTrans(WarehouseShipmentHeader."No.", Item."No.", TransferHeader."No.");
+
+        // Teardown.
+        UpdateWarehouseSetup(WarehouseSetup."Shipment Posting Policy", WarehouseSetup."Receipt Posting Policy");
+    end;
+
+    [Test]
+    [HandlerFunctions('ShipLinesMessageHandler,StringMenuHandler')]
+    [Scope('OnPrem')]
+    procedure ErrNotProcessPostPurchRetTrans()
+    var
+        WarehouseSetup: Record "Warehouse Setup";
+        SalesHeader: Record "Sales Header";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        PurchaseHeader: Record "Purchase Header";
+        TransferHeader: Record "Transfer Header";
+        Item: Record Item;
+    begin
+        // Setup: Create setups for Sales, Purchase Return and Transfer with Customer, Vendor Dimensions.
+        Initialize;
+        WarehouseSetup.Get;
+        UpdateWarehouseSetup(
+          WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
+          WarehouseSetup."Receipt Posting Policy"::"Posting errors are not processed");
+        ShipmentSalesPurchRetTransfer(
+          WarehouseShipmentHeader, SalesHeader, PurchaseHeader, TransferHeader, Item, false, true, true);  // Remove Dimensions in Sales Order.
+
+        // Exercise: Post Warehouse Shipment.
+        LibraryWarehouse.PostWhseShptWithShipInvoiceMsg(WarehouseShipmentHeader."No.");
+
+        // Verify: Verify posted shipment lines.
+        VerifyPostedShipmentLinesPurch(WarehouseShipmentHeader."No.", Item."No.", PurchaseHeader."No.");  // Purchase Return Order.
+        VerifyPostedShipmentLinesTrans(WarehouseShipmentHeader."No.", Item."No.", TransferHeader."No.");
+
+        // Teardown.
+        UpdateWarehouseSetup(WarehouseSetup."Shipment Posting Policy", WarehouseSetup."Receipt Posting Policy");
+    end;
+
+    [Test]
+    [HandlerFunctions('ShipLinesMessageHandler,StringMenuHandler')]
+    [Scope('OnPrem')]
+    procedure ErrNotProcessPostSalesOrdTrans()
+    var
+        WarehouseSetup: Record "Warehouse Setup";
+        SalesHeader: Record "Sales Header";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        PurchaseHeader: Record "Purchase Header";
+        TransferHeader: Record "Transfer Header";
+        Item: Record Item;
+    begin
+        // Setup: Create setups for Sales, Purchase Return and Transfer with Customer, Vendor Dimensions.
+        Initialize;
+        WarehouseSetup.Get;
+        UpdateWarehouseSetup(
+          WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
+          WarehouseSetup."Receipt Posting Policy"::"Posting errors are not processed");
+        ShipmentSalesPurchRetTransfer(
+          WarehouseShipmentHeader, SalesHeader, PurchaseHeader, TransferHeader, Item, true, false, true);
+        // Remove Dimensions in Purchase Return.
+
+        // Exercise: Post Warehouse Shipment.
+        LibraryWarehouse.PostWhseShptWithShipInvoiceMsg(WarehouseShipmentHeader."No.");
+
+        // Verify: Verify posted shipment lines.
+        VerifyPostedShipmentLinesSales(WarehouseShipmentHeader."No.", Item."No.", SalesHeader."No.");
+        VerifyPostedShipmentLinesTrans(WarehouseShipmentHeader."No.", Item."No.", TransferHeader."No.");
+
+        // Teardown.
+        UpdateWarehouseSetup(WarehouseSetup."Shipment Posting Policy", WarehouseSetup."Receipt Posting Policy");
+    end;
+
+    [Test]
+    [HandlerFunctions('ShipLinesMessageHandler,StringMenuHandler')]
+    [Scope('OnPrem')]
+    procedure ErrNotProcessPostSalesPurchRet()
+    var
+        WarehouseSetup: Record "Warehouse Setup";
+        SalesHeader: Record "Sales Header";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        PurchaseHeader: Record "Purchase Header";
+        TransferHeader: Record "Transfer Header";
+        Item: Record Item;
+    begin
+        // Setup: Create setups for Sales, Purchase Return and Transfer with Customer, Vendor Dimensions.
+        Initialize;
+        WarehouseSetup.Get;
+        UpdateWarehouseSetup(
+          WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
+          WarehouseSetup."Receipt Posting Policy"::"Posting errors are not processed");
+        ShipmentSalesPurchRetTransfer(
+          WarehouseShipmentHeader, SalesHeader, PurchaseHeader, TransferHeader, Item, true, true, false);
+        // Remove Dimensions in Transfer Order.
+
+        // Exercise: Post Warehouse Shipment.
+        LibraryWarehouse.PostWhseShptWithShipInvoiceMsg(WarehouseShipmentHeader."No.");
+
+        // Verify: Verify posted shipment lines.
+        VerifyPostedShipmentLinesSales(WarehouseShipmentHeader."No.", Item."No.", SalesHeader."No.");
+        VerifyPostedShipmentLinesPurch(WarehouseShipmentHeader."No.", Item."No.", PurchaseHeader."No.");  // Purchase Return Order.
+
+        // Teardown.
+        UpdateWarehouseSetup(WarehouseSetup."Shipment Posting Policy", WarehouseSetup."Receipt Posting Policy");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ShowErrorPurchaseOrderBlocked()
+    var
+        WarehouseSetup: Record "Warehouse Setup";
+        Location: Record Location;
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        Vendor: Record Vendor;
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+    begin
+        // Setup: Create setups, Item and Vendor with Dimensions.
+        Initialize;
+        WarehouseSetup.Get;
+        UpdateWarehouseSetup(
+          WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
+          WarehouseSetup."Receipt Posting Policy"::"Stop and show the first posting error");
+        CreateItem(Item);
+        CreateLocationSetup(Location, false, true, true);
+        UpdateItemInventory(Item."No.", Location.Code);
+        CreateVendor(Vendor, Location.Code);
+
+        // Create Purchase Order setup. Create Warehouse Receipt using Filters to get Source document.
+        CreateAndReleasePurchDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, Item."No.", Location.Code, Vendor."No.", true);
+        UseFiltersToGetSrcDocReceipt(WarehouseReceiptHeader, '', Vendor."No.", Location.Code);
+        BlockItemForPosting(Item."No.", true);
+
+        // Exercise: Post Warehouse Receipt.
+        asserterror LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
+
+        // Verify: Error Message - Item blocked.
+        Assert.ExpectedError(StrSubstNo(ErrItemBlocked, Item."No."));
+
+        // Teardown.
+        UpdateWarehouseSetup(WarehouseSetup."Shipment Posting Policy", WarehouseSetup."Receipt Posting Policy");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ShowErrorUnblockSalesRetRcpt()
+    var
+        WarehouseSetup: Record "Warehouse Setup";
+        Location: Record Location;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        Customer: Record Customer;
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+    begin
+        // Setup: Create setups, Item and Customer with Dimensions.
+        Initialize;
+        WarehouseSetup.Get;
+        UpdateWarehouseSetup(
+          WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
+          WarehouseSetup."Receipt Posting Policy"::"Stop and show the first posting error");
+        CreateItem(Item);
+        CreateLocationSetup(Location, false, true, true);
+        UpdateItemInventory(Item."No.", Location.Code);
+        CreateCustomer(Customer, Location.Code);
+
+        // Create Sales Return Order setup. Create Warehouse Receipt using Filters to get Source document.
+        CreateAndReleaseSalesDocument(
+          SalesHeader, SalesHeader."Document Type"::"Return Order", Item."No.", Location.Code, Customer."No.", true);
+        UseFiltersToGetSrcDocReceipt(WarehouseReceiptHeader, Customer."No.", '', Location.Code);
+        BlockItemForPosting(Item."No.", true);
+
+        // Exercise: Post Warehouse Receipt.
+        asserterror LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
+
+        // Verify: Error Message - Blocked must be 'No' in Item.
+        Assert.ExpectedError(StrSubstNo(ErrItemBlocked, Item."No."));
+
+        // Exercise: Unblock Item and Post Receipt.
+        BlockItemForPosting(Item."No.", false);
+        LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
+
+        // Verify: Verify correct lines have been posted.
+        VerifyPostedReceiptLinesSales(WarehouseReceiptHeader."No.", Item."No.", SalesHeader."No.");
+
+        // Teardown.
+        UpdateWarehouseSetup(WarehouseSetup."Shipment Posting Policy", WarehouseSetup."Receipt Posting Policy");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ShowErrorPostSalesReturnOrder()
+    var
+        WarehouseSetup: Record "Warehouse Setup";
+        Location: Record Location;
+        Item: Record Item;
+        Item2: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        SalesHeader: Record "Sales Header";
+        Vendor: Record Vendor;
+        Customer: Record Customer;
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+    begin
+        // Setup: Create setups, Item, Customer and Vendor with Dimensions.
+        Initialize;
+        WarehouseSetup.Get;
+        UpdateWarehouseSetup(
+          WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
+          WarehouseSetup."Receipt Posting Policy"::"Stop and show the first posting error");
+        CreateItem(Item);
+        CreateItem(Item2);
+        CreateLocationSetup(Location, false, true, true);
+        UpdateItemInventory(Item."No.", Location.Code);
+        CreateCustomer(Customer, Location.Code);
+        CreateVendor(Vendor, Location.Code);
+
+        // Create Purchase Order and Sales Return Order setup. Create Warehouse Receipt using Filters to get Source document.
+        CreateAndReleasePurchDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, Item."No.", Location.Code, Vendor."No.", true);
+        CreateAndReleaseSalesDocument(
+          SalesHeader, SalesHeader."Document Type"::"Return Order", Item2."No.", Location.Code, Customer."No.", true);
+        UseFiltersToGetSrcDocReceipt(WarehouseReceiptHeader, Customer."No.", Vendor."No.", Location.Code);
+        BlockItemForPosting(Item."No.", true);
+
+        // Exercise: Post Warehouse Receipt.
+        asserterror LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
+
+        // Verify: Error Message - Blocked must be 'No' in Item; and posted Sales Return receipt.
+        Assert.ExpectedError(StrSubstNo(ErrItemBlocked, Item."No."));
+        VerifyPostedReceiptLinesSales(WarehouseReceiptHeader."No.", Item2."No.", SalesHeader."No.");
+
+        // Teardown.
+        UpdateWarehouseSetup(WarehouseSetup."Shipment Posting Policy", WarehouseSetup."Receipt Posting Policy");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ShowErrorPurchSalesRetBlocked()
+    var
+        WarehouseSetup: Record "Warehouse Setup";
+        Location: Record Location;
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        SalesHeader: Record "Sales Header";
+        Vendor: Record Vendor;
+        Customer: Record Customer;
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+    begin
+        // Setup: Create setups, Item, Customer and Vendor with Dimensions.
+        Initialize;
+        WarehouseSetup.Get;
+        UpdateWarehouseSetup(
+          WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
+          WarehouseSetup."Receipt Posting Policy"::"Stop and show the first posting error");
+        CreateItem(Item);
+        CreateLocationSetup(Location, false, true, true);
+        CreateCustomer(Customer, Location.Code);
+        CreateVendor(Vendor, Location.Code);
+
+        // Create Purchase Order and Sales Return Order setup. Create Warehouse Receipt using Filters to get Source document.
+        CreateAndReleasePurchDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, Item."No.", Location.Code, Vendor."No.", true);
+        CreateAndReleaseSalesDocument(
+          SalesHeader, SalesHeader."Document Type"::"Return Order", Item."No.", Location.Code, Customer."No.", true);
+        UseFiltersToGetSrcDocReceipt(WarehouseReceiptHeader, Customer."No.", Vendor."No.", Location.Code);
+        BlockItemForPosting(Item."No.", true);
+
+        // Exercise: Post Warehouse Receipt.
+        asserterror LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
+
+        // Verify: Error Message - Blocked must be 'No' in Item.
+        Assert.ExpectedError(StrSubstNo(ErrItemBlocked, Item."No."));
+
+        // Verify: Verify nothing is posted.
+        VerifyRcptLineNotExist(WarehouseReceiptHeader."No.");
+
+        // Teardown.
+        UpdateWarehouseSetup(WarehouseSetup."Shipment Posting Policy", WarehouseSetup."Receipt Posting Policy");
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,SourceDocMessageHandler')]
+    [Scope('OnPrem')]
+    procedure ErrNotProcessForPurchSalesRet()
+    var
+        WarehouseSetup: Record "Warehouse Setup";
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        SalesHeader: Record "Sales Header";
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+    begin
+        // Setup: Create setups, Item, Customer and Vendor with Dimensions.
+        Initialize;
+        WarehouseSetup.Get;
+        UpdateWarehouseSetup(
+          WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
+          WarehouseSetup."Receipt Posting Policy"::"Posting errors are not processed");
+        ReceiptPurchaseSalesReturn(WarehouseReceiptHeader, Item, SalesHeader, PurchaseHeader, false, false);
+        // Dimensions removed from Headers.
+
+        // Exercise: Post Warehouse Receipt.
+        LibraryWarehouse.PostWhseRcptWithConfirmMsg(WarehouseReceiptHeader."No.");
+
+        // Verify: Verify Message in handler and that nothing is posted.
+        VerifyRcptLineNotExist(WarehouseReceiptHeader."No.");
+
+        // Teardown.
+        UpdateWarehouseSetup(WarehouseSetup."Shipment Posting Policy", WarehouseSetup."Receipt Posting Policy");
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,SourceDocMessageHandler')]
+    [Scope('OnPrem')]
+    procedure ErrNotProcessPostPurchaseOrder()
+    var
+        WarehouseSetup: Record "Warehouse Setup";
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        SalesHeader: Record "Sales Header";
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+    begin
+        // Setup: Create setups, Item, Customer and Vendor with Dimensions.
+        Initialize;
+        WarehouseSetup.Get;
+        UpdateWarehouseSetup(
+          WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
+          WarehouseSetup."Receipt Posting Policy"::"Posting errors are not processed");
+        ReceiptPurchaseSalesReturn(WarehouseReceiptHeader, Item, SalesHeader, PurchaseHeader, true, false);  // Sales Dimension removed.
+
+        // Exercise: Post Warehouse Receipt.
+        LibraryWarehouse.PostWhseRcptWithConfirmMsg(WarehouseReceiptHeader."No.");
+
+        // Verify: Verify Message in handler and Posted receipt.
+        VerifyPostedReceiptLinesPurch(WarehouseReceiptHeader."No.", Item."No.", PurchaseHeader."No.");
+
+        // Teardown.
+        UpdateWarehouseSetup(WarehouseSetup."Shipment Posting Policy", WarehouseSetup."Receipt Posting Policy");
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,SourceDocMessageHandler')]
+    [Scope('OnPrem')]
+    procedure ErrNotProcessPostSalesRetOrder()
+    var
+        WarehouseSetup: Record "Warehouse Setup";
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        SalesHeader: Record "Sales Header";
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+    begin
+        // Setup: Create setups, Item, Customer and Vendor with Dimensions.
+        Initialize;
+        WarehouseSetup.Get;
+        UpdateWarehouseSetup(
+          WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
+          WarehouseSetup."Receipt Posting Policy"::"Posting errors are not processed");
+        ReceiptPurchaseSalesReturn(WarehouseReceiptHeader, Item, SalesHeader, PurchaseHeader, false, true);  // Purchase Dimension removed.
+
+        // Exercise: Post Warehouse Receipt.
+        LibraryWarehouse.PostWhseRcptWithConfirmMsg(WarehouseReceiptHeader."No.");
+
+        // Verify: Verify Message in handler and Posted receipt.
+        VerifyPostedReceiptLinesSales(WarehouseReceiptHeader."No.", Item."No.", SalesHeader."No.");
+
+        // Teardown.
+        UpdateWarehouseSetup(WarehouseSetup."Shipment Posting Policy", WarehouseSetup."Receipt Posting Policy");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure WhseShipmentLinesSorting()
+    var
+        WarehouseSetup: Record "Warehouse Setup";
+        Location: Record Location;
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseHeader2: Record "Purchase Header";
+        Vendor: Record Vendor;
+        Customer: Record Customer;
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        Index: Integer;
+        "Count": Integer;
+    begin
+        // Setup: Create setups, Item, Customer and Vendor with Dimensions.
+        Initialize;
+        WarehouseSetup.Get;
+        UpdateWarehouseSetup(
+          WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
+          WarehouseSetup."Receipt Posting Policy"::"Stop and show the first posting error");
+        SetupSortingTestData(Item, Location, Customer, Vendor, Count);
+
+        // Create Purchase Order and Sales Return Order setup. Create Warehouse Shipment using Filters to get Source document.
+        for Index := 1 to Count do
+            CreatePurchaseSetup(
+              PurchaseHeader, PurchaseHeader2, PurchaseHeader."Document Type"::"Return Order", Item."No.", Location.Code, Vendor."No.");
+
+        UseFiltersToGetSrcDocShipment(WarehouseShipmentHeader, Customer."No.", Vendor."No.", Location.Code, '');
+
+        // Verify
+        VerifyWhseShipmentLineSorting(Item."No.", Count * 2);
+
+        // Teardown.
+        UpdateWarehouseSetup(WarehouseSetup."Shipment Posting Policy", WarehouseSetup."Receipt Posting Policy");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure WhseReceiptLinesSorting()
+    var
+        WarehouseSetup: Record "Warehouse Setup";
+        Location: Record Location;
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        Vendor: Record Vendor;
+        Customer: Record Customer;
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+        Index: Integer;
+        "Count": Integer;
+    begin
+        // Setup: Create setups, Item, Customer and Vendor with Dimensions.
+        Initialize;
+        WarehouseSetup.Get;
+        UpdateWarehouseSetup(
+          WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
+          WarehouseSetup."Receipt Posting Policy"::"Stop and show the first posting error");
+        SetupSortingTestData(Item, Location, Customer, Vendor, Count);
+
+        // Create Purchase Order and Sales Return Order setup. Create Warehouse Receipt using Filters to get Source document.
+        for Index := 1 to Count do
+            CreateAndReleasePurchDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, Item."No.", Location.Code, Vendor."No.", true);
+
+        UseFiltersToGetSrcDocReceipt(WarehouseReceiptHeader, Customer."No.", Vendor."No.", Location.Code);
+
+        // Verify
+        VerifyWhseReceiptLineSorting(Item."No.", Count);
+
+        // Teardown.
+        UpdateWarehouseSetup(WarehouseSetup."Shipment Posting Policy", WarehouseSetup."Receipt Posting Policy");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure WhseRcptFromPurchDocumentNotCreatedWithItemBlocked()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        PurchHeader: Record "Purchase Header";
+    begin
+        // [FEATURE] [Warehouse Receipt]
+        // [SCENARIO 362752] Action "Create Warehouse Receipt" in purchase order fails if the item in purch. order is blocked
+
+        Initialize;
+
+        // [GIVEN] Create purchase order
+        CreateItem(Item);
+        CreateLocation(Location, false, false, true);
+        CreateAndReleasePurchDocument(
+          PurchHeader, PurchHeader."Document Type"::Order, Item."No.", Location.Code, LibraryPurchase.CreateVendorNo, false);
+        // [GIVEN] Set item to "Blocked"
+        BlockItemForPosting(Item."No.", true);
+
+        // [WHEN] "Create Warehouse Receipt" action is invoked
+        asserterror LibraryWarehouse.CreateWhseReceiptFromPO(PurchHeader);
+
+        // [THEN] Error message: "Blocked must be equal to "No" in Item"
+        Assert.ExpectedError(StrSubstNo(ErrItemBlocked, Item."No."));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetSourceDocsDoesNotCreateWhseRcptWithItemBlocked()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        PurchHeader: Record "Purchase Header";
+        WarehouseEmployee: Record "Warehouse Employee";
+        WhseReceiptHeader: Record "Warehouse Receipt Header";
+    begin
+        // [FEATURE] [Warehouse Receipt] [Filters to Get Source Documents]
+        // [SCENARIO 362752] "Use Filters to get Source Docs" throws error if the source purchase document contains only line with a blocked item
+
+        Initialize;
+
+        // [GIVEN] Create purchase order
+        CreateItem(Item);
+        CreateLocation(Location, false, false, true);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+        CreateAndReleasePurchDocument(
+          PurchHeader, PurchHeader."Document Type"::Order, Item."No.", Location.Code, LibraryPurchase.CreateVendorNo, false);
+        // [GIVEN] Set item to "Blocked"
+        BlockItemForPosting(Item."No.", true);
+
+        // [WHEN] "Filters to Get Source Docs" page is run to create warehouse receipt
+        asserterror UseFiltersToGetSrcDocReceipt(WhseReceiptHeader, '', PurchHeader."Buy-from Vendor No.", Location.Code);
+
+        // [THEN] Error message: "There are no Warehouse Receipt Lines created"
+        Assert.ExpectedError(NoWhseReceiptLinesCreatedErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetSourceDocsCreatesWhseRcptWithOneItemBlockedAndOneActive()
+    var
+        Item: array[2] of Record Item;
+        Location: Record Location;
+        PurchHeader: Record "Purchase Header";
+        WarehouseEmployee: Record "Warehouse Employee";
+        WhseReceiptHeader: Record "Warehouse Receipt Header";
+    begin
+        // [FEATURE] [Warehouse Receipt] [Filters to Get Source Documents]
+        // [SCENARIO 362752] "Use Filters to get Source Docs" creates warehouse receipt if the source purch. order has two line with different items, one of which is blocked
+
+        Initialize;
+
+        // [GIVEN] Create two items "I1" and "I2"
+        CreateItem(Item[1]);
+        CreateItem(Item[2]);
+        CreateLocation(Location, false, false, true);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+        // [GIVEN] Create purchase order with two lines, each for a different item
+        CreatePurchaseDocument(
+          PurchHeader, PurchHeader."Document Type"::Order, Item[1]."No.", Location.Code, LibraryPurchase.CreateVendorNo, false);
+        CreatePurchaseLine(PurchHeader, Item[2]."No.", Location.Code);
+        LibraryPurchase.ReleasePurchaseDocument(PurchHeader);
+
+        // [GIVEN] Set item "I2" to "Blocked"
+        BlockItemForPosting(Item[2]."No.", true);
+
+        // [WHEN] Run "Filters to Get Source Docs"
+        UseFiltersToGetSrcDocReceipt(WhseReceiptHeader, '', PurchHeader."Buy-from Vendor No.", Location.Code);
+
+        // [THEN] Warehouse receipt line for item "I1" is created, no whse. receipt for "I2"
+        VerifyWhseReceiptLineCreated(WhseReceiptHeader."No.", Item[1]."No.");
+        VerifyWhseReceiptLineNotCreated(WhseReceiptHeader."No.", Item[2]."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure WhseShipFromSalesDocumentNotCreatedWithItemBlocked()
+    var
+        Item: Record Item;
+        BlockedItem: Record Item;
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+    begin
+        // [FEATURE] [Warehouse Shipment]
+        // [SCENARIO 362752] Action "Create Warehouse Shipment" in sales order fails if at least one item in the sales order is blocked.
+
+        Initialize;
+
+        // [GIVEN] Create sales order with 2 items = "I1" and "I2".
+        CreateItem(Item);
+        CreateItem(BlockedItem);
+        CreateLocation(Location, false, true, false);
+        CreateSalesDocument(
+          SalesHeader, SalesHeader."Document Type"::Order, Item."No.", Location.Code, LibrarySales.CreateCustomerNo, false);
+        CreateSalesLine(SalesHeader, BlockedItem."No.", Location.Code);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [GIVEN] Set item "I2" to "Blocked".
+        BlockItemForPosting(BlockedItem."No.", true);
+
+        // [WHEN] "Create Warehouse Shipment" action is invoked.
+        Commit;
+        asserterror LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+
+        // [THEN] Error message: "Blocked must be equal to "No" in Item I2".
+        Assert.ExpectedError(StrSubstNo(ErrItemBlocked, BlockedItem."No."));
+
+        // [THEN] Warehouse shipment is not created.
+        WarehouseShipmentHeader.SetRange("Location Code", Location.Code);
+        Assert.RecordIsEmpty(WarehouseShipmentHeader);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetSourceDocsDoesNotCreateWhseShipmentWithItemBlocked()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+        WarehouseEmployee: Record "Warehouse Employee";
+        WhseShipmentHeader: Record "Warehouse Shipment Header";
+    begin
+        // [FEATURE] [Warehouse Shipment] [Filters to Get Source Documents]
+        // [SCENARIO 362752] "Use Filters to get Source Docs" throws error if the source sales document contains only line with a blocked item
+
+        Initialize;
+
+        // [GIVEN] Create sales order
+        CreateItem(Item);
+        CreateLocation(Location, false, true, false);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+        CreateAndReleaseSalesDocument(
+          SalesHeader, SalesHeader."Document Type"::Order, Item."No.", Location.Code, LibrarySales.CreateCustomerNo, false);
+        // [GIVEN] Set item to "Blocked"
+        BlockItemForPosting(Item."No.", true);
+
+        // [WHEN] "Filters to Get Source Docs" page is run to create warehouse shipment
+        asserterror UseFiltersToGetSrcDocShipment(WhseShipmentHeader, SalesHeader."Sell-to Customer No.", '', Location.Code, '');
+
+        // [THEN] Error message: "There are no Warehouse Shipment Lines created"
+        Assert.ExpectedError(NoWhseShipmentLinesCreatedErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetSourceDocsCreatesWhseShipmentWithOneItemBlockedAndOneActive()
+    var
+        Item: array[2] of Record Item;
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+        WarehouseEmployee: Record "Warehouse Employee";
+        WhseShipmentHeader: Record "Warehouse Shipment Header";
+    begin
+        // [FEATURE] [Warehouse Shipment] [Filters to Get Source Documents]
+        // [SCENARIO 362752] "Use Filters to get Source Docs" creates warehouse shipment if the source sales order has two line with different items, one of which is blocked
+
+        Initialize;
+
+        // [GIVEN] Create two items "I1" and "I2"
+        CreateItem(Item[1]);
+        CreateItem(Item[2]);
+        CreateLocation(Location, false, true, false);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+        // [GIVEN] Create sales order with two lines, each for a different item
+        CreateSalesDocument(
+          SalesHeader, SalesHeader."Document Type"::Order, Item[1]."No.", Location.Code, LibrarySales.CreateCustomerNo, false);
+        CreateSalesLine(SalesHeader, Item[2]."No.", Location.Code);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [GIVEN] Set item "I2" to "Blocked"
+        BlockItemForPosting(Item[2]."No.", true);
+
+        // [WHEN] Run "Filters to Get Source Docs"
+        UseFiltersToGetSrcDocShipment(WhseShipmentHeader, SalesHeader."Sell-to Customer No.", '', Location.Code, '');
+
+        // [THEN] Warehouse shipment line for item "I1" is created, no whse. shipment for "I2"
+        VerifyWhseShipmentLineCreated(WhseShipmentHeader."No.", Item[1]."No.");
+        VerifyWhseShipmentLineNotCreated(WhseShipmentHeader."No.", Item[2]."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AdvancedLocationAcceptedInItemReclassJournalSameLocationCode()
+    var
+        Location: Record Location;
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        xItemJournalLine: Record "Item Journal Line";
+        WMSManagement: Codeunit "WMS Management";
+    begin
+        // [FEATURE] [Item Reclassification]
+        // [SCENARIO 377752] It should be possible to enter location with "Directed Put-Away and Pick" in item reclassification journal if "Location Code" = "New Location Code"
+
+        Initialize;
+
+        // [GIVEN] Create location "L" with "Directed Put-Away and Pick" = TRUE
+        CreateDirectedPutAwayAndPickLocation(Location);
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create item reclassification journal line
+        CreateItemReclassificationJournalLine(ItemJournalLine, Item."No.", 0);
+
+        // [GIVEN] Set "Location Code" = "L" in item reclassification journal
+        ItemJournalLine.Validate("Location Code", Location.Code);
+
+        // [WHEN] Set = "New Location Code" = "L" in item reclassification journal
+        xItemJournalLine := ItemJournalLine;
+        ItemJournalLine.Validate("New Location Code", Location.Code);
+        WMSManagement.CheckItemJnlLineLocation(ItemJournalLine, xItemJournalLine);
+
+        // [THEN] Value is accepted
+        ItemJournalLine.TestField("New Location Code", Location.Code);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AdvancedLocationNotAcceptedInItemReclassJournalDifferentLocationCodes()
+    var
+        Location: array[2] of Record Location;
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        xItemJournalLine: Record "Item Journal Line";
+        WMSManagement: Codeunit "WMS Management";
+    begin
+        // [FEATURE] [Item Reclassification]
+        // [SCENARIO 377752] It should not be allowed to enter location with "Directed Put-Away and Pick" in item reclassification journal if "Location Code" <> "New Location Code"
+
+        Initialize;
+
+        // [GIVEN] Create 2 locations ("L1" and "L2"), "Directed Put-Away and Pick" = TRUE in both
+        CreateDirectedPutAwayAndPickLocation(Location[1]);
+        CreateDirectedPutAwayAndPickLocation(Location[2]);
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create item reclassification journal line
+        CreateItemReclassificationJournalLine(ItemJournalLine, Item."No.", 0);
+
+        // [GIVEN] Set "Location Code" = "L1" in item reclassification journal
+        ItemJournalLine.Validate("Location Code", Location[1].Code);
+
+        // [WHEN] Set "New Location Code" = "L2" in item reclassification journal
+        xItemJournalLine := ItemJournalLine;
+        ItemJournalLine.Validate("New Location Code", Location[2].Code);
+        asserterror WMSManagement.CheckItemJnlLineLocation(ItemJournalLine, xItemJournalLine);
+
+        // [THEN] Error is thrown
+        Assert.ExpectedError(StrSubstNo(CannotReclassifyLocationErr, Location[1].Code));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateBinErrorInItemReclassJournalAdvancedLocation()
+    var
+        Location: Record Location;
+        ItemJournalLine: Record "Item Journal Line";
+        xItemJournalLine: Record "Item Journal Line";
+        WMSManagement: Codeunit "WMS Management";
+    begin
+        // [FEATURE] [Item Reclassification] [Bin]
+        // [SCENARIO 377752] It should not be allowed to enter bin code in item reclassification journal if location uses "Directed Put-Away and Pick"
+
+        Initialize;
+
+        // [GIVEN] Create location "L" with "Directed Put-Away and Pick" = TRUE
+        // [GIVEN] Create item reclassification journal line for location "L"
+        CreateReclassificationSetup(ItemJournalLine);
+        Location.Get(ItemJournalLine."Location Code");
+
+        // [WHEN] Try to set bin code in reclassification journal
+        xItemJournalLine := ItemJournalLine;
+        ItemJournalLine.Validate("Bin Code", Location."Receipt Bin Code");
+        asserterror WMSManagement.CheckItemJnlLineFieldChange(ItemJournalLine, xItemJournalLine, ItemJournalLine.FieldCaption("Bin Code"));
+
+        // [THEN] Error is thrown
+        Assert.ExpectedError(
+          StrSubstNo(
+            CannotUseLocationErr, ItemJournalLine.FieldCaption("Bin Code"), LowerCase(Location.TableCaption),
+            Location.Code, Location.FieldCaption("Directed Put-away and Pick")));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateNewBinErrorInItemReclassJournalAdvancedLocation()
+    var
+        Location: Record Location;
+        ItemJournalLine: Record "Item Journal Line";
+        xItemJournalLine: Record "Item Journal Line";
+        WMSManagement: Codeunit "WMS Management";
+    begin
+        // [FEATURE] [Item Reclassification] [Bin]
+        // [SCENARIO 377752] It should not be allowed to enter new bin code in item reclassification journal if location uses "Directed Put-Away and Pick"
+
+        Initialize;
+
+        // [GIVEN] Create location "L" with "Directed Put-Away and Pick" = TRUE
+        // [GIVEN] Create item reclassification journal line for location "L"
+        CreateReclassificationSetup(ItemJournalLine);
+        Location.Get(ItemJournalLine."Location Code");
+
+        // [WHEN] Try to set new bin code in reclassification journal
+        xItemJournalLine := ItemJournalLine;
+        ItemJournalLine.Validate("New Bin Code", Location."Shipment Bin Code");
+        asserterror
+          WMSManagement.CheckItemJnlLineFieldChange(ItemJournalLine, xItemJournalLine, ItemJournalLine.FieldCaption("New Bin Code"));
+
+        // [THEN] Error is thrown
+        Assert.ExpectedError(
+          StrSubstNo(
+            CannotUseLocationErr, ItemJournalLine.FieldCaption("New Bin Code"), LowerCase(Location.TableCaption),
+            Location.Code, Location.FieldCaption("Directed Put-away and Pick")));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DimensionReclassifiedInItemReclassJournalOnAdvancedLocation()
+    var
+        Location: Record Location;
+        Item: Record Item;
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        Dimension: Record Dimension;
+        DimensionValue: array[2] of Record "Dimension Value";
+        DefaultDimension: Record "Default Dimension";
+        ItemJournalLine: Record "Item Journal Line";
+        Quantity: Decimal;
+    begin
+        // [FEATURE] [Item Reclassification] [Dimension]
+        // [SCENARIO 377752] It should be possible to reclassify item ledger entry on a "directed put-away and pick" location via item reclassification journal
+
+        Initialize;
+
+        // [GIVEN] Create location "L" with directed put-away and pick
+        CreateFullWMSLocation(Location, 1);
+
+        // [GIVEN] Create item "I" with defaul global dimension 1 value = "D1"
+        LibraryInventory.CreateItem(Item);
+        GeneralLedgerSetup.Get;
+        Dimension.Get(GeneralLedgerSetup."Global Dimension 1 Code");
+        LibraryDimension.CreateDimensionValue(DimensionValue[1], Dimension.Code);
+        LibraryDimension.CreateDimensionValue(DimensionValue[2], Dimension.Code);
+        LibraryDimension.CreateDefaultDimension(DefaultDimension, DATABASE::Item, Item."No.", Dimension.Code, DimensionValue[1].Code);
+
+        // [GIVEN] Post positive adjustment of "X" pcs of item "I" on location "L".
+        Quantity := LibraryRandom.RandInt(100);
+        PostPositiveAdjustmentOnWarehouse(Location, Item, Quantity);
+
+        // [GIVEN] Create item reclassification journal line. Item = "I", Location = "L", Shortcut Dimension 1 Code = "D1", New Shortcut Dimension 1 Code = "D2"
+        CreateItemReclassificationJournalLine(ItemJournalLine, Item."No.", Quantity);
+        ItemJournalLine.Validate("Location Code", Location.Code);
+        ItemJournalLine.Validate("Shortcut Dimension 1 Code", DimensionValue[1].Code);
+        ItemJournalLine.Validate("New Shortcut Dimension 1 Code", DimensionValue[2].Code);
+        ItemJournalLine.Modify(true);
+
+        // [WHEN] Post item reclassification journal
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [THEN] Item Inventory with dimension value "D1" = 0, Item Inventory with dimension value "D2" = "X"
+        VerifyItemInventory(Item."No.", Location.Code, DimensionValue[1].Code, 0);
+        VerifyItemInventory(Item."No.", Location.Code, DimensionValue[2].Code, Quantity);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler')]
+    [Scope('OnPrem')]
+    procedure WhsePickReallocatedNonSpecificInventoryReservation()
+    var
+        Location: Record Location;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ItemJournalLine: Record "Item Journal Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        LotNo: array[2] of Code[20];
+        LotQty: Integer;
+    begin
+        // [FEATURE] [Item Tracking] [Reservation] [Late Binding] [Warehouse] [Pick]
+        // [SCENARIO 378082] Non-specific reservation on inventory should be reallocated when posting warehouse pick
+
+        Initialize;
+
+        // [GIVEN] Item with lot warehouse tracking
+        CreateShipPickLocation(Location);
+        CreateItemWithLotWarehouseTracking(Item);
+
+        // [GIVEN] Post inventory stock in two lots: "L1" and "L2", quantity in each lot is "X"
+        LotNo[1] := LibraryUtility.GenerateGUID;
+        LotNo[2] := LibraryUtility.GenerateGUID;
+        LotQty := LibraryRandom.RandIntInRange(100, 200);
+        CreateItemJournalLine(ItemJournalLine, Item."No.", Location.Code, LotQty * 2);
+        AssignLotNoToItemJournalLine(ItemJournalLine, LotNo[1], LotQty);
+        AssignLotNoToItemJournalLine(ItemJournalLine, LotNo[2], LotQty);
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+
+        // [GIVEN] Create sales order "S1", quantity = "X" and run autoreserve. Non-specific reservation created for lot "L1"
+        CreateSalesOrder(SalesHeader, SalesLine, Item."No.", LotQty, Location.Code);
+        LibrarySales.AutoReserveSalesLine(SalesLine);
+
+        // [GIVEN] Create second sales order "S2", quantity = "X"
+        CreateSalesOrder(SalesHeader, SalesLine, Item."No.", LotQty, Location.Code);
+
+        // [GIVEN] Create warehouse pick from sales order "S2" and set Lot No. = "L1"
+        CreateWhsePickFromSalesOrder(SalesHeader);
+        FindWarehouseActivityLine(
+          WarehouseActivityLine, DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        WarehouseActivityLine.ModifyAll("Lot No.", LotNo[1]);
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+
+        // [WHEN] Post warehouse pick
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [THEN] "X" pcs are picked
+        // [THEN] Reservation for sales order "S1" is reallocated - lot "L2" is reserved
+        VerifyPickedQuantity(Item."No.", LotQty);
+        VerifyReservedLotNo(Item."No.", LotNo[2]);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CannotUpdateShipmentDateInSalesLineWhseShipmentExists()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Warehouse Shipment] [Shipment Date]
+        // [SCENARIO 380672] Shipment date cannot be updated in a sales line if there is a warehouse shipment for this line
+
+        Initialize;
+
+        // [GIVEN] Location with "Require Shipment"
+        // [GIVEN] Create sales order and warehouse shipment
+        CreateSalesOrderWithWarehouseShipment(SalesHeader, SalesLine);
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+
+        // [WHEN] Modify shipment date in the sales line
+        asserterror SalesLine.Validate("Shipment Date", SalesLine."Shipment Date" + LibraryRandom.RandInt(10));
+
+        // [THEN] Error: Shipment date must not be changed when a warehouse shipment line exists
+        Assert.ExpectedError(ShipmentDateMustNotChangeErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CanUpdateShipmentDateInSalesLineNoWhseShipment()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        NewShipmentDate: Date;
+    begin
+        // [FEATURE] [Warehouse Shipment] [Shipment Date]
+        // [SCENARIO 380672] Shipment date in a sales line can be updated if there is no warehouse shipment for this line
+
+        Initialize;
+
+        // [GIVEN] Location with "Require Shipment"
+        // [GIVEN] Create sales order without related warehouse shipment
+        CreateSalesOrderWithWarehouseShipment(SalesHeader, SalesLine);
+
+        // [WHEN] Modify shipment date in the sales line
+        NewShipmentDate := SalesLine."Shipment Date" + LibraryRandom.RandInt(10);
+        SalesLine.Validate("Shipment Date", NewShipmentDate);
+
+        // [THEN] Shipment date is updated
+        SalesLine.TestField("Shipment Date", NewShipmentDate);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesAssignSeveralLotsPageHandler')]
+    [Scope('OnPrem')]
+    procedure PutAwayFromPostedWhseRcptTakesLotNoFromUnhandledTrackingLine()
+    var
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Location: Record Location;
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        PostedWhseReceiptLine: Record "Posted Whse. Receipt Line";
+        LotNos: array[2] of Code[20];
+        LotQty: array[2] of Integer;
+    begin
+        // [FEATURE] [Item Tracking] [Put-Away]
+        // [SCENARIO 277222] Put-away created from a posted warehouse receipt inherits lot no. from unhandled tracking line of the source document, when another posted receipt withe the same lot exists
+
+        Initialize;
+
+        // [GIVEN] Item "I" tracked by lot number
+        CreateItemWithLotWarehouseTracking(Item);
+        LibraryWarehouse.CreateFullWMSLocation(Location, 2);
+
+        LotNos[1] := LibraryUtility.GenerateGUID;
+        LotNos[2] := LibraryUtility.GenerateGUID;
+        LotQty[1] := LibraryRandom.RandInt(10);
+        LotQty[2] := LibraryRandom.RandIntInRange(10, 20);
+
+        // [GIVEN] Purchase order for 10 pcs of item "I" on a "directed put-away and pick" location.
+        // [GIVEN] Assign two item tracking lines: 6 pcs with lot "L1", and 4 pcs - lot "L2", post warehouse receipt
+        LibraryVariableStorage.Enqueue(2);
+        LibraryVariableStorage.Enqueue(LotNos[1]);
+        LibraryVariableStorage.Enqueue(LotQty[1]);
+        LibraryVariableStorage.Enqueue(LotNos[2]);
+        LibraryVariableStorage.Enqueue(LotQty[2]);
+        CreateTrackedPurchOrderPostWhseReceipt(PurchaseHeader, PurchaseLine, Location.Code, Item."No.", LotQty[1] + LotQty[2]);
+        FindPostedWhseReceiptLine(PostedWhseReceiptLine, PurchaseLine);
+
+        // [GIVEN] Put away 6 pcs with lot "L1", do not handle lot "L2".
+        SetQtyToHandleOnWhseActivityLine(
+          DATABASE::"Purchase Line", PurchaseHeader."Document Type", PurchaseHeader."No.", LotNos[1], LotQty[1]);
+        SetQtyToHandleOnWhseActivityLine(DATABASE::"Purchase Line", PurchaseHeader."Document Type", PurchaseHeader."No.", LotNos[2], 0);
+        LibraryWarehouse.FindWhseActivityBySourceDoc(
+          WarehouseActivityHeader, DATABASE::"Purchase Line", PurchaseHeader."Document Type", PurchaseHeader."No.", PurchaseLine."Line No.");
+
+        // [GIVEN] Delete the partially posted put-away document.
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+        WarehouseActivityHeader.Find;
+        WarehouseActivityHeader.Delete(true);
+
+        // [GIVEN] Create and put-away another purchase order for 10 pcs of item "I" with the same lot no. "L1"
+        LibraryVariableStorage.Enqueue(1);
+        LibraryVariableStorage.Enqueue(LotNos[1]);
+        LibraryVariableStorage.Enqueue(LotQty[1]);
+        CreateTrackedPurchOrderPostWhseReceipt(PurchaseHeader, PurchaseLine, Location.Code, Item."No.", LotQty[1]);
+
+        // [WHEN] Create put-away from the posted warehouse receipt
+        CreatePutAwayFromPostedWhseRcpt(WarehouseActivityLine, PostedWhseReceiptLine);
+
+        // [THEN] Put-away line created for 4 pcs of lot "L2"
+        WarehouseActivityLine.TestField("Lot No.", LotNos[2]);
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('WhseItemTrackingLinesAssignLotPageHandler')]
+    [Scope('OnPrem')]
+    procedure LotTrackedAndNonTrackedItemsPickedInOneWarehousePick()
+    var
+        Location: Record Location;
+        Item: Record Item;
+        TrackedItem: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        LotNo: Code[20];
+        StockQty: Integer;
+    begin
+        // [FEATURE] [Item Tracking] [Bin Content]
+        // [SCENARIO 269846] Lot tracked item and item without tracking can be picked in one warehouse pick
+        Initialize;
+
+        CreateFullWMSLocation(Location, 2);
+
+        // [GIVEN] Two items: "I1" tracked by lot no., and "I2" without item tracking
+        CreateItemWithLotWarehouseTracking(TrackedItem);
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] 10 pcs of each item on WHITE location
+        StockQty := 10;
+        LotNo := LibraryUtility.GenerateGUID;
+        LibraryWarehouse.UpdateInventoryOnLocationWithDirectedPutAwayAndPick(Item."No.", Location.Code, StockQty, false);
+        UpdateInventoryOnDirectedPutAwayPickLocationTrackedItem(TrackedItem."No.", Location.Code, StockQty, LotNo);
+
+        // [GIVEN] Sales order with 2 lines: first for 5 pcs of item "I1", second - 5 pcs of item "I2"
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        CreateSalesLine(SalesHeader, TrackedItem."No.", Location.Code);
+        CreateSalesLine(SalesHeader, Item."No.", Location.Code);
+
+        // [GIVEN] Create warehouse shipment and pick from the sales order
+        CreateWhsePickFromSalesOrder(SalesHeader);
+        SelectSalesLine(SalesLine, SalesHeader."Document Type", SalesHeader."No.", TrackedItem."No.");
+        FindWarehouseActivityLine(
+          WarehouseActivityLine, DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        WarehouseActivityLine.ModifyAll("Lot No.", LotNo);
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+
+        // [WHEN] Register warehouse pick
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [THEN] Both items are successfully picked
+        VerifyWhseShipmentCompletelyPicked(SalesHeader."Document Type", SalesHeader."No.", Item."No.");
+        VerifyWhseShipmentCompletelyPicked(SalesHeader."Document Type", SalesHeader."No.", TrackedItem."No.");
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemTrackingLinesAssignSeveralLotsPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    var
+        NoOfLots: Integer;
+        I: Integer;
+    begin
+        NoOfLots := LibraryVariableStorage.DequeueInteger;
+        for I := 1 to NoOfLots do begin
+            ItemTrackingLines.New;
+            ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
+            ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal);
+        end;
+        ItemTrackingLines.OK.Invoke;
+    end;
+
+    [Test]
+    [HandlerFunctions('WhseItemTrackingLinesAssignSerialNoPageHandler')]
+    [Scope('OnPrem')]
+    procedure SNTrackedAndNonTrackedItemsPickedInOneWarehousePick()
+    var
+        Location: Record Location;
+        Item: Record Item;
+        TrackedItem: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: array[2] of Record "Sales Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        SerialNo: Code[20];
+    begin
+        // [FEATURE] [Item Tracking] [Bin Content]
+        // [SCENARIO 269846] Serial No. tracked item and item without tracking can be picked in one warehouse pick
+
+        Initialize;
+
+        CreateFullWMSLocation(Location, 2);
+
+        // [GIVEN] Two items: "I1" tracked by serial no., and "I2" without item tracking
+        CreateItemWithSNWarehouseTracking(TrackedItem);
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Both items are in stock on WHITE location
+        SerialNo := LibraryUtility.GenerateGUID;
+        LibraryWarehouse.UpdateInventoryOnLocationWithDirectedPutAwayAndPick(Item."No.", Location.Code, 1, false);
+        UpdateInventoryOnDirectedPutAwayPickLocationTrackedItem(TrackedItem."No.", Location.Code, 1, SerialNo);
+
+        // [GIVEN] Sales order with 2 lines: first for item "I1", second for item "I2"
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesLine(SalesLine[1], SalesHeader, SalesLine[1].Type::Item, TrackedItem."No.", 1);
+        SalesLine[1].Validate("Location Code", Location.Code);
+        SalesLine[1].Modify(true);
+
+        LibrarySales.CreateSalesLine(SalesLine[2], SalesHeader, SalesLine[2].Type::Item, Item."No.", 1);
+        SalesLine[2].Validate("Location Code", Location.Code);
+        SalesLine[2].Modify(true);
+
+        // [GIVEN] Create warehouse shipment and pick from the sales order
+        CreateWhsePickFromSalesOrder(SalesHeader);
+        FindWarehouseActivityLine(
+          WarehouseActivityLine, DATABASE::"Sales Line", SalesLine[1]."Document Type", SalesLine[1]."Document No.", SalesLine[1]."Line No.");
+        WarehouseActivityLine.ModifyAll("Serial No.", SerialNo);
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+
+        // [WHEN] Register warehouse pick
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [THEN] Both items are successfully picked
+        VerifyWhseShipmentCompletelyPicked(SalesHeader."Document Type", SalesHeader."No.", Item."No.");
+        VerifyWhseShipmentCompletelyPicked(SalesHeader."Document Type", SalesHeader."No.", TrackedItem."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler,ConfirmHandlerWithMessageVerification')]
+    [Scope('OnPrem')]
+    procedure OrderToOrderBindingIsRemovedWhenRegisterPickFromInventory()
+    var
+        Location: Record Location;
+        Item: Record Item;
+        RequisitionLine: Record "Requisition Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: array[2] of Record "Sales Line";
+        PurchaseLine: Record "Purchase Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        LotNo: array[4] of Code[20];
+        i: Integer;
+    begin
+        // [FEATURE] [Reservation] [Item Tracking] [Pick] [Binding] [Sales]
+        // [SCENARIO 275280] Order-to-order reservation between sales order and its supply is deleted, when a user sets item tracking for a sales line directly on the warehouse pick and registers it.
+        Initialize;
+
+        // [GIVEN] Location set up for required shipment and pick.
+        // [GIVEN] Lot-tracked item "I" with reordering policy = "Order".
+        CreateShipPickLocation(Location);
+        CreateLotTrackedItemWithOrderReorderingPolicy(Item);
+        for i := 1 to 4 do
+            LotNo[i] := LibraryUtility.GenerateGUID;
+
+        // [GIVEN] Post the inventory adjustment for 100 PCS of lots "L1" and "L2".
+        for i := 1 to 2 do
+            CreateItemStockWithLot(Location.Code, Item."No.", LotNo[i], LibraryRandom.RandIntInRange(100, 200));
+
+        // [GIVEN] Sales order with 2 lines - each for 50 PCS of item "I".
+        CreateSalesOrderWithTwoLines(SalesHeader, SalesLine, Item."No.", LibraryRandom.RandIntInRange(50, 100), Location.Code);
+
+        // [GIVEN] Create a warehouse shipment and a warehouse pick from the sales order.
+        // [GIVEN] Set Lot No. = "L1" on the first pick line and Lot No. = "L2" on the second pick line.
+        CreateWhsePickFromSalesOrder(SalesHeader);
+        for i := 1 to 2 do begin
+            FindWarehouseActivityLine(
+              WarehouseActivityLine,
+              DATABASE::"Sales Line", SalesLine[i]."Document Type", SalesLine[i]."Document No.", SalesLine[i]."Line No.");
+            WarehouseActivityLine.ModifyAll("Lot No.", LotNo[i]);
+        end;
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+
+        // [GIVEN] Calculate plan on requisition worksheet for item "I".
+        // [GIVEN] Set item tracking on the requisition lines - lot nos. "L3" and "L4".
+        // [GIVEN] Carry out action in order to create a supplying purchase order for the sales order.
+        // [GIVEN] An order-to-order binding is now established between the sales and the purchase.
+        LibraryPlanning.CalcRequisitionPlanForReqWkshAndGetLines(RequisitionLine, Item, WorkDate, WorkDate);
+        for i := 3 to 4 do begin
+            LibraryVariableStorage.Enqueue(LotNo[i]);
+            LibraryVariableStorage.Enqueue(RequisitionLine.Quantity);
+            RequisitionLine.OpenItemTrackingLines;
+            RequisitionLine.Next;
+        end;
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate, WorkDate, WorkDate, WorkDate, '');
+
+        // [WHEN] Register the warehouse pick with earlier defined item tracking.
+        for i := 1 to 2 do begin
+            LibraryVariableStorage.Enqueue(OrderToOrderBindingOnSalesLineQst);
+            LibraryVariableStorage.Enqueue(true);
+        end;
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [THEN] A confirmation message that warns of an order-to-order binding being removed is raised.
+
+        // [THEN] Despite two lines in the sales order, the confirmation is raised only once.
+        Assert.AreEqual(
+          OrderToOrderBindingOnSalesLineQst, LibraryVariableStorage.DequeueText, 'A confirmation message has not been raised only once.');
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, 'A confirmation message has not been raised only once.');
+
+        // [THEN] The sales order lines are now reserved from the inventory. Lot nos. = "L1" and "L2".
+        for i := 1 to 2 do
+            VerifySalesReservationFromInventory(SalesLine[i], LotNo[i]);
+
+        // [THEN] Lots "L3" and "L4" are now in a surplus for the purchase.
+        PurchaseLine.SetRange("No.", Item."No.");
+        PurchaseLine.FindSet;
+        for i := 3 to 4 do begin
+            VerifyPurchaseSurplusReservEntry(PurchaseLine, LotNo[i]);
+            PurchaseLine.Next;
+        end;
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler,ConfirmHandlerWithMessageVerification')]
+    [Scope('OnPrem')]
+    procedure RegisteringPickInterruptedWhenRemovingBindingIsNotConfirmed()
+    var
+        Location: Record Location;
+        Item: Record Item;
+        RequisitionLine: Record "Requisition Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        RegisteredWhseActivityLine: Record "Registered Whse. Activity Line";
+        LotNo: array[2] of Code[20];
+    begin
+        // [FEATURE] [Reservation] [Item Tracking] [Pick] [Binding] [Sales]
+        // [SCENARIO 275280] Registering of warehouse pick for sales order is interrupted, when a user chooses not to break existing order-to-order binding on registering the pick.
+        Initialize;
+
+        // [GIVEN] Location set up for required shipment and pick.
+        // [GIVEN] Lot-tracked item "I" with reordering policy = "Order".
+        CreateShipPickLocation(Location);
+        CreateLotTrackedItemWithOrderReorderingPolicy(Item);
+        LotNo[1] := LibraryUtility.GenerateGUID;
+        LotNo[2] := LibraryUtility.GenerateGUID;
+
+        // [GIVEN] Post the inventory adjustment for 100 PCS of lot "L1".
+        CreateItemStockWithLot(Location.Code, Item."No.", LotNo[1], LibraryRandom.RandIntInRange(100, 200));
+
+        // [GIVEN] Sales order for 50 PCS of item "I".
+        CreateSalesOrder(SalesHeader, SalesLine, Item."No.", LibraryRandom.RandIntInRange(50, 100), Location.Code);
+
+        // [GIVEN] Create a warehouse shipment and a warehouse pick from the sales order.
+        // [GIVEN] Set Lot No. = "L1" on the pick line.
+        CreateWhsePickFromSalesOrder(SalesHeader);
+        FindWarehouseActivityLine(
+          WarehouseActivityLine, DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        WarehouseActivityLine.ModifyAll("Lot No.", LotNo[1]);
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+
+        // [GIVEN] Calculate plan on requisition worksheet for item "I".
+        // [GIVEN] Set item tracking on the requisition lines - lot no. "L2".
+        // [GIVEN] Carry out action in order to create a supplying purchase order for the sales order.
+        // [GIVEN] An order-to-order binding is now established between the sales and the purchase.
+        LibraryPlanning.CalcRequisitionPlanForReqWkshAndGetLines(RequisitionLine, Item, WorkDate, WorkDate);
+        LibraryVariableStorage.Enqueue(LotNo[2]);
+        LibraryVariableStorage.Enqueue(RequisitionLine.Quantity);
+        RequisitionLine.OpenItemTrackingLines;
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate, WorkDate, WorkDate, WorkDate, '');
+
+        // [WHEN] Register the warehouse pick but do not confirm deleting the reservation between the sales and the purchase.
+        Commit;
+        LibraryVariableStorage.Enqueue(OrderToOrderBindingOnSalesLineQst);
+        LibraryVariableStorage.Enqueue(false);
+        asserterror LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [THEN] An error message reads that the registering pick is interrupted.
+        Assert.ExpectedError(RegisterInterruptedErr);
+
+        // [THEN] Nothing is picked.
+        VerifyPickedQuantity(Item."No.", 0);
+
+        // [THEN] No registered pick is created.
+        RegisteredWhseActivityLine.SetRange("Item No.", Item."No.");
+        Assert.RecordIsEmpty(RegisteredWhseActivityLine);
+
+        // [THEN] "Qty. Handled" on the outstanding pick line is equal to 0.
+        FindWarehouseActivityLine(
+          WarehouseActivityLine, DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        WarehouseActivityLine.TestField("Qty. Handled", 0);
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesSetLotNoAndSerialNoPageHandler')]
+    [Scope('OnPrem')]
+    procedure NoAvailabilityWarningsAppearWhenRefreshingAvailability()
+    var
+        ItemTrackingCode: Record "Item Tracking Code";
+        Item: Record Item;
+        Location: Record Location;
+        ItemJournalLine: Record "Item Journal Line";
+        SalesLine: Record "Sales Line";
+        LotNo: Code[50];
+        SerialNo: array[2] of Code[50];
+        i: Integer;
+    begin
+        // [FEATURE] [Item Tracking] [Serial No.] [Lot No.] [Avail. - Item Tracking Lines] [Sales]
+        // [SCENARIO 285817] No avaliability warnings appear when invoke Refresh Avaliability on Item Tracking Page and specific serial is avaliable
+        Initialize;
+
+        // [GIVEN] Create Location
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Create Item Tracking Code
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, true, true);
+
+        // [GIVEN] Create Item and with created before Item Tracking Code
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Item Tracking Code", ItemTrackingCode.Code);
+        Item.Modify(true);
+
+        // [GIVEN] Create 2pcs stock for the Item: single lot and 2 serial numbers
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", Location.Code, '', 2);
+        LotNo := LibraryUtility.GenerateGUID;
+        LibraryVariableStorage.Enqueue(0);
+        LibraryVariableStorage.Enqueue(ArrayLen(SerialNo));
+        for i := 1 to ArrayLen(SerialNo) do begin
+            LibraryVariableStorage.Enqueue(LotNo);
+            SerialNo[i] := LibraryUtility.GenerateGUID;
+            LibraryVariableStorage.Enqueue(SerialNo[i]);
+        end;
+        ItemJournalLine.OpenItemTrackingLines(false);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Create another sales order for Item, Qty = 1
+        CreateSalesDocumentWithLine(SalesLine, Item."No.", Location.Code, 1);
+
+        // [WHEN] Open Item Tracking Page, create a new line with serial #1
+        LibraryVariableStorage.Enqueue(0);
+        LibraryVariableStorage.Enqueue(1);
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(SerialNo[1]);
+        SalesLine.OpenItemTrackingLines;
+
+        // [GIVEN] Create another sales order for Item, Qty = 1
+        CreateSalesDocumentWithLine(SalesLine, Item."No.", Location.Code, 1);
+
+        // [WHEN] Open Item Tracking Page, create a new line with serial #2
+        LibraryVariableStorage.Enqueue(1);
+        LibraryVariableStorage.Enqueue(1);
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(SerialNo[2]);
+        SalesLine.OpenItemTrackingLines;
+
+        // [THEN] Serial #2 is avaliable.
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, WrongMessageTextErr);
+    end;
+
+    local procedure Initialize()
+    var
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+    begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Warehouse I");
+        // Lazy Setup.
+        if isInitialized then
+            exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Warehouse I");
+
+        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        NoSeriesSetup;
+        ItemJournalSetup;
+        isInitialized := true;
+        Commit;
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Warehouse I");
+    end;
+
+    local procedure AssignLotNoToItemJournalLine(ItemJournalLine: Record "Item Journal Line"; LotNo: Code[20]; Qty: Decimal)
+    begin
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(Qty);
+        ItemJournalLine.OpenItemTrackingLines(false);
+    end;
+
+    local procedure SetupSortingTestData(var Item: Record Item; var Location: Record Location; var Customer: Record Customer; var Vendor: Record Vendor; var "Count": Integer)
+    begin
+        CreateItem(Item);
+        CreateLocationSetup(Location, false, true, true);
+        CreateCustomer(Customer, Location.Code);
+        CreateVendor(Vendor, Location.Code);
+        Count := LibraryRandom.RandIntInRange(5, 10);
+    end;
+
+    local procedure NoSeriesSetup()
+    var
+        InventorySetup: Record "Inventory Setup";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        SalesSetup: Record "Sales & Receivables Setup";
+        WarehouseSetup: Record "Warehouse Setup";
+    begin
+        LibraryInventory.NoSeriesSetup(InventorySetup);
+        LibraryWarehouse.NoSeriesSetup(WarehouseSetup);
+
+        SalesSetup.Get;
+        SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        SalesSetup.Modify(true);
+
+        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        PurchasesPayablesSetup.Modify(true);
+    end;
+
+    local procedure ItemJournalSetup()
+    begin
+        Clear(ItemJournalTemplate);
+        ItemJournalTemplate.Init;
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
+        ItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ItemJournalTemplate.Modify(true);
+
+        Clear(ItemJournalBatch);
+        ItemJournalBatch.Init;
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
+        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ItemJournalBatch.Modify(true);
+    end;
+
+    local procedure CreateDirectedPutAwayAndPickLocation(var Location: Record Location)
+    begin
+        LibraryWarehouse.CreateLocationWMS(Location, true, true, true, true, true);
+        Location.Validate("Directed Put-away and Pick", true);
+        Location.Modify(true);
+    end;
+
+    local procedure CreateFullWMSLocation(var Location: Record Location; BinsPerZone: Integer)
+    var
+        WarehouseEmployee: Record "Warehouse Employee";
+    begin
+        LibraryWarehouse.CreateFullWMSLocation(Location, BinsPerZone);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+    end;
+
+    local procedure CreateItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
+    begin
+        LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
+          ItemJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, Quantity);
+        ItemJournalLine.Validate("Location Code", LocationCode);
+        ItemJournalLine.Modify(true);
+    end;
+
+    local procedure CreateItemWithLotWarehouseTracking(var Item: Record Item)
+    var
+        ItemTrackingCode: Record "Item Tracking Code";
+    begin
+        LibraryItemTracking.CreateLotItem(Item);
+        ItemTrackingCode.Get(Item."Item Tracking Code");
+        ItemTrackingCode.Validate("Lot Warehouse Tracking", true);
+        ItemTrackingCode.Modify(true);
+    end;
+
+    local procedure CreateItemWithSNWarehouseTracking(var Item: Record Item)
+    var
+        ItemTrackingCode: Record "Item Tracking Code";
+    begin
+        LibraryItemTracking.CreateSerialItem(Item);
+        ItemTrackingCode.Get(Item."Item Tracking Code");
+        ItemTrackingCode.Validate("SN Warehouse Tracking", true);
+        ItemTrackingCode.Modify(true);
+    end;
+
+    local procedure CreateLocationSetup(var Location: Record Location; UseAsInTransit: Boolean; RequireShipment: Boolean; RequireReceive: Boolean)
+    var
+        WarehouseEmployee: Record "Warehouse Employee";
+    begin
+        CreateLocation(Location, UseAsInTransit, RequireShipment, RequireReceive);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+    end;
+
+    local procedure CreateLocation(var Location: Record Location; UseAsInTransit: Boolean; RequireShipment: Boolean; RequireReceive: Boolean)
+    begin
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Location.Validate("Use As In-Transit", UseAsInTransit);
+        Location.Validate("Require Shipment", RequireShipment);
+        Location.Validate("Require Receive", RequireReceive);
+        Location.Modify(true);
+    end;
+
+    local procedure CreateReclassificationSetup(var ItemJournalLine: Record "Item Journal Line")
+    var
+        Location: Record Location;
+        Item: Record Item;
+    begin
+        LibraryWarehouse.CreateFullWMSLocation(Location, 1);
+        LibraryInventory.CreateItem(Item);
+        CreateItemReclassificationJournalLine(ItemJournalLine, Item."No.", 0);
+        ItemJournalLine.Validate("Location Code", Location.Code);
+        ItemJournalLine.Modify(true);
+    end;
+
+    local procedure CreateSalesDocumentWithLine(var SalesLine: Record "Sales Line"; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
+        SalesLine.Validate("Location Code", LocationCode);
+        SalesLine.Modify(true);
+    end;
+
+    local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ItemNo: Code[20]; Qty: Decimal; LocationCode: Code[10])
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Qty);
+        SalesLine.Validate("Location Code", LocationCode);
+        SalesLine.Modify(true);
+    end;
+
+    local procedure CreateSalesOrderWithTwoLines(var SalesHeader: Record "Sales Header"; var SalesLine: array[2] of Record "Sales Line"; ItemNo: Code[20]; Qty: Decimal; LocationCode: Code[10])
+    var
+        i: Integer;
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+
+        for i := 1 to 2 do begin
+            LibrarySales.CreateSalesLine(SalesLine[i], SalesHeader, SalesLine[i].Type::Item, ItemNo, Qty);
+            SalesLine[i].Validate("Location Code", LocationCode);
+            SalesLine[i].Modify(true);
+        end;
+    end;
+
+    local procedure CreateSalesOrderWithWarehouseShipment(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
+    var
+        Item: Record Item;
+        Location: Record Location;
+    begin
+        LibraryInventory.CreateItem(Item);
+        CreateLocation(Location, false, true, false);
+        CreateSalesOrder(SalesHeader, SalesLine, Item."No.", LibraryRandom.RandInt(100), Location.Code);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+    end;
+
+    local procedure CreateItemStockWithLot(LocationCode: Code[10]; ItemNo: Code[20]; LotNo: Code[20]; Qty: Decimal)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, ItemNo, LocationCode, '', Qty);
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(Qty);
+        ItemJournalLine.OpenItemTrackingLines(false);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+    end;
+
+    local procedure FindPostedWhseReceiptLine(var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; PurchaseLine: Record "Purchase Line")
+    begin
+        PostedWhseReceiptLine.SetRange("Source Type", DATABASE::"Purchase Line");
+        PostedWhseReceiptLine.SetRange("Source Subtype", PurchaseLine."Document Type");
+        PostedWhseReceiptLine.SetRange("Source No.", PurchaseLine."Document No.");
+        PostedWhseReceiptLine.SetRange("Source Line No.", PurchaseLine."Line No.");
+        PostedWhseReceiptLine.FindFirst;
+    end;
+
+    local procedure UpdateItemInventory(ItemNo: Code[20]; LocationCode: Code[10])
+    begin
+        UpdateItemInventoryFixedQty(ItemNo, LocationCode, LibraryRandom.RandDec(10, 2) + 1000);
+    end;
+
+    local procedure UpdateItemInventoryFixedQty(ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        CreateItemJournalLine(ItemJournalLine, ItemNo, LocationCode, Quantity);
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+    end;
+
+    local procedure UpdateWarehouseSetup(ShipmentPostingPolicy: Option; ReceiptPostingPolicy: Option)
+    var
+        WarehouseSetup: Record "Warehouse Setup";
+    begin
+        WarehouseSetup.Get;
+        WarehouseSetup.Validate("Shipment Posting Policy", ShipmentPostingPolicy);
+        WarehouseSetup.Validate("Receipt Posting Policy", ReceiptPostingPolicy);
+        WarehouseSetup.Modify(true);
+    end;
+
+    local procedure CreateItem(var Item: Record Item)
+    begin
+        LibraryInventory.CreateItem(Item);
+        CreateDefaultDimensionForItem(Item."No.");
+    end;
+
+    local procedure CreateLotTrackedItemWithOrderReorderingPolicy(var Item: Record Item)
+    begin
+        CreateItemWithLotWarehouseTracking(Item);
+        Item.Validate("Replenishment System", Item."Replenishment System"::Purchase);
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::Order);
+        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo);
+        Item.Modify(true);
+    end;
+
+    local procedure CreateDefaultDimensionForItem(ItemNo: Code[20])
+    var
+        DefaultDimension: Record "Default Dimension";
+        Dimension: Record Dimension;
+        DimensionValue: Record "Dimension Value";
+    begin
+        LibraryDimension.FindDimension(Dimension);
+        LibraryDimension.FindDimensionValue(DimensionValue, Dimension.Code);
+        LibraryDimension.CreateDefaultDimensionItem(DefaultDimension, ItemNo, Dimension.Code, DimensionValue.Code);
+        DefaultDimension.Validate("Value Posting", DefaultDimension."Value Posting"::"Code Mandatory");
+        DefaultDimension.Modify(true);
+    end;
+
+    local procedure CreateCustomer(var Customer: Record Customer; LocationCode: Code[10])
+    var
+        LibrarySales: Codeunit "Library - Sales";
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        CreateDefaultDimensionCustomer(Customer."No.");
+        Customer.Validate("Location Code", LocationCode);
+        Customer.Modify(true);
+    end;
+
+    local procedure CreateDefaultDimensionCustomer(CustomerNo: Code[20])
+    var
+        DefaultDimension: Record "Default Dimension";
+        Dimension: Record Dimension;
+        DimensionValue: Record "Dimension Value";
+    begin
+        SelectDimensionValue(Dimension, DimensionValue);
+        LibraryDimension.CreateDefaultDimensionCustomer(DefaultDimension, CustomerNo, Dimension.Code, DimensionValue.Code);
+        UpdateDefaultDimension(DefaultDimension);
+    end;
+
+    local procedure SelectDimensionValue(var Dimension: Record Dimension; var DimensionValue: Record "Dimension Value")
+    begin
+        LibraryDimension.FindDimension(Dimension);
+        LibraryDimension.FindDimensionValue(DimensionValue, Dimension.Code);
+    end;
+
+    local procedure UpdateDefaultDimension(DefaultDimension: Record "Default Dimension")
+    begin
+        DefaultDimension.Validate("Value Posting", DefaultDimension."Value Posting"::"Code Mandatory");
+        DefaultDimension.Modify(true);
+    end;
+
+    local procedure CreateSalesSetup(var SalesHeader: Record "Sales Header"; var SalesHeader2: Record "Sales Header"; DocumentType: Option; ItemNo: Code[20]; LocationCode: Code[10]; CustomerNo: Code[20])
+    begin
+        // Create and Release Sales Document with and without Dimensions.
+        CreateAndReleaseSalesDocument(SalesHeader, DocumentType, ItemNo, LocationCode, CustomerNo, true);
+        CreateAndReleaseSalesDocument(SalesHeader2, DocumentType, ItemNo, LocationCode, CustomerNo, false);
+    end;
+
+    local procedure CreateAndReleaseSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option; ItemNo: Code[20]; LocationCode: Code[10]; CustomerNo: Code[20]; DimensionSetEntryRequired: Boolean)
+    begin
+        CreateSalesDocument(SalesHeader, DocumentType, ItemNo, LocationCode, CustomerNo, DimensionSetEntryRequired);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+    end;
+
+    local procedure CreateItemReclassificationJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; Quantity: Decimal)
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+    begin
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Transfer);
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
+        LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
+          ItemJournalLine."Entry Type"::Transfer, ItemNo, Quantity);
+    end;
+
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option; ItemNo: Code[20]; LocationCode: Code[10]; CustomerNo: Code[20]; DimensionSetEntryRequired: Boolean)
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
+        UpdateSalesHeader(SalesHeader, DimensionSetEntryRequired);
+        CreateSalesLine(SalesHeader, ItemNo, LocationCode);
+    end;
+
+    local procedure CreateSalesLine(var SalesHeader: Record "Sales Header"; ItemNo: Code[20]; LocationCode: Code[10])
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandDec(10, 2));
+        SalesLine.Validate("Location Code", LocationCode);
+        SalesLine.Modify(true);
+    end;
+
+    local procedure UpdateSalesHeader(var SalesHeader: Record "Sales Header"; DimensionSetEntryRequired: Boolean)
+    begin
+        if not DimensionSetEntryRequired then begin
+            SalesHeader.Validate("Dimension Set ID", 0);
+            SalesHeader.Modify(true);
+        end;
+    end;
+
+    local procedure CreateWarehouseShipmentHeader(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; LocationCode: Code[10])
+    begin
+        LibraryWarehouse.CreateWarehouseShipmentHeader(WarehouseShipmentHeader);
+        WarehouseShipmentHeader.Validate("Location Code", LocationCode);
+        WarehouseShipmentHeader.Modify(true);
+    end;
+
+    local procedure CreateWarehouseReceiptHeader(var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; LocationCode: Code[10])
+    begin
+        LibraryWarehouse.CreateWarehouseReceiptHeader(WarehouseReceiptHeader);
+        WarehouseReceiptHeader.Validate("Location Code", LocationCode);
+        WarehouseReceiptHeader.Modify(true);
+    end;
+
+    local procedure CreatePutAwayFromPostedWhseRcpt(var WarehouseActivityLine: Record "Warehouse Activity Line"; PostedWhseReceiptLine: Record "Posted Whse. Receipt Line")
+    var
+        WhseSourceCreateDocument: Report "Whse.-Source - Create Document";
+    begin
+        WhseSourceCreateDocument.SetPostedWhseReceiptLine(PostedWhseReceiptLine, '');
+        WhseSourceCreateDocument.SetHideValidationDialog(true);
+        WhseSourceCreateDocument.UseRequestPage(false);
+        WhseSourceCreateDocument.RunModal;
+
+        LibraryWarehouse.FindWhseActivityLineBySourceDoc(
+          WarehouseActivityLine, PostedWhseReceiptLine."Source Type", PostedWhseReceiptLine."Source Subtype",
+          PostedWhseReceiptLine."Source No.", PostedWhseReceiptLine."Source Line No.");
+    end;
+
+    local procedure UseFiltersToGetSrcDocShipment(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; SellToCustomerNo: Code[20]; BuyFromVendorNo: Code[20]; TransferFrom: Code[10]; TransferTo: Code[10])
+    var
+        WarehouseSourceFilter: Record "Warehouse Source Filter";
+    begin
+        CreateWarehouseShipmentHeader(WarehouseShipmentHeader, TransferFrom);
+        LibraryWarehouse.CreateWarehouseSourceFilter(WarehouseSourceFilter, WarehouseSourceFilter.Type::Outbound);
+        UpdateSourceFilterSales(WarehouseSourceFilter, SellToCustomerNo);
+        UpdateSourceFilterPurchase(WarehouseSourceFilter, BuyFromVendorNo);
+        UpdateSourceFilterTransfer(WarehouseSourceFilter, TransferFrom, TransferTo);
+        LibraryWarehouse.GetSourceDocumentsShipment(WarehouseShipmentHeader, WarehouseSourceFilter, TransferFrom);
+    end;
+
+    local procedure UseFiltersToGetSrcDocReceipt(var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; SellToCustomerNo: Code[20]; BuyFromVendorNo: Code[20]; LocationCode: Code[10])
+    var
+        WarehouseSourceFilter: Record "Warehouse Source Filter";
+    begin
+        CreateWarehouseReceiptHeader(WarehouseReceiptHeader, LocationCode);
+        LibraryWarehouse.CreateWarehouseSourceFilter(WarehouseSourceFilter, WarehouseSourceFilter.Type::Inbound);
+        UpdateSourceFilterPurchase(WarehouseSourceFilter, BuyFromVendorNo);
+        UpdateSourceFilterSales(WarehouseSourceFilter, SellToCustomerNo);
+        LibraryWarehouse.GetSourceDocumentsReceipt(WarehouseReceiptHeader, WarehouseSourceFilter, LocationCode);
+    end;
+
+    local procedure UpdateSourceFilterSales(var WarehouseSourceFilter: Record "Warehouse Source Filter"; SellToCustomerNoFilter: Code[20])
+    begin
+        WarehouseSourceFilter.Validate("Sell-to Customer No. Filter", SellToCustomerNoFilter);
+        WarehouseSourceFilter.Modify(true);
+    end;
+
+    local procedure UpdateSourceFilterPurchase(var WarehouseSourceFilter: Record "Warehouse Source Filter"; BuyFromVendorNoFilter: Code[20])
+    begin
+        WarehouseSourceFilter.Validate("Buy-from Vendor No. Filter", BuyFromVendorNoFilter);
+        WarehouseSourceFilter.Modify(true);
+    end;
+
+    local procedure UpdateSourceFilterTransfer(var WarehouseSourceFilter: Record "Warehouse Source Filter"; TransferFromCodeFilter: Code[10]; TransferToCodeFilter: Code[10])
+    begin
+        WarehouseSourceFilter.Validate("Transfer-from Code Filter", TransferFromCodeFilter);
+        WarehouseSourceFilter.Validate("Transfer-to Code Filter", TransferToCodeFilter);
+        WarehouseSourceFilter.Modify(true);
+    end;
+
+    local procedure CreateVendor(var Vendor: Record Vendor; LocationCode: Code[10])
+    var
+        LibraryPurchase: Codeunit "Library - Purchase";
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        CreateDefaultDimensionVendor(Vendor."No.");
+        Vendor.Validate("Location Code", LocationCode);
+        Vendor.Modify(true);
+    end;
+
+    local procedure CreateDefaultDimensionVendor(VendorNo: Code[20])
+    var
+        DefaultDimension: Record "Default Dimension";
+        Dimension: Record Dimension;
+        DimensionValue: Record "Dimension Value";
+    begin
+        SelectDimensionValue(Dimension, DimensionValue);
+        LibraryDimension.CreateDefaultDimensionVendor(DefaultDimension, VendorNo, Dimension.Code, DimensionValue.Code);
+        UpdateDefaultDimension(DefaultDimension);
+    end;
+
+    local procedure CreatePurchaseSetup(var PurchaseHeader: Record "Purchase Header"; var PurchaseHeader2: Record "Purchase Header"; DocumentType: Option; ItemNo: Code[20]; LocationCode: Code[10]; VendorNo: Code[20])
+    begin
+        // Create and Release Purchase Document with and without Dimensions.
+        CreateAndReleasePurchDocument(PurchaseHeader, DocumentType, ItemNo, LocationCode, VendorNo, true);
+        CreateAndReleasePurchDocument(PurchaseHeader2, DocumentType, ItemNo, LocationCode, VendorNo, false);
+    end;
+
+    local procedure CreateAndReleasePurchDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; ItemNo: Code[20]; LocationCode: Code[10]; VendorNo: Code[20]; DimensionSetEntryRequired: Boolean)
+    begin
+        CreatePurchaseDocument(PurchaseHeader, DocumentType, ItemNo, LocationCode, VendorNo, DimensionSetEntryRequired);
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+    end;
+
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; ItemNo: Code[20]; LocationCode: Code[10]; VendorNo: Code[20]; DimensionSetEntryRequired: Boolean)
+    begin
+        Clear(PurchaseHeader);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
+        UpdatePurchaseHeader(PurchaseHeader, DimensionSetEntryRequired);
+        CreatePurchaseLine(PurchaseHeader, ItemNo, LocationCode);
+    end;
+
+    local procedure UpdatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DimensionSetEntryRequired: Boolean)
+    begin
+        if not DimensionSetEntryRequired then begin
+            PurchaseHeader.Validate("Dimension Set ID", 0);
+            PurchaseHeader.Modify(true);
+        end;
+    end;
+
+    local procedure CreatePurchaseLine(var PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; LocationCode: Code[10])
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, LibraryRandom.RandDec(10, 2));
+        PurchaseLine.Validate("Location Code", LocationCode);
+        PurchaseLine.Modify(true);
+    end;
+
+    local procedure CreateTransferLocations(var LocationFrom: Record Location; var LocationTo: Record Location; var LocationInTransit: Record Location)
+    begin
+        CreateLocationSetup(LocationFrom, false, true, true);  // Booleans: In Transit, Require Shipment, Require Receive.
+        CreateLocationSetup(LocationTo, false, true, true);
+        CreateLocationSetup(LocationInTransit, true, false, false);
+    end;
+
+    local procedure CreateTransferOrderSetup(var TransferHeader: Record "Transfer Header"; var TransferHeader2: Record "Transfer Header"; ItemNo: Code[20]; LocationFrom: Code[10]; LocationTo: Code[10]; LocationInTransit: Code[10])
+    begin
+        // Create and Release Transfer Order with and without Dimensions.
+        CreateAndReleaseTransferOrder(TransferHeader, ItemNo, LocationFrom, LocationTo, LocationInTransit, true);
+        CreateAndReleaseTransferOrder(TransferHeader2, ItemNo, LocationFrom, LocationTo, LocationInTransit, false);
+    end;
+
+    local procedure CreateAndReleaseTransferOrder(var TransferHeader: Record "Transfer Header"; ItemNo: Code[20]; LocationFrom: Code[10]; LocationTo: Code[10]; LocationInTransit: Code[10]; DimensionSetEntryRequired: Boolean)
+    begin
+        CreateTransferOrder(TransferHeader, ItemNo, LocationFrom, LocationTo, LocationInTransit, DimensionSetEntryRequired);
+        LibraryWarehouse.ReleaseTransferOrder(TransferHeader);
+    end;
+
+    local procedure CreateShipPickLocation(var Location: Record Location)
+    begin
+        CreateLocation(Location, false, true, false);
+        Location.Validate("Require Pick", true);
+        Location.Modify(true);
+    end;
+
+    local procedure CreateTrackedPurchOrderPostWhseReceipt(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; LocationCode: Code[10]; ItemNo: Code[20]; Qty: Decimal)
+    var
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+    begin
+        Clear(PurchaseHeader);
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order,
+          LibraryPurchase.CreateVendorNo, ItemNo, Qty, LocationCode, WorkDate);
+
+        PurchaseLine.OpenItemTrackingLines;
+
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+
+        WarehouseReceiptHeader.Get(
+          LibraryWarehouse.FindWhseReceiptNoBySourceDoc(
+            DATABASE::"Purchase Line", PurchaseHeader."Document Type", PurchaseHeader."No."));
+        LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
+    end;
+
+    local procedure CreateTransferOrder(var TransferHeader: Record "Transfer Header"; ItemNo: Code[20]; LocationFrom: Code[10]; LocationTo: Code[10]; LocationInTransit: Code[10]; DimensionSetEntryRequired: Boolean)
+    var
+        TransferLine: Record "Transfer Line";
+    begin
+        LibraryWarehouse.CreateTransferHeader(TransferHeader, LocationFrom, LocationTo, LocationInTransit);
+        LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, ItemNo, LibraryRandom.RandDec(10, 2));
+        UpdateTransferLine(TransferLine, DimensionSetEntryRequired);
+    end;
+
+    local procedure CreateWhseJournalLine(var WarehouseJournalLine: Record "Warehouse Journal Line"; LocationCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
+    var
+        WarehouseJournalTemplate: Record "Warehouse Journal Template";
+        WarehouseJournalBatch: Record "Warehouse Journal Batch";
+    begin
+        LibraryWarehouse.SelectWhseJournalTemplateName(WarehouseJournalTemplate, WarehouseJournalTemplate.Type::Item);
+        LibraryWarehouse.CreateWhseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Name, LocationCode);
+        LibraryWarehouse.CreateWhseJournalLine(
+          WarehouseJournalLine, WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name, LocationCode, '',
+          BinCode, WarehouseJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, Quantity);
+    end;
+
+    local procedure CreateWhsePickFromSalesOrder(var SalesHeader: Record "Sales Header")
+    var
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+    begin
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+        WarehouseShipmentHeader.Get(
+          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(DATABASE::"Sales Line", SalesHeader."Document Type", SalesHeader."No."));
+        LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
+    end;
+
+    local procedure PostPositiveAdjustmentOnWarehouse(Location: Record Location; Item: Record Item; Quantity: Decimal)
+    var
+        WarehouseJournalLine: Record "Warehouse Journal Line";
+    begin
+        CreateWhseJournalLine(WarehouseJournalLine, Location.Code, Location."Receipt Bin Code", Item."No.", Quantity);
+        LibraryWarehouse.RegisterWhseJournalLine(
+          WarehouseJournalLine."Journal Template Name", WarehouseJournalLine."Journal Batch Name", Location.Code, true);
+        LibraryWarehouse.CalculateWhseAdjustment(Item, ItemJournalBatch);
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+    end;
+
+    local procedure UpdateTransferLine(var TransferLine: Record "Transfer Line"; DimensionSetEntryRequired: Boolean)
+    begin
+        if not DimensionSetEntryRequired then begin
+            TransferLine.Validate("Dimension Set ID", 0);
+            TransferLine.Modify(true);
+        end;
+    end;
+
+    local procedure SelectPostedWhseShipmentLine(var PostedWhseShipmentLine: Record "Posted Whse. Shipment Line"; WhseShipmentNo: Code[20]; SourceDocument: Option; ItemNo: Code[20])
+    begin
+        PostedWhseShipmentLine.SetRange("Whse. Shipment No.", WhseShipmentNo);
+        PostedWhseShipmentLine.SetRange("Source Document", SourceDocument);
+        PostedWhseShipmentLine.SetRange("Item No.", ItemNo);
+        PostedWhseShipmentLine.FindFirst;
+    end;
+
+    local procedure SelectSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Option; DocumentNo: Code[20]; No: Code[20])
+    begin
+        SalesLine.SetRange("Document Type", DocumentType);
+        SalesLine.SetRange("Document No.", DocumentNo);
+        SalesLine.SetRange("No.", No);
+        SalesLine.FindFirst;
+    end;
+
+    local procedure SelectPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; DocumentNo: Code[20]; No: Code[20])
+    begin
+        PurchaseLine.SetRange("Document Type", DocumentType);
+        PurchaseLine.SetRange("Document No.", DocumentNo);
+        PurchaseLine.SetRange("No.", No);
+        PurchaseLine.FindFirst;
+    end;
+
+    local procedure SetQtyToHandleOnWhseActivityLine(SourceType: Integer; SourceSubtype: Option; SourceNo: Code[20]; LotNo: Code[20]; QtyToHandle: Decimal)
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        with WarehouseActivityLine do begin
+            SetRange("Source Type", SourceType);
+            SetRange("Source Subtype", SourceSubtype);
+            SetRange("Source No.", SourceNo);
+            SetRange("Lot No.", LotNo);
+            FindSet;
+            repeat
+                ;
+                Validate("Qty. to Handle", QtyToHandle);
+                Modify(true);
+            until Next = 0;
+        end;
+    end;
+
+    local procedure BlockItemForPosting(ItemNo: Code[20]; Blocked: Boolean)
+    var
+        Item: Record Item;
+    begin
+        // Block and Unblock Item.
+        Item.Get(ItemNo);
+        Item.Validate(Blocked, Blocked);
+        Item.Modify(true);
+    end;
+
+    local procedure ShipmentSalesPurchRetTransfer(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var SalesHeader: Record "Sales Header"; var PurchaseHeader: Record "Purchase Header"; var TransferHeader: Record "Transfer Header"; var Item: Record Item; SalesDimension: Boolean; PurchaseReturnDimension: Boolean; TransferDimension: Boolean)
+    var
+        LocationFrom: Record Location;
+        LocationTo: Record Location;
+        LocationInTransit: Record Location;
+        Customer: Record Customer;
+        Vendor: Record Vendor;
+    begin
+        CreateItem(Item);
+        CreateTransferLocations(LocationFrom, LocationTo, LocationInTransit);
+        UpdateItemInventory(Item."No.", LocationFrom.Code);
+        CreateCustomer(Customer, LocationFrom.Code);
+        CreateVendor(Vendor, LocationFrom.Code);
+
+        // Create Sales Order, Purchase Return Order, and Transfer Order.
+        // Create Warehouse Shipment using Filters to get Source document.
+        CreateAndReleaseSalesDocument(
+          SalesHeader, SalesHeader."Document Type"::Order, Item."No.", LocationFrom.Code, Customer."No.", SalesDimension);
+        CreateAndReleasePurchDocument(
+          PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", Item."No.", LocationFrom.Code, Vendor."No.",
+          PurchaseReturnDimension);
+        CreateAndReleaseTransferOrder(
+          TransferHeader, Item."No.", LocationFrom.Code, LocationTo.Code, LocationInTransit.Code, TransferDimension);
+        UseFiltersToGetSrcDocShipment(WarehouseShipmentHeader, Customer."No.", Vendor."No.", LocationFrom.Code, LocationTo.Code);
+    end;
+
+    local procedure ReceiptPurchaseSalesReturn(var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; var Item: Record Item; var SalesHeader: Record "Sales Header"; var PurchaseHeader: Record "Purchase Header"; PurchaseDimension: Boolean; SalesReturnDimension: Boolean)
+    var
+        Location: Record Location;
+        Customer: Record Customer;
+        Vendor: Record Vendor;
+    begin
+        CreateItem(Item);
+        CreateLocationSetup(Location, false, true, true);
+        UpdateItemInventory(Item."No.", Location.Code);
+        CreateCustomer(Customer, Location.Code);
+        CreateVendor(Vendor, Location.Code);
+
+        // Create Purchase Order and Sales Return Order setup without Dimensions.
+        // Create Warehouse Receipt using Filters to get Source document.
+        CreateAndReleasePurchDocument(
+          PurchaseHeader, PurchaseHeader."Document Type"::Order, Item."No.", Location.Code, Vendor."No.", PurchaseDimension);
+        CreateAndReleaseSalesDocument(
+          SalesHeader, SalesHeader."Document Type"::"Return Order", Item."No.", Location.Code, Customer."No.", SalesReturnDimension);
+        UseFiltersToGetSrcDocReceipt(WarehouseReceiptHeader, Customer."No.", Vendor."No.", Location.Code);
+    end;
+
+    local procedure FilterWhseReceiptLines(var WhseReceiptLine: Record "Warehouse Receipt Line"; DocumentNo: Code[20]; ItemNo: Code[20])
+    begin
+        WhseReceiptLine.SetRange("No.", DocumentNo);
+        WhseReceiptLine.SetRange("Item No.", ItemNo);
+    end;
+
+    local procedure FilterWhseShipmentLines(var WhseShipmentLine: Record "Warehouse Shipment Line"; DocumentNo: Code[20]; ItemNo: Code[20])
+    begin
+        WhseShipmentLine.SetRange("No.", DocumentNo);
+        WhseShipmentLine.SetRange("Item No.", ItemNo);
+    end;
+
+    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceType: Integer; SourceSubtype: Option; SourceNo: Code[20]; SourceLineNo: Integer)
+    begin
+        with WarehouseActivityLine do begin
+            SetRange("Source Type", SourceType);
+            SetRange("Source Subtype", SourceSubtype);
+            SetRange("Source No.", SourceNo);
+            SetRange("Source Line No.", SourceLineNo);
+            FindSet;
+        end;
+    end;
+
+    local procedure UpdateInventoryOnDirectedPutAwayPickLocationTrackedItem(ItemNo: Code[20]; LocationCode: Code[10]; Qty: Decimal; ItemTrackingNo: Code[20])
+    begin
+        LibraryVariableStorage.Enqueue(ItemTrackingNo);
+        LibraryVariableStorage.Enqueue(Qty);
+        LibraryWarehouse.UpdateInventoryOnLocationWithDirectedPutAwayAndPick(ItemNo, LocationCode, Qty, true);
+    end;
+
+    local procedure VerifyItemInventory(ItemNo: Code[20]; LocationCode: Code[10]; GlobalDimension1Code: Code[20]; ExpectedQuantity: Decimal)
+    var
+        Item: Record Item;
+    begin
+        Item.Get(ItemNo);
+        Item.SetRange("Location Filter", LocationCode);
+        Item.SetRange("Global Dimension 1 Filter", GlobalDimension1Code);
+        Item.CalcFields(Inventory);
+        Item.TestField(Inventory, ExpectedQuantity);
+    end;
+
+    local procedure VerifyPickedQuantity(ItemNo: Code[20]; QtyPicked: Decimal)
+    var
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+    begin
+        with WarehouseShipmentLine do begin
+            SetRange("Item No.", ItemNo);
+            FindFirst;
+            TestField("Qty. Picked", QtyPicked);
+        end;
+    end;
+
+    local procedure VerifyPostedShipmentLinesSales(WhseShipmentNo: Code[20]; ItemNo: Code[20]; DocumentNo: Code[20])
+    var
+        PostedWhseShipmentLine: Record "Posted Whse. Shipment Line";
+        SalesLine: Record "Sales Line";
+    begin
+        SelectPostedWhseShipmentLine(
+          PostedWhseShipmentLine, WhseShipmentNo, PostedWhseShipmentLine."Source Document"::"Sales Order", ItemNo);
+        SelectSalesLine(SalesLine, SalesLine."Document Type"::Order, DocumentNo, ItemNo);
+        PostedWhseShipmentLine.TestField(Quantity, SalesLine.Quantity);
+    end;
+
+    local procedure VerifyPostedShipmentLinesPurch(WhseShipmentNo: Code[20]; ItemNo: Code[20]; DocumentNo: Code[20])
+    var
+        PostedWhseShipmentLine: Record "Posted Whse. Shipment Line";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        SelectPostedWhseShipmentLine(
+          PostedWhseShipmentLine, WhseShipmentNo, PostedWhseShipmentLine."Source Document"::"Purchase Return Order", ItemNo);
+        SelectPurchaseLine(PurchaseLine, PurchaseLine."Document Type"::"Return Order", DocumentNo, ItemNo);
+        PostedWhseShipmentLine.TestField(Quantity, PurchaseLine.Quantity);
+    end;
+
+    local procedure VerifyPostedShipmentLinesTrans(WhseShipmentNo: Code[20]; ItemNo: Code[20]; DocumentNo: Code[20])
+    var
+        PostedWhseShipmentLine: Record "Posted Whse. Shipment Line";
+        TransferLine: Record "Transfer Line";
+    begin
+        SelectPostedWhseShipmentLine(
+          PostedWhseShipmentLine, WhseShipmentNo, PostedWhseShipmentLine."Source Document"::"Outbound Transfer", ItemNo);
+        TransferLine.SetRange("Document No.", DocumentNo);
+        TransferLine.SetRange("Item No.", ItemNo);
+        TransferLine.FindFirst;
+        PostedWhseShipmentLine.TestField(Quantity, TransferLine.Quantity);
+    end;
+
+    local procedure SelectPostedWhseReceiptLine(var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; WhseReceiptNo: Code[20]; SourceDocument: Option; ItemNo: Code[20])
+    begin
+        PostedWhseReceiptLine.SetRange("Whse. Receipt No.", WhseReceiptNo);
+        PostedWhseReceiptLine.SetRange("Source Document", SourceDocument);
+        PostedWhseReceiptLine.SetRange("Item No.", ItemNo);
+        PostedWhseReceiptLine.FindFirst;
+    end;
+
+    local procedure VerifyPostedReceiptLinesSales(WhseReceiptNo: Code[20]; ItemNo: Code[20]; DocumentNo: Code[20])
+    var
+        PostedWhseReceiptLine: Record "Posted Whse. Receipt Line";
+        SalesLine: Record "Sales Line";
+    begin
+        SelectPostedWhseReceiptLine(
+          PostedWhseReceiptLine, WhseReceiptNo, PostedWhseReceiptLine."Source Document"::"Sales Return Order", ItemNo);
+        SelectSalesLine(SalesLine, SalesLine."Document Type"::"Return Order", DocumentNo, ItemNo);
+        PostedWhseReceiptLine.TestField(Quantity, SalesLine.Quantity);
+    end;
+
+    local procedure VerifyPostedReceiptLinesPurch(WhseReceiptNo: Code[20]; ItemNo: Code[20]; DocumentNo: Code[20])
+    var
+        PostedWhseReceiptLine: Record "Posted Whse. Receipt Line";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        SelectPostedWhseReceiptLine(
+          PostedWhseReceiptLine, WhseReceiptNo, PostedWhseReceiptLine."Source Document"::"Purchase Order", ItemNo);
+        SelectPurchaseLine(PurchaseLine, PurchaseLine."Document Type"::Order, DocumentNo, ItemNo);
+        PostedWhseReceiptLine.TestField(Quantity, PurchaseLine.Quantity);
+    end;
+
+    local procedure VerifyRcptLineNotExist(WhseReceiptNo: Code[20])
+    var
+        PostedWhseReceiptLine: Record "Posted Whse. Receipt Line";
+    begin
+        PostedWhseReceiptLine.SetFilter("Whse. Receipt No.", '%1', WhseReceiptNo);
+        Assert.AreEqual(0, PostedWhseReceiptLine.Count, ErrNoRecord);
+    end;
+
+    local procedure VerifyReservedLotNo(ItemNo: Code[20]; LotNo: Code[20])
+    var
+        ReservEntry: Record "Reservation Entry";
+    begin
+        with ReservEntry do begin
+            SetRange("Item No.", ItemNo);
+            SetRange("Source Type", DATABASE::"Item Ledger Entry");
+            FindFirst;
+            TestField("Lot No.", LotNo);
+        end;
+    end;
+
+    local procedure VerifySalesReservationFromInventory(SalesLine: Record "Sales Line"; LotNo: Code[20])
+    var
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        with ReservationEntry do begin
+            SetSourceFilter(DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.", false);
+            FindFirst;
+            TestField("Reservation Status", "Reservation Status"::Reservation);
+            TestField("Lot No.", LotNo);
+            Reset;
+            SetRange("Entry No.", "Entry No.");
+            SetRange(Positive, not Positive);
+            FindFirst;
+            TestField("Source Type", DATABASE::"Item Ledger Entry");
+            TestField("Lot No.", LotNo);
+        end;
+    end;
+
+    local procedure VerifyPurchaseSurplusReservEntry(PurchaseLine: Record "Purchase Line"; LotNo: Code[20])
+    var
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        with ReservationEntry do begin
+            SetSourceFilter(
+              DATABASE::"Purchase Line", PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.", false);
+            FindFirst;
+            TestField("Reservation Status", "Reservation Status"::Surplus);
+            TestField("Lot No.", LotNo);
+        end;
+    end;
+
+    local procedure VerifyWhseShipmentLineSorting(ItemNo: Code[20]; DocCount: Integer)
+    var
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+        SortingSequenceNo: Integer;
+    begin
+        with WarehouseShipmentLine do begin
+            SetRange("Item No.", ItemNo);
+            SetFilter("Sorting Sequence No.", '<>%1', 0);
+            Assert.AreEqual(
+              DocCount,
+              Count,
+              StrSubstNo(EmptyTableErr, DocCount, TableCaption, GetFilters));
+            FindSet;
+            SortingSequenceNo := "Sorting Sequence No.";
+            while Next <> 0 do begin
+                Assert.IsTrue("Sorting Sequence No." > SortingSequenceNo, StrSubstNo(SortingOrderErr, TableCaption));
+                SortingSequenceNo := "Sorting Sequence No.";
+            end;
+        end;
+    end;
+
+    local procedure VerifyWhseReceiptLineSorting(ItemNo: Code[20]; DocCount: Integer)
+    var
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+        SortingSequenceNo: Integer;
+    begin
+        with WarehouseReceiptLine do begin
+            SetRange("Item No.", ItemNo);
+            SetFilter("Sorting Sequence No.", '<>%1', 0);
+            Assert.AreEqual(
+              DocCount,
+              Count,
+              StrSubstNo(EmptyTableErr, DocCount, TableCaption, GetFilters));
+            FindSet;
+            SortingSequenceNo := "Sorting Sequence No.";
+            while Next <> 0 do begin
+                Assert.IsTrue("Sorting Sequence No." > SortingSequenceNo, StrSubstNo(SortingOrderErr, TableCaption));
+                SortingSequenceNo := "Sorting Sequence No.";
+            end;
+        end;
+    end;
+
+    local procedure VerifyWhseReceiptLineCreated(DocumentNo: Code[20]; ItemNo: Code[20])
+    var
+        WhseReceiptLine: Record "Warehouse Receipt Line";
+    begin
+        with WhseReceiptLine do begin
+            FilterWhseReceiptLines(WhseReceiptLine, DocumentNo, ItemNo);
+            Assert.IsFalse(IsEmpty, StrSubstNo(EmptyTableErr, 1, TableCaption, GetFilter("No.")));
+        end;
+    end;
+
+    local procedure VerifyWhseReceiptLineNotCreated(DocumentNo: Code[20]; ItemNo: Code[20])
+    var
+        WhseReceiptLine: Record "Warehouse Receipt Line";
+    begin
+        with WhseReceiptLine do begin
+            FilterWhseReceiptLines(WhseReceiptLine, DocumentNo, ItemNo);
+            Assert.IsTrue(IsEmpty, ErrNoRecord);
+        end;
+    end;
+
+    local procedure VerifyWhseShipmentLineCreated(DocumentNo: Code[20]; ItemNo: Code[20])
+    var
+        WhseShipmentLine: Record "Warehouse Shipment Line";
+    begin
+        with WhseShipmentLine do begin
+            FilterWhseShipmentLines(WhseShipmentLine, DocumentNo, ItemNo);
+            Assert.IsFalse(IsEmpty, StrSubstNo(EmptyTableErr, 1, TableCaption, GetFilter("No.")));
+        end;
+    end;
+
+    local procedure VerifyWhseShipmentLineNotCreated(DocumentNo: Code[20]; ItemNo: Code[20])
+    var
+        WhseShipmentLine: Record "Warehouse Shipment Line";
+    begin
+        with WhseShipmentLine do begin
+            FilterWhseShipmentLines(WhseShipmentLine, DocumentNo, ItemNo);
+            Assert.IsTrue(IsEmpty, ErrNoRecord);
+        end;
+    end;
+
+    local procedure VerifyWhseShipmentCompletelyPicked(SalesDocType: Option; SalesDocNo: Code[20]; ItemNo: Code[20])
+    var
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+    begin
+        with WarehouseShipmentLine do begin
+            SetRange("Source Type", DATABASE::"Sales Line");
+            SetRange("Source Subtype", SalesDocType);
+            SetRange("Source No.", SalesDocNo);
+            SetRange("Item No.", ItemNo);
+            FindFirst;
+            TestField("Qty. Picked", Quantity);
+        end;
+    end;
+
+    [StrMenuHandler]
+    [Scope('OnPrem')]
+    procedure StringMenuHandler(Options: Text[1024]; var Choice: Integer; Instructions: Text[1024])
+    begin
+        Choice := 1;  // Ship Only.
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Assert.IsTrue(StrPos(Question, 'Do you want to post the receipt?') > 0, Question);
+        Reply := true;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerWithMessageVerification(ConfirmMessage: Text[1024]; var Reply: Boolean)
+    var
+        ConfirmMessageText: Text;
+    begin
+        ConfirmMessageText := LibraryVariableStorage.DequeueText;
+        Assert.IsTrue(StrPos(ConfirmMessage, ConfirmMessageText) > 0, ConfirmMessage);
+        Reply := LibraryVariableStorage.DequeueBoolean;
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure ShipLinesMessageHandler(Message: Text[1024])
+    begin
+        Assert.IsTrue(StrPos(Message, 'Ship lines have been posted.') > 0, Message);
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure SourceDocMessageHandler(Message: Text[1024])
+    begin
+        Assert.IsTrue(StrPos(Message, 'Number of source documents posted:') > 0, Message);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemTrackingLinesPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    begin
+        ItemTrackingLines.New;
+        ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
+        ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal);
+        ItemTrackingLines.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemTrackingLinesSetLotNoAndSerialNoPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    var
+        i: Integer;
+        CheckAvaliable: Boolean;
+    begin
+        CheckAvaliable := LibraryVariableStorage.DequeueBoolean;
+
+        for i := 1 to LibraryVariableStorage.DequeueInteger do begin
+            ItemTrackingLines.New;
+            ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
+            ItemTrackingLines."Serial No.".SetValue(LibraryVariableStorage.DequeueText);
+            ItemTrackingLines."Quantity (Base)".SetValue(1);
+        end;
+
+        if CheckAvaliable then
+            LibraryVariableStorage.Enqueue(ItemTrackingLines.AvailabilitySerialNo.AsBoolean);
+
+        ItemTrackingLines.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure WhseItemTrackingLinesAssignLotPageHandler(var WhseItemTrackingLines: TestPage "Whse. Item Tracking Lines")
+    begin
+        WhseItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
+        WhseItemTrackingLines.Quantity.SetValue(LibraryVariableStorage.DequeueDecimal);
+        WhseItemTrackingLines.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure WhseItemTrackingLinesAssignSerialNoPageHandler(var WhseItemTrackingLines: TestPage "Whse. Item Tracking Lines")
+    begin
+        WhseItemTrackingLines."Serial No.".SetValue(LibraryVariableStorage.DequeueText);
+        WhseItemTrackingLines.Quantity.SetValue(LibraryVariableStorage.DequeueDecimal);
+        WhseItemTrackingLines.OK.Invoke;
+    end;
+}
+

@@ -1,0 +1,1050 @@
+table 5700 "Stockkeeping Unit"
+{
+    Caption = 'Stockkeeping Unit';
+    DrillDownPageID = "Stockkeeping Unit List";
+    LookupPageID = "Stockkeeping Unit List";
+
+    fields
+    {
+        field(1; "Item No."; Code[20])
+        {
+            Caption = 'Item No.';
+            NotBlank = true;
+            TableRelation = Item WHERE(Type = CONST(Inventory));
+
+            trigger OnValidate()
+            var
+                Item: Record Item;
+            begin
+                if "Item No." = xRec."Item No." then
+                    exit;
+
+                if Item.Get("Item No.") then
+                    CopyFromItem(Item);
+
+                CalcFields(Description, "Description 2", "Assembly BOM", Inventory);
+            end;
+        }
+        field(2; "Variant Code"; Code[10])
+        {
+            Caption = 'Variant Code';
+            TableRelation = "Item Variant".Code WHERE("Item No." = FIELD("Item No."));
+
+            trigger OnValidate()
+            begin
+                CalcFields(
+                  Inventory, "Qty. on Purch. Order", "Qty. on Prod. Order", "Qty. in Transit",
+                  "Qty. on Component Lines", "Qty. on Sales Order", "Qty. on Service Order", "Qty. on Job Order",
+                  "Qty. on Assembly Order", "Qty. on Asm. Component");
+            end;
+        }
+        field(3; "Location Code"; Code[10])
+        {
+            Caption = 'Location Code';
+            TableRelation = Location WHERE("Use As In-Transit" = CONST(false));
+
+            trigger OnValidate()
+            begin
+                if "Location Code" = '' then
+                    Validate("Replenishment System");
+                CheckTransferRoute;
+                CalcFields(
+                  Inventory, "Qty. on Purch. Order", "Qty. on Prod. Order", "Qty. in Transit",
+                  "Qty. on Component Lines", "Qty. on Sales Order", "Qty. on Service Order", "Qty. on Job Order",
+                  "Qty. on Assembly Order", "Qty. on Asm. Component");
+            end;
+        }
+        field(4; Description; Text[100])
+        {
+            CalcFormula = Lookup (Item.Description WHERE("No." = FIELD("Item No.")));
+            Caption = 'Description';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(5; "Description 2"; Text[50])
+        {
+            CalcFormula = Lookup (Item."Description 2" WHERE("No." = FIELD("Item No.")));
+            Caption = 'Description 2';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(6; "Assembly BOM"; Boolean)
+        {
+            CalcFormula = Exist ("BOM Component" WHERE("Parent Item No." = FIELD("Item No.")));
+            Caption = 'Assembly BOM';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(12; "Shelf No."; Code[10])
+        {
+            Caption = 'Shelf No.';
+        }
+        field(22; "Unit Cost"; Decimal)
+        {
+            AutoFormatType = 2;
+            Caption = 'Unit Cost';
+            MinValue = 0;
+
+            trigger OnValidate()
+            begin
+                Item.Get("Item No.");
+                if Item."Costing Method" = Item."Costing Method"::Standard then
+                    Validate("Standard Cost", "Unit Cost")
+                else
+                    TestNoEntriesExist(FieldCaption("Unit Cost"));
+            end;
+        }
+        field(24; "Standard Cost"; Decimal)
+        {
+            AutoFormatType = 2;
+            Caption = 'Standard Cost';
+            MinValue = 0;
+
+            trigger OnValidate()
+            var
+                IsHandled: Boolean;
+            begin
+                IsHandled := false;
+                OnBeforeValidateStandardCost(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
+                Item.Get("Item No.");
+                if (Item."Costing Method" = Item."Costing Method"::Standard) and (CurrFieldNo <> 0) then
+                    if not
+                       Confirm(
+                         Text001 +
+                         Text002 +
+                         Text003, false,
+                         FieldCaption("Standard Cost"))
+                    then begin
+                        "Standard Cost" := xRec."Standard Cost";
+                        exit;
+                    end;
+
+                ItemCostMgt.UpdateUnitCostSKU(Item, Rec, 0, 0, true, FieldNo("Standard Cost"));
+            end;
+        }
+        field(25; "Last Direct Cost"; Decimal)
+        {
+            AutoFormatType = 2;
+            Caption = 'Last Direct Cost';
+            MinValue = 0;
+        }
+        field(31; "Vendor No."; Code[20])
+        {
+            Caption = 'Vendor No.';
+            TableRelation = Vendor;
+
+            trigger OnValidate()
+            begin
+                if (xRec."Vendor No." <> "Vendor No.") and
+                   ("Vendor No." <> '')
+                then
+                    if Vend.Get("Vendor No.") then
+                        "Lead Time Calculation" := Vend."Lead Time Calculation";
+            end;
+        }
+        field(32; "Vendor Item No."; Text[20])
+        {
+            Caption = 'Vendor Item No.';
+        }
+        field(33; "Lead Time Calculation"; DateFormula)
+        {
+            Caption = 'Lead Time Calculation';
+
+            trigger OnValidate()
+            begin
+                LeadTimeMgt.CheckLeadTimeIsNotNegative("Lead Time Calculation");
+            end;
+        }
+        field(34; "Reorder Point"; Decimal)
+        {
+            Caption = 'Reorder Point';
+            DecimalPlaces = 0 : 5;
+        }
+        field(35; "Maximum Inventory"; Decimal)
+        {
+            AccessByPermission = TableData "Req. Wksh. Template" = R;
+            Caption = 'Maximum Inventory';
+            DecimalPlaces = 0 : 5;
+        }
+        field(36; "Reorder Quantity"; Decimal)
+        {
+            Caption = 'Reorder Quantity';
+            DecimalPlaces = 0 : 5;
+        }
+        field(53; Comment; Boolean)
+        {
+            CalcFormula = Exist ("Stockkeeping Unit Comment Line" WHERE("Item No." = FIELD("Item No."),
+                                                                        "Variant Code" = FIELD("Variant Code"),
+                                                                        "Location Code" = FIELD("Location Code")));
+            Caption = 'Comment';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(62; "Last Date Modified"; Date)
+        {
+            Caption = 'Last Date Modified';
+            Editable = false;
+        }
+        field(64; "Date Filter"; Date)
+        {
+            Caption = 'Date Filter';
+            FieldClass = FlowFilter;
+        }
+        field(65; "Global Dimension 1 Filter"; Code[20])
+        {
+            Caption = 'Global Dimension 1 Filter';
+            FieldClass = FlowFilter;
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+        }
+        field(66; "Global Dimension 2 Filter"; Code[20])
+        {
+            Caption = 'Global Dimension 2 Filter';
+            FieldClass = FlowFilter;
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+        }
+        field(68; Inventory; Decimal)
+        {
+            CalcFormula = Sum ("Item Ledger Entry".Quantity WHERE("Item No." = FIELD("Item No."),
+                                                                  "Location Code" = FIELD("Location Code"),
+                                                                  "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
+                                                                  "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
+                                                                  "Drop Shipment" = FIELD("Drop Shipment Filter"),
+                                                                  "Variant Code" = FIELD("Variant Code")));
+            Caption = 'Inventory';
+            DecimalPlaces = 0 : 5;
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(84; "Qty. on Purch. Order"; Decimal)
+        {
+            AccessByPermission = TableData "Purch. Rcpt. Header" = R;
+            CalcFormula = Sum ("Purchase Line"."Outstanding Qty. (Base)" WHERE("Document Type" = CONST(Order),
+                                                                               Type = CONST(Item),
+                                                                               "No." = FIELD("Item No."),
+                                                                               "Location Code" = FIELD("Location Code"),
+                                                                               "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
+                                                                               "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
+                                                                               "Drop Shipment" = FIELD("Drop Shipment Filter"),
+                                                                               "Variant Code" = FIELD("Variant Code"),
+                                                                               "Expected Receipt Date" = FIELD("Date Filter")));
+            Caption = 'Qty. on Purch. Order';
+            DecimalPlaces = 0 : 5;
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(85; "Qty. on Sales Order"; Decimal)
+        {
+            AccessByPermission = TableData "Sales Shipment Header" = R;
+            CalcFormula = Sum ("Sales Line"."Outstanding Qty. (Base)" WHERE("Document Type" = CONST(Order),
+                                                                            Type = CONST(Item),
+                                                                            "No." = FIELD("Item No."),
+                                                                            "Location Code" = FIELD("Location Code"),
+                                                                            "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
+                                                                            "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
+                                                                            "Drop Shipment" = FIELD("Drop Shipment Filter"),
+                                                                            "Variant Code" = FIELD("Variant Code"),
+                                                                            "Shipment Date" = FIELD("Date Filter")));
+            Caption = 'Qty. on Sales Order';
+            DecimalPlaces = 0 : 5;
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(89; "Drop Shipment Filter"; Boolean)
+        {
+            Caption = 'Drop Shipment Filter';
+            FieldClass = FlowFilter;
+        }
+        field(910; "Assembly Policy"; Option)
+        {
+            AccessByPermission = TableData "BOM Component" = R;
+            Caption = 'Assembly Policy';
+            OptionCaption = 'Assemble-to-Stock,Assemble-to-Order';
+            OptionMembers = "Assemble-to-Stock","Assemble-to-Order";
+
+            trigger OnValidate()
+            begin
+                if "Assembly Policy" = "Assembly Policy"::"Assemble-to-Order" then
+                    TestField("Replenishment System", "Replenishment System"::Assembly);
+            end;
+        }
+        field(977; "Qty. on Assembly Order"; Decimal)
+        {
+            CalcFormula = Sum ("Assembly Header"."Remaining Quantity (Base)" WHERE("Document Type" = CONST(Order),
+                                                                                   "Item No." = FIELD("Item No."),
+                                                                                   "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
+                                                                                   "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
+                                                                                   "Location Code" = FIELD("Location Code"),
+                                                                                   "Variant Code" = FIELD("Variant Code"),
+                                                                                   "Due Date" = FIELD("Date Filter")));
+            Caption = 'Qty. on Assembly Order';
+            DecimalPlaces = 0 : 5;
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(978; "Qty. on Asm. Component"; Decimal)
+        {
+            CalcFormula = Sum ("Assembly Line"."Remaining Quantity (Base)" WHERE("Document Type" = CONST(Order),
+                                                                                 Type = CONST(Item),
+                                                                                 "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
+                                                                                 "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
+                                                                                 "No." = FIELD("Item No."),
+                                                                                 "Location Code" = FIELD("Location Code"),
+                                                                                 "Variant Code" = FIELD("Variant Code"),
+                                                                                 "Due Date" = FIELD("Date Filter")));
+            Caption = 'Qty. on Asm. Component';
+            DecimalPlaces = 0 : 5;
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(1001; "Qty. on Job Order"; Decimal)
+        {
+            CalcFormula = Sum ("Job Planning Line"."Remaining Qty. (Base)" WHERE(Status = CONST(Order),
+                                                                                 Type = CONST(Item),
+                                                                                 "No." = FIELD("Item No."),
+                                                                                 "Location Code" = FIELD("Location Code"),
+                                                                                 "Variant Code" = FIELD("Variant Code"),
+                                                                                 "Planning Date" = FIELD("Date Filter")));
+            Caption = 'Qty. on Job Order';
+            DecimalPlaces = 0 : 5;
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(5400; "Transfer-Level Code"; Integer)
+        {
+            Caption = 'Transfer-Level Code';
+            Editable = false;
+        }
+        field(5401; "Lot Size"; Decimal)
+        {
+            AccessByPermission = TableData "Production Order" = R;
+            Caption = 'Lot Size';
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+        }
+        field(5410; "Discrete Order Quantity"; Integer)
+        {
+            Caption = 'Discrete Order Quantity';
+            MinValue = 0;
+        }
+        field(5411; "Minimum Order Quantity"; Decimal)
+        {
+            Caption = 'Minimum Order Quantity';
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+        }
+        field(5412; "Maximum Order Quantity"; Decimal)
+        {
+            AccessByPermission = TableData "Req. Wksh. Template" = R;
+            Caption = 'Maximum Order Quantity';
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+        }
+        field(5413; "Safety Stock Quantity"; Decimal)
+        {
+            AccessByPermission = TableData "Req. Wksh. Template" = R;
+            Caption = 'Safety Stock Quantity';
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+        }
+        field(5414; "Order Multiple"; Decimal)
+        {
+            AccessByPermission = TableData "Req. Wksh. Template" = R;
+            Caption = 'Order Multiple';
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+        }
+        field(5415; "Safety Lead Time"; DateFormula)
+        {
+            AccessByPermission = TableData "Req. Wksh. Template" = R;
+            Caption = 'Safety Lead Time';
+
+            trigger OnValidate()
+            begin
+                CalendarMgt.CheckDateFormulaPositive("Safety Lead Time");
+            end;
+        }
+        field(5416; "Components at Location"; Code[10])
+        {
+            Caption = 'Components at Location';
+            TableRelation = Location;
+        }
+        field(5417; "Flushing Method"; Option)
+        {
+            Caption = 'Flushing Method';
+            OptionCaption = 'Manual,Forward,Backward,Pick + Forward,Pick + Backward';
+            OptionMembers = Manual,Forward,Backward,"Pick + Forward","Pick + Backward";
+        }
+        field(5419; "Replenishment System"; Option)
+        {
+            Caption = 'Replenishment System';
+            OptionCaption = 'Purchase,Prod. Order,Transfer,Assembly';
+            OptionMembers = Purchase,"Prod. Order",Transfer,Assembly;
+
+            trigger OnValidate()
+            begin
+                if "Replenishment System" <> "Replenishment System"::Assembly then
+                    TestField("Assembly Policy", "Assembly Policy"::"Assemble-to-Stock");
+
+                case "Replenishment System" of
+                    "Replenishment System"::Purchase,
+                    "Replenishment System"::"Prod. Order",
+                    "Replenishment System"::Assembly:
+                        begin
+                            "Transfer-Level Code" := 0;
+                            FromLocation := "Transfer-from Code";
+                            if not UpdateTransferLevels(Rec) then
+                                ShowLoopError;
+                        end;
+                    "Replenishment System"::Transfer:
+                        begin
+                            if "Location Code" = '' then
+                                Error(
+                                  Text004,
+                                  FieldCaption("Location Code"), TableCaption,
+                                  "Replenishment System", FieldCaption("Replenishment System"));
+                            Validate("Transfer-from Code");
+                        end;
+                end;
+            end;
+        }
+        field(5420; "Scheduled Receipt (Qty.)"; Decimal)
+        {
+            CalcFormula = Sum ("Prod. Order Line"."Remaining Qty. (Base)" WHERE(Status = FILTER(Planned .. Released),
+                                                                                "Item No." = FIELD("Item No."),
+                                                                                "Location Code" = FIELD("Location Code"),
+                                                                                "Variant Code" = FIELD("Variant Code"),
+                                                                                "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
+                                                                                "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
+                                                                                "Ending Date" = FIELD("Date Filter")));
+            Caption = 'Scheduled Receipt (Qty.)';
+            DecimalPlaces = 0 : 5;
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(5421; "Scheduled Need (Qty.)"; Decimal)
+        {
+            CalcFormula = Sum ("Prod. Order Component"."Remaining Qty. (Base)" WHERE(Status = FILTER(Planned .. Released),
+                                                                                     "Item No." = FIELD("Item No."),
+                                                                                     "Location Code" = FIELD("Location Code"),
+                                                                                     "Variant Code" = FIELD("Variant Code"),
+                                                                                     "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
+                                                                                     "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
+                                                                                     "Due Date" = FIELD("Date Filter")));
+            Caption = 'Scheduled Need (Qty.)';
+            DecimalPlaces = 0 : 5;
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(5423; "Bin Filter"; Code[20])
+        {
+            Caption = 'Bin Filter';
+            FieldClass = FlowFilter;
+            TableRelation = Bin.Code WHERE("Location Code" = FIELD("Location Code"));
+        }
+        field(5428; "Time Bucket"; DateFormula)
+        {
+            Caption = 'Time Bucket';
+
+            trigger OnValidate()
+            begin
+                CalendarMgt.CheckDateFormulaPositive("Time Bucket");
+            end;
+        }
+        field(5440; "Reordering Policy"; Option)
+        {
+            Caption = 'Reordering Policy';
+            OptionCaption = ' ,Fixed Reorder Qty.,Maximum Qty.,Order,Lot-for-Lot';
+            OptionMembers = " ","Fixed Reorder Qty.","Maximum Qty.","Order","Lot-for-Lot";
+
+            trigger OnValidate()
+            begin
+                "Include Inventory" :=
+                  "Reordering Policy" in ["Reordering Policy"::"Lot-for-Lot",
+                                          "Reordering Policy"::"Maximum Qty.",
+                                          "Reordering Policy"::"Fixed Reorder Qty."];
+            end;
+        }
+        field(5441; "Include Inventory"; Boolean)
+        {
+            Caption = 'Include Inventory';
+        }
+        field(5442; "Manufacturing Policy"; Option)
+        {
+            Caption = 'Manufacturing Policy';
+            OptionCaption = 'Make-to-Stock,Make-to-Order';
+            OptionMembers = "Make-to-Stock","Make-to-Order";
+        }
+        field(5443; "Rescheduling Period"; DateFormula)
+        {
+            Caption = 'Rescheduling Period';
+
+            trigger OnValidate()
+            begin
+                CalendarMgt.CheckDateFormulaPositive("Rescheduling Period");
+            end;
+        }
+        field(5444; "Lot Accumulation Period"; DateFormula)
+        {
+            Caption = 'Lot Accumulation Period';
+
+            trigger OnValidate()
+            begin
+                CalendarMgt.CheckDateFormulaPositive("Lot Accumulation Period");
+            end;
+        }
+        field(5445; "Dampener Period"; DateFormula)
+        {
+            Caption = 'Dampener Period';
+
+            trigger OnValidate()
+            begin
+                CalendarMgt.CheckDateFormulaPositive("Dampener Period");
+            end;
+        }
+        field(5446; "Dampener Quantity"; Decimal)
+        {
+            Caption = 'Dampener Quantity';
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+        }
+        field(5447; "Overflow Level"; Decimal)
+        {
+            Caption = 'Overflow Level';
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+        }
+        field(5700; "Transfer-from Code"; Code[10])
+        {
+            Caption = 'Transfer-from Code';
+            TableRelation = Location WHERE("Use As In-Transit" = CONST(false));
+
+            trigger OnValidate()
+            var
+                FromSKU: Record "Stockkeeping Unit";
+            begin
+                FromSKU.SetRange("Location Code", "Transfer-from Code");
+                FromSKU.SetRange("Item No.", "Item No.");
+                FromSKU.SetRange("Variant Code", "Variant Code");
+                if not FromSKU.FindFirst then
+                    "Transfer-Level Code" := -1
+                else
+                    "Transfer-Level Code" := FromSKU."Transfer-Level Code" - 1;
+                FromLocation := "Transfer-from Code";
+                Modify(true);
+
+                CheckTransferRoute;
+            end;
+        }
+        field(5701; "Qty. in Transit"; Decimal)
+        {
+            CalcFormula = Sum ("Transfer Line"."Qty. in Transit (Base)" WHERE("Derived From Line No." = CONST(0),
+                                                                              "Item No." = FIELD("Item No."),
+                                                                              "Transfer-to Code" = FIELD("Location Code"),
+                                                                              "Variant Code" = FIELD("Variant Code"),
+                                                                              "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
+                                                                              "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
+                                                                              "Receipt Date" = FIELD("Date Filter")));
+            Caption = 'Qty. in Transit';
+            DecimalPlaces = 0 : 5;
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(5702; "Trans. Ord. Receipt (Qty.)"; Decimal)
+        {
+            CalcFormula = Sum ("Transfer Line"."Outstanding Qty. (Base)" WHERE("Derived From Line No." = CONST(0),
+                                                                               "Item No." = FIELD("Item No."),
+                                                                               "Transfer-to Code" = FIELD("Location Code"),
+                                                                               "Variant Code" = FIELD("Variant Code"),
+                                                                               "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
+                                                                               "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
+                                                                               "Receipt Date" = FIELD("Date Filter")));
+            Caption = 'Trans. Ord. Receipt (Qty.)';
+            DecimalPlaces = 0 : 5;
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(5703; "Trans. Ord. Shipment (Qty.)"; Decimal)
+        {
+            CalcFormula = Sum ("Transfer Line"."Outstanding Qty. (Base)" WHERE("Derived From Line No." = CONST(0),
+                                                                               "Item No." = FIELD("Item No."),
+                                                                               "Transfer-from Code" = FIELD("Location Code"),
+                                                                               "Variant Code" = FIELD("Variant Code"),
+                                                                               "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
+                                                                               "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
+                                                                               "Shipment Date" = FIELD("Date Filter")));
+            Caption = 'Trans. Ord. Shipment (Qty.)';
+            DecimalPlaces = 0 : 5;
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(5901; "Qty. on Service Order"; Decimal)
+        {
+            CalcFormula = Sum ("Service Line"."Outstanding Qty. (Base)" WHERE("Document Type" = CONST(Order),
+                                                                              Type = CONST(Item),
+                                                                              "No." = FIELD("Item No."),
+                                                                              "Location Code" = FIELD("Location Code"),
+                                                                              "Variant Code" = FIELD("Variant Code"),
+                                                                              "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
+                                                                              "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
+                                                                              "Needed by Date" = FIELD("Date Filter")));
+            Caption = 'Qty. on Service Order';
+            DecimalPlaces = 0 : 5;
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(7301; "Special Equipment Code"; Code[10])
+        {
+            Caption = 'Special Equipment Code';
+            TableRelation = "Special Equipment";
+        }
+        field(7302; "Put-away Template Code"; Code[10])
+        {
+            Caption = 'Put-away Template Code';
+            TableRelation = "Put-away Template Header";
+        }
+        field(7307; "Put-away Unit of Measure Code"; Code[10])
+        {
+            Caption = 'Put-away Unit of Measure Code';
+            TableRelation = "Item Unit of Measure".Code WHERE("Item No." = FIELD("Item No."));
+        }
+        field(7380; "Phys Invt Counting Period Code"; Code[10])
+        {
+            Caption = 'Phys Invt Counting Period Code';
+            TableRelation = "Phys. Invt. Counting Period";
+
+            trigger OnValidate()
+            var
+                PhysInvtCountPeriod: Record "Phys. Invt. Counting Period";
+                PhysInvtCountPeriodMgt: Codeunit "Phys. Invt. Count.-Management";
+            begin
+                if "Phys Invt Counting Period Code" <> '' then begin
+                    PhysInvtCountPeriod.Get("Phys Invt Counting Period Code");
+                    PhysInvtCountPeriod.TestField("Count Frequency per Year");
+                    if "Phys Invt Counting Period Code" <> xRec."Phys Invt Counting Period Code" then begin
+                        if CurrFieldNo <> 0 then
+                            if not Confirm(
+                                 Text7380,
+                                 false,
+                                 FieldCaption("Phys Invt Counting Period Code"),
+                                 FieldCaption("Next Counting Start Date"),
+                                 FieldCaption("Next Counting End Date"))
+                            then
+                                Error(Text7381);
+
+                        if ("Last Counting Period Update" = 0D) or
+                           ("Phys Invt Counting Period Code" <> xRec."Phys Invt Counting Period Code")
+                        then
+                            PhysInvtCountPeriodMgt.CalcPeriod(
+                              "Last Counting Period Update", "Next Counting Start Date", "Next Counting End Date",
+                              PhysInvtCountPeriod."Count Frequency per Year");
+                    end;
+                end else begin
+                    if not HideValidationDialog then
+                        if not Confirm(Text003, false, FieldCaption("Phys Invt Counting Period Code")) then
+                            Error(Text7381);
+                    "Next Counting Start Date" := 0D;
+                    "Next Counting End Date" := 0D;
+                    "Last Counting Period Update" := 0D;
+                end;
+            end;
+        }
+        field(7381; "Last Counting Period Update"; Date)
+        {
+            Caption = 'Last Counting Period Update';
+            Editable = false;
+        }
+        field(7383; "Last Phys. Invt. Date"; Date)
+        {
+            CalcFormula = Max ("Phys. Inventory Ledger Entry"."Posting Date" WHERE("Item No." = FIELD("Item No."),
+                                                                                   "Location Code" = FIELD("Location Code"),
+                                                                                   "Variant Code" = FIELD("Variant Code"),
+                                                                                   "Phys Invt Counting Period Type" = FILTER(" " | SKU)));
+            Caption = 'Last Phys. Invt. Date';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(7384; "Use Cross-Docking"; Boolean)
+        {
+            AccessByPermission = TableData "Bin Content" = R;
+            Caption = 'Use Cross-Docking';
+            InitValue = true;
+        }
+        field(7385; "Next Counting Start Date"; Date)
+        {
+            Caption = 'Next Counting Start Date';
+        }
+        field(7386; "Next Counting End Date"; Date)
+        {
+            Caption = 'Next Counting End Date';
+        }
+        field(99000765; "Planned Order Receipt (Qty.)"; Decimal)
+        {
+            CalcFormula = Sum ("Prod. Order Line"."Remaining Qty. (Base)" WHERE(Status = CONST(Planned),
+                                                                                "Item No." = FIELD("Item No."),
+                                                                                "Variant Code" = FIELD("Variant Code"),
+                                                                                "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
+                                                                                "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
+                                                                                "Location Code" = FIELD("Location Code"),
+                                                                                "Ending Date" = FIELD("Date Filter")));
+            Caption = 'Planned Order Receipt (Qty.)';
+            DecimalPlaces = 0 : 5;
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(99000766; "FP Order Receipt (Qty.)"; Decimal)
+        {
+            CalcFormula = Sum ("Prod. Order Line"."Remaining Qty. (Base)" WHERE(Status = CONST("Firm Planned"),
+                                                                                "Item No." = FIELD("Item No."),
+                                                                                "Variant Code" = FIELD("Variant Code"),
+                                                                                "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
+                                                                                "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
+                                                                                "Location Code" = FIELD("Location Code"),
+                                                                                "Ending Date" = FIELD("Date Filter")));
+            Caption = 'FP Order Receipt (Qty.)';
+            DecimalPlaces = 0 : 5;
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(99000767; "Rel. Order Receipt (Qty.)"; Decimal)
+        {
+            CalcFormula = Sum ("Prod. Order Line"."Remaining Qty. (Base)" WHERE(Status = CONST(Released),
+                                                                                "Item No." = FIELD("Item No."),
+                                                                                "Variant Code" = FIELD("Variant Code"),
+                                                                                "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
+                                                                                "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
+                                                                                "Location Code" = FIELD("Location Code"),
+                                                                                "Ending Date" = FIELD("Date Filter")));
+            Caption = 'Rel. Order Receipt (Qty.)';
+            DecimalPlaces = 0 : 5;
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(99000769; "Planned Order Release (Qty.)"; Decimal)
+        {
+            CalcFormula = Sum ("Prod. Order Line"."Remaining Qty. (Base)" WHERE(Status = CONST(Planned),
+                                                                                "Item No." = FIELD("Item No."),
+                                                                                "Variant Code" = FIELD("Variant Code"),
+                                                                                "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
+                                                                                "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
+                                                                                "Location Code" = FIELD("Location Code"),
+                                                                                "Starting Date" = FIELD("Date Filter")));
+            Caption = 'Planned Order Release (Qty.)';
+            DecimalPlaces = 0 : 5;
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(99000770; "Purch. Req. Receipt (Qty.)"; Decimal)
+        {
+            CalcFormula = Sum ("Requisition Line"."Quantity (Base)" WHERE(Type = CONST(Item),
+                                                                          "No." = FIELD("Item No."),
+                                                                          "Location Code" = FIELD("Location Code"),
+                                                                          "Variant Code" = FIELD("Variant Code"),
+                                                                          "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
+                                                                          "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
+                                                                          "Due Date" = FIELD("Date Filter")));
+            Caption = 'Purch. Req. Receipt (Qty.)';
+            DecimalPlaces = 0 : 5;
+            FieldClass = FlowField;
+        }
+        field(99000771; "Purch. Req. Release (Qty.)"; Decimal)
+        {
+            CalcFormula = Sum ("Requisition Line"."Quantity (Base)" WHERE(Type = CONST(Item),
+                                                                          "No." = FIELD("Item No."),
+                                                                          "Location Code" = FIELD("Location Code"),
+                                                                          "Variant Code" = FIELD("Variant Code"),
+                                                                          "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
+                                                                          "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
+                                                                          "Order Date" = FIELD("Date Filter")));
+            Caption = 'Purch. Req. Release (Qty.)';
+            DecimalPlaces = 0 : 5;
+            FieldClass = FlowField;
+        }
+        field(99000777; "Qty. on Prod. Order"; Decimal)
+        {
+            CalcFormula = Sum ("Prod. Order Line"."Remaining Qty. (Base)" WHERE(Status = FILTER(Planned .. Released),
+                                                                                "Item No." = FIELD("Item No."),
+                                                                                "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
+                                                                                "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
+                                                                                "Location Code" = FIELD("Location Code"),
+                                                                                "Variant Code" = FIELD("Variant Code"),
+                                                                                "Due Date" = FIELD("Date Filter")));
+            Caption = 'Qty. on Prod. Order';
+            DecimalPlaces = 0 : 5;
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(99000778; "Qty. on Component Lines"; Decimal)
+        {
+            CalcFormula = Sum ("Prod. Order Component"."Remaining Qty. (Base)" WHERE(Status = FILTER(Planned .. Released),
+                                                                                     "Item No." = FIELD("Item No."),
+                                                                                     "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
+                                                                                     "Shortcut Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
+                                                                                     "Location Code" = FIELD("Location Code"),
+                                                                                     "Variant Code" = FIELD("Variant Code"),
+                                                                                     "Due Date" = FIELD("Date Filter")));
+            Caption = 'Qty. on Component Lines';
+            DecimalPlaces = 0 : 5;
+            Editable = false;
+            FieldClass = FlowField;
+        }
+    }
+
+    keys
+    {
+        key(Key1; "Location Code", "Item No.", "Variant Code")
+        {
+            Clustered = true;
+        }
+        key(Key2; "Replenishment System", "Vendor No.", "Transfer-from Code")
+        {
+        }
+        key(Key3; "Item No.", "Location Code", "Variant Code")
+        {
+        }
+        key(Key4; "Item No.", "Transfer-Level Code")
+        {
+        }
+    }
+
+    fieldgroups
+    {
+    }
+
+    trigger OnDelete()
+    var
+        StockkeepingCommentLine: Record "Stockkeeping Unit Comment Line";
+    begin
+        StockkeepingCommentLine.SetRange("Item No.", "Item No.");
+        StockkeepingCommentLine.SetRange("Variant Code", "Variant Code");
+        StockkeepingCommentLine.SetRange("Location Code", "Location Code");
+        StockkeepingCommentLine.DeleteAll;
+    end;
+
+    trigger OnInsert()
+    begin
+        if ("Variant Code" = '') and
+           ("Location Code" = '')
+        then
+            Error(
+              Text000,
+              FieldCaption("Location Code"), FieldCaption("Variant Code"), TableCaption);
+
+        "Last Date Modified" := Today;
+        PlanningAssignment.AssignOne("Item No.", "Variant Code", "Location Code", WorkDate);
+    end;
+
+    trigger OnModify()
+    begin
+        "Last Date Modified" := Today;
+        PlanningAssignment.SKUChange(Rec, xRec);
+    end;
+
+    trigger OnRename()
+    begin
+        if ("Variant Code" = '') and
+           ("Location Code" = '')
+        then
+            Error(
+              Text000,
+              FieldCaption("Location Code"), FieldCaption("Variant Code"), TableCaption);
+
+        "Last Date Modified" := Today;
+    end;
+
+    var
+        Text000: Label 'You must specify a %1 or a %2 for each %3.';
+        Text001: Label 'There may be orders and open ledger entries for the item. ';
+        Text002: Label 'If you change %1 it may affect new orders and entries.\\';
+        Text003: Label 'Do you want to change %1?';
+        Text004: Label 'You must specify a %1 for this %2 to use %3 as %4.';
+        Text005: Label 'You must specify a %1 from %2 %3 to %2 %4.';
+        Text006: Label 'A circular reference in %1 has been detected:\%2 ->%3 ->%4';
+        TransferRoute: Record "Transfer Route";
+        Item: Record Item;
+        PlanningAssignment: Record "Planning Assignment";
+        Vend: Record Vendor;
+        ItemCostMgt: Codeunit ItemCostManagement;
+        CalendarMgt: Codeunit "Calendar Management";
+        LeadTimeMgt: Codeunit "Lead-Time Management";
+        FromLocation: Code[10];
+        ErrorString: Text[80];
+        HideValidationDialog: Boolean;
+        Text008: Label 'You cannot change %1 because there are one or more ledger entries for this SKU.';
+        Text7380: Label 'If you change the %1, the %2 and %3 are calculated.\Do you still want to change the %1?', Comment = 'If you change the Phys Invt Counting Period Code, the Next Counting Start Date and Next Counting End Date are calculated.\Do you still want to change the Phys Invt Counting Period Code?';
+        Text7381: Label 'Cancelled.';
+
+    local procedure TransferRouteExists(TransferFromCode: Code[10]; TransferToCode: Code[10]): Boolean
+    begin
+        TransferRoute.SetRange("Transfer-from Code", TransferFromCode);
+        TransferRoute.SetRange("Transfer-to Code", TransferToCode);
+        exit(TransferRoute.FindFirst);
+    end;
+
+    local procedure UpdateTransferLevels(FromSKU: Record "Stockkeeping Unit"): Boolean
+    var
+        ToSKU: Record "Stockkeeping Unit";
+    begin
+        ToSKU.SetCurrentKey("Replenishment System", "Vendor No.", "Transfer-from Code");
+        ToSKU.SetRange("Replenishment System", "Replenishment System"::Transfer);
+        ToSKU.SetRange("Transfer-from Code", FromSKU."Location Code");
+        ToSKU.SetRange("Item No.", FromSKU."Item No.");
+        ToSKU.SetRange("Variant Code", FromSKU."Variant Code");
+        if ToSKU.Find('-') then
+            repeat
+                if ToSKU."Location Code" = FromLocation then begin
+                    ErrorString := ToSKU."Location Code";
+                    exit(false);
+                end;
+                ToSKU."Transfer-Level Code" := FromSKU."Transfer-Level Code" - 1;
+                ToSKU.Modify;
+                if not UpdateTransferLevels(ToSKU) then begin
+                    if (StrLen(ErrorString) + StrLen(ToSKU."Location Code")) >
+                       (MaxStrLen(ErrorString) - 9)
+                    then begin
+                        ErrorString := ErrorString + ' ->...';
+                        ShowLoopError;
+                    end;
+                    ErrorString := ErrorString + ' ->' + ToSKU."Location Code";
+                    exit(false);
+                end;
+            until ToSKU.Next = 0;
+        exit(true);
+    end;
+
+    local procedure ShowLoopError()
+    begin
+        Error(Text006, FieldCaption("Transfer-from Code"), ErrorString, "Location Code", "Transfer-from Code");
+    end;
+
+    local procedure TestNoEntriesExist(CurrentFieldName: Text[100])
+    var
+        ItemLedgEntry: Record "Item Ledger Entry";
+    begin
+        ItemLedgEntry.SetRange("Item No.", "Item No.");
+        ItemLedgEntry.SetRange("Variant Code", "Variant Code");
+        ItemLedgEntry.SetRange("Location Code", "Location Code");
+        if not ItemLedgEntry.IsEmpty then
+            Error(
+              Text008,
+              CurrentFieldName);
+    end;
+
+    procedure ShowTimeline(SKU: Record "Stockkeeping Unit")
+    begin
+        Item.ShowTimelineFromSKU(SKU."Item No.", SKU."Location Code", SKU."Variant Code");
+    end;
+
+    procedure UpdateTempSKUTransferLevels(FromSKU: Record "Stockkeeping Unit"; var TempToSKU: Record "Stockkeeping Unit" temporary; FromLocationCode: Code[10]): Boolean
+    begin
+        // Used by the planning engine to update the transfer level codes on a temporary SKU record set
+        // generated based on actual transfer orders.
+
+        TempToSKU.Reset;
+        TempToSKU.SetCurrentKey("Item No.", "Location Code", "Variant Code");
+        TempToSKU.SetRange("Transfer-from Code", FromSKU."Location Code");
+        TempToSKU.SetRange("Item No.", FromSKU."Item No.");
+        TempToSKU.SetRange("Variant Code", FromSKU."Variant Code");
+        if TempToSKU.Find('-') then
+            repeat
+                if TempToSKU."Location Code" = FromLocationCode then begin
+                    ErrorString := TempToSKU."Location Code";
+                    exit(false);
+                end;
+                TempToSKU."Transfer-Level Code" := FromSKU."Transfer-Level Code" - 1;
+                TempToSKU.Modify;
+                if not TempToSKU.UpdateTempSKUTransferLevels(TempToSKU, TempToSKU, FromLocationCode) then begin
+                    if (StrLen(ErrorString) + StrLen(TempToSKU."Location Code")) >
+                       (MaxStrLen(ErrorString) - 9)
+                    then begin
+                        ErrorString := ErrorString + ' ->...';
+                        Error(
+                          Text006,
+                          FieldCaption("Transfer-from Code"), ErrorString, "Location Code", "Transfer-from Code");
+                    end;
+                    ErrorString := ErrorString + ' ->' + TempToSKU."Location Code";
+                    exit(false);
+                end;
+            until TempToSKU.Next = 0;
+        exit(true);
+    end;
+
+    local procedure CheckTransferRoute()
+    begin
+        if not UpdateTransferLevels(Rec) then
+            ShowLoopError;
+
+        if "Transfer-from Code" <> '' then
+            if not TransferRouteExists("Transfer-from Code", "Location Code") then
+                Error(
+                  Text005,
+                  TransferRoute.TableCaption,
+                  FieldCaption("Location Code"),
+                  "Transfer-from Code",
+                  "Location Code");
+    end;
+
+    procedure SetHideValidationDialog(NewHideValidationDialog: Boolean)
+    begin
+        HideValidationDialog := NewHideValidationDialog;
+    end;
+
+    procedure CopyFromItem(Item: Record Item)
+    var
+        IsHandled: Boolean;
+    begin
+        OnBeforeCopyFromItem(Rec, Item, IsHandled);
+        if IsHandled then
+            exit;
+
+        "Shelf No." := Item."Shelf No.";
+        "Vendor No." := Item."Vendor No.";
+        "Vendor Item No." := Item."Vendor Item No.";
+        "Lead Time Calculation" := Item."Lead Time Calculation";
+        "Reorder Point" := Item."Reorder Point";
+        "Maximum Inventory" := Item."Maximum Inventory";
+        "Reorder Quantity" := Item."Reorder Quantity";
+        "Reordering Policy" := Item."Reordering Policy";
+        "Include Inventory" := Item."Include Inventory";
+        "Manufacturing Policy" := Item."Manufacturing Policy";
+        "Discrete Order Quantity" := Item."Discrete Order Quantity";
+        "Minimum Order Quantity" := Item."Minimum Order Quantity";
+        "Maximum Order Quantity" := Item."Maximum Order Quantity";
+        "Safety Stock Quantity" := Item."Safety Stock Quantity";
+        "Order Multiple" := Item."Order Multiple";
+        "Safety Lead Time" := Item."Safety Lead Time";
+        "Flushing Method" := Item."Flushing Method";
+        "Replenishment System" := Item."Replenishment System";
+        "Time Bucket" := Item."Time Bucket";
+        "Rescheduling Period" := Item."Rescheduling Period";
+        "Lot Accumulation Period" := Item."Lot Accumulation Period";
+        "Dampener Period" := Item."Dampener Period";
+        "Dampener Quantity" := Item."Dampener Quantity";
+        "Overflow Level" := Item."Overflow Level";
+        "Lot Size" := Item."Lot Size";
+        "Assembly Policy" := Item."Assembly Policy";
+        "Last Direct Cost" := Item."Last Direct Cost";
+        "Standard Cost" := Item."Standard Cost";
+        "Unit Cost" := Item."Unit Cost";
+
+        OnAfterCopyFromItem(Rec, Item)
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyFromItem(var StockkeepingUnit: Record "Stockkeeping Unit"; Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyFromItem(var StockkeepingUnit: Record "Stockkeeping Unit"; Item: Record Item; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateStandardCost(var StockkeepingUnit: Record "Stockkeeping Unit"; xStockkeepingUnit: Record "Stockkeeping Unit"; CallingFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+}
+

@@ -1,0 +1,735 @@
+codeunit 137801 "SCM - Planning UT"
+{
+    Permissions = TableData "Requisition Line" = i;
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    trigger OnRun()
+    begin
+        // [FEATURE] [Planning] [SCM]
+    end;
+
+    var
+        Assert: Codeunit Assert;
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryApplicationArea: Codeunit "Library - Application Area";
+        LibraryUtility: Codeunit "Library - Utility";
+        WrongQuantityInReqLine: Label 'The quantity %1 is wrong. It must be either %2 or %3.', Comment = 'Example: The quantity 11 is wrong. It must be either 12 or 8.';
+        LibraryInventory: Codeunit "Library - Inventory";
+        LibraryPurchase: Codeunit "Library - Purchase";
+        LibrarySales: Codeunit "Library - Sales";
+        LibraryWarehouse: Codeunit "Library - Warehouse";
+        LibraryPlanning: Codeunit "Library - Planning";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryRandom: Codeunit "Library - Random";
+        IsInitialized: Boolean;
+        OpenWorksheetErr: Label '%1 must have a value in %2: %3=%4. It cannot be zero or empty.', Comment = '[Page ID] must have a value in [Table Caption]: [PK Field Name]=[PK Field Value]. It cannot be zero or empty.';
+        UnexpectedRequisitionLineErr: Label 'Requisition line is unexpected.';
+        LeadTimeCalcNegativeErr: Label 'The amount of time to replenish the item must not be negative.';
+        NoCannotBeFoundInItemTableErr: Label 'The field No. of table Requisition Line contains a value (%1) that cannot be found in the related table (Item).', Comment = 'Item.No';
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VSTF325404()
+    begin
+        PlanUnitTestScenario(2, 5, 10, PAGE::"Planning Worksheet");
+    end;
+
+    [Test]
+    [HandlerFunctions('ReqWorkheetMPH')]
+    [Scope('OnPrem')]
+    procedure OpenReqWorksheetOnRequisitionLine()
+    var
+        RequisitionWorksheetTemplateName: Code[10];
+    begin
+        // Setup
+        RequisitionWorksheetTemplateName := InitOpenWorksheetFromRequisitionLineScenario(PAGE::"Req. Worksheet");
+
+        // Execute and Verify
+        // We call ShowDocument function (codeunit 5530) and expect defined Worksheet Page to be opened
+        // If ShowDocument opens another page test fails due to test's Page Handler is not passed
+        VerifyShowDocumentOnRequisitionLine(RequisitionWorksheetTemplateName);
+    end;
+
+    [Test]
+    [HandlerFunctions('PlanningWorkheetMPH,ReqWorksheetTemplateListMPH')]
+    [Scope('OnPrem')]
+    procedure OpenPlanningWorksheetOnRequisitionLine()
+    var
+        RequisitionWorksheetTemplateName: Code[10];
+    begin
+        // Setup
+        RequisitionWorksheetTemplateName := InitOpenWorksheetFromRequisitionLineScenario(PAGE::"Planning Worksheet");
+
+        // Execute and Verify
+        // We call ShowDocument function (codeunit 5530) and expect defined Worksheet Page to be opened
+        // If ShowDocument opens another page then test fails due to test's Page Handler is not passed
+        VerifyShowDocumentOnRequisitionLine(RequisitionWorksheetTemplateName);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ErrorOpenWorksheetOnRequisitionLine()
+    var
+        ReqWkshTemplate: Record "Req. Wksh. Template";
+        RequisitionWorksheetTemplateName: Code[10];
+    begin
+        // Setup
+        RequisitionWorksheetTemplateName := InitOpenWorksheetFromRequisitionLineScenario(0);
+
+        // Execute: Error should be thrown due to Page ID is not set in Req. Worksheet Template
+        asserterror VerifyShowDocumentOnRequisitionLine(RequisitionWorksheetTemplateName);
+
+        // Verify
+        with ReqWkshTemplate do
+            Assert.ExpectedError(
+              StrSubstNo(
+                OpenWorksheetErr,
+                FieldCaption("Page ID"),
+                TableCaption,
+                FieldCaption(Name),
+                RequisitionWorksheetTemplateName));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseReturnWithNegativeQty()
+    var
+        Item: Record Item;
+        PurchaseLine: Record "Purchase Line";
+        ReqWkshTemplate: Record "Req. Wksh. Template";
+        ManufacturingSetup: Record "Manufacturing Setup";
+        RequisitionLine: Record "Requisition Line";
+        InventoryProfileOffsetting: Codeunit "Inventory Profile Offsetting";
+    begin
+        // [SCENARIO 360985] Verify planning system doesn't generate plan for Purchase Return with negative quantity
+        // [GIVEN] Purchase Return Order with negative Quantity
+        CreateItem(Item, LibraryRandom.RandInt(10), 0, LibraryRandom.RandIntInRange(10, 20));
+        MockPurchaseLine(PurchaseLine, Item."No.");
+        CreateReqWkshTemplate(ReqWkshTemplate, PAGE::"Req. Worksheet");
+
+        // [WHEN] Calc. Regenerative plan
+        ManufacturingSetup.Init;
+        InventoryProfileOffsetting.CalculatePlanFromWorksheet(
+          Item, ManufacturingSetup, ReqWkshTemplate.Name, '', WorkDate, WorkDate, true, false);
+
+        // [THEN] There is no generated planning lines
+        RequisitionLine.SetRange("Worksheet Template Name", ReqWkshTemplate.Name);
+        Assert.IsTrue(RequisitionLine.IsEmpty, UnexpectedRequisitionLineErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ItemLeadTimeCalculationCanBeSetPositive()
+    var
+        Item: Record Item;
+        LeadTimeCalcFormula: DateFormula;
+    begin
+        // [FEATURE] [Item] [Lead Time Calculation]
+        // [SCENARIO 202530] Lead Time Calculation can be updated on Item if the resulting replenishment time is non-negative.
+        Initialize;
+
+        // [GIVEN] Item "X".
+        LibraryInventory.CreateItem(Item);
+
+        // [WHEN] Update Lead Time Calculation formula on "X" with a non-negative time span.
+        Evaluate(LeadTimeCalcFormula, StrSubstNo('<%1M-%2M>', LibraryRandom.RandIntInRange(5, 10), LibraryRandom.RandInt(5)));
+        Item.Validate("Lead Time Calculation", LeadTimeCalcFormula);
+
+        // [THEN] Lead Time Calculation field is updated.
+        Item.TestField("Lead Time Calculation", LeadTimeCalcFormula);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ItemLeadTimeCalculationCannotBeSetNegative()
+    var
+        Item: Record Item;
+        LeadTimeCalcFormula: DateFormula;
+    begin
+        // [FEATURE] [Item] [Lead Time Calculation]
+        // [SCENARIO 202530] Lead Time Calculation cannot be updated on Item if the resulting replenishment time is negative.
+        Initialize;
+
+        // [GIVEN] Item "X".
+        LibraryInventory.CreateItem(Item);
+
+        // [WHEN] Update Lead Time Calculation formula on "X" with a negative time span.
+        Evaluate(LeadTimeCalcFormula, StrSubstNo('<%1M-%2M>', LibraryRandom.RandInt(5), LibraryRandom.RandIntInRange(6, 10)));
+        asserterror Item.Validate("Lead Time Calculation", LeadTimeCalcFormula);
+
+        // [THEN] Error is thrown.
+        Assert.ExpectedError(LeadTimeCalcNegativeErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SKULeadTimeCalculationCanBeSetPositive()
+    var
+        StockkeepingUnit: Record "Stockkeeping Unit";
+        Location: Record Location;
+        LeadTimeCalcFormula: DateFormula;
+    begin
+        // [FEATURE] [Stockkeeping Unit] [Lead Time Calculation]
+        // [SCENARIO 202530] Lead Time Calculation can be updated on Stockkeeping Unit if the resulting replenishment time is non-negative.
+        Initialize;
+
+        // [GIVEN] Stockkeeping Unit "X".
+        LibraryWarehouse.CreateLocation(Location);
+        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(StockkeepingUnit, Location.Code, '', '');
+
+        // [WHEN] Update Lead Time Calculation formula on "X" with a non-negative time span.
+        Evaluate(LeadTimeCalcFormula, StrSubstNo('<%1M-%2M>', LibraryRandom.RandIntInRange(5, 10), LibraryRandom.RandInt(5)));
+        StockkeepingUnit.Validate("Lead Time Calculation", LeadTimeCalcFormula);
+
+        // [THEN] Lead Time Calculation field is updated.
+        StockkeepingUnit.TestField("Lead Time Calculation", LeadTimeCalcFormula);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SKULeadTimeCalculationCannotBeSetNegative()
+    var
+        StockkeepingUnit: Record "Stockkeeping Unit";
+        Location: Record Location;
+        LeadTimeCalcFormula: DateFormula;
+    begin
+        // [FEATURE] [Stockkeeping Unit] [Lead Time Calculation]
+        // [SCENARIO 202530] Lead Time Calculation cannot be updated on Stockkeeping Unit if the resulting replenishment time is negative.
+        Initialize;
+
+        // [GIVEN] Stockkeeping Unit "X".
+        LibraryWarehouse.CreateLocation(Location);
+        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(StockkeepingUnit, Location.Code, '', '');
+
+        // [WHEN] Update Lead Time Calculation formula on "X" with a negative time span.
+        Evaluate(LeadTimeCalcFormula, StrSubstNo('<%1M-%2M>', LibraryRandom.RandInt(5), LibraryRandom.RandIntInRange(6, 10)));
+        asserterror StockkeepingUnit.Validate("Lead Time Calculation", LeadTimeCalcFormula);
+
+        // [THEN] Error is thrown.
+        Assert.ExpectedError(LeadTimeCalcNegativeErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ItemVendorLeadTimeCalculationCanBeSetPositive()
+    var
+        ItemVendor: Record "Item Vendor";
+        LeadTimeCalcFormula: DateFormula;
+    begin
+        // [FEATURE] [Item Vendor] [Lead Time Calculation]
+        // [SCENARIO 202530] Lead Time Calculation can be updated on Item Vendor if the resulting replenishment time is non-negative.
+        Initialize;
+
+        // [GIVEN] Item Vendor "X".
+        LibraryInventory.CreateItemVendor(ItemVendor, LibraryPurchase.CreateVendorNo, LibraryInventory.CreateItemNo);
+
+        // [WHEN] Update Lead Time Calculation formula on "X" with a non-negative time span.
+        Evaluate(LeadTimeCalcFormula, StrSubstNo('<%1M-%2M>', LibraryRandom.RandIntInRange(5, 10), LibraryRandom.RandInt(5)));
+        ItemVendor.Validate("Lead Time Calculation", LeadTimeCalcFormula);
+
+        // [THEN] Lead Time Calculation field is updated.
+        ItemVendor.TestField("Lead Time Calculation", LeadTimeCalcFormula);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ItemVendorLeadTimeCalculationCannotBeSetNegative()
+    var
+        ItemVendor: Record "Item Vendor";
+        LeadTimeCalcFormula: DateFormula;
+    begin
+        // [FEATURE] [Item Vendor] [Lead Time Calculation]
+        // [SCENARIO 202530] Lead Time Calculation cannot be updated on Item Vendor if the resulting replenishment time is negative.
+        Initialize;
+
+        // [GIVEN] Item Vendor "X".
+        LibraryInventory.CreateItemVendor(ItemVendor, LibraryPurchase.CreateVendorNo, LibraryInventory.CreateItemNo);
+
+        // [WHEN] Update Lead Time Calculation formula on "X" with a negative time span.
+        Evaluate(LeadTimeCalcFormula, StrSubstNo('<%1M-%2M>', LibraryRandom.RandInt(5), LibraryRandom.RandIntInRange(6, 10)));
+        asserterror ItemVendor.Validate("Lead Time Calculation", LeadTimeCalcFormula);
+
+        // [THEN] Error is thrown.
+        Assert.ExpectedError(LeadTimeCalcNegativeErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VendorLeadTimeCalculationCanBeSetPositive()
+    var
+        Vendor: Record Vendor;
+        LeadTimeCalcFormula: DateFormula;
+    begin
+        // [FEATURE] [Vendor] [Lead Time Calculation]
+        // [SCENARIO 202530] Lead Time Calculation can be updated on Vendor if the resulting replenishment time is non-negative.
+        Initialize;
+
+        // [GIVEN] Vendor "X".
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [WHEN] Update Lead Time Calculation formula on "X" with a non-negative time span.
+        Evaluate(LeadTimeCalcFormula, StrSubstNo('<%1M-%2M>', LibraryRandom.RandIntInRange(5, 10), LibraryRandom.RandInt(5)));
+        Vendor.Validate("Lead Time Calculation", LeadTimeCalcFormula);
+
+        // [THEN] Lead Time Calculation field is updated.
+        Vendor.TestField("Lead Time Calculation", LeadTimeCalcFormula);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VendorLeadTimeCalculationCannotBeSetNegative()
+    var
+        Vendor: Record Vendor;
+        LeadTimeCalcFormula: DateFormula;
+    begin
+        // [FEATURE] [Vendor] [Lead Time Calculation]
+        // [SCENARIO 202530] Lead Time Calculation cannot be updated on Vendor if the resulting replenishment time is negative.
+        Initialize;
+
+        // [GIVEN] Vendor "X".
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [WHEN] Update Lead Time Calculation formula on "X" with a negative time span.
+        Evaluate(LeadTimeCalcFormula, StrSubstNo('<%1M-%2M>', LibraryRandom.RandInt(5), LibraryRandom.RandIntInRange(6, 10)));
+        asserterror Vendor.Validate("Lead Time Calculation", LeadTimeCalcFormula);
+
+        // [THEN] Error is thrown.
+        Assert.ExpectedError(LeadTimeCalcNegativeErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseHeaderLeadTimeCalculationCanBeSetPositive()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        LeadTimeCalcFormula: DateFormula;
+    begin
+        // [FEATURE] [Purchase] [Lead Time Calculation]
+        // [SCENARIO 202530] Lead Time Calculation can be updated on Purchase Header if the resulting replenishment time is non-negative.
+        Initialize;
+
+        // [GIVEN] Purchase Header "X".
+        MockPurchaseOrder(PurchaseHeader, PurchaseLine);
+
+        // [WHEN] Update Lead Time Calculation formula on "X" with a non-negative time span.
+        Evaluate(LeadTimeCalcFormula, StrSubstNo('<%1M-%2M>', LibraryRandom.RandIntInRange(5, 10), LibraryRandom.RandInt(5)));
+        PurchaseHeader.Validate("Lead Time Calculation", LeadTimeCalcFormula);
+
+        // [THEN] Lead Time Calculation field is updated.
+        PurchaseHeader.TestField("Lead Time Calculation", LeadTimeCalcFormula);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseHeaderLeadTimeCalculationCannotBeSetNegative()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        LeadTimeCalcFormula: DateFormula;
+    begin
+        // [FEATURE] [Purchase] [Lead Time Calculation]
+        // [SCENARIO 202530] Lead Time Calculation cannot be updated on Purchase Header if the resulting replenishment time is negative.
+        Initialize;
+
+        // [GIVEN] Purchase Header "X".
+        MockPurchaseOrder(PurchaseHeader, PurchaseLine);
+
+        // [WHEN] Update Lead Time Calculation formula on "X" with a negative time span.
+        Evaluate(LeadTimeCalcFormula, StrSubstNo('<%1M-%2M>', LibraryRandom.RandInt(5), LibraryRandom.RandIntInRange(6, 10)));
+        asserterror PurchaseHeader.Validate("Lead Time Calculation", LeadTimeCalcFormula);
+
+        // [THEN] Error is thrown.
+        Assert.ExpectedError(LeadTimeCalcNegativeErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseLineLeadTimeCalculationCanBeSetPositive()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        LeadTimeCalcFormula: DateFormula;
+    begin
+        // [FEATURE] [Purchase] [Lead Time Calculation]
+        // [SCENARIO 202530] Lead Time Calculation can be updated on Purchase Line if the resulting replenishment time is non-negative.
+        Initialize;
+
+        // [GIVEN] Purchase Line "X".
+        MockPurchaseOrder(PurchaseHeader, PurchaseLine);
+
+        // [WHEN] Update Lead Time Calculation formula on "X" with a non-negative time span.
+        Evaluate(LeadTimeCalcFormula, StrSubstNo('<%1M-%2M>', LibraryRandom.RandIntInRange(5, 10), LibraryRandom.RandInt(5)));
+        PurchaseLine.Validate("Lead Time Calculation", LeadTimeCalcFormula);
+
+        // [THEN] Lead Time Calculation field is updated.
+        PurchaseLine.TestField("Lead Time Calculation", LeadTimeCalcFormula);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseLineLeadTimeCalculationCannotBeSetNegative()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        LeadTimeCalcFormula: DateFormula;
+    begin
+        // [FEATURE] [Purchase] [Lead Time Calculation]
+        // [SCENARIO 202530] Lead Time Calculation cannot be updated on Purchase Line if the resulting replenishment time is negative.
+        Initialize;
+
+        // [GIVEN] Purchase Line "X".
+        MockPurchaseOrder(PurchaseHeader, PurchaseLine);
+
+        // [WHEN] Update Lead Time Calculation formula on "X" with a negative time span.
+        Evaluate(LeadTimeCalcFormula, StrSubstNo('<%1M-%2M>', LibraryRandom.RandInt(5), LibraryRandom.RandIntInRange(6, 10)));
+        asserterror PurchaseLine.Validate("Lead Time Calculation", LeadTimeCalcFormula);
+
+        // [THEN] Error is thrown.
+        Assert.ExpectedError(LeadTimeCalcNegativeErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ManufacturerCodeCannotBeBlank()
+    var
+        Manufacturers: TestPage Manufacturers;
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 235022] You cannot create Manufacturer with blank Code.
+        Initialize;
+
+        Manufacturers.OpenNew;
+        asserterror Manufacturers.Code.SetValue('');
+
+        Assert.ExpectedErrorCode('TestValidation');
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesOrderPlanningModalPageHandler,StrMenuHandler')]
+    [Scope('OnPrem')]
+    procedure ExpectedDeliveryDateEqualsShipmentDateOnSalesOrderPlanning()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesOrder: TestPage "Sales Order";
+    begin
+        // [FEATURE] [Sales Order Planning] [Shipment Date] [UT]
+        // [SCENARIO 289838] Expected Delivery Date on sales order planning line is equal to Shipment Date for a sales line reserved from inventory.
+        Initialize;
+
+        // [GIVEN] Item "I" is in stock.
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', LibraryRandom.RandIntInRange(20, 40));
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Sales order reserved from the inventory.
+        // [GIVEN] "Shipment Date" = WORKDATE on the sales line.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", LibraryRandom.RandInt(10), '', WorkDate);
+        LibrarySales.AutoReserveSalesLine(SalesLine);
+
+        // [WHEN] Open Sales Order Planning page, invoke "Update Shipment Dates" and close the page.
+        SalesOrder.OpenEdit;
+        SalesOrder.GotoKey(SalesHeader."Document Type", SalesHeader."No.");
+        SalesOrder."Pla&nning".Invoke;
+
+        // [THEN] "Expected Delivery Date" on the planning line is WORKDATE.
+        Assert.AreEqual(
+          WorkDate, LibraryVariableStorage.DequeueDate,
+          'Wrong expected delivery date on Sales Order Planning line.');
+
+        // [THEN] "Shipment Date" on the sales line is WORKDATE.
+        SalesLine.Find;
+        SalesLine.TestField("Shipment Date", WorkDate);
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ManufacturingSetupWithEssentialUserExperience()
+    var
+        Location: Record Location;
+        ManufacturingSetup: TestPage "Manufacturing Setup";
+        SafetyLeadTime: DateFormula;
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 300072] "Planned Order Nos.", "Components at Location" and "Default Safety Lead Time" settings in Manufacturing Setup are related to planning process and are available with Essential user experience.
+        Initialize;
+
+        LibraryWarehouse.CreateLocation(Location);
+        Evaluate(SafetyLeadTime, StrSubstNo('<%1D>', LibraryRandom.RandInt(10)));
+
+        ManufacturingSetup.OpenEdit;
+        ManufacturingSetup."Planned Order Nos.".SetValue(LibraryUtility.GetGlobalNoSeriesCode);
+        ManufacturingSetup."Components at Location".SetValue(Location.Code);
+        ManufacturingSetup."Default Safety Lead Time".SetValue(SafetyLeadTime);
+        ManufacturingSetup.Close;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UT_PlanningComponentItemTypes()
+    var
+        Location: Record Location;
+        Item: Record Item;
+        PlanningComponent: Record "Planning Component";
+    begin
+        // [FEATURE] [Item] [Item Type] [Planning Component] [UT]
+        // [SCENARIO 303068] Planning Component table cannot have Item of Non-Inventory type with Location Code populated
+        Initialize;
+
+        LibraryWarehouse.CreateLocation(Location);
+        LibraryInventory.CreateNonInventoryTypeItem(Item);
+
+        PlanningComponent.DeleteAll;
+        PlanningComponent.Init;
+        PlanningComponent."Line No." := LibraryRandom.RandInt(10);
+        PlanningComponent.Validate("Item No.", Item."No.");
+        PlanningComponent.Validate("Location Code", Location.Code);
+        asserterror PlanningComponent.Modify(true);
+        Assert.ExpectedError('The Location Code field must be blank for items of type Non-Inventory.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure NonInventoryItemCannotBeSelectedOnRequisitionLine()
+    var
+        Item: Record Item;
+        RequisitionWkshName: Record "Requisition Wksh. Name";
+        RequisitionLine: Record "Requisition Line";
+    begin
+        // [FEATURE] [Non-Inventory Item] [UT]
+        // [SCENARIO 315342] A user cannot select non-inventory item on requisition worksheet line.
+        Initialize;
+
+        LibraryInventory.CreateNonInventoryTypeItem(Item);
+
+        LibraryPlanning.SelectRequisitionWkshName(RequisitionWkshName, RequisitionWkshName."Template Type"::Planning);
+        LibraryPlanning.CreateRequisitionLine(RequisitionLine, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name);
+
+        RequisitionLine.Validate(Type, RequisitionLine.Type::Item);
+        asserterror RequisitionLine.Validate("No.", Item."No.");
+
+        Assert.ExpectedError(StrSubstNo(NoCannotBeFoundInItemTableErr, Item."No."));
+    end;
+
+    local procedure Initialize()
+    var
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+    begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM - Planning UT");
+        LibraryVariableStorage.Clear;
+        LibrarySetupStorage.Restore;
+
+        LibraryApplicationArea.EnableEssentialSetup;
+
+        // Lazy Setup.
+        if IsInitialized then
+            exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM - Planning UT");
+
+        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibrarySetupStorage.Save(DATABASE::"Manufacturing Setup");
+
+        IsInitialized := true;
+        Commit;
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM - Planning UT");
+    end;
+
+    local procedure InitOpenWorksheetFromRequisitionLineScenario(PageID: Integer): Code[10]
+    begin
+        exit(
+          PlanUnitTestScenario(
+            LibraryRandom.RandInt(5),
+            LibraryRandom.RandInt(5),
+            LibraryRandom.RandIntInRange(10, 20),
+            PageID));
+    end;
+
+    local procedure PlanUnitTestScenario(SafetyStockQty: Decimal; ReorderPoint: Decimal; MaxInventory: Decimal; PageID: Integer): Code[10]
+    var
+        Item: Record Item;
+        SalesLine: Record "Sales Line";
+        ReqWkshTemplate: Record "Req. Wksh. Template";
+        ManufacturingSetup: Record "Manufacturing Setup";
+        InventoryProfileOffsetting: Codeunit "Inventory Profile Offsetting";
+    begin
+        // Make item
+        CreateItem(Item, SafetyStockQty, ReorderPoint, MaxInventory);
+
+        // Make demand
+        CreateSalesLine(SalesLine, Item);
+
+        // create template
+        CreateReqWkshTemplate(ReqWkshTemplate, PageID);
+
+        // EXERCISE
+        ManufacturingSetup.Init;
+        InventoryProfileOffsetting.CalculatePlanFromWorksheet(
+          Item, ManufacturingSetup, ReqWkshTemplate.Name, '', SalesLine."Shipment Date", SalesLine."Shipment Date" + 30, true, false);
+
+        // VERIFY
+        VerifyReqLines(Item, ReqWkshTemplate.Name, SalesLine."Outstanding Qty. (Base)");
+
+        exit(ReqWkshTemplate.Name);
+    end;
+
+    local procedure CreateItem(var Item: Record Item; SafetyStockQty: Decimal; ReorderPoint: Decimal; MaxInventory: Decimal)
+    var
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+    begin
+        Item."No." := LibraryUtility.GenerateRandomCode(Item.FieldNo("No."), DATABASE::Item);
+
+        CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.");
+
+        Item."Reordering Policy" := Item."Reordering Policy"::"Maximum Qty.";
+        Item."Safety Stock Quantity" := SafetyStockQty;
+        Item."Reorder Point" := ReorderPoint;
+        Item."Maximum Inventory" := MaxInventory;
+        Item."Base Unit of Measure" := ItemUnitOfMeasure.Code;
+        Item."Purch. Unit of Measure" := Item."Base Unit of Measure";
+        Item.Insert;
+    end;
+
+    local procedure CreateItemUnitOfMeasure(var ItemUnitOfMeasure: Record "Item Unit of Measure"; ItemNo: Code[20])
+    begin
+        ItemUnitOfMeasure."Item No." := ItemNo;
+        ItemUnitOfMeasure.Code := LibraryUtility.GenerateRandomCode(ItemUnitOfMeasure.FieldNo(Code), DATABASE::"Item Unit of Measure");
+        ItemUnitOfMeasure.Insert;
+    end;
+
+    local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; var Item: Record Item)
+    begin
+        SalesLine."Document Type" := SalesLine."Document Type"::Order;
+        SalesLine."Document No." := LibraryUtility.GenerateRandomCode(SalesLine.FieldNo("Document No."), DATABASE::"Sales Line");
+        SalesLine.Type := SalesLine.Type::Item;
+        SalesLine."No." := Item."No.";
+        SalesLine."Shipment Date" := WorkDate;
+        SalesLine."Outstanding Qty. (Base)" := Item."Maximum Inventory";
+        SalesLine.Insert;
+    end;
+
+    local procedure MockPurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
+    begin
+        with PurchaseHeader do begin
+            Init;
+            "Document Type" := "Document Type"::Order;
+            "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Purchase Header");
+            Insert;
+        end;
+
+        with PurchaseLine do begin
+            Init;
+            "Document Type" := PurchaseHeader."Document Type";
+            "Document No." := PurchaseHeader."No.";
+            Type := Type::Item;
+            "No." := LibraryInventory.CreateItemNo;
+            Insert;
+        end;
+    end;
+
+    local procedure MockPurchaseLine(var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20])
+    begin
+        with PurchaseLine do begin
+            "Document Type" := "Document Type"::"Return Order";
+            "Document No." := LibraryUtility.GenerateRandomCode(FieldNo("Document No."), DATABASE::"Purchase Line");
+            Type := Type::Item;
+            "No." := ItemNo;
+            "Expected Receipt Date" := WorkDate;
+            "Outstanding Qty. (Base)" := -LibraryRandom.RandDec(100, 2);
+            Insert;
+        end;
+    end;
+
+    local procedure CreateReqWkshTemplate(var ReqWkshTemplate: Record "Req. Wksh. Template"; PageID: Integer)
+    begin
+        with ReqWkshTemplate do begin
+            Name := LibraryUtility.GenerateRandomCode(FieldNo(Name), DATABASE::"Req. Wksh. Template");
+            Type := Type::Planning;
+            "Page ID" := PageID;
+            Insert;
+        end;
+    end;
+
+    local procedure VerifyReqLines(var Item: Record Item; ReqWkshTempName: Code[10]; SalesLineQuantity: Decimal)
+    var
+        RequisitionLine: Record "Requisition Line";
+    begin
+        // Requisition worksheet should contain 2 lines:
+        // 1 line has quantity Item."Safety Stock Quantity" + SalesLine."Outstanding Qty. (Base)"
+        // 1 line has quantity Item."Maximum Inventory" - Item."Safety Stock Quantity"
+        with RequisitionLine do begin
+            SetRange("Worksheet Template Name", ReqWkshTempName);
+            FindSet;
+            repeat
+                if not (Quantity in [Item."Safety Stock Quantity" + SalesLineQuantity,
+                                     Item."Maximum Inventory" - Item."Safety Stock Quantity"])
+                then
+                    Error(
+                      WrongQuantityInReqLine, Quantity,
+                      Item."Safety Stock Quantity" + SalesLineQuantity,
+                      Item."Maximum Inventory" - Item."Safety Stock Quantity");
+            until Next = 0;
+        end;
+    end;
+
+    local procedure VerifyShowDocumentOnRequisitionLine(RequisitionWorksheetTemplateName: Code[10])
+    var
+        RequisitionLine: Record "Requisition Line";
+        CalcItemAvailability: Codeunit "Calc. Item Availability";
+        RecRef: RecordRef;
+    begin
+        // Will open Planning Worksheet for Requisuition Line.
+        RequisitionLine.SetRange("Worksheet Template Name", RequisitionWorksheetTemplateName);
+        RequisitionLine.FindFirst;
+        RecRef.GetTable(RequisitionLine);
+        CalcItemAvailability.ShowDocument(RecRef.RecordId);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PlanningWorkheetMPH(var PlanningWorksheet: TestPage "Planning Worksheet")
+    begin
+        // Just close page
+        PlanningWorksheet.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ReqWorkheetMPH(var ReqWorksheet: TestPage "Req. Worksheet")
+    begin
+        // Just close page
+        ReqWorksheet.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ReqWorksheetTemplateListMPH(var ReqWorksheetTemplateList: TestPage "Req. Worksheet Template List")
+    begin
+        // Just close page
+        ReqWorksheetTemplateList.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SalesOrderPlanningModalPageHandler(var SalesOrderPlanning: TestPage "Sales Order Planning")
+    begin
+        LibraryVariableStorage.Enqueue(SalesOrderPlanning."Expected Delivery Date".AsDate);
+        SalesOrderPlanning."Update &Shipment Dates".Invoke;
+        SalesOrderPlanning.OK.Invoke;
+    end;
+
+    [StrMenuHandler]
+    [Scope('OnPrem')]
+    procedure StrMenuHandler(Option: Text; var Choice: Integer; Instruction: Text)
+    begin
+        Choice := 1;
+    end;
+}
+

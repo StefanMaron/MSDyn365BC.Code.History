@@ -1,0 +1,529 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en-US" target-language="en-IN" original="Sales and Inventory Forecast">
+    <body>
+      <group id="body">
+        <trans-unit id="Table 178869804 - Field 568743302 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Item No.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast - Field Item No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 178869804 - Field 3192175264 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Date</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast - Field Date - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 178869804 - Field 2704404533 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Quantity</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast - Field Quantity - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 178869804 - Field 2526400892 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Delta</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast - Field Delta - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 178869804 - Field 1530663077 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Forecast Data</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast - Field Forecast Data - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 178869804 - Field 1620293444 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Variance %</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast - Field Variance % - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 995188731 - Field 568743302 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Item No.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast Parameter - Field Item No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 995188731 - Field 1832902037 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Time Series Period Type</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast Parameter - Field Time Series Period Type - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 995188731 - Field 3694533338 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>History Start Date</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast Parameter - Field History Start Date - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 995188731 - Field 1266072289 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Forecast Start Date</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast Parameter - Field Forecast Start Date - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 995188731 - Field 1749449385 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Horizon</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast Parameter - Field Horizon - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 995188731 - Field 1004750025 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Last Updated</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast Parameter - Field Last Updated - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1767462481 - Field 1663593181 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Primary Key</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast Setup - Field Primary Key - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1767462481 - Field 95864743 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Period Type</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast Setup - Field Period Type - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1767462481 - Field 2446091131 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Show Setup Notification</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast Setup - Field Show Setup Notification - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1767462481 - Field 1780437933 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Stockout Warning Horizon</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast Setup - Field Stockout Warning Horizon - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1767462481 - Field 1749449385 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Horizon</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast Setup - Field Horizon - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1767462481 - Field 2038324810 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>API URI</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast Setup - Field API URI - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1767462481 - Field 264208910 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>API Key ID</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast Setup - Field API Key ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1767462481 - Field 1158072699 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Timeout (seconds)</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast Setup - Field Timeout (seconds</note>
+        </trans-unit>
+        <trans-unit id="Table 1767462481 - Field 1620293444 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Variance %</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast Setup - Field Variance % - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1767462481 - Field 3046871300 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Expiration Period (Days)</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast Setup - Field Expiration Period (Days</note>
+        </trans-unit>
+        <trans-unit id="Table 1767462481 - Field 3810224734 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Historical Periods</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast Setup - Field Historical Periods - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1767462481 - Field 729129122 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Last Run Completed</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast Setup - Field Last Run Completed - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1767462481 - Field 3414388415 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Limit</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast Setup - Field Limit - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1767462481 - Field 2927347786 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Processing Time</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast Setup - Field Processing Time - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1767462481 - Field 1239291867 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>API Cache Minutes</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast Setup - Field API Cache Minutes - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1767462481 - Field 3180521973 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>API Cache Expiry</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast Setup - Field API Cache Expiry - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1767462481 - Field 2800233673 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Service Pass API Uri ID</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast Setup - Field Service Pass API Uri ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1767462481 - Field 160259690 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Service Pass API Key ID</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast Setup - Field Service Pass API Key ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2836764293 - NamedType 1508453294" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>There is not enough historical data to predict future sales.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Handler - NamedType NotEnoughHistoricalDataErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2836764293 - NamedType 2480204489" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Each calculation uses Azure Machine Learning credits, and you have reached your limit for this month.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Handler - NamedType OutOfLimitErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2836764293 - NamedType 586424512" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sales and Inventory Forecast</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Handler - NamedType SalesForecastNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2836764293 - NamedType 3494735008" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Set up and enable the Sales and Inventory Forecast service.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Handler - NamedType SalesForecastBusinessSetupDescriptionTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2836764293 - NamedType 3760830540" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sales,Inventory,Forecast</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Handler - NamedType SalesForecastBusinessSetupKeywordsTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3659386448 - NamedType 638591264" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You can get the sales forecast updated automatically every week.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Scheduler - NamedType SetupScheduledForecastingMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3659386448 - NamedType 2668691647" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Set Up Scheduled Forecasting</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Scheduler - NamedType SetupScheduledForecastingTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3659386448 - NamedType 3507565196" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Don't ask again</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Scheduler - NamedType DontAskAgainTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3420482273 - NamedType 1978664471" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You have run out of stock on items that this vendor usually supplies.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Notifier - NamedType NotificationTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3420482273 - NamedType 2614170639" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Add them to this document</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Notifier - NamedType AddThemTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3420482273 - NamedType 1947377117" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Items running low in inventory</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Notifier - NamedType ItemSalesForecastNotificationTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3420482273 - NamedType 4227602343" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Get notified if you are running low on stock for items that a vendor usually supplies, and get help re-stocking.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Notifier - NamedType ItemSalesForecastNotificationDescriptionTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 3449274493 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Forecast</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3449274493 - Control 2474810715 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the status of the forecast based on the current setup data.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast - Control StatusText - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3449274493 - Action 1388957642 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Create Purchase Invoice</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast - Action Create Purchase Invoice - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3449274493 - Action 1388957642 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Creates a purchase invoice for this item</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast - Action Create Purchase Invoice - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3449274493 - Action 1672799731 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Create Purchase Order</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast - Action Create Purchase Order - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3449274493 - Action 1672799731 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Creates a purchase order for this item</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast - Action Create Purchase Order - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3449274493 - Action 3613796910 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Show Inventory Forecast</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast - Action Show Inventory Forecast - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3449274493 - Action 3613796910 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>View Item Inventory Forecast</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast - Action Show Inventory Forecast - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3449274493 - Action 951916468 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Show Sales Forecast</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast - Action Show Sales Forecast - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3449274493 - Action 951916468 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>View Item Sales Forecast</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast - Action Show Sales Forecast - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3449274493 - NamedType 2526222363" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Update Successful</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast - NamedType UpdateSuccessfulFactboxMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 3449274493 - NamedType 2773416397" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Not enough historical data</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast - NamedType NotEnoughHistoricalDataFactboxMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 3449274493 - NamedType 1057239945" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Variance too high</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast - NamedType VarianceHigherDefinedLevelFactboxMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 3449274493 - NamedType 2862976245" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Forecast expired</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast - NamedType ExistingForecastExpiredFactboxMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 3449274493 - NamedType 1825422692" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The %1 has been changed</source>
+          <note from="Developer" annotates="general" priority="2">%1=Forecast Period Type</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast - NamedType ForecastPeriodTypeChangedFactboxMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 3449274493 - NamedType 1710977974" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>High variance</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast - NamedType ForecastPeriodFilterFactboxMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 3449274493 - NamedType 1716009367" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Forecast is equal to 0</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast - NamedType ZeroForecastFactboxMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 3449274493 - NamedType 16175266" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sales forecast not available.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast - NamedType NoForecastFactboxMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 3449274493 - NamedType 4271254522" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>There is not enough historical data to predict future sales.\You need at least five periods of historical sales in order to predict future sales.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast - NamedType NotEnoughHistoricalDataMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 3449274493 - NamedType 2597248666" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The calculated forecast shows a degree of variance that is higher than the setup allows.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast - NamedType VarianceTooHighMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 3449274493 - NamedType 540652290" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The forecast has passed the expiration date and is no longer valid.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast - NamedType ExistingForecastExpiredMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 3449274493 - NamedType 931174140" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The calculated forecast contains values equal to 0.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast - NamedType ZeroForecastMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 3449274493 - NamedType 108708945" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The sales forecast for this period is %1 with a variance of %2.</source>
+          <note from="Developer" annotates="general" priority="2">%1 = amount, %2 = amount. Ex.The sales forecast for this period is 15 with a variance of 3.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast - NamedType ExpectedSalesMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 3449274493 - NamedType 1553124563" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Inventory Forecast</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast - NamedType InventoryForecastTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 3449274493 - NamedType 1187250541" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sales Forecast</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast - NamedType SalesForecastTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 3449274493 - NamedType 3193096050" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Status</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast - NamedType StatusLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 3812782154 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Forecast</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast No Chart - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3812782154 - Control 2474810715 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the status of the forecast based on the current setup data.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast No Chart - Control StatusText - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3812782154 - NamedType 1475031092" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sales forecast not available for this item.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast No Chart - NamedType NoForecastLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 3812782154 - NamedType 2773416397" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Not enough historical data</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast No Chart - NamedType NotEnoughHistoricalDataFactboxMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 3812782154 - NamedType 1057239945" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Variance too high</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast No Chart - NamedType VarianceHigherDefinedLevelFactboxMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 3812782154 - NamedType 2862976245" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Forecast expired</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast No Chart - NamedType ExistingForecastExpiredFactboxMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 3812782154 - NamedType 1825422692" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The %1 has been changed</source>
+          <note from="Developer" annotates="general" priority="2">%1=Forecast Period Type</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast No Chart - NamedType ForecastPeriodTypeChangedFactboxMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 3812782154 - NamedType 4271254522" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>There is not enough historical data to predict future sales.\You must have at least 5 periods of historical sales in order to predict future sales.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast No Chart - NamedType NotEnoughHistoricalDataMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 3812782154 - NamedType 2597248666" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The calculated forecast shows a degree of variance that is higher than the setup allows.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast No Chart - NamedType VarianceTooHighMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 3812782154 - NamedType 540652290" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The forecast has passed the expiration date and is no longer valid.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast No Chart - NamedType ExistingForecastExpiredMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 3997127860 - Control 2445482498 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>General</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast Setup Card - Control General - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3997127860 - Control 95864743 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the type of period that you want to see the forecast by.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast Setup Card - Control Period Type - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3997127860 - Control 1749449385 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies how many periods you want the forecast to cover.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast Setup Card - Control Horizon - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3997127860 - Control 2038324810 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the API URI for the Azure Machine Learning instance.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast Setup Card - Control API URI - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3997127860 - Control 1951792025 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>API Key</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast Setup Card - Control APIKey - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3997127860 - Control 1951792025 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the API key for the Time Series experiment in Azure Machine Learning.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast Setup Card - Control APIKey - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3997127860 - Control 1158072699 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the number of seconds to wait before the call to Azure Machine Learning times out.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast Setup Card - Control Timeout (seconds</note>
+        </trans-unit>
+        <trans-unit id="Page 3997127860 - Control 1620293444 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the range of deviation, plus or minus, that you'll accept in the forecast. Lower percentages represent more accurate forecasts, and are typically between 20 and 40. Forecasts outside the range are considered inaccurate, and do not display.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast Setup Card - Control Variance % - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3997127860 - Control 3046871300 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the number of days until the forecast expires.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast Setup Card - Control Expiration Period (Days</note>
+        </trans-unit>
+        <trans-unit id="Page 3997127860 - Control 84074407 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Statistics</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast Setup Card - Control Statistics - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3997127860 - Control 729129122 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the date and time of the last completed forecast update. You cannot change this value.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast Setup Card - Control Last Run Completed - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3997127860 - Control 1825078469 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Used Processing Time (Seconds)</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast Setup Card - Control Used Processing Time (Seconds</note>
+        </trans-unit>
+        <trans-unit id="Page 3997127860 - Control 1825078469 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies how many seconds of processing time have been used. You cannot change this value.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast Setup Card - Control Used Processing Time (Seconds</note>
+        </trans-unit>
+        <trans-unit id="Page 3997127860 - Action 2964965103 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Setup Scheduled Forecasting</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast Setup Card - Action Setup Scheduled Forecasting - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3997127860 - Action 2964965103 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Setup scheduled forecasting of item sales</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast Setup Card - Action Setup Scheduled Forecasting - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3997127860 - Action 1547422966 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Update Forecast</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast Setup Card - Action Update Forecast - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3997127860 - Action 1547422966 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Update forecast for all items</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast Setup Card - Action Update Forecast - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3997127860 - Action 2185364567 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Explore models for Azure Machine Learning, and use Azure Machine Learning Studio to build, test, and deploy the Forecasting Model for Microsoft Dynamics 365.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast Setup Card - Action Open Cortana Intelligence Gallery - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3997127860 - NamedType 2687205535" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sales forecasts are being updated in the background. This might take a minute.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast Setup Card - NamedType UpdatingForecastsMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 3997127860 - NamedType 3455628948" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sales forecast updates are being scheduled. Please wait until the process is complete.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast Setup Card - NamedType JobQueueCreationInProgressErr</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 2565734565 - Action 3452445781 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Forecast</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 1434786627</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 2565734565 - Action 1676605102 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Update Sales Forecast</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 1434786627</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 2261635039 - Action 3452445781 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Forecast</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 4178721393</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 2261635039 - Action 1676605102 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Update Sales Forecast</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 4178721393</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 818531561 - Field 2006631723 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Has Sales Forecast</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 3276313895</note>
+        </trans-unit>
+      </group>
+    </body>
+  </file>
+</xliff>

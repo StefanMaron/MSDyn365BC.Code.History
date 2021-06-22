@@ -1,0 +1,83 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en-US" target-language="fr-BE" original="Business Central Intelligent Cloud">
+    <body>
+      <group id="body">
+        <trans-unit id="Codeunit 1042648578 - NamedType 1849904554" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>DynamicsBC</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Hybrid BC Wizard - NamedType ProductIdTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1042648578 - NamedType 283977008" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>Dynamics 365 Business Central</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Hybrid BC Wizard - NamedType ProductNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3759341074 - NamedType 2586591135" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SQL database must be at comptibility level 130 or higher.</source>
+          <target>La base de données SQL doit être au niveau de compatibilité 130 ou plus.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Hybrid BC Management - NamedType SqlCompatibilityErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3759341074 - NamedType 3448866843" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The maximum replicated data size of 150 GB has been exceeded.</source>
+          <target>La taille maximale des données dupliquées de 150 Go a été dépassée.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Hybrid BC Management - NamedType DatabaseTooLargeErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3759341074 - NamedType 2359240154" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The table does not exist in the local instance.</source>
+          <target>La table n'existe pas dans l'instance locale.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Hybrid BC Management - NamedType TableNotExistsErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3759341074 - NamedType 778856548" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The local table schema differs from the Business Central cloud table.</source>
+          <target>Le schéma de table local diffère de la table de cloud Business Central.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Hybrid BC Management - NamedType SchemaMismatchErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3759341074 - NamedType 657071819" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Failed to prepare data for the table. Inner error: %1</source>
+          <target>Impossible de préparer les données pour la table. Erreur interne : %1</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Hybrid BC Management - NamedType FailurePreparingDataErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3759341074 - NamedType 2948262442" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Failed to copy the table. Inner error: %1</source>
+          <target>Impossible de copier la table. Erreur interne : %1</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Hybrid BC Management - NamedType FailureCopyingTableErr</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 742431685 - Action 1433251765 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Setup Checklist</source>
+          <target>Liste de contrôle configuration</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 1208606375</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 742431685 - Action 1433251765 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Setup Checklist</source>
+          <target>Liste de contrôle configuration</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 1208606375</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 742431685 - Action 2373563274 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Define User Mappings</source>
+          <target>Définir les correspondances utilisateur</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 1208606375</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 742431685 - Action 2373563274 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Define User Mappings</source>
+          <target>Définir les correspondances utilisateur</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 1208606375</note>
+        </trans-unit>
+      </group>
+    </body>
+  </file>
+</xliff>

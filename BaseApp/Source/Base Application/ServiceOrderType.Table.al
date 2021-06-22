@@ -1,0 +1,45 @@
+table 5903 "Service Order Type"
+{
+    Caption = 'Service Order Type';
+    LookupPageID = "Service Order Types";
+
+    fields
+    {
+        field(1; "Code"; Code[10])
+        {
+            Caption = 'Code';
+            NotBlank = true;
+        }
+        field(2; Description; Text[100])
+        {
+            Caption = 'Description';
+        }
+    }
+
+    keys
+    {
+        key(Key1; "Code")
+        {
+            Clustered = true;
+        }
+    }
+
+    fieldgroups
+    {
+    }
+
+    trigger OnDelete()
+    var
+        DimMgt: Codeunit DimensionManagement;
+    begin
+        DimMgt.DeleteDefaultDim(DATABASE::"Service Order Type", Code);
+    end;
+
+    trigger OnRename()
+    var
+        DimMgt: Codeunit DimensionManagement;
+    begin
+        DimMgt.RenameDefaultDim(DATABASE::"Service Order Type", xRec.Code, Code);
+    end;
+}
+

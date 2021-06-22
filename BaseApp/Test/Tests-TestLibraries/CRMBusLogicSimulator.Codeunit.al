@@ -1,0 +1,162 @@
+codeunit 139192 "CRM Bus. Logic Simulator"
+{
+    EventSubscriberInstance = Manual;
+
+    trigger OnRun()
+    begin
+    end;
+
+    var
+        Assert: Codeunit Assert;
+        LibraryCRMIntegration: Codeunit "Library - CRM Integration";
+        SalesOrderIsNotEditableErr: Label 'CRM Sales order is not editable.';
+        ReadOnlyEntityCannotBeUpdatedErr: Label 'The entity cannot be updated because it is read-only.';
+        InactiveInvoiceCannotBePaidErr: Label 'The invoice cannot be paid because it is not in active state.';
+        PriceListLineAlreadyExistsErr: Label 'This product and unit combination has a price for this price list.';
+        ProductIdMissingErr: Label 'The product id is missing.';
+        ModifiedOnErr: Label 'ModifiedOn %1 should be bigger than CreatedOn %2';
+
+    [EventSubscriber(ObjectType::Table, 5345, 'OnBeforeInsertEvent', '', false, false)]
+    local procedure ValidateCurrencyOnInsert(var Rec: Record "CRM Transactioncurrency"; RunTrigger: Boolean)
+    begin
+        if Rec.IsTemporary then
+            exit;
+        // ISOCurrencyCode and ExchangeRate must not be zero
+        Rec.TestField(ISOCurrencyCode);
+        Rec.TestField(ExchangeRate);
+    end;
+
+    [EventSubscriber(ObjectType::Table, 5348, 'OnBeforeInsertEvent', '', false, false)]
+    local procedure ValidateProductOnInsert(var Rec: Record "CRM Product"; RunTrigger: Boolean)
+    begin
+        if Rec.IsTemporary then
+            exit;
+        // CRM sets StateCode to default value Draft and expects StatusCode to be blank
+        Rec.StateCode := Rec.StateCode::Draft;
+        Rec.TestField(StatusCode, Rec.StatusCode::" ");
+    end;
+
+    [EventSubscriber(ObjectType::Table, 5347, 'OnBeforeInsertEvent', '', false, false)]
+    local procedure ValidateProductPriceLevelOnInsert(var Rec: Record "CRM Productpricelevel"; RunTrigger: Boolean)
+    var
+        CRMProductpricelevel: Record "CRM Productpricelevel";
+    begin
+        if Rec.IsTemporary then
+            exit;
+        // PriceLevelID and ProductID must not be blank
+        Rec.TestField(PriceLevelId);
+        if IsNullGuid(Rec.ProductId) then
+            Error(ProductIdMissingErr);
+        // (Product + UoM) should be unique
+        CRMProductpricelevel.SetRange(PriceLevelId, Rec.PriceLevelId);
+        CRMProductpricelevel.SetRange(ProductId, Rec.ProductId);
+        CRMProductpricelevel.SetRange(UoMId, Rec.UoMId);
+        if not CRMProductpricelevel.IsEmpty then
+            Error(PriceListLineAlreadyExistsErr);
+    end;
+
+    [EventSubscriber(ObjectType::Table, 5356, 'OnBeforeInsertEvent', '', false, false)]
+    local procedure ValidateSalesInvoiceLineOnInsert(var Rec: Record "CRM Invoicedetail"; RunTrigger: Boolean)
+    begin
+        if Rec.IsTemporary then
+            exit;
+        // CRM blanks BaseAmount and ExtendedAmount
+        Rec.BaseAmount := 0;
+        Rec.ExtendedAmount := 0;
+    end;
+
+    [EventSubscriber(ObjectType::Table, 5353, 'OnBeforeModifyEvent', '', false, false)]
+    local procedure ValidateSalesOrderOnModify(var Rec: Record "CRM Salesorder"; var xRec: Record "CRM Salesorder"; RunTrigger: Boolean)
+    var
+        xCRMSalesorder: Record "CRM Salesorder";
+    begin
+        if Rec.IsTemporary then
+            exit;
+        xCRMSalesorder := Rec;
+        xCRMSalesorder.Find;
+        if (Rec.StateCode = Rec.StateCode::Submitted) and (xCRMSalesorder.StateCode = Rec.StateCode::Submitted) and RunTrigger then
+            Error(SalesOrderIsNotEditableErr);
+
+        RecalculateSalesOrder(Rec);
+    end;
+
+    [EventSubscriber(ObjectType::Table, 5354, 'OnBeforeModifyEvent', '', false, false)]
+    local procedure ValidateSalesOrderDetailOnBeforeModify(var Rec: Record "CRM Salesorderdetail"; var xRec: Record "CRM Salesorderdetail"; RunTrigger: Boolean)
+    begin
+        if Rec.IsTemporary then
+            exit;
+
+        Rec.BaseAmount := (Rec.PricePerUnit - Rec.VolumeDiscountAmount) * Rec.Quantity;
+        Rec.ExtendedAmount := Rec.BaseAmount - Rec.ManualDiscountAmount + Rec.Tax;
+    end;
+
+    [EventSubscriber(ObjectType::Table, 5354, 'OnAfterModifyEvent', '', false, false)]
+    local procedure ValidateSalesOrderDetailOnAfterModify(var Rec: Record "CRM Salesorderdetail"; var xRec: Record "CRM Salesorderdetail"; RunTrigger: Boolean)
+    var
+        CRMSalesorder: Record "CRM Salesorder";
+    begin
+        if Rec.IsTemporary then
+            exit;
+
+        CRMSalesorder.Get(Rec.SalesOrderId);
+        RecalculateSalesOrder(CRMSalesorder);
+        CRMSalesorder.Modify;
+    end;
+
+    [EventSubscriber(ObjectType::Table, 5355, 'OnBeforeModifyEvent', '', false, false)]
+    local procedure ValidateSalesInvoiceOnBeforeModify(var Rec: Record "CRM Invoice"; var xRec: Record "CRM Invoice"; RunTrigger: Boolean)
+    var
+        xCRMInvoice: Record "CRM Invoice";
+    begin
+        if Rec.IsTemporary then
+            exit;
+
+        xCRMInvoice := Rec;
+        xCRMInvoice.Find;
+        if Rec.StateCode = Rec.StateCode::Paid then
+            case xCRMInvoice.StateCode of
+                xCRMInvoice.StateCode::Paid:
+                    Error(ReadOnlyEntityCannotBeUpdatedErr);
+                xCRMInvoice.StateCode::Canceled:
+                    Error(InactiveInvoiceCannotBePaidErr);
+            end;
+    end;
+
+    [EventSubscriber(ObjectType::Table, 5341, 'OnBeforeInsertEvent', '', false, false)]
+    local procedure ValidateCRMAccountCreatedOnOnBeforeInsert(var Rec: Record "CRM Account"; RunTrigger: Boolean)
+    begin
+        if Rec.IsTemporary or not RunTrigger then
+            exit;
+        Rec.CreatedOn := CurrentDateTime;
+        Rec.ModifiedOn := Rec.CreatedOn;
+    end;
+
+    [EventSubscriber(ObjectType::Table, 5341, 'OnBeforeModifyEvent', '', false, false)]
+    local procedure ValidateCRMAccountCreatedOnOnBeforeModify(var Rec: Record "CRM Account"; var xRec: Record "CRM Account"; RunTrigger: Boolean)
+    begin
+        if Rec.IsTemporary or not RunTrigger then
+            exit;
+        Rec.ModifiedOn := CurrentDateTime;
+    end;
+
+    local procedure RecalculateSalesOrder(var CRMSalesorder: Record "CRM Salesorder")
+    var
+        CRMSalesorderdetail: Record "CRM Salesorderdetail";
+        TotalHeaderDiscountAmount: Decimal;
+    begin
+        CRMSalesorderdetail.SetRange(SalesOrderId, CRMSalesorder.SalesOrderId);
+        CRMSalesorderdetail.CalcSums(ManualDiscountAmount, BaseAmount, Tax);
+
+        with CRMSalesorder do begin
+            TotalLineItemDiscountAmount := CRMSalesorderdetail.ManualDiscountAmount;
+            TotalLineItemAmount := CRMSalesorderdetail.BaseAmount - TotalLineItemDiscountAmount;
+            TotalTax := CRMSalesorderdetail.Tax;
+            TotalHeaderDiscountAmount :=
+              DiscountAmount + Round(TotalLineItemAmount * DiscountPercentage / 100);
+            TotalDiscountAmount := TotalHeaderDiscountAmount + TotalLineItemDiscountAmount;
+            TotalAmountLessFreight := TotalLineItemAmount - TotalHeaderDiscountAmount;
+            TotalAmount := TotalAmountLessFreight + FreightAmount + TotalTax;
+        end;
+    end;
+}
+

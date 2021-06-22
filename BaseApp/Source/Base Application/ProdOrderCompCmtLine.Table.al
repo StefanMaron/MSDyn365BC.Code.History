@@ -1,0 +1,130 @@
+table 5416 "Prod. Order Comp. Cmt Line"
+{
+    Caption = 'Prod. Order Comp. Cmt Line';
+    DrillDownPageID = "Prod. Order BOM Cmt List";
+    LookupPageID = "Prod. Order BOM Cmt List";
+
+    fields
+    {
+        field(2; "Prod. Order BOM Line No."; Integer)
+        {
+            Caption = 'Prod. Order BOM Line No.';
+            NotBlank = true;
+            TableRelation = "Prod. Order Component"."Line No." WHERE(Status = FIELD(Status),
+                                                                      "Prod. Order No." = FIELD("Prod. Order No."),
+                                                                      "Prod. Order Line No." = FIELD("Prod. Order Line No."));
+        }
+        field(3; "Line No."; Integer)
+        {
+            Caption = 'Line No.';
+        }
+        field(10; Date; Date)
+        {
+            Caption = 'Date';
+        }
+        field(12; Comment; Text[80])
+        {
+            Caption = 'Comment';
+        }
+        field(13; "Code"; Code[10])
+        {
+            Caption = 'Code';
+        }
+        field(22; Status; Option)
+        {
+            Caption = 'Status';
+            OptionCaption = 'Simulated,Planned,Firm Planned,Released,Finished';
+            OptionMembers = Simulated,Planned,"Firm Planned",Released,Finished;
+        }
+        field(23; "Prod. Order No."; Code[20])
+        {
+            Caption = 'Prod. Order No.';
+            NotBlank = true;
+            TableRelation = "Production Order"."No." WHERE(Status = FIELD(Status));
+        }
+        field(24; "Prod. Order Line No."; Integer)
+        {
+            Caption = 'Prod. Order Line No.';
+            NotBlank = true;
+            TableRelation = "Prod. Order Line"."Line No." WHERE(Status = FIELD(Status),
+                                                                 "Prod. Order No." = FIELD("Prod. Order No."));
+        }
+    }
+
+    keys
+    {
+        key(Key1; Status, "Prod. Order No.", "Prod. Order Line No.", "Prod. Order BOM Line No.", "Line No.")
+        {
+            Clustered = true;
+        }
+    }
+
+    fieldgroups
+    {
+    }
+
+    trigger OnDelete()
+    begin
+        if Status = Status::Finished then
+            Error(Text000, Status, TableCaption);
+    end;
+
+    trigger OnInsert()
+    begin
+        if Status = Status::Finished then
+            Error(Text000, Status, TableCaption);
+    end;
+
+    trigger OnModify()
+    begin
+        if Status = Status::Finished then
+            Error(Text000, Status, TableCaption);
+    end;
+
+    var
+        Text000: Label 'A %1 %2 cannot be inserted, modified, or deleted.';
+
+    procedure SetupNewLine()
+    var
+        ProdOrderBOMComment: Record "Prod. Order Comp. Cmt Line";
+    begin
+        ProdOrderBOMComment.SetRange(Status, Status);
+        ProdOrderBOMComment.SetRange("Prod. Order No.", "Prod. Order No.");
+        ProdOrderBOMComment.SetRange("Prod. Order Line No.", "Prod. Order Line No.");
+        ProdOrderBOMComment.SetRange(
+          "Prod. Order BOM Line No.", "Prod. Order BOM Line No.");
+        ProdOrderBOMComment.SetRange(Date, WorkDate);
+        if not ProdOrderBOMComment.FindFirst then
+            Date := WorkDate;
+    end;
+
+    procedure Caption(): Text
+    var
+        ProdOrder: Record "Production Order";
+        ProdOrderComp: Record "Prod. Order Component";
+    begin
+        if GetFilters = '' then
+            exit('');
+
+        if not ProdOrder.Get(Status, "Prod. Order No.") then
+            exit('');
+
+        if not ProdOrderComp.Get(Status, "Prod. Order No.", "Prod. Order Line No.", "Prod. Order BOM Line No.") then
+            Clear(ProdOrderComp);
+
+        exit(
+          StrSubstNo('%1 %2 %3 %4 %5',
+            Status, "Prod. Order No.", ProdOrder.Description, ProdOrderComp."Item No.", ProdOrderComp.Description));
+    end;
+
+    [Scope('OnPrem')]
+    procedure CopyFromProdBOMComponent(ProductionBOMCommentLine: Record "Production BOM Comment Line"; ProdOrderComponent: Record "Prod. Order Component")
+    begin
+        TransferFields(ProductionBOMCommentLine);
+        Status := ProdOrderComponent.Status;
+        "Prod. Order No." := ProdOrderComponent."Prod. Order No.";
+        "Prod. Order Line No." := ProdOrderComponent."Prod. Order Line No.";
+        "Prod. Order BOM Line No." := ProdOrderComponent."Line No.";
+    end;
+}
+

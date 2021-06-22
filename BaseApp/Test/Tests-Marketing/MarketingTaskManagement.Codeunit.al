@@ -1,0 +1,1602 @@
+codeunit 136203 "Marketing Task Management"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    trigger OnRun()
+    begin
+        // [FEATURE] [Marketing] [Task]
+    end;
+
+    var
+        LibraryUtility: Codeunit "Library - Utility";
+        LibraryMarketing: Codeunit "Library - Marketing";
+        Assert: Codeunit Assert;
+        LibraryRandom: Codeunit "Library - Random";
+        LibrarySales: Codeunit "Library - Sales";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryTablesUT: Codeunit "Library - Tables UT";
+        IsInitialized: Boolean;
+        UnknownError: Label 'Unexpected Error.';
+        EMailError: Label 'You cannot set %1 as organizer because he/she does not have email address.';
+        TaskExistErr: Label '%1 %2 must not exist.';
+        TaskCountErr: Label 'Total %1 must be %2.';
+        OrganizerErr: Label 'You must specify the Task organizer.';
+        DateFormula2: Label '<2D>';
+        DateFormula3: Label '<1W - 2D>';
+        TeamCode: Code[10];
+        SegmentNo: Code[20];
+        SalespersonCode2: Code[20];
+        TaskType: Option;
+        ActivityCode: Code[10];
+        ContactNo: Code[20];
+        AllDayEvent2: Boolean;
+        Recurring: Boolean;
+        AppointmentValueWrongErr: Label 'Wrong Appointment Value';
+        AttendeeNotAddedErr: Label 'Attendee was not added';
+        InviationSentNotSetErr: Label 'Invitation Sent is not set';
+        WrongSalespersonCodeErr: Label 'Wrong Salesperson Code';
+
+    [Test]
+    [HandlerFunctions('ModalFormHandlerForTeamTask')]
+    [Scope('OnPrem')]
+    procedure TaskWithoutEMailTeam()
+    var
+        Team: Record Team;
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        TeamSalesperson: Record "Team Salesperson";
+        Task: Record "To-do";
+        TempTask: Record "To-do" temporary;
+    begin
+        // Covers document number TC0002 - refer to TFS ID 21732.
+        // Test error occurs on Creating Task for Team with Salespeople without E-mail address.
+
+        // 1. Setup: Create Team, Salespeople and attach Salespeople to Team.
+        Initialize;
+        LibraryMarketing.CreateTeam(Team);
+        LibrarySales.CreateSalesperson(SalespersonPurchaser);
+        LibraryMarketing.CreateTeamSalesperson(TeamSalesperson, Team.Code, SalespersonPurchaser.Code);
+        Commit;
+
+        // Set global variable for Form Handler.
+        InitializeGlobalVariable;
+        TeamCode := Team.Code;
+
+        // 2. Exercise: Create Task for Team.
+        asserterror TempTask.CreateTaskFromTask(Task);
+
+        // 3. Verify: Verify error occurs on Creating Task for Team with Salespeople without E-mail address.
+        Assert.AreEqual(StrSubstNo(EMailError, SalespersonPurchaser.Code), GetLastErrorText, UnknownError);
+    end;
+
+    [Test]
+    [HandlerFunctions('ModalFormHandlerForTeamTask')]
+    [Scope('OnPrem')]
+    procedure TaskTeamTypeBlank()
+    var
+        Team: Record Team;
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        Task: Record "To-do";
+        TempTask: Record "To-do" temporary;
+        Contact: Record Contact;
+    begin
+        // Covers document number TC0002 - refer to TFS ID 21732.
+        // Test Task for Team, Contact and Salespeople after create Task for Team with Type Blank.
+
+        // 1. Setup: Create Team, Salespeople with E-Mail address and attach Salespeople to Team.
+        CreateTeamWithSalesperson(Team, SalespersonPurchaser);
+
+        // Set global variable for Form Handler.
+        InitializeGlobalVariable;
+        TeamCode := Team.Code;
+
+        // 2. Exercise: Create Task for Team and attach Contact to Created Task.
+        TempTask.CreateTaskFromTask(Task);
+        Contact.FindFirst;
+        UpdateTask(Task, Team.Code, Contact."No.");
+
+        // 3. Verify: Verify Task attach on Team, Contact and Salespeople.
+        VerifyTaskForTeam(Team.Code);
+        VerifyTaskForContact(Team.Code, Contact."No.");
+        VerifyTaskForSalesperson(Team.Code, SalespersonPurchaser.Code);
+    end;
+
+    [Test]
+    [HandlerFunctions('ModalFormHandlerForTeamTask')]
+    [Scope('OnPrem')]
+    procedure DeleteTaskTeamTypeBlank()
+    var
+        Team: Record Team;
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        Task: Record "To-do";
+        TempTask: Record "To-do" temporary;
+        Contact: Record Contact;
+        DeleteTasks: Report "Delete Tasks";
+    begin
+        // Covers document number TC0002 - refer to TFS ID 21732.
+        // Test Task for Team, Contact and Salespeople deleted after delete Task for Team with Type Blank.
+
+        // 1. Setup: Create Team, Salespeople with E-Mail address, attach Salespeople to Team, Create Task for Team and attach Contact
+        // to Created Task.
+        CreateTeamWithSalesperson(Team, SalespersonPurchaser);
+
+        // Set global variable for Form Handler.
+        InitializeGlobalVariable;
+        TeamCode := Team.Code;
+        TempTask.CreateTaskFromTask(Task);
+        Contact.FindFirst;
+        UpdateTask(Task, Team.Code, Contact."No.");
+
+        // 2. Exercise: Canceled the Created Task and run Delete Tasks Batch Report.
+        Task.Validate(Canceled, true);
+        Task.Modify(true);
+        Task.SetRange("No.", Task."No.");
+        DeleteTasks.SetTableView(Task);
+        DeleteTasks.UseRequestPage(false);
+        DeleteTasks.Run;
+
+        // 3. Verify: Verify Task deleted attach on Team, Contact and Salespeople.
+        Task.Reset;
+        Task.SetRange("Team Code", Team.Code);
+        Assert.IsFalse(Task.FindFirst, StrSubstNo(TaskExistErr, Task.TableCaption, Task."No."));
+
+        Task.Reset;
+        Task.SetRange("Contact No.", Contact."No.");
+        Task.SetRange("Team Code", Team.Code);
+        Assert.IsFalse(Task.FindFirst, StrSubstNo(TaskExistErr, Task.TableCaption, Task."No."));
+
+        Task.Reset;
+        Task.SetRange("Salesperson Code", SalespersonPurchaser.Code);
+        Assert.IsFalse(Task.FindFirst, StrSubstNo(TaskExistErr, Task.TableCaption, Task."No."));
+    end;
+
+    [Test]
+    [HandlerFunctions('ModalFormHandlerForSegmentTask')]
+    [Scope('OnPrem')]
+    procedure TaskSegmentTypeBlank()
+    var
+        Task: Record "To-do";
+    begin
+        // Covers document number TC0004 - refer to TFS ID 21732.
+        // Test Task for Segment, Contact and Salespeople after create Task for Segment with Type Blank.
+
+        TaskSegment(Task.Type::" ");
+    end;
+
+    [Test]
+    [HandlerFunctions('ModalFormHandlerForSegmentTask')]
+    [Scope('OnPrem')]
+    procedure TaskSegmentTypePhoneCall()
+    var
+        Task: Record "To-do";
+    begin
+        // Covers document number TC0004 - refer to TFS ID 21732.
+        // Test Task for Segment, Contact and Salespeople after create Task for Segment with Type Phone Call.
+
+        TaskSegment(Task.Type::"Phone Call");
+    end;
+
+    local procedure TaskSegment(Type: Option)
+    var
+        SegmentHeader: Record "Segment Header";
+        SegmentLine: Record "Segment Line";
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        Task: Record "To-do";
+        TempTask: Record "To-do" temporary;
+    begin
+        // 1. Setup: Create Salesperson, Segment Header and Segment Line for Contact.
+        Initialize;
+        CreateSalespersonWithEmail(SalespersonPurchaser);
+        LibraryMarketing.CreateSegmentHeader(SegmentHeader);
+        SegmentHeader.Validate("Salesperson Code", SalespersonPurchaser.Code);
+        SegmentHeader.Modify(true);
+        CreateSegmentLine(SegmentHeader."No.");
+
+        // Set global variable for Form Handler.
+        InitializeGlobalVariable;
+        TaskType := Type;
+        SegmentNo := SegmentHeader."No.";
+        SalespersonCode2 := SalespersonPurchaser.Code;
+
+        // 2. Exercise: Create Task for Segment.
+        TempTask.CreateTaskFromTask(Task);
+
+        // 3. Verify: Verify Task for Segment, Contact equal total lines on Segment Line and Salespeople.
+        SegmentLine.SetRange("Segment No.", SegmentHeader."No.");
+        Task.SetRange("Segment No.", SegmentHeader."No.");
+        Task.SetRange("System To-do Type", Task."System To-do Type"::Organizer);
+        Assert.AreEqual(Task.Count, SegmentLine.Count, StrSubstNo(TaskCountErr, Task.TableCaption, SegmentLine.Count));
+
+        Task.Reset;
+        Task.SetRange("Salesperson Code", SalespersonPurchaser.Code);
+        Task.SetRange("Segment No.", SegmentHeader."No.");
+        Task.SetRange("System To-do Type", Task."System To-do Type"::Organizer);
+        Assert.AreEqual(Task.Count, SegmentLine.Count, StrSubstNo(TaskCountErr, Task.TableCaption, SegmentLine.Count));
+
+        VerifyTaskForSegment(SegmentHeader."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('ModalFormHandlerTeamSegment')]
+    [Scope('OnPrem')]
+    procedure TeamTaskSegmentTypeBlank()
+    var
+        Task: Record "To-do";
+    begin
+        // Covers document number TC0005 - refer to TFS ID 21732.
+        // Test Task for Segment, Contact and Salespeople after create Task for Segment with Type Blank having Team Code.
+
+        TeamTaskSegment(Task.Type::" ");
+    end;
+
+    [Test]
+    [HandlerFunctions('ModalFormHandlerTeamSegment')]
+    [Scope('OnPrem')]
+    procedure TeamTaskSegmentTypePhoneCall()
+    var
+        Task: Record "To-do";
+    begin
+        // Covers document number TC0005 - refer to TFS ID 21732.
+        // Test Task for Segment, Contact and Salespeople after create Task for Segment with Type Phone Call having Team Code.
+
+        TeamTaskSegment(Task.Type::"Phone Call");
+    end;
+
+    local procedure TeamTaskSegment(Type: Option)
+    var
+        Team: Record Team;
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        SegmentHeader: Record "Segment Header";
+        SegmentLine: Record "Segment Line";
+        Task: Record "To-do";
+        TempTask: Record "To-do" temporary;
+    begin
+        // 1. Setup: Create Team, Salespeople with E-Mail address, attach Salespeople to Team, Create Segment Header and Segment Line.
+        CreateTeamWithSalesperson(Team, SalespersonPurchaser);
+        LibraryMarketing.CreateSegmentHeader(SegmentHeader);
+        CreateSegmentLine(SegmentHeader."No.");
+
+        // Set global variable for Form Handler.
+        InitializeGlobalVariable;
+        TeamCode := Team.Code;
+        SegmentNo := SegmentHeader."No.";
+        TaskType := Type;
+
+        // 2. Exercise: Create Task for Segment.
+        TempTask.CreateTaskFromTask(Task);
+
+        // 3. Verify: Verify Task for Segment, Contact equal total lines on Segment Line and Salespeople.
+        SegmentLine.SetRange("Segment No.", SegmentHeader."No.");
+        Task.SetRange("Segment No.", SegmentHeader."No.");
+        Task.SetRange("System To-do Type", Task."System To-do Type"::Organizer);
+        Assert.AreEqual(Task.Count, SegmentLine.Count, StrSubstNo(TaskCountErr, Task.TableCaption, SegmentLine.Count));
+
+        Task.Reset;
+        Task.SetRange("Salesperson Code", SalespersonPurchaser.Code);
+        Task.SetRange("Segment No.", SegmentHeader."No.");
+        Assert.AreEqual(Task.Count, SegmentLine.Count, StrSubstNo(TaskCountErr, Task.TableCaption, SegmentLine.Count));
+
+        VerifyTaskForSegment(SegmentHeader."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('ModalFormHandlerSegmentMeeting')]
+    [Scope('OnPrem')]
+    procedure TeamTaskSegmentWOOrganizer()
+    var
+        Team: Record Team;
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        SegmentHeader: Record "Segment Header";
+        Task: Record "To-do";
+        TempTask: Record "To-do" temporary;
+    begin
+        // Covers document number TC0005 - refer to TFS ID 21732.
+        // Test error occurs on creating Task for Segment with Type Meeting without Task Organizer.
+
+        // 1. Setup: Create Team, Salespeople with E-Mail address, attach Salespeople to Team, Create Segment Header and Segment Line.
+        CreateTeamWithSalesperson(Team, SalespersonPurchaser);
+        LibraryMarketing.CreateSegmentHeader(SegmentHeader);
+        CreateSegmentLine(SegmentHeader."No.");
+
+        // Set global variable for Form Handler.
+        InitializeGlobalVariable;
+        TeamCode := Team.Code;
+        SegmentNo := SegmentHeader."No.";
+        TaskType := Task.Type::Meeting;
+
+        // 2. Exercise: Create Task for Segment.
+        asserterror TempTask.CreateTaskFromTask(Task);
+
+        // 3. Verify: Verify error occurs on creating Task for Segment with Type Meeting without Task Organizer.
+        Assert.AreEqual(StrSubstNo(OrganizerErr), GetLastErrorText, UnknownError);
+    end;
+
+    [Test]
+    [HandlerFunctions('ModalFormHandlerSegmentMeeting')]
+    [Scope('OnPrem')]
+    procedure TeamTaskSegmentTypeMeeting()
+    var
+        Team: Record Team;
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        SegmentHeader: Record "Segment Header";
+        Task: Record "To-do";
+        TempTask: Record "To-do" temporary;
+    begin
+        // Covers document number TC0005 - refer to TFS ID 21732.
+        // Test Task for Segment, Contact and Salespeople after create Task for Segment with Type Meeting having Team Code.
+
+        // 1. Setup: Create Team, Salespeople with E-Mail address, attach Salespeople to Team, Create Segment Header and Segment Line.
+        CreateTeamWithSalesperson(Team, SalespersonPurchaser);
+        LibraryMarketing.CreateSegmentHeader(SegmentHeader);
+        CreateSegmentLine(SegmentHeader."No.");
+
+        // Set global variable for Form Handler.
+        InitializeGlobalVariable;
+        TeamCode := Team.Code;
+        SegmentNo := SegmentHeader."No.";
+        TaskType := Task.Type::Meeting;
+        SalespersonCode2 := SalespersonPurchaser.Code;
+
+        // 2. Exercise: Create Task for Segment.
+        TempTask.CreateTaskFromTask(Task);
+
+        // 3. Verify: Verify Task for Segment, Contact and Salespeople.
+        Task.SetRange("Segment No.", SegmentHeader."No.");
+        Task.SetRange("System To-do Type", Task."System To-do Type"::Organizer);
+        Task.FindFirst;
+
+        Task.Reset;
+        Task.SetRange("Salesperson Code", SalespersonPurchaser.Code);
+        Task.SetRange("Segment No.", SegmentHeader."No.");
+        Task.FindFirst;
+
+        VerifyTaskForSegment(SegmentHeader."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TeamSalespersonTeamNameField()
+    var
+        Team: Record Team;
+        TeamSalesperson: Record "Team Salesperson";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 214904] Field length TeamSalesperson."Team Name" = Team.Name
+        Initialize;
+
+        LibraryTablesUT.CompareFieldTypeAndLength(
+          Team, Team.FieldNo(Name),
+          TeamSalesperson, TeamSalesperson.FieldNo("Team Name"));
+    end;
+
+    [Test]
+    [HandlerFunctions('ModalFormHandlerAssignActivity')]
+    [Scope('OnPrem')]
+    procedure AssignActivityOnContact()
+    var
+        Team: Record Team;
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        Activity: Record Activity;
+        ActivityStep: Record "Activity Step";
+        Task: Record "To-do";
+        TempTask: Record "To-do" temporary;
+        Contact: Record Contact;
+    begin
+        // Covers document number TC0006 - refer to TFS ID 21732.
+        // Test Task for Contact, Salesperson and Team after Assign activity through Assign Activity wizard for Contact.
+
+        // 1. Setup: Create Team, Salesperson, attach Salesperson to Team and Create Activity.
+        CreateTeamWithSalesperson(Team, SalespersonPurchaser);
+        LibraryMarketing.CreateActivity(Activity);
+        CreateActivityStep(Activity.Code, ActivityStep.Type::" ", ActivityStep.Priority::Low, '');
+        CreateActivityStep(Activity.Code, ActivityStep.Type::"Phone Call", ActivityStep.Priority::Normal, DateFormula2);
+        CreateActivityStep(Activity.Code, ActivityStep.Type::Meeting, ActivityStep.Priority::High, DateFormula3);
+
+        // Set global variable for Form Handler.
+        InitializeGlobalVariable;
+        ActivityCode := Activity.Code;
+        SalespersonCode2 := SalespersonPurchaser.Code;
+        TeamCode := Team.Code;
+
+        // 2. Exercise: Select Contact with type Company and assign Activity to Contact.
+        Contact.SetRange(Type, Contact.Type::Company);
+        Contact.FindFirst;
+        ContactNo := Contact."No.";
+        TempTask.AssignActivityFromTask(Task);
+
+        // 3. Verify: Verify Task for Contact, Salesperson and Team after Assign activity.
+        VerifyContactActivity(Contact."No.", Activity.Code, Team.Code);
+        VerifyTeamActivity(Activity.Code, Team.Code);
+        VerifySalespersonActivity(SalespersonPurchaser.Code, Activity.Code, Team.Code);
+    end;
+
+    [Test]
+    [HandlerFunctions('ModalFormHandlerRecurringTask')]
+    [Scope('OnPrem')]
+    procedure RecurringTaskTypeBlank()
+    var
+        Task: Record "To-do";
+    begin
+        // Covers document number TC0007 - refer to TFS ID 21732.
+        // Test Task for Salespeople after create Task for Salespeople with Type Blank having Recurring True.
+
+        RecurringTask(Task.Type::" ", false);
+    end;
+
+    [Test]
+    [HandlerFunctions('ModalFormHandlerRecurringTask')]
+    [Scope('OnPrem')]
+    procedure RecurringTaskTypePhoneCall()
+    var
+        Task: Record "To-do";
+    begin
+        // Covers document number TC0007 - refer to TFS ID 21732.
+        // Test Task for Salespeople after create Task for Salespeople with Type Phone Call having Recurring True.
+
+        RecurringTask(Task.Type::"Phone Call", false);
+    end;
+
+    [Test]
+    [HandlerFunctions('ModalFormHandlerRecurringTask')]
+    [Scope('OnPrem')]
+    procedure RecurringTaskTypeMeeting()
+    var
+        Task: Record "To-do";
+    begin
+        // Covers document number TC0007 - refer to TFS ID 21732.
+        // Test Task for Salespeople after create Task for Salespeople with Type Meeting having Recurring True.
+
+        RecurringTask(Task.Type::Meeting, true);
+    end;
+
+    local procedure RecurringTask(Type: Option; AllDayEvent: Boolean)
+    var
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        Task: Record "To-do";
+        TempTask: Record "To-do" temporary;
+    begin
+        // 1. Setup: Create Salesperson with E-mail.
+        Initialize;
+        CreateSalespersonWithEmail(SalespersonPurchaser);
+
+        // Set global variable for Form Handler.
+        InitializeGlobalVariable;
+        SalespersonCode2 := SalespersonPurchaser.Code;
+        TaskType := Type;
+        AllDayEvent2 := AllDayEvent;
+        Recurring := true;
+
+        // 2. Exercise: Create Recurring Task for Salesperson.
+        TempTask.CreateTaskFromTask(Task);
+
+        // 3. Verify: Verify Task for Salesperson.
+        Task.SetRange("Salesperson Code", SalespersonPurchaser.Code);
+        Task.FindFirst;
+        Task.TestField(Recurring, true);
+        Task.TestField(Description, SalespersonPurchaser.Code);
+        Task.TestField(Type, Type);
+    end;
+
+    [Test]
+    [HandlerFunctions('ModalFormHandlerRecurringTask,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure ClosedRecurringTask()
+    var
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        Task: Record "To-do";
+        TempTask: Record "To-do" temporary;
+    begin
+        // Covers document number TC0007 - refer to TFS ID 21732.
+        // Test Task for Salespeople after closed Recurring Task for Salespeople.
+
+        // 1. Setup: Create Salesperson with E-mail Id.
+        Initialize;
+        CreateSalespersonWithEmail(SalespersonPurchaser);
+
+        // Set global variable for Form Handler.
+        InitializeGlobalVariable;
+        SalespersonCode2 := SalespersonPurchaser.Code;
+        Recurring := true;
+
+        // 2. Exercise: Create Recurring Task for Salesperson and Closed the Created Task.
+        TempTask.CreateTaskFromTask(Task);
+
+        Task.SetRange("Salesperson Code", SalespersonPurchaser.Code);
+        Task.FindFirst;
+        Task.Validate(Closed, true);
+        Task.Modify(true);
+
+        // 3. Verify: Verify Task Closed and New Recurring Task created for Salesperson.
+        FindClosedTask(Task, SalespersonPurchaser.Code, true);
+        Task.FindFirst;
+        Task.TestField(Status, Task.Status::Completed);
+
+        FindClosedTask(Task, SalespersonPurchaser.Code, false);
+        Task.TestField(Recurring, true);
+        Task.TestField(Description, SalespersonPurchaser.Code);
+    end;
+
+    [Test]
+    [HandlerFunctions('ModalFormHandlerRecurringTask,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure CanceledRecurringTask()
+    var
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        Task: Record "To-do";
+        TempTask: Record "To-do" temporary;
+    begin
+        // Covers document number TC0007 - refer to TFS ID 21732.
+        // Test Task for Salespeople after canceled Recurring Task for Salespeople.
+
+        // 1. Setup: Create Salesperson with E-mail Id.
+        Initialize;
+        CreateSalespersonWithEmail(SalespersonPurchaser);
+
+        // Set global variable for Form Handler.
+        InitializeGlobalVariable;
+        SalespersonCode2 := SalespersonPurchaser.Code;
+        Recurring := true;
+
+        // 2. Exercise: Create Recurring Task for Salesperson and Canceled the Created Task.
+        TempTask.CreateTaskFromTask(Task);
+
+        Task.SetRange("Salesperson Code", SalespersonPurchaser.Code);
+        Task.FindFirst;
+        Task.Validate(Canceled, true);
+        Task.Modify(true);
+
+        // 3. Verify: Verify Task Canceled and New Recurring Task created for Salesperson.
+        FindCanceledTask(Task, SalespersonPurchaser.Code, true);
+        Task.FindFirst;
+        Task.TestField(Status, Task.Status::Completed);
+
+        FindCanceledTask(Task, SalespersonPurchaser.Code, false);
+        Task.FindFirst;
+        Task.TestField(Recurring, true);
+        Task.TestField(Description, SalespersonPurchaser.Code);
+    end;
+
+    [Test]
+    [HandlerFunctions('ModalFormHandlerRecurringTask')]
+    [Scope('OnPrem')]
+    procedure ClosedTaskRecurringFalse()
+    var
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        Task: Record "To-do";
+        TempTask: Record "To-do" temporary;
+    begin
+        // Covers document number TC0007 - refer to TFS ID 21732.
+        // Test Task for Salespeople after closed Task for Salespeople.
+
+        // 1. Setup: Create Salesperson with E-mail Id.
+        Initialize;
+        CreateSalespersonWithEmail(SalespersonPurchaser);
+
+        // Set global variable for Form Handler.
+        InitializeGlobalVariable;
+        SalespersonCode2 := SalespersonPurchaser.Code;
+        Recurring := true;
+
+        // 2. Exercise: Create Recurring Task for Salesperson, set Recurring True and Closed the Created Task.
+        TempTask.CreateTaskFromTask(Task);
+
+        Task.SetRange("Salesperson Code", SalespersonPurchaser.Code);
+        Task.FindFirst;
+        Task.Validate(Recurring, false);
+        Task.Validate(Closed, true);
+        Task.Modify(true);
+
+        // 3. Verify: Verify Task Closed and No New Task created for Salesperson.
+        FindClosedTask(Task, SalespersonPurchaser.Code, true);
+        Task.FindFirst;
+        Task.TestField(Status, Task.Status::Completed);
+
+        FindClosedTask(Task, SalespersonPurchaser.Code, false);
+        Assert.IsFalse(Task.FindFirst, StrSubstNo(TaskExistErr, Task.TableCaption, Task."No."));
+    end;
+
+    [Test]
+    [HandlerFunctions('ModalFormHandlerRecurringTask')]
+    [Scope('OnPrem')]
+    procedure CanceledTaskRecurringFalse()
+    var
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        Task: Record "To-do";
+        TempTask: Record "To-do" temporary;
+    begin
+        // Covers document number TC0007 - refer to TFS ID 21732.
+        // Test Task for Salespeople after canceled Task for Salespeople.
+
+        // 1. Setup: Create Salesperson with E-mail Id.
+        Initialize;
+        CreateSalespersonWithEmail(SalespersonPurchaser);
+
+        // Set global variable for Form Handler.
+        InitializeGlobalVariable;
+        SalespersonCode2 := SalespersonPurchaser.Code;
+        Recurring := true;
+
+        // 2. Exercise: Create Recurring Task for Salesperson, set Recurring True and Canceled the Created Task.
+        TempTask.CreateTaskFromTask(Task);
+
+        Task.SetRange("Salesperson Code", SalespersonPurchaser.Code);
+        Task.FindFirst;
+        Task.Validate(Recurring, false);
+        Task.Validate(Canceled, true);
+        Task.Modify(true);
+
+        // 3. Verify: Verify Task Canceled and No New Task created for Salesperson.
+        FindCanceledTask(Task, SalespersonPurchaser.Code, true);
+        Task.FindFirst;
+        Task.TestField(Status, Task.Status::Completed);
+
+        FindCanceledTask(Task, SalespersonPurchaser.Code, false);
+        Assert.IsFalse(Task.FindFirst, StrSubstNo(TaskExistErr, Task.TableCaption, Task."No."));
+    end;
+
+    [Test]
+    [HandlerFunctions('ModalFormHandlerRecurringTask')]
+    [Scope('OnPrem')]
+    procedure NonRecurringTaskTypeBlank()
+    var
+        Task: Record "To-do";
+    begin
+        // Covers document number TC0007 - refer to TFS ID 21732.
+        // Test Task for Salespeople after create Task for Salespeople with Type Blank having Recurring False.
+
+        NonRecurringTask(Task.Type::" ", false);
+    end;
+
+    [Test]
+    [HandlerFunctions('ModalFormHandlerRecurringTask')]
+    [Scope('OnPrem')]
+    procedure NonRecurringTaskTypePhoneCall()
+    var
+        Task: Record "To-do";
+    begin
+        // Covers document number TC0007 - refer to TFS ID 21732.
+        // Test Task for Salespeople after create Task for Salespeople with Type Phone Call having Recurring False.
+
+        NonRecurringTask(Task.Type::"Phone Call", false);
+    end;
+
+    [Test]
+    [HandlerFunctions('ModalFormHandlerRecurringTask')]
+    [Scope('OnPrem')]
+    procedure NonRecurringTaskTypeMeeting()
+    var
+        Task: Record "To-do";
+    begin
+        // Covers document number TC0007 - refer to TFS ID 21732.
+        // Test Task for Salespeople after create Task for Salespeople with Type Meeting having Recurring False.
+
+        NonRecurringTask(Task.Type::Meeting, true);
+    end;
+
+    local procedure NonRecurringTask(Type: Option; AllDayEvent: Boolean)
+    var
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        Task: Record "To-do";
+        TempTask: Record "To-do" temporary;
+    begin
+        // 1. Setup: Create Salesperson with E-mail Id.
+        Initialize;
+        CreateSalespersonWithEmail(SalespersonPurchaser);
+
+        // Set global variable for Form Handler.
+        InitializeGlobalVariable;
+        SalespersonCode2 := SalespersonPurchaser.Code;
+        TaskType := Type;
+        AllDayEvent2 := AllDayEvent;
+
+        // 2. Exercise: Create Task for Salesperson and set Recurring True the Created Task.
+        TempTask.CreateTaskFromTask(Task);
+
+        Task.SetRange("Salesperson Code", SalespersonPurchaser.Code);
+        Task.FindFirst;
+        Task.Validate(Recurring, true);
+        Evaluate(Task."Recurring Date Interval", DateFormula2);
+        Task.Validate("Calc. Due Date From", Task."Calc. Due Date From"::"Closing Date");
+        Task.Modify(true);
+
+        // 3. Verify: Verify Task for Salesperson.
+        Task.Reset;
+        Task.SetRange("Salesperson Code", SalespersonPurchaser.Code);
+        Task.FindFirst;
+        Task.TestField(Recurring, true);
+        Task.TestField(Description, SalespersonPurchaser.Code);
+        Task.TestField(Type, Type);
+    end;
+
+    [Test]
+    [HandlerFunctions('ModalFormHandlerForTeamTask,ConfirmMessageHandler')]
+    [Scope('OnPrem')]
+    procedure ReassignTeamTaskTypeBlank()
+    var
+        Task: Record "To-do";
+    begin
+        // Covers document number TC0008 - refer to TFS ID 21732.
+        // Test Task for Salespeople after Reassign Salespeople to Task with Type Blank for Team.
+
+        ReassignTeamTask(Task.Type::" ", false);
+    end;
+
+    [Test]
+    [HandlerFunctions('ModalFormHandlerForTeamTask,ConfirmMessageHandler')]
+    [Scope('OnPrem')]
+    procedure ReassignTeamTaskTypePhoneCall()
+    var
+        Task: Record "To-do";
+    begin
+        // Covers document number TC0008 - refer to TFS ID 21732.
+        // Test Task for Salespeople after Reassign Salespeople to Task with Type Phone Call for Team.
+
+        ReassignTeamTask(Task.Type::"Phone Call", false);
+    end;
+
+    [Test]
+    [HandlerFunctions('ModalFormHandlerForTeamTask,ConfirmMessageHandler')]
+    [Scope('OnPrem')]
+    procedure ReassignTeamTaskTypeMeeting()
+    var
+        Task: Record "To-do";
+    begin
+        // Covers document number TC0008 - refer to TFS ID 21732.
+        // Test Task for Salespeople after Reassign Salespeople to Task with Type Meeting for Team.
+
+        ReassignTeamTask(Task.Type::Meeting, true);
+    end;
+
+    local procedure ReassignTeamTask(Type: Option; AllDayEvent: Boolean)
+    var
+        Team: Record Team;
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        Task: Record "To-do";
+        TempTask: Record "To-do" temporary;
+    begin
+        // 1. Setup: Create Team, Salespeople with E-Mail address and attach Salespeople to Team.
+        CreateTeamWithSalesperson(Team, SalespersonPurchaser);
+        InitializeGlobalVariable;
+        SalespersonCode2 := SalespersonPurchaser.Code;
+        CreateSalespersonWithEmail(SalespersonPurchaser);
+
+        // Set global variable for Form Handler.
+        TeamCode := Team.Code;
+        TaskType := Type;
+        AllDayEvent2 := AllDayEvent;
+
+        // 2. Exercise: Create Task for Team and Updated Salesperson code on Created Task.
+        TempTask.CreateTaskFromTask(Task);
+
+        Task.SetRange("Team Code", Team.Code);
+        Task.SetRange("System To-do Type", Task."System To-do Type"::Team);
+        Task.FindFirst;
+        Task.SetRunFromForm;
+        Task.Validate("Salesperson Code", SalespersonPurchaser.Code);
+        Task.Modify(true);
+
+        // 3. Verify: Verify Task attach on Salesperson and Task for Team Deleted.
+        Task.Reset;
+        Task.SetRange("Salesperson Code", SalespersonPurchaser.Code);
+        Task.FindFirst;
+
+        Task.Reset;
+        Task.SetRange("Team Code", Team.Code);
+        Task.SetRange("System To-do Type", Task."System To-do Type"::Team);
+        Assert.IsFalse(Task.FindFirst, StrSubstNo(TaskExistErr, Task.TableCaption, Task."No."));
+    end;
+
+    [Test]
+    [HandlerFunctions('ModalFormHandlerRecurringTask')]
+    [Scope('OnPrem')]
+    procedure ReassignTaskTypeBlank()
+    var
+        Task: Record "To-do";
+    begin
+        // Covers document number TC0010 - refer to TFS ID 21732.
+        // Test Task for Team after Reassign Salespeople to Task with Type Blank for Salespeople.
+
+        ReassignTask(Task.Type::" ", false);
+    end;
+
+    [Test]
+    [HandlerFunctions('ModalFormHandlerRecurringTask')]
+    [Scope('OnPrem')]
+    procedure ReassignTaskTypePhoneCall()
+    var
+        Task: Record "To-do";
+    begin
+        // Covers document number TC0010 - refer to TFS ID 21732.
+        // Test Task for Team after Reassign Salespeople to Task with Type Phone Call for Salespeople.
+
+        ReassignTask(Task.Type::"Phone Call", false);
+    end;
+
+    [Test]
+    [HandlerFunctions('ModalFormHandlerRecurringTask')]
+    [Scope('OnPrem')]
+    procedure ReassignTaskTypeMeeting()
+    var
+        Task: Record "To-do";
+    begin
+        // Covers document number TC0010 - refer to TFS ID 21732.
+        // Test Task for Team Salespeople after Reassign Salespeople to Task with Type Meeting for Salespeople.
+
+        ReassignTask(Task.Type::Meeting, true);
+    end;
+
+    /*
+        TODO: BUG    
+        [Test]
+        [Scope('OnPrem')]
+        procedure AppointmentFromTaskStartEndDateTime()
+        var
+            Task: Record "To-do";
+            Appointment: DotNet "Microsoft.Dynamics.Nav.Exchange.ALTest.Appointment";
+            TimeZoneInfo: DotNet TimeZoneInfo;
+        begin
+            // [FEATURE] [Appointment] [UT]
+            // [SCENARIO 170785] Create Appointment with Start and End time from Task
+
+            // [GIVEN] Task with Description = "D", Location = "L", Start Time/End Time = "ST1"/"ST2", Start Date/End Date = "SD1"/"SD2"
+            Appointment := Appointment.Appointment;
+            Task.Init;
+            Task.Description := 'AA';
+            Task.Location := 'BB';
+            Task."All Day Event" := false;
+            Task."Start Time" := Time;
+            Task.Date := Today;
+            Task."Ending Time" := Time + 1;
+            Task."Ending Date" := Today + 1;
+
+            // [GIVEN] TimeZone = "TZ1"
+            TimeZoneInfo := TimeZoneInfo.FindSystemTimeZoneById('Pacific Standard Time');
+
+            // [WHEN] Appoinment created from Task
+            Task.UpdateAppointment(Appointment, TimeZoneInfo);
+
+            // [THEN] Appointment Description = "D", Location = "L", Appointment Start = "SD1" + "ST1", Appointment End = "SD2" + "ST2", TimeZone = "TZ1"
+            Assert.AreEqual(Task.Description, Appointment.Subject, AppointmentValueWrongErr);
+            Assert.AreEqual(Task.Location, Appointment.Location, AppointmentValueWrongErr);
+            Assert.AreEqual(Task.Description, Appointment.Subject, AppointmentValueWrongErr);
+            Assert.AreEqual(CreateDateTime(Task.Date, Task."Start Time"), Appointment.MeetingStart, AppointmentValueWrongErr);
+            Assert.AreEqual(CreateDateTime(Task."Ending Date", Task."Ending Time"), Appointment.MeetingEnd, AppointmentValueWrongErr);
+            Assert.AreEqual(TimeZoneInfo.ToString, Appointment.StartTimeZone.ToString, AppointmentValueWrongErr);
+            Assert.AreEqual(TimeZoneInfo.ToString, Appointment.EndTimeZone.ToString, AppointmentValueWrongErr);
+        end;
+    */
+
+    /*
+    [Test]
+    [Scope('OnPrem')]
+    procedure AppointmentFromTaskAllDayEvent()
+    var
+        Task: Record "To-do";
+        Appointment: DotNet "Microsoft.Dynamics.Nav.Exchange.ALTest.Appointment";
+        TimeZoneInfo: DotNet TimeZoneInfo;
+    begin
+        // [FEATURE] [Appointment] [UT]
+        // [SCENARIO 170785] Create Appointment with All Day Event parameter
+
+        // [GIVEN] Task with All Day Event = TRUE
+        Appointment := Appointment.Appointment;
+        Task.Init;
+        Task."All Day Event" := true;
+
+        // [WHEN] Appointment created from Task
+        TimeZoneInfo := TimeZoneInfo.FindSystemTimeZoneById('Pacific Standard Time');
+        Task.UpdateAppointment(Appointment, TimeZoneInfo);
+
+        // [THEN] Appointment IsAllDayEvent = TRUE;
+        Assert.AreEqual(Task."All Day Event", Appointment.IsAllDayEvent, AppointmentValueWrongErr);
+    end;
+*/
+    /*
+        [Test]
+        [Scope('OnPrem')]
+        procedure AppointmentAddRequiredOptionalAttendee()
+        var
+            TempAttendeeRequired: Record Attendee temporary;
+            TempAttendeeOptional: Record Attendee temporary;
+            SalespersonPurchaserRequired: Record "Salesperson/Purchaser";
+            SalespersonPurchaserOptional: Record "Salesperson/Purchaser";
+            Task: Record "To-do";
+            Appointment: DotNet "Microsoft.Dynamics.Nav.Exchange.ALTest.Appointment";
+        begin
+            // [FEATURE] [Appointment] [UT]
+            // [SCENARIO 170785] Add required and optional attendess to Appointment
+
+            // [GIVEN] Salesperson "SP1" is required attendee and SalesPerson "SP2" is optional attendee
+            Appointment := Appointment.Appointment;
+            CreateSalespersonWithEmail(SalespersonPurchaserRequired);
+            CreateAttendee(
+              TempAttendeeRequired, TempAttendeeRequired."Attendance Type"::Required,
+              TempAttendeeRequired."Attendee Type"::Salesperson, SalespersonPurchaserRequired.Code);
+            CreateSalespersonWithEmail(SalespersonPurchaserOptional);
+            CreateAttendee(
+              TempAttendeeOptional, TempAttendeeOptional."Attendance Type"::Optional,
+              TempAttendeeOptional."Attendee Type"::Salesperson, SalespersonPurchaserOptional.Code);
+
+            // [WHEN] "SP1" and "SP2" Salespersons are added to Appointment
+            Task.Init;
+            Task.AddAppointmentAttendee(Appointment, TempAttendeeRequired, SalespersonPurchaserRequired."E-Mail");
+            Task.AddAppointmentAttendee(Appointment, TempAttendeeOptional, SalespersonPurchaserOptional."E-Mail");
+
+            // [THEN] Appointment has 1 required and 1 optional attendees
+            Assert.AreEqual(1, Appointment.RequiredAttendeesCount, AttendeeNotAddedErr);
+            Assert.AreEqual(1, Appointment.OptionalAttendeesCount, AttendeeNotAddedErr);
+
+            // [THEN] Both attendees has "Invitation Sent" = TRUE
+            Assert.IsTrue(TempAttendeeRequired."Invitation Sent", InviationSentNotSetErr);
+            Assert.IsTrue(TempAttendeeOptional."Invitation Sent", InviationSentNotSetErr);
+        end;
+    */
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AllDayEventEndDateOnCreateTaskPage()
+    begin
+        // [FEATURE] [Task]
+        // [SCENARIO 173844] The "Ending Date" in the Task with "All Day Event" checked remains as it set by the user as current day.
+
+        // [GIVEN] Task with "All Day Event" checked
+        // [WHEN] User sets "Ending Date" to Date
+        // [THEN] "Ending Date" is equal to Date
+        AllDayEventMoveEndDate('<CD>');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AllDayEventLateEndDateOnCreateTaskPage()
+    begin
+        // [FEATURE] [Task]
+        // [SCENARIO 173844] The "Ending Date" in the Task with "All Day Event" checked remains as it set by the user.
+
+        // [GIVEN] Task with "All Day Event" checked
+        // [WHEN] User sets "Ending Date" to Date + X days
+        // [THEN] Ending Date is equal to Date + X days
+        AllDayEventMoveEndDate('<+2D>');
+    end;
+
+    [Test]
+    [HandlerFunctions('ModalFormHandlerRecurringTask,ModalFormHandlerMakePhoneCall')]
+    [Scope('OnPrem')]
+    procedure TaskMakePhoneCallFromCardSalesPerson()
+    var
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        Task: Record "To-do";
+        TaskCard: TestPage "Task Card";
+    begin
+        // [FEATURE] [Task]
+        // [SCENARIO 207176] SalesPerson Code is filled when user runs Make Phone Call from Task Card
+        Initialize;
+
+        // [GIVEN] Task of Phone Call type with SalesPerson Code = "SPC"
+        CreateSalespersonWithEmail(SalespersonPurchaser);
+        InitializeGlobalVariable;
+        SalespersonCode2 := SalespersonPurchaser.Code;
+        CreatePhoneCallTask(Task, SalespersonPurchaser.Code);
+
+        // [GIVEN] Task Card page opened
+        TaskCard.OpenEdit;
+        TaskCard.GotoRecord(Task);
+
+        // [WHEN] Make Phone Call action is called
+        TaskCard.MakePhoneCall.Invoke;
+
+        // [THEN] Make Phone Call page is opened and SalesPerson Code = "SPC"
+        Assert.AreEqual(SalespersonPurchaser.Code, LibraryVariableStorage.DequeueText, WrongSalespersonCodeErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('ModalFormHandlerRecurringTask,ModalFormHandlerMakePhoneCall')]
+    [Scope('OnPrem')]
+    procedure TaskMakePhoneCallFromListSalesPerson()
+    var
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        Task: Record "To-do";
+        TaskList: TestPage "Task List";
+    begin
+        // [FEATURE] [Task]
+        // [SCENARIO 207176] SalesPerson Code is filled when user runs Make Phone Call from Task List
+        Initialize;
+
+        // [GIVEN] Task of Phone Call type with SalesPerson Code = "SPC"
+        CreateSalespersonWithEmail(SalespersonPurchaser);
+        InitializeGlobalVariable;
+        SalespersonCode2 := SalespersonPurchaser.Code;
+        CreatePhoneCallTask(Task, SalespersonPurchaser.Code);
+
+        // [GIVEN] Task List page is opened and focused on created Task
+        TaskList.OpenEdit;
+        TaskList.GotoRecord(Task);
+
+        // [WHEN] Make Phone Call action is called
+        TaskList.MakePhoneCall.Invoke;
+
+        // [THEN] Make Phone Call page is opened and SalesPerson Code = "SPC"
+        Assert.AreEqual(SalespersonPurchaser.Code, LibraryVariableStorage.DequeueText, WrongSalespersonCodeErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('ModalFormHandlerRecurringTask,ModalFormHandlerMakePhoneCall,ConfirmMessageHandler')]
+    [Scope('OnPrem')]
+    procedure TaskPhoneCallCompleteSalesPerson()
+    var
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        Task: Record "To-do";
+        TaskCard: TestPage "Task Card";
+    begin
+        // [FEATURE] [Task]
+        // [SCENARIO 207176] SalesPerson Code is filled when user completes Task of Phone Call type and agrees to create Interaction
+        Initialize;
+
+        // [GIVEN] Task of Phone Call type with SalesPerson Code = "SPC"
+        CreateSalespersonWithEmail(SalespersonPurchaser);
+        InitializeGlobalVariable;
+        SalespersonCode2 := SalespersonPurchaser.Code;
+        CreatePhoneCallTask(Task, SalespersonPurchaser.Code);
+
+        // [GIVEN] Task Card page opened
+        TaskCard.OpenEdit;
+        TaskCard.GotoRecord(Task);
+
+        // [WHEN] Status is set to Complete
+        TaskCard.Status.SetValue(Task.Status::Completed);
+
+        // [THEN] Make Phone Call page is opened and SalesPerson Code = "SPC"
+        Assert.AreEqual(SalespersonPurchaser.Code, LibraryVariableStorage.DequeueText, WrongSalespersonCodeErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestLenghtOfTeamNameToDo()
+    var
+        ToDo: Record "To-do";
+        Team: Record Team;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 228568] Lenght of "To-do"."Team Name" shoud be equal to lenght of "Team"."Name"
+        Initialize;
+
+        LibraryTablesUT.CompareFieldTypeAndLength(ToDo, ToDo.FieldNo("Team Name"), Team, Team.FieldNo(Name));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ContactNameAndContactCompanyNameVisibleOnTaskMeeting()
+    var
+        Task: Record "To-do";
+        Contact: Record Contact;
+        TaskCardPage: TestPage "Task Card";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 284068] Contact Name and Contact Company Name values are visible on Task Card, when Task.Type = Meeting
+        Initialize;
+
+        // [GIVEN] A contact
+        LibraryMarketing.CreateCompanyContact(Contact);
+
+        // [GIVEN] Task with Type = Meeting
+        CreateMeetingTask(Task);
+
+        // [GIVEN] Task has Contact Name and Contact Company Name
+        Task.Validate("Contact No.", Contact."No.");
+        Task.Modify;
+
+        // [WHEN] Task Card is open for viewing of this Task
+        TaskCardPage.OpenView;
+        TaskCardPage.GotoRecord(Task);
+
+        // [THEN] Contact Name value is visible and equals Contact.Name
+        Assert.IsFalse(TaskCardPage."Contact Name".HideValue, 'Contact Name value is hidden for Task.Type = Meeting');
+        TaskCardPage."Contact Name".AssertEquals(Contact.Name);
+
+        // [THEN] Contact Company Name value is visible and equals Contact."Company Name"
+        Assert.IsFalse(TaskCardPage."Contact Company Name".HideValue, 'Contact Company Name value is hidden for Task.Type = Meeting');
+        TaskCardPage."Contact Company Name".AssertEquals(Contact."Company Name");
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmMessageHandler,ModalFormHandlerCreateInteraction')]
+    [Scope('OnPrem')]
+    procedure InteractionLogWizardOnClosedMeeting()
+    var
+        InteractionLogEntry: Record "Interaction Log Entry";
+        Task: Record "To-do";
+        TaskCard: TestPage "Task Card";
+    begin
+        // [FEATURE] [Interaction]
+        // [SCENARIO 284727] Interaction Log Entry can be created after changing Task Status to 'Complete'
+        Initialize;
+
+        // [GIVEN] Task with Type 'Meeting'
+        LibraryMarketing.CreateCompanyContactTask(Task, Task.Type::Meeting);
+
+        // [GIVEN] Task Card page opened
+        TaskCard.OpenEdit;
+        TaskCard.FILTER.SetFilter("No.", Task."No.");
+
+        // [WHEN] Task Status is set to Complete
+        TaskCard.Status.SetValue(Task.Status::Completed);
+
+        // [THEN] Interaction log entry is created
+        InteractionLogEntry.SetFilter("Contact No.", Task."Contact No.");
+        Assert.RecordIsNotEmpty(InteractionLogEntry);
+    end;
+
+    local procedure Initialize()
+    begin
+        LibraryVariableStorage.Clear;
+
+        if IsInitialized then
+            exit;
+
+        LibrarySales.SetCreditWarningsToNoWarnings;
+
+        IsInitialized := true;
+        Commit;
+    end;
+
+    local procedure AllDayEventMoveEndDate(EndingDateFormula: Text)
+    var
+        Task: Record "To-do";
+        EndingDate: Date;
+        DateFormula: DateFormula;
+    begin
+        Evaluate(DateFormula, EndingDateFormula);
+        with Task do begin
+            Validate(Type, Type::Meeting);
+            Validate(Date, WorkDate);
+            Validate(Duration, 1440 * 60 * 1000);
+            Validate("All Day Event", true);
+
+            EndingDate := CalcDate(DateFormula, WorkDate);
+            Validate("Ending Date", EndingDate);
+
+            TestField("Ending Date", EndingDate);
+            TestField("Ending Time", 0T);
+        end;
+    end;
+
+    local procedure ReassignTask(Type: Option; AllDayEvent: Boolean)
+    var
+        Team: Record Team;
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        Task: Record "To-do";
+        TempTask: Record "To-do" temporary;
+    begin
+        // 1. Setup: Create Salesperson with E-Mail address and Team.
+        Initialize;
+        CreateSalespersonWithEmail(SalespersonPurchaser);
+        LibraryMarketing.CreateTeam(Team);
+
+        // Set global variable for Form Handler.
+        InitializeGlobalVariable;
+        TaskType := Type;
+        AllDayEvent2 := AllDayEvent;
+        SalespersonCode2 := SalespersonPurchaser.Code;
+
+        // 2. Exercise: Create Task for Salesperson and Update Team Code on Created Task.
+        TempTask.CreateTaskFromTask(Task);
+
+        Task.SetRange("Salesperson Code", SalespersonPurchaser.Code);
+        Task.FindFirst;
+        Task.SetRunFromForm;
+        Task.Validate("Team Code", Team.Code);
+        Task.Modify(true);
+
+        // 3. Verify: Verify Task attach on Team and Task for Salesperson Deleted.
+        Task.Reset;
+        Task.SetRange("Team Code", Team.Code);
+        Task.FindFirst;
+
+        Task.Reset;
+        Task.SetRange("Salesperson Code", SalespersonPurchaser.Code);
+        if Type = Task.Type::Meeting then begin
+            Task.FindFirst;
+            Task.TestField("Team Code", Team.Code);
+        end else
+            Assert.IsFalse(Task.FindFirst, StrSubstNo(TaskExistErr, Task.TableCaption, Task."No."));
+    end;
+
+    local procedure InitializeGlobalVariable()
+    begin
+        TeamCode := '';
+        SalespersonCode2 := '';
+        SegmentNo := '';
+        Clear(TaskType);
+        ActivityCode := '';
+        ContactNo := '';
+        AllDayEvent2 := false;
+        Recurring := false;
+    end;
+
+    local procedure CreateActivityStep(ActivityCode: Code[10]; Type: Option; Priority: Option; DateFormula: Text[30])
+    var
+        ActivityStep: Record "Activity Step";
+    begin
+        LibraryMarketing.CreateActivityStep(ActivityStep, ActivityCode);
+        ActivityStep.Validate(Type, Type);
+        ActivityStep.Validate(Priority, Priority);
+        Evaluate(ActivityStep."Date Formula", DateFormula);
+        ActivityStep.Modify(true);
+    end;
+
+    local procedure CreateAttendee(var TempAttendee: Record Attendee temporary; AttendanceType: Option; AttendeeType: Option; AttendeeNo: Code[20])
+    begin
+        TempAttendee.Init;
+        TempAttendee.Validate("Attendance Type", AttendanceType);
+        TempAttendee.Validate("Attendee Type", AttendeeType);
+        TempAttendee.Validate("Line No.", TempAttendee."Line No." + 10000);  // Use 10000 to Increase the Line No.
+        TempAttendee.Validate("Attendee No.", AttendeeNo);
+        TempAttendee.Insert;
+    end;
+
+    local procedure CreatePhoneCallTask(var Task: Record "To-do"; SalesPersonCode: Code[20])
+    begin
+        Task.CreateTaskFromTask(Task);
+        Task.Validate(Type, Task.Type::"Phone Call");
+        Task.Validate("Contact No.", LibraryMarketing.CreateCompanyContactNo);
+        Task.Validate("Salesperson Code", SalesPersonCode);
+        Task.Modify;
+    end;
+
+    local procedure CreateMeetingTask(var Task: Record "To-do")
+    begin
+        with Task do begin
+            Init;
+            Type := Type::Meeting;
+            "Start Time" := Time;
+            Date := WorkDate;
+            Insert(true);
+        end;
+    end;
+
+    local procedure CreateSalespersonWithEmail(var SalespersonPurchaser: Record "Salesperson/Purchaser")
+    begin
+        LibrarySales.CreateSalesperson(SalespersonPurchaser);
+        SalespersonPurchaser.Validate("E-Mail", LibraryUtility.GenerateRandomEmail);
+        SalespersonPurchaser.Modify(true);
+        Commit;
+    end;
+
+    local procedure CreateSegmentLine(SegmentHeaderNo: Code[20])
+    var
+        SegmentLine: Record "Segment Line";
+        Contact: Record Contact;
+        Counter: Integer;
+    begin
+        Contact.FindSet;
+        // Create 2 to 10 Segment Line - Boundary 2 is important.
+        for Counter := 2 to 2 + LibraryRandom.RandInt(8) do begin
+            LibraryMarketing.CreateSegmentLine(SegmentLine, SegmentHeaderNo);
+            SegmentLine.Validate("Contact No.", Contact."No.");
+            SegmentLine.Modify(true);
+            Contact.Next;
+        end;
+    end;
+
+    local procedure CreateSegmentTask(var TempTask: Record "To-do" temporary; SegmentNo3: Code[20]; Type: Option)
+    begin
+        TempTask.Validate("Segment No.", SegmentNo3);
+        TempTask.Validate(Type, Type);
+        TempTask.Validate(Description, SegmentNo3);
+        TempTask.Validate(Date, WorkDate);
+    end;
+
+    local procedure CreateTeamWithSalesperson(var Team: Record Team; var SalespersonPurchaser: Record "Salesperson/Purchaser")
+    var
+        TeamSalesperson: Record "Team Salesperson";
+    begin
+        Initialize;
+        LibraryMarketing.CreateTeam(Team);
+        LibrarySales.CreateSalesperson(SalespersonPurchaser);
+        SalespersonPurchaser.Validate("E-Mail", LibraryUtility.GenerateRandomEmail);
+        SalespersonPurchaser.Modify(true);
+        LibraryMarketing.CreateTeamSalesperson(TeamSalesperson, Team.Code, SalespersonPurchaser.Code);
+        Commit;
+    end;
+
+    local procedure FindCanceledTask(var Task: Record "To-do"; SalespersonCode: Code[20]; Canceled: Boolean)
+    begin
+        Task.Reset;
+        Task.SetRange("Salesperson Code", SalespersonCode);
+        Task.SetRange(Canceled, Canceled);
+    end;
+
+    local procedure FindClosedTask(var Task: Record "To-do"; SalespersonCode: Code[20]; Closed: Boolean)
+    begin
+        Task.Reset;
+        Task.SetRange("Salesperson Code", SalespersonCode);
+        Task.SetRange(Closed, Closed);
+    end;
+
+    local procedure FinishStepTaskWizard(var TempTask: Record "To-do" temporary)
+    begin
+        TempTask.Modify;
+        TempTask.CheckStatus;
+        TempTask.FinishWizard(false);
+    end;
+
+    local procedure UpdateTask(var Task: Record "To-do"; TeamCode: Code[10]; ContactNo: Code[20])
+    begin
+        Task.SetRange("Team Code", TeamCode);
+        Task.FindFirst;
+        Task.Validate("Contact No.", ContactNo);
+        Task.Modify(true);
+    end;
+
+    local procedure VerifyContactActivity(ContactNo: Code[20]; ActivityCode: Code[10]; TeamCode: Code[10])
+    var
+        Task: Record "To-do";
+        ActivityStep: Record "Activity Step";
+    begin
+        ActivityStep.SetRange("Activity Code", ActivityCode);
+        ActivityStep.FindSet;
+        repeat
+            Task.SetRange("Contact Company No.", ContactNo);
+            Task.SetRange("System To-do Type", Task."System To-do Type"::"Contact Attendee");
+            Task.SetRange("Activity Code", ActivityCode);
+            Task.SetRange(Type, ActivityStep.Type);
+            Task.FindFirst;
+            Task.TestField(Priority, ActivityStep.Priority);
+            Task.TestField("Team Code", TeamCode);
+            Task.TestField(Date, CalcDate(ActivityStep."Date Formula", WorkDate));
+        until ActivityStep.Next = 0;
+    end;
+
+    local procedure VerifySalespersonActivity(SalespersonCode: Code[20]; ActivityCode: Code[10]; TeamCode: Code[10])
+    var
+        Task: Record "To-do";
+        ActivityStep: Record "Activity Step";
+    begin
+        ActivityStep.SetRange("Activity Code", ActivityCode);
+        ActivityStep.FindSet;
+        repeat
+            Task.SetRange("Salesperson Code", SalespersonCode);
+            Task.SetRange("Activity Code", ActivityCode);
+            Task.SetRange(Type, ActivityStep.Type);
+            Task.FindFirst;
+            Task.TestField(Priority, ActivityStep.Priority);
+            Task.TestField("Team Code", TeamCode);
+            Task.TestField(Date, CalcDate(ActivityStep."Date Formula", WorkDate));
+        until ActivityStep.Next = 0;
+    end;
+
+    local procedure VerifyTeamActivity(ActivityCode: Code[10]; TeamCode: Code[10])
+    var
+        Task: Record "To-do";
+        ActivityStep: Record "Activity Step";
+    begin
+        ActivityStep.SetRange("Activity Code", ActivityCode);
+        ActivityStep.FindSet;
+        repeat
+            Task.SetRange("Team Code", TeamCode);
+            Task.SetRange("System To-do Type", Task."System To-do Type"::Team);
+            Task.SetRange(Type, ActivityStep.Type);
+            Task.FindFirst;
+            Task.TestField(Priority, ActivityStep.Priority);
+            Task.TestField(Date, CalcDate(ActivityStep."Date Formula", WorkDate));
+        until ActivityStep.Next = 0;
+    end;
+
+    local procedure VerifyTaskForTeam(TeamCode: Code[10])
+    var
+        Task: Record "To-do";
+    begin
+        Task.SetRange("Team Code", TeamCode);
+        Task.FindFirst;
+        Task.TestField(Type, Task.Type::" ");
+        Task.TestField(Description, TeamCode);
+    end;
+
+    local procedure VerifyTaskForContact(TeamCode: Code[10]; ContactNo: Code[20])
+    var
+        Task: Record "To-do";
+    begin
+        Task.SetRange("Contact No.", ContactNo);
+        Task.SetRange("Team Code", TeamCode);
+        Task.FindFirst;
+        Task.TestField(Type, Task.Type::" ");
+        Task.TestField(Description, TeamCode);
+    end;
+
+    local procedure VerifyTaskForSalesperson(TeamCode: Code[10]; SalespersonCode: Code[20])
+    var
+        Task: Record "To-do";
+    begin
+        Task.SetRange("Salesperson Code", SalespersonCode);
+        Task.FindFirst;
+        Task.TestField("Team Code", TeamCode);
+        Task.TestField(Type, Task.Type::" ");
+        Task.TestField(Description, TeamCode);
+    end;
+
+    local procedure VerifyTaskForSegment(SegmentNo: Code[20])
+    var
+        SegmentLine: Record "Segment Line";
+        Task: Record "To-do";
+    begin
+        SegmentLine.SetRange("Segment No.", SegmentNo);
+        SegmentLine.FindSet;
+        repeat
+            Task.SetRange("Contact No.", SegmentLine."Contact No.");
+            Task.SetRange("Segment No.", SegmentLine."Segment No.");
+            Task.FindFirst;
+            Task.TestField("Contact Company No.", SegmentLine."Contact Company No.");
+            Task.TestField(Date, SegmentLine.Date);
+        until SegmentLine.Next = 0;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmMessageHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandler(Question: Text[1024])
+    begin
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ModalFormHandlerForTeamTask(var CreateTask: Page "Create Task"; var Response: Action)
+    var
+        TempTask: Record "To-do" temporary;
+        TempAttendee: Record Attendee temporary;
+    begin
+        TempTask.Init;
+        CreateTask.GetRecord(TempTask);
+        TempTask.Insert;
+        TempTask.Validate("Team Code", TeamCode);
+        TempTask.Validate(Type, TaskType);
+        TempTask.Validate(Description, TeamCode);
+        TempTask.Validate("Team To-do", true);
+        TempTask.Validate(Date, WorkDate);
+        TempTask.Validate("All Day Event", AllDayEvent2);
+
+        if SalespersonCode2 <> '' then
+            CreateAttendee(
+              TempAttendee, TempAttendee."Attendance Type"::"To-do Organizer", TempAttendee."Attendee Type"::Salesperson, SalespersonCode2);
+
+        TempTask.SetAttendee(TempAttendee);
+        TempTask.GetAttendee(TempAttendee);
+
+        FinishStepTaskWizard(TempTask);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ModalFormHandlerForSegmentTask(var CreateTask: Page "Create Task"; var Response: Action)
+    var
+        TempTask: Record "To-do" temporary;
+    begin
+        TempTask.Init;
+        CreateTask.GetRecord(TempTask);
+        TempTask.Insert;
+        CreateSegmentTask(TempTask, SegmentNo, TaskType);
+        TempTask.Validate("Salesperson Code", SalespersonCode2);
+        FinishStepTaskWizard(TempTask);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ModalFormHandlerTeamSegment(var CreateTask: Page "Create Task"; var Response: Action)
+    var
+        TempTask: Record "To-do" temporary;
+    begin
+        TempTask.Init;
+        CreateTask.GetRecord(TempTask);
+        TempTask.Insert;
+        CreateSegmentTask(TempTask, SegmentNo, TaskType);
+        TempTask.Validate("Team To-do", true);
+        TempTask.Validate("Team Code", TeamCode);
+        FinishStepTaskWizard(TempTask);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ModalFormHandlerSegmentMeeting(var CreateTask: Page "Create Task"; var Response: Action)
+    var
+        TempTask: Record "To-do" temporary;
+        SegmentLine: Record "Segment Line";
+        TempAttendee: Record Attendee temporary;
+    begin
+        TempTask.Init;
+        CreateTask.GetRecord(TempTask);
+        TempTask.Insert;
+        CreateSegmentTask(TempTask, SegmentNo, TaskType);
+        TempTask.Validate("Start Time", Time);
+        TempTask.Validate("All Day Event", true);
+        TempTask.Validate("Team To-do", true);
+        TempTask.Validate("Team Code", TeamCode);
+
+        if SalespersonCode2 <> '' then
+            CreateAttendee(
+              TempAttendee, TempAttendee."Attendance Type"::"To-do Organizer", TempAttendee."Attendee Type"::Salesperson, SalespersonCode2);
+
+        SegmentLine.SetRange("Segment No.", SegmentNo);
+        SegmentLine.FindSet;
+        repeat
+            CreateAttendee(
+              TempAttendee, TempAttendee."Attendance Type"::Required, TempAttendee."Attendee Type"::Contact, SegmentLine."Contact No.");
+            TempTask.SetAttendee(TempAttendee);
+        until SegmentLine.Next = 0;
+        TempTask.SetAttendee(TempAttendee);
+        TempTask.GetAttendee(TempAttendee);
+
+        FinishStepTaskWizard(TempTask);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ModalFormHandlerAssignActivity(var AssignActivity: Page "Assign Activity"; var Response: Action)
+    var
+        TempTask: Record "To-do" temporary;
+    begin
+        TempTask.Init;
+        AssignActivity.GetRecord(TempTask);
+        TempTask.Insert;
+        TempTask.Validate("Contact No.", ContactNo);
+        TempTask.Validate("Activity Code", ActivityCode);
+        TempTask.Validate(Description, ActivityCode);
+        TempTask.Validate(Date, WorkDate);
+        TempTask.Validate("Team Code", TeamCode);
+        TempTask.Validate("Team Meeting Organizer", SalespersonCode2);
+        TempTask.Modify;
+        TempTask.CheckAssignActivityStatus;
+        TempTask.FinishAssignActivity;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ModalFormHandlerRecurringTask(var CreateTask: Page "Create Task"; var Response: Action)
+    var
+        TempTask: Record "To-do" temporary;
+        TempAttendee: Record Attendee temporary;
+    begin
+        TempTask.Init;
+        CreateTask.GetRecord(TempTask);
+        TempTask.Insert;
+        TempTask.Validate("Salesperson Code", SalespersonCode2);
+        TempTask.Validate(Type, TaskType);
+        TempTask.Validate(Description, SalespersonCode2);
+        TempTask.Validate("All Day Event", AllDayEvent2);
+
+        if AllDayEvent2 then
+            CreateAttendee(
+              TempAttendee, TempAttendee."Attendance Type"::"To-do Organizer", TempAttendee."Attendee Type"::Salesperson, SalespersonCode2);
+
+        TempTask.SetAttendee(TempAttendee);
+        TempTask.GetAttendee(TempAttendee);
+
+        TempTask.Validate(Recurring, Recurring);
+        Evaluate(TempTask."Recurring Date Interval", DateFormula2);
+        TempTask.Validate("Calc. Due Date From", TempTask."Calc. Due Date From"::"Closing Date");
+        FinishStepTaskWizard(TempTask);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ModalFormHandlerMakePhoneCall(var MakePhoneCall: TestPage "Make Phone Call")
+    begin
+        LibraryVariableStorage.Enqueue(MakePhoneCall."Salesperson Code".Value);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ModalFormHandlerCreateInteraction(var CreateInteraction: TestPage "Create Interaction")
+    var
+        InteractionTemplate: Record "Interaction Template";
+    begin
+        LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
+        CreateInteraction."Interaction Template Code".SetValue(InteractionTemplate.Code);
+        CreateInteraction.Description.SetValue(InteractionTemplate.Code);
+        CreateInteraction.OK.Invoke;
+    end;
+}
+

@@ -1,0 +1,44 @@
+page 5892 "Phys. Inventory Comment List"
+{
+    Caption = 'Phys. Inventory Comment List';
+    DataCaptionFields = "Document Type", "Order No.", "Recording No.";
+    Editable = false;
+    PageType = List;
+    SourceTable = "Phys. Invt. Comment Line";
+
+    layout
+    {
+        area(content)
+        {
+            repeater(Control40)
+            {
+                ShowCaption = false;
+                field("Order No."; "Order No.")
+                {
+                    ApplicationArea = Warehouse;
+                    ToolTip = 'Specifies the document number of the physical inventory order to which the comment applies.';
+                }
+                field("Recording No."; "Recording No.")
+                {
+                    ApplicationArea = Warehouse;
+                    ToolTip = 'Specifies the document number of the physical inventory recording to which the comment applies.';
+                }
+                field(Date; Date)
+                {
+                    ApplicationArea = Warehouse;
+                    ToolTip = 'Specifies the date when the comment was created.';
+                }
+                field(Comment; Comment)
+                {
+                    ApplicationArea = Warehouse;
+                    ToolTip = 'Specifies the comment itself.';
+                }
+            }
+        }
+    }
+
+    actions
+    {
+    }
+}
+

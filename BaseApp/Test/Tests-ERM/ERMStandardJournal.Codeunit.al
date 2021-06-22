@@ -1,0 +1,583 @@
+codeunit 134921 "ERM Standard Journal"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    trigger OnRun()
+    begin
+        // [FEATURE] [Standard Journal]
+        IsInitialized := false;
+    end;
+
+    var
+        LibraryRandom: Codeunit "Library - Random";
+        LibraryERM: Codeunit "Library - ERM";
+        LibraryPurchase: Codeunit "Library - Purchase";
+        LibrarySales: Codeunit "Library - Sales";
+        Assert: Codeunit Assert;
+        LibraryUtility: Codeunit "Library - Utility";
+        IsInitialized: Boolean;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    [Scope('OnPrem')]
+    procedure SaveStandardJournal()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        StandardGeneralJournal: Record "Standard General Journal";
+    begin
+        // Test create General Journal Lines and Save them as Standard Journal.
+
+        // 1. Setup: Create General Journal Batch, General Journal Lines and Standard Journal Code.
+        Initialize;
+        CreateGeneralJournalBatch(GenJournalBatch);
+        CreateGeneralJournalLines(GenJournalLine, GenJournalBatch);
+
+        // 2. Exercise: Save General Journal Lines as Standard Journal.
+        CreateSaveStandardJournal(StandardGeneralJournal, GenJournalBatch);
+
+        // 3. Verify: Verify correct number of Standard General Journal Lines created.
+        VerifyStandardJournalLines(GenJournalLine, StandardGeneralJournal.Code);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    [Scope('OnPrem')]
+    procedure GetStandardJournal()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        StandardGeneralJournal: Record "Standard General Journal";
+    begin
+        // Test create General Journal Lines using get Standard Journal.
+
+        // 1. Setup: Create General Journal Batch, Create multiple General Journal Lines and save them as Standard Journal.
+        Initialize;
+        CreateGeneralJournalBatch(GenJournalBatch);
+        CreateGeneralJournalLines(GenJournalLine, GenJournalBatch);
+        CreateSaveStandardJournal(StandardGeneralJournal, GenJournalBatch);
+
+        // 2. Exercise: Delete and get saved standard Journal in General Journal.
+        DeleteGeneralJournalLine(GenJournalBatch.Name);
+        StandardGeneralJournal.CreateGenJnlFromStdJnl(StandardGeneralJournal, GenJournalBatch.Name);
+
+        // 3. Verify: Verify Standard General Journal Lines created match with the General Journal Lines.
+        VerifyGeneralJournalLines(GenJournalLine, StandardGeneralJournal.Code);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    [Scope('OnPrem')]
+    procedure GetStandardJournalWithDocumentNo()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        StandardGeneralJournal: Record "Standard General Journal";
+        DocumentNo: Code[20];
+    begin
+        // Test create General Journal Lines using get Standard Journal by providing a document number.
+
+        // 1. Setup: Create General Journal Batch, Create multiple General Journal Lines and save them as Standard Journal.
+        Initialize;
+        CreateGeneralJournalBatch(GenJournalBatch);
+        CreateGeneralJournalLines(GenJournalLine, GenJournalBatch);
+        CreateSaveStandardJournal(StandardGeneralJournal, GenJournalBatch);
+
+        // 2. Exercise: Get saved standard Journal in General Journal and use a document number for new lines.
+        DocumentNo := LibraryUtility.GenerateGUID;
+        StandardGeneralJournal.CreateGenJnlFromStdJnlWithDocNo(StandardGeneralJournal, GenJournalBatch.Name, DocumentNo);
+
+        // 3. Verify: Verify Standard General Journal Lines created match with the General Journal Lines.
+        VerifyGeneralJournalLinesWithDocNo(GenJournalLine, StandardGeneralJournal.Code, DocumentNo);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    [Scope('OnPrem')]
+    procedure UpdateAndGetStandardJournal()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        StandardGeneralJournal: Record "Standard General Journal";
+        AccountNo: Code[20];
+    begin
+        // Test update an existing Standard Journal and create General Journal Lines using get Standard Journal.
+
+        // 1. Setup: Create General Journal Batch, create multiple General Journal Lines and save them as Standard Journal.
+        Initialize;
+        CreateGeneralJournalBatch(GenJournalBatch);
+        CreateGeneralJournalLines(GenJournalLine, GenJournalBatch);
+        CreateSaveStandardJournal(StandardGeneralJournal, GenJournalBatch);
+
+        // 2. Exercise: Update Standard General Journal Line and get it in General Journal.
+        DeleteGeneralJournalLine(GenJournalBatch.Name);
+        AccountNo := UpdateStandardJournalLine(GenJournalBatch."Journal Template Name", StandardGeneralJournal.Code);
+        StandardGeneralJournal.CreateGenJnlFromStdJnl(StandardGeneralJournal, GenJournalBatch.Name);
+
+        // 3. Verify: Verify updated G/L Account No. in General Journal Line.
+        VerifyGeneralLedgerAccount(GenJournalBatch, AccountNo);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    [Scope('OnPrem')]
+    procedure SaveMultipleStandardJournal()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalBatch2: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        TempGenJournalLine: Record "Gen. Journal Line" temporary;
+        StandardGeneralJournal: Record "Standard General Journal";
+        StandardGeneralJournal2: Record "Standard General Journal";
+        StandardGeneralJournal3: Record "Standard General Journal";
+    begin
+        // Test create General Journal Lines using get standard Journal and save multiple Standard Journals.
+
+        // 1. Setup: Create General Journal Batch and create two Standard General Journal.
+        Initialize;
+        CreateGeneralJournalBatch(GenJournalBatch);
+        CreateGeneralJournalLines(GenJournalLine, GenJournalBatch);
+        CreateSaveStandardJournal(StandardGeneralJournal, GenJournalBatch);
+        SaveGenJournalLineInTemp(TempGenJournalLine, GenJournalLine);
+        DeleteGeneralJournalLine(GenJournalBatch.Name);
+
+        CreateGeneralJournalBatch(GenJournalBatch2);
+        CreateGeneralJournalLines(GenJournalLine, GenJournalBatch2);
+        CreateSaveStandardJournal(StandardGeneralJournal2, GenJournalBatch2);
+
+        // Get saved Standard Journal in General Journal Line.
+        StandardGeneralJournal.CreateGenJnlFromStdJnl(StandardGeneralJournal, GenJournalBatch.Name);
+
+        // 2. Exercise: Save Standard Journal.
+        CreateSaveStandardJournal(StandardGeneralJournal3, GenJournalBatch2);
+
+        // 3. Verify: Verify Standard General Journal Lines created match with the General Journal Lines.
+        VerifyGeneralJournalLines(TempGenJournalLine, StandardGeneralJournal.Code);
+        VerifyGeneralJournalLines(GenJournalLine, StandardGeneralJournal2.Code);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    [Scope('OnPrem')]
+    procedure ReplaceExistingStandardJournal()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        StandardGeneralJournal: Record "Standard General Journal";
+    begin
+        // Test create General Journal Lines and replace an existing Standard Journal using save Standard Journal.
+
+        // 1. Setup: Create General Journal Template and General Journal Batch.
+        Initialize;
+        CreateGeneralJournalBatch(GenJournalBatch);
+        CreateGeneralJournalLines(GenJournalLine, GenJournalBatch);
+        CreateSaveStandardJournal(StandardGeneralJournal, GenJournalBatch);
+
+        // 2. Exercise: Save existing Standard Journal.
+        DeleteGeneralJournalLine(GenJournalBatch.Name);
+        StandardGeneralJournal.CreateGenJnlFromStdJnl(StandardGeneralJournal, GenJournalBatch.Name);
+        SaveAsStandardJournal(GenJournalBatch, StandardGeneralJournal.Code);
+
+        // 3. Verify: Verify Standard General Journal Lines created match with the General Journal Lines.
+        VerifyGeneralJournalLines(GenJournalLine, StandardGeneralJournal.Code);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    [Scope('OnPrem')]
+    procedure PostStandardJournal()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        TempGenJournalLine: Record "Gen. Journal Line" temporary;
+        Customer: Record Customer;
+        GLAccount: Record "G/L Account";
+        StandardGeneralJournal: Record "Standard General Journal";
+        LibrarySales: Codeunit "Library - Sales";
+    begin
+        // Test create General Journal Lines save them as Standard Journal and post it.
+
+        // 1. Setup: Create General Journal Batch, create a Customer and create General Journal Lines.
+        // Save the General Journal Lines created as Standard General Journal.
+        Initialize;
+        GLAccount.FilterGroup(2);
+        GLAccount.SetRange("Gen. Posting Type", GLAccount."Gen. Posting Type"::Sale);
+        GLAccount.FilterGroup(0);
+        LibraryERM.FindGLAccount(GLAccount);
+        LibrarySales.CreateCustomer(Customer);
+        CreateGeneralJournalBatch(GenJournalBatch);
+        CreateGeneralJournalLine(
+          GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::Customer, Customer."No.", GLAccount."No.", '');
+
+        // Save as Standard Journal.
+        SaveGenJournalLineInTemp(TempGenJournalLine, GenJournalLine);
+        CreateSaveStandardJournal(StandardGeneralJournal, GenJournalBatch);
+
+        // 2. Exercise: Post the General Journal Lines.
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // 3. Verify: Verify Customer Ledger Entry with the General Journal Lines.
+        VerifyCustomerLedgerEntry(TempGenJournalLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    [Scope('OnPrem')]
+    procedure CurrencyFactorAfterGetStandardJournalOnNewDate()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        StandardGeneralJournal: Record "Standard General Journal";
+        CurrencyCode: Code[10];
+        NewPostingDate: Date;
+        CurrencyFactor: array[2] of Decimal;
+    begin
+        // [FEATURE] [FCY]
+        // [SCEANRIO 376966] Standard journal use currency factor from actual gen. journal's posting date
+        Initialize;
+        CreateGeneralJournalBatch(GenJournalBatch);
+
+        // [GIVEN] Currency "C" with two Exchange Rates: 100 (date "D1"), 200 (date "D2")
+        CurrencyCode := CreateCurrencyWithTwoExchRates(CurrencyFactor, NewPostingDate);
+
+        // [GIVEN] General Journal Line with "Posting Date" = "D1", "Currency Code" = "C"
+        CreateGeneralJournalLine(
+          GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::"G/L Account",
+          LibraryERM.CreateGLAccountNoWithDirectPosting, '', CurrencyCode);
+
+        // [GIVEN] Save current General Journal as Standard Journal
+        CreateSaveStandardJournal(StandardGeneralJournal, GenJournalBatch);
+
+        // [GIVEN] Modify General Journal Line "Posting Date" = "D2"
+        GenJournalLine.Validate("Posting Date", NewPostingDate);
+        GenJournalLine.Modify(true);
+
+        // [WHEN] Get Standard Journal
+        StandardGeneralJournal.CreateGenJnlFromStdJnl(StandardGeneralJournal, GenJournalBatch.Name);
+
+        // [THEN] New General Journal Line has been created with "Posting Date" = "D2", "Currency Code" = "C", "Currency Factor" = 200.
+        GenJournalLine.Next;
+        Assert.AreEqual(NewPostingDate, GenJournalLine."Posting Date", GenJournalLine.FieldCaption("Posting Date"));
+        Assert.AreEqual(CurrencyCode, GenJournalLine."Currency Code", GenJournalLine.FieldCaption("Currency Code"));
+        Assert.AreEqual(CurrencyFactor[2], GenJournalLine."Currency Factor", GenJournalLine.FieldCaption("Currency Factor"));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetStandardJournalLinesWithZeroAmountForBatchWithNoSeries()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        StandardGeneralJournal: Record "Standard General Journal";
+    begin
+        // [SCENARIO 293278] Function Get Standard Journal creates journal lines in batch with No. Series with same document number if source standard journal lines have zero amount
+        Initialize;
+
+        // [GIVEN] Create general journal batch with No. Series
+        CreateGeneralJournalBatch(GenJournalBatch);
+        GenJournalBatch."No. Series" := LibraryERM.CreateNoSeriesCode;
+        GenJournalBatch.Modify;
+
+        // [GIVEN] Create standard journal "STDJ"
+        LibraryERM.CreateStandardGeneralJournal(StandardGeneralJournal, GenJournalBatch."Journal Template Name");
+        // [GIVEN] Create 3 standard journal lines with zero amount
+        CreateStandardJournalLinesWithZeroAmount(StandardGeneralJournal, LibraryRandom.RandIntInRange(3, 5));
+
+        // [WHEN] Function Get Standard Journal with "STDJ" is being run
+        Commit;
+        StandardGeneralJournal.CreateGenJnlFromStdJnl(StandardGeneralJournal, GenJournalBatch.Name);
+
+        // [THEN] Created general journal lines have same document number
+        VerifySameDocumentNumberForCreatedGenJnlLines(GenJournalBatch);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetStandardJournalLinesWithZeroAmountForBatchWithoutNoSeries()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        StandardGeneralJournal: Record "Standard General Journal";
+    begin
+        // [SCENARIO 293278] Function Get Standard Journal creates journal lines in batch without No. Series with empty document number if source standard journal lines have zero amount
+        Initialize;
+
+        // [GIVEN] Create general journal batch with empty No. Series
+        CreateGeneralJournalBatch(GenJournalBatch);
+        GenJournalBatch.TestField("No. Series", '');
+
+        // [GIVEN] Create standard journal "STDJ"
+        LibraryERM.CreateStandardGeneralJournal(StandardGeneralJournal, GenJournalBatch."Journal Template Name");
+        // [GIVEN] Create 3 standard journal lines with zero amount
+        CreateStandardJournalLinesWithZeroAmount(StandardGeneralJournal, LibraryRandom.RandIntInRange(3, 5));
+
+        // [WHEN] Function Get Standard Journal with "STDJ" is being run
+        Commit;
+        StandardGeneralJournal.CreateGenJnlFromStdJnl(StandardGeneralJournal, GenJournalBatch.Name);
+
+        // [THEN] Created general journal lines have empty document number
+        VerifyEmptyDocumentNumberForCreatedGenJnlLines(GenJournalBatch);
+    end;
+
+    local procedure Initialize()
+    var
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+    begin
+        if IsInitialized then
+            exit;
+
+        LibraryERMCountryData.UpdateGeneralPostingSetup;
+
+        IsInitialized := true;
+        Commit;
+    end;
+
+    local procedure CreateGeneralJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        GenJournalTemplate.SetRange(Recurring, false);
+        LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+    end;
+
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountType: Option; AccountNo: Code[20]; BalAccountNo: Code[20]; CurrencyCode: Code[10])
+    begin
+        // Using the random Amount because value is not important.
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
+          AccountType, AccountNo, LibraryRandom.RandDec(100, 2));
+
+        // The value of Document No. is not important.
+        GenJournalLine.Validate("Document No.", GenJournalLine."Journal Batch Name" + Format(GenJournalLine."Line No."));
+        GenJournalLine.Validate("Bal. Account No.", BalAccountNo);
+        GenJournalLine.Validate("Currency Code", CurrencyCode);
+        GenJournalLine.Modify(true);
+    end;
+
+    local procedure CreateGeneralJournalLines(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch")
+    var
+        Counter: Integer;
+    begin
+        // Using the random number of lines.
+        for Counter := 1 to 1 + LibraryRandom.RandInt(5) do begin
+            CreateGeneralJournalLine(GenJournalLine, GenJournalBatch,
+              GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting, '', '');
+            CreateGeneralJournalLine(GenJournalLine, GenJournalBatch,
+              GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, '', '');
+            CreateGeneralJournalLine(GenJournalLine, GenJournalBatch,
+              GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo, '', '');
+        end;
+    end;
+
+    local procedure CreateSaveStandardJournal(var StandardGeneralJournal: Record "Standard General Journal"; GenJournalBatch: Record "Gen. Journal Batch")
+    begin
+        LibraryERM.CreateStandardGeneralJournal(StandardGeneralJournal, GenJournalBatch."Journal Template Name");
+        SaveAsStandardJournal(GenJournalBatch, StandardGeneralJournal.Code);
+    end;
+
+    local procedure CreateStandardGeneralJournalLine(StandardGeneralJournal: Record "Standard General Journal"; var StandardGeneralJournalLine: Record "Standard General Journal Line"; AccountType: Option; AccountNo: Code[20])
+    var
+        LineNo: Integer;
+    begin
+        StandardGeneralJournalLine.SetRange("Journal Template Name", StandardGeneralJournal."Journal Template Name");
+        StandardGeneralJournalLine.SetRange("Standard Journal Code", StandardGeneralJournal.Code);
+        if StandardGeneralJournalLine.FindLast then;
+        LineNo := StandardGeneralJournalLine."Line No." + 10000;
+
+        StandardGeneralJournalLine.Init;
+        StandardGeneralJournalLine."Journal Template Name" := StandardGeneralJournal."Journal Template Name";
+        StandardGeneralJournalLine."Standard Journal Code" := StandardGeneralJournal.Code;
+        StandardGeneralJournalLine."Line No." := LineNo;
+        StandardGeneralJournalLine.Validate("Account Type", AccountType);
+        StandardGeneralJournalLine.Validate("Account No.", AccountNo);
+        StandardGeneralJournalLine.Insert;
+    end;
+
+    local procedure CreateStandardJournalLinesWithZeroAmount(StandardGeneralJournal: Record "Standard General Journal"; NumberOfLines: Integer)
+    var
+        StandardGeneralJournalLine: Record "Standard General Journal Line";
+        i: Integer;
+    begin
+        for i := 1 to NumberOfLines do
+            CreateStandardGeneralJournalLine(
+              StandardGeneralJournal, StandardGeneralJournalLine,
+              StandardGeneralJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting);
+    end;
+
+    local procedure CreateCurrencyWithTwoExchRates(var CurrencyFactor: array[2] of Decimal; var NewPostingDate: Date) CurrencyCode: Code[10]
+    begin
+        CurrencyFactor[1] := LibraryRandom.RandDecInRange(100, 200, 2);
+        CurrencyFactor[2] := CurrencyFactor[1] + LibraryRandom.RandDecInRange(100, 200, 2);
+        NewPostingDate := LibraryRandom.RandDate(LibraryRandom.RandIntInRange(10, 20));
+        CurrencyCode := LibraryERM.CreateCurrencyWithGLAccountSetup;
+        LibraryERM.CreateExchangeRate(CurrencyCode, WorkDate, CurrencyFactor[1], CurrencyFactor[1]);
+        LibraryERM.CreateExchangeRate(CurrencyCode, NewPostingDate, CurrencyFactor[2], CurrencyFactor[2]);
+    end;
+
+    local procedure DeleteGeneralJournalLine(JournalBatchName: Code[10])
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        GenJournalLine.SetRange("Journal Batch Name", JournalBatchName);
+        GenJournalLine.DeleteAll(true);
+    end;
+
+    local procedure FindGeneralJournalLines(var GenJournalLine: Record "Gen. Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10])
+    begin
+        GenJournalLine.SetRange("Journal Template Name", JournalTemplateName);
+        GenJournalLine.SetRange("Journal Batch Name", JournalBatchName);
+        GenJournalLine.FindSet;
+    end;
+
+    local procedure FindGeneralJournalLinesWithDocNo(var GenJournalLine: Record "Gen. Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; DocumentNo: Code[20])
+    begin
+        GenJournalLine.SetRange("Journal Template Name", JournalTemplateName);
+        GenJournalLine.SetRange("Journal Batch Name", JournalBatchName);
+        GenJournalLine.SetRange("Document No.", DocumentNo);
+        GenJournalLine.FindSet;
+    end;
+
+    local procedure SaveAsStandardJournal(GenJournalBatch: Record "Gen. Journal Batch"; "Code": Code[10])
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        SaveAsStandardGenJournal: Report "Save as Standard Gen. Journal";
+    begin
+        GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+        Clear(SaveAsStandardGenJournal);
+        SaveAsStandardGenJournal.Initialise(GenJournalLine, GenJournalBatch);
+        SaveAsStandardGenJournal.InitializeRequest(Code, '', true);
+        SaveAsStandardGenJournal.UseRequestPage(false);
+        SaveAsStandardGenJournal.RunModal;
+    end;
+
+    local procedure SaveGenJournalLineInTemp(var GenJournalLine2: Record "Gen. Journal Line"; GenJournalLine: Record "Gen. Journal Line")
+    begin
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
+        GenJournalLine.SetRange("Account No.", GenJournalLine."Account No.");
+        GenJournalLine.FindSet;
+        repeat
+            GenJournalLine2.Init;
+            GenJournalLine2 := GenJournalLine;
+            GenJournalLine2.Insert;
+        until GenJournalLine.Next = 0;
+    end;
+
+    local procedure UpdateStandardJournalLine(JournalTemplateName: Code[10]; StandardJournalCode: Code[10]): Code[20]
+    var
+        StandardGeneralJournalLine: Record "Standard General Journal Line";
+        GLAccount: Record "G/L Account";
+    begin
+        LibraryERM.FindGLAccount(GLAccount);
+        StandardGeneralJournalLine.SetRange("Journal Template Name", JournalTemplateName);
+        StandardGeneralJournalLine.SetRange("Standard Journal Code", StandardJournalCode);
+        StandardGeneralJournalLine.SetRange("Account Type", StandardGeneralJournalLine."Account Type"::"G/L Account");
+        StandardGeneralJournalLine.FindFirst;
+        StandardGeneralJournalLine.Validate("Account No.", GLAccount."No.");
+        StandardGeneralJournalLine.Modify(true);
+        exit(StandardGeneralJournalLine."Account No.");
+    end;
+
+    local procedure VerifyGeneralLedgerAccount(GenJournalBatch: Record "Gen. Journal Batch"; AccountNo: Code[20])
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        FindGeneralJournalLines(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name);
+        GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::"G/L Account");
+        GenJournalLine.FindFirst;
+        GenJournalLine.TestField("Account No.", AccountNo);
+    end;
+
+    local procedure VerifyCustomerLedgerEntry(var GenJournalLine: Record "Gen. Journal Line")
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        GenJournalLine.FindFirst;
+        CustLedgerEntry.SetRange("Customer No.", GenJournalLine."Account No.");
+        repeat
+            CustLedgerEntry.SetRange("Document No.", GenJournalLine."Document No.");
+            CustLedgerEntry.FindFirst;
+            CustLedgerEntry.CalcFields(Amount);
+            CustLedgerEntry.TestField(Amount, GenJournalLine.Amount);
+        until GenJournalLine.Next = 0;
+    end;
+
+    local procedure VerifyGeneralJournalLines(GenJournalLine: Record "Gen. Journal Line"; StandardJournalCode: Code[10])
+    var
+        StandardGeneralJournalLine: Record "Standard General Journal Line";
+    begin
+        StandardGeneralJournalLine.SetRange("Standard Journal Code", StandardJournalCode);
+        StandardGeneralJournalLine.FindSet;
+        FindGeneralJournalLines(GenJournalLine, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name");
+        repeat
+            StandardGeneralJournalLine.TestField(Amount, GenJournalLine.Amount);
+            StandardGeneralJournalLine.Next;
+        until GenJournalLine.Next = 0;
+    end;
+
+    local procedure VerifyGeneralJournalLinesWithDocNo(GenJournalLine: Record "Gen. Journal Line"; StandardJournalCode: Code[10]; DocumentNo: Code[20])
+    var
+        StandardGeneralJournalLine: Record "Standard General Journal Line";
+    begin
+        StandardGeneralJournalLine.SetRange("Standard Journal Code", StandardJournalCode);
+        StandardGeneralJournalLine.FindSet;
+        FindGeneralJournalLinesWithDocNo(
+          GenJournalLine, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", DocumentNo);
+        repeat
+            StandardGeneralJournalLine.TestField(Amount, GenJournalLine.Amount);
+            GenJournalLine.TestField("Document No.", DocumentNo);
+            StandardGeneralJournalLine.Next;
+        until GenJournalLine.Next = 0;
+    end;
+
+    local procedure VerifyStandardJournalLines(GenJournalLine: Record "Gen. Journal Line"; StandardJournalCode: Code[10])
+    var
+        StandardGeneralJournalLine: Record "Standard General Journal Line";
+    begin
+        StandardGeneralJournalLine.SetRange("Standard Journal Code", StandardJournalCode);
+        StandardGeneralJournalLine.FindSet;
+        FindGeneralJournalLines(GenJournalLine, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name");
+        repeat
+            GenJournalLine.TestField(Amount, StandardGeneralJournalLine.Amount);
+            GenJournalLine.Next;
+        until StandardGeneralJournalLine.Next = 0;
+    end;
+
+    local procedure VerifySameDocumentNumberForCreatedGenJnlLines(GenJournalBatch: Record "Gen. Journal Batch")
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        DocumentNo: Code[20];
+    begin
+        with GenJournalLine do begin
+            SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
+            SetRange("Journal Batch Name", GenJournalBatch.Name);
+            FindSet;
+            DocumentNo := "Document No.";
+            repeat
+                TestField("Document No.", DocumentNo);
+            until Next = 0;
+        end;
+    end;
+
+    local procedure VerifyEmptyDocumentNumberForCreatedGenJnlLines(GenJournalBatch: Record "Gen. Journal Batch")
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        with GenJournalLine do begin
+            SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
+            SetRange("Journal Batch Name", GenJournalBatch.Name);
+            FindSet;
+            repeat
+                TestField("Document No.", '');
+            until Next = 0;
+        end;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerTrue(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
+    end;
+}
+

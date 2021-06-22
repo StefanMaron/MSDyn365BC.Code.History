@@ -1,0 +1,669 @@
+codeunit 134029 "ERM VAT On Gen Journal Line"
+{
+    Subtype = Test;
+    TestPermissions = NonRestrictive;
+
+    trigger OnRun()
+    begin
+        // [FEATURE] [VAT]
+    end;
+
+    var
+        Assert: Codeunit Assert;
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryRandom: Codeunit "Library - Random";
+        LibraryERM: Codeunit "Library - ERM";
+        LibrarySales: Codeunit "Library - Sales";
+        LibraryPurchase: Codeunit "Library - Purchase";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryUtility: Codeunit "Library - Utility";
+        LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
+        IsInitialized: Boolean;
+        VATDiffErrorOnGenJnlLine: Label 'The %1 must not be more than %2.';
+        VerificationType: Option "VAT Base","VAT Diff. Positive","VAT Diff. Negative",Posting;
+        ExpectedMessage: Label 'Do you want to update the Allow VAT Difference field on all Gen. Journal Batches?';
+        VATAmountError: Label '%1 must be %2 in \\%3 %4=%5.';
+        VATEntryFieldErr: Label 'Wrong "VAT Entry" field "%1" value.';
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    [Scope('OnPrem')]
+    procedure PositiveVATDiffOnGenJnlLine()
+    begin
+        // Covers document TFS_TC_ID = 11117, 11118.
+        LibraryLowerPermissions.SetJournalsPost;
+        LibraryLowerPermissions.AddO365Setup;
+        CreateGenJnlLineWithVATAmt(VerificationType::"VAT Diff. Positive", false);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    [Scope('OnPrem')]
+    procedure NegativeVATDiffOnGenJnlLine()
+    begin
+        // Covers document TFS_TC_ID = 11117, 11119.
+        LibraryLowerPermissions.SetJournalsPost;
+        LibraryLowerPermissions.AddO365Setup;
+        CreateGenJnlLineWithVATAmt(VerificationType::"VAT Diff. Negative", false);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    [Scope('OnPrem')]
+    procedure VATBaseAmountOnGenJnlLine()
+    begin
+        // Covers document TFS_TC_ID = 11117, 11120.
+        LibraryLowerPermissions.SetJournalsPost;
+        LibraryLowerPermissions.AddO365Setup;
+        CreateGenJnlLineWithVATAmt(VerificationType::"VAT Base", false);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    [Scope('OnPrem')]
+    procedure CheckVATAfterGenJnlLinePost()
+    begin
+        // Covers document TFS_TC_ID = 11117, 11121, 11122.
+        LibraryLowerPermissions.SetJournalsPost;
+        LibraryLowerPermissions.AddO365Setup;
+        CreateGenJnlLineWithVATAmt(VerificationType::Posting, true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATAmountSalesJournalWithACY()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        CustomerNo: Code[20];
+        CurrencyCode: Code[10];
+        VATAmount: Decimal;
+    begin
+        // Check VAT Amount of Sales Journal in G/L Entry and VAT Entry with Additional Currency.
+        LibraryLowerPermissions.SetOutsideO365Scope; // This test is inside O365 scope but can only run on O365 DB / Company
+        // 1. Setup: Update Sales & Receivables Setup and GeneralLedgerSetup.
+        Initialize;
+        LibrarySales.SetCreditWarningsToNoWarnings;
+        LibrarySales.SetStockoutWarning(false);
+        UpdateAdditionalCurrency(CurrencyCode);
+
+        // Create Sales Journal Line.
+        CreateSalesJournalLine(GenJournalLine, CustomerNo, CurrencyCode);
+        VATAmount := GetVATAmountACY(GenJournalLine."Document No.", CurrencyCode);
+
+        // 2. Exercise: Post Sales Journal Line.
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // 3. Verify: Check VAT Amount of Sales Journal in G/L Entry and VAT Entry.
+        VerifyVATAmountOnGLEntry(GenJournalLine."Document No.", CustomerNo, VATAmount);
+        VerifyAmountOnVATEntry(GenJournalLine."Document No.", VATAmount);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATRegNoIsCopiedFromCustomerBalAccount()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        Customer: array[2] of Record Customer;
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        GLAccountNo: Code[20];
+        PostingDate: array[2] of Date;
+        Amount: array[2] of Decimal;
+        i: Integer;
+    begin
+        // [SCENARIO 121626] "Country Code","VAT Registration No.","Bill-to/Pay-to No." are copied to VAT Entry from Customer that is set as "Bal. Account" while "Account No." is empty in the Gen. Journal Line.
+        Initialize;
+
+        // [GIVEN] Two Posting Dates "D1", "D2". "D2" > "D1".
+        for i := 1 to 2 do begin
+            PostingDate[i] := WorkDate + i;
+            Amount[i] := LibraryRandom.RandDec(100, 2);
+        end;
+
+        // [GIVEN] G/L Account "S" with posting type "Sale"
+        GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup;
+
+        // [GIVEN] Customer "C1" with "Country Code" = "X1" and "VAT Registration No." = "Y1"
+        LibrarySales.CreateCustomerWithVATRegNo(Customer[1]);
+
+        // [GIVEN] Customer "C2" with "Country Code" = "X2" and "VAT Registration No." = "Y2"
+        LibrarySales.CreateCustomerWithVATRegNo(Customer[2]);
+
+        // [GIVEN] 1st Journal Line with "Posting Date" = "D2", empty "Account No.", "Bal. Account Type"="Customer", "Bal. Account No." = "C2"
+        FindAndClearGenJnlBatch(GenJournalBatch);
+        LibraryLowerPermissions.SetJournalsEdit;
+        CreateCustGenJournalLine(GenJournalLine, GenJournalBatch, PostingDate[2], Customer[2]."No.", Amount[2]);
+
+        // [GIVEN] 2nd Journal Line with "Posting Date" = "D1", empty "Account No.", "Bal. Account Type"="Customer", "Bal. Account No." = "C1"
+        CreateCustGenJournalLine(GenJournalLine, GenJournalBatch, PostingDate[1], Customer[1]."No.", Amount[1]);
+
+        // [GIVEN] 3rd Journal Line with "Posting Date" = "D2", "Account No." = "S" and empty "Bal. Account No."
+        CreateGLGenJournalLine(GenJournalLine, GenJournalBatch, PostingDate[2], GLAccountNo, Amount[2]);
+
+        // [GIVEN] 4th Journal Line with "Posting Date" = "D1", "Account No." = "S" and empty "Bal. Account No."
+        CreateGLGenJournalLine(GenJournalLine, GenJournalBatch, PostingDate[1], GLAccountNo, Amount[1]);
+
+        // [GIVEN] Change order Gen Journal Lines By "Posting Date". New line's numbers order: 2, 4, 1, 3
+        GenJournalLine.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Posting Date", "Document No.");
+
+        // [WHEN] Post Gen. Journal lines
+        LibraryLowerPermissions.SetJournalsPost;
+        CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post Batch", GenJournalLine);
+
+        // [THEN] Posted VAT Entry related to Customer "C1" has "Country Code" = "X1", "VAT Registration No." = "Y1", "Bill-to/Pay-to No." = "C1"
+        FindCustLedgerEntry(CustLedgerEntry, Customer[1]."No.");
+        VerifyVATEntryCVInfo(
+          CustLedgerEntry."Transaction No.",
+          Customer[1]."Country/Region Code", Customer[1]."VAT Registration No.", Customer[1]."No.");
+
+        // [THEN] Posted VAT Entry related to Customer "C2" has "Country Code" = "X2", "VAT Registration No." = "Y2", "Bill-to/Pay-to No." = "C2"
+        FindCustLedgerEntry(CustLedgerEntry, Customer[2]."No.");
+        VerifyVATEntryCVInfo(
+          CustLedgerEntry."Transaction No.",
+          Customer[2]."Country/Region Code", Customer[2]."VAT Registration No.", Customer[2]."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATRegNoIsCopiedFromVendorBalAccount()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        Vendor: array[2] of Record Vendor;
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        GLAccountNo: Code[20];
+        PostingDate: array[2] of Date;
+        Amount: array[2] of Decimal;
+        i: Integer;
+    begin
+        // [SCENARIO 121626] "Country Code","VAT Registration No.","Bill-to/Pay-to No." are copied to VAT Entry from Vendor that is set as "Bal. Account" while "Account No." is empty in the Gen. Journal Line.
+        Initialize;
+
+        // [GIVEN] Two Posting Dates "D1", "D2". "D2" > "D1".
+        for i := 1 to 2 do begin
+            PostingDate[i] := WorkDate + i;
+            Amount[i] := LibraryRandom.RandDec(100, 2);
+        end;
+
+        // [GIVEN] G/L Account "S" with posting type "Purchase"
+        GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup;
+
+        // [GIVEN] Vendor "V1" with "Country Code" = "X1" and "VAT Registration No." = "Y1"
+        CreateVendorWithVATRegNo(Vendor[1]);
+
+        // [GIVEN] Vendor "V2" with "Country Code" = "X2" and "VAT Registration No." = "Y2"
+        CreateVendorWithVATRegNo(Vendor[2]);
+
+        // [GIVEN] 1st Journal Line with "Posting Date" = "D2", empty "Account No.", "Bal. Account Type"="Vendor", "Bal. Account No." = "V2"
+        FindAndClearGenJnlBatch(GenJournalBatch);
+        LibraryLowerPermissions.SetJournalsEdit;
+        CreateVendGenJournalLine(GenJournalLine, GenJournalBatch, PostingDate[2], Vendor[2]."No.", -Amount[2]);
+
+        // [GIVEN] 2nd Journal Line with "Posting Date" = "D1", empty "Account No.", "Bal. Account Type"="Vendor", "Bal. Account No." = "V1"
+        CreateVendGenJournalLine(GenJournalLine, GenJournalBatch, PostingDate[1], Vendor[1]."No.", -Amount[1]);
+
+        // [GIVEN] 3rd Journal Line with "Posting Date" = "D2", "Account No." = "S" and empty "Bal. Account No."
+        CreateGLGenJournalLine(GenJournalLine, GenJournalBatch, PostingDate[2], GLAccountNo, -Amount[2]);
+
+        // [GIVEN] 4th Journal Line with "Posting Date" = "D1", "Account No." = "S" and empty "Bal. Account No."
+        CreateGLGenJournalLine(GenJournalLine, GenJournalBatch, PostingDate[1], GLAccountNo, -Amount[1]);
+
+        // [GIVEN] Change order Gen Journal Lines By "Posting Date". New line's numbers order: 2, 4, 1, 3
+        GenJournalLine.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Posting Date", "Document No.");
+
+        // [WHEN] Post Gen. Journal lines
+        LibraryLowerPermissions.SetJournalsPost;
+        CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post Batch", GenJournalLine);
+
+        // [THEN] Posted VAT Entry related to Vendor "V1" has "Country Code" = "X1", "VAT Registration No." = "Y1", "Bill-to/Pay-to No." = "V1"
+        FindVendLedgerEntry(VendorLedgerEntry, Vendor[1]."No.");
+        VerifyVATEntryCVInfo(
+          VendorLedgerEntry."Transaction No.",
+          Vendor[1]."Country/Region Code", Vendor[1]."VAT Registration No.", Vendor[1]."No.");
+
+        // [THEN] Posted VAT Entry related to Vendor "V2" has "Country Code" = "X2", "VAT Registration No." = "Y2", "Bill-to/Pay-to No." = "V2"
+        FindVendLedgerEntry(VendorLedgerEntry, Vendor[2]."No.");
+        VerifyVATEntryCVInfo(
+          VendorLedgerEntry."Transaction No.",
+          Vendor[2]."Country/Region Code", Vendor[2]."VAT Registration No.", Vendor[2]."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATRegNoIsCopiedFromCustomerAccountRecurring()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        Customer: Record Customer;
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 304717] "Country Code","VAT Registration No." are copied to VAT Entry from Customer when 2 lines for the same document are posted in Recurring journal
+        Initialize;
+
+        // [GIVEN] Customer with "Country Code" = "X1" and "VAT Registration No." = "Y1"
+        LibrarySales.CreateCustomerWithVATRegNo(Customer);
+
+        // [GIVEN] Recurring Journal Batch
+        CreateRecurringGenJournalBatchWithForceBalance(GenJournalBatch);
+
+        // [GIVEN] 1st Journal Line with G/L Account, Amount = "X" and Document No = "D1"
+        CreateRecurringGenJournalLine(
+          GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::"G/L Account",
+          LibraryERM.CreateGLAccountWithSalesSetup, LibraryRandom.RandDec(50, 2));
+        DocumentNo := GenJournalLine."Document No.";
+
+        // [GIVEN] 2nd Journal Line with Customer, Amount = -"X" and Document No = "D1"
+        CreateRecurringGenJournalLine(
+          GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Payment,
+          GenJournalLine."Account Type"::Customer, Customer."No.", -GenJournalLine.Amount);
+        GenJournalLine.Validate("Document No.", DocumentNo);
+        GenJournalLine.Modify;
+
+        // [WHEN] Post Gen. Journal lines
+        CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post Batch", GenJournalLine);
+
+        // [THEN] VAT Entry with Country/Region Code = "X1" and VAT Registration No. = "Y1" is created
+        VerifyVATEntryExists(Customer."Country/Region Code", Customer."VAT Registration No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATRegNoIsCopiedFromVendorAccountRecurring()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        Vendor: Record Vendor;
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 304717] "Country Code","VAT Registration No." are copied to VAT Entry from Vendor when 2 lines for the same document are posted in Recurring journal
+        Initialize;
+
+        // [GIVEN] Customer with "Country Code" = "X1" and "VAT Registration No." = "Y1"
+        LibraryPurchase.CreateVendorWithVATRegNo(Vendor);
+
+        // [GIVEN] Recurring Journal Batch
+        CreateRecurringGenJournalBatchWithForceBalance(GenJournalBatch);
+
+        // [GIVEN] 1st Journal Line with G/L Account, Amount = "X" and Document No = "D1"
+        CreateRecurringGenJournalLine(
+          GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Invoice,
+          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup, LibraryRandom.RandDec(50, 2));
+        DocumentNo := GenJournalLine."Document No.";
+
+        // [GIVEN] 2nd Journal Line with Vendor, Amount = -"X" and Document No = "D1"
+        CreateRecurringGenJournalLine(
+          GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Invoice,
+          GenJournalLine."Account Type"::Vendor, Vendor."No.", -GenJournalLine.Amount);
+        GenJournalLine.Validate("Document No.", DocumentNo);
+        GenJournalLine.Modify;
+
+        // [WHEN] Post Gen. Journal lines
+        CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post Batch", GenJournalLine);
+
+        // [THEN] VAT Entry with Country/Region Code = "X1" and VAT Registration No. = "Y1" is created
+        VerifyVATEntryExists(Vendor."Country/Region Code", Vendor."VAT Registration No.");
+    end;
+
+    local procedure Initialize()
+    var
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+    begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM VAT On Gen Journal Line");
+        LibrarySetupStorage.Restore;
+        if IsInitialized then
+            exit;
+
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM VAT On Gen Journal Line");
+        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        IsInitialized := true;
+        Commit;
+
+        LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
+        LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM VAT On Gen Journal Line");
+    end;
+
+    local procedure CreateCurrency(): Code[10]
+    var
+        Currency: Record Currency;
+    begin
+        LibraryERM.CreateCurrency(Currency);
+        LibraryERM.SetCurrencyGainLossAccounts(Currency);
+        Currency.Validate("Residual Gains Account", Currency."Realized Gains Acc.");
+        Currency.Validate("Residual Losses Account", Currency."Realized Losses Acc.");
+        Currency.Modify(true);
+        exit(Currency.Code);
+    end;
+
+    local procedure CreateGeneralJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        TypeInGeneralJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+    end;
+
+    local procedure CreateGenJnlLineWithVATAmt(OptionSelected: Option; Posting: Boolean)
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        MaxVATDiffAmt: Decimal;
+    begin
+        // Setup: Update the General Ledger Setup, Update General Journal Template and Find General Journal Batch.
+        Initialize;
+        MaxVATDiffAmt := LibraryRandom.RandDec(2, 2);
+        // Take a random decimal amount between 0.01 to 2.00, value is not important.
+        LibraryERM.SetMaxVATDifferenceAllowed(MaxVATDiffAmt);
+        FindGenJournalBatch(GenJournalBatch);
+
+        // Exercise: Create a General Journal Line with any Random Amount between 1001 to 1100. Value is not important.
+        // Post the General Journal Line if option selected.
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
+          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup,
+          1000 + LibraryRandom.RandInt(100));
+
+        if Posting then
+            LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // Verify: Verification based on the options selected.
+        case OptionSelected of
+            VerificationType::"VAT Base":
+                // Verify the VAT Base Amount on General Journal Line.
+                Assert.AreEqual(GetVATBaseAmount(GenJournalLine), GenJournalLine."VAT Base Amount", 'Incorrect VAT Base Amount Calculated.');
+            VerificationType::"VAT Diff. Positive":
+                // Verify the VAT Difference with an amount greater than the generated VAT Difference on General Journal Line.
+                VerifyVATDiffOnGenJnlLine(GenJournalLine, MaxVATDiffAmt, true);
+            VerificationType::"VAT Diff. Negative":
+                // Verify the VAT Difference with an amount lesser than the generated VAT Difference on General Journal Line.
+                VerifyVATDiffOnGenJnlLine(GenJournalLine, MaxVATDiffAmt, false);
+            VerificationType::Posting:
+                // Verify the VAT Amount and Amount on GL Entry after posting General Journal Line.
+                VerifyGLEntriesAfterPosting(GenJournalLine."Document No.", GenJournalLine."VAT %", GenJournalLine.Amount);
+            else
+                Assert.Fail(StrSubstNo('Invalid option selected: %1', Format(OptionSelected)))
+        end;
+    end;
+
+    local procedure CreateCustGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; PostingDate: Date; CustomerNo: Code[20]; Amount: Decimal)
+    begin
+        LibraryERM.CreateGeneralJnlLineWithBalAcc(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
+          0, '', GenJournalLine."Bal. Account Type"::Customer, CustomerNo, Amount);
+        GenJournalLine.Validate("Posting Date", PostingDate);
+        GenJournalLine.Modify;
+    end;
+
+    local procedure CreateVendGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; PostingDate: Date; VendorNo: Code[20]; Amount: Decimal)
+    begin
+        LibraryERM.CreateGeneralJnlLineWithBalAcc(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
+          0, '', GenJournalLine."Bal. Account Type"::Vendor, VendorNo, Amount);
+        GenJournalLine.Validate("Posting Date", PostingDate);
+        GenJournalLine.Modify;
+    end;
+
+    local procedure CreateGLGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; PostingDate: Date; GLAccountNo: Code[20]; Amount: Decimal)
+    begin
+        LibraryERM.CreateGeneralJnlLineWithBalAcc(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
+          GenJournalLine."Account Type"::"G/L Account", GLAccountNo, 0, '', Amount);
+        GenJournalLine.Validate("Posting Date", PostingDate);
+        GenJournalLine.Modify;
+    end;
+
+    local procedure CreateRecurringGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; Amount: Decimal)
+    begin
+        LibraryERM.CreateGeneralJnlLine2(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType, AccountType, AccountNo, Amount);
+        GenJournalLine.Validate("Recurring Method", GenJournalLine."Recurring Method"::"F  Fixed");
+        Evaluate(GenJournalLine."Recurring Frequency", '''' + Format(LibraryRandom.RandInt(5)) + 'M');
+        GenJournalLine.Modify;
+    end;
+
+    local procedure CreateRecurringGenJournalBatchWithForceBalance(var GenJournalBatch: Record "Gen. Journal Batch")
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        LibraryERM.FindRecurringTemplateName(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        GenJournalTemplate.Validate("Force Doc. Balance", true);
+        GenJournalTemplate.Modify;
+    end;
+
+    local procedure CreateSalesJournalLine(var GenJournalLine: Record "Gen. Journal Line"; var CustomerNo: Code[20]; CurrencyCode: Code[10])
+    var
+        Customer: Record Customer;
+        GenJournalBatch: Record "Gen. Journal Batch";
+        LibrarySales: Codeunit "Library - Sales";
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        CustomerNo := Customer."No.";
+        CreateGeneralJournalBatch(GenJournalBatch);
+        LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer, CustomerNo,
+          -LibraryRandom.RandDec(100, 2));
+        GenJournalLine.Validate("Currency Code", CurrencyCode);
+        GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountWithSalesSetup);
+        GenJournalLine.Modify(true);
+    end;
+
+    local procedure CreateVendorWithVATRegNo(var Vendor: Record Vendor)
+    var
+        CountryRegion: Record "Country/Region";
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        Vendor.Validate("Country/Region Code", CountryRegion.Code);
+        Vendor."VAT Registration No." := LibraryUtility.GenerateGUID;
+        Vendor.Modify;
+    end;
+
+    local procedure FindGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
+    begin
+        FindAndClearGenJnlBatch(GenJournalBatch);
+        UpdateGenJnlTemplate(GenJournalBatch);
+    end;
+
+    local procedure FindAndClearGenJnlBatch(var GenJournalBatch: Record "Gen. Journal Batch")
+    begin
+        LibraryERM.SelectLastGenJnBatch(GenJournalBatch);
+        LibraryERM.ClearGenJournalLines(GenJournalBatch);
+        UpdateForceDocBalance(GenJournalBatch."Journal Template Name");
+    end;
+
+    local procedure FindCustLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20])
+    begin
+        with CustLedgerEntry do begin
+            SetRange("Customer No.", CustomerNo);
+            FindFirst;
+        end;
+    end;
+
+    local procedure FindVendLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20])
+    begin
+        with VendorLedgerEntry do begin
+            SetRange("Vendor No.", VendorNo);
+            FindFirst;
+        end;
+    end;
+
+    local procedure GetVATAmountACY(DocumentNo: Code[20]; CurrencyCode: Code[10]): Decimal
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        VATAmount: Decimal;
+    begin
+        GenJournalLine.SetRange("Document No.", DocumentNo);
+        GenJournalLine.FindFirst;
+        VATAmount := LibraryERM.ConvertCurrency(GenJournalLine."Bal. VAT Amount", CurrencyCode, '', WorkDate);
+        exit(VATAmount);
+    end;
+
+    local procedure GetVATBaseAmount(GenJournalLine: Record "Gen. Journal Line"): Decimal
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATAmount: Decimal;
+        VATBaseAmount: Decimal;
+    begin
+        VATPostingSetup.Get(GenJournalLine."VAT Bus. Posting Group", GenJournalLine."VAT Prod. Posting Group");
+
+        // Calculate the VAT Amount and then VAT Base Amount.
+        VATAmount :=
+          Round(GenJournalLine.Amount * VATPostingSetup."VAT %" / (100 + VATPostingSetup."VAT %"),
+            LibraryERM.GetAmountRoundingPrecision);
+
+        VATBaseAmount := Round(GenJournalLine.Amount - VATAmount, LibraryERM.GetAmountRoundingPrecision);
+        exit(VATBaseAmount);
+    end;
+
+    local procedure UpdateAdditionalCurrency(var CurrencyCode: Code[10])
+    begin
+        // Call the Adjust Add. Reporting Currency Report.
+        CurrencyCode := CreateCurrency;
+        LibraryERM.CreateRandomExchangeRate(CurrencyCode);
+        LibraryERM.SetAddReportingCurrency(CurrencyCode);
+        LibraryERM.RunAddnlReportingCurrency(CurrencyCode, CurrencyCode, LibraryERM.CreateGLAccountNo);
+    end;
+
+    local procedure UpdateGenJnlTemplate(GenJournalBatch: Record "Gen. Journal Batch")
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        GenJournalTemplate.SetRange(Name, GenJournalBatch."Journal Template Name");
+        GenJournalTemplate.FindFirst;
+
+        GenJournalTemplate.Validate("Allow VAT Difference", true);
+        GenJournalTemplate.Modify(true);
+
+        // Sometimes this function triggers a confirm dialog, Use the function below to make sure that the corresponding handler will always
+        // get executed otherwise the tests might fail in continuous execution.
+        ExecuteUIHandler;
+    end;
+
+    local procedure UpdateVATAmtOnGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; NewVATAmount: Decimal; Positive: Boolean)
+    begin
+        // Update the VAT Amount on General Journal Line according to option selected.
+        if Positive then
+            GenJournalLine.Validate("VAT Amount", GenJournalLine."VAT Amount" + NewVATAmount)
+        else
+            GenJournalLine.Validate("VAT Amount", GenJournalLine."VAT Amount" - NewVATAmount);
+        GenJournalLine.Modify(true);
+    end;
+
+    local procedure UpdateForceDocBalance(GenJnlTemplateName: Code[10])
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        with GenJournalTemplate do begin
+            Get(GenJnlTemplateName);
+            Validate("Force Doc. Balance", true);
+            Modify;
+        end;
+    end;
+
+    local procedure VerifyGLEntriesAfterPosting(DocumentNo: Code[20]; VATPercent: Decimal; Amount: Decimal)
+    var
+        GLEntry: Record "G/L Entry";
+        GLRegister: Record "G/L Register";
+        VATAmount: Decimal;
+    begin
+        // Verify the Amount, VAT Amount in GL Entry after posting General Journal Line.
+        GLRegister.FindLast;
+        GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.FindFirst;
+
+        // Calculate the VAT Amount.
+        VATAmount := Round(Amount * VATPercent / (100 + VATPercent), LibraryERM.GetInvoiceRoundingPrecisionLCY);
+
+        Assert.AreEqual(GLEntry.Amount, Amount - VATAmount, 'Incorrect Amount Found on GL Entry.');
+        Assert.AreEqual(GLEntry."VAT Amount", VATAmount, 'Incorrect VAT Amount Calculated.');
+    end;
+
+    local procedure VerifyVATAmountOnGLEntry(DocumentNo: Code[20]; BalAccountNo: Code[20]; VATAmount: Decimal)
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("Bal. Account No.", BalAccountNo);
+        GLEntry.FindFirst;
+        Assert.AreNearlyEqual(
+          VATAmount, GLEntry."VAT Amount", LibraryERM.GetAmountRoundingPrecision,
+          StrSubstNo(VATAmountError, GLEntry.FieldCaption("VAT Amount"), GLEntry."VAT Amount",
+            GLEntry.TableCaption, GLEntry.FieldCaption("Entry No."), GLEntry."Entry No."));
+    end;
+
+    local procedure VerifyAmountOnVATEntry(DocumentNo: Code[20]; Amount: Decimal)
+    var
+        VATEntry: Record "VAT Entry";
+    begin
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.FindFirst;
+        Assert.AreNearlyEqual(
+          Amount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
+          StrSubstNo(VATAmountError, VATEntry.FieldCaption(Amount), VATEntry.Amount,
+            VATEntry.TableCaption, VATEntry.FieldCaption("Entry No."), VATEntry."Entry No."));
+    end;
+
+    local procedure VerifyVATDiffOnGenJnlLine(GenJournalLine: Record "Gen. Journal Line"; MaxVATDiffAmt: Decimal; Positive: Boolean)
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        // Verify: Verify the Error Message after Modifying VAT Amount on General Journal Line.
+        // Ignore the global cache
+        GeneralLedgerSetup.Get;
+        SelectLatestVersion;
+        asserterror UpdateVATAmtOnGenJnlLine(GenJournalLine, LibraryRandom.RandDec(1, 2) + MaxVATDiffAmt, Positive);
+        Assert.AreEqual(
+          StrSubstNo(VATDiffErrorOnGenJnlLine, GenJournalLine.FieldCaption("VAT Difference"),
+            GeneralLedgerSetup."Max. VAT Difference Allowed"), GetLastErrorText,
+          'VAT Difference must not be less than Max. VAT Difference Allowed');
+    end;
+
+    local procedure VerifyVATEntryCVInfo(TransactionNo: Integer; ExpectedCountryCode: Code[10]; ExpectedVATRegNo: Text[20]; ExpectedBillToPayToNo: Code[20])
+    var
+        VATEntry: Record "VAT Entry";
+    begin
+        with VATEntry do begin
+            SetRange("Transaction No.", TransactionNo);
+            FindFirst;
+            Assert.AreEqual(ExpectedCountryCode, "Country/Region Code", StrSubstNo(VATEntryFieldErr, FieldCaption("Country/Region Code")));
+            Assert.AreEqual(ExpectedVATRegNo, "VAT Registration No.", StrSubstNo(VATEntryFieldErr, FieldCaption("VAT Registration No.")));
+            Assert.AreEqual(ExpectedBillToPayToNo, "Bill-to/Pay-to No.", StrSubstNo(VATEntryFieldErr, FieldCaption("Bill-to/Pay-to No.")));
+        end;
+    end;
+
+    local procedure VerifyVATEntryExists(CountryRegionCode: Code[10]; VATRegistrationNo: Text[20])
+    var
+        VATEntry: Record "VAT Entry";
+    begin
+        VATEntry.SetRange("Country/Region Code", CountryRegionCode);
+        VATEntry.SetRange("VAT Registration No.", VATRegistrationNo);
+        Assert.RecordIsNotEmpty(VATEntry);
+    end;
+
+    local procedure TypeInGeneralJournalTemplate(var GenJournalTemplate: Record "Gen. Journal Template")
+    begin
+        GenJournalTemplate.Validate(Type, GenJournalTemplate.Type::Sales);
+        GenJournalTemplate.Modify(true);
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerTrue(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
+    end;
+
+    local procedure ExecuteUIHandler()
+    begin
+        // Generate Dummy message. Required for executing the test case successfully.
+        if Confirm(StrSubstNo(ExpectedMessage)) then;
+    end;
+}
+

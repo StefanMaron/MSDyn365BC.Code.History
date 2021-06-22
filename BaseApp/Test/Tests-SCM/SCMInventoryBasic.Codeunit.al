@@ -1,0 +1,2765 @@
+codeunit 137280 "SCM Inventory Basic"
+{
+    EventSubscriberInstance = Manual;
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    trigger OnRun()
+    begin
+        // [FEATURE] [SCM]
+        isInitialized := false;
+    end;
+
+    var
+        LibraryApplicationArea: Codeunit "Library - Application Area";
+        LibraryFiscalYear: Codeunit "Library - Fiscal Year";
+        LibraryCosting: Codeunit "Library - Costing";
+        LibraryERM: Codeunit "Library - ERM";
+        LibraryInventory: Codeunit "Library - Inventory";
+        LibraryItemTracking: Codeunit "Library - Item Tracking";
+        LibraryPurchase: Codeunit "Library - Purchase";
+        LibrarySales: Codeunit "Library - Sales";
+        LibraryUtility: Codeunit "Library - Utility";
+        LibraryWarehouse: Codeunit "Library - Warehouse";
+        LibraryManufacturing: Codeunit "Library - Manufacturing";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryRandom: Codeunit "Library - Random";
+        LibraryDimension: Codeunit "Library - Dimension";
+        LibraryAssembly: Codeunit "Library - Assembly";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        Assert: Codeunit Assert;
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        isInitialized: Boolean;
+        ItemCreatedMsg: Label 'Item %1 is created.';
+        ItemChargeErr: Label 'You can not invoice item charge %1 because there is no item ledger entry to assign it to.';
+        ItemTrackingCodeErr: Label 'Item Tracking Code must have a value in Item: No.=%1. It cannot be zero or empty.';
+        GlobalSerialNo: Code[50];
+        GlobalDocumentNo: Code[20];
+        GlobalItemNo: Code[20];
+        GlobalLotNo: Code[50];
+        GlobalQuantity: Decimal;
+        GlobalAmount: Decimal;
+        GlobalPurchasedQuantity: Decimal;
+        GlobalQtyToAssign: Decimal;
+        GlobalApplToItemEntry: Integer;
+        GlobalLineOption: Option;
+        GlobalItemTracking: Option ,AssignSerialNo,AssignLotNo,SelectEntries,SetValue;
+        GlobalItemChargeAssignment: Option AssignmentOnly,GetShipmentLine;
+        VariantErr: Label 'Variant  cannot be fully applied.';
+        UnitCostErr: Label 'Unit Cost must be same.';
+        RemainingQtyErr: Label 'is too low to cover';
+        VatProdPostingGrMatchErr: Label '%1 must be that same as in the %2';
+        VatProdPostingGrMostNotMatchErr: Label '%1 must not be that same as in the %2';
+        ItemUOMErr: Label 'The field %1';
+        UOMErr: Label '%1 should be taken from appropriate table';
+        TypeValidationErr: Label 'Validation error for Field: Type';
+        ControlVisibilityErr: Label 'Control visibility should be %1';
+        UnspecifiedLocationTxt: Label 'UNSPECIFIED';
+        IsNotFoundOnThePageTxt: Label 'is not found on the page';
+
+    [Test]
+    [HandlerFunctions('ItemCreationMessageHandler')]
+    [Scope('OnPrem')]
+    procedure CreateAndReceiveNonStockItem()
+    var
+        NonstockItem: Record "Nonstock Item";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // Verify creation and receiving of NonStock Item.
+
+        // Setup. Create NonStock Item and Purchase Order.
+        Initialize;
+        CreateNonStockItem(NonstockItem);
+        GlobalItemNo := NonstockItem."Vendor Item No."; // Assign to global variable.
+        CreatePurchaseDocument(
+          PurchaseLine, PurchaseLine."Document Type"::Order, CreateVendor, PurchaseLine.Type::Item, NonstockItem."Vendor Item No.",
+          LibraryRandom.RandInt(100)); // Take Random Quantity
+
+        // Exercise.
+        asserterror PostPurchaseOrder(PurchaseLine."Document Type"::Order, PurchaseLine."Document No.", false);
+
+        // Verify.
+        Assert.ExpectedError(StrSubstNo(ItemTrackingCodeErr, NonstockItem."Vendor Item No."));
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingPageHandler,ItemTrackingSummaryPageHandler')]
+    [Scope('OnPrem')]
+    procedure PurchaseCreditMemoWithLotNo()
+    begin
+        // Verify Apply To the initial Purchase Item Ledger Entry in Purchase Credit Memo with Lot No.
+        PurchaseCreditMemoWithItemTracking(true, false, LibraryRandom.RandInt(100), GlobalItemTracking::AssignLotNo); // Take Random Quantity.
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingPageHandler,ItemTrackingSummaryPageHandler,EnterQuantitytoCreatePageHandler')]
+    [Scope('OnPrem')]
+    procedure PurchaseCreditMemoWithSerialNo()
+    begin
+        // Verify Apply To the initial Purchase Item Ledger Entry in Purchase Credit Memo with Serial No.
+        PurchaseCreditMemoWithItemTracking(false, true, 1, GlobalItemTracking::AssignSerialNo); // Take Quantity 1 as this is not important.
+    end;
+
+    local procedure PurchaseCreditMemoWithItemTracking(LotSpecific: Boolean; SerialSpecific: Boolean; Quantity: Decimal; TrackingOption: Option)
+    var
+        Item: Record Item;
+        PurchaseLine: Record "Purchase Line";
+        SalesLine: Record "Sales Line";
+        SalesLine2: Record "Sales Line";
+        PurchaseLine2: Record "Purchase Line";
+        DocumentNo: Code[20];
+    begin
+        // Setup: Create Item with Item Tracking Code, Create a Purchase Order, Sales Order, Purchase Credit Memo.
+        Initialize;
+        LibraryInventory.CreateTrackedItem(
+          Item, LibraryUtility.GetGlobalNoSeriesCode, LibraryUtility.GetGlobalNoSeriesCode,
+          CreateItemTrackingCode(LotSpecific, SerialSpecific));
+
+        // Post Purchase Order as Receive.
+        CreatePurchaseDocument(
+          PurchaseLine, PurchaseLine."Document Type"::Order, CreateVendor, PurchaseLine.Type::Item, Item."No.", Quantity);
+        GlobalPurchasedQuantity := PurchaseLine.Quantity; // Assign global variable.
+        GlobalItemTracking := TrackingOption;
+        PurchaseLine.OpenItemTrackingLines;
+        DocumentNo := PostPurchaseOrder(PurchaseLine."Document Type"::Order, PurchaseLine."Document No.", false);
+
+        // Post Sales Order.
+        CreateSalesDocument(
+          SalesLine, SalesLine."Document Type"::Order, CreateCustomer, SalesLine.Type::Item, Item."No.", GlobalPurchasedQuantity);
+        GlobalItemTracking := GlobalItemTracking::SelectEntries;
+        SalesLine.OpenItemTrackingLines;
+        PostSalesOrder(SalesLine."Document Type", SalesLine."Document No.", true);
+
+        // Post Sales Credit Memo.
+        CreateSalesDocument(
+          SalesLine2, SalesLine2."Document Type"::"Credit Memo", CreateCustomer, SalesLine2.Type::Item, Item."No.", GlobalPurchasedQuantity);
+        GlobalItemTracking := GlobalItemTracking::SetValue;
+        SalesLine2.OpenItemTrackingLines;
+        PostSalesOrder(SalesLine2."Document Type", SalesLine2."Document No.", true);
+
+        // Post the initial Purchase Order as Invoice.
+        PostPurchaseOrder(PurchaseLine."Document Type"::Order, PurchaseLine."Document No.", true);
+
+        // Create Purchase Credit Memo and apply to the initial Purchase Item Ledger Entry.
+        CreatePurchaseDocument(
+          PurchaseLine2, PurchaseLine2."Document Type"::"Credit Memo", CreateVendor, PurchaseLine2.Type::Item, Item."No.",
+          PurchaseLine.Quantity);
+        GlobalApplToItemEntry := FindItemLedgerEntry(DocumentNo); // Assign to global variable.
+        GlobalItemTracking := GlobalItemTracking::SelectEntries;
+        asserterror PurchaseLine2.OpenItemTrackingLines;
+
+        // Verify.
+        Assert.ExpectedError(RemainingQtyErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemChargeAssignmentPurchPageHandler,PurchReceiptLinePageHandler,ItemStatisticsPageHandler,ItemStatisticsMatrixPageHandler')]
+    [Scope('OnPrem')]
+    procedure ItemStatisticsMatrixForPurchaseEntry()
+    var
+        ItemCharge: Record "Item Charge";
+        ItemStatisticsBuffer: Record "Item Statistics Buffer";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseLine2: Record "Purchase Line";
+        VendorNo: Code[20];
+    begin
+        // Test the Item Charge Assignment on Purchase Document and Validate it on Item Statistics Matrix.
+
+        // Setup.
+        Initialize;
+        VendorNo := CreateVendor;
+        GlobalAmount := LibraryRandom.RandDec(1000, 1);  // Using Random value in global variable to verify Total Amount in ItemStatisticsMatrix Page.
+        ItemCharge.FindFirst;
+
+        // Create 1st Purchase Order for Item and Post as Receive.
+        CreatePurchaseDocument(
+          PurchaseLine, PurchaseLine."Document Type"::Order, VendorNo, PurchaseLine.Type::Item, CreateItem,
+          LibraryRandom.RandDec(100, 1));  // Using Random value for Quantity.
+        GlobalDocumentNo := PostPurchaseOrder(PurchaseLine."Document Type"::Order, PurchaseLine."Document No.", false);
+
+        // Create 2nd Purchase Order for Charge Item, Assign Item Charge.
+        CreatePurchaseDocument(
+          PurchaseLine2, PurchaseLine2."Document Type"::Order, VendorNo, PurchaseLine2.Type::"Charge (Item)", ItemCharge."No.", 1);  // Added Quantity as 1 for Item Charge.
+        PurchaseLine2.Validate("Direct Unit Cost", GlobalAmount);
+        PurchaseLine2.Modify(true);
+        GlobalLineOption := ItemStatisticsBuffer."Line Option"::"Purch. Item Charge Spec.";  // Using global variable to assing Line Option in Item Statistics Page.
+        PurchaseLine2.ShowItemChargeAssgnt;
+
+        // Exercise: Post Order as Receive and Invoice.
+        PostPurchaseOrder(PurchaseLine2."Document Type", PurchaseLine2."Document No.", true);
+
+        // Verify: Verify Item Charge Amount on Item Statistics Matrix Page Handler.
+        OpenItemStatisticsPage(PurchaseLine."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemChargeAssignmentSalesPageHandler,SalesShipmentLinePageHandler,ItemStatisticsPageHandler,ItemStatisticsMatrixPageHandler')]
+    [Scope('OnPrem')]
+    procedure ItemStatisticsMatrixForSalesEntry()
+    var
+        ItemCharge: Record "Item Charge";
+        ItemStatisticsBuffer: Record "Item Statistics Buffer";
+        SalesLine: Record "Sales Line";
+        SalesLine2: Record "Sales Line";
+        CustomerNo: Code[20];
+    begin
+        // Test the Item Charge Assignment on Sales Document and Validate it on Item Statistics Matrix.
+
+        // Setup.
+        Initialize;
+        CustomerNo := CreateCustomer;
+        GlobalAmount := LibraryRandom.RandDec(1000, 1);  // Using Ranom value in global variable to verify Total Amount in ItemStatisticsMatrix Page.
+        ItemCharge.FindFirst;
+
+        // Create 1st Sales Order for Item and Post as Ship.
+        CreateSalesDocument(
+          SalesLine, SalesLine."Document Type"::Order, CustomerNo, SalesLine.Type::Item, CreateItem, LibraryRandom.RandDec(100, 1));  // Using Random value for Quantity.
+        GlobalDocumentNo := PostSalesOrder(SalesLine."Document Type", SalesLine."Document No.", false);
+
+        // Create 2nd Sales Order for Charge Item, Assign Item Charge.
+        CreateSalesDocument(SalesLine2, SalesLine2."Document Type"::Order, CustomerNo, SalesLine2.Type::"Charge (Item)", ItemCharge."No.", 1);  // Added Quantity as 1 for Item Charge.
+        UpdateSalesLineUnitPrice(SalesLine2, GlobalAmount);
+        GlobalLineOption := ItemStatisticsBuffer."Line Option"::"Sales Item Charge Spec.";  // Using global variable to assing Line Option in Item Statistics Page.
+        GlobalItemChargeAssignment := GlobalItemChargeAssignment::GetShipmentLine;
+        SalesLine2.ShowItemChargeAssgnt;
+
+        // Exercise: Post Order as Ship and Invoice.
+        PostSalesOrder(SalesLine2."Document Type", SalesLine2."Document No.", true);
+
+        // Verify: Verify Item Charge Amount on Item Statistics Matrix Page Handler.
+        OpenItemStatisticsPage(SalesLine."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemChargeAssignmentSalesPageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesOrderPostingErrorWithItemChargeAssignment()
+    var
+        SalesLine: Record "Sales Line";
+        ItemChargeNo: Code[20];
+    begin
+        // Test Sales Order with Item Charge Assignment, Not allow to Post Sales Order as Ship and Invoice if Qty. to Ship = 0 in Sales Line.
+
+        // Setup: Create Sales Order with Item Charge and Assignment Item Charge.
+        ItemChargeNo := CreateSalesOrderAndAssignItemCharge(SalesLine);
+
+        // Exercise.
+        asserterror PostSalesOrder(SalesLine."Document Type", SalesLine."Document No.", true);
+
+        // Verify: Verify Error for Item Charge
+        Assert.ExpectedError(StrSubstNo(ItemChargeErr, ItemChargeNo));
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemChargeAssignmentSalesPageHandler,SalesShipmentLinePageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesOrderPostingWithItemChargeAssignment()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceLine: Record "Sales Invoice Line";
+        DocumentNo: Code[20];
+        ItemChargeNo: Code[20];
+    begin
+        // Test Sales Order with Item Charge Assignment, Not allow to Post Sales Order as Ship and Invoice if Qty. to Ship = 0 in Sales Line.
+
+        // Setup: Create Sales Order with Item Charge and Assignment Item Charge.
+        ItemChargeNo := CreateSalesOrderAndAssignItemCharge(SalesLine);
+        PostSalesOrder(SalesLine."Document Type", SalesLine."Document No.", false);
+        SalesHeader.Get(SalesHeader."Document Type"::Order, SalesLine."Document No.");
+        LibrarySales.ReopenSalesDocument(SalesHeader);
+        DeleteSalesLine(SalesLine."Document No.");
+        GlobalItemChargeAssignment := GlobalItemChargeAssignment::GetShipmentLine;
+        SalesLine.ShowItemChargeAssgnt;
+
+        // Exercise.
+        DocumentNo := PostSalesOrder(SalesLine."Document Type", SalesLine."Document No.", true);
+
+        // Verify: Verify Charge Item Entry posted.
+        SalesInvoiceLine.SetRange("Document No.", DocumentNo);
+        SalesInvoiceLine.SetRange(Type, SalesInvoiceLine.Type::"Charge (Item)");
+        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.TestField("No.", ItemChargeNo);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ItemByLocationMatrixWithoutInTransit()
+    begin
+        // Verify Item by Location Matrix.
+        Initialize;
+        ItemByLocationMatrix(false);  // False for non In-Transit Location.
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ItemByLocationMatrixWithInTransit()
+    begin
+        // Verify Item by Location Matrix with Show In Transit filter as True.
+        Initialize;
+        ItemByLocationMatrix(true);  // True for In-Transit Location.
+    end;
+
+    local procedure ItemByLocationMatrix(InTransit: Boolean)
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        TransferHeader: Record "Transfer Header";
+        ItemsByLocation: TestPage "Items by Location";
+        LocationCode: Code[10];
+    begin
+        // Setup: Create Item and post Item Journal Line with Location.
+        GlobalQuantity := LibraryRandom.RandDec(100, 2);  // Use Random value for Quantity and Assign in global variable for verification in handler.
+        GlobalItemNo := LibraryInventory.CreateItem(Item);  // Assign in global variable.
+        LocationCode := GetFirstLocation(false);
+        CreateAndPostItemJournalLine(ItemJournalLine, GlobalItemNo, LocationCode, GlobalQuantity);
+        if InTransit then begin
+            CreateTransferOrder(TransferHeader, LocationCode, GlobalItemNo, GlobalQuantity);
+            LibraryWarehouse.PostTransferOrder(TransferHeader, true, false);
+        end;
+
+        // Exercise: Open Items by Location page to open the Matrix.
+        ItemsByLocation.OpenView;
+        ItemsByLocation.ShowInTransit.SetValue(InTransit);
+        ItemsByLocation.MatrixForm.FILTER.SetFilter("No.", GlobalItemNo);
+
+        // Verify
+        if ItemsByLocation.MatrixForm.Field1.Caption <> UnspecifiedLocationTxt then
+            ItemsByLocation.MatrixForm.Field1.AssertEquals(GlobalQuantity)
+        else
+            ItemsByLocation.MatrixForm.Field2.AssertEquals(GlobalQuantity);
+    end;
+
+    [Scope('OnPrem')]
+    procedure ItemByLocationMatrixAllLocations()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        Location: Record Location;
+        ItemsByLocation: TestPage "Items by Location";
+        ItemNo: Code[20];
+        ColumnNumber: Integer;
+    begin
+        // 1. Setup: Create an increasing number of items in each location, starting from the blank location
+        Initialize;
+        ItemNo := LibraryInventory.CreateItem(Item);
+        ColumnNumber := 1;
+        CreateAndPostItemJournalLine(ItemJournalLine, ItemNo, '', ColumnNumber);
+        Location.SetRange("Use As In-Transit", false);
+        if Location.FindSet then
+            repeat
+                ColumnNumber += 1;
+                if not InventoryPostingSetupExists(Location.Code, Item."Inventory Posting Group") then
+                    LibraryInventory.UpdateInventoryPostingSetup(Location);
+                CreateAndPostItemJournalLine(ItemJournalLine, ItemNo, Location.Code, ColumnNumber);
+            until Location.Next = 0;
+
+        // Exercise: Open Items by Location page to open the Matrix and filter to the newly created item.
+        ItemsByLocation.OpenView;
+        ItemsByLocation.ShowInTransit.SetValue(false);
+        ItemsByLocation.MatrixForm.FILTER.SetFilter("No.", ItemNo);
+
+        // Verify: Each column caption corresponds to a location code, and each cell contains the correct inventory
+        ColumnNumber := 1;
+        VerifyMatrixColumn(ItemsByLocation, ColumnNumber, UnspecifiedLocationTxt, ColumnNumber);
+        if Location.FindSet then
+            repeat
+                ColumnNumber += 1;
+                VerifyMatrixColumn(ItemsByLocation, ColumnNumber, Location.Code, ColumnNumber);
+            until Location.Next = 0;
+    end;
+
+    local procedure VerifyMatrixColumn(var ItemsbyLocation: TestPage "Items by Location"; ColumnNumber: Integer; ExpectedCaption: Text; ExpectedValue: Variant)
+    var
+        FieldValue: Variant;
+        FieldCaption: Text;
+    begin
+        case ColumnNumber of
+            1:
+                begin
+                    FieldValue := ItemsbyLocation.MatrixForm.Field1.Value;
+                    FieldCaption := ItemsbyLocation.MatrixForm.Field1.Caption;
+                end;
+            2:
+                begin
+                    FieldValue := ItemsbyLocation.MatrixForm.Field2.Value;
+                    FieldCaption := ItemsbyLocation.MatrixForm.Field2.Caption;
+                end;
+            3:
+                begin
+                    FieldValue := ItemsbyLocation.MatrixForm.Field3.Value;
+                    FieldCaption := ItemsbyLocation.MatrixForm.Field3.Caption;
+                end;
+            4:
+                begin
+                    FieldValue := ItemsbyLocation.MatrixForm.Field4.Value;
+                    FieldCaption := ItemsbyLocation.MatrixForm.Field4.Caption;
+                end;
+            5:
+                begin
+                    FieldValue := ItemsbyLocation.MatrixForm.Field5.Value;
+                    FieldCaption := ItemsbyLocation.MatrixForm.Field5.Caption;
+                end;
+            6:
+                begin
+                    FieldValue := ItemsbyLocation.MatrixForm.Field6.Value;
+                    FieldCaption := ItemsbyLocation.MatrixForm.Field6.Caption;
+                end;
+            7:
+                begin
+                    FieldValue := ItemsbyLocation.MatrixForm.Field7.Value;
+                    FieldCaption := ItemsbyLocation.MatrixForm.Field7.Caption;
+                end;
+            8:
+                begin
+                    FieldValue := ItemsbyLocation.MatrixForm.Field8.Value;
+                    FieldCaption := ItemsbyLocation.MatrixForm.Field8.Caption;
+                end;
+            9:
+                begin
+                    FieldValue := ItemsbyLocation.MatrixForm.Field9.Value;
+                    FieldCaption := ItemsbyLocation.MatrixForm.Field9.Caption;
+                end;
+            10:
+                begin
+                    FieldValue := ItemsbyLocation.MatrixForm.Field10.Value;
+                    FieldCaption := ItemsbyLocation.MatrixForm.Field10.Caption;
+                end;
+            11:
+                begin
+                    FieldValue := ItemsbyLocation.MatrixForm.Field11.Value;
+                    FieldCaption := ItemsbyLocation.MatrixForm.Field11.Caption;
+                end;
+            12:
+                begin
+                    FieldValue := ItemsbyLocation.MatrixForm.Field12.Value;
+                    FieldCaption := ItemsbyLocation.MatrixForm.Field12.Caption;
+                end;
+            13:
+                begin
+                    FieldValue := ItemsbyLocation.MatrixForm.Field13.Value;
+                    FieldCaption := ItemsbyLocation.MatrixForm.Field13.Caption;
+                end;
+            14:
+                begin
+                    FieldValue := ItemsbyLocation.MatrixForm.Field14.Value;
+                    FieldCaption := ItemsbyLocation.MatrixForm.Field14.Caption;
+                end;
+            15:
+                begin
+                    FieldValue := ItemsbyLocation.MatrixForm.Field15.Value;
+                    FieldCaption := ItemsbyLocation.MatrixForm.Field15.Caption;
+                end;
+            16:
+                begin
+                    FieldValue := ItemsbyLocation.MatrixForm.Field16.Value;
+                    FieldCaption := ItemsbyLocation.MatrixForm.Field16.Caption;
+                end;
+            17:
+                begin
+                    FieldValue := ItemsbyLocation.MatrixForm.Field17.Value;
+                    FieldCaption := ItemsbyLocation.MatrixForm.Field17.Caption;
+                end;
+            18:
+                begin
+                    FieldValue := ItemsbyLocation.MatrixForm.Field18.Value;
+                    FieldCaption := ItemsbyLocation.MatrixForm.Field18.Caption;
+                end;
+            19:
+                begin
+                    FieldValue := ItemsbyLocation.MatrixForm.Field19.Value;
+                    FieldCaption := ItemsbyLocation.MatrixForm.Field19.Caption;
+                end;
+            20:
+                begin
+                    FieldValue := ItemsbyLocation.MatrixForm.Field20.Value;
+                    FieldCaption := ItemsbyLocation.MatrixForm.Field20.Caption;
+                end;
+            21:
+                begin
+                    FieldValue := ItemsbyLocation.MatrixForm.Field21.Value;
+                    FieldCaption := ItemsbyLocation.MatrixForm.Field21.Caption;
+                end;
+            22:
+                begin
+                    FieldValue := ItemsbyLocation.MatrixForm.Field22.Value;
+                    FieldCaption := ItemsbyLocation.MatrixForm.Field22.Caption;
+                end;
+            23:
+                begin
+                    FieldValue := ItemsbyLocation.MatrixForm.Field23.Value;
+                    FieldCaption := ItemsbyLocation.MatrixForm.Field23.Caption;
+                end;
+            24:
+                begin
+                    FieldValue := ItemsbyLocation.MatrixForm.Field24.Value;
+                    FieldCaption := ItemsbyLocation.MatrixForm.Field24.Caption;
+                end;
+            25:
+                begin
+                    FieldValue := ItemsbyLocation.MatrixForm.Field25.Value;
+                    FieldCaption := ItemsbyLocation.MatrixForm.Field25.Caption;
+                end;
+            26:
+                begin
+                    FieldValue := ItemsbyLocation.MatrixForm.Field26.Value;
+                    FieldCaption := ItemsbyLocation.MatrixForm.Field26.Caption;
+                end;
+            27:
+                begin
+                    FieldValue := ItemsbyLocation.MatrixForm.Field27.Value;
+                    FieldCaption := ItemsbyLocation.MatrixForm.Field27.Caption;
+                end;
+            28:
+                begin
+                    FieldValue := ItemsbyLocation.MatrixForm.Field28.Value;
+                    FieldCaption := ItemsbyLocation.MatrixForm.Field28.Caption;
+                end;
+            29:
+                begin
+                    FieldValue := ItemsbyLocation.MatrixForm.Field29.Value;
+                    FieldCaption := ItemsbyLocation.MatrixForm.Field29.Caption;
+                end;
+            30:
+                begin
+                    FieldValue := ItemsbyLocation.MatrixForm.Field30.Value;
+                    FieldCaption := ItemsbyLocation.MatrixForm.Field30.Caption;
+                end;
+            31:
+                begin
+                    FieldValue := ItemsbyLocation.MatrixForm.Field31.Value;
+                    FieldCaption := ItemsbyLocation.MatrixForm.Field31.Caption;
+                end;
+            32:
+                begin
+                    FieldValue := ItemsbyLocation.MatrixForm.Field32.Value;
+                    FieldCaption := ItemsbyLocation.MatrixForm.Field32.Caption;
+                end;
+            else
+                Assert.Fail(StrSubstNo('Unsupported column number is provided. ColumnNumber - %1', ColumnNumber));
+        end;
+
+        Assert.AreEqual(ExpectedCaption, FieldCaption, 'Wrong matrix caption');
+        Assert.AreEqual(Format(ExpectedValue, 0, 9), Format(FieldValue, 0, 9), 'Wrong matrix value');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TransferRoutesMatrixForInTransitCode()
+    var
+        TransferRoute: Record "Transfer Route";
+        ShowOption: Option "In-Transit Code","Shipping Agent Code","Shipping Agent Service Code";
+        LocationCode: Code[10];
+        MatrixCellValue: Code[10];
+    begin
+        // Verify Transfer Routes Matrix for In-Transit Code.
+
+        // Setup: Create and modify Transfer Route.
+        Initialize;
+        CreateAndModifyTransferRoute(TransferRoute);
+
+        // Exercise
+        LocationCode := TransferRoute."Transfer-from Code";  // Assign in global variable.
+        MatrixCellValue := TransferRoute."In-Transit Code";  // Assign in global variable for verification in handler.
+
+        // Verify
+        VerifyTransferRoutesMatrixCellValue(ShowOption::"In-Transit Code", LocationCode, MatrixCellValue);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TransferRoutesMatrixForShippingAgentCode()
+    var
+        TransferRoute: Record "Transfer Route";
+        ShowOption: Option "In-Transit Code","Shipping Agent Code","Shipping Agent Service Code";
+        LocationCode: Code[10];
+        MatrixCellValue: Code[10];
+    begin
+        // Verify Transfer Routes Matrix for Shipping Agent Code.
+
+        // Setup: Create and modify Transfer Route.
+        Initialize;
+        CreateAndModifyTransferRoute(TransferRoute);
+
+        // Exercise
+        LocationCode := TransferRoute."Transfer-from Code";  // Assign in global variable.
+        MatrixCellValue := TransferRoute."Shipping Agent Code";  // Assign in global variable for verification in handler.
+
+        // Verify
+        VerifyTransferRoutesMatrixCellValue(ShowOption::"Shipping Agent Code", LocationCode, MatrixCellValue);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TransferRoutesMatrixForShippingAgentServiceCode()
+    var
+        TransferRoute: Record "Transfer Route";
+        ShowOption: Option "In-Transit Code","Shipping Agent Code","Shipping Agent Service Code";
+        LocationCode: Code[10];
+        MatrixCellValue: Code[10];
+    begin
+        // Verify Transfer Routes Matrix for Shipping Agent Service Code.
+
+        // Setup: Create and modify Transfer Route.
+        Initialize;
+        CreateAndModifyTransferRoute(TransferRoute);
+
+        // Exercise
+        LocationCode := TransferRoute."Transfer-from Code";  // Assign in global variable.
+        MatrixCellValue := TransferRoute."Shipping Agent Service Code";  // Assign in global variable for verification in handler.
+
+        // Verify
+        VerifyTransferRoutesMatrixCellValue(ShowOption::"Shipping Agent Service Code", LocationCode, MatrixCellValue);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemAvailabilityByPeriodsPageHandler')]
+    [Scope('OnPrem')]
+    procedure ItemAvailabilityByPeriodAfterShipTransferOrder()
+    begin
+        // Verify Projected Available Balance on Item Availability by Period window after Ship the Transfer Order.
+        ItemAvailabilityByPeriodAfterPostingTransferOrder(true, false);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemAvailabilityByPeriodsPageHandler')]
+    [Scope('OnPrem')]
+    procedure ItemAvailabilityByPeriodAfterReceiveTransferOrder()
+    begin
+        // Verify Projected Available Balance on Item Availability by Period window after Receive the Transfer Order.
+        ItemAvailabilityByPeriodAfterPostingTransferOrder(true, true);
+    end;
+
+    local procedure ItemAvailabilityByPeriodAfterPostingTransferOrder(Ship: Boolean; Receive: Boolean)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+        Location: Record Location;
+        TransferHeader: Record "Transfer Header";
+        ItemCard: TestPage "Item Card";
+    begin
+        // Setup: Create and post Item Journal Line, Create and post Transfer Order.
+        Initialize;
+        GlobalQuantity := LibraryRandom.RandDec(100, 2);  // Use Random value for Quantity.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        CreateAndPostItemJournalLine(ItemJournalLine, CreateItem, Location.Code, GlobalQuantity);
+        CreateTransferOrder(TransferHeader, ItemJournalLine."Location Code", ItemJournalLine."Item No.", ItemJournalLine.Quantity);
+        LibraryWarehouse.PostTransferOrder(TransferHeader, Ship, Receive);
+
+        // Exercise: Open Availability by Period Page from Item Card.
+        ItemCard.OpenView;
+        ItemCard.FILTER.SetFilter("No.", ItemJournalLine."Item No.");
+        ItemCard.Period.Invoke;
+
+        // Verify: Verify Projected Available Balance on Item Availability by Period window using ItemAvailabilityByPeriodsPageHandler.
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingPageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesRetOrderWithItemTrackingUsingAdjmt()
+    var
+        SalesLine: Record "Sales Line";
+        ItemNo: Code[20];
+    begin
+        // Verify Unit Cost on Item After Adjustment using Sales Order and Item Journal Line with Item Costing Method Average and Item Tracking.
+
+        // Setup: Create Item Journal Line with Item Tracking Code, Create and post a Sales Order.
+        Initialize;
+        ItemNo := CreateAndPostItemJnlLineWithtemTracking;
+        CreateSalesDocument(SalesLine, SalesLine."Document Type"::"Return Order", CreateCustomer, SalesLine.Type::Item, ItemNo, 1);  // Taken 1 for Quantity.
+        UpdateSalesLineUnitPrice(SalesLine, LibraryRandom.RandDec(10, 2));  // Using Random value for Unit Price.
+        SalesLine.OpenItemTrackingLines;
+        PostSalesOrder(SalesLine."Document Type", SalesLine."Document No.", true);
+
+        // Exercise: Run Adjust Cost Item Entries.
+        LibraryCosting.AdjustCostItemEntries(ItemNo, '');
+
+        // Verify: Verify Unit Cost on Item After Adjustment using Sales Order and Item Journal Line.
+        VerifyUnitCostOnItemAfterAdjustment(ItemNo);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingPageHandler')]
+    [Scope('OnPrem')]
+    procedure UnitCostOnItemWithItemJnlLineUsingAdjmt()
+    var
+        ItemNo: Code[20];
+    begin
+        // Verify Unit Cost on Item after Adjustment using Item Journal with Item Costing Method Average and Item Tracking.
+
+        // Setup: Create and post Item Journal Line with Item Tracking.
+        Initialize;
+        ItemNo := CreateAndPostItemJnlLineWithtemTracking;
+
+        // Exercise: Run Adjust Cost Item Entries.
+        LibraryCosting.AdjustCostItemEntries(ItemNo, '');
+
+        // Verify: Verify Unit Cost on Item after Adjustment using Item Journal With Item Costing Method Average and Item Tracking.
+        VerifyUnitCostOnItemAfterAdjustment(ItemNo);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingPageHandler,ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure ErrorWithSalesOrderPostingUsingItemTracking()
+    var
+        SalesLine: Record "Sales Line";
+        ItemNo: Code[20];
+    begin
+        // Verify error message while posting Sales Order with Item Tracking.
+
+        // Setup: Create and post Item Journal Line and Sales Order with Item Tracking.
+        Initialize;
+        ItemNo := CreateAndPostItemJnlLineWithtemTracking;
+        CreateSalesDocument(SalesLine, SalesLine."Document Type"::Order, CreateCustomer, SalesLine.Type::Item, ItemNo, 1);  // Taken 1 for Quantity.
+        SalesLine.OpenItemTrackingLines;
+
+        // Exercise.
+        asserterror PostSalesOrder(SalesLine."Document Type", SalesLine."Document No.", true);
+
+        // Verify: Verify error message while posting Sales Order with Item Tracking.
+        Assert.ExpectedError(StrSubstNo(VariantErr));
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure PartialNegativeAdjmtUsingFiscalYear()
+    var
+        ItemJournalLine: Record "Item Journal Line";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ValueEntry: Record "Value Entry";
+        ItemNo: Code[20];
+        Quantity: Decimal;
+    begin
+        // Verify Cost Amount Actual after partial Negative Adjustment against one Positive Adjustment.
+
+        // Setup: Create Item, setup create Item Journal Line and run Adjustment.
+        Initialize;
+        ItemNo := CreateItem;
+        Quantity := LibraryRandom.RandInt(100);  // Taking Random value for Quantity.
+        SelectAndClearItemJournalBatch(ItemJournalBatch);
+        CreateAndModifyItemJournalLine(
+          ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
+          ItemJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, Quantity);
+
+        // Create a new fisacl year and Close the previous fiscal years.
+        LibraryFiscalYear.CreateFiscalYear;
+        LibraryFiscalYear.CloseFiscalYear;
+        CreateAndModifyItemJournalLine(
+          ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
+          ItemJournalLine."Entry Type"::"Negative Adjmt.", ItemNo, Quantity / 2);
+
+        // Exercise: Run Adjust Cost Item Entries.
+        LibraryCosting.AdjustCostItemEntries(ItemNo, '');  // Blank value for Item Category.
+
+        // Verify: Verify Cost Amount Actual after partial Negative Adjustment against one Positive Adjustment.
+        VerifyAdjustmentCostAmount(
+          ValueEntry, ItemNo, ValueEntry."Item Ledger Entry Type"::"Positive Adjmt.", false,
+          ValueEntry."Valued Quantity" * ValueEntry."Cost per Unit");
+        VerifyAdjustmentCostAmount(
+          ValueEntry, ItemNo, ValueEntry."Item Ledger Entry Type"::"Negative Adjmt.", false,
+          ValueEntry."Valued Quantity" * ValueEntry."Cost per Unit");
+        VerifyAdjustmentCostAmount(
+          ValueEntry, ItemNo, ValueEntry."Item Ledger Entry Type"::"Negative Adjmt.", true,
+          ValueEntry."Valued Quantity" * ValueEntry."Cost per Unit");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateBaseUnitOfMeasure_ExistingBUoM()
+    var
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        UnitOfMeasure: Record "Unit of Measure";
+    begin
+        // Verify that existing item unit of measure can be used as item's base unit of measure
+
+        // Setup: create item, unit of measure, item unit of measure
+        Initialize;
+
+        LibraryInventory.CreateItem(Item);
+
+        CreateUoM_and_ItemUoM(UnitOfMeasure, ItemUnitOfMeasure, Item);
+
+        // Exercise: validate Base Unit of Measure
+        Item.Validate("Base Unit of Measure", UnitOfMeasure.Code);
+
+        // Verify: Base Unit of Measure is updated
+        VerifyBaseUnitOfMeasure(Item, UnitOfMeasure.Code);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateBaseUnitOfMeasure_NonExistingBUoM()
+    var
+        Item: Record Item;
+        UnitOfMeasure: Record "Unit of Measure";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        NewUnitOfMeasureCode: Code[10];
+    begin
+        // Verify that non existing item unit of measure can be used as item's base unit of measure
+        // and this unit of measure is created during the validation
+
+        // Setup: create item, unit of measure, item unit of measure
+        Initialize;
+
+        Item.Init;
+        Item.Insert(true);
+
+        NewUnitOfMeasureCode := CreateNewUnitOfMeasureCode;
+        UnitOfMeasure.Init;
+        UnitOfMeasure.Code := NewUnitOfMeasureCode;
+        UnitOfMeasure.Insert;
+
+        // Exercise: validate Base Unit of Measure with non-existent item unit of measure
+        Item.Validate("Base Unit of Measure", NewUnitOfMeasureCode);
+
+        // Verify: new Item Unit of Measure is created
+        ItemUnitOfMeasure.Get(Item."No.", NewUnitOfMeasureCode);
+        ItemUnitOfMeasure.TestField("Qty. per Unit of Measure", 1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SelectExistingUnitOfMeasureAsBaseUnitOfMeasure()
+    var
+        Item: Record Item;
+        FirstUnitOfMeasure: Record "Unit of Measure";
+        SecondUnitOfMeasure: Record "Unit of Measure";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+    begin
+        Initialize;
+
+        Item.Init;
+        Item.Insert(true);
+
+        CreateUoM_and_ItemUoM(FirstUnitOfMeasure, ItemUnitOfMeasure, Item);
+        CreateUoM_and_ItemUoM(SecondUnitOfMeasure, ItemUnitOfMeasure, Item);
+
+        Item.Validate("Base Unit of Measure", FirstUnitOfMeasure.Code);
+        Item.Modify(true);
+        VerifyBaseUnitOfMeasureSetAndItemUnitOfMeasureInserted(Item, FirstUnitOfMeasure, 2);
+
+        // Test setting with existing to other
+        Item.Validate("Base Unit of Measure", SecondUnitOfMeasure.Code);
+        Item.Modify(true);
+        VerifyBaseUnitOfMeasureSetAndItemUnitOfMeasureInserted(Item, SecondUnitOfMeasure, 2);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SelectingBaseUnitOfMeasureInsertsItemUnitOfMeasure()
+    var
+        Item: Record Item;
+        FirstUnitOfMeasure: Record "Unit of Measure";
+        SecondUnitOfMeasure: Record "Unit of Measure";
+    begin
+        Initialize;
+
+        Item.Init;
+        Item.Insert(true);
+
+        LibraryInventory.CreateUnitOfMeasureCode(FirstUnitOfMeasure);
+        LibraryInventory.CreateUnitOfMeasureCode(SecondUnitOfMeasure);
+
+        Item.Validate("Base Unit of Measure", FirstUnitOfMeasure.Code);
+        Item.Modify(true);
+        VerifyBaseUnitOfMeasureSetAndItemUnitOfMeasureInserted(Item, FirstUnitOfMeasure, 1);
+
+        Item.Validate("Base Unit of Measure", SecondUnitOfMeasure.Code);
+        Item.Modify(true);
+        VerifyBaseUnitOfMeasureSetAndItemUnitOfMeasureInserted(Item, SecondUnitOfMeasure, 2);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RemoveBaseUnitOfMeasureFromItem()
+    var
+        Item: Record Item;
+        UnitOfMeasure: Record "Unit of Measure";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+    begin
+        Initialize;
+
+        Item.Init;
+        Item.Insert(true);
+
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+
+        Item.Validate("Base Unit of Measure", UnitOfMeasure.Code);
+        Item.Modify(true);
+
+        Item.Validate("Base Unit of Measure", '');
+        Item.Modify(true);
+
+        Assert.AreEqual('', Item."Base Unit of Measure", 'Base unit of measure was not removed from item');
+        Assert.IsTrue(ItemUnitOfMeasure.Get(Item."No.", UnitOfMeasure.Code), 'Item unit of measure is should be present');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SelectingUoMForBaseUoMThatHasQtyGreaterThanOneWillTriggerError()
+    var
+        Item: Record Item;
+        UnitOfMeasure: Record "Unit of Measure";
+        UnitOfMeasureQtyGreaterThanOne: Record "Unit of Measure";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+    begin
+        Initialize;
+
+        Item.Init;
+        Item.Insert(true);
+
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+        CreateUoM_and_ItemUoM(UnitOfMeasureQtyGreaterThanOne, ItemUnitOfMeasure, Item);
+        ItemUnitOfMeasure.Get(Item."No.", UnitOfMeasureQtyGreaterThanOne.Code);
+        ItemUnitOfMeasure."Qty. per Unit of Measure" := LibraryRandom.RandIntInRange(2, 1000);
+        ItemUnitOfMeasure.Modify(true);
+
+        Item.Validate("Base Unit of Measure", UnitOfMeasure.Code);
+        Item.Modify(true);
+
+        asserterror Item.Validate("Base Unit of Measure", UnitOfMeasureQtyGreaterThanOne.Code);
+        Assert.ExpectedError('The quantity per base unit of measure must be 1');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CannotRenameBaseUnitOfMeasureFromItemsUnitOfMeasuresRecord()
+    var
+        Item: Record Item;
+        FirstUnitOfMeasure: Record "Unit of Measure";
+        SecondUnitOfMeasure: Record "Unit of Measure";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+    begin
+        Initialize;
+
+        Item.Init;
+        Item.Insert(true);
+
+        LibraryInventory.CreateUnitOfMeasureCode(FirstUnitOfMeasure);
+        LibraryInventory.CreateUnitOfMeasureCode(SecondUnitOfMeasure);
+
+        Item.Validate("Base Unit of Measure", FirstUnitOfMeasure.Code);
+        Item.Modify(true);
+
+        ItemUnitOfMeasure.Get(Item."No.", FirstUnitOfMeasure.Code);
+        asserterror ItemUnitOfMeasure.Rename(Item."No.", SecondUnitOfMeasure.Code);
+        Assert.ExpectedError('cannot modify');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CannotDeleteBaseUnitOfMeasureFromItemsUnitOfMeasuresRecord()
+    var
+        Item: Record Item;
+        UnitOfMeasure: Record "Unit of Measure";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+    begin
+        Initialize;
+
+        Item.Init;
+        Item.Insert(true);
+
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+
+        Item.Validate("Base Unit of Measure", UnitOfMeasure.Code);
+        Item.Modify(true);
+
+        ItemUnitOfMeasure.Get(Item."No.", UnitOfMeasure.Code);
+        asserterror ItemUnitOfMeasure.Delete(true);
+        Assert.ExpectedError('modify');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RenameItemUnitOfMeasure()
+    var
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        UnitOfMeasure: Record "Unit of Measure";
+        NewUnitOfMeasureCode: Code[10];
+    begin
+        // Verify that rename of item unit of measure caused update of Item."Base Unit of Measure"
+        // because it has ValidateTableRelation=No
+
+        // Setup: create item, unit of measure, item unit of measure
+        Initialize;
+
+        Item.Init;
+        Item.Insert(true);
+
+        CreateUoM_and_ItemUoM(UnitOfMeasure, ItemUnitOfMeasure, Item);
+
+        Item.Validate("Base Unit of Measure", ItemUnitOfMeasure.Code);
+        Item.Modify;
+
+        NewUnitOfMeasureCode := CreateNewUnitOfMeasureCode;
+        Commit;
+
+        // Exercise: rename unit of measure assigned to Item (and Item Unit of Measure)
+        UnitOfMeasure.Rename(NewUnitOfMeasureCode);
+
+        // Verify: Base Unit of Measure is updated
+        Item.Get(Item."No.");
+        VerifyBaseUnitOfMeasure(Item, NewUnitOfMeasureCode);
+    end;
+
+    [Test]
+    [HandlerFunctions('SelectItemTemplateHandler')]
+    [TransactionModel(TransactionModel::AutoCommit)]
+    [Scope('OnPrem')]
+    procedure CreateItemFromItemTemplate()
+    var
+        Item: Record Item;
+        ItemTemplate: Record "Item Template";
+    begin
+        // Setup: create item, unit of measure, item unit of measure
+        Initialize;
+
+        Item.Init;
+        Item.Insert(true);
+
+        ItemTemplate.SetRange(Code, SelectItemTemplateCode);
+        ItemTemplate.FindFirst;
+
+        LibraryVariableStorage.Enqueue(ItemTemplate.Code);
+        ItemTemplate.UpdateItemFromTemplate(Item);
+
+        Assert.AreEqual(
+          Item."VAT Prod. Posting Group",
+          ItemTemplate."VAT Prod. Posting Group",
+          StrSubstNo(VatProdPostingGrMatchErr, Item."VAT Prod. Posting Group", ItemTemplate.Code));
+
+        UpdateVatProdCodeInItemTemplate(ItemTemplate.Code);
+        ItemTemplate.Get(ItemTemplate.Key);
+        Item.Get(Item."No.");
+
+        Assert.AreNotEqual(
+          Item."VAT Prod. Posting Group",
+          ItemTemplate."VAT Prod. Posting Group",
+          StrSubstNo(VatProdPostingGrMostNotMatchErr, Item."VAT Prod. Posting Group", ItemTemplate.Code));
+
+        // Teardown
+        asserterror Error('');
+    end;
+
+    [Test]
+    [HandlerFunctions('SelectItemTemplateHandler')]
+    [Scope('OnPrem')]
+    procedure CreateItemsFromItemTemplate()
+    var
+        Item: Record Item;
+        ItemTemplate: Record "Item Template";
+    begin
+        // Arrange: create four items.
+        Initialize;
+
+        Item.Init;
+        Item.Validate("No.", '1');
+        Item.Insert(true);
+        Item.Init;
+        Item.Validate("No.", '2');
+        Item.Insert(true);
+        Item.Init;
+        Item.Validate("No.", '3');
+        Item.Insert(true);
+        Item.Init;
+        Item.Validate("No.", '4');
+        Item.Insert(true);
+
+        // Act: Apply templates only to items 1 and 3.
+        Item.SetFilter("No.", '1|3');
+
+        ItemTemplate.SetRange(Code, SelectItemTemplateCode);
+        ItemTemplate.FindFirst;
+
+        LibraryVariableStorage.Enqueue(ItemTemplate.Code);
+        ItemTemplate.UpdateItemsFromTemplate(Item);
+
+        // Assess: Templates are applied only to items 1 and 3
+        Item.FindSet;
+        repeat
+            Assert.AreEqual(
+              Item."VAT Prod. Posting Group",
+              ItemTemplate."VAT Prod. Posting Group",
+              StrSubstNo(VatProdPostingGrMatchErr, Item."VAT Prod. Posting Group", ItemTemplate.Code));
+        until Item.Next = 0;
+
+        // Assess: Templates are not applied to items 2 and 4
+        Item.SetFilter("No.", '2|4');
+        Item.FindSet;
+        repeat
+            Assert.AreNotEqual(
+              Item."VAT Prod. Posting Group",
+              ItemTemplate."VAT Prod. Posting Group",
+              StrSubstNo(VatProdPostingGrMostNotMatchErr, Item."VAT Prod. Posting Group", ItemTemplate.Code));
+        until Item.Next = 0;
+
+        UpdateVatProdCodeInItemTemplate(ItemTemplate.Code);
+        ItemTemplate.Get(ItemTemplate.Key);
+
+        Item.SetFilter("No.", '1|2|3|4');
+        Item.FindSet;
+        repeat
+            Assert.AreNotEqual(
+              Item."VAT Prod. Posting Group",
+              ItemTemplate."VAT Prod. Posting Group",
+              StrSubstNo(VatProdPostingGrMostNotMatchErr, Item."VAT Prod. Posting Group", ItemTemplate.Code));
+        until Item.Next = 0;
+
+        // Teardown
+        asserterror Error('');
+    end;
+
+    [Test]
+    [HandlerFunctions('SelectItemTemplateHandler')]
+    [Scope('OnPrem')]
+    procedure InsertItemFromItemTemplate()
+    var
+        Item: Record Item;
+        ItemTemplate: Record "Item Template";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+    begin
+        // [FEATURE] [Item Template] [Unit of Measure]
+        // [SCENARIO 203626] Item Unit of Measure should be created for the default Unit of Measure if Item Template has empty Base Unit of Measure
+        Initialize;
+
+        // [GIVEN] Item Template with empty Base Unit of Measure
+        Item.Init;
+        LibraryInventory.CreateItemTemplate(ItemTemplate);
+        ItemTemplate."Base Unit of Measure" := '';
+        ItemTemplate.Modify;
+        LibraryVariableStorage.Enqueue(ItemTemplate.Code);
+
+        // [WHEN] Create new Item using Item Template
+        ItemTemplate.NewItemFromTemplate(Item);
+
+        // [THEN] Item Unit Of Measure is created for Unit of Measure of the Item
+        Assert.IsTrue(ItemUnitOfMeasure.Get(Item."No.", Item."Base Unit of Measure"), 'Item Unit of Measure should be created.');
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemChargeAssignmentPurchPageHandler,PurchReceiptLinePageHandler,ItemStatisticsPageHandler,ItemStatisticsMatrixPageHandlerForSpecificLine')]
+    [Scope('OnPrem')]
+    procedure ItemStatisticsMatrixForItemChargePostedAsPurchaseCreditMemo()
+    var
+        PurchaseLine: Record "Purchase Line";
+        PurchaseLine2: Record "Purchase Line";
+    begin
+        // Verify Non-Invtbl. Costs and Profit in Item Statistics when item charge is posted as Purchase Credit Memo.
+
+        // Setup: Create Purchase Return Order with 2 Purchase Lines, one for Item, one for Item Charge. Assign Item Charge to the Item.
+        Initialize;
+        CreatePurchaseDocumentAndAssignItemCharge(PurchaseLine, PurchaseLine2, PurchaseLine."Document Type"::"Return Order");
+
+        // Exercise: Post Purchase Document as Receive and Invoice.
+        GlobalDocumentNo := PostPurchaseOrder(PurchaseLine."Document Type", PurchaseLine."Document No.", true);
+
+        // Verify: Verify Non-Invtbl. Costs and Profit Amount on Item Statistics Matrix Page Handler.
+        VerifyNonInvtblCostsAndProfitOnItemStatistics(
+          PurchaseLine."No.", PurchaseLine2.Quantity * PurchaseLine2."Direct Unit Cost",
+          PurchaseLine2.Quantity * PurchaseLine2."Direct Unit Cost");
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemStatisticsPageHandler,ItemStatisticsMatrixPageHandlerForSpecificLine')]
+    [Scope('OnPrem')]
+    procedure ItemStatisticsMatrixForItemChargePostedAsPurchaseInvoice()
+    var
+        PurchaseLine: Record "Purchase Line";
+        PurchaseLine2: Record "Purchase Line";
+        Item: Record Item;
+    begin
+        // Verify Non-Invtbl. Costs and Profit in Item Statistics when item charge is posted as Purchase Invoice.
+
+        // Setup: Create Purchase Return Order with one line and post it. Create Purchase Order with one line for Item Charge.
+        // Assign Item Charge to Purchase Return Shipment.
+        Initialize;
+        CreateAndPostPurchaseDocument(
+          PurchaseLine, PurchaseLine."Document Type"::"Return Order",
+          LibraryInventory.CreateItem(Item), LibraryRandom.RandDec(10, 2));
+        CreateItemChargeAndAssignToReturnShipment(PurchaseLine2, PurchaseLine, PurchaseLine2."Document Type"::Order);
+
+        // Exercise: Post Item Charge as Purchase Invoice.
+        GlobalDocumentNo := PostPurchaseOrder(PurchaseLine2."Document Type", PurchaseLine2."Document No.", true);
+
+        // Verify: Verify Non-Invtbl. Costs and Profit Amount on ItemStatisticsMatrixPage Handler.
+        VerifyNonInvtblCostsAndProfitOnItemStatistics(
+          PurchaseLine."No.", -PurchaseLine2."Line Amount", -PurchaseLine2."Line Amount");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesUOMForBlankItemIsTakenFromUnitOfMeasureTable()
+    var
+        Item: Record Item;
+        UnitOfMeasure: Record "Unit of Measure";
+    begin
+        // [FEATURE] [Sales] [Unit of Measure]
+        // [SCENARIO] "Sales Unit of Measure" of Item with blank "No." is taken from Unit of Measure table
+
+        // [GIVEN] Item with blank "No."
+        Item.Init;
+
+        // [GIVEN] "Unit of Measure" - "X"
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+
+        // [WHEN] Set "Sales Unit of Measure" on Item to "X"
+        Item.Validate("Sales Unit of Measure", UnitOfMeasure.Code);
+
+        // [THEN] "Sales Unit of Measure" is "X"
+        Assert.AreEqual(UnitOfMeasure.Code, Item."Sales Unit of Measure", StrSubstNo(UOMErr, Item.FieldName("Sales Unit of Measure")));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesUOMForNotBlankItemIsTakenFromItemUnitOfMeasureTable()
+    var
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        UnitOfMeasure: Record "Unit of Measure";
+    begin
+        // [FEATURE] [Sales] [Unit of Measure]
+        // [SCENARIO] "Sales Unit of Measure" of Item with not blank "No." is taken from Item Unit of Measure table
+
+        // [GIVEN] Item with not blank "No."
+        Item.Init;
+        Item."No." := LibraryUtility.GenerateGUID;
+        Item.Insert;
+
+        // [GIVEN] "Item Unit of Measure" - "X"
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.", UnitOfMeasure.Code, 1);
+
+        // [WHEN] Set "Sales Unit of Measure" on Item to "X"
+        Item.Validate("Sales Unit of Measure", ItemUnitOfMeasure.Code);
+
+        // [THEN] "Sales Unit of Measure" is "X"
+        Assert.AreEqual(UnitOfMeasure.Code, Item."Sales Unit of Measure", StrSubstNo(UOMErr, Item.FieldName("Sales Unit of Measure")));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchUOMForBlankItemIsTakenFromUnitOfMeasureTable()
+    var
+        Item: Record Item;
+        UnitOfMeasure: Record "Unit of Measure";
+    begin
+        // [FEATURE] [Purchase] [Unit of Measure]
+        // [SCENARIO] "Purch. Unit of Measure" of Item with blank "No." is taken from Unit of Measure table
+
+        // [GIVEN] Item with blank "No."
+        Item.Init;
+
+        // [GIVEN] "Unit of Measure" - "X"
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+
+        // [WHEN] Set "Purch. Unit of Measure" on Item to "X"
+        Item.Validate("Purch. Unit of Measure", UnitOfMeasure.Code);
+
+        // [THEN] "Purch. Unit of Measure" is "X"
+        Assert.AreEqual(UnitOfMeasure.Code, Item."Purch. Unit of Measure", StrSubstNo(UOMErr, Item.FieldName("Purch. Unit of Measure")));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchUOMForNotBlankItemIsTakenFromItemUnitOfMeasureTable()
+    var
+        Item: Record Item;
+        UnitOfMeasure: Record "Unit of Measure";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+    begin
+        // [FEATURE] [Purchase] [Unit of Measure]
+        // [SCENARIO] "Purch. Unit of Measure" of Item with not blank "No." is taken from Item Unit of Measure table
+
+        // [GIVEN] Item with not blank "No."
+        Item.Init;
+        Item."No." := LibraryUtility.GenerateGUID;
+        Item.Insert;
+
+        // [GIVEN] "Item Unit of Measure" - "X"
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.", UnitOfMeasure.Code, 1);
+
+        // [WHEN] Set "Purch. Unit of Measure" on Item to "X"
+        Item.Validate("Purch. Unit of Measure", ItemUnitOfMeasure.Code);
+
+        // [THEN] "Purch. Unit of Measure" is "X"
+        Assert.AreEqual(UnitOfMeasure.Code, Item."Purch. Unit of Measure", StrSubstNo(UOMErr, Item.FieldName("Purch. Unit of Measure")));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ErrorWhileSettingSalesUOMOnNotBlankItemByValueFromUnitOfMeasure()
+    var
+        Item: Record Item;
+        UnitOfMeasure: Record "Unit of Measure";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+    begin
+        // [FEATURE] [Sales] [Unit of Measure]
+        // [SCENARIO] "Sales Unit of Measure" of Item does not accept "Unit of Measure" that is not in "Item Unit of Measure"
+
+        // [GIVEN] Two Unit of Measures: "X" and "Y"
+        // [GIVEN] Item with not blank "No." and "Item Unit of Measure" - "X"
+        Item.Init;
+        Item."No." := LibraryUtility.GenerateGUID;
+        Item.Insert;
+
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.", UnitOfMeasure.Code, 1);
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+
+        // [WHEN] Set "Sales Unit of Measure" on Item to "Y"
+        asserterror Item.Validate("Sales Unit of Measure", UnitOfMeasure.Code);
+
+        // [THEN] Error message: "The field Sales Unit of Measure of table Item contains a value that cannot be found in the related table"
+        Assert.ExpectedError(StrSubstNo(ItemUOMErr, Item.FieldName("Sales Unit of Measure")));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ErrorWhileSettingPurchUOMOnNotBlankItemByValueFromUnitOfMeasure()
+    var
+        Item: Record Item;
+        UnitOfMeasure: Record "Unit of Measure";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+    begin
+        // [FEATURE] [Purchase] [Unit of Measure]
+        // [SCENARIO] "Purch. Unit of Measure" of Item does not accept "Unit of Measure" that is not in "Item Unit of Measure"
+
+        // [GIVEN] Two Unit of Measures: "X" and "Y"
+        // [GIVEN] Item with not blank "No." and "Item Unit of Measure" - "X"
+        Item.Init;
+        Item."No." := LibraryUtility.GenerateGUID;
+        Item.Insert;
+
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.", UnitOfMeasure.Code, 1);
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+
+        // [WHEN] Set "Purch. Unit of Measure" on Item to "Y"
+        asserterror Item.Validate("Purch. Unit of Measure", UnitOfMeasure.Code);
+
+        // [THEN] Error message: "The field Purch. Unit of Measure of table Item contains a value that cannot be found in the related table"
+        Assert.ExpectedError(StrSubstNo(ItemUOMErr, Item.FieldName("Purch. Unit of Measure")));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PutAwayUOMForBlankItemIsTakenFromUnitOfMeasureTable()
+    var
+        Item: Record Item;
+        UnitOfMeasure: Record "Unit of Measure";
+    begin
+        // [FEATURE] [Item] [Unit of Measure]
+        // [SCENARIO] "Put-away Unit of Measure Code" of Item with blank "No." is taken from Unit of Measure table
+
+        // [GIVEN] Item with blank "No."
+        Item.Init;
+
+        // [GIVEN] "Unit of Measure" - "X"
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+
+        // [WHEN] Set "Put-away Unit of Measure Code" on Item to "X"
+        Item.Validate("Put-away Unit of Measure Code", UnitOfMeasure.Code);
+
+        // [THEN] "Put-away Unit of Measure Code" is "X"
+        Assert.AreEqual(
+          UnitOfMeasure.Code, Item."Put-away Unit of Measure Code", StrSubstNo(UOMErr, Item.FieldName("Put-away Unit of Measure Code")));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PutAwayUOMForNotBlankItemIsTakenFromItemUnitOfMeasureTable()
+    var
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        UnitOfMeasure: Record "Unit of Measure";
+    begin
+        // [FEATURE] [Item] [Unit of Measure]
+        // [SCENARIO] "Put-away Unit of Measure Code" of Item with not blank "No." is taken from Item Unit of Measure table
+
+        // [GIVEN] Item with not blank "No."
+        Item.Init;
+        Item."No." := LibraryUtility.GenerateGUID;
+        Item.Insert;
+
+        // [GIVEN] "Item Unit of Measure" - "X"
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.", UnitOfMeasure.Code, 1);
+
+        // [WHEN] Set "Put-away Unit of Measure Code" on Item to "X"
+        Item.Validate("Put-away Unit of Measure Code", ItemUnitOfMeasure.Code);
+
+        // [THEN] "Put-away Unit of Measure Code" is "X"
+        Assert.AreEqual(
+          UnitOfMeasure.Code, Item."Put-away Unit of Measure Code", StrSubstNo(UOMErr, Item.FieldName("Put-away Unit of Measure Code")));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ErrorWhileSettingPutAwayUOMOnNotBlankItemByValueFromUnitOfMeasure()
+    var
+        Item: Record Item;
+        UnitOfMeasure: Record "Unit of Measure";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+    begin
+        // [FEATURE] [Sales] [Unit of Measure]
+        // [SCENARIO] "Put-away Unit of Measure Code" of Item does not accept "Unit of Measure" that is not in "Item Unit of Measure"
+
+        // [GIVEN] Two Unit of Measures: "X" and "Y"
+        // [GIVEN] Item with not blank "No." and "Item Unit of Measure" - "X"
+        Item.Init;
+        Item."No." := LibraryUtility.GenerateGUID;
+        Item.Insert;
+
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.", UnitOfMeasure.Code, 1);
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+
+        // [WHEN] Set "Put-away Unit of Measure Code" on Item to "Y"
+        asserterror Item.Validate("Put-away Unit of Measure Code", UnitOfMeasure.Code);
+
+        // [THEN] Error message: "The field Put-away Unit of Measure Code of table Item contains a value that cannot be found in the related table"
+        Assert.ExpectedError(StrSubstNo(ItemUOMErr, Item.FieldName("Put-away Unit of Measure Code")));
+    end;
+
+    [Test]
+    [HandlerFunctions('ProductionBOMPageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyProductionBOMFromItemCard()
+    var
+        Item: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ItemCard: TestPage "Item Card";
+    begin
+        // [FEATURE] [Production BOM]
+        // [SCENARIO 371645] Action "Production BOM" on Item Card page should open a BOM page with "No." equal to Item's "Production BOM No."
+
+        // [GIVEN] Production BOM "B" for Item
+        CreateItemAndProductionBOM(Item, ProductionBOMHeader);
+
+        // [WHEN] Open Production BOM page from Item Card
+        LibraryVariableStorage.Enqueue(ProductionBOMHeader."No.");
+        ItemCard.OpenEdit;
+        ItemCard.GotoRecord(Item);
+        ItemCard."Production BOM".Invoke;
+
+        // [THEN] Production BOM page opens with "No." = "B"
+        // Verify Production BOM through "ProductionBOMPageHandler"
+    end;
+
+    [Test]
+    [HandlerFunctions('ProductionBOMPageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyProductionBOMFromItemList()
+    var
+        Item: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ItemList: TestPage "Item List";
+    begin
+        // [FEATURE] [Production BOM]
+        // [SCENARIO 371645] Action "Production BOM" on Item List page should open a BOM page with "No." equal to Item's "Production BOM No."
+
+        // [GIVEN] Production BOM "B" for Item
+        CreateItemAndProductionBOM(Item, ProductionBOMHeader);
+
+        // [WHEN] Open Production BOM page from Item List
+        LibraryVariableStorage.Enqueue(ProductionBOMHeader."No.");
+        ItemList.OpenEdit;
+        ItemList.GotoRecord(Item);
+        ItemList."Production BOM".Invoke;
+
+        // [THEN] Production BOM page opens with "No." = "B"
+        // Verify Production BOM through "ProductionBOMPageHandler"
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemChargeAssignmentSalesOpenPageHandler')]
+    [Scope('OnPrem')]
+    procedure CheckItemChargeAssigmentSalesPageWhenQtyToInvoiceIsBlank()
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Sales Order] [Item Charge Assigment]
+        // [SCENARIO 128475] Item Charge Assigment (Sales) Page should have Qty. to Assign = 0 if appropriate Sales Line has Qty. to Invoice = 0
+        Initialize;
+
+        // [GIVEN] Sales Order for Charge (Item) With "Qty. to Invoice" = 0
+        CreateSalesDocument(
+          SalesLine, SalesLine."Document Type"::Order, CreateCustomer, SalesLine.Type::"Charge (Item)",
+          LibraryInventory.CreateItemChargeNo, LibraryRandom.RandInt(100));
+        SalesLine.Validate("Qty. to Invoice", 0);
+        SalesLine.Modify;
+
+        // [WHEN] Open Item Charge Assigment
+        // [THEN] Item Charge Assigment Page is opened with Qty to Assign = 0
+        SalesLine.ShowItemChargeAssgnt;
+    end;
+
+    [Test]
+    [HandlerFunctions('ProductionJournalPageTypeResourceHandler')]
+    [Scope('OnPrem')]
+    procedure ProductionJournalPageTypeResource()
+    var
+        ProductionOrder: Record "Production Order";
+        ReleasedProductionOrder: TestPage "Released Production Order";
+    begin
+        // [FEATURE] [Production Journal] [UT]
+        // [SCENARIO 377373] Production Journal Page should prohibit type = "Resource"
+        Initialize;
+
+        // [WHEN] Production Journal Page
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, CreateItem, LibraryRandom.RandInt(100));
+
+        ReleasedProductionOrder.OpenEdit;
+        ReleasedProductionOrder.GotoRecord(ProductionOrder);
+        ReleasedProductionOrder.ProdOrderLines.ProductionJournal.Invoke;
+
+        // [WHEN] Set Type on Production Journal Page to "Resource"
+        // Set in ProductionJournalPageTypeResourceHandler
+
+        // [THEN] Error is thrown: "Validation error for Field: Type"
+        // Verify in ProductionJournalPageTypeResourceHandler
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemCreationMessageHandler,ItemSubstitutionPageHandler')]
+    [Scope('OnPrem')]
+    procedure CreateNonStockItemWithSubstitution()
+    var
+        NonstockItem: Record "Nonstock Item";
+        Item: Record Item;
+        ItemSubstitution: Record "Item Substitution";
+        ItemCard: TestPage "Item Card";
+    begin
+        // [FEATURE] [Nonstock Items] [Item Substitution]
+        // [SCENARIO 173306] Unable to save Item Substitutions for Nonstock Items
+        // [GIVEN] User has created a nonstock item and an item to assign to it
+        Initialize;
+        CreateNonStockItem(NonstockItem);
+        LibraryInventory.CreateItem(Item);
+        LibraryVariableStorage.Enqueue(1);
+        LibraryVariableStorage.Enqueue(NonstockItem."Entry No.");
+
+        // [WHEN] User opens Item Substitution Entry for nonstock item and add new
+        ItemCard.OpenEdit;
+        ItemCard.GotoRecord(Item);
+        ItemCard."Substituti&ons".Invoke;
+        ItemCard.Close;
+
+        // [THEN] Item Substitution record is created
+        Assert.IsTrue(FindItemSubstitution(ItemSubstitution.Type::Item, Item."No.",
+            ItemSubstitution."Substitute Type"::"Nonstock Item", NonstockItem."Entry No."), 'Item Substitution not found.');
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemCreationMessageHandler,ItemSubstitutionPageHandler')]
+    [Scope('OnPrem')]
+    procedure CreateItemWithNonstockItemSubstitution()
+    var
+        NonstockItem: Record "Nonstock Item";
+        Item: Record Item;
+        ItemSubstitution: Record "Item Substitution";
+        NonstockItemCard: TestPage "Catalog Item Card";
+    begin
+        // [FEATURE] [Nonstock Items] [Item Substitution]
+        // [SCENARIO 173306] Verify Item Substitutions save for Items
+        // [GIVEN] User has created an item and a nonstock item to assign to it
+        Initialize;
+        CreateNonStockItem(NonstockItem);
+        LibraryInventory.CreateItem(Item);
+        LibraryVariableStorage.Enqueue(0);
+        LibraryVariableStorage.Enqueue(Item."No.");
+
+        // [WHEN] User opens Item Substitution Entry for item and add new
+        NonstockItemCard.OpenEdit;
+        NonstockItemCard.GotoRecord(NonstockItem);
+        NonstockItemCard."Substituti&ons".Invoke;
+        NonstockItemCard.Close;
+
+        // [THEN] Item Substitution record is created
+        Assert.IsTrue(FindItemSubstitution(ItemSubstitution.Type::"Nonstock Item", NonstockItem."Entry No.",
+            ItemSubstitution."Substitute Type"::Item, Item."No."), 'Item Substitution not found.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesPriceWorksheetControlNotVisibleOnPhone()
+    var
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
+        ItemList: TestPage "Item List";
+    begin
+        // [UI]
+        // [SCENARIO 178097] Button to view Sales Price Worksheet page is not visible when run on phone
+        Initialize;
+
+        // [GIVEN] Windows Client is used
+        // [WHEN] Page Item List is opened
+        ItemList.OpenView;
+        ItemList."Sales Price Worksheet".Invoke;
+
+        // [THEN] Button to view Sales Price Worksheet page is visible
+        Assert.IsTrue(
+          ItemList."Sales Price Worksheet".Visible, StrSubstNo(ControlVisibilityErr, true));
+        ItemList.Close;
+
+        // [WHEN] Page Item List is opened from Phone
+        BindSubscription(TestClientTypeSubscriber);
+        TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Phone);
+        ItemList.OpenView;
+        ItemList."Sales Price Worksheet".Invoke;
+
+        // [THEN] Button to view Sales Price Worksheet page is not visible
+        Assert.IsFalse(
+          ItemList."Sales Price Worksheet".Visible, StrSubstNo(ControlVisibilityErr, false));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ItemTurnoverPurchaseQtyDrillDown()
+    var
+        PurchaseLine: Record "Purchase Line";
+        ItemTurnover: TestPage "Item Turnover";
+        ItemLedgerEntries: TestPage "Item Ledger Entries";
+    begin
+        // [FEATURE] [Item Turnover] [Purchases]
+        // [SCENARIO 381630] Item Statistics Turnover page drills down from Purchases (Qty.) to Item ledger entries
+
+        // [GIVEN] Posted Purchase Order Line PL
+        CreateAndPostPurchOrderLine(PurchaseLine);
+
+        // [WHEN] Open Item Turnover Page from Item Card of PL."No.", show postings today, and Drill Down Purchases (Qty.)
+        InvokeItemTurnoverFromItemCard(ItemTurnover, PurchaseLine."No.");
+        ItemTurnover.ItemTurnoverLines.FILTER.SetFilter("Period Start", Format(WorkDate));
+        ItemLedgerEntries.Trap;
+        ItemTurnover.ItemTurnoverLines.PurchasesQty.DrillDown;
+
+        // [THEN] Item Ledger Entries Page is open and field Quantity on this Page is equal to PL.Quantity
+        PurchaseLine.TestField(Quantity, ItemLedgerEntries.Quantity.AsDEcimal);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ItemTurnoverSalseQtyDrillDown()
+    var
+        SalesLine: Record "Sales Line";
+        ItemTurnover: TestPage "Item Turnover";
+        ItemLedgerEntries: TestPage "Item Ledger Entries";
+    begin
+        // [FEATURE] [Item Turnover] [Sales]
+        // [SCENARIO 381630] Item Statistics Turnover page drills down from Sales (Qty.) to Item ledger entries
+
+        // [GIVEN] Posted Sales Order Line SL
+        CreateAndPostSalesOrderLine(SalesLine);
+
+        // [WHEN] Open Item Turnover Page from Item Card of SL."No.", show postings today, and Drill Down Sales (Qty.)
+        InvokeItemTurnoverFromItemCard(ItemTurnover, SalesLine."No.");
+        ItemTurnover.ItemTurnoverLines.FILTER.SetFilter("Period Start", Format(WorkDate));
+        ItemLedgerEntries.Trap;
+        ItemTurnover.ItemTurnoverLines.SalesQty.DrillDown;
+
+        // [THEN] Item Ledger Entries Page is open and the value of the field Quantity is -SL.Quantity
+        SalesLine.TestField(Quantity, -ItemLedgerEntries.Quantity.AsDEcimal);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ItemTurnoverPurchaseAmntDrillDown()
+    var
+        PurchaseLine: Record "Purchase Line";
+        ItemTurnover: TestPage "Item Turnover";
+        ValueEntries: TestPage "Value Entries";
+    begin
+        // [FEATURE] [Item Turnover] [Purchases]
+        // [SCENARIO 381630] Item Statistics Turnover page drills down from Purchases (LCY) to Value entries
+
+        // [GIVEN] Posted Purchase Order Line PL
+        CreateAndPostPurchOrderLine(PurchaseLine);
+
+        // [WHEN] Open Item Turnover Page from Item Card of PL."No.", show postings today, and Drill Down Purchases (LCY)
+        InvokeItemTurnoverFromItemCard(ItemTurnover, PurchaseLine."No.");
+        ItemTurnover.ItemTurnoverLines.FILTER.SetFilter("Period Start", Format(WorkDate));
+        ValueEntries.Trap;
+        ItemTurnover.ItemTurnoverLines.PurchasesLCY.DrillDown;
+
+        // [THEN] Value Entries Page is open and field Purchases (LCY) on this Page is equal to PL.Amount
+        PurchaseLine.TestField(Amount, ValueEntries."Cost Amount (Actual)".AsDEcimal);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ItemTurnoverSalseQtyAmntlDown()
+    var
+        SalesLine: Record "Sales Line";
+        ItemTurnover: TestPage "Item Turnover";
+        ValueEntries: TestPage "Value Entries";
+    begin
+        // [FEATURE] [Item Turnover] [Sales]
+        // [SCENARIO 381630] Item Statistics Turnover page drills down from Sales (LCY) to Value entries
+
+        // [GIVEN] Posted Sales Order Line SL
+        CreateAndPostSalesOrderLine(SalesLine);
+
+        // [WHEN] Open Item Turnover Page from Item Card of SL."No.", show postings today, and Drill Down Sales (LCY)
+        InvokeItemTurnoverFromItemCard(ItemTurnover, SalesLine."No.");
+        ItemTurnover.ItemTurnoverLines.FILTER.SetFilter("Period Start", Format(WorkDate));
+        ValueEntries.Trap;
+        ItemTurnover.ItemTurnoverLines.SalesLCY.DrillDown;
+
+        // [THEN] Value Entries Page is open and field Sales (LCY) on this Page is equal to SL.Amount
+        SalesLine.TestField(Amount, ValueEntries."Sales Amount (Actual)".AsDEcimal);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemSubstitutionEntriesPageHandler')]
+    [Scope('OnPrem')]
+    procedure DefaultDimHeaderOnSubstitute()
+    var
+        ItemSubstitution: Record "Item Substitution";
+        Customer: Record Customer;
+        DimensionValue: Record "Dimension Value";
+        SalesLine: Record "Sales Line";
+        DimensionSetEntry: Record "Dimension Set Entry";
+        ItemSubstMgt: Codeunit "Item Subst.";
+    begin
+        // [FEATURE] [Item Substitution] [Dimension] [Default Dimension] [Sales]
+        // [SCENARIO 231338] Default dimensions from the customer should be set for a sales line when the item is replaced with a substitution
+
+        Initialize;
+
+        LibrarySales.SetStockoutWarning(false);
+
+        // [GIVEN] Item "I" with a substitution item "S"
+        CreateItemWithSubstitution(ItemSubstitution);
+
+        // [GIVEN] Customer "C" with default dimension
+        CreateCustomerWithDefaultDimension(Customer, DimensionValue);
+
+        // [GIVEN] Sales order for the item "I" and customer "C"
+        CreateSalesDocument(
+          SalesLine, SalesLine."Document Type"::Order, Customer."No.", SalesLine.Type::Item, ItemSubstitution."No.",
+          LibraryRandom.RandInt(50));
+
+        // [WHEN] Select the item substitution in the sales line
+        ItemSubstMgt.ItemSubstGet(SalesLine);
+
+        // [THEN] Default dimension value is copied from the customer card
+        DimensionSetEntry.SetRange("Dimension Code", DimensionValue."Dimension Code");
+        DimensionSetEntry.FindFirst;
+        SalesLine.TestField("Dimension Set ID", DimensionSetEntry."Dimension Set ID");
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemSubstitutionEntriesPageHandler')]
+    [Scope('OnPrem')]
+    procedure DefaultDimLineOnSubstitute()
+    var
+        ItemSubstitution: Record "Item Substitution";
+        Customer: Record Customer;
+        Dimension: Record Dimension;
+        DimensionValue: array[3] of Record "Dimension Value";
+        DefaultDimension: Record "Default Dimension";
+        SalesLine: Record "Sales Line";
+        DimensionSetEntry: Record "Dimension Set Entry";
+        ItemSubstMgt: Codeunit "Item Subst.";
+    begin
+        // [FEATURE] [Item Substitution] [Dimension] [Default Dimension] [Sales]
+        // [SCENARIO 231338] Default dimensions from the substitution item should be set for a sales line when the item is replaced with the substitution
+
+        Initialize;
+
+        LibrarySales.SetStockoutWarning(false);
+
+        // [GIVEN] Item "I" with a substitution item "S"
+        CreateItemWithSubstitution(ItemSubstitution);
+
+        // [GIVEN] Customer "C" with default dimension "D1", dimension value "V1"
+        CreateCustomerWithDefaultDimension(Customer, DimensionValue[1]);
+
+        LibraryDimension.CreateDimension(Dimension);
+        LibraryDimension.CreateDimensionValue(DimensionValue[2], Dimension.Code);
+        LibraryDimension.CreateDimensionValue(DimensionValue[3], Dimension.Code);
+
+        // [GIVEN] Item "I" has a default dimension "D2" with value "V2"
+        LibraryDimension.CreateDefaultDimensionItem(
+          DefaultDimension, ItemSubstitution."No.", DimensionValue[2]."Dimension Code", DimensionValue[2].Code);
+        // [GIVEN] Substitution item "S" has a default dimension "D2" with value "V3"
+        LibraryDimension.CreateDefaultDimensionItem(
+          DefaultDimension, ItemSubstitution."Substitute No.", Dimension.Code, DimensionValue[3].Code);
+
+        // [GIVEN] Sales order for the item "I" and customer "C"
+        CreateSalesDocument(
+          SalesLine, SalesLine."Document Type"::Order, Customer."No.", SalesLine.Type::Item, ItemSubstitution."No.",
+          LibraryRandom.RandInt(50));
+
+        // [WHEN] Select the item substitution in the sales line
+        ItemSubstMgt.ItemSubstGet(SalesLine);
+
+        // [THEN] Dimension set in the sales line includes dimension "D1" with value "V1" and dimension "D2" with value "V3"
+        DimensionSetEntry.SetRange("Dimension Code", DimensionValue[3]."Dimension Code");
+        DimensionSetEntry.SetRange("Dimension Value Code", DimensionValue[3].Code);
+        DimensionSetEntry.FindFirst;
+        SalesLine.TestField("Dimension Set ID", DimensionSetEntry."Dimension Set ID");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SaveItemAsTemplateWithLastConfigTemplateHeaderCodeWithoutNumbers()
+    var
+        ConfigTemplateHeader: Record "Config. Template Header";
+        Item: Record Item;
+        TempItemTemplate: Record "Item Template" temporary;
+    begin
+        // [FEATURE] [Item Template]
+        // [SCENARIO 255800] Create Item Template from existing Item when Code in last Item Config. Template Header does not contain numbers
+        Initialize;
+
+        // [GIVEN] Config. Template Header "ZZZZZ"
+        ConfigTemplateHeader.Init;
+        ConfigTemplateHeader.Validate(Code, 'ZZZZZ'); // Last record if sorting by Code
+        ConfigTemplateHeader.Validate("Table ID", 27);
+        ConfigTemplateHeader.Insert(true);
+
+        // [GIVEN] Item "10000"
+        LibraryInventory.CreateItem(Item);
+
+        // [WHEN] Save Item "10000" as Template
+        TempItemTemplate.CreateConfigTemplateFromExistingItem(Item, TempItemTemplate);
+
+        // [THEN] Created new Item Template "Item000001"
+        Assert.RecordIsNotEmpty(TempItemTemplate);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckVATBusPostingGrPriceAvailableOnItemCard()
+    var
+        Item: Record Item;
+        ItemCard: TestPage "Item Card";
+    begin
+        // [FEATURE] [Item Card]
+        // [SCENARIO 255987] "VAT Bus. Posting Gr. (Price)" must be available on Item Card
+        Initialize;
+
+        // [GIVEN] Item
+        LibraryInventory.CreateItem(Item);
+
+        // [WHEN] Item Card is opened for Item
+        ItemCard.OpenEdit;
+        ItemCard.GotoRecord(Item);
+
+        // [THEN] "VAT Bus. Posting Gr. (Price)" is available on Item Card
+        Assert.IsTrue(ItemCard."VAT Bus. Posting Gr. (Price)".Enabled, '"VAT Bus. Posting Gr. (Price)" is not enabled.');
+        Assert.IsTrue(ItemCard."VAT Bus. Posting Gr. (Price)".Visible, '"VAT Bus. Posting Gr. (Price)" is not visible.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckVATBusPostingGrPriceAvailableOnItemCardWithAdvAppArea()
+    var
+        Item: Record Item;
+        ItemCard: TestPage "Item Card";
+    begin
+        // [FEATURE] [Item Card]
+        // [SCENARIO 255987] "VAT Bus. Posting Gr. (Price)" must be available on Item Card with Advanced Application Area
+        Initialize;
+
+        // [GIVEN] Advanced Application Area
+        LibraryApplicationArea.EnablAdvancedSetupForCurrentCompany;
+
+        // [GIVEN] Item
+        LibraryInventory.CreateItem(Item);
+
+        // [WHEN] Item Card is opened for Item
+        ItemCard.OpenEdit;
+        ItemCard.GotoRecord(Item);
+
+        // [THEN] "VAT Bus. Posting Gr. (Price)" is available on Item Card
+        Assert.IsTrue(ItemCard."VAT Bus. Posting Gr. (Price)".Enabled, '"VAT Bus. Posting Gr. (Price)" is not enabled.');
+        Assert.IsTrue(ItemCard."VAT Bus. Posting Gr. (Price)".Visible, '"VAT Bus. Posting Gr. (Price)" is not visible.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckVATBusPostingGrPriceAvailableOnItemCardWithBasicAppArea()
+    var
+        Item: Record Item;
+        ItemCard: TestPage "Item Card";
+    begin
+        // [FEATURE] [Item Card] [Application Area]
+        // [SCENARIO 255987] "VAT Bus. Posting Gr. (Price)" must not be available on Item Card not Advanced Application Area
+        Initialize;
+
+        // [GIVEN] Basic Application Area
+        LibraryApplicationArea.EnableBasicSetup;
+
+        // [GIVEN] Item
+        LibraryInventory.CreateItem(Item);
+
+        // [WHEN] Item Card is opened for Item
+        ItemCard.OpenEdit;
+        ItemCard.GotoRecord(Item);
+
+        // [THEN] "VAT Bus. Posting Gr. (Price)" is available on Item Card
+        asserterror Assert.IsTrue(ItemCard."VAT Bus. Posting Gr. (Price)".Enabled, '"VAT Bus. Posting Gr. (Price)" is not enabled.');
+        Assert.ExpectedError(IsNotFoundOnThePageTxt);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CannotDeleteItemUnitOfMeasureSetAsPutawayUnitOfMeasureOnItemCard()
+    var
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+    begin
+        // [FEATURE] [Item Unit of Measure] [Item] [UT]
+        // [SCENARIO 273614] You cannot delete item unit of measure that is set as "Put-away Unit of Measure Code" on item.
+        Initialize;
+
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", LibraryRandom.RandIntInRange(2, 5));
+
+        Item.Validate("Put-away Unit of Measure Code", ItemUnitOfMeasure.Code);
+        Item.Modify(true);
+
+        asserterror ItemUnitOfMeasure.Delete(true);
+
+        Assert.ExpectedError('You cannot modify item unit of measure');
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure CreateItemFromNonStockItemCopiesItemDiscGroupFromTemplate()
+    var
+        ItemDiscountGroup: Record "Item Discount Group";
+        ItemTemplate: Record "Item Template";
+        NonstockItem: Record "Nonstock Item";
+        Item: Record Item;
+        CatalogItemManagement: Codeunit "Catalog Item Management";
+    begin
+        // [FEATURE] [Nonstock Item] [Item Template] [Item]
+        // [SCENARIO 312851] Item Disc. Group is copied from Template to Item, when Item is created from Nonstock Item which has that Template specified
+        Initialize;
+
+        // [GIVEN] Item Template with Item Disc. Group "A"
+        LibraryERM.CreateItemDiscountGroup(ItemDiscountGroup);
+        LibraryInventory.CreateItemTemplate(ItemTemplate);
+        ItemTemplate.Validate("Item Disc. Group", ItemDiscountGroup.Code);
+        ItemTemplate.Modify(true);
+
+        // [GIVEN] Nonstock Item with Item Template and Vendor Item No. 2100
+        LibraryInventory.CreateNonStockItem(NonstockItem);
+        Item.Get(NonstockItem."Vendor Item No.");
+        Item.Delete;
+        NonstockItem.Validate("Item Template Code", ItemTemplate.Code);
+        NonstockItem.Modify(true);
+
+        // [WHEN] Create Item from Nonstock Item via Catalog Item Management
+        CatalogItemManagement.NonstockAutoItem(NonstockItem);
+
+        // [THEN] Item with No 2100 and Item Disc. Group "A" is created
+        Item.Get(NonstockItem."Vendor Item No.");
+        Item.TestField("Item Disc. Group", ItemTemplate."Item Disc. Group");
+    end;
+
+    local procedure Initialize()
+    var
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+    begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Inventory Basic");
+        ClearGlobals;
+        LibraryVariableStorage.Clear;
+        LibrarySetupStorage.Restore;
+
+        // Lazy Setup.
+        if isInitialized then
+            exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Inventory Basic");
+
+        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateGeneralPostingSetupData;
+        LibraryERMCountryData.UpdateGeneralPostingSetup;
+
+        isInitialized := true;
+        Commit;
+
+        LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Inventory Basic");
+    end;
+
+    local procedure ClearGlobals()
+    begin
+        // Clear Global variables.
+        GlobalItemNo := '';
+        GlobalLotNo := '';
+        GlobalSerialNo := '';
+        GlobalDocumentNo := '';
+        GlobalQuantity := 0;
+        GlobalAmount := 0;
+        GlobalApplToItemEntry := 0;
+        GlobalQtyToAssign := 0;
+        Clear(GlobalLineOption);
+        Clear(GlobalItemChargeAssignment);
+        Clear(GlobalItemTracking);
+    end;
+
+    local procedure CreateAndModifyItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; EntryType: Option; ItemNo: Code[20]; Quantity: Decimal)
+    begin
+        LibraryInventory.CreateItemJournalLine(ItemJournalLine, JournalTemplateName, JournalBatchName, EntryType, ItemNo, Quantity);
+        ModifyItemJnlLine(ItemJournalLine, '', LibraryRandom.RandInt(10));  // Taking Random value for Unit Amount.
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+    end;
+
+    local procedure CreateAndModifyTransferRoute(var TransferRoute: Record "Transfer Route")
+    var
+        Location: Record Location;
+        InTransitLocation: Record Location;
+        ShippingAgent: Record "Shipping Agent";
+        ShippingAgentServices: Record "Shipping Agent Services";
+        ShippingTime: DateFormula;
+    begin
+        LibraryWarehouse.CreateLocation(Location);
+        LibraryWarehouse.CreateInTransitLocation(InTransitLocation);
+        LibraryInventory.CreateShippingAgent(ShippingAgent);
+        Evaluate(ShippingTime, '<' + Format(LibraryRandom.RandInt(5)) + 'D>');  // Use Random value for Shipping Time.
+        LibraryInventory.CreateShippingAgentService(ShippingAgentServices, ShippingAgent.Code, ShippingTime);
+        LibraryWarehouse.CreateAndUpdateTransferRoute(
+          TransferRoute, Location.Code, GetFirstLocation(false), InTransitLocation.Code, ShippingAgent.Code, ShippingAgentServices.Code);
+    end;
+
+    local procedure CreateAndPostItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
+    var
+        ItemJournalBatch: Record "Item Journal Batch";
+    begin
+        SelectAndClearItemJournalBatch(ItemJournalBatch);
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
+          ItemJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, Quantity);
+        ModifyItemJnlLine(ItemJournalLine, LocationCode, LibraryRandom.RandDec(10, 2));  // Using Random value for Unit Amount.
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+    end;
+
+    local procedure CreateAndModifyTrackedItem(): Code[20]
+    var
+        Item: Record Item;
+    begin
+        LibraryInventory.CreateTrackedItem(
+          Item, LibraryUtility.GetGlobalNoSeriesCode, LibraryUtility.GetGlobalNoSeriesCode, CreateItemTrackingCode(true, false));
+        Item.Validate("Costing Method", Item."Costing Method"::Average);
+        Item.Modify(true);
+        exit(Item."No.");
+    end;
+
+    local procedure CreateItem(): Code[20]
+    var
+        Item: Record Item;
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Unit Price", LibraryRandom.RandDec(100, 1));  // Using Random value for Unit Price.
+        Item.Validate("Last Direct Cost", Item."Unit Price");
+        Item.Modify(true);
+        exit(Item."No.");
+    end;
+
+    local procedure CreateItemWithSubstitution(var ItemSubstitution: Record "Item Substitution")
+    var
+        Item: Record Item;
+    begin
+        LibraryInventory.CreateItem(Item);
+        LibraryAssembly.CreateItemSubstitution(ItemSubstitution, Item."No.");
+    end;
+
+    local procedure CreateItemAndProductionBOM(var Item: Record Item; var ProductionBOMHeader: Record "Production BOM Header")
+    begin
+        ProductionBOMHeader."No." := LibraryUtility.GenerateGUID;
+        ProductionBOMHeader.Insert;
+
+        Item."No." := LibraryUtility.GenerateGUID;
+        Item."Production BOM No." := ProductionBOMHeader."No.";
+        Item.Insert;
+    end;
+
+    local procedure CreateAndPostItemJnlLineWithtemTracking(): Code[20]
+    var
+        ItemJournalLine: Record "Item Journal Line";
+        ItemJournalBatch: Record "Item Journal Batch";
+    begin
+        SelectAndClearItemJournalBatch(ItemJournalBatch);
+        CreateItemJnlLineWithTrackedItem(
+          ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, CreateAndModifyTrackedItem);
+        CreateItemJnlLineWithTrackedItem(
+          ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, ItemJournalLine."Item No.");
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+        exit(ItemJournalLine."Item No.");
+    end;
+
+    local procedure CreateItemJnlLineWithTrackedItem(var ItemJournalLine: Record "Item Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; ItemNo: Code[20])
+    begin
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, JournalTemplateName, JournalBatchName, ItemJournalLine."Entry Type"::"Positive Adjmt.", ItemNo,
+          LibraryRandom.RandDec(10, 2));  // Using Random value for Quantity.
+        ModifyItemJnlLine(ItemJournalLine, '', LibraryRandom.RandDec(10, 2));  // Using Random value for Unit Amount.
+        GlobalItemTracking := GlobalItemTracking::AssignLotNo;
+        ItemJournalLine.OpenItemTrackingLines(true);
+    end;
+
+    local procedure CreateItemTrackingCode(LotSpecific: Boolean; SerialSpecific: Boolean): Code[10]
+    var
+        ItemTrackingCode: Record "Item Tracking Code";
+    begin
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, SerialSpecific, LotSpecific);
+        exit(ItemTrackingCode.Code);
+    end;
+
+    local procedure CreateCustomer(): Code[20]
+    var
+        Customer: Record Customer;
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        exit(Customer."No.");
+    end;
+
+    local procedure CreateNonStockItem(var NonstockItem: Record "Nonstock Item")
+    var
+        Vendor: Record Vendor;
+        UnitOfMeasure: Record "Unit of Measure";
+        CatalogItemManagement: Codeunit "Catalog Item Management";
+    begin
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryInventory.CreateNonStock(NonstockItem);
+        NonstockItem.Validate("Vendor No.", Vendor."No.");
+        NonstockItem.Validate(
+          "Vendor Item No.", LibraryUtility.GenerateRandomCode(NonstockItem.FieldNo("Vendor Item No."), DATABASE::"Nonstock Item"));
+        NonstockItem.Validate("Item Template Code", SelectItemTemplateCode);
+        NonstockItem.Validate("Unit of Measure", UnitOfMeasure.Code);
+        NonstockItem.Modify(true);
+        UpdateItemTemplate(NonstockItem."Item Template Code");
+        CatalogItemManagement.NonstockAutoItem(NonstockItem);
+    end;
+
+    local procedure CreateCustomerWithDefaultDimension(var Customer: Record Customer; var DimensionValue: Record "Dimension Value")
+    var
+        DefaultDimension: Record "Default Dimension";
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        LibraryDimension.CreateDimWithDimValue(DimensionValue);
+        LibraryDimension.CreateDefaultDimensionCustomer(
+          DefaultDimension, Customer."No.", DimensionValue."Dimension Code", DimensionValue.Code);
+    end;
+
+    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; BuyFromVendorNo: Code[20]; Type: Option; No: Code[20]; Quantity: Decimal)
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, BuyFromVendorNo);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, No, Quantity);
+        PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
+        PurchaseHeader.Modify(true);
+    end;
+
+    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Option; SellToCustomerNo: Code[20]; Type: Option; No: Code[20]; Quantity: Decimal)
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, SellToCustomerNo);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type, No, Quantity)
+    end;
+
+    local procedure CreateSalesOrderAndAssignItemCharge(var SalesLine2: Record "Sales Line"): Code[20]
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ItemChargeNo: Code[20];
+    begin
+        // Setup.
+        Initialize;
+
+        // Create Sales Order for Charge Item Line.
+        ItemChargeNo := LibraryInventory.CreateItemChargeNo;
+        CreateSalesDocument(
+          SalesLine2, SalesLine2."Document Type"::Order, CreateCustomer, SalesLine.Type::"Charge (Item)",
+          ItemChargeNo, 1);
+        UpdateSalesLineUnitPrice(SalesLine2, LibraryRandom.RandDec(100, 1));  // Using Random value for Unit Price.
+
+        // Create Sales Lines for Item.
+        SalesHeader.Get(SalesHeader."Document Type"::Order, SalesLine2."Document No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));  // Using Random value for Quantity.
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));  // Using Random value for Quantity.
+
+        GlobalItemChargeAssignment := GlobalItemChargeAssignment::AssignmentOnly;
+        GlobalQtyToAssign := 0.5;  // Taken Qty. to Assign as 0.5 to assign equal value on both Item Lines.
+        SalesLine2.ShowItemChargeAssgnt;
+        SalesLine.Validate("Qty. to Ship", 0);  // Set Quantity to Ship 0 for Item Line.
+        SalesLine.Modify(true);
+        exit(ItemChargeNo);
+    end;
+
+    local procedure CreatePurchaseDocumentAndAssignItemCharge(var PurchaseLine: Record "Purchase Line"; var PurchaseLine2: Record "Purchase Line"; DocumentType: Option)
+    var
+        ItemCharge: Record "Item Charge";
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        LibraryInventory.CreateItemCharge(ItemCharge);
+
+        // Create Purchase Order for Item.
+        CreatePurchaseDocument(PurchaseLine, DocumentType, CreateVendor, PurchaseLine.Type::Item, CreateItem,
+          LibraryRandom.RandDec(100, 2)); // Using Random value for Quantity.
+        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+
+        // Create 2nd Purchase Line for Charge Item, assign Item Charge.
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine2, PurchaseHeader, PurchaseLine2.Type::"Charge (Item)", ItemCharge."No.", LibraryRandom.RandInt(10));
+        PurchaseLine2.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 1));
+        PurchaseLine2.Modify(true);
+        PurchaseLine2.ShowItemChargeAssgnt;
+    end;
+
+    local procedure CreateTransferOrder(var TransferHeader: Record "Transfer Header"; LocationCode: Code[10]; ItemNo: Code[20]; Quantity: Decimal)
+    var
+        Location: Record Location;
+        Location2: Record Location;
+        TransferLine: Record "Transfer Line";
+    begin
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        LibraryWarehouse.CreateInTransitLocation(Location2);
+        LibraryWarehouse.CreateTransferHeader(TransferHeader, LocationCode, Location.Code, Location2.Code);
+        LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, ItemNo, Quantity);
+    end;
+
+    local procedure CreateVendor(): Code[20]
+    var
+        Vendor: Record Vendor;
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        exit(Vendor."No.");
+    end;
+
+    local procedure CreateUoM_and_ItemUoM(var UnitOfMeasure: Record "Unit of Measure"; var ItemUnitOfMeasure: Record "Item Unit of Measure"; Item: Record Item)
+    begin
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.", UnitOfMeasure.Code, 1);
+    end;
+
+    local procedure CreateNewUnitOfMeasureCode(): Code[10]
+    var
+        RefUnitOfMeasure: Record "Unit of Measure";
+    begin
+        exit(LibraryUtility.GenerateRandomCode(RefUnitOfMeasure.FieldNo(Code), DATABASE::"Unit of Measure"));
+    end;
+
+    local procedure CreateAndPostPurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; ItemNo: Code[20]; Quantity: Decimal)
+    var
+        Vendor: Record Vendor;
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        CreatePurchaseDocument(PurchaseLine, DocumentType, Vendor."No.", PurchaseLine.Type::Item, ItemNo, Quantity);
+        PostPurchaseOrder(PurchaseLine."Document Type", PurchaseLine."Document No.", true);
+    end;
+
+    local procedure CreateItemChargeAndAssignToReturnShipment(var PurchaseLine2: Record "Purchase Line"; PurchaseLine: Record "Purchase Line"; DocumentType: Option)
+    var
+        ItemCharge: Record "Item Charge";
+        ReturnShipmentLine: Record "Return Shipment Line";
+        ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
+    begin
+        FindReturnShipmentLine(ReturnShipmentLine, PurchaseLine."Document No.", PurchaseLine."No.");
+        LibraryInventory.CreateItemCharge(ItemCharge);
+        CreatePurchaseDocument(
+          PurchaseLine2, DocumentType, PurchaseLine."Buy-from Vendor No.", PurchaseLine2.Type::"Charge (Item)",
+          ItemCharge."No.", LibraryRandom.RandDec(10, 2));
+        PurchaseLine2.Validate("Direct Unit Cost", LibraryRandom.RandDec(20, 2));
+        PurchaseLine2.Modify(true);
+        LibraryInventory.CreateItemChargeAssignPurchase(
+          ItemChargeAssignmentPurch, PurchaseLine2, ItemChargeAssignmentPurch."Applies-to Doc. Type"::"Return Shipment",
+          ReturnShipmentLine."Document No.", ReturnShipmentLine."Line No.", ReturnShipmentLine."No.");
+    end;
+
+    local procedure DeleteSalesLine(DocumentNo: Code[20])
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
+        SalesLine.SetRange("Document No.", DocumentNo);
+        SalesLine.FindLast;
+        SalesLine.Delete(true);
+    end;
+
+    local procedure FindItemLedgerEntry(DocumentNo: Code[20]): Integer
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Purchase);
+        ItemLedgerEntry.SetRange("Document No.", DocumentNo);
+        ItemLedgerEntry.FindFirst;
+        exit(ItemLedgerEntry."Entry No.");
+    end;
+
+    local procedure FindReturnShipmentLine(var ReturnShipmentLine: Record "Return Shipment Line"; ReturnOrderNo: Code[20]; ItemNo: Code[20])
+    begin
+        ReturnShipmentLine.SetRange("Return Order No.", ReturnOrderNo);
+        ReturnShipmentLine.SetRange("No.", ItemNo);
+        ReturnShipmentLine.FindFirst;
+    end;
+
+    local procedure GetFirstLocation(UseAsInTransit: Boolean): Code[10]
+    var
+        Location: Record Location;
+    begin
+        // Make sure this location will be the first to be retrieved in a matrix page, alphabetically.
+        if not Location.Get('A') then begin
+            Location.Init;
+            Location.Validate(Code, 'A');
+            Location.Validate(Name, 'A');
+            Location.Insert(true);
+            LibraryInventory.UpdateInventoryPostingSetup(Location);
+        end;
+
+        Location.Validate("Use As In-Transit", UseAsInTransit);
+        Location.Modify(true);
+
+        exit(Location.Code);
+    end;
+
+    local procedure ModifyItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; LocationCode: Code[10]; UnitAmount: Decimal)
+    var
+        Location: Record Location;
+        Bin: Record Bin;
+    begin
+        ItemJournalLine.Validate("Unit Amount", UnitAmount);
+        ItemJournalLine.Validate("Location Code", LocationCode);
+        if Location.Get(LocationCode) then
+            if Location."Bin Mandatory" then begin
+                Bin.SetRange("Location Code", LocationCode);
+                Bin.FindFirst;
+                ItemJournalLine.Validate("Bin Code", Bin.Code);
+            end;
+        ItemJournalLine.Modify(true);
+    end;
+
+    local procedure OpenItemStatisticsPage(No: Code[20])
+    var
+        ItemCard: TestPage "Item Card";
+    begin
+        ItemCard.OpenEdit;
+        ItemCard.FILTER.SetFilter("No.", No);
+        ItemCard.Statistics.Invoke;
+    end;
+
+    local procedure VerifyTransferRoutesMatrixCellValue(Show: Option; LocationCode: Code[10]; MatrixCellValue: Code[10])
+    var
+        TransferRoutes: TestPage "Transfer Routes";
+    begin
+        TransferRoutes.OpenView;
+        TransferRoutes.Show.SetValue(Show);
+        TransferRoutes.MatrixForm.FILTER.SetFilter(Code, LocationCode);
+        TransferRoutes.MatrixForm.Field1.AssertEquals(MatrixCellValue);
+    end;
+
+    local procedure PostPurchaseOrder(DocumentType: Option; No: Code[20]; Invoice: Boolean): Code[20]
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        PurchaseHeader.Get(DocumentType, No);
+        exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, Invoice));
+    end;
+
+    local procedure PostSalesOrder(DocumentType: Option; No: Code[20]; Invoice: Boolean): Code[20]
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        SalesHeader.Get(DocumentType, No);
+        exit(LibrarySales.PostSalesDocument(SalesHeader, true, Invoice));
+    end;
+
+    local procedure CreateAndPostPurchOrderLine(var PurchaseLine: Record "Purchase Line")
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo,
+          LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100), '', WorkDate);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(10, 20, 2));
+        PurchaseLine.Modify(true);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+    end;
+
+    local procedure CreateAndPostSalesOrderLine(var SalesLine: Record "Sales Line")
+    var
+        PurchaseLine: Record "Purchase Line";
+        SalesHeader: Record "Sales Header";
+    begin
+        CreateAndPostPurchOrderLine(PurchaseLine);
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo,
+          PurchaseLine."No.", LibraryRandom.RandInt(PurchaseLine.Quantity), '', WorkDate);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(20, 40, 2));
+        SalesLine.Modify(true);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+    end;
+
+    local procedure InvokeItemTurnoverFromItemCard(var ItemTurnover: TestPage "Item Turnover"; ItemNo: Code[20])
+    var
+        ItemCard: TestPage "Item Card";
+    begin
+        ItemTurnover.Trap;
+        ItemCard.OpenView;
+        ItemCard.FILTER.SetFilter("No.", ItemNo);
+        ItemCard."T&urnover".Invoke;
+        Assert.AreEqual('Day', ItemTurnover.PeriodType.Value, 'View by Day');
+    end;
+
+    local procedure SelectItemTemplateCode(): Code[10]
+    var
+        ItemTemplate: Record "Item Template";
+    begin
+        ItemTemplate.SetFilter("Costing Method", '<>%1', ItemTemplate."Costing Method"::Specific);
+        if ItemTemplate.FindFirst then
+            exit(ItemTemplate.Code);
+        LibraryInventory.CreateItemTemplate(ItemTemplate);
+        exit(ItemTemplate.Code);
+    end;
+
+    local procedure SelectAndClearItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch")
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+    begin
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalBatch."Template Type"::Item, ItemJournalTemplate.Name);
+        LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
+    end;
+
+    local procedure UpdateItemTemplate(ItemTemplateCode: Code[10])
+    var
+        ItemTemplate: Record "Item Template";
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+    begin
+        ItemTemplate.SetRange(Code, ItemTemplateCode);
+        ItemTemplate.FindFirst;
+        ItemTemplate.Validate("Costing Method", ItemTemplate."Costing Method"::Specific);
+        if ItemTemplate."VAT Prod. Posting Group" = '' then begin
+            VATProductPostingGroup.FindFirst;
+            ItemTemplate.Validate("VAT Prod. Posting Group", VATProductPostingGroup.Code);  // Updating Default VAT Prod. Posting Group to fix failure in CA.
+        end;
+        ItemTemplate.Modify(true);
+    end;
+
+    [Normal]
+    local procedure UpdateVatProdCodeInItemTemplate(ItemTemplateCode: Code[10])
+    var
+        ItemTemplate: Record "Item Template";
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+    begin
+        ItemTemplate.SetRange(Code, ItemTemplateCode);
+        ItemTemplate.FindFirst;
+        VATProductPostingGroup.SetFilter(Code, '<>%1', ItemTemplate."VAT Prod. Posting Group");
+        VATProductPostingGroup.FindFirst;
+        ItemTemplate.Validate("VAT Prod. Posting Group", VATProductPostingGroup.Code);
+        ItemTemplate.Modify;
+    end;
+
+    local procedure UpdateSalesLineUnitPrice(var SalesLine: Record "Sales Line"; UnitPrice: Decimal)
+    begin
+        SalesLine.Validate("Unit Price", UnitPrice);
+        SalesLine.Modify(true);
+    end;
+
+    local procedure VerifyUnitCostOnItemAfterAdjustment(ItemNo: Code[20])
+    var
+        Item: Record Item;
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        TotalQuantity: Decimal;
+        TotalCost: Decimal;
+    begin
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.FindSet;
+        repeat
+            ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
+            TotalQuantity += ItemLedgerEntry.Quantity;
+            TotalCost += ItemLedgerEntry."Cost Amount (Actual)";
+        until ItemLedgerEntry.Next = 0;
+
+        Item.Get(ItemNo);
+        Assert.AreNearlyEqual(TotalCost / TotalQuantity, Item."Unit Cost", LibraryERM.GetAmountRoundingPrecision, UnitCostErr);
+    end;
+
+    local procedure VerifyAdjustmentCostAmount(ValueEntry: Record "Value Entry"; ItemNo: Code[20]; EntryType: Option; Adjustment: Boolean; CostAmountActual: Decimal)
+    begin
+        ValueEntry.SetRange("Item No.", ItemNo);
+        ValueEntry.SetRange("Item Ledger Entry Type", EntryType);
+        ValueEntry.SetRange(Adjustment, Adjustment);
+        ValueEntry.TestField("Cost Amount (Actual)", CostAmountActual);
+    end;
+
+    local procedure VerifyBaseUnitOfMeasure(Item: Record Item; BaseUnitOfMeasureCode: Code[10])
+    begin
+        Item.TestField("Base Unit of Measure", BaseUnitOfMeasureCode);
+    end;
+
+    local procedure VerifyNonInvtblCostsAndProfitOnItemStatistics(ItemNo: Code[20]; CostAmount: Decimal; ProfitAmount: Decimal)
+    var
+        ItemStatisticsBuffer: Record "Item Statistics Buffer";
+    begin
+        GlobalLineOption := ItemStatisticsBuffer."Line Option"::"Profit Calculation"; // Using global variable to assing Line Option in Item Statistics Page.
+
+        // Find the 3rd line (Non-Invtbl. Costs (LCY)) in ItemStatisticsMatrixPage, verify the total amount in ItemStatisticsMatrixPageHandlerForSpecificLine.
+        VerifyAmountOnItemStatisticsLine(ItemNo, 3, CostAmount);
+
+        // Find the 4th line (Profit (LCY)) in ItemStatisticsMatrixPage, verify the total amount in ItemStatisticsMatrixPageHandlerForSpecificLine.
+        VerifyAmountOnItemStatisticsLine(ItemNo, 4, ProfitAmount);
+    end;
+
+    local procedure VerifyAmountOnItemStatisticsLine(ItemNo: Code[20]; LineNo: Integer; Amount: Decimal)
+    begin
+        GlobalAmount := Amount;
+        LibraryVariableStorage.Enqueue(LineNo);
+        OpenItemStatisticsPage(ItemNo);
+    end;
+
+    local procedure VerifyBaseUnitOfMeasureSetAndItemUnitOfMeasureInserted(Item: Record Item; ExpectedBaseUnitOfMeasure: Record "Unit of Measure"; ExpectedUnitsOfMeasureCount: Integer)
+    var
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+    begin
+        ItemUnitOfMeasure.SetFilter("Item No.", Item."No.");
+        Assert.AreEqual(ExpectedUnitsOfMeasureCount, ItemUnitOfMeasure.Count, 'Wrong number of Units of measure was found on the item');
+        ItemUnitOfMeasure.SetFilter(Code, ExpectedBaseUnitOfMeasure.Code);
+
+        Assert.IsTrue(ItemUnitOfMeasure.FindFirst, 'Cannot get Item unit of measure for specified code');
+        Assert.AreEqual(1, ItemUnitOfMeasure."Qty. per Unit of Measure", 'Qty. per Unit of Measure should be set to 1');
+        Assert.AreEqual(Item."Base Unit of Measure", ItemUnitOfMeasure.Code, 'Base unit of measure was not set by validate');
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure EnterQuantitytoCreatePageHandler(var EnterQuantitytoCreate: TestPage "Enter Quantity to Create")
+    begin
+        EnterQuantitytoCreate.OK.Invoke;
+    end;
+
+    local procedure InventoryPostingSetupExists(LocationCode: Code[10]; InvPostingGroupCode: Code[20]): Boolean
+    var
+        InventoryPostingSetup: Record "Inventory Posting Setup";
+    begin
+        with InventoryPostingSetup do begin
+            SetRange("Location Code", LocationCode);
+            SetRange("Invt. Posting Group Code", InvPostingGroupCode);
+            if not FindFirst then
+                exit(false);
+
+            exit("Inventory Account" <> '');
+        end;
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure ItemAvailabilityByPeriodsPageHandler(var ItemAvailabilityByPeriods: TestPage "Item Availability by Periods")
+    begin
+        ItemAvailabilityByPeriods.ItemAvailLines.FILTER.SetFilter("Period Start", Format(WorkDate));
+        ItemAvailabilityByPeriods.ItemAvailLines.ProjAvailableBalance.AssertEquals(GlobalQuantity);
+        ItemAvailabilityByPeriods.OK.Invoke;
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure ItemCreationMessageHandler(Message: Text[1024])
+    begin
+        Assert.IsTrue(StrPos(Message, StrSubstNo(ItemCreatedMsg, GlobalItemNo)) = 0, Message);
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandler(Message: Text[1024])
+    begin
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemChargeAssignmentPurchPageHandler(var ItemChargeAssignmentPurch: TestPage "Item Charge Assignment (Purch)")
+    begin
+        ItemChargeAssignmentPurch.GetReceiptLines.Invoke;
+        ItemChargeAssignmentPurch."Qty. to Assign".SetValue(1);  // Added Qty. to Assign as 1 for Item Charge.
+        ItemChargeAssignmentPurch.RemAmountToAssign.SetValue(0);
+        ItemChargeAssignmentPurch.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemChargeAssignmentSalesPageHandler(var ItemChargeAssignmentSales: TestPage "Item Charge Assignment (Sales)")
+    begin
+        case GlobalItemChargeAssignment of
+            GlobalItemChargeAssignment::AssignmentOnly:
+                begin
+                    ItemChargeAssignmentSales.First;
+                    repeat
+                        ItemChargeAssignmentSales."Qty. to Assign".SetValue(GlobalQtyToAssign);
+                    until not ItemChargeAssignmentSales.Next;
+                end;
+            GlobalItemChargeAssignment::GetShipmentLine:
+                begin
+                    ItemChargeAssignmentSales.GetShipmentLines.Invoke;
+                    ItemChargeAssignmentSales."Qty. to Assign".SetValue(1);  // Added Qty. to Assign as 1 for Item Charge.
+                    ItemChargeAssignmentSales.RemAmountToAssign.SetValue(0);
+                end;
+        end;
+        ItemChargeAssignmentSales.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemChargeAssignmentSalesOpenPageHandler(var ItemChargeAssignmentSales: TestPage "Item Charge Assignment (Sales)")
+    begin
+        ItemChargeAssignmentSales."Qty. to Assign".AssertEquals(0);
+        ItemChargeAssignmentSales.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemTrackingPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    begin
+        case GlobalItemTracking of
+            GlobalItemTracking::AssignLotNo:
+                begin
+                    ItemTrackingLines."Assign Lot No.".Invoke;  // Assign Lot No.
+                    GlobalLotNo := ItemTrackingLines."Lot No.".Value;
+                end;
+            GlobalItemTracking::AssignSerialNo:
+                begin
+                    ItemTrackingLines."Assign Serial No.".Invoke;  // Assign Serial No.
+                    GlobalSerialNo := ItemTrackingLines."Serial No.".Value;
+                end;
+            GlobalItemTracking::SelectEntries:
+                begin
+                    ItemTrackingLines."Select Entries".Invoke;  // Item Tracking Summary Page is handled in 'ItemTrackingSummaryPageHandler'.
+                    ItemTrackingLines."Appl.-to Item Entry".SetValue(GlobalApplToItemEntry);
+                end;
+            GlobalItemTracking::SetValue:
+                begin
+                    ItemTrackingLines."Lot No.".SetValue(GlobalLotNo);
+                    ItemTrackingLines."Serial No.".SetValue(GlobalSerialNo);
+                    ItemTrackingLines."Quantity (Base)".SetValue(GlobalPurchasedQuantity);
+                end;
+        end;
+
+        ItemTrackingLines.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemTrackingSummaryPageHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
+    begin
+        ItemTrackingSummary.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemStatisticsPageHandler(var ItemStatistics: TestPage "Item Statistics")
+    var
+        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
+    begin
+        ItemStatistics.ShowAsLines.SetValue(GlobalLineOption);
+        ItemStatistics.ViewBy.SetValue(PeriodType::Day);
+        ItemStatistics.ShowMatrix.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemStatisticsMatrixPageHandler(var ItemStatisticsMatrix: TestPage "Item Statistics Matrix")
+    begin
+        ItemStatisticsMatrix.Amount.AssertEquals(GlobalAmount);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemStatisticsMatrixPageHandlerForSpecificLine(var ItemStatisticsMatrix: TestPage "Item Statistics Matrix")
+    var
+        VarCount: Variant;
+        "Count": Integer;
+    begin
+        LibraryVariableStorage.Dequeue(VarCount);
+        Count := VarCount;
+        while Count > 1 do begin
+            ItemStatisticsMatrix.Next;
+            Count := Count - 1;
+        end;
+        ItemStatisticsMatrix.Amount.AssertEquals(GlobalAmount);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PurchReceiptLinePageHandler(var PurchReceiptLines: TestPage "Purch. Receipt Lines")
+    begin
+        PurchReceiptLines.FILTER.SetFilter("Document No.", GlobalDocumentNo);
+        PurchReceiptLines.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SalesShipmentLinePageHandler(var SalesShipmentLines: TestPage "Sales Shipment Lines")
+    begin
+        SalesShipmentLines.FILTER.SetFilter("Document No.", GlobalDocumentNo);
+        SalesShipmentLines.OK.Invoke;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandler(ConfirmMessage: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure ProductionBOMPageHandler(var ProductionBOM: TestPage "Production BOM")
+    begin
+        ProductionBOM."No.".AssertEquals(LibraryVariableStorage.DequeueText);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ProductionJournalPageTypeResourceHandler(var ProductionJournal: TestPage "Production Journal")
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        asserterror ProductionJournal.Type.SetValue(ItemJournalLine.Type::Resource);
+        Assert.ExpectedError(TypeValidationErr);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SelectItemTemplateHandler(var ConfigTemplates: TestPage "Config Templates")
+    begin
+        ConfigTemplates.GotoKey(LibraryVariableStorage.DequeueText);
+        ConfigTemplates.OK.Invoke;
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure ItemSubstitutionPageHandler(var ItemSubstitutionEntry: TestPage "Item Substitution Entry")
+    begin
+        ItemSubstitutionEntry."Substitute Type".SetValue(LibraryVariableStorage.DequeueInteger);
+        ItemSubstitutionEntry."Substitute No.".SetValue(LibraryVariableStorage.DequeueText);
+        ItemSubstitutionEntry.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemSubstitutionEntriesPageHandler(var ItemSubstitutionEntries: TestPage "Item Substitution Entries")
+    begin
+        ItemSubstitutionEntries.OK.Invoke;
+    end;
+
+    [Scope('OnPrem')]
+    procedure FindItemSubstitution(Type: Option; No: Code[20]; SubstituteType: Option; SubstituteNo: Code[20]): Boolean
+    var
+        ItemSubstitution: Record "Item Substitution";
+    begin
+        exit(ItemSubstitution.Get(Type, No, '', SubstituteType, SubstituteNo));
+    end;
+}
+

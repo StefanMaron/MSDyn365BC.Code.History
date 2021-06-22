@@ -1,0 +1,978 @@
+codeunit 137617 "Production & Assembly Costing"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    trigger OnRun()
+    begin
+        // [FEATURE] [Adjust Cost Item Entries] [Rounding]
+    end;
+
+    var
+        LibraryInventory: Codeunit "Library - Inventory";
+        LibraryWarehouse: Codeunit "Library - Warehouse";
+        LibraryAssembly: Codeunit "Library - Assembly";
+        LibraryManufacturing: Codeunit "Library - Manufacturing";
+        LibraryCosting: Codeunit "Library - Costing";
+        LibraryRandom: Codeunit "Library - Random";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        isInitialized: Boolean;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TransferRoundingAfterChangingAvgCostCalcType()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        ItemJournalLine: Record "Item Journal Line";
+        ItemJournalBatch: Record "Item Journal Batch";
+        InventorySetup: Record "Inventory Setup";
+    begin
+        // [SCENARIO 359395] Cost adjustment of transfers of an average-cost item after changing cost calculation type from "Item" to "Item & Location & Variant"
+        Initialize;
+
+        // [GIVEN] Set average cost calculation type = Item
+        SetAverageCostSetup(InventorySetup."Average Cost Calc. Type"::Item);
+
+        // [GIVEN] Item "I" with Average costing method
+        CreateItem(Item, LibraryRandom.RandDec(10000, 5), Item."Costing Method"::Average);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Post purchase and partial sale of item "I" on location "L1"
+        PostPurchaseAndSaleItemJnlLines(Item."No.");
+
+        // [GIVEN] Transfer remaining quantity of item "I" to location "L2"
+        SelectTransferJournalBatch(ItemJournalBatch);
+        CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, ItemJournalLine."Entry Type"::Transfer, Item."No.", 3 * 3.71, WorkDate);
+        ItemJournalLine.Validate("New Location Code", Location.Code);
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
+
+        // [GIVEN] Run "Adjust cost - item entries" batch job
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+        VerifyInvtIsZero(Item."No.");
+
+        // [GIVEN] Set average cost calculation type = Item & Location & Variant
+        SetAverageCostSetup(InventorySetup."Average Cost Calc. Type"::"Item & Location & Variant");
+
+        // [WHEN] Run "Adjust cost - item entries" batch job
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+
+        // [THEN] Inventory cost amount is 0
+        VerifyInvtIsZero(Item."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesReturnRoundingAfterChangingAvgCostCalcType()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemLedgEntry: Record "Item Ledger Entry";
+        InventorySetup: Record "Inventory Setup";
+    begin
+        // [SCENARIO 359395] Cost adjustment of average-costed sales returns after changing cost calculation type from "Item" to "Item & Location & Variant"
+        Initialize;
+
+        // [GIVEN] Set average cost calculation type = Item
+        SetAverageCostSetup(InventorySetup."Average Cost Calc. Type"::Item);
+
+        // [GIVEN] Item "I" with "Average" costing method
+        CreateItem(Item, LibraryRandom.RandDec(10000, 5), Item."Costing Method"::Average);
+
+        // [GIVEN] Post purchase and sales entries for item "I" without fixed cost application
+        PostPurchaseAndSaleItemJnlLines(Item."No.");
+
+        SelectItemJournalBatch(ItemJournalBatch);
+        CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, Item."No.", 3 * 3.71, WorkDate);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Post partial sales return with cost application
+        ItemLedgEntry.FindLast;
+        CreateItemJournalLineWithAppliesFrom(
+          ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, Item."No.", -3 * 3.71, '', ItemLedgEntry."Entry No.", WorkDate);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Run "Adjust cost - item entries" batch job
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+        VerifyInvtIsZero(Item."No.");
+
+        // [GIVEN] Set average cost calculation type = Item & Location & Variant
+        SetAverageCostSetup(InventorySetup."Average Cost Calc. Type"::"Item & Location & Variant");
+
+        // [WHEN] Run "Adjust cost - item entries" batch job
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+
+        // [THEN] Inventory cost amount is 0
+        VerifyInvtIsZero(Item."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesReturnPostingOnDifferentDates()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemLedgEntry: Record "Item Ledger Entry";
+        InventorySetup: Record "Inventory Setup";
+        I: Integer;
+        PostingDate: Date;
+    begin
+        // [SCENARIO 359395] Cost adjustment of average-costed sales returns on different dates after changing cost calculation type from "Item" to "Item & Location & Variant"
+        Initialize;
+
+        // [GIVEN] Set average cost calculation type = Item
+        SetAverageCostSetup(InventorySetup."Average Cost Calc. Type"::Item);
+
+        // [GIVEN] Item "I" with "Average" costing method
+        CreateItem(Item, LibraryRandom.RandDec(10000, 5), Item."Costing Method"::Average);
+
+        // [GIVEN] Post purchase and partial sale for item "I" without fixed cost application
+        PostManyPurchasesAndSalesNoApplication(Item."No.");
+
+        // [GIVEN] Sale remaining quantity of item "I" and undo sale with cost application on different date
+        PostingDate := WorkDate;
+        SelectItemJournalBatch(ItemJournalBatch);
+        for I := 1 to 9 do begin
+            CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, Item."No.", 3.71, PostingDate);
+            LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+            ItemLedgEntry.FindLast;
+            PostingDate := PostingDate + 1;
+            CreateItemJournalLineWithAppliesFrom(
+              ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, Item."No.", -3.71, '', ItemLedgEntry."Entry No.", PostingDate);
+            LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+        end;
+
+        // [GIVEN] Adjust cost
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+        VerifyInvtIsZero(Item."No.");
+
+        // [GIVEN] Set average cost calculation type = Item & Location & Variant
+        SetAverageCostSetup(InventorySetup."Average Cost Calc. Type"::"Item & Location & Variant");
+
+        // [WHEN] Run "Adjust cost - item entries" batch job
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+
+        // [THEN] Inventory cost amount is 0
+        VerifyInvtIsZero(Item."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TransfersAndAppliedSalesAfterChangingAvgCostCalcType()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        ItemJournalLine: Record "Item Journal Line";
+        ItemJournalBatch: Record "Item Journal Batch";
+        InventorySetup: Record "Inventory Setup";
+        I: Integer;
+    begin
+        // [SCENARIO 359395] Cost adjustment of average-costed item with sales and transfers posted without fixed application after changing cost calculation type from "Item" to "Item & Location & Variant"
+        Initialize;
+
+        // [GIVEN] Set average cost calculation type = Item
+        SetAverageCostSetup(InventorySetup."Average Cost Calc. Type"::Item);
+
+        // [GIVEN] Item "I" with "Average" costing method
+        CreateItem(Item, LibraryRandom.RandDec(10000, 5), Item."Costing Method"::Average);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Post purchase and partial sale for item "I" without fixed cost application
+        PostManyPurchasesAndSalesNoApplication(Item."No.");
+
+        // [GIVEN] Transfer remaining quantity to another location
+        SelectTransferJournalBatch(ItemJournalBatch);
+        for I := 1 to 9 do begin
+            CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, ItemJournalLine."Entry Type"::Transfer, Item."No.", 3.71, WorkDate);
+            ItemJournalLine.Validate("New Location Code", Location.Code);
+            ItemJournalLine.Modify(true);
+        end;
+        LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
+
+        // [GIVEN] Adjust cost
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+        VerifyInvtIsZero(Item."No.");
+
+        // [GIVEN] Set average cost calculation type = Item & Location & Variant
+        SetAverageCostSetup(InventorySetup."Average Cost Calc. Type"::"Item & Location & Variant");
+
+        // [WHEN] Run "Adjust cost - item entries" batch job
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+
+        // [THEN] Inventory cost amount is 0
+        VerifyInvtIsZero(Item."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesReturnRoundingWithFixedCostApplication()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemLedgEntry: Record "Item Ledger Entry";
+        InventorySetup: Record "Inventory Setup";
+        i: Integer;
+    begin
+        // [SCENARIO 359395] Cost adjustment of average-costed item with sales and returns posted with fixed application after changing cost calculation type from "Item" to "Item & Location & Variant"
+        Initialize;
+
+        // [GIVEN] Set average cost calculation type = Item
+        SetAverageCostSetup(InventorySetup."Average Cost Calc. Type"::Item);
+        // [GIVEN] Item "I" with "Average" costing method
+        CreateItem(Item, LibraryRandom.RandDec(10000, 5), Item."Costing Method"::Average);
+        // [GIVEN] Post purchase and partial sale for item "I" without fixed cost application
+        PostManyPurchasesAndSalesNoApplication(Item."No.");
+
+        // [GIVEN] Sale remaining quantity of item "I" and undo sale with cost application on the same date
+        SelectItemJournalBatch(ItemJournalBatch);
+        for i := 1 to 9 do begin
+            CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, Item."No.", 3.71, WorkDate);
+            LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+            ItemLedgEntry.FindLast;
+
+            Initialize;
+            CreateItemJournalLineWithAppliesFrom(
+              ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, Item."No.", -3.71, '', ItemLedgEntry."Entry No.", WorkDate);
+            LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+        end;
+
+        // [GIVEN] Adjust cost
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+        VerifyInvtIsZero(Item."No.");
+
+        // [GIVEN] Set average cost calculation type = Item & Location & Variant
+        SetAverageCostSetup(InventorySetup."Average Cost Calc. Type"::"Item & Location & Variant");
+
+        // [WHEN] Run "Adjust cost - item entries" batch job
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+
+        // [THEN] Inventory cost amount is 0
+        VerifyInvtIsZero(Item."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TransfersAndAppliedSales()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        ItemJnlLine: Record "Item Journal Line";
+        ItemJnlBatch: Record "Item Journal Batch";
+        ItemLedgEntry: Record "Item Ledger Entry";
+        InventorySetup: Record "Inventory Setup";
+        FromEntryTo: Integer;
+        I: Integer;
+    begin
+        // [SCENARIO 359395] Cost adjustment of an average-costed item transferred with fixed cost application
+        Initialize;
+
+        // [GIVEN] Set average cost calculation type = Item
+        SetAverageCostSetup(InventorySetup."Average Cost Calc. Type"::Item);
+
+        // [GIVEN] Item "I" with "Average" costing method
+        CreateItem(Item, 0, Item."Costing Method"::Average);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Post purchase entries for item "I" on location "L1"
+        SelectItemJournalBatch(ItemJnlBatch);
+        for I := 1 to 6 do
+            CreateItemJournalLineWithUnitCost(ItemJnlBatch, ItemJnlLine."Entry Type"::Purchase, Item."No.", 2.44, 6710, WorkDate);
+        CreateItemJournalLineWithUnitCost(ItemJnlBatch, ItemJnlLine."Entry Type"::Purchase, Item."No.", 1.63, 6710, WorkDate);
+
+        LibraryInventory.PostItemJournalBatch(ItemJnlBatch);
+        ItemLedgEntry.FindLast;
+        FromEntryTo := ItemLedgEntry."Entry No.";
+        FromEntryTo -= 2;
+
+        // [GIVEN] Transfer item "I" from location "L1" to locatin "L2", then sale from "L2" with cost application
+        SelectTransferJournalBatch(ItemJnlBatch);
+        for I := 1 to 4 do begin
+            CreateItemJournalLine(ItemJnlLine, ItemJnlBatch, ItemJnlLine."Entry Type"::Transfer, Item."No.", 2.44, WorkDate);
+            ItemJnlLine.Validate("New Location Code", Location.Code);
+            ItemJnlLine.Modify(true);
+            LibraryInventory.PostItemJournalBatch(ItemJnlBatch);
+
+            ItemLedgEntry.FindLast;
+
+            CreateItemJournalLineWithAppliesTo(
+              ItemJnlBatch, ItemJnlLine."Entry Type"::Sale, Item."No.", 2.44, Location.Code, ItemLedgEntry."Entry No.", WorkDate);
+
+            LibraryInventory.PostItemJournalLine(ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name");
+        end;
+
+        // [GIVEN] Sell remaining quantity from locaiton "L1", post with cost application
+        SelectItemJournalBatch(ItemJnlBatch);
+        CreateItemJournalLineWithAppliesTo(ItemJnlBatch, ItemJnlLine."Entry Type"::Sale, Item."No.", 2.44, '', FromEntryTo, WorkDate);
+        CreateItemJournalLineWithAppliesTo(ItemJnlBatch, ItemJnlLine."Entry Type"::Sale, Item."No.", 2.44, '', FromEntryTo + 1, WorkDate);
+        CreateItemJournalLineWithAppliesTo(ItemJnlBatch, ItemJnlLine."Entry Type"::Sale, Item."No.", 1.63, '', FromEntryTo + 2, WorkDate);
+
+        LibraryInventory.PostItemJournalBatch(ItemJnlBatch);
+
+        // [WHEN] Run "Adjust cost - item entries" batch job
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+
+        // [THEN] Actual cost amount of item "I" is 0
+        VerifyZeroActualCostRemains(Item."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesReturnWithFixedApplication()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        ItemJournalLine: Record "Item Journal Line";
+        ItemLedgEntry: Record "Item Ledger Entry";
+        ItemJournalBatch: Record "Item Journal Batch";
+        InventorySetup: Record "Inventory Setup";
+        I: Integer;
+        FromEntryTo: Integer;
+    begin
+        // [SCENARIO 359395] Adjust cost of sales with applied undo sale and a correction of undo
+        Initialize;
+
+        // [GIVEN] Set average cost calculation type = Item
+        SetAverageCostSetup(InventorySetup."Average Cost Calc. Type"::Item);
+
+        // [GIVEN] Item "I" with "Average" costing method
+        CreateItem(Item, 0, Item."Costing Method"::Average);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Post purchase entries for item "I"
+        PostPurchasesItemJournalLines(Item."No.");
+
+        ItemLedgEntry.FindLast;
+        FromEntryTo := ItemLedgEntry."Entry No.";
+        FromEntryTo -= 2;
+
+        SelectItemJournalBatch(ItemJournalBatch);
+        for I := 1 to 4 do begin
+            // [GIVEN] Post sales entries without application to purchase
+            CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, Item."No.", 2.44, WorkDate);
+            LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
+
+            // [GIVEN] Undo sale with fixed cost application
+            ItemLedgEntry.FindLast;
+            CreateItemJournalLineWithAppliesFrom(
+              ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, Item."No.", -2.44, Location.Code, ItemLedgEntry."Entry No.", WorkDate);
+
+            LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
+
+            // [GIVEN] Post sale with aplication to previous sales return
+            ItemLedgEntry.FindLast;
+            CreateItemJournalLineWithAppliesTo(
+              ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, Item."No.", 2.44, Location.Code, ItemLedgEntry."Entry No.", WorkDate);
+
+            LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
+        end;
+        PostSalesItemJournalWithCostApplication(Item."No.", FromEntryTo, WorkDate);
+
+        // [WHEN] Run "Adjust cost - item entries" batch job
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+
+        // [THEN] Actual cost amount of item "I" is 0
+        VerifyZeroActualCostRemains(Item."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AssemblyRoundingWithFixedCostApplicationByItem()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        ItemLedgEntry: Record "Item Ledger Entry";
+        ItemJournalLine: Record "Item Journal Line";
+        ItemJournalBatch: Record "Item Journal Batch";
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+        InventorySetup: Record "Inventory Setup";
+        I: Integer;
+        FromEntryTo: Integer;
+    begin
+        // [FEATURE] [Assembly] [Self-consumption] [Average Cost]
+        // [SCENARIO 359395] Adjust cost of assembly rework with self-consumption and applied sales when average cost is calculated by item.
+        Initialize;
+
+        // [GIVEN] Set average cost calculation type = Item
+        SetAverageCostSetup(InventorySetup."Average Cost Calc. Type"::Item);
+
+        // [GIVEN] Item "I" with "Average" costing method
+        CreateItem(Item, 0, Item."Costing Method"::Average);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Post purchase entries for item "I"
+        PostPurchasesItemJournalLines(Item."No.");
+
+        ItemLedgEntry.FindLast;
+        FromEntryTo := ItemLedgEntry."Entry No.";
+        FromEntryTo -= 2;
+
+        // [GIVEN] Create and post assembly order consuming and producing the same item "I"
+        // [GIVEN] Sell assembled items with fixed cost application
+        SelectItemJournalBatch(ItemJournalBatch);
+        for I := 1 to 4 do begin
+            LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate, Item."No.", Location.Code, 2.44, '');
+            LibraryAssembly.CreateAssemblyLine(
+              AssemblyHeader, AssemblyLine, AssemblyLine.Type::Item, Item."No.", Item."Base Unit of Measure", 2.44, 1, '');
+            AssemblyLine.Validate("Location Code", '');
+            AssemblyLine.Modify(true);
+
+            LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
+
+            ItemLedgEntry.FindLast;
+            CreateItemJournalLineWithAppliesTo(
+              ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, Item."No.", 2.44, Location.Code, ItemLedgEntry."Entry No.", WorkDate);
+            LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
+        end;
+
+        PostSalesItemJournalWithCostApplication(Item."No.", FromEntryTo, WorkDate);
+
+        // [WHEN] Run "Adjust cost - item entries" batch job
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+
+        // [THEN] Actual cost amount of item "I" is 0
+        VerifyZeroActualCostRemains(Item."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AssemblyRoundingWithFixedCostApplicationByItemVariantLocation()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        ItemLedgEntry: Record "Item Ledger Entry";
+        ItemJournalLine: Record "Item Journal Line";
+        ItemJournalBatch: Record "Item Journal Batch";
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+        InventorySetup: Record "Inventory Setup";
+        I: Integer;
+        FromEntryTo: Integer;
+    begin
+        // [FEATURE] [Assembly] [Self-consumption] [Average Cost]
+        // [SCENARIO 359395] Adjust cost of assembly rework with self-consumption and applied sales when average cost is calculated by item & location & variant.
+        Initialize;
+
+        // [GIVEN] Set average cost calculation type = "Item & Location & Variant"
+        SetAverageCostSetup(InventorySetup."Average Cost Calc. Type"::"Item & Location & Variant");
+
+        // [GIVEN] Item "I" with "Average" costing method
+        CreateItem(Item, 0, Item."Costing Method"::Average);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Post purchase entries for item "I"
+        PostPurchasesItemJournalLines(Item."No.");
+
+        ItemLedgEntry.FindLast;
+        FromEntryTo := ItemLedgEntry."Entry No.";
+        FromEntryTo -= 2;
+
+        // [GIVEN] Create and post assembly order consuming and producing the same item "I"
+        // [GIVEN] Sell assembled items with fixed cost application
+        SelectItemJournalBatch(ItemJournalBatch);
+        for I := 1 to 4 do begin
+            LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate, Item."No.", Location.Code, 2.44, '');
+            LibraryAssembly.CreateAssemblyLine(
+              AssemblyHeader, AssemblyLine, AssemblyLine.Type::Item, Item."No.", Item."Base Unit of Measure", 2.44, 1, '');
+            AssemblyLine.Validate("Location Code", '');
+            AssemblyLine.Modify(true);
+
+            LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
+
+            ItemLedgEntry.FindLast;
+            CreateItemJournalLineWithAppliesTo(
+              ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, Item."No.", 2.44, Location.Code, ItemLedgEntry."Entry No.", WorkDate);
+            LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
+        end;
+
+        PostSalesItemJournalWithCostApplication(Item."No.", FromEntryTo, WorkDate);
+
+        // [WHEN] Run "Adjust cost - item entries" batch job
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+
+        // [THEN] Actual cost amount of item "I" is 0
+        VerifyZeroActualCostRemains(Item."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AssemblyRoundingWithFixedCostApplicationWithinMonthValuationPeriod()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        ItemLedgEntry: Record "Item Ledger Entry";
+        ItemJournalLine: Record "Item Journal Line";
+        ItemJournalBatch: Record "Item Journal Batch";
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+        InventorySetup: Record "Inventory Setup";
+        I: Integer;
+        FromEntryTo: Integer;
+    begin
+        // [FEATURE] [Assembly] [Self-consumption] [Average Cost]
+        // [SCENARIO 359395] Adjust cost of assembly rework with self-consumption and applied sales within month-long valuation period.
+        Initialize;
+
+        // [GIVEN] Set average cost calculation type = "Item" and valuation period = "Month".
+        LibraryInventory.SetAverageCostSetup(
+          InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Month);
+
+        // [GIVEN] Item "I" with "Average" costing method
+        CreateItem(Item, 0, Item."Costing Method"::Average);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Post purchase entries for item "I" on WORKDATE.
+        PostPurchasesItemJournalLines(Item."No.");
+
+        ItemLedgEntry.FindLast;
+        FromEntryTo := ItemLedgEntry."Entry No.";
+        FromEntryTo -= 2;
+
+        // [GIVEN] Create and post assembly order consuming and producing the same item "I", due date = WORKDATE + 1 day.
+        // [GIVEN] Sell assembled items with fixed cost application on WORKDATE + 2 days.
+        SelectItemJournalBatch(ItemJournalBatch);
+        for I := 1 to 4 do begin
+            LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate + 1, Item."No.", Location.Code, 2.44, '');
+            LibraryAssembly.CreateAssemblyLine(
+              AssemblyHeader, AssemblyLine, AssemblyLine.Type::Item, Item."No.", Item."Base Unit of Measure", 2.44, 1, '');
+            AssemblyLine.Validate("Location Code", '');
+            AssemblyLine.Modify(true);
+
+            LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
+
+            ItemLedgEntry.FindLast;
+            CreateItemJournalLineWithAppliesTo(
+              ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, Item."No.", 2.44, Location.Code, ItemLedgEntry."Entry No.", WorkDate + 2);
+            LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
+        end;
+
+        // [GIVEN] Sell the remaining quantity, set posting date = WORKDATE + 3 days.
+        PostSalesItemJournalWithCostApplication(Item."No.", FromEntryTo, WorkDate + 3);
+
+        // [WHEN] Run "Adjust cost - item entries" batch job
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+
+        // [THEN] Actual cost amount of item "I" is 0
+        VerifyZeroActualCostRemains(Item."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AverageCostCalculationOfAssemblyWithSelfConsumption()
+    var
+        InventorySetup: Record "Inventory Setup";
+        AsmItem: Record Item;
+        CompItem: Record Item;
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        i: Integer;
+    begin
+        // [FEATURE] [Assembly] [Self-consumption] [Average Cost]
+        // [SCENARIO 294427] Average cost calculation of assembled item being used as a component of itself, and another component item.
+        Initialize;
+
+        // [GIVEN] Set average cost calculation type = "Item" and valuation period = "Day".
+        LibraryInventory.SetAverageCostSetup(
+          InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Day);
+
+        // [GIVEN] Assembled item "A" and its component "C", both are set up for "Average" costing method.
+        CreateItem(AsmItem, 0, AsmItem."Costing Method"::Average);
+        CreateItem(CompItem, 0, CompItem."Costing Method"::Average);
+
+        // [GIVEN] Post the inventory of both items.
+        // [GIVEN] Item "A": post 1 pc for 100 LCY and another 1 pc for 180 LCY. The average cost is 140 LCY.
+        // [GIVEN] Item "C": post 2 pcs for 10 LCY each.
+        SelectItemJournalBatch(ItemJournalBatch);
+        CreateItemJournalLineWithUnitCost(ItemJournalBatch, ItemJournalLine."Entry Type"::Purchase, AsmItem."No.", 1, 100.0, WorkDate);
+        CreateItemJournalLineWithUnitCost(ItemJournalBatch, ItemJournalLine."Entry Type"::Purchase, AsmItem."No.", 1, 180.0, WorkDate);
+        CreateItemJournalLineWithUnitCost(ItemJournalBatch, ItemJournalLine."Entry Type"::Purchase, CompItem."No.", 2, 10.0, WorkDate);
+        LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
+
+        // [GIVEN] Two assembly orders for item "A".
+        // [GIVEN] Add two component lines to each order: 1 pc of item "A" and 1 pc of item "C".
+        // [GIVEN] Post both assemblies.
+        for i := 1 to 2 do begin
+            LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate, AsmItem."No.", '', 1, '');
+            LibraryAssembly.CreateAssemblyLine(
+              AssemblyHeader, AssemblyLine, AssemblyLine.Type::Item, AsmItem."No.", AsmItem."Base Unit of Measure", 1, 1, '');
+            LibraryAssembly.CreateAssemblyLine(
+              AssemblyHeader, AssemblyLine, AssemblyLine.Type::Item, CompItem."No.", CompItem."Base Unit of Measure", 1, 1, '');
+            LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
+        end;
+
+        // [GIVEN] Write the remaining quantity of "A" off the inventory.
+        CreateItemJournalLineWithUnitCost(
+          ItemJournalBatch, ItemJournalLine."Entry Type"::"Negative Adjmt.", AsmItem."No.", 1, 0.0, WorkDate);
+        CreateItemJournalLineWithUnitCost(
+          ItemJournalBatch, ItemJournalLine."Entry Type"::"Negative Adjmt.", AsmItem."No.", 1, 0.0, WorkDate);
+        LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
+
+        // [WHEN] Adjust cost of both "A" and "C".
+        LibraryCosting.AdjustCostItemEntries(StrSubstNo('%1|%2', AsmItem."No.", CompItem."No."), '');
+
+        // [THEN] The average cost of item "A" = 150 LCY. (140 LCY after the purchase plus 10 LCY as the consumption of component "C").
+        AsmItem.Find;
+        AsmItem.TestField("Unit Cost", 150.0);
+
+        // [THEN] The average cost of item "C" = 10 LCY.
+        CompItem.Find;
+        CompItem.TestField("Unit Cost", 10.0);
+
+        // [THEN] The average cost of output of "A" = 150 LCY.
+        // [THEN] The average cost of consumption of "A" = 140 LCY.
+        VerifyItemEntriesCost(AsmItem."No.", ItemLedgerEntry."Entry Type"::"Assembly Output", 150.0);
+        VerifyItemEntriesCost(AsmItem."No.", ItemLedgerEntry."Entry Type"::"Assembly Consumption", -140.0);
+
+        // [THEN] The average cost of consumption of "C" = 10 LCY.
+        VerifyItemEntriesCost(CompItem."No.", ItemLedgerEntry."Entry Type"::"Assembly Consumption", -10.0);
+
+        // [THEN] The remaining quantity and amount of item "A" in the inventory is zero.
+        VerifyZeroActualCostRemains(AsmItem."No.");
+
+        // [THEN] The remaining quantity and amount of item "C" in the inventory is zero.
+        VerifyZeroActualCostRemains(CompItem."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('ProductionJournalModalPageHandler,ConfirmHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure AverageCostCalculationOfProdOrderWithSelfConsumption()
+    var
+        InventorySetup: Record "Inventory Setup";
+        ProdItem: Record Item;
+        CompItem: Record Item;
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ProdOrderComponent: Record "Prod. Order Component";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        i: Integer;
+    begin
+        // [FEATURE] [Production Order] [Self-consumption] [Average Cost]
+        // [SCENARIO 294427] Average cost calculation of manufacturing item being used as a component of itself, and another component item.
+        Initialize;
+
+        // [GIVEN] Set average cost calculation type = "Item" and valuation period = "Day".
+        LibraryInventory.SetAverageCostSetup(
+          InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Day);
+
+        // [GIVEN] Production item "P" and its component "C", both are set up for "Average" costing method.
+        CreateItem(ProdItem, 0, ProdItem."Costing Method"::Average);
+        CreateItem(CompItem, 0, CompItem."Costing Method"::Average);
+
+        // [GIVEN] Post the inventory of both items.
+        // [GIVEN] Item "P": post 1 pc for 100 LCY and another 1 pc for 180 LCY. The average cost is 140 LCY.
+        // [GIVEN] Item "C": post 2 pcs for 10 LCY each.
+        SelectItemJournalBatch(ItemJournalBatch);
+        CreateItemJournalLineWithUnitCost(ItemJournalBatch, ItemJournalLine."Entry Type"::Purchase, ProdItem."No.", 1, 100.0, WorkDate);
+        CreateItemJournalLineWithUnitCost(ItemJournalBatch, ItemJournalLine."Entry Type"::Purchase, ProdItem."No.", 1, 180.0, WorkDate);
+        CreateItemJournalLineWithUnitCost(ItemJournalBatch, ItemJournalLine."Entry Type"::Purchase, CompItem."No.", 2, 10.0, WorkDate);
+        LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
+
+        // [GIVEN] Two production orders for item "P".
+        // [GIVEN] Add two prod. order component lines to each order: 1 pc of item "P" and 1 pc of item "C".
+        // [GIVEN] Post both output and consumption.
+        // [GIVEN] Change status of the production orders to "Finished".
+        for i := 1 to 2 do begin
+            LibraryManufacturing.CreateProductionOrder(
+              ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, ProdItem."No.", 1);
+            LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+
+            FindProdOrderLine(ProdOrderLine, ProductionOrder);
+            CreateProdOrderComponentWithItem(ProdOrderComponent, ProdOrderLine, ProdItem."No.", 1);
+            CreateProdOrderComponentWithItem(ProdOrderComponent, ProdOrderLine, CompItem."No.", 1);
+            LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
+
+            ProductionOrder.Find;
+            LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Finished, WorkDate, true);
+        end;
+
+        // [GIVEN] Write the remaining quantity of "P" off the inventory.
+        CreateItemJournalLineWithUnitCost(
+          ItemJournalBatch, ItemJournalLine."Entry Type"::"Negative Adjmt.", ProdItem."No.", 1, 0.0, WorkDate);
+        CreateItemJournalLineWithUnitCost(
+          ItemJournalBatch, ItemJournalLine."Entry Type"::"Negative Adjmt.", ProdItem."No.", 1, 0.0, WorkDate);
+        LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
+
+        // [WHEN] Adjust cost of both "P" and "C".
+        LibraryCosting.AdjustCostItemEntries(StrSubstNo('%1|%2', ProdItem."No.", CompItem."No."), '');
+
+        // [THEN] The average cost of item "P" = 150 LCY. (140 LCY after the purchase plus 10 LCY as the consumption of component "C").
+        ProdItem.Find;
+        ProdItem.TestField("Unit Cost", 150.0);
+
+        // [THEN] The average cost of item "C" = 10 LCY.
+        CompItem.Find;
+        CompItem.TestField("Unit Cost", 10.0);
+
+        // [THEN] The average cost of output of "P" = 150 LCY.
+        // [THEN] The average cost of consumption of "P" = 140 LCY.
+        VerifyItemEntriesCost(ProdItem."No.", ItemLedgerEntry."Entry Type"::Output, 150.0);
+        VerifyItemEntriesCost(ProdItem."No.", ItemLedgerEntry."Entry Type"::Consumption, -140.0);
+
+        // [THEN] The average cost of consumption of "C" = 10 LCY.
+        VerifyItemEntriesCost(CompItem."No.", ItemLedgerEntry."Entry Type"::Consumption, -10.0);
+
+        // [THEN] The remaining quantity and amount of item "P" in the inventory is zero.
+        VerifyZeroActualCostRemains(ProdItem."No.");
+
+        // [THEN] The remaining quantity and amount of item "C" in the inventory is zero.
+        VerifyZeroActualCostRemains(CompItem."No.");
+    end;
+
+    local procedure Initialize()
+    var
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+    begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Production & Assembly Costing");
+        // Lazy Setup.
+        LibrarySetupStorage.Restore;
+        if isInitialized then
+            exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Production & Assembly Costing");
+
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateLocalData;
+        isInitialized := true;
+        Commit;
+
+        LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Production & Assembly Costing");
+    end;
+
+    local procedure CreateItem(var Item: Record Item; UnitCost: Decimal; CostingMethod: Option)
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Unit Cost", UnitCost);
+        Item.Validate("Costing Method", CostingMethod);
+        Item.Modify(true);
+    end;
+
+    local procedure CreateItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemJournalBatch: Record "Item Journal Batch"; EntryType: Option; ItemNo: Code[20]; Qty: Decimal; PostingDate: Date)
+    begin
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, EntryType, ItemNo, Qty);
+        ItemJournalLine.Validate("Posting Date", PostingDate);
+        ItemJournalLine.Modify(true);
+    end;
+
+    local procedure CreateItemJournalLineWithAppliesFrom(ItemJournalBatch: Record "Item Journal Batch"; EntryType: Option; ItemNo: Code[20]; Qty: Decimal; LocationCode: Code[10]; AppliesFromEntry: Integer; PostingDate: Date)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, EntryType, ItemNo, Qty, PostingDate);
+        ItemJournalLine.Validate("Location Code", LocationCode);
+        ItemJournalLine.Validate("Applies-from Entry", AppliesFromEntry);
+        ItemJournalLine.Modify(true);
+    end;
+
+    local procedure CreateItemJournalLineWithAppliesTo(ItemJournalBatch: Record "Item Journal Batch"; EntryType: Option; ItemNo: Code[20]; Qty: Decimal; LocationCode: Code[10]; AppliesToEntry: Integer; PostingDate: Date)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, EntryType, ItemNo, Qty, PostingDate);
+        ItemJournalLine.Validate("Location Code", LocationCode);
+        ItemJournalLine.Validate("Applies-to Entry", AppliesToEntry);
+        ItemJournalLine.Modify(true);
+    end;
+
+    local procedure CreateItemJournalLineWithUnitCost(ItemJournalBatch: Record "Item Journal Batch"; EntryType: Option; ItemNo: Code[20]; Qty: Decimal; UnitCost: Decimal; PostingDate: Date)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, EntryType, ItemNo, Qty, PostingDate);
+        ItemJournalLine.Validate("Unit Amount", UnitCost);
+        ItemJournalLine.Modify(true);
+    end;
+
+    local procedure CreateProdOrderComponentWithItem(var ProdOrderComponent: Record "Prod. Order Component"; ProdOrderLine: Record "Prod. Order Line"; ItemNo: Code[20]; QtyPer: Decimal)
+    begin
+        LibraryManufacturing.CreateProductionOrderComponent(
+          ProdOrderComponent, ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.");
+        ProdOrderComponent.Validate("Item No.", ItemNo);
+        ProdOrderComponent.Validate("Quantity per", QtyPer);
+        ProdOrderComponent.Modify(true);
+    end;
+
+    local procedure FindProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProductionOrder: Record "Production Order")
+    begin
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.FindFirst;
+    end;
+
+    local procedure PostPurchasesItemJournalLines(ItemNo: Code[20])
+    var
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        SelectItemJournalBatch(ItemJournalBatch);
+
+        CreateItemJournalLineWithUnitCost(ItemJournalBatch, ItemJournalLine."Entry Type"::Purchase, ItemNo, 2.44, 6710, WorkDate);
+        CreateItemJournalLineWithUnitCost(ItemJournalBatch, ItemJournalLine."Entry Type"::Purchase, ItemNo, 2.44, 6710, WorkDate);
+        CreateItemJournalLineWithUnitCost(ItemJournalBatch, ItemJournalLine."Entry Type"::Purchase, ItemNo, 2.44, 6710, WorkDate);
+
+        CreateItemJournalLineWithUnitCost(ItemJournalBatch, ItemJournalLine."Entry Type"::Purchase, ItemNo, 2.44, 6709, WorkDate);
+
+        CreateItemJournalLineWithUnitCost(ItemJournalBatch, ItemJournalLine."Entry Type"::Purchase, ItemNo, 2.44, 6710, WorkDate);
+        CreateItemJournalLineWithUnitCost(ItemJournalBatch, ItemJournalLine."Entry Type"::Purchase, ItemNo, 2.44, 6710, WorkDate);
+
+        CreateItemJournalLineWithUnitCost(ItemJournalBatch, ItemJournalLine."Entry Type"::Purchase, ItemNo, 1.63, 6710, WorkDate);
+
+        LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
+    end;
+
+    local procedure PostSalesItemJournalWithCostApplication(ItemNo: Code[20]; EntryNo: Integer; PostingDate: Date)
+    var
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        SelectItemJournalBatch(ItemJournalBatch);
+        CreateItemJournalLineWithAppliesTo(ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, ItemNo, 2.44, '', EntryNo, PostingDate);
+        CreateItemJournalLineWithAppliesTo(ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, ItemNo, 2.44, '', EntryNo + 1, PostingDate);
+        CreateItemJournalLineWithAppliesTo(ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, ItemNo, 1.63, '', EntryNo + 2, PostingDate);
+
+        LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
+    end;
+
+    local procedure PostManyPurchasesAndSalesNoApplication(ItemNo: Code[20])
+    var
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+        I: Integer;
+    begin
+        SelectItemJournalBatch(ItemJournalBatch);
+        for I := 1 to 21 do
+            CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, ItemJournalLine."Entry Type"::Purchase, ItemNo, 3.69, WorkDate);
+
+        for I := 1 to 21 do
+            CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, ItemJournalLine."Entry Type"::Purchase, ItemNo, 3.71, WorkDate);
+
+        for I := 1 to 21 do
+            CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, ItemNo, 3.69, WorkDate);
+
+        for I := 1 to 12 do
+            CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, ItemNo, 3.71, WorkDate);
+
+        LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
+    end;
+
+    local procedure PostPurchaseAndSaleItemJnlLines(ItemNo: Code[20])
+    var
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        SelectItemJournalBatch(ItemJournalBatch);
+        CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, ItemJournalLine."Entry Type"::Purchase, ItemNo, 7 * 3.69, WorkDate);
+        CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, ItemJournalLine."Entry Type"::Purchase, ItemNo, 7 * 3.71, WorkDate);
+        CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, ItemNo, 7 * 3.69, WorkDate);
+        CreateItemJournalLine(ItemJournalLine, ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, ItemNo, 4 * 3.71, WorkDate);
+        LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
+    end;
+
+    local procedure SelectItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch")
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+    begin
+        SelectItemJournalBatchByTemplateType(ItemJournalBatch, ItemJournalTemplate.Type::Item);
+    end;
+
+    local procedure SelectTransferJournalBatch(var ItemJournalBatch: Record "Item Journal Batch")
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+    begin
+        SelectItemJournalBatchByTemplateType(ItemJournalBatch, ItemJournalTemplate.Type::Transfer);
+    end;
+
+    local procedure SelectItemJournalBatchByTemplateType(var ItemJournalBatch: Record "Item Journal Batch"; TemplateType: Option)
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+    begin
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, TemplateType);
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
+    end;
+
+    local procedure SetAverageCostSetup(AvgCostCalcType: Option)
+    var
+        InventorySetup: Record "Inventory Setup";
+    begin
+        InventorySetup.Get;
+        LibraryInventory.UpdateAverageCostSettings(AvgCostCalcType, InventorySetup."Average Cost Period");
+    end;
+
+    local procedure VerifyItemEntriesCost(ItemNo: Code[20]; EntryType: Option; ActualCost: Decimal)
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        with ItemLedgerEntry do begin
+            SetRange("Item No.", ItemNo);
+            SetRange("Entry Type", EntryType);
+            SetAutoCalcFields("Cost Amount (Actual)");
+            FindSet;
+            repeat
+                TestField("Cost Amount (Actual)", ActualCost);
+            until Next = 0;
+        end;
+    end;
+
+    local procedure VerifyInvtIsZero(ItemNo: Code[20])
+    var
+        ItemLedgEntry: Record "Item Ledger Entry";
+    begin
+        with ItemLedgEntry do begin
+            SetRange("Item No.", ItemNo);
+            FindSet;
+            repeat
+                CalcFields("Cost Amount (Expected)", "Cost Amount (Actual)");
+                TestField("Cost Amount (Expected)", 0);
+                TestField("Cost Amount (Actual)", 0);
+            until Next = 0;
+        end;
+    end;
+
+    local procedure VerifyZeroActualCostRemains(ItemNo: Code[20])
+    var
+        ValueEntry: Record "Value Entry";
+    begin
+        ValueEntry.SetRange("Item No.", ItemNo);
+        ValueEntry.CalcSums("Item Ledger Entry Quantity", "Cost Amount (Actual)");
+        ValueEntry.TestField("Item Ledger Entry Quantity", 0);
+        ValueEntry.TestField("Cost Amount (Actual)", 0);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ProductionJournalModalPageHandler(var ProductionJournal: TestPage "Production Journal")
+    begin
+        ProductionJournal.Post.Invoke;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandler(Message: Text[1024])
+    begin
+    end;
+}
+
