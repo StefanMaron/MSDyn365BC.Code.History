@@ -33,5 +33,17 @@ codeunit 152 "User Permissions"
     begin
         UserPermissionsImpl.RemoveSuperPermissions(UserSecurityId);
     end;
+
+    /// <summary>
+    /// Checks whether the user has permission to manage users in the tenant.
+    /// </summary>
+    /// <param name="UserSecurityId">The security ID of the user to check for.</param>
+    /// <returns>True if the user with the given user security ID can manage users on tenant; false otherwise.</returns>  
+    procedure CanManageUsersOnTenant(UserSecurityId: Guid): Boolean
+    var
+        UserPermissionsImpl: Codeunit "User Permissions Impl.";
+    begin
+        exit(UserPermissionsImpl.CanManageUsersOnTenant(UserSecurityId));
+    end;
 }
 

@@ -3,6 +3,7 @@ codeunit 9313 "Sync.Dep.Fld-PowerBIUrlUtils"
     ObsoleteState = Pending;
     ObsoleteReason = 'This codeunit will be removed once the fields are marked as removed.';
     Access = Internal;
+    ObsoleteTag = '16.0';
 
     [Scope('OnPrem')]
     procedure SyncUrlFields(var ObsoleteFieldValue: Text[250]; var ValidFieldValue: Text[2048])

@@ -142,25 +142,25 @@ codeunit 134116 "ERM Suggest Employee Payment"
         CreateGeneralJournalBatch(GenJournalBatch, GenJournalTemplate.Type::Payments);
         GenJournalLine.SetRange("Document Type", GenJournalLine."Document Type"::Payment);
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
-        PreCount := GenJournalLine.Count;
+        PreCount := GenJournalLine.Count();
         SuggestEmployeePayment(
           GenJournalBatch, '',
           GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, GenJournalLine."Bank Payment Type", false);
         GenJournalLine.SetRange("Document Type", GenJournalLine."Document Type"::Payment);
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
-        PostCount := GenJournalLine.Count;
+        PostCount := GenJournalLine.Count();
 
         Assert.IsTrue(PreCount < PostCount, 'Suggest Employee Payments should have added records.');
 
-        RecordCountBefore := GenJournalLine.Count;
+        RecordCountBefore := GenJournalLine.Count();
         GenJournalLine.FindLast;
-        GenJournalLine.Delete;
-        Commit;
+        GenJournalLine.Delete();
+        Commit();
 
         // Verify: Record was removed
         GenJournalLine.SetRange("Document Type", GenJournalLine."Document Type"::Payment);
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
-        RecordCountAfterDelete := GenJournalLine.Count;
+        RecordCountAfterDelete := GenJournalLine.Count();
         Assert.AreNotEqual(RecordCountBefore, RecordCountAfterDelete, 'General Journal record should have been removed.');
 
         SuggestEmployeePayment(
@@ -168,7 +168,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
           GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, GenJournalLine."Bank Payment Type", false);
         GenJournalLine.SetRange("Document Type", GenJournalLine."Document Type"::Payment);
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
-        RecordCountAfterResuggest := GenJournalLine.Count;
+        RecordCountAfterResuggest := GenJournalLine.Count();
 
         // Verify: Record was recreated, i.e.  Before and After record counts are equal
         Assert.AreEqual(RecordCountBefore, RecordCountAfterResuggest, 'Suggest Employee payments did not add the line.');
@@ -686,7 +686,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         // [FEATURE] [UI] [Create Employee Payment]
         // [SCENARIO 294543] When run page Create Employee Payment for non-existent Batch, then no error and Batch Name is cleared on page
         Initialize;
-        GenJournalTemplate.DeleteAll;
+        GenJournalTemplate.DeleteAll();
 
         // [GIVEN] Created Gen. Journal Batch with payment Template
         LibraryJournals.CreateGenJournalBatchWithType(GenJournalBatch, GenJournalBatch."Template Type"::Payments);
@@ -698,7 +698,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         CreateEmployeePayment.OK.Invoke;
 
         // [GIVEN] Deleted Gen Journal Batch
-        GenJournalBatch.Delete;
+        GenJournalBatch.Delete();
 
         // [WHEN] Run page Create Employee Payment
         CreateEmployeePayment.OpenEdit;
@@ -721,7 +721,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         Initialize;
 
         // [GIVEN] Removed all Gen. Journal Templates
-        GenJournalTemplate.DeleteAll;
+        GenJournalTemplate.DeleteAll();
 
         // [WHEN] Run page Create Employee Payment
         CreateEmployeePayment.OpenEdit;
@@ -790,7 +790,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         LibraryERMCountryData.UpdateGenJournalTemplate;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Suggest Employee Payment");
     end;
 
@@ -970,7 +970,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         GLSetup: Record "General Ledger Setup";
     begin
         EmployeeNo := LibraryHumanResource.CreateEmployeeNoWithBankAccount;
-        GLSetup.Get;
+        GLSetup.Get();
         DimSetID :=
           LibraryDimension.CreateDimSet(
             0, GLSetup."Global Dimension 1 Code",
@@ -1033,7 +1033,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         GenJournalLine: Record "Gen. Journal Line";
         SuggestEmployeePayments: Report "Suggest Employee Payments";
     begin
-        GenJournalLine.Init;  // INIT is mandatory for Gen. Journal Line to Set the General Template and General Batch Name.
+        GenJournalLine.Init();  // INIT is mandatory for Gen. Journal Line to Set the General Template and General Batch Name.
         GenJournalLine.Validate("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.Validate("Journal Batch Name", GenJournalBatch.Name);
         SuggestEmployeePayments.SetGenJnlLine(GenJournalLine);
@@ -1059,11 +1059,11 @@ codeunit 134116 "ERM Suggest Employee Payment"
     begin
         LibraryERM.SelectGenJnlBatch(GenJournalBatch);
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
-        GenJournalLine.Init;  // INIT is mandatory for Gen. Journal Line to Set the General Template and General Batch Name.
+        GenJournalLine.Init();  // INIT is mandatory for Gen. Journal Line to Set the General Template and General Batch Name.
         GenJournalLine.Validate("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.Validate("Journal Batch Name", GenJournalBatch.Name);
 
-        Commit;  // Commit required to avoid test failure.
+        Commit();  // Commit required to avoid test failure.
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Batch Name");
 
@@ -1091,7 +1091,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         DimensionValue: Record "Dimension Value";
         DimensionValue2: Record "Dimension Value";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         FindGeneralJournalLines(GenJournalLine); // Find General Journal Line to update Dimension on first record.
         LibraryDimension.FindDimensionValue(DimensionValue, GeneralLedgerSetup."Shortcut Dimension 1 Code");
         GenJournalLine.Validate("Shortcut Dimension 1 Code", DimensionValue.Code);
@@ -1174,7 +1174,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         GeneralLedgerSetup: Record "General Ledger Setup";
         DimensionSelectionBuffer: Record "Dimension Selection Buffer";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         DimensionSelectionBuffer.SetFilter(
           Code, '%1|%2', GeneralLedgerSetup."Shortcut Dimension 1 Code", GeneralLedgerSetup."Shortcut Dimension 2 Code");
         exit(DimensionSelectionBuffer.GetFilter(Code));
@@ -1193,7 +1193,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         FindGeneralJournalLines(GenJournalLine);
         repeat
             GenJournalLine2 := GenJournalLine;
-            GenJournalLine2.Insert;
+            GenJournalLine2.Insert();
         until GenJournalLine.Next = 0;
     end;
 
@@ -1240,7 +1240,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine.SetRange("Journal Template Name", JournalTemplateName);
         GenJournalLine.SetRange("Journal Batch Name", JournalBatchName);
         Assert.RecordIsEmpty(GenJournalLine);
@@ -1262,7 +1262,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
     var
         EmployeeLedgerEntry: Record "Employee Ledger Entry";
     begin
-        EmployeeLedgerEntry.Init;
+        EmployeeLedgerEntry.Init();
         EmployeeLedgerEntry.SetRange("Employee No.", EmployeeNo);
         EmployeeLedgerEntry.SetFilter("Applies-to ID", '<>''''');
         Assert.RecordCount(EmployeeLedgerEntry, EmployeeLedgerEntryCount);
@@ -1346,7 +1346,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         if FirstDim then
             ShortcutDim2Code := ''
         else begin
-            GLSetup.Get;
+            GLSetup.Get();
             ShortcutDim1Code := GetEmployeeDefaultDim(AccountNo, GLSetup."Global Dimension 1 Code");
             ShortcutDim2Code := GetEmployeeDefaultDim(AccountNo, GLSetup."Global Dimension 2 Code");
         end;
@@ -1445,7 +1445,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         GeneralLedgerSetup: Record "General Ledger Setup";
         DimensionSelectionBuffer: Record "Dimension Selection Buffer";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         DimensionSelectionBuffer.SetRange(Code, GeneralLedgerSetup."Shortcut Dimension 1 Code");
         DimensionSelectionMultiple.FILTER.SetFilter(Code, DimensionSelectionBuffer.GetFilter(Code));
         DimensionSelectionMultiple.First;
@@ -1461,7 +1461,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
 
-        GenJournalLine.Init;  // INIT is mandatory for Gen. Journal Line to Set the General Template and General Batch Name.
+        GenJournalLine.Init();  // INIT is mandatory for Gen. Journal Line to Set the General Template and General Batch Name.
         GenJournalLine.Validate("Journal Template Name", GenJournalTemplate.Name);
         GenJournalLine.Validate("Journal Batch Name", GenJournalBatch.Name);
     end;
@@ -1485,7 +1485,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         GeneralLedgerSetup: Record "General Ledger Setup";
         DimensionSelectionBuffer: Record "Dimension Selection Buffer";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         DimensionSelectionBuffer.SetFilter(
           Code, '%1|%2', GeneralLedgerSetup."Shortcut Dimension 1 Code", GeneralLedgerSetup."Shortcut Dimension 2 Code");
         DimensionSelectionMultiple.FILTER.SetFilter(Code, DimensionSelectionBuffer.GetFilter(Code));

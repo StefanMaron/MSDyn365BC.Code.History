@@ -4904,6 +4904,16 @@ codeunit 137096 "SCM Kitting - ATO"
         AssemblyLine.FindFirst;
     end;
 
+    local procedure FindAssemblyComp(var CompItem: Record Item; AsmItem: Record Item)
+    var
+        BOMComponent: Record "BOM Component";
+    begin
+        BOMComponent.SetRange("Parent Item No.", AsmItem."No.");
+        BOMComponent.SetRange(Type, BOMComponent.Type::Item);
+        BOMComponent.FindFirst();
+        CompItem.Get(BOMComponent."No.");
+    end;
+
     local procedure UpdateAssemblyLine(AssemblyHeader: Record "Assembly Header")
     var
         AssemblyLine: Record "Assembly Line";
@@ -5123,6 +5133,76 @@ codeunit 137096 "SCM Kitting - ATO"
           Item."Base Unit of Measure", SalesQty);
         AssemblyHeader.TestField("Posting No.", '');
         AssemblyHeader.TestField(Status, AssemblyHeader.Status::Open);
+    end;
+
+    [Test]
+    [HandlerFunctions('MsgHandlerPostedAOs')]
+    [Scope('OnPrem')]
+    procedure CorrectQtyByGetPostedAsmLinesForDocumentFunc()
+    var
+        AsmItem: Record Item;
+        CompItem: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceLine: array[2] of Record "Sales Invoice Line";
+        PostedAssemblyLine: Record "Posted Assembly Line";
+        ValueEntry: Record "Value Entry";
+        TempPostedAssemblyLine: Record "Posted Assembly Line" temporary;
+        Qty: Decimal;
+        i: Integer;
+    begin
+        // [FEATURE] [Assemble-to-Order]
+        // [SCENARIO 345339] Function "GetAssemblyLinesForDocument" returns correct posted assembly quantity when there are several value entries for an item entry.
+        Initialize();
+
+        // [GIVEN] Assemble-to-order item "A" with component "C". Qty. per = 1.
+        CreateAssembledItem(AsmItem, AsmItem."Assembly Policy"::"Assemble-to-Order", 1, 0, 0, 1, AsmItem."Costing Method"::FIFO);
+        FindAssemblyComp(CompItem, AsmItem);
+
+        // [GIVEN] Do the following twice.
+        for i := 1 to ArrayLen(SalesInvoiceLine) do begin
+            Qty := LibraryRandom.RandIntInRange(10, 20);
+
+            // [GIVEN] Post purchase receipt for the component "C".
+            LibraryPurchase.CreatePurchaseDocumentWithItem(
+              PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', CompItem."No.", Qty, '', WorkDate());
+            LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+            // [GIVEN] Sales order for "A" with linked assembly-to-order.
+            // [GIVEN] Ship and invoice the sales order.
+            LibrarySales.CreateSalesDocumentWithItem(
+              SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', AsmItem."No.", Qty, '', WorkDate());
+            LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+            // [GIVEN] Find sales invoice line. "SIL1" on the first run, "SIL2" on the second run.
+            SalesInvoiceLine[i].SetRange(Type, SalesInvoiceLine[i].Type::Item);
+            SalesInvoiceLine[i].SetRange("No.", AsmItem."No.");
+            SalesInvoiceLine[i].FindFirst();
+
+            // [GIVEN] Post purchase invoice for the component "C".
+            // [GIVEN] This is required so there will be two value entries for the sales invoice after the cost adjustment.
+            PurchaseLine.Find();
+            PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(10, 2));
+            PurchaseLine.Modify(true);
+            LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+        end;
+
+        // [GIVEN] Run the cost adjustment for both "A" and "C".
+        LibraryCosting.AdjustCostItemEntries(StrSubstNo('%1|%2', AsmItem."No.", CompItem."No."), '');
+
+        for i := 1 to ArrayLen(SalesInvoiceLine) do begin
+            // [WHEN] Get posted assembly lines using "GeetAssemblyLinesForDocument" function run for "SIL1" and "SIL2" successively.
+            PostedAssemblyLine.GetAssemblyLinesForDocument(
+              TempPostedAssemblyLine, ValueEntry."Document Type"::"Sales Invoice",
+              SalesInvoiceLine[i]."Document No.", SalesInvoiceLine[i]."Line No.");
+
+            // [THEN] The function returns posted assembly line with quantity matching the correspondent sales invoice line.
+            TempPostedAssemblyLine.FindFirst();
+            TempPostedAssemblyLine.TestField("No.", CompItem."No.");
+            TempPostedAssemblyLine.TestField(Quantity, SalesInvoiceLine[i].Quantity);
+        end;
     end;
 
     local procedure SetQtyToAssembleToOrder(var SalesLine: Record "Sales Line"; Quantity: Decimal)

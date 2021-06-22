@@ -4,6 +4,7 @@ codeunit 134238 "PowerBI-Sync URL fields tests"
     ObsoleteReason = 'The object will be removed with obsoleted field G/L Bank Account No.';
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteTag = '16.0';
 
     trigger OnRun()
     begin

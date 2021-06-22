@@ -3,7 +3,7 @@ report 7150 "Item Dimensions - Detail"
     DefaultLayout = RDLC;
     RDLCLayout = './ItemDimensionsDetail.rdlc';
     ApplicationArea = Dimensions;
-    Caption = 'Dimensions - Detail';
+    Caption = 'Item Dimensions - Detail';
     UsageCategory = ReportsAndAnalysis;
 
     dataset

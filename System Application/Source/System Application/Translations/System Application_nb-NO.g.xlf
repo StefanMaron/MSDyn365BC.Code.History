@@ -1563,12 +1563,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD User Mgmt. Impl. - NamedType UserCreatedMsg</note>
         </trans-unit>
-        <trans-unit id="Codeunit 390433962 - NamedType 2534762797" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>User %1 was not found in Office 365. We will turn off the user account.</source>
-          <target>Fant ikke bruker %1 i Office 365. Brukerkontoen blir deaktivert.</target>
-          <note from="Developer" annotates="general" priority="2">%1=user name</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD User Mgmt. Impl. - NamedType UserNotFoundMsg</note>
-        </trans-unit>
         <trans-unit id="Codeunit 4215518646 - NamedType 1905859220" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>%1 is not an application secret.</source>
           <target>%1 er ikke en programhemmelighet.</target>
@@ -1614,11 +1608,35 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Temp Blob List Impl. - NamedType InvalidNoObjectsRequestedErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 2308444729 - NamedType 1037556188" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The picture quality must be in the range from 0 to 100.</source>
-          <target>Bildekvaliteten må være mellom 0 og 100.</target>
+        <trans-unit id="Page 2776087363 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Camera</source>
+          <target>Kamera</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Camera Impl. - NamedType QualityOutOfRangeErr</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Camera - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2776087363 - Control 426738318 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Taking picture...</source>
+          <target>Tar bilde...</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Camera - Control TakingPicture - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2776087363 - Control 426738318 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Please, take a picture using your camera.</source>
+          <target>Ta bildet ved hjelp av kameraet.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Camera - Control TakingPicture - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 2776087363 - Control 2966611030 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Could not connect to camera</source>
+          <target>Kan ikke koble til kameraet</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Camera - Control CameraNotSupported - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2776087363 - Control 2966611030 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Could not access the camera on the device. Make sure that you are using the app for Windows, Android, or iOS.</source>
+          <target>Får ikke tilgang til kameraet på enheten. Kontroller at du bruker appen for Windows, Android eller iOS.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Camera - Control CameraNotSupported - Property InstructionalText</note>
         </trans-unit>
         <trans-unit id="Codeunit 3793537252 - NamedType 1061121529" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The file is not available.</source>
@@ -2580,16 +2598,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Translation Implementation - NamedType NoRecordIdErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 1346609467 - NamedType 3583900385" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>User Login</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit User Login Time Tracker Impl. - NamedType UserLoginTelemetryCategoryLbl</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1346609467 - NamedType 620129682" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>User Login information was not updated for user %1 as it is in a child session.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit User Login Time Tracker Impl. - NamedType ChildSessionLoginInfoNotUpdatedTelemetryTxt</note>
-        </trans-unit>
         <trans-unit id="Codeunit 1726821529 - NamedType 1200477291" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
           <source>SUPER</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -2736,36 +2744,6 @@
           <target>Angir abonnementsplanen.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page User Plan Members FactBox - Control Plan Name - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 2776087363 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Camera</source>
-          <target>Kamera</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Camera - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 2776087363 - Control 426738318 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Taking picture...</source>
-          <target>Tar bilde...</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Camera - Control TakingPicture - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 2776087363 - Control 426738318 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Please, take a picture using your camera.</source>
-          <target>Ta bildet ved hjelp av kameraet.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Camera - Control TakingPicture - Property InstructionalText</note>
-        </trans-unit>
-        <trans-unit id="Page 2776087363 - Control 2966611030 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Could not connect to camera</source>
-          <target>Kan ikke koble til kameraet</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Camera - Control CameraNotSupported - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 2776087363 - Control 2966611030 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Could not access the camera on the device. Make sure that you are using the app for Windows, Android, or iOS.</source>
-          <target>Får ikke tilgang til kameraet på enheten. Kontroller at du bruker appen for Windows, Android eller iOS.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Camera - Control CameraNotSupported - Property InstructionalText</note>
         </trans-unit>
         <trans-unit id="Page 3036139225 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Media Upload</source>

@@ -5,10 +5,13 @@ codeunit 1610 "Exp. Sales Inv. PEPPOL BIS3.0"
     trigger OnRun()
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
+        PEPPOLValidation: Codeunit "PEPPOL Validation";
         RecordRef: RecordRef;
     begin
         RecordRef.Get(RecordID);
         RecordRef.SetTable(SalesInvoiceHeader);
+
+        PEPPOLValidation.CheckSalesInvoice(SalesInvoiceHeader);
 
         ServerFilePath := GenerateXMLFile(SalesInvoiceHeader);
 

@@ -823,7 +823,7 @@
                 {
                     ApplicationArea = ItemTracking;
                     Editable = ExpirationCalculationEditable;
-                    ToolTip = 'Specifies the formula for calculating the expiration date on the item tracking line.';
+                    ToolTip = 'Specifies the date formula for calculating the expiration date on the item tracking line. Note: This field will be ignored if the involved item has Require Expiration Date Entry set to Yes on the Item Tracking Code page.';
 
                     trigger OnValidate()
                     begin

@@ -2524,9 +2524,7 @@ codeunit 6500 "Item Tracking Management"
                     until ReservEntry.Next = 0;
 
                     if (TempTrackingSpec."Qty. to Handle (Base)" = 0) and (TempTrackingSpec."Qty. to Invoice (Base)" = 0) then
-                        TempTrackingSpec.Delete
-                    else
-                        Error(CannotMatchItemTrackingErr);
+                        TempTrackingSpec.Delete();
                 end;
             until TempTrackingSpec.Next = 0;
 
@@ -2544,7 +2542,12 @@ codeunit 6500 "Item Tracking Management"
     local procedure RegisterNewItemTrackingLines(var TempTrackingSpec: Record "Tracking Specification" temporary)
     var
         TrackingSpec: Record "Tracking Specification";
+        ReservEntry: Record "Reservation Entry";
+        ReservMgt: Codeunit "Reservation Management";
         ItemTrackingLines: Page "Item Tracking Lines";
+        QtyToHandleInItemTracking: Decimal;
+        QtyToHandleOnSourceDocLine: Decimal;
+        QtyToHandleToNewRegister: Decimal;
     begin
         OnBeforeRegisterNewItemTrackingLines(TempTrackingSpec);
 
@@ -2557,6 +2560,16 @@ codeunit 6500 "Item Tracking Management"
 
                 TrackingSpec := TempTrackingSpec;
                 TempTrackingSpec.CalcSums("Qty. to Handle (Base)");
+
+                QtyToHandleToNewRegister := TempTrackingSpec."Qty. to Handle (Base)";
+                ReservEntry.TransferFields(TempTrackingSpec);
+                QtyToHandleInItemTracking :=
+                  Abs(CalcQtyToHandleForTrackedQtyOnDocumentLine(
+                      ReservEntry."Source Type", ReservEntry."Source Subtype", ReservEntry."Source ID", ReservEntry."Source Ref. No."));
+                QtyToHandleOnSourceDocLine := ReservMgt.GetSourceRecordValue(ReservEntry, false, 0);
+
+                if QtyToHandleToNewRegister + QtyToHandleInItemTracking > QtyToHandleOnSourceDocLine then
+                    Error(CannotMatchItemTrackingErr);
 
                 TrackingSpec."Quantity (Base)" :=
                   TempTrackingSpec."Qty. to Handle (Base)" + Abs(ItemTrkgQtyPostedOnSource(TrackingSpec));
@@ -2625,12 +2638,9 @@ codeunit 6500 "Item Tracking Management"
 
             ReservEntry.SetSourceFilter("Source Type", "Source Subtype", "Source ID", "Source Ref. No.", false);
             ReservEntry.SetSourceFilter('', "Source Prod. Order Line");
-            if not ReservEntry.IsEmpty then begin
-                ReservEntry.FindSet;
-                repeat
-                    Qty += ReservEntry."Qty. to Handle (Base)";
-                until ReservEntry.Next = 0;
-            end;
+            ReservEntry.CalcSums("Qty. to Handle (Base)");
+            Qty += ReservEntry."Qty. to Handle (Base)";
+
             if "Source Type" = DATABASE::"Transfer Line" then begin
                 TransferLine.Get("Source ID", "Source Ref. No.");
                 Qty -= TransferLine."Qty. Shipped (Base)";

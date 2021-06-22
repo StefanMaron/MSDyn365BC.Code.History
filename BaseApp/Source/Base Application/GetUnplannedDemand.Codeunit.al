@@ -217,7 +217,7 @@ codeunit 5520 "Get Unplanned Demand"
     local procedure GetJobPlanningLineNeededQty(JobPlanningLine: Record "Job Planning Line"): Decimal
     begin
         with JobPlanningLine do begin
-            if Planned or ("No." = '') or (Type <> Type::Item) or IsNonInventoriableItem then
+            if Planned or ("No." = '') or (Type <> Type::Item) or IsNonInventoriableItem() then
                 exit(0);
 
             CalcFields("Reserved Qty. (Base)");

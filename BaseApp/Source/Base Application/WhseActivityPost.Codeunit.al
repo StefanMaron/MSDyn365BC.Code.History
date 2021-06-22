@@ -109,6 +109,7 @@ codeunit 7324 "Whse.-Activity-Post"
                     ItemTrackingRequired := CheckItemTracking(WhseActivLine);
                     InsertTempWhseActivLine(WhseActivLine, ItemTrackingRequired);
                 until WhseActivLine.Next = 0;
+                CheckWhseItemTrackingAgainstSource();
             end;
             NoOfRecords := LineCount;
 
@@ -954,6 +955,21 @@ codeunit 7324 "Whse.-Activity-Post"
     procedure SetSuppressCommit(NewSuppressCommit: Boolean)
     begin
         SuppressCommit := NewSuppressCommit;
+    end;
+
+    local procedure CheckWhseItemTrackingAgainstSource()
+    var
+        TrackingSpecification: Record "Tracking Specification";
+    begin
+        with TempWhseActivLine do begin
+            Reset();
+            if FindSet() then
+                repeat
+                    TrackingSpecification.CheckItemTrackingQuantity(
+                      "Source Type", "Source Subtype", "Source No.", "Source Line No.",
+                      "Qty. to Handle", "Qty. to Handle (Base)", true, InvoiceSourceDoc);
+                until Next() = 0;
+        end;
     end;
 
     [IntegrationEvent(false, false)]

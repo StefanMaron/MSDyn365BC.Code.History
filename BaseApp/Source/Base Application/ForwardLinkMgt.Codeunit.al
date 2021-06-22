@@ -17,16 +17,16 @@ codeunit 1431 "Forward Link Mgt."
         SalesLineDropShipmentTok: Label 'DROP SHIPMENT', Locked = true;
         SalesLineDropShipmentMsg: Label 'Making drop shipments';
 
-    local procedure AddLink(NewName: Code[30]; NewDescription: Text[250]; NewLink: Text[250])
+    procedure AddLink(NewName: Code[30]; NewDescription: Text[250]; NewLink: Text[250])
     var
         NamedForwardLink: Record "Named Forward Link";
     begin
-        with NamedForwardLink do begin
-            Init;
-            Name := NewName;
-            Description := NewDescription;
-            Link := NewLink;
-            if Insert then;
+        if not NamedForwardLink.Get(NewName) then begin
+            NamedForwardLink.Init;
+            NamedForwardLink.Name := NewName;
+            NamedForwardLink.Description := NewDescription;
+            NamedForwardLink.Link := NewLink;
+            NamedForwardLink.Insert();
         end;
     end;
 

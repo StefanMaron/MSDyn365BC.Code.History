@@ -42,7 +42,7 @@ codeunit 134386 "ERM Sales Documents II"
         RecurrentExpiredDateErr: Label 'No sales invoice must be created for expired Valid To Date in Standard Customer Sales Code.';
         IncorrectSalesTypeToCopyPricesErr: Label 'To copy sales prices, The Sales Type Filter field must contain Customer.';
         MultipleCustomersSelectedErr: Label 'More than one customer uses these sales prices. To copy prices, the Sales Code Filter field must contain one customer only.';
-        NotExistingFreightGLAccNoErr: Label 'The field Freight G/L Acc. No. of table Sales & Receivables Setup contains a value (%1) that cannot be found in the related table', Comment = '%1 - G\L Acc No';
+        NotExistingFreightGLAccNoErr: Label 'The field %1 of table Sales & Receivables Setup contains a value (%2) that cannot be found in the related table', Comment = '%1 - caption of "Freight G/L Acc. No.", %2 - G/L Account No.';
         ShipToAdressTestValueTxt: Label 'ShipToAdressTestValue';
         EmptyStartingDateRecIsNotFoundErr: Label 'The record with empty starting date field is not found.';
         WorkStartingDateRecIsNotFoundErr: Label 'The record with specified starting date (%1) is not found.';
@@ -2963,7 +2963,8 @@ codeunit 134386 "ERM Sales Documents II"
         GLAccNo := LibraryUtility.GenerateGUID;
         SalesReceivablesSetup.Get;
         asserterror SalesReceivablesSetup.Validate("Freight G/L Acc. No.", GLAccNo);
-        Assert.ExpectedError(StrSubstNo(NotExistingFreightGLAccNoErr, GLAccNo));
+        Assert.ExpectedError(
+            StrSubstNo(NotExistingFreightGLAccNoErr, SalesReceivablesSetup.FieldCaption("Freight G/L Acc. No."), GLAccNo));
     end;
 
     [Test]

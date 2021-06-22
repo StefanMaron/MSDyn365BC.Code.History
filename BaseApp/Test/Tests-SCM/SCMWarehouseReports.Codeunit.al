@@ -1445,6 +1445,45 @@ codeunit 137305 "SCM Warehouse Reports"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure CombineShipmentsWithMixedSellToAndBillToCustomerCodes()
+    var
+        CustomerSell: Record Customer;
+        CustomerBill: Record Customer;
+        Item: Record Item;
+    begin
+        // [FEATURE] [Combine Shipments]
+        // [SCENARIO 345197] Combine shipments for sales orders sorted in mixed order of sell-to and bill-to customer codes.
+        Initialize();
+
+        // [GIVEN] Customer "B".
+        // [GIVEN] Customer "A" with bill-to customer "B".
+        CreateCustomer(CustomerBill);
+        CreateCustomer(CustomerSell);
+        CustomerSell.Validate("Bill-to Customer No.", CustomerBill."No.");
+        CustomerSell.Modify(true);
+
+        // [GIVEN] 4 sales orders posted in the following order:
+        // [GIVEN] 1st: Sell-to Customer "A", Bill-to Customer "B".
+        // [GIVEN] 2nd: Sell-to Customer "B", Bill-to Customer "B".
+        // [GIVEN] 3rd: Sell-to Customer "B", Bill-to Customer "B".
+        // [GIVEN] 4th: Sell-to Customer "A", Bill-to Customer "B".
+        LibraryInventory.CreateItem(Item);
+        CreateAndPostSalesOrder(CustomerSell."No.", Item."No.", 1, LibraryRandom.RandInt(10));
+        CreateAndPostSalesOrder(CustomerBill."No.", Item."No.", 1, LibraryRandom.RandInt(10));
+        CreateAndPostSalesOrder(CustomerBill."No.", Item."No.", 1, LibraryRandom.RandInt(10));
+        CreateAndPostSalesOrder(CustomerSell."No.", Item."No.", 1, LibraryRandom.RandInt(10));
+
+        // [WHEN] Run Combine Shipments for customers "A" and "B".
+        RunCombineShipments(StrSubstNo('%1|%2', CustomerSell."No.", CustomerBill."No."), false, false, false, false);
+
+        // [THEN] Two sales invoices are generated, each for two shipment lines.
+        VerifySalesInvoice(CustomerSell."No.", CustomerBill."No.", 2);
+        VerifySalesInvoice(CustomerBill."No.", CustomerBill."No.", 2);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1959,13 +1998,13 @@ codeunit 137305 "SCM Warehouse Reports"
         LibraryInventory.CalculateInventoryForSingleItem(ItemJournalLine, ItemNo, WorkDate, ItemsNotOnInvt, false);
     end;
 
-    local procedure RunCombineShipments(CustomerNo: Code[20]; CalcInvDisc: Boolean; PostInvoices: Boolean; OnlyStdPmtTerms: Boolean; CopyTextLines: Boolean)
+    local procedure RunCombineShipments(CustomerNoFilter: Text; CalcInvDisc: Boolean; PostInvoices: Boolean; OnlyStdPmtTerms: Boolean; CopyTextLines: Boolean)
     var
         SalesShipmentHeader: Record "Sales Shipment Header";
         SalesHeader: Record "Sales Header";
     begin
-        SalesHeader.SetRange("Sell-to Customer No.", CustomerNo);
-        SalesShipmentHeader.SetRange("Sell-to Customer No.", CustomerNo);
+        SalesHeader.SetFilter("Sell-to Customer No.", CustomerNoFilter);
+        SalesShipmentHeader.SetFilter("Sell-to Customer No.", CustomerNoFilter);
         LibraryVariableStorage.Enqueue(CombineShipmentMsg);  // Enqueue for MessageHandler.
         LibrarySales.CombineShipments(
           SalesHeader, SalesShipmentHeader, WorkDate, WorkDate, CalcInvDisc, PostInvoices, OnlyStdPmtTerms, CopyTextLines);

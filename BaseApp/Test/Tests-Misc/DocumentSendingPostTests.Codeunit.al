@@ -310,6 +310,7 @@ codeunit 139151 DocumentSendingPostTests
         // create a sales invoice
         CreateCustomerWithEmail(Customer);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        UpdateYourReferenceSalesHeader(SalesHeader, LibraryUtility.GenerateGUID);
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
 
@@ -409,8 +410,7 @@ codeunit 139151 DocumentSendingPostTests
 
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
         SalesHeader.Validate("Bill-to Customer No.", BillToCustomer."No.");
-        SalesHeader.Validate("Your Reference", '123457890');
-        SalesHeader.Modify(true);
+        UpdateYourReferenceSalesHeader(SalesHeader, '123457890');
 
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
@@ -471,6 +471,7 @@ codeunit 139151 DocumentSendingPostTests
         Customer.Modify;
 
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        UpdateYourReferenceSalesHeader(SalesHeader, LibraryUtility.GenerateGUID);
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
 
@@ -771,6 +772,7 @@ codeunit 139151 DocumentSendingPostTests
         // create a sales credit memo
         CreateCustomerWithEmail(Customer);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", Customer."No.");
+        UpdateYourReferenceSalesHeader(SalesHeader, LibraryUtility.GenerateGUID);
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
 
@@ -874,7 +876,7 @@ codeunit 139151 DocumentSendingPostTests
 
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", Customer."No.");
         SalesHeader.Validate("Bill-to Customer No.", BillToCustomer."No.");
-        SalesHeader.Modify(true);
+        UpdateYourReferenceSalesHeader(SalesHeader, LibraryUtility.GenerateGUID);
 
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
@@ -935,7 +937,7 @@ codeunit 139151 DocumentSendingPostTests
         SalesHeader."Bill-to City" := LibraryUtility.GenerateGUID;
         SalesHeader."Bill-to Post Code" := LibraryUtility.GenerateGUID;
         SalesHeader."Bill-to Country/Region Code" := 'US';
-        SalesHeader.Modify(true);
+        UpdateYourReferenceSalesHeader(SalesHeader, LibraryUtility.GenerateGUID);
 
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
@@ -992,6 +994,7 @@ codeunit 139151 DocumentSendingPostTests
         // create a sales invoice
         CreateElectronicDocumentCustomer(Customer);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        UpdateYourReferenceSalesHeader(SalesHeader, LibraryUtility.GenerateGUID);
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
 
@@ -1284,6 +1287,7 @@ codeunit 139151 DocumentSendingPostTests
         // create a sales invoice
         CreateElectronicDocumentCustomer(Customer);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        UpdateYourReferenceSalesHeader(SalesHeader, LibraryUtility.GenerateGUID);
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
 
@@ -3506,6 +3510,7 @@ codeunit 139151 DocumentSendingPostTests
         SalesPost: Codeunit "Sales-Post";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, Customer."No.");
+        UpdateYourReferenceSalesHeader(SalesHeader, LibraryUtility.GenerateGUID);
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
         LibrarySales.PostSalesDocument(SalesHeader, false, true);
@@ -3944,6 +3949,12 @@ codeunit 139151 DocumentSendingPostTests
 
         DocumentSendingProfile.Code := LibraryUtility.GenerateGUID;
         DocumentSendingProfile.Default := true;
+    end;
+
+    local procedure UpdateYourReferenceSalesHeader(var SalesHeader: Record "Sales Header"; YourReference: Text[35])
+    begin
+        SalesHeader."Your Reference" := YourReference;
+        SalesHeader.Modify;
     end;
 
     local procedure VerifyDocumentProfilesAreIdentical(ExpectedDocumentSendingProfile: Record "Document Sending Profile"; ActualDocumentSendingProfile: Record "Document Sending Profile")

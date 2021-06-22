@@ -747,14 +747,15 @@ table 130 "Incoming Document"
         exit("Entry No.");
     end;
 
-    procedure CreateIncomingDocument(PictureInStream: InStream; Description: Text)
+    procedure CreateIncomingDocument(PictureInStream: InStream; FileName: Text)
     var
         IncomingDocument: Record "Incoming Document";
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
+        FileManagement: Codeunit "File Management";
     begin
         IncomingDocument.CopyFilters(Rec);
-        CreateIncomingDocument(Description, '');
-        AddAttachmentFromStream(IncomingDocumentAttachment, Description, '', PictureInStream);
+        CreateIncomingDocument(FileManagement.GetFileNameWithoutExtension(FileName), '');
+        AddAttachmentFromStream(IncomingDocumentAttachment, FileName, FileManagement.GetExtension(FileName), PictureInStream);
         CopyFilters(IncomingDocument);
     end;
 

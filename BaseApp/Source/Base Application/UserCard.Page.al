@@ -539,9 +539,6 @@ page 9807 "User Card"
     var
         SetWebServiceAccessKey: Page "Set Web Service Access Key";
     begin
-        if IsSaaS and (UserSecurityId <> "User Security ID") then
-            exit;
-
         TestField("User Name");
 
         if Confirm(Confirm001Qst) then begin

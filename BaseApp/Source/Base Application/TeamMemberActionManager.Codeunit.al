@@ -24,7 +24,7 @@ codeunit 9003 "Team Member Action Manager"
     local procedure OnBeforeSalesDocPost(var Sender: Codeunit "Sales-Post"; var SalesHeader: Record "Sales Header"; CommitIsSuppressed: Boolean; PreviewMode: Boolean)
     begin
         // Team member is not allowed to invoice a sales document.
-        if IsCurrentUserAssignedTeamMemberPlan then
+        if IsCurrentUserAssignedTeamMemberPlan and SalesHeader.Invoice then
             Error(TeamMemberErr);
     end;
 
@@ -32,7 +32,7 @@ codeunit 9003 "Team Member Action Manager"
     local procedure OnBeforePurchaseDocPost(var Sender: Codeunit "Purch.-Post"; var PurchaseHeader: Record "Purchase Header"; PreviewMode: Boolean; CommitIsSupressed: Boolean)
     begin
         // Team member is not allowed to invoice a purchase document.
-        if IsCurrentUserAssignedTeamMemberPlan then
+        if IsCurrentUserAssignedTeamMemberPlan and PurchaseHeader.Invoice then
             Error(TeamMemberErr);
     end;
 

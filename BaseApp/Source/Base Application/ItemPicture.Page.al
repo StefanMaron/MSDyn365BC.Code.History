@@ -107,7 +107,7 @@ page 346 "Item Picture"
     end;
 
     var
-        Camera: Page Camera;
+        Camera: Codeunit Camera;
         [InDataSet]
         CameraAvailable: Boolean;
         OverrideImageQst: Label 'The existing picture will be replaced. Do you want to continue?';
@@ -118,29 +118,12 @@ page 346 "Item Picture"
         MustSpecifyDescriptionErr: Label 'You must add a description to the item before you can import a picture.';
 
     procedure TakeNewPicture()
-    var
-        InStream: InStream;
     begin
         Find;
         TestField("No.");
         TestField(Description);
 
-        if not CameraAvailable then
-            exit;
-
-        Camera.RunModal();
-
-        if Picture.Count > 0 then
-            if not Confirm(OverrideImageQst) then
-                exit;
-
-        Camera.GetPicture(Instream);
-
-        Clear(Picture);
-        Picture.ImportStream(Instream, 'Item Picture');
-        if not Modify(true) then
-            Insert(true);
-        Clear(Camera);
+        Camera.AddPicture(Rec, Rec.FieldNo(Picture));
     end;
 
     [Scope('OnPrem')]
