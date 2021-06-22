@@ -18,6 +18,7 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryERM: Codeunit "Library - ERM";
         IsInitialized: Boolean;
         TemplateFeatureEnabled: Boolean;
         GlobalDimCodeTemplateErr: Label 'Value of template Global Dimension Code is wrong';
@@ -1148,6 +1149,80 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         VerifyDimensions(Database::Item, Item[2]."No.", Database::"Item Templ.", ItemTempl2.Code);
 
         LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ItemTemplCreateItemPriceIncludesVATVATPostingSetupExistsUT()
+    var
+        Item: Record Item;
+        ItemTempl: Record "Item Templ.";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        VATPostingSetup: Record "VAT Posting Setup";
+        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
+        CustVendItemEmplTemplates: Codeunit "Cust/Vend/Item/Empl Templates";
+    begin
+        // [SCENARIO 353440] Create new item via template with "Price Includes VAT" = true
+        Initialize();
+        ItemTempl.DeleteAll();
+        BindSubscription(CustVendItemEmplTemplates);
+        CustVendItemEmplTemplates.SetItemTemplateFeatureEnabled(true);
+
+        // [GIVEN] Template with data and dimensions, "Price Includes VAT" = true
+        LibraryTemplates.CreateItemTemplateWithDataAndDimensions(ItemTempl);
+        ItemTempl."Price Includes VAT" := true;
+        ItemTempl.Modify(true);
+
+        // [GIVEN] Sales setup "VAT Bus. Posting Gr. (Price)" filled with data in order "Price Includes VAT" can be enabled
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+        SalesReceivablesSetup."VAT Bus. Posting Gr. (Price)" := VATBusinessPostingGroup.Code;
+        SalesReceivablesSetup.Modify();
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code, ItemTempl."VAT Prod. Posting Group");
+
+        // [WHEN] Create new Item
+        ItemTemplMgt.InsertItemFromTemplate(Item);
+
+        // [THEN] Item inserted with data from template
+        VerifyItem(Item, ItemTempl);
+        // [THEN] Item dimensions inserted from template dimensions
+        VerifyDimensions(Database::Item, Item."No.", Database::"Item Templ.", ItemTempl.Code);
+        // [THEN] Item "Price Includes VAT" = true
+        Assert.IsTrue(Item."Price Includes VAT", 'Price Includes VAT should be true');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ItemTemplCreateItemPriceIncludesVATVATPostingSetupDoesNotExistUT()
+    var
+        Item: Record Item;
+        ItemTempl: Record "Item Templ.";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
+        CustVendItemEmplTemplates: Codeunit "Cust/Vend/Item/Empl Templates";
+    begin
+        // [SCENARIO 353440] Create new item via template with "Price Includes VAT" = true
+        Initialize();
+        ItemTempl.DeleteAll();
+        BindSubscription(CustVendItemEmplTemplates);
+        CustVendItemEmplTemplates.SetItemTemplateFeatureEnabled(true);
+
+        // [GIVEN] Template with data and dimensions, "Price Includes VAT" = true
+        LibraryTemplates.CreateItemTemplateWithDataAndDimensions(ItemTempl);
+        ItemTempl."Price Includes VAT" := true;
+        ItemTempl.Modify(true);
+
+        // [GIVEN] Sales setup "VAT Bus. Posting Gr. (Price)" filled with data in order "Price Includes VAT" cannot be enabled
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+        SalesReceivablesSetup."VAT Bus. Posting Gr. (Price)" := VATBusinessPostingGroup.Code;
+        SalesReceivablesSetup.Modify();
+
+        // [WHEN] Create new Item
+        asserterror ItemTemplMgt.InsertItemFromTemplate(Item);
+
+        // [THEN] Item is not created, error message thrown by system
+        Assert.ExpectedError('VAT Posting Setup does not exist');
     end;
 
     local procedure Initialize()

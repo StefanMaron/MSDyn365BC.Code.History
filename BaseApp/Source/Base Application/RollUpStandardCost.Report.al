@@ -126,6 +126,7 @@ report 5854 "Roll Up Standard Cost"
             "New Rolled-up Subcontrd Cost" := TempItem."Rolled-up Subcontracted Cost";
             "New Rolled-up Cap. Ovhd Cost" := TempItem."Rolled-up Cap. Overhead Cost";
             "New Rolled-up Mfg. Ovhd Cost" := TempItem."Rolled-up Mfg. Ovhd Cost";
+            OnUpdateStdCostWkshOnAfterFieldsPopulated(StdCostWksh, TempItem);
 
             if Found then
                 Modify(true)
@@ -143,6 +144,11 @@ report 5854 "Roll Up Standard Cost"
     begin
         ToStdCostWkshName := StdCostWkshName2;
         NoMessage := NoMessage2;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateStdCostWkshOnAfterFieldsPopulated(var StdCostWksh: Record "Standard Cost Worksheet"; TempItem: Record Item temporary)
+    begin
     end;
 }
 

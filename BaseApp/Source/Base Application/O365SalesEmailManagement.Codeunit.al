@@ -26,7 +26,10 @@ codeunit 2151 "O365 Sales Email Management"
         DocumentMailing: Codeunit "Document-Mailing";
         O365HTMLTemplMgt: Codeunit "O365 HTML Templ. Mgt.";
         MailManagement: Codeunit "Mail Management";
+        Attachment: Codeunit "Temp Blob";
         O365SalesEmailDialog: Page "O365 Sales Email Dialog";
+        AttachmentName: Text[250];
+        InStream: InStream;
         DocumentRecordVariant: Variant;
         CustomerNo: Code[20];
         EmailAddress: Text[250];
@@ -45,7 +48,7 @@ codeunit 2151 "O365 Sales Email Management"
         DocumentName := GetDocumentName(IsTestInvoice);
 
         if IsTestInvoice then begin
-            EmailSubject := DocumentMailing.GetTestInvoiceEmailSubject;
+            EmailSubject := DocumentMailing.GetTestInvoiceEmailSubject();
             EmailBody := DocumentMailing.GetTestInvoiceEmailBody(CustomerNo);
 
             if not ReportSelections.GetEmailBodyTextForCust(
@@ -64,17 +67,19 @@ codeunit 2151 "O365 Sales Email Management"
         if ReportSelections.FindEmailAttachmentUsageForCust(ReportUsage, CustomerNo, TempReportSelections) then begin
             // Create attachment
             TempReportSelections.GetPdfReportForCust(
-              TempEmailItem."Attachment File Path", ReportUsage,
+              Attachment, ReportUsage,
               DocumentRecordVariant, CustomerNo);
-
+            
             DocumentMailing.GetAttachmentFileName(
-              TempEmailItem."Attachment Name", DocumentNo, DocumentName, ReportUsage.AsInteger());
+              AttachmentName, DocumentNo, DocumentName, ReportUsage.AsInteger());
+            Attachment.CreateInStream(InStream);
+            TempEmailItem.AddAttachment(InStream, AttachmentName);
         end;
 
         TempEmailItem.Subject := EmailSubject;
         TempEmailItem.SetBodyText(EmailBody);
         TempEmailItem."Send to" := EmailAddress;
-        TempEmailItem.AddCcBcc;
+        TempEmailItem.AddCcBcc();
         TempEmailItem.AttachIncomingDocuments(DocumentNo);
         TempEmailItem.Insert(true);
         Commit();
@@ -93,7 +98,7 @@ codeunit 2151 "O365 Sales Email Management"
         SaveEmailParametersIfChanged(
           DocumentNo, ReportUsage.AsInteger(), EmailAddress, TempEmailItem."Send to", TempEmailItem.Subject);
 
-        BodyText := TempEmailItem.GetBodyText;
+        BodyText := TempEmailItem.GetBodyText();
         if not HasBeenSent then
             BodyText := DocumentMailing.ReplaceCustomerNameWithPlaceholder(CustomerNo, BodyText);
 
@@ -112,7 +117,7 @@ codeunit 2151 "O365 Sales Email Management"
         IsTestInvoice := false;
 
         if SalesInvoiceHeader.Get(DocumentNo) then begin
-            SalesInvoiceHeader.SetRecFilter;
+            SalesInvoiceHeader.SetRecFilter();
             DocumentRecordVariant := SalesInvoiceHeader;
             CustomerNo := SalesInvoiceHeader."Bill-to Customer No.";
             ReportUsage := ReportSelections.Usage::"S.Invoice";
@@ -122,8 +127,8 @@ codeunit 2151 "O365 Sales Email Management"
 
         SalesHeader.SetFilter("Document Type", '%1|%2', SalesHeader."Document Type"::Quote, SalesHeader."Document Type"::Invoice);
         SalesHeader.SetRange("No.", DocumentNo);
-        if SalesHeader.FindFirst then begin
-            SalesHeader.SetRecFilter;
+        if SalesHeader.FindFirst() then begin
+            SalesHeader.SetRecFilter();
             DocumentRecordVariant := SalesHeader;
             CustomerNo := SalesHeader."Bill-to Customer No.";
 
@@ -265,14 +270,14 @@ codeunit 2151 "O365 Sales Email Management"
         EmailBody: Text;
         Buffer: Text;
     begin
-        if not File.Open(FilePath, GetBodyTextEncoding) then
+        if not File.Open(FilePath, GetBodyTextEncoding()) then
             Error(CannotOpenFileErr, GetLastErrorText);
         File.CreateInStream(InStream);
-        while not InStream.EOS do begin
+        while not InStream.EOS() do begin
             InStream.Read(Buffer);
             EmailBody += Buffer;
         end;
-        File.Close;
+        File.Close();
         if Erase(FilePath) then;
 
         NativeAPIInjectMetaViewport(EmailBody);

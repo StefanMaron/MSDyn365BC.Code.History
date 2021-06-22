@@ -343,25 +343,27 @@
 
     procedure UpdateRecordFromVATRegLog(var RecordRef: RecordRef; RecordVariant: Variant; VATRegistrationLog: Record "VAT Registration Log")
     begin
-        RecordRef.GetTable(RecordVariant);
-        case VATRegistrationLog.Status of
-            VATRegistrationLog.Status::Valid:
-                case VATRegistrationLog."Details Status" of
-                    VATRegistrationLog."Details Status"::"Not Verified":
-                        Message(DetailsNotVerifiedMsg);
-                    VATRegistrationLog."Details Status"::Valid:
-                        Message(ValidVATNoMsg);
-                    VATRegistrationLog."Details Status"::"Partially Valid",
-                    VATRegistrationLog."Details Status"::"Not Valid":
-                        begin
-                            DataTypeManagement.GetRecordRef(RecordVariant, RecordRef);
-                            VATRegistrationLog.OpenDetailsForRecRef(RecordRef);
-                        end;
-                end;
-            VATRegistrationLog.Status::Invalid:
-                Message(InvalidVatRegNoMsg);
-            else
-                Message(NotVerifiedVATRegMsg);
+        if GuiAllowed() then begin
+            RecordRef.GetTable(RecordVariant);
+            case VATRegistrationLog.Status of
+                VATRegistrationLog.Status::Valid:
+                    case VATRegistrationLog."Details Status" of
+                        VATRegistrationLog."Details Status"::"Not Verified":
+                            Message(DetailsNotVerifiedMsg);
+                        VATRegistrationLog."Details Status"::Valid:
+                            Message(ValidVATNoMsg);
+                        VATRegistrationLog."Details Status"::"Partially Valid",
+                        VATRegistrationLog."Details Status"::"Not Valid":
+                            begin
+                                DataTypeManagement.GetRecordRef(RecordVariant, RecordRef);
+                                VATRegistrationLog.OpenDetailsForRecRef(RecordRef);
+                            end;
+                    end;
+                VATRegistrationLog.Status::Invalid:
+                    Message(InvalidVatRegNoMsg);
+                else
+                    Message(NotVerifiedVATRegMsg);
+            end;
         end;
     end;
 

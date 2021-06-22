@@ -1,8 +1,59 @@
 codeunit 1400 DocumentNoVisibility
 {
+    SingleInstance = true;
 
-    trigger OnRun()
+    var
+        IsSalesDocNoInitialized: Boolean;
+        IsPurchDocNoInitialized: Boolean;
+        IsCustNoInitialized: Boolean;
+        IsVendNoInitialized: Boolean;
+        IsEmployeeNoInitialized: Boolean;
+        IsItemNoInitialized: Boolean;
+        IsBankNoInitialized: Boolean;
+        IsFANoInitialized: Boolean;
+        IsResNoInitialized: Boolean;
+        IsJobNoInitialized: Boolean;
+        IsTransferOrdNoInitialized: Boolean;
+        IsContactNoInitialized: Boolean;
+        SalesDocNoVisible: Boolean;
+        PurchDocNoVisible: Boolean;
+        CustNoVisible: Boolean;
+        VendNoVisible: Boolean;
+        EmployeeNoVisible: Boolean;
+        ItemNoVisible: Boolean;
+        BankNoVisible: Boolean;
+        FANoVisible: Boolean;
+        ResNoVisible: Boolean;
+        JobNoVisible: Boolean;
+        TransferOrdNoVisible: Boolean;
+        ContactNoVisible: Boolean;
+
+    procedure ClearState()
     begin
+        IsSalesDocNoInitialized := false;
+        IsPurchDocNoInitialized := false;
+        IsCustNoInitialized := false;
+        IsVendNoInitialized := false;
+        IsEmployeeNoInitialized := false;
+        IsItemNoInitialized := false;
+        IsBankNoInitialized := false;
+        IsFANoInitialized := false;
+        IsResNoInitialized := false;
+        IsJobNoInitialized := false;
+        IsTransferOrdNoInitialized := false;
+        IsContactNoInitialized := false;
+        SalesDocNoVisible := false;
+        PurchDocNoVisible := false;
+        CustNoVisible := false;
+        VendNoVisible := false;
+        EmployeeNoVisible := false;
+        ItemNoVisible := false;
+        BankNoVisible := false;
+        FANoVisible := false;
+        ResNoVisible := false;
+        JobNoVisible := false;
+        TransferOrdNoVisible := false;
+        ContactNoVisible := false;
     end;
 
     procedure SalesDocumentNoIsVisible(DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order",Reminder,FinChMemo; DocNo: Code[20]): Boolean
@@ -22,15 +73,18 @@ codeunit 1400 DocumentNoVisibility
         if DocNo <> '' then
             exit(false);
 
-        DocNoSeries := DetermineSalesSeriesNo(DocType);
+        if IsSalesDocNoInitialized then
+            exit(SalesDocNoVisible);
+        IsSalesDocNoInitialized := true;
 
+        DocNoSeries := DetermineSalesSeriesNo(DocType);
         if not NoSeries.Get(DocNoSeries) then begin
             SalesNoSeriesSetup.SetFieldsVisibility(DocType);
             SalesNoSeriesSetup.RunModal;
             DocNoSeries := DetermineSalesSeriesNo(DocType);
         end;
-
-        exit(ForceShowNoSeriesForDocNo(DocNoSeries));
+        SalesDocNoVisible := ForceShowNoSeriesForDocNo(DocNoSeries);
+        exit(SalesDocNoVisible);
     end;
 
     procedure PurchaseDocumentNoIsVisible(DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order"; DocNo: Code[20]): Boolean
@@ -50,15 +104,18 @@ codeunit 1400 DocumentNoVisibility
         if DocNo <> '' then
             exit(false);
 
-        DocNoSeries := DeterminePurchaseSeriesNo(DocType);
+        if IsPurchDocNoInitialized then
+            exit(PurchDocNoVisible);
+        IsPurchDocNoInitialized := true;
 
+        DocNoSeries := DeterminePurchaseSeriesNo(DocType);
         if not NoSeries.Get(DocNoSeries) then begin
             PurchaseNoSeriesSetup.SetFieldsVisibility(DocType);
             PurchaseNoSeriesSetup.RunModal;
             DocNoSeries := DeterminePurchaseSeriesNo(DocType);
         end;
-
-        exit(ForceShowNoSeriesForDocNo(DocNoSeries));
+        PurchDocNoVisible := ForceShowNoSeriesForDocNo(DocNoSeries);
+        exit(PurchDocNoVisible);
     end;
 
     procedure TransferOrderNoIsVisible(): Boolean
@@ -73,8 +130,13 @@ codeunit 1400 DocumentNoVisibility
         if IsHandled then
             exit(IsVisible);
 
+        if IsTransferOrdNoInitialized then
+            exit(TransferOrdNoVisible);
+        IsTransferOrdNoInitialized := true;
+
         NoSeriesCode := DetermineTransferOrderSeriesNo;
-        exit(ForceShowNoSeriesForDocNo(NoSeriesCode));
+        TransferOrdNoVisible := ForceShowNoSeriesForDocNo(NoSeriesCode);
+        exit(TransferOrdNoVisible);
     end;
 
     procedure CustomerNoIsVisible(): Boolean
@@ -89,8 +151,13 @@ codeunit 1400 DocumentNoVisibility
         if IsHandled then
             exit(IsVisible);
 
+        if IsCustNoInitialized then
+            exit(CustNoVisible);
+        IsCustNoInitialized := true;
+
         NoSeriesCode := DetermineCustomerSeriesNo;
-        exit(ForceShowNoSeriesForDocNo(NoSeriesCode));
+        CustNoVisible := ForceShowNoSeriesForDocNo(NoSeriesCode);
+        exit(CustNoVisible);
     end;
 
     procedure VendorNoIsVisible(): Boolean
@@ -105,8 +172,13 @@ codeunit 1400 DocumentNoVisibility
         if IsHandled then
             exit(IsVisible);
 
+        if IsVendNoInitialized then
+            exit(VendNoVisible);
+        IsVendNoInitialized := true;
+
         NoSeriesCode := DetermineVendorSeriesNo;
-        exit(ForceShowNoSeriesForDocNo(NoSeriesCode));
+        VendNoVisible := ForceShowNoSeriesForDocNo(NoSeriesCode);
+        exit(VendNoVisible);
     end;
 
     procedure ItemNoIsVisible(): Boolean
@@ -121,8 +193,13 @@ codeunit 1400 DocumentNoVisibility
         if IsHandled then
             exit(IsVisible);
 
+        if IsItemNoInitialized then
+            exit(ItemNoVisible);
+        IsItemNoInitialized := true;
+
         NoSeriesCode := DetermineItemSeriesNo;
-        exit(ForceShowNoSeriesForDocNo(NoSeriesCode));
+        ItemNoVisible := ForceShowNoSeriesForDocNo(NoSeriesCode);
+        exit(ItemNoVisible);
     end;
 
     procedure FixedAssetNoIsVisible(): Boolean
@@ -137,8 +214,13 @@ codeunit 1400 DocumentNoVisibility
         if IsHandled then
             exit(IsVisible);
 
+        if IsFANoInitialized then
+            exit(FANoVisible);
+        IsFANoInitialized := true;
+
         NoSeriesCode := DetermineFixedAssetSeriesNo;
-        exit(ForceShowNoSeriesForDocNo(NoSeriesCode));
+        FANoVisible := ForceShowNoSeriesForDocNo(NoSeriesCode);
+        exit(FANoVisible);
     end;
 
     procedure EmployeeNoIsVisible(): Boolean
@@ -153,8 +235,13 @@ codeunit 1400 DocumentNoVisibility
         if IsHandled then
             exit(IsVisible);
 
+        if IsEmployeeNoInitialized then
+            exit(EmployeeNoVisible);
+        IsEmployeeNoInitialized := true;
+
         NoSeriesCode := DetermineEmployeeSeriesNo;
-        exit(ForceShowNoSeriesForDocNo(NoSeriesCode));
+        EmployeeNoVisible := ForceShowNoSeriesForDocNo(NoSeriesCode);
+        exit(EmployeeNoVisible);
     end;
 
     procedure BankAccountNoIsVisible(): Boolean
@@ -169,8 +256,13 @@ codeunit 1400 DocumentNoVisibility
         if IsHandled then
             exit(IsVisible);
 
+        if IsBankNoInitialized then
+            exit(BankNoVisible);
+        IsBankNoInitialized := true;
+
         NoSeriesCode := DetermineBankAccountSeriesNo;
-        exit(ForceShowNoSeriesForDocNo(NoSeriesCode));
+        BankNoVisible := ForceShowNoSeriesForDocNo(NoSeriesCode);
+        exit(BankNoVisible);
     end;
 
     procedure ResourceNoIsVisible(): Boolean
@@ -185,8 +277,13 @@ codeunit 1400 DocumentNoVisibility
         if IsHandled then
             exit(IsVisible);
 
+        if IsResNoInitialized then
+            exit(ResNoVisible);
+        IsResNoInitialized := true;
+
         NoSeriesCode := DetermineResourceSeriesNo;
-        exit(ForceShowNoSeriesForDocNo(NoSeriesCode));
+        ResNoVisible := ForceShowNoSeriesForDocNo(NoSeriesCode);
+        exit(ResNoVisible);
     end;
 
     procedure JobNoIsVisible(): Boolean
@@ -201,8 +298,13 @@ codeunit 1400 DocumentNoVisibility
         if IsHandled then
             exit(IsVisible);
 
+        if IsJobNoInitialized then
+            exit(JobNoVisible);
+        IsJobNoInitialized := true;
+
         NoSeriesCode := DetermineJobSeriesNo;
-        exit(ForceShowNoSeriesForDocNo(NoSeriesCode));
+        JobNoVisible := ForceShowNoSeriesForDocNo(NoSeriesCode);
+        exit(JobNoVisible);
     end;
 
     procedure ContactNoIsVisible(): Boolean
@@ -217,8 +319,13 @@ codeunit 1400 DocumentNoVisibility
         if IsHandled then
             exit(IsVisible);
 
+        if IsContactNoInitialized then
+            exit(ContactNoVisible);
+        IsContactNoInitialized := true;
+
         NoSeriesCode := DetermineContactSeriesNo;
-        exit(ForceShowNoSeriesForDocNo(NoSeriesCode));
+        ContactNoVisible := ForceShowNoSeriesForDocNo(NoSeriesCode);
+        exit(ContactNoVisible);
     end;
 
     procedure CustomerNoSeriesIsDefault(): Boolean

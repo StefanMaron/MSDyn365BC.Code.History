@@ -48,6 +48,13 @@ codeunit 7308 Replenishment
         MovementQtyBase: Decimal;
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFindReplenishmtBin(
+            TempWhseWkshLine, ToBinContent, AllowBreakBulk, NextLineNo,
+            WhseWkshTemplateName, WhseWkshName, LocationCode, DoNotFillQtytoHandle, RemainQtyToReplenishBase, IsHandled);
+        if IsHandled then
+            exit;
+
         with ToBinContent do begin
             FromBinContent.Reset();
             FromBinContent.SetCurrentKey(
@@ -328,6 +335,11 @@ codeunit 7308 Replenishment
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertWhseWkshLine(var TempWhseWkshLine: Record "Whse. Worksheet Line" temporary; DoNotFillQtytoHandle: Boolean; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindReplenishmtBin(var TempWhseWkshLine: Record "Whse. Worksheet Line" temporary; ToBinContent: Record "Bin Content"; AllowBreakBulk: Boolean; NextLineNo: Integer; WhseWkshTemplateName: Code[10]; WhseWkshName: Code[10]; LocationCode: Code[10]; DoNotFillQtytoHandle: Boolean; RemainQtyToReplenishBase: Decimal; var IsHandled: Boolean)
     begin
     end;
 }

@@ -50,6 +50,7 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradePurchaseRcptLineOverReceiptCode();
         UpgradeContactMobilePhoneNo();
         UpgradePostCodeServiceKey();
+        UpgradeIntrastatJnlLine();
     end;
 
     local procedure SetReviewRequiredOnBankPmtApplRules()
@@ -1603,6 +1604,26 @@ codeunit 104000 "Upgrade - BaseApp"
         PostCodeServiceConfig.SaveServiceKey(IsolatedStorageValue);
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetPostCodeServiceKeyUpgradeTag());
+    end;
+
+    local procedure UpgradeIntrastatJnlLine()
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        UpgradeTag: Codeunit "Upgrade Tag";
+    begin
+      if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetIntrastatJnlLinePartnerIDUpgradeTag) THEN
+        exit;
+
+      IntrastatJnlLine.SetRange(Type,IntrastatJnlLine.Type::Shipment);
+      if IntrastatJnlLine.FindSet() then
+        repeat
+          IntrastatJnlLine."Country/Region of Origin Code" := IntrastatJnlLine.GetCountryOfOriginCode();
+          IntrastatJnlLine."Partner VAT ID" := IntrastatJnlLine.GetPartnerID();
+          IntrastatJnlLine.Modify();
+        until IntrastatJnlLine.Next() = 0;
+
+      UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetIntrastatJnlLinePartnerIDUpgradeTag);
     end;
 }
 

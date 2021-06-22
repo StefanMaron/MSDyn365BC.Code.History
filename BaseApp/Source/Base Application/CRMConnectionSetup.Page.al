@@ -376,11 +376,12 @@ page 5330 "CRM Connection Setup"
                 Image = Setup;
                 Promoted = true;
                 PromotedCategory = Report;
-                Enabled = IsRedeployEnabled;
+                Enabled = IsCdsIntegrationEnabled and (not "Is Enabled");
                 ToolTip = 'Redeploy and reconfigure the base integration solution.';
 
                 trigger OnAction()
                 begin
+                    Commit();
                     DeployCRMSolution(true);
                 end;
             }
@@ -646,7 +647,7 @@ page 5330 "CRM Connection Setup"
         ActiveJobs: Integer;
         TotalJobs: Integer;
         IsEditable: Boolean;
-        IsRedeployEnabled: Boolean;
+        IsCdsIntegrationEnabled: Boolean;
         IsUserNamePasswordVisible: Boolean;
         IsWebCliResetEnabled: Boolean;
         SoftwareAsAService: Boolean;
@@ -714,15 +715,15 @@ page 5330 "CRM Connection Setup"
     local procedure SetVisibilityFlags()
     var
         CDSConnectionSetup: Record "CDS Connection Setup";
-        CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
     begin
         IsUserNamePasswordVisible := true;
-        IsRedeployEnabled := CDSIntegrationImpl.IsIntegrationEnabled();
 
-        if CDSConnectionSetup.Get() then
+        if CDSConnectionSetup.Get() then begin
+            IsCdsIntegrationEnabled := CDSConnectionSetup."Is Enabled";
             if CDSConnectionSetup."Authentication Type" = CDSConnectionSetup."Authentication Type"::Office365 then
                 if not CDSConnectionSetup."Connection String".Contains(Office365AuthTxt) then
                     IsUserNamePasswordVisible := false;
+        end;
     end;
 
     local procedure IsValidProxyVersion(): Boolean

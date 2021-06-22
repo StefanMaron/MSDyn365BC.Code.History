@@ -127,6 +127,36 @@ page 5351 "CRM Sales Quote List"
                         end;
                     end;
                 }
+                action(ShowOnlyUncoupled)
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Hide Coupled Quotes';
+                    Enabled = HasRecords;
+                    Image = FilterLines;
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    ToolTip = 'Do not show coupled quotes.';
+
+                    trigger OnAction()
+                    begin
+                        MarkedOnly(true);
+                    end;
+                }
+                action(ShowAll)
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Show Coupled Quotes';
+                    Enabled = HasRecords;
+                    Image = ClearFilter;
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    ToolTip = 'Show coupled quotes.';
+
+                    trigger OnAction()
+                    begin
+                        MarkedOnly(false);
+                    end;
+                }
             }
         }
     }
@@ -161,14 +191,17 @@ page 5351 "CRM Sales Quote List"
         if Style = 1 then begin
             Coupled := 'Current';
             FirstColumnStyle := 'Strong';
+            Mark(true);
         end else
             if Style = 2 then begin
                 Coupled := 'Yes';
                 FirstColumnStyle := 'Subordinate';
+                Mark(false);
             end else
                 if Style = 3 then begin
                     Coupled := 'No';
                     FirstColumnStyle := 'None';
+                    Mark(true);
                 end;
     end;
 
@@ -197,7 +230,7 @@ page 5351 "CRM Sales Quote List"
         HasRecords: Boolean;
         Coupled: Text;
         FirstColumnStyle: Text;
-        AlreadyProcessedErr: Label 'The current record has already been processed in BC.';
+        AlreadyProcessedErr: Label 'The current record has already been processed in Business Central.';
 
     procedure SetCurrentlyCoupledCRMQuote(CRMQuote: Record "CRM Quote")
     begin

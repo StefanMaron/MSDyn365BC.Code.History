@@ -515,6 +515,7 @@ codeunit 1520 "Workflow Event Handling"
     [Scope('OnPrem')]
     procedure RunWorkflowOnSendPurchaseDocForApproval(var PurchaseHeader: Record "Purchase Header")
     begin
+        OnBeforeRunWorkflowOnSendPurchaseDocForApproval(PurchaseHeader);
         WorkflowManagement.HandleEvent(RunWorkflowOnSendPurchaseDocForApprovalCode, PurchaseHeader);
     end;
 
@@ -824,6 +825,11 @@ codeunit 1520 "Workflow Event Handling"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAddEventToLibrary(FunctionName: Code[128]; Description: Text[250])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunWorkflowOnSendPurchaseDocForApproval(PurchaseHeader: Record "Purchase Header")
     begin
     end;
 }

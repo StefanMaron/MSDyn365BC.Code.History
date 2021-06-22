@@ -4,6 +4,9 @@ page 9700 "Email Dialog"
     PageType = StandardDialog;
     SourceTable = "Email Item";
     SourceTableTemporary = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This functionality has been replaced by the Email module.';
+    ObsoleteTag = '17.2';
 
     layout
     {
@@ -61,7 +64,7 @@ page 9700 "Email Dialog"
                 Caption = 'Subject';
                 ToolTip = 'Specifies the text that will display as the subject of the email.';
             }
-            field("Attachment Name"; EmailItem."Attachment Name")
+            field("Attachment Name"; AttachmentName)
             {
                 ApplicationArea = All;
                 Caption = 'Attachment Name';
@@ -82,23 +85,17 @@ page 9700 "Email Dialog"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Message Content';
                 Visible = NOT PlainTextVisible;
+                ToolTip = ' ';
 
                 trigger OnValidate()
-                var
-                    TempBlob: Codeunit "Temp Blob";
-                    FileManagement: Codeunit "File Management";
-                    RecordRef: RecordRef;
                 begin
-                    UpdatePlainTextVisible;
+                    UpdatePlainTextVisible();
 
                     case EmailItem."Message Type" of
                         EmailItem."Message Type"::"From Email Body Template":
                             begin
-                                FileManagement.BLOBImportFromServerFile(TempBlob, EmailItem."Body File Path");
-                                RecordRef.GetTable(EmailItem);
-                                TempBlob.ToRecordRef(RecordRef, EmailItem.FieldNo(Body));
-                                RecordRef.SetTable(EmailItem);
-                                BodyText := EmailItem.GetBodyText;
+                                EmailItem.Body.Import(EmailItem."Body File Path");
+                                BodyText := EmailItem.GetBodyText();
                             end;
                         EmailItem."Message Type"::"Custom Message":
                             begin
@@ -121,7 +118,7 @@ page 9700 "Email Dialog"
 
                         trigger ControlAddInReady(callbackUrl: Text)
                         begin
-                            CurrPage.BodyHTMLMessage.LinksOpenInNewWindow;
+                            CurrPage.BodyHTMLMessage.LinksOpenInNewWindow();
                             CurrPage.BodyHTMLMessage.SetContent(BodyText);
                         end;
 
@@ -135,7 +132,7 @@ page 9700 "Email Dialog"
 
                         trigger Refresh(CallbackUrl: Text)
                         begin
-                            CurrPage.BodyHTMLMessage.LinksOpenInNewWindow;
+                            CurrPage.BodyHTMLMessage.LinksOpenInNewWindow();
                             CurrPage.BodyHTMLMessage.SetContent(BodyText);
                         end;
                     }
@@ -190,19 +187,20 @@ page 9700 "Email Dialog"
         Rec := EmailItem;
     end;
 
-    trigger OnInit()
-    begin
-        HasAttachment := false;
-    end;
-
     trigger OnOpenPage()
     var
         TempBlob: Codeunit "Temp Blob";
         FileManagement: Codeunit "File Management";
         OfficeMgt: Codeunit "Office Management";
+        Attachments: Codeunit "Temp Blob List";
         RecordRef: RecordRef;
         OrigMailBodyText: Text;
+        AttachmentNames: List of [Text];
     begin
+        EmailItem.GetAttachments(Attachments, AttachmentNames);
+        HasAttachment := AttachmentNames.Count() > 0;
+        if HasAttachment then
+            AttachmentName := AttachmentNames.Get(1);
         OriginalFromEmail := OrigEmailItem."From Address";
 
         if not IsEditEnabled then
@@ -219,7 +217,7 @@ page 9700 "Email Dialog"
         EmailItem.Subject := OrigEmailItem.Subject;
         EmailItem."Attachment Name" := OrigEmailItem."Attachment Name";
 
-        InitBccCcText;
+        InitBccCcText();
         SendToText := OrigEmailItem."Send to";
         if OrigEmailItem."Send CC" <> '' then
             CcText := OrigEmailItem."Send CC"
@@ -243,19 +241,18 @@ page 9700 "Email Dialog"
             EmailItem."Message Type" := EmailItem."Message Type"::"From Email Body Template";
         end;
 
-        OrigMailBodyText := EmailItem.GetBodyText;
+        OrigMailBodyText := EmailItem.GetBodyText();
         if OrigMailBodyText <> '' then
             BodyText := OrigMailBodyText
         else
             EmailItem.SetBodyText(BodyText);
 
-        UpdatePlainTextVisible;
-        IsOfficeAddin := OfficeMgt.IsAvailable;
+        UpdatePlainTextVisible();
+        IsOfficeAddin := OfficeMgt.IsAvailable();
     end;
 
     var
         OrigEmailItem: Record "Email Item";
-        ClientTypeManagement: Codeunit "Client Type Management";
         LocalEdit: Boolean;
         IsEditEnabled: Boolean;
         HasAttachment: Boolean;
@@ -269,24 +266,27 @@ page 9700 "Email Dialog"
         CcText: Text[250];
         ShownFromEmail: Text;
         PreviousBodyText: Text;
+        AttachmentName: Text;
 
     protected var
         EmailItem: Record "Email Item";
 
-    procedure SetValues(ParmEmailItem: Record "Email Item"; ParmOutlookSupported: Boolean; ParmSmtpSupported: Boolean)
+    // Email Item needs to be passed by var so the attachments are available
+    procedure SetValues(var ParmEmailItem: Record "Email Item"; ParmOutlookSupported: Boolean; ParmSmtpSupported: Boolean)
+    var
+        Attachments: Codeunit "Temp Blob List";
+        AttachmentNames: List of [Text];
     begin
+        ParmEmailItem.GetAttachments(Attachments, AttachmentNames);
+        HasAttachment := Attachments.Count() > 0;
         EmailItem := ParmEmailItem;
+        EmailItem.SetAttachments(Attachments, AttachmentNames);
+
         OrigEmailItem.Copy(ParmEmailItem);
 
         ForceOutlook := ParmOutlookSupported and not ParmSmtpSupported;
-        IsEditEnabled := ParmOutlookSupported and (ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Windows);
-        if not IsEditEnabled then
-            LocalEdit := false
-        else
-            LocalEdit := true;
-
-        if EmailItem."Attachment File Path" <> '' then
-            HasAttachment := true;
+        IsEditEnabled := false;
+        LocalEdit := false;
     end;
 
     procedure GetDoEdit(): Boolean

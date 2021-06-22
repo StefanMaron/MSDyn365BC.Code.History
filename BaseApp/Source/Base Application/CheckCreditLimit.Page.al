@@ -377,11 +377,17 @@ page 343 "Check Credit Limit"
         exit(ServLine2."Outstanding Amount (LCY)" + ServLine2."Shipped Not Invoiced (LCY)");
     end;
 
-    procedure ShowWarning(NewCustNo: Code[20]; NewOrderAmountLCY2: Decimal; OldOrderAmountLCY2: Decimal; CheckOverDueBalance: Boolean): Boolean
+    procedure ShowWarning(NewCustNo: Code[20]; NewOrderAmountLCY2: Decimal; OldOrderAmountLCY2: Decimal; CheckOverDueBalance: Boolean) Result: Boolean
     var
         CustCheckCrLimit: Codeunit "Cust-Check Cr. Limit";
         ExitValue: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowWarning(Rec, NewOrderAmountLCY, OldOrderAmountLCY, OrderAmountTotalLCY, ShippedRetRcdNotIndLCY, CustCreditAmountLCY, DeltaAmount, CheckOverDueBalance, Heading, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if NewCustNo = '' then
             exit;
         CustNo := NewCustNo;
@@ -554,6 +560,11 @@ page 343 "Check Credit Limit"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSalesLineShowWarning(var SalesLine: Record "Sales Line"; var Result: Boolean; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowWarning(var Customer: Record Customer; var NewOrderAmountLCY: Decimal; OldOrderAmountLCY: Decimal; OrderAmountTotalLCY: Decimal; ShippedRetRcdNotIndLCY: Decimal; CustCreditAmountLCY: Decimal; DeltaAmount: Decimal; CheckOverDueBalance: Boolean; var Heading: Text[250]; var Result: Boolean; var IsHandled: Boolean);
     begin
     end;
 

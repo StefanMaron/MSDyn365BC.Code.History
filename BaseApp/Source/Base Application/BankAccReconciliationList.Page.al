@@ -91,6 +91,23 @@ page 388 "Bank Acc. Reconciliation List"
                     ToolTip = 'Finalize and prepare to print the document or journal. The values and quantities are posted to the related accounts. A report request window where you can specify what to include on the print-out.';
                 }
             }
+            action(ChangeStatementNo)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Change Statement No.';
+                Ellipsis = true;
+                Image = ChangeTo;
+                ToolTip = 'Change the statement number of the bank account reconciliation. Typically, this is used when you have created a new reconciliation to correct a mistake, and you want to use the same statement number.';
+
+                trigger OnAction()
+                var
+                    BankAccReconciliation: Record "Bank Acc. Reconciliation";
+                begin
+                    BankAccReconciliation := Rec;
+                    Codeunit.Run(Codeunit::"Change Bank Rec. Statement No.", BankAccReconciliation);
+                    Rec := BankAccReconciliation;
+                end;
+            }
         }
     }
 }

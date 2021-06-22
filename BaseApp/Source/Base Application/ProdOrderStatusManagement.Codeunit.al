@@ -1,4 +1,4 @@
-codeunit 5407 "Prod. Order Status Management"
+﻿codeunit 5407 "Prod. Order Status Management"
 {
     Permissions = TableData "Source Code Setup" = r,
                   TableData "Production Order" = rimd,
@@ -464,18 +464,11 @@ codeunit 5407 "Prod. Order Status Management"
         ProdOrderRtngLine: Record "Prod. Order Routing Line";
         ProdOrderComp: Record "Prod. Order Component";
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
-        CostCalcMgt: Codeunit "Cost Calculation Management";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         Window: Dialog;
         QtyToPost: Decimal;
         NoOfRecords: Integer;
         LineCount: Integer;
-        OutputQty: Decimal;
-        OutputQtyBase: Decimal;
-        ActualOutputAndScrapQty: Decimal;
-        ActualOutputAndScrapQtyBase: Decimal;
-        PutawayQtyBaseToCalc: Decimal;
-        IsLastOperation: Boolean;
     begin
         if IsStatusSimulatedOrPlanned(NewStatus) then
             exit;
@@ -500,56 +493,8 @@ codeunit 5407 "Prod. Order Status Management"
                 ProdOrderRtngLine.SetRange("Routing No.", ProdOrderLine."Routing No.");
                 ProdOrderRtngLine.SetRange("Routing Reference No.", ProdOrderLine."Routing Reference No.");
                 ProdOrderRtngLine.LockTable();
-                if ProdOrderRtngLine.Find('-') then begin
-                    // First found operation
-                    IsLastOperation := ProdOrderRtngLine."Next Operation No." = '';
-                    OnFlushProdOrderOnAfterFindProdOrderRtngLine(ProdOrderRtngLine, IsLastOperation);
-                    if ProdOrderRtngLine."Flushing Method" = ProdOrderRtngLine."Flushing Method"::Backward then begin
-                        ActualOutputAndScrapQtyBase :=
-                          CostCalcMgt.CalcActOperOutputAndScrap(ProdOrderLine, ProdOrderRtngLine);
-                        ActualOutputAndScrapQty := ActualOutputAndScrapQtyBase / ProdOrderLine."Qty. per Unit of Measure";
-                        PutawayQtyBaseToCalc := ActualOutputAndScrapQtyBase - CostCalcMgt.CalcActQtyBase(ProdOrderLine, ProdOrderRtngLine);
-                    end;
-
-                    if (ProdOrderRtngLine."Flushing Method" = ProdOrderRtngLine."Flushing Method"::Forward) or IsLastOperation then begin
-                        OutputQty := ProdOrderLine."Remaining Quantity";
-                        OutputQtyBase := ProdOrderLine."Remaining Qty. (Base)";
-                    end else
-                        if not IsLastOperation then begin // Not Last Operation
-                            OutputQty := ActualOutputAndScrapQty;
-                            OutputQtyBase := ActualOutputAndScrapQtyBase;
-                            PutawayQtyBaseToCalc := 0;
-                        end;
-
-                    repeat
-                        IsLastOperation := ProdOrderRtngLine."Next Operation No." = '';
-                        OnFlushProdOrderOnAfterFindProdOrderRtngLine(ProdOrderRtngLine, IsLastOperation);
-                        InitItemJnlLineFromProdOrderLine(ItemJnlLine, ProdOrder, ProdOrderLine, ProdOrderRtngLine, PostingDate);
-                        if ProdOrderRtngLine."Concurrent Capacities" = 0 then
-                            ProdOrderRtngLine."Concurrent Capacities" := 1;
-                        SetTimeAndQuantityOmItemJnlLine(
-                          ItemJnlLine, ProdOrderRtngLine, OutputQtyBase,
-                          GetOutputQtyForProdOrderRoutingLine(ProdOrderLine, ProdOrderRtngLine, IsLastOperation, OutputQty),
-                          PutawayQtyBaseToCalc);
-                        ItemJnlLine."Source Code" := SourceCodeSetup.Flushing;
-                        if not (ItemJnlLine.TimeIsEmpty and (ItemJnlLine."Output Quantity" = 0)) then begin
-                            DimMgt.UpdateGlobalDimFromDimSetID(
-                              ItemJnlLine."Dimension Set ID", ItemJnlLine."Shortcut Dimension 1 Code", ItemJnlLine."Shortcut Dimension 2 Code");
-                            OnAfterUpdateGlobalDim(ItemJnlLine, ProdOrderRtngLine, ProdOrderLine);
-                            if IsLastOperation then
-                                ReserveProdOrderLine.TransferPOLineToItemJnlLine(ProdOrderLine, ItemJnlLine, ItemJnlLine."Output Quantity (Base)");
-                            OnBeforePostFlushItemJnlLine(ItemJnlLine);
-                            ItemJnlPostLine.RunWithCheck(ItemJnlLine);
-                        end;
-
-                        if (ProdOrderRtngLine."Flushing Method" = ProdOrderRtngLine."Flushing Method"::Backward) and IsLastOperation then begin
-                            OutputQty += ActualOutputAndScrapQty;
-                            OutputQtyBase += ActualOutputAndScrapQtyBase;
-                            PutawayQtyBaseToCalc := 0;
-                        end;
-                    until ProdOrderRtngLine.Next = 0;
-                end;
-            until ProdOrderLine.Next = 0;
+                FlushProdOrderProcessProdOrderRtngLine(ProdOrder, ProdOrderLine, ProdOrderRtngLine, PostingDate);
+            until ProdOrderLine.Next() = 0;
 
         with ProdOrderComp do begin
             SetCurrentKey(Status, "Prod. Order No.", "Routing Link Code", "Flushing Method");
@@ -603,6 +548,75 @@ codeunit 5407 "Prod. Order Status Management"
                 until Next = 0;
                 Window.Close;
             end;
+        end;
+    end;
+
+    local procedure FlushProdOrderProcessProdOrderRtngLine(ProdOrder: Record "Production Order"; ProdOrderLine: Record "Prod. Order Line"; var ProdOrderRtngLine: Record "Prod. Order Routing Line"; PostingDate: Date)
+    var
+        ItemJnlLine: Record "Item Journal Line";
+        CostCalcMgt: Codeunit "Cost Calculation Management";
+        ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
+        IsLastOperation: Boolean;
+        ActualOutputAndScrapQty: Decimal;
+        ActualOutputAndScrapQtyBase: Decimal;
+        PutawayQtyBaseToCalc: Decimal;
+        OutputQty: Decimal;
+        OutputQtyBase: Decimal;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeFlushProdOrderProcessProdOrderRtngLine(ProdOrderLine, ProdOrderRtngLine, PostingDate, IsHandled);
+        if IsHandled then
+            exit;
+
+        if ProdOrderRtngLine.Find('-') then begin
+            // First found operation
+            IsLastOperation := ProdOrderRtngLine."Next Operation No." = '';
+            OnFlushProdOrderOnAfterFindProdOrderRtngLine(ProdOrderRtngLine, IsLastOperation);
+            if ProdOrderRtngLine."Flushing Method" = ProdOrderRtngLine."Flushing Method"::Backward then begin
+                ActualOutputAndScrapQtyBase :=
+                  CostCalcMgt.CalcActOperOutputAndScrap(ProdOrderLine, ProdOrderRtngLine);
+                ActualOutputAndScrapQty := ActualOutputAndScrapQtyBase / ProdOrderLine."Qty. per Unit of Measure";
+                PutawayQtyBaseToCalc := ActualOutputAndScrapQtyBase - CostCalcMgt.CalcActQtyBase(ProdOrderLine, ProdOrderRtngLine);
+            end;
+
+            if (ProdOrderRtngLine."Flushing Method" = ProdOrderRtngLine."Flushing Method"::Forward) or IsLastOperation then begin
+                OutputQty := ProdOrderLine."Remaining Quantity";
+                OutputQtyBase := ProdOrderLine."Remaining Qty. (Base)";
+            end else
+                if not IsLastOperation then begin // Not Last Operation
+                    OutputQty := ActualOutputAndScrapQty;
+                    OutputQtyBase := ActualOutputAndScrapQtyBase;
+                    PutawayQtyBaseToCalc := 0;
+                end;
+
+            repeat
+                IsLastOperation := ProdOrderRtngLine."Next Operation No." = '';
+                OnFlushProdOrderOnAfterFindProdOrderRtngLine(ProdOrderRtngLine, IsLastOperation);
+                InitItemJnlLineFromProdOrderLine(ItemJnlLine, ProdOrder, ProdOrderLine, ProdOrderRtngLine, PostingDate);
+                if ProdOrderRtngLine."Concurrent Capacities" = 0 then
+                    ProdOrderRtngLine."Concurrent Capacities" := 1;
+                SetTimeAndQuantityOmItemJnlLine(
+                  ItemJnlLine, ProdOrderRtngLine, OutputQtyBase,
+                  GetOutputQtyForProdOrderRoutingLine(ProdOrderLine, ProdOrderRtngLine, IsLastOperation, OutputQty),
+                  PutawayQtyBaseToCalc);
+                ItemJnlLine."Source Code" := SourceCodeSetup.Flushing;
+                if not (ItemJnlLine.TimeIsEmpty and (ItemJnlLine."Output Quantity" = 0)) then begin
+                    DimMgt.UpdateGlobalDimFromDimSetID(
+                      ItemJnlLine."Dimension Set ID", ItemJnlLine."Shortcut Dimension 1 Code", ItemJnlLine."Shortcut Dimension 2 Code");
+                    OnAfterUpdateGlobalDim(ItemJnlLine, ProdOrderRtngLine, ProdOrderLine);
+                    if IsLastOperation then
+                        ReserveProdOrderLine.TransferPOLineToItemJnlLine(ProdOrderLine, ItemJnlLine, ItemJnlLine."Output Quantity (Base)");
+                    OnBeforePostFlushItemJnlLine(ItemJnlLine);
+                    ItemJnlPostLine.RunWithCheck(ItemJnlLine);
+                end;
+
+                if (ProdOrderRtngLine."Flushing Method" = ProdOrderRtngLine."Flushing Method"::Backward) and IsLastOperation then begin
+                    OutputQty += ActualOutputAndScrapQty;
+                    OutputQtyBase += ActualOutputAndScrapQtyBase;
+                    PutawayQtyBaseToCalc := 0;
+                end;
+            until ProdOrderRtngLine.Next() = 0;
         end;
     end;
 
@@ -1067,6 +1081,11 @@ codeunit 5407 "Prod. Order Status Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnFlushProdOrderOnAfterFindProdOrderRtngLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var IsLastOperation: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFlushProdOrderProcessProdOrderRtngLine(var ProdOrderLine: Record "Prod. Order Line"; var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; PostingDate: Date; var IsHandled: Boolean)
     begin
     end;
 

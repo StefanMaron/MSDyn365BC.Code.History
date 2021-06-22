@@ -686,8 +686,8 @@ report 702 "Inventory Posting - Test"
                                 FieldCaption("New Bin Code")));
                     end;
 
-                    JnlTemplateType := ItemJnlTemplate.Type;
-                    ItemLineEntryType := "Entry Type";
+                    JnlTemplateType := ItemJnlTemplate.Type.AsInteger();
+                    ItemLineEntryType := "Entry Type".AsInteger();
 
                     case "Entry Type".AsInteger() + 1 of
                         1:
@@ -842,8 +842,8 @@ report 702 "Inventory Posting - Test"
         LastPostingDate: Date;
         LastDocNo: Code[20];
         TableID: array[10] of Integer;
-        JnlTemplateType: Enum "Item Journal Template Type";
-        ItemLineEntryType: Enum "Item Ledger Entry Type";
+        JnlTemplateType: Integer;
+        ItemLineEntryType: Integer;
         No: array[10] of Code[20];
         DimText: Text[120];
         OldDimText: Text[75];

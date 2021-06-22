@@ -44,15 +44,24 @@ page 1528 "Workflow Status FactBox"
             WorkflowDescription := Workflow.Description;
     end;
 
+    trigger OnOpenPage()
+    begin
+        IsVisible := true;
+    end;
+
     var
         Workflow: Record Workflow;
         WorkflowDescription: Text;
+        IsVisible: Boolean;
 
     procedure SetFilterOnWorkflowRecord(WorkflowStepRecID: RecordID): Boolean
     var
         WorkflowStepInstance: Record "Workflow Step Instance";
         InstanceID: Guid;
     begin
+        if not IsVisible then
+            exit;
+
         DeleteAll();
         WorkflowStepInstance.SetRange("Record ID", WorkflowStepRecID);
         if not WorkflowStepInstance.FindSet then

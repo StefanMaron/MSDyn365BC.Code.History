@@ -1,10 +1,7 @@
 page 1347 "Sales Pr. & Line Disc. Part"
 {
     Caption = 'Sales Prices';
-    DeleteAllowed = false;
     Editable = false;
-    InsertAllowed = false;
-    ModifyAllowed = false;
     PageType = ListPart;
     SourceTable = "Sales Price and Line Disc Buff";
     SourceTableTemporary = true;
@@ -219,7 +216,18 @@ page 1347 "Sales Pr. & Line Disc. Part"
         }
     }
 
+    trigger OnFindRecord(Which: Text): Boolean
+    begin
+        RefreshOnFind();
+        exit(find(Which));
+    end;
+
     trigger OnAfterGetCurrRecord()
+    begin
+        SalesPriceIsEnabled := ("Line Type" = "Line Type"::"Sales Price");
+    end;
+
+    local procedure RefreshOnFind()
     var
         Customer: Record Customer;
         Item: Record Item;
@@ -249,7 +257,13 @@ page 1347 "Sales Pr. & Line Disc. Part"
 
         if ContextIsCustomer then begin
             if loadedCustNo <> SalesCode then begin
+
+                if MoreRowsNotificationActive then
+                    if MoreRowsNotification.Recall() then;
+                MoreRowsNotificationActive := false;
+
                 InitPage(false);
+                Customer.SetLoadFields("No.", "Customer Disc. Group", "Customer Price Group");
                 if Customer.Get(SalesCode) then
                     LoadCustomer(Customer);
             end
@@ -261,8 +275,6 @@ page 1347 "Sales Pr. & Line Disc. Part"
             end;
         Reset();
         FilterGroup(CurrFilterGroup);
-
-        SalesPriceIsEnabled := ("Line Type" = "Line Type"::"Sales Price");
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -277,6 +289,8 @@ page 1347 "Sales Pr. & Line Disc. Part"
     end;
 
     var
+        MoreRowsNotification: Notification;
+        MoreRowsNotificationActive: Boolean;
         loadedItemNo: Code[20];
         loadedCustNo: Code[20];
         loadedPriceGroup: Code[20];
@@ -284,6 +298,7 @@ page 1347 "Sales Pr. & Line Disc. Part"
         CodeIsVisible: Boolean;
         SalesCodeIsVisible: Boolean;
         SalesPriceIsEnabled: Boolean;
+        MaxRowsLoadedMsg: Label 'Showing the first %1 prices and discounts. To view all prices and discounts, choose Refresh Data.', Comment = '%1=a number, e.g. 50';
 
     procedure InitPage(ForItem: Boolean)
     begin
@@ -306,14 +321,24 @@ page 1347 "Sales Pr. & Line Disc. Part"
         LoadDataForItem(Item);
     end;
 
-    procedure LoadCustomer(Customer: Record Customer)
+    procedure LoadCustomer(var Customer: Record Customer)
+    var
+        MaxNoOfLinesToLoad: Integer;
+        NoOfLinesLoaded: Integer;
     begin
         Clear(Rec);
         loadedCustNo := Customer."No.";
         loadedPriceGroup := Customer."Customer Price Group";
         loadedDiscGroup := Customer."Customer Disc. Group";
-
-        LoadDataForCustomer(Customer);
+        if GuiAllowed then
+            MaxNoOfLinesToLoad := 50; // to prevent loading of 1000's of entries.
+        NoOfLinesLoaded := LoadDataForCustomer(Customer, MaxNoOfLinesToLoad);
+        if (MaxNoOfLinesToLoad > 0) and (NoOfLinesLoaded >= MaxNoOfLinesToLoad) then begin
+            MoreRowsNotification.Message := StrSubstNo(MaxRowsLoadedMsg, MaxNoOfLinesToLoad);
+            MoreRowsNotification.Scope := NotificationScope::LocalScope;
+            MoreRowsNotification.Send();
+            MoreRowsNotificationActive := true;
+        end;
     end;
 
     procedure GetLoadedItemNo(): Code[20]

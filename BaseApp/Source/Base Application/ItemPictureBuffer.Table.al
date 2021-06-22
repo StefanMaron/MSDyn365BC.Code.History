@@ -20,7 +20,7 @@ table 31 "Item Picture Buffer"
         }
         field(4; "Item Description"; Text[100])
         {
-            CalcFormula = Lookup (Item.Description WHERE("No." = FIELD("Item No.")));
+            CalcFormula = Lookup(Item.Description WHERE("No." = FIELD("Item No.")));
             Caption = 'Item Description';
             FieldClass = FlowField;
         }
@@ -112,7 +112,8 @@ table 31 "Item Picture Buffer"
             TempBlob.CreateOutStream(EntryOutStream);
             DataCompression.ExtractEntry(EntryListKey, EntryOutStream, Length);
             TempBlob.CreateInStream(EntryInStream);
-            if not IsNullGuid(Picture.ImportStream(EntryInStream, "File Name")) then begin
+
+            if not IsNullGuid(Picture.ImportStream(EntryInStream, FileMgt.GetFileName(EntryListKey))) then begin
                 Window.Update(1, "File Name");
                 "File Size (KB)" := Length;
                 TotalCount += 1;

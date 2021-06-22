@@ -34,7 +34,10 @@ codeunit 134483 "ERM Change Global Dimensions"
         InsertRecToEmptyTable134482: Boolean;
         UnexpectedTableErr: Label 'Unexpected table in the list: %1', Comment = '%1 - a number.';
         SessionUpdateRequiredMsg: Label 'All records were successfully updated. To apply the updates, close the General Ledger Setup page.';
+        RemoveDim1FieldOnTAB134482: Boolean;
+        RemoveDim2FieldOnTAB134482: Boolean;
 
+    [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure T100_ActionChangeGlobalDimOnGLSetupPageIsNotVisibleInBasicExp()
@@ -51,7 +54,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         GeneralLedgerSetupPage.OpenEdit;
         // [THEN] Action 'Change Global Dimensions' is not available
         asserterror GeneralLedgerSetupPage.ChangeGlobalDimensions.Invoke;
-        Assert.ExpectedError('The action with ID = 44 is not found on the page.');
+        Assert.ExpectedError('The action with ID = 2138997011 is not found on the page.');
     end;
 
     [Test]
@@ -3411,6 +3414,294 @@ codeunit 134483 "ERM Change Global Dimensions"
         DimensionSetEntry.TestField("Dimension Value Code", DimensionValue.Code);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SetNewGlobalDimsWhenTableDoNotHaveDim2Field()
+    var
+        Dimension: array[2] of Record Dimension;
+        DimensionValue: Record "Dimension Value";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        TableWithDefaultDim: Record "Table With Default Dim";
+        ChangeGlobalDimensions: Codeunit "Change Global Dimensions";
+        ERMChangeGlobalDimensions: Codeunit "ERM Change Global Dimensions";
+    begin
+        // [FEATURE] [Sequential Processing]
+        // [SCENARIO 377171] Set new Global Dimension 1 Code and Global Dimension 2 Code when table has field "Global Dimension 1 Code" and does not have "Global/Shortcut Dimension 2 Code".
+        Initialize();
+        MockTaskScheduling(ERMChangeGlobalDimensions, Database::"Table With Default Dim");
+
+        // [GIVEN] Table "Table with Default Dim" with record 'R'.
+        // [GIVEN] Record 'R' has nonempty Global Dimension 1 Code.
+        CreateTableWithDefaultDimRecord(TableWithDefaultDim);
+
+        // [GIVEN] Two Dimensions 'A' and 'B' that are different from the current Global Dimensions.
+        // [GIVEN] Default Dimension with Dimension Value Code 'DDA' for record 'R' and Dimension 'A'.
+        LibraryDimension.CreateDimension(Dimension[1]);
+        LibraryDimension.CreateDimension(Dimension[2]);
+        LibraryDimension.CreateDimensionValue(DimensionValue, Dimension[1].Code);
+        CreateDefaultDimension(Database::"Table With Default Dim", TableWithDefaultDim."No.", DimensionValue);
+
+        // [GIVEN] Table "Table with Default Dim" has only one field with Dimension - "Global Dimension 1 Code".
+        // [GIVEN] It is emulated by setting "Global Dim.2 Field No." = 0 in "Change Global Dim. Log Entry" table for "Table with Default Dim".
+        BindSubscription(ERMChangeGlobalDimensions);
+        ERMChangeGlobalDimensions.SetRemoveDim2FieldOnTAB134482();
+
+        // [GIVEN] Set Global Dimension 1 Code = 'A' and Global Dimension 2 Code = 'B' on page Change Global Dimensions.
+        UpdateGlobalDimensions(ChangeGlobalDimensions, Dimension[1].Code, Dimension[2].Code);
+
+        // [WHEN] Run Action "Start" (Sequential).
+        ChangeGlobalDimensions.StartSequential();
+
+        // [THEN] Field value "Global Dimension 1 Code" of record 'R' was set to 'DDA'.
+        TableWithDefaultDim.Get(TableWithDefaultDim."No.");
+        TableWithDefaultDim.TestField("Global Dimension 1 Code", DimensionValue.Code);
+
+        // [THEN] Table "Change Global Dim. Log Entry" is empty.
+        Assert.TableIsEmpty(Database::"Change Global Dim. Log Entry");
+
+        // [THEN] Global Dimensions are updated in General Ledger Setup.
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.TestField("Global Dimension 1 Code", Dimension[1].Code);
+        GeneralLedgerSetup.TestField("Global Dimension 2 Code", Dimension[2].Code);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SetBlankGlobalDimsWhenTableDoNotHaveDim2Field()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        TableWithDefaultDim: Record "Table With Default Dim";
+        ChangeGlobalDimensions: Codeunit "Change Global Dimensions";
+        ERMChangeGlobalDimensions: Codeunit "ERM Change Global Dimensions";
+    begin
+        // [FEATURE] [Sequential Processing]
+        // [SCENARIO 377171] Set blank Global Dimension 1 Code and Global Dimension 2 Code when table has field "Global Dimension 1 Code" and does not have "Global/Shortcut Dimension 2 Code".
+        Initialize();
+        MockTaskScheduling(ERMChangeGlobalDimensions, Database::"Table With Default Dim");
+
+        // [GIVEN] Table "Table with Default Dim" with record 'R'.
+        // [GIVEN] Record 'R' has nonempty Global Dimension 1 Code.
+        CreateTableWithDefaultDimRecord(TableWithDefaultDim);
+
+        // [GIVEN] Table "Table with Default Dim" has only one field with Dimension - "Global Dimension 1 Code".
+        // [GIVEN] It is emulated by setting "Global Dim.2 Field No." = 0 in "Change Global Dim. Log Entry" table for "Table with Default Dim".
+        BindSubscription(ERMChangeGlobalDimensions);
+        ERMChangeGlobalDimensions.SetRemoveDim2FieldOnTAB134482();
+
+        // [GIVEN] Set Global Dimension 1 Code = '' and Global Dimension 2 Code = '' on page Change Global Dimensions.
+        UpdateGlobalDimensions(ChangeGlobalDimensions, '', '');
+
+        // [WHEN] Run Action "Start" (Sequential).
+        ChangeGlobalDimensions.StartSequential();
+
+        // [THEN] Field "Global Dimension 1 Code" of record 'R' has blank value.
+        TableWithDefaultDim.Get(TableWithDefaultDim."No.");
+        TableWithDefaultDim.TestField("Global Dimension 1 Code", '');
+
+        // [THEN] Table "Change Global Dim. Log Entry" is empty.
+        Assert.TableIsEmpty(Database::"Change Global Dim. Log Entry");
+
+        // [THEN] Global Dimensions are updated in General Ledger Setup.
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.TestField("Global Dimension 1 Code", '');
+        GeneralLedgerSetup.TestField("Global Dimension 2 Code", '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SwapGlobalDimsWhenTableDoNotHaveDim2Field()
+    var
+        DimensionValue: Record "Dimension Value";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        TableWithDefaultDim: Record "Table With Default Dim";
+        ChangeGlobalDimensions: Codeunit "Change Global Dimensions";
+        ERMChangeGlobalDimensions: Codeunit "ERM Change Global Dimensions";
+        OldDim1Code: Code[20];
+        OldDim2Code: Code[20];
+    begin
+        // [FEATURE] [Sequential Processing]
+        // [SCENARIO 377171] Swap Global Dimensions when table has field "Global Dimension 1 Code" and does not have "Global/Shortcut Dimension 2 Code".
+        Initialize();
+        MockTaskScheduling(ERMChangeGlobalDimensions, Database::"Table With Default Dim");
+
+        // [GIVEN] Table "Table with Default Dim" with record 'R'.
+        // [GIVEN] Record 'R' has nonempty Global Dimension 1 Code.
+        CreateTableWithDefaultDimRecord(TableWithDefaultDim);
+
+        // [GIVEN] Current Global Dimension 1 Code 'GD1' and Global Dimension 2 Code 'GD2'.
+        LibraryDimension.GetGlobalDimCodeValue(1, DimensionValue);
+        OldDim1Code := DimensionValue."Dimension Code";
+        LibraryDimension.GetGlobalDimCodeValue(2, DimensionValue);
+        OldDim2Code := DimensionValue."Dimension Code";
+
+        // [GIVEN] Table "Table with Default Dim" has only one field with Dimension - "Global Dimension 1 Code".
+        // [GIVEN] It is emulated by setting "Global Dim.2 Field No." = 0 in "Change Global Dim. Log Entry" table for "Table with Default Dim".
+        BindSubscription(ERMChangeGlobalDimensions);
+        ERMChangeGlobalDimensions.SetRemoveDim2FieldOnTAB134482();
+
+        // [GIVEN] Set Global Dimension 1 Code = 'GD2' and Global Dimension 2 Code = 'GD1' on page Change Global Dimensions.
+        UpdateGlobalDimensions(ChangeGlobalDimensions, OldDim2Code, OldDim1Code);
+
+        // [WHEN] Run Action "Start" (Sequential).
+        ChangeGlobalDimensions.StartSequential();
+
+        // [THEN] Field "Global Dimension 1 Code" of record 'R' has blank value.
+        TableWithDefaultDim.Get(TableWithDefaultDim."No.");
+        TableWithDefaultDim.TestField("Global Dimension 1 Code", '');
+
+        // [THEN] Table "Change Global Dim. Log Entry" is empty.
+        Assert.TableIsEmpty(Database::"Change Global Dim. Log Entry");
+
+        // [THEN] Global Dimensions are updated in General Ledger Setup.
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.TestField("Global Dimension 1 Code", OldDim2Code);
+        GeneralLedgerSetup.TestField("Global Dimension 2 Code", OldDim1Code);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SetNewGlobalDimsWhenTableDoNotHaveDim1Field()
+    var
+        Dimension: array[2] of Record Dimension;
+        DimensionValue: Record "Dimension Value";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        TableWithDefaultDim: Record "Table With Default Dim";
+        ChangeGlobalDimensions: Codeunit "Change Global Dimensions";
+        ERMChangeGlobalDimensions: Codeunit "ERM Change Global Dimensions";
+    begin
+        // [FEATURE] [Sequential Processing]
+        // [SCENARIO 377171] Set new Global Dimension 1 Code and Global Dimension 2 Code when table does not have field "Global Dimension 1 Code" and has "Global/Shortcut Dimension 2 Code".
+        Initialize();
+        MockTaskScheduling(ERMChangeGlobalDimensions, Database::"Table With Default Dim");
+
+        // [GIVEN] Table "Table with Default Dim" with record 'R'.
+        // [GIVEN] Record 'R' has nonempty Shortcut Dimension 2 Code.
+        CreateTableWithDefaultDimRecord(TableWithDefaultDim);
+
+        // [GIVEN] Two Dimensions 'A' and 'B' that are different from the current Global Dimensions.
+        // [GIVEN] Default Dimension with Dimension Value Code 'DDB' for record 'R' and Dimension 'B'.
+        LibraryDimension.CreateDimension(Dimension[1]);
+        LibraryDimension.CreateDimension(Dimension[2]);
+        LibraryDimension.CreateDimensionValue(DimensionValue, Dimension[2].Code);
+        CreateDefaultDimension(Database::"Table With Default Dim", TableWithDefaultDim."No.", DimensionValue);
+
+        // [GIVEN] Table "Table with Default Dim" has only one field with Dimension - "Shortcut Dimension 2 Code".
+        // [GIVEN] It is emulated by setting "Global Dim.1 Field No." = 0 in "Change Global Dim. Log Entry" table for "Table with Default Dim".
+        BindSubscription(ERMChangeGlobalDimensions);
+        ERMChangeGlobalDimensions.SetRemoveDim1FieldOnTAB134482();
+
+        // [GIVEN] Set Global Dimension 1 Code = 'A' and Global Dimension 2 Code = 'B' on page Change Global Dimensions.
+        UpdateGlobalDimensions(ChangeGlobalDimensions, Dimension[1].Code, Dimension[2].Code);
+
+        // [WHEN] Run Action "Start" (Sequential).
+        ChangeGlobalDimensions.StartSequential();
+
+        // [THEN] Field value "Shortcut Dimension 2 Code" of record 'R' was set to 'DDB'.
+        TableWithDefaultDim.Get(TableWithDefaultDim."No.");
+        TableWithDefaultDim.TestField("Shortcut Dimension 2 Code", DimensionValue.Code);
+
+        // [THEN] Table "Change Global Dim. Log Entry" is empty.
+        Assert.TableIsEmpty(Database::"Change Global Dim. Log Entry");
+
+        // [THEN] Global Dimensions are updated in General Ledger Setup.
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.TestField("Global Dimension 1 Code", Dimension[1].Code);
+        GeneralLedgerSetup.TestField("Global Dimension 2 Code", Dimension[2].Code);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SetBlankGlobalDimsWhenTableDoNotHaveDim1Field()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        TableWithDefaultDim: Record "Table With Default Dim";
+        ChangeGlobalDimensions: Codeunit "Change Global Dimensions";
+        ERMChangeGlobalDimensions: Codeunit "ERM Change Global Dimensions";
+    begin
+        // [FEATURE] [Sequential Processing]
+        // [SCENARIO 377171] Set blank Global Dimension 1 Code and Global Dimension 2 Code when table does not have field "Global Dimension 1 Code" and has "Global/Shortcut Dimension 2 Code".
+        Initialize();
+        MockTaskScheduling(ERMChangeGlobalDimensions, Database::"Table With Default Dim");
+
+        // [GIVEN] Table "Table with Default Dim" with record 'R'.
+        // [GIVEN] Record 'R' has nonempty Shortcut Dimension 2 Code.
+        CreateTableWithDefaultDimRecord(TableWithDefaultDim);
+
+        // [GIVEN] Table "Table with Default Dim" has only one field with Dimension - "Shortcut Dimension 2 Code".
+        // [GIVEN] It is emulated by setting "Global Dim.1 Field No." = 0 in "Change Global Dim. Log Entry" table for "Table with Default Dim".
+        BindSubscription(ERMChangeGlobalDimensions);
+        ERMChangeGlobalDimensions.SetRemoveDim1FieldOnTAB134482();
+
+        // [GIVEN] Set Global Dimension 1 Code = '' and Global Dimension 2 Code = '' on page Change Global Dimensions.
+        UpdateGlobalDimensions(ChangeGlobalDimensions, '', '');
+
+        // [WHEN] Run Action "Start" (Sequential).
+        ChangeGlobalDimensions.StartSequential();
+
+        // [THEN] Field "Shortcut Dimension 2 Code" of record 'R' has blank value.
+        TableWithDefaultDim.Get(TableWithDefaultDim."No.");
+        TableWithDefaultDim.TestField("Shortcut Dimension 2 Code", '');
+
+        // [THEN] Table "Change Global Dim. Log Entry" is empty.
+        Assert.TableIsEmpty(Database::"Change Global Dim. Log Entry");
+
+        // [THEN] Global Dimensions are updated in General Ledger Setup.
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.TestField("Global Dimension 1 Code", '');
+        GeneralLedgerSetup.TestField("Global Dimension 2 Code", '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SwapGlobalDimsWhenTableDoNotHaveDim1Field()
+    var
+        DimensionValue: Record "Dimension Value";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        TableWithDefaultDim: Record "Table With Default Dim";
+        ChangeGlobalDimensions: Codeunit "Change Global Dimensions";
+        ERMChangeGlobalDimensions: Codeunit "ERM Change Global Dimensions";
+        OldDim1Code: Code[20];
+        OldDim2Code: Code[20];
+    begin
+        // [FEATURE] [Sequential Processing]
+        // [SCENARIO 377171] Swap Global Dimensions when table does not have field "Global Dimension 1 Code" and has "Global/Shortcut Dimension 2 Code".
+        Initialize();
+        MockTaskScheduling(ERMChangeGlobalDimensions, Database::"Table With Default Dim");
+
+        // [GIVEN] Table "Table with Default Dim" with record 'R'.
+        // [GIVEN] Record 'R' has nonempty Shortcut Dimension 2 Code.
+        CreateTableWithDefaultDimRecord(TableWithDefaultDim);
+
+        // [GIVEN] Current Global Dimension 1 Code 'GD1' and Global Dimension 2 Code 'GD2'.
+        LibraryDimension.GetGlobalDimCodeValue(1, DimensionValue);
+        OldDim1Code := DimensionValue."Dimension Code";
+        LibraryDimension.GetGlobalDimCodeValue(2, DimensionValue);
+        OldDim2Code := DimensionValue."Dimension Code";
+
+        // [GIVEN] Table "Table with Default Dim" has only one field with Dimension - "Shortcut Dimension 2 Code".
+        // [GIVEN] It is emulated by setting "Global Dim.1 Field No." = 0 in "Change Global Dim. Log Entry" table for "Table with Default Dim".
+        BindSubscription(ERMChangeGlobalDimensions);
+        ERMChangeGlobalDimensions.SetRemoveDim1FieldOnTAB134482();
+
+        // [GIVEN] Set Global Dimension 1 Code = 'GD2' and Global Dimension 2 Code = 'GD1' on page Change Global Dimensions.
+        UpdateGlobalDimensions(ChangeGlobalDimensions, OldDim2Code, OldDim1Code);
+
+        // [WHEN] Run Action "Start" (Sequential).
+        ChangeGlobalDimensions.StartSequential();
+
+        // [THEN] Field "Shortcut Dimension 2 Code" of record 'R' has blank value.
+        TableWithDefaultDim.Get(TableWithDefaultDim."No.");
+        TableWithDefaultDim.TestField("Shortcut Dimension 2 Code", '');
+
+        // [THEN] Table "Change Global Dim. Log Entry" is empty.
+        Assert.TableIsEmpty(Database::"Change Global Dim. Log Entry");
+
+        // [THEN] Global Dimensions are updated in General Ledger Setup.
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.TestField("Global Dimension 1 Code", OldDim2Code);
+        GeneralLedgerSetup.TestField("Global Dimension 2 Code", OldDim1Code);
+    end;
+
     local procedure Initialize()
     var
         ChangeGlobalDimHeader: Record "Change Global Dim. Header";
@@ -3462,6 +3753,16 @@ codeunit 134483 "ERM Change Global Dimensions"
         // Insert an entry to avoid deletion after the task completion
         ChangeGlobalDimLogEntry.Status := ChangeGlobalDimLogEntry.Status::" ";
         ChangeGlobalDimLogEntry.Insert();
+    end;
+
+    local procedure CreateDefaultDimension(TableNo: Integer; PKey: Code[20]; DimensionValue: Record "Dimension Value")
+    var
+        DefaultDimension: Record "Default Dimension";
+    begin
+        DefaultDimension.SetRange("Table ID", TableNo);
+        DefaultDimension.DeleteAll();
+        LibraryDimension.CreateDefaultDimension(
+          DefaultDimension, TableNo, PKey, DimensionValue."Dimension Code", DimensionValue.Code);
     end;
 
     local procedure CreateDefaultDimensions(TableNo: Integer; PKey: Code[20]; DimensionValue: array[3] of Record "Dimension Value")
@@ -3569,6 +3870,22 @@ codeunit 134483 "ERM Change Global Dimensions"
             DetailedEntryWithGlobalDim."Entry No." := 0;
             DetailedEntryWithGlobalDim.Insert();
         end;
+    end;
+
+    local procedure CreateTableWithDefaultDimRecord(var TableWithDefaultDim: Record "Table With Default Dim")
+    var
+        DimensionValue: array[2] of Record "Dimension Value";
+    begin
+        LibraryDimension.GetGlobalDimCodeValue(1, DimensionValue[1]);
+        LibraryDimension.CreateDimensionValue(DimensionValue[1], DimensionValue[1]."Dimension Code");
+        LibraryDimension.GetGlobalDimCodeValue(2, DimensionValue[2]);
+        LibraryDimension.CreateDimensionValue(DimensionValue[2], DimensionValue[2]."Dimension Code");
+
+        TableWithDefaultDim.Init();
+        TableWithDefaultDim.Validate("No.", LibraryUtility.GenerateGUID());
+        TableWithDefaultDim.Validate("Global Dimension 1 Code", DimensionValue[1].Code);
+        TableWithDefaultDim.Validate("Shortcut Dimension 2 Code", DimensionValue[2].Code);
+        TableWithDefaultDim.Insert(true);
     end;
 
     local procedure CountGlobalDimTables(var ChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry") Result: Integer
@@ -3848,6 +4165,17 @@ codeunit 134483 "ERM Change Global Dimensions"
         exit(0);
     end;
 
+    local procedure UpdateGlobalDimensions(var ChangeGlobalDimensions: Codeunit "Change Global Dimensions"; GlobalDim1Code: Code[20]; GlobalDim2Code: Code[20])
+    var
+        ChangeGlobalDimHeader: Record "Change Global Dim. Header";
+    begin
+        ChangeGlobalDimensions.RefreshHeader();
+        ChangeGlobalDimHeader.Get();
+        ChangeGlobalDimHeader.Validate("Global Dimension 1 Code", GlobalDim1Code);
+        ChangeGlobalDimHeader.Validate("Global Dimension 2 Code", GlobalDim2Code);
+        ChangeGlobalDimHeader.Modify(true);
+    end;
+
     local procedure VerifyModifyCount(ChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry"; ExpectedCount: Integer; ActualCount: Integer)
     begin
         Assert.IsFalse(ChangeGlobalDimLogEntry.Find, 'LogEntry should be deleted');
@@ -4022,6 +4350,40 @@ codeunit 134483 "ERM Change Global Dimensions"
             if TableWithDefaultDim.IsEmpty then
                 TableWithDefaultDim.Insert();
         end;
+    end;
+
+    [Scope('OnPrem')]
+    procedure SetRemoveDim1FieldOnTAB134482()
+    begin
+        RemoveDim1FieldOnTAB134482 := true;
+    end;
+
+    [Scope('OnPrem')]
+    procedure SetRemoveDim2FieldOnTAB134482()
+    begin
+        RemoveDim2FieldOnTAB134482 := true;
+    end;
+
+    [EventSubscriber(ObjectType::Table, 483, 'OnBeforeInsertEvent', '', false, false)]
+    [Scope('OnPrem')]
+    procedure OnBeforeInsertRec483RemoveDim1Field(var Rec: Record "Change Global Dim. Log Entry"; RunTrigger: Boolean)
+    begin
+        if RemoveDim1FieldOnTAB134482 then
+            if Rec."Table ID" = Database::"Table With Default Dim" then begin
+                Rec."Global Dim.1 Field No." := 0;
+                RemoveDim1FieldOnTAB134482 := false;
+            end;
+    end;
+
+    [EventSubscriber(ObjectType::Table, 483, 'OnBeforeInsertEvent', '', false, false)]
+    [Scope('OnPrem')]
+    procedure OnBeforeInsertRec483RemoveDim2Field(var Rec: Record "Change Global Dim. Log Entry"; RunTrigger: Boolean)
+    begin
+        if RemoveDim2FieldOnTAB134482 then
+            if Rec."Table ID" = Database::"Table With Default Dim" then begin
+                Rec."Global Dim.2 Field No." := 0;
+                RemoveDim2FieldOnTAB134482 := false;
+            end;
     end;
 }
 

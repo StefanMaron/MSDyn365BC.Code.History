@@ -4,9 +4,9 @@ codeunit 9520 "Mail Management"
 
     trigger OnRun()
     begin
-        if not IsEnabled then
+        if not IsEnabled() then
             Error(MailingNotSupportedErr);
-        if not DoSend then
+        if not DoSend() then
             Error(MailWasNotSendErr);
     end;
 
@@ -16,8 +16,8 @@ codeunit 9520 "Mail Management"
         GraphMail: Codeunit "Graph Mail";
         SMTPMail: Codeunit "SMTP Mail";
         EmailFeature: Codeunit "Email Feature";
-        InvalidEmailAddressErr: Label 'The email address "%1" is not valid.', Comment = '%1 - Recipient email address';
         ClientTypeManagement: Codeunit "Client Type Management";
+        InvalidEmailAddressErr: Label 'The email address "%1" is not valid.', Comment = '%1 - Recipient email address';
         DoEdit: Boolean;
         HideMailDialog: Boolean;
         Cancelled: Boolean;
@@ -31,13 +31,14 @@ codeunit 9520 "Mail Management"
         SMTPSupported: Boolean;
         CannotSendMailThenDownloadQst: Label 'Do you want to download the attachment?';
         CannotSendMailThenDownloadErr: Label 'You cannot send the email.\Verify that the email settings are correct.';
-        OutlookNotAvailableContinueEditQst: Label 'Microsoft Outlook is not available.\\Do you want to continue to edit the email?';
         GraphSupported: Boolean;
         HideEmailSendingError: Boolean;
-        EmailAttachmentTxt: Label 'Email.html', Locked = true;
         SMTPSetupTxt: Label 'SmtpSetup', Locked = true;
         NoScenarioDefinedErr: Label 'No email account defined for the scenario ''%1''. Please, register an account on the ''Email Accounts'' page and assign scenario ''%1'' to it on the ''Email Scenario Setup'' page. Mark one of the accounts as the default account to use it for all scenarios that are not explicitly defined.', Comment = '%1 - The email scenario, for example, Sales Invoice';
         NoDefaultScenarioDefinedErr: Label 'The default account is not selected. Please, register an account on the ''Email Accounts'' page and mark it as the default account on the ''Email Scenario Setup'' page.';
+        EmailScenarioMsg: Label 'Sending email using scenario: %1.', Comment = '%1 - Email scenario (e. g. sales order)', Locked = true;
+        EmailManagementCategoryTxt: Label 'EmailManagement', Locked = true;
+        CurrentEmailScenario: Enum "Email Scenario";
 
     local procedure RunMailDialog(): Boolean
     var
@@ -52,12 +53,12 @@ codeunit 9520 "Mail Management"
 
         EmailDialog.SetValues(TempEmailItem, OutlookSupported, SMTPSupported);
 
-        if not (EmailDialog.RunModal = ACTION::OK) then begin
+        if not (EmailDialog.RunModal() = ACTION::OK) then begin
             Cancelled := true;
             exit(false);
         end;
         EmailDialog.GetRecord(TempEmailItem);
-        DoEdit := EmailDialog.GetDoEdit;
+        DoEdit := EmailDialog.GetDoEdit();
         exit(true);
     end;
 
@@ -66,6 +67,11 @@ codeunit 9520 "Mail Management"
         Email: Codeunit Email;
         Message: Codeunit "Email Message";
         ErrorMessageManagement: Codeunit "Error Message Management";
+        Attachments: Codeunit "Temp Blob List";
+        Attachment: Codeunit "Temp Blob";
+        AttachmentNames: List of [Text];
+        AttachmentStream: Instream;
+        Index: Integer;
         ToList: List of [Text];
         CcList: List of [Text];
         BccList: List of [Text];
@@ -76,13 +82,14 @@ codeunit 9520 "Mail Management"
 
         Message.Create(ToList, TempEmailItem.Subject, TempEmailItem.GetBodyText(), true, CcList, BccList);
 
-        AddAttachmentToEmailMessage(Message, TempEmailItem."Attachment File Path", TempEmailItem."Attachment Name");
-        AddAttachmentToEmailMessage(Message, TempEmailItem."Attachment File Path 2", TempEmailItem."Attachment Name 2");
-        AddAttachmentToEmailMessage(Message, TempEmailItem."Attachment File Path 3", TempEmailItem."Attachment Name 3");
-        AddAttachmentToEmailMessage(Message, TempEmailItem."Attachment File Path 4", TempEmailItem."Attachment Name 4");
-        AddAttachmentToEmailMessage(Message, TempEmailItem."Attachment File Path 5", TempEmailItem."Attachment Name 5");
-        AddAttachmentToEmailMessage(Message, TempEmailItem."Attachment File Path 6", TempEmailItem."Attachment Name 6");
-        AddAttachmentToEmailMessage(Message, TempEmailItem."Attachment File Path 7", TempEmailItem."Attachment Name 7");
+        TempEmailItem.GetAttachments(Attachments, AttachmentNames);
+        for Index := 1 to Attachments.Count() do begin
+            Attachments.Get(Index, Attachment);
+            Attachment.CreateInStream(AttachmentStream);
+            Message.AddAttachment(CopyStr(AttachmentNames.Get(Index), 1, 250), '', AttachmentStream);
+        end;
+
+        Session.LogMessage('0000CTW', StrSubstNo(EmailScenarioMsg, Format(CurrentEmailScenario)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailManagementCategoryTxt, 'EmailMessageID', Message.GetId());
 
         ClearLastError();
         Cancelled := false;
@@ -110,23 +117,14 @@ codeunit 9520 "Mail Management"
         Recipients := DelimitedRecipients.Split(Seperators.Split());
     end;
 
-    local procedure AddAttachmentToEmailMessage(var EmailMessage: Codeunit "Email Message"; FilePath: Text; AttachmentName: Text[250])
-    var
-        CurrentAttachment: File;
-        CurrentAttachmentInStream: InStream;
-    begin
-        if FilePath = '' then
-            exit;
-
-        CurrentAttachment.Open(FilePath);
-        CurrentAttachment.CreateInStream(CurrentAttachmentInStream);
-        EmailMessage.AddAttachment(AttachmentName, '', CurrentAttachmentInStream);
-        CurrentAttachment.Close();
-    end;
-
     local procedure SendViaSMTP(): Boolean
     var
         ErrorMessageManagement: Codeunit "Error Message Management";
+        Attachments: Codeunit "Temp Blob List";
+        Attachment: Codeunit "Temp Blob";
+        AttachmentNames: List of [Text];
+        AttachmentStream: Instream;
+        Index: Integer;
         HtmlFormated: Boolean;
         SendToList: List of [Text];
         SendToCcList: List of [Text];
@@ -141,19 +139,13 @@ codeunit 9520 "Mail Management"
 
         if SMTPMail.CreateMessage(TempEmailItem."From Name", TempEmailItem."From Address", SendToList, TempEmailItem.Subject, TempEmailItem.GetBodyText(), HtmlFormated) then begin
             OnSendViaSMTPOnBeforeSMTPMailAddAttachment(TempEmailItem, SMTPMail);
-            SMTPMail.AddAttachment(TempEmailItem."Attachment File Path", TempEmailItem."Attachment Name");
-            if TempEmailItem."Attachment File Path 2" <> '' then
-                SMTPMail.AddAttachment(TempEmailItem."Attachment File Path 2", TempEmailItem."Attachment Name 2");
-            if TempEmailItem."Attachment File Path 3" <> '' then
-                SMTPMail.AddAttachment(TempEmailItem."Attachment File Path 3", TempEmailItem."Attachment Name 3");
-            if TempEmailItem."Attachment File Path 4" <> '' then
-                SMTPMail.AddAttachment(TempEmailItem."Attachment File Path 4", TempEmailItem."Attachment Name 4");
-            if TempEmailItem."Attachment File Path 5" <> '' then
-                SMTPMail.AddAttachment(TempEmailItem."Attachment File Path 5", TempEmailItem."Attachment Name 5");
-            if TempEmailItem."Attachment File Path 6" <> '' then
-                SMTPMail.AddAttachment(TempEmailItem."Attachment File Path 6", TempEmailItem."Attachment Name 6");
-            if TempEmailItem."Attachment File Path 7" <> '' then
-                SMTPMail.AddAttachment(TempEmailItem."Attachment File Path 7", TempEmailItem."Attachment Name 7");
+            
+            TempEmailItem.GetAttachments(Attachments, AttachmentNames);
+            for Index := 1 to Attachments.Count() do begin
+                Attachments.Get(Index, Attachment);
+                Attachment.CreateInStream(AttachmentStream);
+                SMTPMail.AddAttachmentStream(AttachmentStream, AttachmentNames.Get(Index));
+            end;
 
             if TempEmailItem."Send CC" <> '' then begin
                 SendToCcList := TempEmailItem."Send CC".Split(Seperators.Split());
@@ -166,10 +158,10 @@ codeunit 9520 "Mail Management"
         end;
 
         OnBeforeSentViaSMTP(TempEmailItem, SMTPMail);
-        MailSent := SMTPMail.Send;
+        MailSent := SMTPMail.Send();
         OnAfterSentViaSMTP(TempEmailItem, SMTPMail, MailSent, HideEmailSendingError);
         if not MailSent and not HideEmailSendingError then
-            ErrorMessageManagement.LogSimpleErrorMessage(SMTPMail.GetLastSendMailErrorText);
+            ErrorMessageManagement.LogSimpleErrorMessage(SMTPMail.GetLastSendMailErrorText());
         exit(MailSent);
     end;
 
@@ -178,14 +170,14 @@ codeunit 9520 "Mail Management"
         MailSent := GraphMail.SendMail(TempEmailItem);
 
         if not MailSent and not HideEmailSendingError then
-            Error(GraphMail.GetGraphError);
+            Error(GraphMail.GetGraphError());
 
         exit(MailSent);
     end;
 
     procedure GetLastGraphError(): Text
     begin
-        exit(GraphMail.GetGraphError);
+        exit(GraphMail.GetGraphError());
     end;
 
     procedure InitializeFrom(NewHideMailDialog: Boolean; NewHideEmailSendingError: Boolean)
@@ -208,39 +200,6 @@ codeunit 9520 "Mail Management"
     procedure SetHideEmailSendingError(NewHideEmailSendingError: Boolean)
     begin
         HideEmailSendingError := NewHideEmailSendingError;
-    end;
-
-    local procedure SendMailOnWinClient(): Boolean
-    var
-        Mail: Codeunit Mail;
-        FileManagement: Codeunit "File Management";
-        ClientAttachmentFilePath: Text;
-        ClientAttachmentFullName: Text;
-    begin
-        if Mail.TryInitializeOutlook then
-            with TempEmailItem do begin
-                OnBeforeSendMailOnWinClient(TempEmailItem);
-                if "Attachment File Path" <> '' then begin
-                    ClientAttachmentFilePath := DownloadPdfOnClient("Attachment File Path");
-                    ClientAttachmentFullName := FileManagement.MoveAndRenameClientFile(ClientAttachmentFilePath, "Attachment Name", '');
-                end;
-                if Mail.NewMessageAsync("Send to", "Send CC", "Send BCC", Subject, GetBodyText, ClientAttachmentFullName, not HideMailDialog) then begin
-                    FileManagement.DeleteClientFile(ClientAttachmentFullName);
-                    MailSent := true;
-                    exit(true)
-                end;
-            end;
-        exit(false);
-    end;
-
-    local procedure DownloadPdfOnClient(ServerPdfFilePath: Text): Text
-    var
-        FileManagement: Codeunit "File Management";
-        ClientPdfFilePath: Text;
-    begin
-        ClientPdfFilePath := FileManagement.DownloadTempFile(ServerPdfFilePath);
-        Erase(ServerPdfFilePath);
-        exit(ClientPdfFilePath);
     end;
 
     procedure CheckValidEmailAddresses(Recipients: Text)
@@ -274,8 +233,6 @@ codeunit 9520 "Mail Management"
     [TryFunction]
     procedure CheckValidEmailAddress(EmailAddress: Text)
     var
-        i: Integer;
-        NoOfAtSigns: Integer;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -285,21 +242,13 @@ codeunit 9520 "Mail Management"
 
         EmailAddress := DelChr(EmailAddress, '<>');
 
-        if EmailAddress = '' then
+        if EmailAddress.StartsWith('@') or EmailAddress.EndsWith('@') then
             Error(InvalidEmailAddressErr, EmailAddress);
 
-        if (EmailAddress[1] = '@') or (EmailAddress[StrLen(EmailAddress)] = '@') then
+        if EmailAddress.Contains(' ') then
             Error(InvalidEmailAddressErr, EmailAddress);
 
-        for i := 1 to StrLen(EmailAddress) do begin
-            if EmailAddress[i] = '@' then
-                NoOfAtSigns := NoOfAtSigns + 1
-            else
-                if EmailAddress[i] = ' ' then
-                    Error(InvalidEmailAddressErr, EmailAddress);
-        end;
-
-        if NoOfAtSigns <> 1 then
+        if EmailAddress.Split('@').Count() <> 2 then
             Error(InvalidEmailAddressErr, EmailAddress);
     end;
 
@@ -317,7 +266,7 @@ codeunit 9520 "Mail Management"
     [Obsolete('Replaced with the IsAnyAccountRegistered in "Email Account" codeunit from "System Application".', '17.0')]
     procedure IsSMTPEnabled(): Boolean
     begin
-        exit(SMTPMail.IsEnabled);
+        exit(SMTPMail.IsEnabled());
     end;
 
     [Scope('OnPrem')]
@@ -337,10 +286,10 @@ codeunit 9520 "Mail Management"
 
         OutlookSupported := false;
 
-        SMTPSupported := IsSMTPEnabled;
-        GraphSupported := IsGraphEnabled;
+        SMTPSupported := IsSMTPEnabled();
+        GraphSupported := IsGraphEnabled();
 
-        if ClientTypeManagement.GetCurrentClientType <> CLIENTTYPE::Windows then
+        if ClientTypeManagement.GetCurrentClientType() <> Clienttype::Windows then
             exit(SMTPSupported or GraphSupported);
 
         // Assume Outlook is supported - a false check takes long time.
@@ -358,12 +307,19 @@ codeunit 9520 "Mail Management"
         exit(MailSent);
     end;
 
-    procedure Send(ParmEmailItem: Record "Email Item"; EmailScenario: Enum "Email Scenario"): Boolean
+    // Email Item needs to be passed by var so the attachments are available
+    procedure Send(var ParmEmailItem: Record "Email Item"; EmailScenario: Enum "Email Scenario"): Boolean
+    var
+        Attachments: Codeunit "Temp Blob List";
+        AttachmentNames: List of [Text];
     begin
+        ParmEmailItem.GetAttachments(Attachments, AttachmentNames);
         TempEmailItem := ParmEmailItem;
+        TempEmailItem.SetAttachments(Attachments, AttachmentNames);
         QualifyFromAddress(EmailScenario);
+        CurrentEmailScenario := EmailScenario;
         MailSent := false;
-        exit(DoSend);
+        exit(DoSend());
     end;
 
     [Obsolete('Replaced with the overload containing Email Scenario', '17.0')]
@@ -374,7 +330,7 @@ codeunit 9520 "Mail Management"
 
     local procedure DoSend(): Boolean
     begin
-        if not CanSend then
+        if not CanSend() then
             exit(true);
 
         if EmailFeature.IsEnabled() then begin
@@ -384,23 +340,10 @@ codeunit 9520 "Mail Management"
             exit(IsSent());
         end;
 
-        Cancelled := true;
-
         if not HideMailDialog then begin
-            if RunMailDialog then
-                Cancelled := false
-            else
+            Cancelled := not RunMailDialog();
+            if Cancelled then
                 exit(true);
-            if OutlookSupported then
-                if DoEdit then begin
-                    if SendMailOnWinClient then
-                        exit(true);
-                    OutlookSupported := false;
-                    if not SMTPSupported then
-                        exit(false);
-                    if Confirm(OutlookNotAvailableContinueEditQst) then
-                        exit(DoSend);
-                end
         end;
 
         if GraphSupported then
@@ -452,8 +395,8 @@ codeunit 9520 "Mail Management"
                 exit;
         end;
 
-        if TempPossibleEmailNameValueBuffer.IsEmpty then begin
-            if ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Web, CLIENTTYPE::Phone, CLIENTTYPE::Tablet, CLIENTTYPE::Desktop] then
+        if TempPossibleEmailNameValueBuffer.IsEmpty() then begin
+            if ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::Web, CLIENTTYPE::Phone, CLIENTTYPE::Tablet, CLIENTTYPE::Desktop] then
                 Error(FromAddressWasNotFoundErr);
             TempEmailItem."From Address" := '';
             exit;
@@ -468,8 +411,10 @@ codeunit 9520 "Mail Management"
     begin
         if FilteredName <> '' then
             TempPossibleEmailNameValueBuffer.SetFilter(Name, FilteredName);
-        if not TempPossibleEmailNameValueBuffer.IsEmpty then begin
-            TempPossibleEmailNameValueBuffer.FindFirst;
+
+        if not TempPossibleEmailNameValueBuffer.IsEmpty() then begin
+            TempPossibleEmailNameValueBuffer.FindFirst();
+
             if TempPossibleEmailNameValueBuffer.Value <> '' then begin
                 TempEmailItem."From Address" := TempPossibleEmailNameValueBuffer.Value;
                 exit(true);
@@ -480,32 +425,24 @@ codeunit 9520 "Mail Management"
         exit(false);
     end;
 
+    // Email Item needs to be passed by var so the attachments are available
     [Scope('OnPrem')]
-    procedure SendMailOrDownload(TempEmailItem: Record "Email Item" temporary; HideMailDialog: Boolean; EmailScenario: Enum "Email Scenario")
+    procedure SendMailOrDownload(var TempEmailItem: Record "Email Item" temporary; HideMailDialog: Boolean; EmailScenario: Enum "Email Scenario")
     var
         MailManagement: Codeunit "Mail Management";
         OfficeMgt: Codeunit "Office Management";
-        EnvInfoProxy: Codeunit "Env. Info Proxy";
     begin
-        MailManagement.InitializeFrom(HideMailDialog, not IsBackground);
-        if MailManagement.IsEnabled then
+        MailManagement.InitializeFrom(HideMailDialog, not IsBackground());
+        if MailManagement.IsEnabled() then
             if MailManagement.Send(TempEmailItem, EmailScenario) then begin
-                MailSent := MailManagement.IsSent;
-                DeleteTempAttachments(TempEmailItem);
+                MailSent := MailManagement.IsSent();
                 exit;
             end;
 
-        if EnvInfoProxy.IsInvoicing then begin
-            if MailManagement.IsGraphEnabled then
-                Error(MailManagement.GetLastGraphError);
-
-            Error(CannotSendMailThenDownloadErr);
-        end;
-
-        if IsBackground then
+        if IsBackground() then
             exit;
 
-        if not GuiAllowed or (OfficeMgt.IsAvailable and not OfficeMgt.IsPopOut) then
+        if not GuiAllowed or (OfficeMgt.IsAvailable() and not OfficeMgt.IsPopOut()) then
             Error(CannotSendMailThenDownloadErr);
 
         if not Confirm(StrSubstNo('%1\\%2', CannotSendMailThenDownloadErr, CannotSendMailThenDownloadQst)) then
@@ -523,9 +460,13 @@ codeunit 9520 "Mail Management"
         SendMailOrDownload(TempEmailItem, HideMailDialog, Enum::"Email Scenario"::Default);
     end;
 
-    procedure DownloadPdfAttachment(TempEmailItem: Record "Email Item" temporary)
+    procedure DownloadPdfAttachment(var TempEmailItem: Record "Email Item" temporary)
     var
-        FileManagement: Codeunit "File Management";
+        Attachments: Codeunit "Temp Blob List";
+        Attachment: Codeunit "Temp Blob";
+        AttachmentNames: List of [Text];
+        AttachemntName: Text;
+        AttachmentStream: Instream;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -533,12 +474,13 @@ codeunit 9520 "Mail Management"
         if IsHandled then
             exit;
 
-        with TempEmailItem do
-            if "Attachment File Path" <> '' then
-                FileManagement.DownloadHandler("Attachment File Path", SaveFileDialogTitleMsg, '', SaveFileDialogFilterMsg, "Attachment Name")
-            else
-                if "Body File Path" <> '' then
-                    FileManagement.DownloadHandler("Body File Path", SaveFileDialogTitleMsg, '', SaveFileDialogFilterMsg, EmailAttachmentTxt);
+        TempEmailItem.GetAttachments(Attachments, AttachmentNames);
+        if Attachments.Count() > 0 then begin
+            AttachemntName := AttachmentNames.Get(1);
+            Attachments.Get(1, Attachment);
+            Attachment.CreateInStream(AttachmentStream);
+            DownloadFromStream(AttachmentStream, SaveFileDialogTitleMsg, '', SaveFileDialogFilterMsg, AttachemntName);
+        end;
     end;
 
     [Scope('OnPrem')]
@@ -566,34 +508,11 @@ codeunit 9520 "Mail Management"
         exit(BodyText);
     end;
 
-    local procedure DeleteTempAttachments(var EmailItem: Record "Email Item")
-    begin
-        if TryDeleteTempAttachment(EmailItem."Attachment File Path 2") then;
-        if TryDeleteTempAttachment(EmailItem."Attachment File Path 3") then;
-        if TryDeleteTempAttachment(EmailItem."Attachment File Path 4") then;
-        if TryDeleteTempAttachment(EmailItem."Attachment File Path 5") then;
-        if TryDeleteTempAttachment(EmailItem."Attachment File Path 6") then;
-        if TryDeleteTempAttachment(EmailItem."Attachment File Path 7") then;
-
-        OnAfterDeleteTempAttachments(EmailItem);
-    end;
-
-    [TryFunction]
-    local procedure TryDeleteTempAttachment(var FilePath: Text[250])
-    var
-        FileManagement: Codeunit "File Management";
-    begin
-        if FilePath = '' then
-            exit;
-        FileManagement.DeleteServerFile(FilePath);
-        FilePath := '';
-    end;
-
     [TryFunction]
     [Scope('OnPrem')]
     procedure TryGetSenderEmailAddress(var FromAddress: Text[250])
     begin
-        FromAddress := GetSenderEmailAddress;
+        FromAddress := GetSenderEmailAddress();
     end;
 
     [Obsolete('Sender will be chosen based on the scenario parameter to the Send function when using the email feature is enabled. To control which account will be used, use the overload containing Email Scenario.', '17.0')]
@@ -604,7 +523,7 @@ codeunit 9520 "Mail Management"
 
     procedure GetSenderEmailAddress(EmailScenario: Enum "Email Scenario"): Text[250]
     begin
-        if not IsEnabled then
+        if not IsEnabled() then
             exit('');
         QualifyFromAddress(EmailScenario);
 
@@ -727,7 +646,7 @@ codeunit 9520 "Mail Management"
         Result: Boolean;
     begin
         FilterEventSubscription(EventSubscription, 'OnAfterGetEmailBodyCustomer');
-        Result := not EventSubscription.IsEmpty;
+        Result := not EventSubscription.IsEmpty();
         exit(Result);
     end;
 
@@ -737,7 +656,7 @@ codeunit 9520 "Mail Management"
         Result: Boolean;
     begin
         FilterEventSubscription(EventSubscription, 'OnAfterGetEmailBodyVendor');
-        Result := not EventSubscription.IsEmpty;
+        Result := not EventSubscription.IsEmpty();
         exit(Result);
     end;
 
@@ -797,6 +716,7 @@ codeunit 9520 "Mail Management"
     begin
     end;
 
+    #pragma warning disable AA0228
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSendMailOnWinClient(var TempEmailItem: Record "Email Item" temporary)
     begin
@@ -806,6 +726,7 @@ codeunit 9520 "Mail Management"
     local procedure OnAfterDeleteTempAttachments(var EmailItem: Record "Email Item")
     begin
     end;
+    #pragma warning restore AA0228
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetSenderEmailAddress(var EmailItem: Record "Email Item")

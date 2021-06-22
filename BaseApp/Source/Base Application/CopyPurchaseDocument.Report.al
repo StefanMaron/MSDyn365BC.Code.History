@@ -258,15 +258,7 @@ report 492 "Copy Purchase Document"
                     FromDocType::"Arch. Blanket Order",
                     FromDocType::"Arch. Return Order":
                         begin
-                            if not FromPurchHeaderArchive.Get(
-                                 CopyDocMgt.GetPurchaseDocumentType(FromDocType), FromDocNo, FromDocNoOccurrence, FromDocVersionNo)
-                            then begin
-                                FromPurchHeaderArchive.SetRange("No.", FromDocNo);
-                                if FromPurchHeaderArchive.FindLast then begin
-                                    FromDocNoOccurrence := FromPurchHeaderArchive."Doc. No. Occurrence";
-                                    FromDocVersionNo := FromPurchHeaderArchive."Version No.";
-                                end;
-                            end;
+                            FindFromPurchHeaderArchive();
                             FromPurchHeader.TransferFields(FromPurchHeaderArchive);
                         end;
                 end;
@@ -281,6 +273,26 @@ report 492 "Copy Purchase Document"
 
         OnBeforeValidateIncludeHeader(IncludeHeader, FromDocType.AsInteger());
         ValidateIncludeHeader;
+    end;
+
+    local procedure FindFromPurchHeaderArchive()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeFindFromPurchHeaderArchive(FromPurchHeaderArchive, FromDocType, FromDocNo, FromDocNoOccurrence, FromDocVersionNo, IsHandled);
+        if IsHandled then
+            exit;
+
+        if not FromPurchHeaderArchive.Get(
+            CopyDocMgt.GetPurchaseDocumentType(FromDocType), FromDocNo, FromDocNoOccurrence, FromDocVersionNo)
+        then begin
+            FromPurchHeaderArchive.SetRange("No.", FromDocNo);
+            if FromPurchHeaderArchive.FindLast then begin
+                FromDocNoOccurrence := FromPurchHeaderArchive."Doc. No. Occurrence";
+                FromDocVersionNo := FromPurchHeaderArchive."Version No.";
+            end;
+        end;
     end;
 
     local procedure LookupDocNo()
@@ -440,6 +452,11 @@ report 492 "Copy Purchase Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterOpenPage()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindFromPurchHeaderArchive(var FromPurchHeaderArchive: Record "Purchase Header Archive"; DocType: Enum "Purchase Document Type From"; DocNo: Code[20]; var DocNoOccurrence: Integer; var DocVersionNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

@@ -1743,6 +1743,131 @@ codeunit 137080 "SCM Planning And Manufacturing"
         ProdOrderLine.TestField("Due Date", SalesLine."Shipment Date");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReplanReservedPlanningComponent()
+    var
+        CompItem: Record Item;
+        ProdItem: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        ProductionBOMHeader: Record "Production BOM Header";
+        RequisitionLine: Record "Requisition Line";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Calculate Regenerative Plan] [Planning Component] [Reservation]
+        // [SCENARIO 374378] Calculate regenerative plan sets correct quantity for Prod. Order replenished Item that is partially reserved as another Item's planning component
+        Initialize();
+
+        // [GIVEN] Component MTO item "C" with Replenishment by Prod. Order
+        // [GIVEN] Production MTO item "P" with Replenishment by Prod. Order, produced from 1 PCS of item "C"
+        CreateItemWithReplenishmentSystem(ProdItem, ProdItem."Replenishment System"::"Prod. Order");
+        CreateItemWithReplenishmentSystem(CompItem, CompItem."Replenishment System"::"Prod. Order");
+        CreateCertifiedProductionBOM(ProductionBOMHeader, CompItem."No.", ProdItem."Base Unit of Measure", 1);
+        ProdItem.Validate("Manufacturing Policy", ProdItem."Manufacturing Policy"::"Make-to-Order");
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Modify(true);
+        CompItem.Validate("Manufacturing Policy", CompItem."Manufacturing Policy"::"Make-to-Order");
+        CompItem.Modify(true);
+
+        // [GIVEN] Sales Order Line for 10 PCS of Item "P" with "Shipment Date" = 03.03.2022
+        CreateSalesOrder(SalesLine, ProdItem."No.", LocationBlue.Code);
+        SalesLine.Validate("Shipment Date", LibraryRandom.RandDateFrom(WorkDate + 10, 10));
+        SalesLine.Validate(Quantity, LibraryRandom.RandIntInRange(10, 100));
+        SalesLine.Modify(true);
+
+        // [GIVEN] 2 PCS of item "C" in inventory
+        LibraryInventory.CreateItemJournalLineInItemTemplate(
+          ItemJournalLine, CompItem."No.", LocationBlue.Code, '', LibraryRandom.RandInt(SalesLine.Quantity - 1));
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Calculated regenerative plan for items "C" and "P" from 27.01.2022 to 03.03.2022
+        ProdItem.SetFilter("No.", '%1|%2', CompItem."No.", ProdItem."No.");
+        LibraryPlanning.CalcRegenPlanForPlanWksh(ProdItem, WorkDate, SalesLine."Shipment Date");
+
+        // [WHEN] Calculate regenerative plan for item "C" from 27.01.2022 to 03.03.2022
+        CompItem.SetRecFilter();
+        LibraryPlanning.CalcRegenPlanForPlanWksh(CompItem, WorkDate, SalesLine."Shipment Date");
+
+        // [THEN] Planning line for Item "C" has quantity = 8
+        FindRequisitionLine(RequisitionLine, CompItem."No.");
+        RequisitionLine.TestField(Quantity, SalesLine.Quantity - ItemJournalLine.Quantity);
+    end;
+    
+    [Test]
+    [Scope('OnPrem')]
+    procedure StartingEndingDateTimeShouldBeRecalculatedForPlanningRoutingLinesWhenLotSizeChanges()
+    var
+        WorkCenter: Record "Work Center";
+        RoutingHeader: Record "Routing Header";
+        Item: Record Item;
+        OldPlanningRoutingLine: Record "Planning Routing Line" temporary;
+        PlanningRoutingLine: Record "Planning Routing Line";
+    begin
+        // [FEATURE] [Planning] [Planning Routing Line]
+        Initialize;
+
+        // [GIVEN] Manufacturing Item "I" with serial routing with 4 lines L1, L2, L3, L4.
+        LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
+        CreateRoutingWithSendahead(RoutingHeader, WorkCenter."No.", 5, 0);
+        CreateLotProdMakeToOrderItemWithRoutingNo(Item, RoutingHeader."No.");
+
+        // [GIVEN] Sales Order as Demand for "I".
+        CreateSalesOrderWithQuantity(Item."No.", 10);
+
+        // [WHEN] Calculate Regenerative Plan for "I"
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+
+        // [THEN] Corresponding data in "Planning Routing Line" table contains 4 Lines;
+        PlanningRoutingLine.SetRange("Work Center No.", WorkCenter."No.");
+        Assert.RecordCount(PlanningRoutingLine, 4);
+
+        PlanningRoutingLine.FindSet();
+        repeat
+            OldPlanningRoutingLine.Copy(PlanningRoutingLine);
+            OldPlanningRoutingLine.Insert();
+        until PlanningRoutingLine.Next() = 0;
+
+        // [WHEN] Changing the lot size from 1 to 10 for line 2.
+        PlanningRoutingLine.FindSet();
+        PlanningRoutingLine.Next();
+        PlanningRoutingLine.Validate("Lot Size", 10);
+
+        OldPlanningRoutingLine.SetRange("Work Center No.", WorkCenter."No.");
+        OldPlanningRoutingLine.FindSet();
+        PlanningRoutingLine.FindSet();
+
+        // [THEN] First line is untouched.
+        PlanningRoutingLine.TestField("Starting Date-Time", OldPlanningRoutingLine."Starting Date-Time");
+        PlanningRoutingLine.TestField("Ending Date-Time", OldPlanningRoutingLine."Ending Date-Time");
+
+        PlanningRoutingLine.Next();
+        OldPlanningRoutingLine.Next();
+
+        // [THEN] Second line is ending earlier.
+        PlanningRoutingLine.TestField("Starting Date-Time", OldPlanningRoutingLine."Starting Date-Time");
+        Assert.IsTrue(PlanningRoutingLine."Ending Date-Time" < OldPlanningRoutingLine."Ending Date-Time",
+            'Expected new ending date-time to be earlier than original.');
+
+        OldPlanningRoutingLine.Next();
+        PlanningRoutingLine.Next();
+
+        // [THEN] The rest should have the same time span but start earlier.
+        repeat
+            Assert.AreEqual(
+                PlanningRoutingLine."Ending Date-Time" - PlanningRoutingLine."Starting Date-Time",
+                OldPlanningRoutingLine."Ending Date-Time" - OldPlanningRoutingLine."Starting Date-Time",
+                'Expected line to have similar length.'
+            );
+
+            Assert.IsTrue(PlanningRoutingLine."Starting Date-Time" < OldPlanningRoutingLine."Starting Date-Time",
+                'Expected new starting date-time to be earlier than original.');
+
+            Assert.IsTrue(PlanningRoutingLine."Ending Date-Time" < OldPlanningRoutingLine."Ending Date-Time",
+                'Expected new ending date-time to be earlier than original.');
+
+        until (OldPlanningRoutingLine.Next() = 0) and (PlanningRoutingLine.Next() = 0);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1759,7 +1884,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Planning And Manufacturing");
         NoSeriesSetup;
         OutputJournalSetup;
-        LibraryWarehouse.CreateLocation(LocationBlue);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(LocationBlue);
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         isInitialized := true;
@@ -2105,15 +2230,13 @@ codeunit 137080 "SCM Planning And Manufacturing"
           BaseCalendarChange.Day::Sunday);  // Use 0D for Date.
     end;
 
-    local procedure CreateCertifiedProductionBOM(var ProductionBOMHeader: Record "Production BOM Header"; Item: Record Item)
+    local procedure CreateCertifiedProductionBOM(var ProductionBOMHeader: Record "Production BOM Header"; ItemNo: Code[20]; UnitOfMeasureCode: Code[10]; QuantityPer: Decimal)
     var
-        Item2: Record Item;
         ProductionBOMLine: Record "Production BOM Line";
     begin
-        LibraryInventory.CreateItem(Item2);
-        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, UnitOfMeasureCode);
         LibraryManufacturing.CreateProductionBOMLine(
-          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, Item2."No.", LibraryRandom.RandInt(5));
+          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, ItemNo, QuantityPer);
         ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
         ProductionBOMHeader.Modify(true);
     end;
@@ -2233,10 +2356,12 @@ codeunit 137080 "SCM Planning And Manufacturing"
 
     local procedure CreateLotItemWithProductionBOM(var Item: Record Item)
     var
+        ChildItem: Record Item;
         ProductionBOMHeader: Record "Production BOM Header";
     begin
         LibraryInventory.CreateItem(Item);
-        CreateCertifiedProductionBOM(ProductionBOMHeader, Item);
+        LibraryInventory.CreateItem(ChildItem);
+        CreateCertifiedProductionBOM(ProductionBOMHeader, ChildItem."No.", Item."Base Unit of Measure", LibraryRandom.RandInt(5));
         Item.Validate("Production BOM No.", ProductionBOMHeader."No.");
         Item.Validate("Item Tracking Code", CreateLotItemTrackingCode);
         Item.Modify(true);

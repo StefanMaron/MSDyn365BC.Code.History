@@ -180,6 +180,7 @@ codeunit 368 "Format Document"
 
     procedure SetSalesInvoiceLine(var SalesInvoiceLine: Record "Sales Invoice Line"; var FormattedQuantity: Text; var FormattedUnitPrice: Text; var FormattedVATPercentage: Text; var FormattedLineAmount: Text)
     begin
+        OnBeforeSetSalesInvoiceLine(SalesInvoiceLine);
         SetSalesPurchaseLine(not SalesInvoiceLine.HasTypeToFillMandatoryFields,
           SalesInvoiceLine.Quantity,
           SalesInvoiceLine."Unit Price",
@@ -190,10 +191,12 @@ codeunit 368 "Format Document"
           FormattedUnitPrice,
           FormattedVATPercentage,
           FormattedLineAmount);
+        OnAfterSetSalesInvoiceLine(SalesInvoiceLine, FormattedQuantity, FormattedUnitPrice, FormattedVATPercentage, FormattedLineAmount);
     end;
 
     procedure SetSalesLine(var SalesLine: Record "Sales Line"; var FormattedQuantity: Text; var FormattedUnitPrice: Text; var FormattedVATPercentage: Text; var FormattedLineAmount: Text)
     begin
+        OnBeforeSetSalesLine(SalesLine);
         SetSalesPurchaseLine(not SalesLine.HasTypeToFillMandatoryFields,
           SalesLine.Quantity,
           SalesLine."Unit Price",
@@ -204,10 +207,12 @@ codeunit 368 "Format Document"
           FormattedUnitPrice,
           FormattedVATPercentage,
           FormattedLineAmount);
+        OnAfterSetSalesLine(SalesLine, FormattedQuantity, FormattedUnitPrice, FormattedVATPercentage, FormattedLineAmount);
     end;
 
     procedure SetSalesCrMemoLine(var SalesCrMemoLine: Record "Sales Cr.Memo Line"; var FormattedQuantity: Text; var FormattedUnitPrice: Text; var FormattedVATPercentage: Text; var FormattedLineAmount: Text)
     begin
+        OnBeforeSetSalesCrMemoLine(SalesCrMemoLine);
         SetSalesPurchaseLine(not SalesCrMemoLine.HasTypeToFillMandatoryFields,
           SalesCrMemoLine.Quantity,
           SalesCrMemoLine."Unit Price",
@@ -218,6 +223,7 @@ codeunit 368 "Format Document"
           FormattedUnitPrice,
           FormattedVATPercentage,
           FormattedLineAmount);
+        OnAfterSetSalesCrMemoLine(SalesCrMemoLine, FormattedQuantity, FormattedUnitPrice, FormattedVATPercentage, FormattedLineAmount);
     end;
 
     procedure SetPurchaseLine(var PurchaseLine: Record "Purchase Line"; var FormattedQuantity: Text; var FormattedDirectUnitCost: Text; var FormattedVATPercentage: Text; var FormattedLineAmount: Text)
@@ -277,7 +283,37 @@ codeunit 368 "Format Document"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetSalesLine(var SalesLine: Record "Sales Line"; var FormattedQuantity: Text; var FormattedUnitPrice: Text; var FormattedVATPercentage: Text; var FormattedLineAmount: Text);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetSalesInvoiceLine(var SalesInvoiceLine: Record "Sales Invoice Line"; var FormattedQuantity: Text; var FormattedUnitPrice: Text; var FormattedVATPercentage: Text; var FormattedLineAmount: Text);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetSalesCrMemoLine(var SalesCrMemoLine: Record "Sales Cr.Memo Line"; var FormattedQuantity: Text; var FormattedUnitPrice: Text; var FormattedVATPercentage: Text; var FormattedLineAmount: Text);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeSetLogoPosition(var LogoPosition: Option "No Logo",Left,Center,Right; var CompanyInfo1: Record "Company Information"; var CompanyInfo2: Record "Company Information"; var CompanyInfo3: Record "Company Information"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetSalesLine(var SalesLine: Record "Sales Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetSalesInvoiceLine(var SalesInvoiceLine: Record "Sales Invoice Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetSalesCrMemoLine(var SalesCrMemoLine: Record "Sales Cr.Memo Line");
     begin
     end;
 }

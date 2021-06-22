@@ -66,10 +66,7 @@
             if Find('-') then
                 repeat
                     TestField("Unit of Measure Code");
-                    if ("Shipping Advice" = "Shipping Advice"::Complete) and
-                       ("Qty. (Base)" <> "Qty. to Ship (Base)" + "Qty. Shipped (Base)")
-                    then
-                        Error(WrongQuantityValueErr);
+                    CheckShippingAdviceComplete();
                     WhseRqst.Get(
                       WhseRqst.Type::Outbound, "Location Code", "Source Type", "Source Subtype", "Source No.");
                     if WhseRqst."Document Status" <> WhseRqst."Document Status"::Released then
@@ -213,6 +210,7 @@
                                 SalesRelease.SetSkipCheckReleaseRestrictions;
                                 SalesHeader.SetHideValidationDialog(true);
                                 SalesHeader.Validate("Posting Date", WhseShptHeader."Posting Date");
+                                OnInitSourceDocumentHeaderOnBeforeReleaseSalesHeader(SalesHeader, WhseShptHeader, WhseShptLine);
                                 SalesRelease.Run(SalesHeader);
                                 ModifyHeader := true;
                             end;
@@ -628,18 +626,9 @@
                         ItemTrackingMgt.DeleteWhseItemTrkgLines(
                           DATABASE::"Warehouse Shipment Line", 0, "No.", '', 0, "Line No.", "Location Code", true);
                         WhseShptLine2.Delete();
-                    end else begin
-                        OnBeforePostUpdateWhseShptLine(WhseShptLine2);
-                        WhseShptLine2."Qty. Shipped" := "Qty. Shipped" + "Qty. to Ship";
-                        WhseShptLine2.Validate("Qty. Outstanding", "Qty. Outstanding" - "Qty. to Ship");
-                        WhseShptLine2."Qty. Shipped (Base)" := "Qty. Shipped (Base)" + "Qty. to Ship (Base)";
-                        WhseShptLine2."Qty. Outstanding (Base)" := "Qty. Outstanding (Base)" - "Qty. to Ship (Base)";
-                        WhseShptLine2.Status := WhseShptLine2.CalcStatusShptLine;
-                        OnBeforePostUpdateWhseShptLineModify(WhseShptLine2, WhseShptLineBuf);
-                        WhseShptLine2.Modify();
-                        OnAfterPostUpdateWhseShptLine(WhseShptLine2);
-                    end;
-                until Next = 0;
+                    end else
+                        UpdateWhseShptLine(WhseShptLine2, WhseShptHeaderParam);
+                until Next() = 0;
                 DeleteAll();
             end;
 
@@ -661,6 +650,27 @@
         end;
 
         OnAfterPostUpdateWhseDocuments(WhseShptHeaderParam);
+    end;
+
+    local procedure UpdateWhseShptLine(WhseShptLine2: Record "Warehouse Shipment Line"; var WhseShptHeaderParam: Record "Warehouse Shipment Header")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforePostUpdateWhseShptLine(WhseShptLine2, WhseShptLineBuf, WhseShptHeaderParam, IsHandled);
+        if IsHandled then
+            exit;
+
+        with WhseShptLineBuf do begin
+            WhseShptLine2."Qty. Shipped" := "Qty. Shipped" + "Qty. to Ship";
+            WhseShptLine2.Validate("Qty. Outstanding", "Qty. Outstanding" - "Qty. to Ship");
+            WhseShptLine2."Qty. Shipped (Base)" := "Qty. Shipped (Base)" + "Qty. to Ship (Base)";
+            WhseShptLine2."Qty. Outstanding (Base)" := "Qty. Outstanding (Base)" - "Qty. to Ship (Base)";
+            WhseShptLine2.Status := WhseShptLine2.CalcStatusShptLine;
+            OnBeforePostUpdateWhseShptLineModify(WhseShptLine2, WhseShptLineBuf);
+            WhseShptLine2.Modify();
+            OnAfterPostUpdateWhseShptLine(WhseShptLine2);
+        end;
     end;
 
     procedure GetResultMessage()
@@ -930,6 +940,22 @@
             until ReservationEntry.Next = 0;
     end;
 
+    local procedure CheckShippingAdviceComplete()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckShippingAdviceComplete(WhseShptLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        with WhseShptLine do
+            if ("Shipping Advice" = "Shipping Advice"::Complete) and
+               ("Qty. (Base)" <> "Qty. to Ship (Base)" + "Qty. Shipped (Base)")
+            then
+                Error(WrongQuantityValueErr);
+    end;
+
     local procedure HandleSalesLine(var WhseShptLine: Record "Warehouse Shipment Line")
     var
         SalesLine: Record "Sales Line";
@@ -942,7 +968,13 @@
         NonATOLineFound: Boolean;
         SumOfQtyToShip: Decimal;
         SumOfQtyToShipBase: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeHandleSalesLine(WhseShptLine, SalesLine, SalesHeader, WhseShptHeader, ModifyLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with WhseShptLine do begin
             SalesLine.SetRange("Document Type", "Source Subtype");
             SalesLine.SetRange("Document No.", "Source No.");
@@ -1045,7 +1077,13 @@
     var
         PurchLine: Record "Purchase Line";
         ModifyLine: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeHandlePurchaseLine(WhseShptLine, PurchLine, WhseShptHeader, ModifyLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with WhseShptLine do begin
             PurchLine.SetRange("Document Type", "Source Subtype");
             PurchLine.SetRange("Document No.", "Source No.");
@@ -1110,7 +1148,13 @@
     var
         TransLine: Record "Transfer Line";
         ModifyLine: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeHandleTransferLine(WhseShptLine, TransLine, WhseShptHeader, ModifyLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with WhseShptLine do begin
             TransLine.SetRange("Document No.", "Source No.");
             TransLine.SetRange("Derived From Line No.", 0);
@@ -1284,7 +1328,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostUpdateWhseShptLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line")
+    local procedure OnBeforePostUpdateWhseShptLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var WarehouseShipmentLineBuf: Record "Warehouse Shipment Line"; var WhseShptHeaderParam: Record "Warehouse Shipment Header"; var IsHandled: Boolean)
     begin
     end;
 
@@ -1325,6 +1369,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTransferPostShipment(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; TransferHeader: Record "Transfer Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckShippingAdviceComplete(var WhseShptLine: Record "Warehouse Shipment Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -1394,6 +1443,21 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeHandlePurchaseLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var PurchLine: Record "Purchase Line"; WhseShptHeader: Record "Warehouse Shipment Header"; var ModifyLine: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeHandleSalesLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; WhseShptHeader: Record "Warehouse Shipment Header"; var ModifyLine: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeHandleTransferLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var TransLine: Record "Transfer Line"; WhseShptHeader: Record "Warehouse Shipment Header"; var ModifyLine: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePostSourceDocument(var WhseShptLine: Record "Warehouse Shipment Line"; var PurchaseHeader: Record "Purchase Header"; var SalesHeader: Record "Sales Header"; var TransferHeader: Record "Transfer Header"; var ServiceHeader: Record "Service Header")
     begin
     end;
@@ -1430,6 +1494,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnInitSourceDocumentHeaderOnBeforeReopenSalesHeader(var SalesHeader: Record "Sales Header"; Invoice: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitSourceDocumentHeaderOnBeforeReleaseSalesHeader(var SalesHeader: Record "Sales Header"; var WhseShptHeader: Record "Warehouse Shipment Header"; var WhseShptLine: Record "Warehouse Shipment Line")
     begin
     end;
 

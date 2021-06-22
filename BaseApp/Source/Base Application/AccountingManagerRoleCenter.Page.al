@@ -818,6 +818,10 @@ page 9001 "Accounting Manager Role Center"
                 Image = AnalysisViewDimension;
                 RunObject = Page "Analysis by Dimensions";
                 ToolTip = 'Analyze activities using dimensions information.';
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'This functionality runs correctly from the Analysis View List page';
+                ObsoleteTag = '18.0';
             }
             action("Calculate Deprec&iation")
             {

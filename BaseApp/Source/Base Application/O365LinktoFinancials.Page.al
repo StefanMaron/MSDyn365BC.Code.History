@@ -26,7 +26,7 @@ page 2196 "O365 Link to Financials"
 
                 trigger OnDrillDown()
                 begin
-                    O365SetupMgmt.ChangeToEvaluationCompany;
+                    O365SetupMgmt.ChangeToEvaluationCompany();
                 end;
             }
         }
@@ -49,14 +49,14 @@ page 2196 "O365 Link to Financials"
     local procedure Initialize()
     var
         EnvironmentInfo: Codeunit "Environment Information";
-        ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
+        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         IsFinApp: Boolean;
         IsSaas: Boolean;
         IsInvAppAreaSet: Boolean;
     begin
-        IsFinApp := EnvironmentInfo.IsFinancials;
-        IsSaas := EnvironmentInfo.IsSaaS;
-        IsInvAppAreaSet := ApplicationAreaMgmt.IsInvoicingOnlyEnabled;
+        IsFinApp := EnvironmentInfo.IsFinancials();
+        IsSaas := EnvironmentInfo.IsSaaS();
+        IsInvAppAreaSet := ApplicationAreaMgmtFacade.IsInvoicingOnlyEnabled();
 
         ShowLabel := IsFinApp and IsSaas and IsInvAppAreaSet;
     end;

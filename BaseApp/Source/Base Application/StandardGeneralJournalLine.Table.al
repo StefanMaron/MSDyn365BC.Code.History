@@ -1,4 +1,4 @@
-table 751 "Standard General Journal Line"
+﻿table 751 "Standard General Journal Line"
 {
     Caption = 'Standard General Journal Line';
 
@@ -1299,7 +1299,14 @@ table 751 "Standard General Journal Line"
     end;
 
     procedure LookupShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeLookupShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode, IsHandled);
+        if IsHandled then
+            exit;
+
         DimMgt.LookupDimValueCode(FieldNumber, ShortcutDimCode);
         DimMgt.ValidateShortcutDimValues(FieldNumber, ShortcutDimCode, "Dimension Set ID");
     end;
@@ -1830,6 +1837,11 @@ table 751 "Standard General Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateDim(var StandardGenJournalLine: Record "Standard General Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupShortcutDimCode(var StandardGenJnlLine: Record "Standard General Journal Line"; xStandardGenJnlLine: Record "Standard General Journal Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20]; var IsHandled: Boolean)
     begin
     end;
 

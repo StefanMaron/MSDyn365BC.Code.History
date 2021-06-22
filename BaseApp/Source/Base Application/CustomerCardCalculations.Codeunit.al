@@ -8,15 +8,62 @@ codeunit 32 "Customer Card Calculations"
         Params: Dictionary of [Text, Text];
         Results: Dictionary of [Text, Text];
         CustomerNo: Code[20];
+        AmountOnPostedInvoices: Decimal;
+        AmountOnPostedCrMemos: Decimal;
+        AmountOnOutstandingInvoices: Decimal;
+        AmountOnOutstandingCrMemos: Decimal;
+        Totals: Decimal;
+        AdjmtCostLCY: Decimal;
+        AdjCustProfit: Decimal;
+        AdjProfitPct: Decimal;
+        CustInvDiscAmountLCY: Decimal;
+        CustPaymentsLCY: Decimal;
+        CustSalesLCY: Decimal;
+        CustProfit: Decimal;
+        NoPostedInvoices: Integer;
+        NoPostedCrMemos: Integer;
+        NoOutstandingInvoices: Integer;
+        NoOutstandingCrMemos: Integer;
+        NewWorkDate: Date;
     begin
         Params := Page.GetBackgroundParameters();
         CustomerNo := CopyStr(Params.Get(GetCustomerNoLabel()), 1, MaxStrLen(CustomerNo));
         if not Customer.Get(CustomerNo) then
             exit;
+        if Evaluate(NewWorkDate, Params.Get(GetWorkDateLabel())) then
+            WorkDate := NewWorkDate;
+        AmountOnPostedInvoices := CustomerMgt.CalcAmountsOnPostedInvoices(Customer."No.", NoPostedInvoices);
+        AmountOnPostedCrMemos := CustomerMgt.CalcAmountsOnPostedCrMemos(Customer."No.", NoPostedCrMemos);
+        AmountOnOutstandingInvoices := CustomerMgt.CalculateAmountsOnUnpostedInvoices(Customer."No.", NoOutstandingInvoices);
+        AmountOnOutstandingCrMemos := CustomerMgt.CalculateAmountsOnUnpostedCrMemos(Customer."No.", NoOutstandingCrMemos);
+        Totals := AmountOnPostedInvoices + AmountOnPostedCrMemos + AmountOnOutstandingInvoices + AmountOnOutstandingCrMemos;
+
+        CustomerMgt.CalculateStatistic(
+          Customer,
+          AdjmtCostLCY, AdjCustProfit, AdjProfitPct,
+          CustInvDiscAmountLCY, CustPaymentsLCY, CustSalesLCY,
+          CustProfit);
 
         Results.Add(GetAvgDaysPastDueDateLabel(), Format(AgedAccReceivable.InvoicePaymentDaysAverage(Customer."No.")));
         Results.Add(GetExpectedMoneyOwedLabel(), Format(CustomerMgt.CalculateAmountsWithVATOnUnpostedDocuments(Customer."No.")));
         Results.Add(GetAvgDaysToPayLabel(), Format(CustomerMgt.AvgDaysToPay(Customer."No.")));
+        Results.Add(GetAmountOnPostedInvoicesLabel(), Format(AmountOnPostedInvoices));
+        Results.Add(GetAmountOnPostedCrMemosLabel(), Format(AmountOnPostedCrMemos));
+        Results.Add(GetAmountOnOutstandingInvoicesLabel(), Format(AmountOnOutstandingInvoices));
+        Results.Add(GetAmountOnOutstandingCrMemosLabel(), Format(AmountOnOutstandingCrMemos));
+        Results.Add(GetTotalsLabel(), Format(Totals));
+        Results.Add(GetAdjmtCostLCYLabel(), Format(AdjmtCostLCY));
+        Results.Add(GetAdjCustProfitLabel(), Format(AdjCustProfit));
+        Results.Add(GetAdjProfitPctLabel(), Format(AdjProfitPct));
+        Results.Add(GetCustInvDiscAmountLCYLabel(), Format(CustInvDiscAmountLCY));
+        Results.Add(GetCustPaymentsLCYLabel(), Format(CustPaymentsLCY));
+        Results.Add(GetCustSalesLCYLabel(), Format(CustSalesLCY));
+        Results.Add(GetCustProfitLabel(), Format(CustProfit));
+        Results.Add(GetNoPostedInvoicesLabel(), Format(NoPostedInvoices));
+        Results.Add(GetNoPostedCrMemosLabel(), Format(NoPostedCrMemos));
+        Results.Add(GetNoOutstandingInvoicesLabel(), Format(NoOutstandingInvoices));
+        Results.Add(GetNoOutstandingCrMemosLabel(), Format(NoOutstandingCrMemos));
+
         Page.SetBackgroundTaskResult(Results);
     end;
 
@@ -24,7 +71,30 @@ codeunit 32 "Customer Card Calculations"
         ExpectedMoneyOwedLbl: label 'Expected Money Owed', Locked = true;
         AvgDaysPastDueDateLbl: label 'Avg. Days Past Due', Locked = true;
         AvgDaysToPayLbl: label 'Avg. Days to pay', Locked = true;
+        AmountOnPostedInvoicesLbl: label 'Amount on Posted Invoices', Locked = true;
+        AmountOnPostedCrMemosLbl: label 'Amount On Posted Cr. Memos', Locked = true;
+        AmountOnOutstandingInvoicesLbl: label 'Amount On Outstanding Invoices', Locked = true;
+        AmountOnOutstandingCrMemosLbl: label 'Amount On Outstanding Cr. Memos', Locked = true;
+        TotalsLbl: label 'Totals', Locked = true;
+        AdjmtCostLCYLbl: label 'Adjmt. Cost LCY', Locked = true;
+        AdjCustProfitLbl: label 'Adj. Cust Profit', Locked = true;
+        AdjProfitPctLbl: label 'Adj. Profit Pct.', Locked = true;
+        CustInvDiscAmountLCYLbl: label 'Cust. Inv. Disc. Amount LCY', Locked = true;
+        CustPaymentsLCYLbl: label 'Cust. Payments LCY', Locked = true;
+        CustSalesLCYLbl: label 'Cust. Sales LCY', Locked = true;
+        CustProfitLbl: label 'Cust. Profit', Locked = true;
+        NoPostedInvoicesLbl: label 'No. Posted Invoices', Locked = true;
+        NoPostedCrMemosLbl: label 'No. Posted Cr. Memos', Locked = true;
+        NoOutstandingInvoicesLbl: label 'No. Outstanding Invoices', Locked = true;
+        NoOutstandingCrMemosLbl: label 'No. Outstanding Cr. Memos', Locked = true;
         CustomerNoLbl: label 'Customer No.', Locked = true;
+        WorkDateLbl: label 'Work Date', Locked = true;
+
+
+    internal procedure GetWorkDateLabel(): Text
+    begin
+        exit(WorkDateLbl);
+    end;
 
     internal procedure GetExpectedMoneyOwedLabel(): Text
     begin
@@ -46,5 +116,83 @@ codeunit 32 "Customer Card Calculations"
         exit(CustomerNoLbl);
     end;
 
+    internal procedure GetAmountOnPostedInvoicesLabel(): Text
+    begin
+        exit(AmountOnPostedInvoicesLbl);
+    end;
 
+    internal procedure GetAmountOnPostedCrMemosLabel(): Text
+    begin
+        exit(AmountOnPostedCrMemosLbl);
+    end;
+
+    internal procedure GetAmountOnOutstandingInvoicesLabel(): Text
+    begin
+        exit(AmountOnOutstandingInvoicesLbl);
+    end;
+
+    internal procedure GetAmountOnOutstandingCrMemosLabel(): Text
+    begin
+        exit(AmountOnOutstandingCrMemosLbl);
+    end;
+
+    internal procedure GetTotalsLabel(): Text
+    begin
+        exit(TotalsLbl);
+    end;
+
+    internal procedure GetAdjmtCostLCYLabel(): Text
+    begin
+        exit(AdjmtCostLCYLbl);
+    end;
+
+    internal procedure GetAdjCustProfitLabel(): Text
+    begin
+        exit(AdjCustProfitLbl);
+    end;
+
+    internal procedure GetAdjProfitPctLabel(): Text
+    begin
+        exit(AdjProfitPctLbl);
+    end;
+
+    internal procedure GetCustInvDiscAmountLCYLabel(): Text
+    begin
+        exit(CustInvDiscAmountLCYLbl);
+    end;
+
+    internal procedure GetCustPaymentsLCYLabel(): Text
+    begin
+        exit(CustPaymentsLCYLbl);
+    end;
+
+    internal procedure GetCustSalesLCYLabel(): Text
+    begin
+        exit(CustSalesLCYLbl);
+    end;
+
+    internal procedure GetCustProfitLabel(): Text
+    begin
+        exit(CustProfitLbl);
+    end;
+
+    internal procedure GetNoPostedInvoicesLabel(): Text
+    begin
+        exit(NoPostedInvoicesLbl);
+    end;
+
+    internal procedure GetNoPostedCrMemosLabel(): Text
+    begin
+        exit(NoPostedCrMemosLbl);
+    end;
+
+    internal procedure GetNoOutstandingInvoicesLabel(): Text
+    begin
+        exit(NoOutstandingInvoicesLbl);
+    end;
+
+    internal procedure GetNoOutstandingCrMemosLabel(): Text
+    begin
+        exit(NoOutstandingCrMemosLbl);
+    end;
 }

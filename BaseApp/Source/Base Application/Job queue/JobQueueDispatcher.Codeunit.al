@@ -38,6 +38,8 @@ codeunit 448 "Job Queue Dispatcher"
         ErrorMessageHandler: Codeunit "Error Message Handler";
         ErrorContextElement: Codeunit "Error Context Element";
         ErrorMessageRegisterId: Guid;
+        JobQueueStartTime: DateTime;
+        JobQueueExecutionTimeInMs: Integer;
     begin
         JobQueueEntry.RefreshLocked;
         if not JobQueueEntry.IsReadyToStart then
@@ -59,7 +61,9 @@ codeunit 448 "Job Queue Dispatcher"
             OnBeforeExecuteJob(JobQueueEntry);
             ErrorMessageManagement.Activate(ErrorMessageHandler);
             ErrorMessageManagement.PushContext(ErrorContextElement, RecordId, 0, JobQueueContextTxt);
+            JobQueueStartTime := CurrentDateTime();
             WasSuccess := CODEUNIT.Run(CODEUNIT::"Job Queue Start Codeunit", JobQueueEntry);
+            JobQueueExecutionTimeInMs := CurrentDateTime() - JobQueueStartTime;
             if not WasSuccess then
                 ErrorMessageRegisterId := ErrorMessageHandler.RegisterErrorMessages();
             OnAfterExecuteJob(JobQueueEntry, WasSuccess);
@@ -77,7 +81,7 @@ codeunit 448 "Job Queue Dispatcher"
                 FinalizeRun;
         end;
 
-        OnAfterHandleRequest(JobQueueEntry, WasSuccess);
+        OnAfterHandleRequest(JobQueueEntry, WasSuccess, JobQueueExecutionTimeInMs);
     end;
 
     local procedure WaitForOthersWithSameCategory(var CurrJobQueueEntry: Record "Job Queue Entry"): Boolean
@@ -248,7 +252,7 @@ codeunit 448 "Job Queue Dispatcher"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterHandleRequest(var JobQueueEntry: Record "Job Queue Entry"; WasSuccess: Boolean)
+    local procedure OnAfterHandleRequest(var JobQueueEntry: Record "Job Queue Entry"; WasSuccess: Boolean; JobQueueExecutionTime: Integer)
     begin
     end;
 

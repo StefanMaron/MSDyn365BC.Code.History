@@ -2613,6 +2613,8 @@
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
+        OnBeforeOpenCustomerLedgerEntries(Rec, DetailedCustLedgEntry);
+
         DetailedCustLedgEntry.SetRange("Customer No.", "No.");
         CopyFilter("Global Dimension 1 Filter", DetailedCustLedgEntry."Initial Entry Global Dim. 1");
         CopyFilter("Global Dimension 2 Filter", DetailedCustLedgEntry."Initial Entry Global Dim. 2");
@@ -3178,6 +3180,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeLookupPostCode(var Customer: Record Customer; var PostCodeRec: Record "Post Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenCustomerLedgerEntries(var Customer: Record Customer; var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry")
     begin
     end;
 

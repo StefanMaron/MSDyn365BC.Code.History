@@ -1924,6 +1924,7 @@
         VendorWithoutQuote := ConvertStr(VendorText, '''', '?');
 
         Vendor.SetFilter(Name, '''@' + VendorWithoutQuote + '''');
+        OnGetVendorNoOpenCardOnAfterSetVendorWithoutQuote(Vendor);
         if Vendor.FindFirst then
             exit(Vendor."No.");
         Vendor.SetRange(Name);
@@ -1933,6 +1934,7 @@
         Vendor.FilterGroup := -1;
         Vendor.SetFilter("No.", VendorFilterFromStart);
         Vendor.SetFilter(Name, VendorFilterFromStart);
+        OnGetVendorNoOpenCardOnAfterVendorSetFilterFromStart(Vendor);
         if Vendor.FindFirst then
             exit(Vendor."No.");
 
@@ -2163,7 +2165,13 @@
     local procedure SetDefaultPurchaser()
     var
         UserSetup: Record "User Setup";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetDefaultPurchaser(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if not UserSetup.Get(UserId) then
             exit;
 
@@ -2401,6 +2409,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetDefaultPurchaser(var Vendor: Record Vendor; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateCity(var Vendor: Record Vendor; var PostCodeRec: Record "Post Code")
     begin
     end;
@@ -2422,6 +2435,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnGetVendorNoOpenCardOnBeforeVendorFindSet(var Vendor: Record Vendor)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetVendorNoOpenCardOnAfterVendorSetFilterFromStart(var Vendor: Record Vendor)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetVendorNoOpenCardOnAfterSetVendorWithoutQuote(var Vendor: Record Vendor)
     begin
     end;
 

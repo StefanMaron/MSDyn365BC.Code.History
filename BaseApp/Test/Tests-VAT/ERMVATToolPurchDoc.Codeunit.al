@@ -23,6 +23,8 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         LibraryERM: Codeunit "Library - ERM";
         LibraryFixedAsset: Codeunit "Library - Fixed Asset";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryService: Codeunit "Library - Service";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         isInitialized: Boolean;
         GroupFilter: Label '%1|%2';
 
@@ -1052,6 +1054,90 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
 
         // Tear down
         ERMVATToolHelper.DeleteGroups();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolAdjustExtTextsAttachedToLineNo()
+    var
+        VATProdPostingGroup: Array[2] of Record "VAT Product Posting Group";
+        VATBusPostingGroup: Record "VAT Business Posting Group";
+        VATPostingSetup: Record "VAT Posting Setup";
+        Item: Record Item;
+        PurchHeader: Record "Purchase Header";
+        PurchOrderHeader: Record "Purchase Header";
+        PurchLine: Record "Purchase Line";
+        PurchOrderLine: Record "Purchase Line";
+        VATRateChangeConv: Record "VAT Rate Change Conversion";
+        BlanketPurchOrderPage: TestPage "Blanket Purchase Order";
+        PurchDocumentType: Enum "Purchase Document Type";
+        PurchLineType: Enum "Purchase Line Type";
+        PurchOrderDocNo: Code[20];
+        VendorNo: Code[20];
+        SecondPurchLineNo: Integer;
+    begin
+        // [FEATURE] [Extended Text]
+        // [SCENARIO 377264] VAT Rate Change tool adjusts Extended Text line "Attached to Line No." field
+        Initialize();
+
+        // [GIVEN] VAT Prod. Posting Group 'VPPG1' and 'VPPG2'
+        LibraryERM.CreateVATProductPostingGroup(VATProdPostingGroup[1]);
+        LibraryERM.CreateVATProductPostingGroup(VATProdPostingGroup[2]);
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusPostingGroup);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusPostingGroup.Code, VATProdPostingGroup[1].Code);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusPostingGroup.Code, VATProdPostingGroup[2].Code);
+
+        VendorNo := LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATBusPostingGroup.Code);
+
+        // [GIVEN] Item with VAT Prod. Posting Group = 'VPPG1' and enabled Automatic Ext. Texts with one line Ext. Text
+        LibraryInventory.CreateItem(Item);
+        Item.VALIDATE("VAT Prod. Posting Group", VATProdPostingGroup[1].Code);
+        Item.Validate("Automatic Ext. Texts", TRUE);
+        Item.Modify(TRUE);
+        LibraryService.CreateExtendedTextForItem(Item."No.");
+
+        // [GIVEN] Blanket Purchase Order with line of type Item, Qty = 10 and one Ext. Text line
+        // VAT Prod. Posting Group of Purchase Line = 'VPPG1'
+        LibraryPurchase.CreatePurchHeader(PurchHeader, PurchDocumentType::"Blanket Order", VendorNo);
+        BlanketPurchOrderPage.OpenEdit();
+        BlanketPurchOrderPage.Filter.SetFilter("No.", PurchHeader."No.");
+        BlanketPurchOrderPage.PurchLines.Type.SetValue(PurchLineType::Item);
+        BlanketPurchOrderPage.PurchLines."No.".SetValue(Item."No.");
+        BlanketPurchOrderPage.PurchLines.Quantity.SetValue(10);
+        BlanketPurchOrderPage.Close();
+        Commit();
+
+        // [GIVEN] Purchase Order made out of Purchase Blanket Order
+        PurchOrderDocNo := LibraryPurchase.BlanketPurchaseOrderMakeOrder(PurchHeader);
+
+        PurchOrderHeader.GET(PurchDocumentType::Order, PurchOrderDocNo);
+        LibraryPurchase.FindFirstPurchLine(PurchOrderLine, PurchOrderHeader);
+
+        // [GIVEN] Purchase Order posted with Quanitity = 8.
+        PurchOrderLine.Validate(Quantity, 8);
+        PurchOrderLine.Modify(TRUE);
+        LibraryPurchase.PostPurchaseDocument(PurchOrderHeader, TRUE, TRUE);
+
+        // [WHEN] Run VAT Change Tool with option to convert 'VPPG1' into 'VPPG2' for Purchase documents
+        ERMVATToolHelper.SetupToolConvGroups(
+            VATRateChangeConv.Type::"VAT Prod. Posting Group", VATProdPostingGroup[1].Code, VATProdPostingGroup[2].Code);
+        SetupToolPurch(VATRateChangeSetup2."Update Purchase Documents"::"VAT Prod. Posting Group", true, false);
+        ERMVATToolHelper.RunVATRateChangeTool();
+
+        // [THEN] Blanket Purchase Order has 3 lines. Extended text line is attached to Purchase Line with 'VPPG2' VAT Posting Group
+        LibraryPurchase.FindFirstPurchLine(PurchLine, PurchHeader);
+        
+        PurchLine.TestField(Quantity, 8);
+        PurchLine.TestField("VAT Prod. Posting Group", VATProdPostingGroup[1].Code);
+        PurchLine.Next();
+        PurchLine.TestField(Quantity, 2);
+        PurchLine.TestField("VAT Prod. Posting Group", VATProdPostingGroup[2].Code);
+        SecondPurchLineNo := PurchLine."Line No.";
+
+        PurchLine.Next();
+        PurchLine.TestField("Attached to Line No.", SecondPurchLineNo);
+
+        NotificationLifecycleMgt.RecallAllNotifications;
     end;
 
     local procedure VATToolMakePurchOrder(FieldOption: Option; DocumentType: Enum "Purchase Document Type"; Partial: Boolean; MultipleLines: Boolean)

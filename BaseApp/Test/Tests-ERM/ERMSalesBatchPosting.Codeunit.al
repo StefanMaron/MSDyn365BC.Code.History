@@ -26,6 +26,7 @@ codeunit 134391 "ERM Sales Batch Posting"
         isInitialized: Boolean;
         BatchCompletedMsg: Label 'All the documents were processed.';
         NotificationMsg: Label 'An error or warning occured during operation Batch processing of Sales Header records.';
+        DefaultCategoryCodeLbl: Label 'SALESBCKGR';
 
     [Test]
     [HandlerFunctions('RequestPageHandlerBatchPostSalesInvoices,MessageHandler')]
@@ -787,6 +788,297 @@ codeunit 134391 "ERM Sales Batch Posting"
         Assert.RecordIsEmpty(BatchProcessingSessionMap);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('RequestPageHandlerBatchPostSalesInvoices,MessageHandler')]
+    procedure BatchPostInvoices_OneJobQueue()
+    var
+        SalesHeader: array[2] of Record "Sales Header";
+        LibraryJobQueue: Codeunit "Library - Job Queue";
+    begin
+        // [SCENARIO 355799] Batch posting invoices via one job queue
+        Initialize();
+        BindSubscription(LibraryJobQueue);
+        LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
+        LibraryJobQueue.SetDoNotSkipProcessBatchInBackground(true);
+
+        // [GIVEN] Post with job queue is enabled
+        LibrarySales.SetPostWithJobQueue(true);
+
+        // [GIVEN] Two invoices
+        CreateSalesDocument(SalesHeader[1], SalesHeader[1]."Document Type"::Invoice, false);
+        CreateSalesDocument(SalesHeader[2], SalesHeader[2]."Document Type"::Invoice, false);
+
+        // [WHEN] Post batch
+        RunBatchPostSales(SalesHeader[1]."Document Type", SalesHeader[1]."No." + '|' + SalesHeader[2]."No.", 0D, false);
+        FindAndRunJobQueueEntryByRecord(SalesHeader[1]);
+
+        // [THEN] All invoices are posted
+        VerifyPostedSalesInvoice(SalesHeader[1]."No.", SalesHeader[1]."Posting Date", false);
+        VerifyPostedSalesInvoice(SalesHeader[2]."No.", SalesHeader[2]."Posting Date", false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('RequestPageHandlerBatchPostSalesOrders,MessageHandler')]
+    procedure BatchPostOrders_OneJobQueue()
+    var
+        SalesHeader: array[2] of Record "Sales Header";
+        LibraryJobQueue: Codeunit "Library - Job Queue";
+    begin
+        // [SCENARIO 355799] Batch posting orders via one job queue
+        Initialize();
+        BindSubscription(LibraryJobQueue);
+        LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
+        LibraryJobQueue.SetDoNotSkipProcessBatchInBackground(true);
+
+        // [GIVEN] Post with job queue is enabled
+        LibrarySales.SetPostWithJobQueue(true);
+
+        // [GIVEN] Two orders
+        CreateSalesDocument(SalesHeader[1], SalesHeader[1]."Document Type"::Order, false);
+        CreateSalesDocument(SalesHeader[2], SalesHeader[2]."Document Type"::Order, false);
+
+        // [WHEN] Post batch
+        RunBatchPostSales(SalesHeader[2]."Document Type", SalesHeader[1]."No." + '|' + SalesHeader[2]."No.", 0D, false);
+        FindAndRunJobQueueEntryByRecord(SalesHeader[1]);
+
+        // [THEN] All orders are posted
+        VerifyPostedSalesOrder(SalesHeader[1]."No.", SalesHeader[1]."Posting Date", false);
+        VerifyPostedSalesOrder(SalesHeader[2]."No.", SalesHeader[2]."Posting Date", false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('RequestPageHandlerBatchPostSalesCrMemos,MessageHandler')]
+    procedure BatchPostCreditMemos_OneJobQueue()
+    var
+        SalesHeader: array[2] of Record "Sales Header";
+        LibraryJobQueue: Codeunit "Library - Job Queue";
+    begin
+        // [SCENARIO 355799] Batch posting credit memos via one job queue
+        Initialize();
+        BindSubscription(LibraryJobQueue);
+        LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
+        LibraryJobQueue.SetDoNotSkipProcessBatchInBackground(true);
+
+        // [GIVEN] Post with job queue is enabled
+        LibrarySales.SetPostWithJobQueue(true);
+
+        // [GIVEN] Two credit memos
+        CreateSalesDocument(SalesHeader[1], SalesHeader[1]."Document Type"::"Credit Memo", false);
+        CreateSalesDocument(SalesHeader[2], SalesHeader[2]."Document Type"::"Credit Memo", false);
+
+        // [WHEN] Post batch
+        RunBatchPostSales(SalesHeader[1]."Document Type", SalesHeader[1]."No." + '|' + SalesHeader[2]."No.", 0D, false);
+        FindAndRunJobQueueEntryByRecord(SalesHeader[1]);
+
+        // [THEN] All credit memos are posted
+        VerifyPostedSalesCrMemo(SalesHeader[1]."No.", SalesHeader[1]."Posting Date", false);
+        VerifyPostedSalesCrMemo(SalesHeader[2]."No.", SalesHeader[2]."Posting Date", false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('RequestPageHandlerBatchPostSalesReturnOrders,MessageHandler')]
+    procedure BatchPostReturnOrders_OneJobQueue()
+    var
+        SalesHeader: array[2] of Record "Sales Header";
+        LibraryJobQueue: Codeunit "Library - Job Queue";
+    begin
+        // [SCENARIO 355799] Batch posting return orders via one job queue
+        Initialize();
+        BindSubscription(LibraryJobQueue);
+        LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
+        LibraryJobQueue.SetDoNotSkipProcessBatchInBackground(true);
+
+        // [GIVEN] Post with job queue is enabled
+        LibrarySales.SetPostWithJobQueue(true);
+
+        // [GIVEN] Two return orders
+        CreateSalesDocument(SalesHeader[1], SalesHeader[1]."Document Type"::"Return Order", false);
+        CreateSalesDocument(SalesHeader[2], SalesHeader[2]."Document Type"::"Return Order", false);
+
+        // [WHEN] Post batch
+        RunBatchPostSales(SalesHeader[2]."Document Type", SalesHeader[1]."No." + '|' + SalesHeader[2]."No.", 0D, false);
+        FindAndRunJobQueueEntryByRecord(SalesHeader[1]);
+
+        // [THEN] All return orders are posted
+        VerifyPostedSalesReturnOrder(SalesHeader[1]."No.", SalesHeader[1]."Posting Date", false);
+        VerifyPostedSalesReturnOrder(SalesHeader[2]."No.", SalesHeader[2]."Posting Date", false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('RequestPageHandlerBatchPostSalesInvoices,MessageHandler')]
+    procedure BatchPostInvoicesWithEmptyJobQueueCategoryCode_OneJobQueue()
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        SalesHeader: array[2] of Record "Sales Header";
+        JobQueueLogEntry: Record "Job Queue Log Entry";
+        LibraryJobQueue: Codeunit "Library - Job Queue";
+        JobQueueEntryId: Guid;
+    begin
+        // [SCENARIO 355799] Batch posting invoices via one job queue with empty "Job Queue Category Code" in the setup
+        Initialize();
+        BindSubscription(LibraryJobQueue);
+        LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
+        LibraryJobQueue.SetDoNotSkipProcessBatchInBackground(true);
+
+        // [GIVEN] Post with job queue is enabled, "Job Queue Category Code" is empty
+        LibrarySales.SetPostWithJobQueue(true);
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup."Job Queue Category Code" := '';
+        SalesReceivablesSetup.Modify();
+
+        // [GIVEN] Two invoices
+        CreateSalesDocument(SalesHeader[1], SalesHeader[1]."Document Type"::Invoice, false);
+        CreateSalesDocument(SalesHeader[2], SalesHeader[2]."Document Type"::Invoice, false);
+
+        // [WHEN] Post batch
+        RunBatchPostSales(SalesHeader[1]."Document Type", SalesHeader[1]."No." + '|' + SalesHeader[2]."No.", 0D, false);
+        FindAndRunJobQueueEntryByRecord(SalesHeader[1]);
+        JobQueueEntryId := SalesHeader[1]."Job Queue Entry ID";
+
+        // [THEN] Job queue log entry contains default "Job Queue Category Code"
+        JobQueueLogEntry.SetRange(ID, JobQueueEntryId);
+        JobQueueLogEntry.FindFirst();
+        Assert.IsTrue(JobQueueLogEntry."Job Queue Category Code" = DefaultCategoryCodeLbl, 'Job queue log entry has wrong Job Queue Category Code');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('RequestPageHandlerBatchPostSalesInvoices,SentNotificationHandler')]
+    procedure BatchPostInvoicesOneWithErrorBeforePosting_OneJobQueue()
+    var
+        SalesHeader: array[2] of Record "Sales Header";
+        LibraryJobQueue: Codeunit "Library - Job Queue";
+    begin
+        // [SCENARIO 355799] Batch posting invoices via one job queue, one invoice has "Job Queue Status" = "Scheduled for Posting"
+        Initialize();
+        BindSubscription(LibraryJobQueue);
+        LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
+        LibraryJobQueue.SetDoNotSkipProcessBatchInBackground(true);
+
+        // [GIVEN] Post with job queue is enabled
+        LibrarySales.SetPostWithJobQueue(true);
+
+        // [GIVEN] Two invoices: I1 and I2, I2 has "Job Queue Status" = "Scheduled for Posting"
+        CreateSalesDocument(SalesHeader[1], SalesHeader[1]."Document Type"::Invoice, false);
+        CreateSalesDocument(SalesHeader[2], SalesHeader[2]."Document Type"::Invoice, false);
+        SalesHeader[2]."Job Queue Status" := SalesHeader[2]."Job Queue Status"::"Scheduled for Posting";
+        SalesHeader[2].Modify();
+
+        // [WHEN] Post batch
+        RunBatchPostSales(SalesHeader[1]."Document Type", SalesHeader[1]."No." + '|' + SalesHeader[2]."No.", 0D, false);
+        FindAndRunJobQueueEntryByRecord(SalesHeader[1]);
+
+        // [THEN] I1 is posted
+        VerifyPostedSalesInvoice(SalesHeader[1]."No.", SalesHeader[1]."Posting Date", false);
+
+        // [THEN] I2 is not posted
+        SalesHeader[2].Get(SalesHeader[2]."Document Type", SalesHeader[2]."No.");
+
+        // [THEN] Notification: 'An error occured during operation: batch processing of Sales Header records.'
+        VerifySalesHeaderNotification();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('RequestPageHandlerBatchPostSalesInvoices,MessageHandler')]
+    procedure BatchPostInvoicesOneWithErrorWhilePosting_OneJobQueue()
+    var
+        SalesHeader: array[2] of Record "Sales Header";
+        JobQueueLogEntry: Record "Job Queue Log Entry";
+        ErrorMessage: Record "Error Message";
+        LibraryJobQueue: Codeunit "Library - Job Queue";
+        JobQueueEntryId: Guid;
+    begin
+        // [SCENARIO 355799] Batch posting invoices via one job queue, one invoice has error while posting
+        Initialize();
+        BindSubscription(LibraryJobQueue);
+        LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
+        LibraryJobQueue.SetDoNotSkipProcessBatchInBackground(true);
+
+        // [GIVEN] Post with job queue is enabled
+        LibrarySales.SetPostWithJobQueue(true);
+
+        // [GIVEN] Two invoices: I1 and I2, I2 has empty "Posting Date"
+        CreateSalesDocument(SalesHeader[1], SalesHeader[1]."Document Type"::Invoice, false);
+        CreateSalesDocument(SalesHeader[2], SalesHeader[2]."Document Type"::Invoice, false);
+        Codeunit.Run(Codeunit::"Release Sales Document", SalesHeader[2]);
+        SalesHeader[2]."Posting Date" := 0D;
+        SalesHeader[2].Modify();
+
+        // [WHEN] Post batch
+        RunBatchPostSales(SalesHeader[1]."Document Type", SalesHeader[1]."No." + '|' + SalesHeader[2]."No.", 0D, false);
+        FindAndRunJobQueueEntryByRecord(SalesHeader[1]);
+        JobQueueEntryId := SalesHeader[1]."Job Queue Entry ID";
+
+        // [THEN] I1 is posted
+        VerifyPostedSalesInvoice(SalesHeader[1]."No.", SalesHeader[1]."Posting Date", false);
+
+        // [THEN] I2 is not posted, "Job Queue Status" = "Error"
+        SalesHeader[2].Get(SalesHeader[2]."Document Type", SalesHeader[2]."No.");
+        Assert.IsTrue(SalesHeader[2]."Job Queue Status" = SalesHeader[2]."Job Queue Status"::Error, 'Sales header has wrong Job Queue Status');
+
+        // [THEN] Job queue log entry "Status" = "Error", "Error Message" contains error message about I2 "Posting Date"
+        JobQueueLogEntry.SetRange(ID, JobQueueEntryId);
+        JobQueueLogEntry.FindFirst();
+        Assert.IsTrue(JobQueueLogEntry.Status = JobQueueLogEntry.Status::Error, 'Job queue log entry has wrong status');
+        Assert.IsTrue(StrPos(JobQueueLogEntry."Error Message", 'Posting Date must have a value') > 0, 'Job queue log entry has wrong error message');
+
+        // [THEN] Error message register contains two records, one for error during posting and one for final message
+        ErrorMessage.SetRange("Register ID", JobQueueLogEntry."Error Message Register Id");
+        Assert.RecordCount(ErrorMessage, 2);
+        ErrorMessage.FindFirst();
+        Assert.IsTrue(StrPos(ErrorMessage.Description, 'Posting Date must have a value') > 0, 'Error message register contains wrong error');
+        ErrorMessage.Next();
+        Assert.AreEqual(ErrorMessage.Description, '1 sales documents out of 2 have errors during posting.', 'Error message register contains wrong error');
+    end;
+
+    [Test]
+    [HandlerFunctions('BatchPostSalesInvoicesPrintRequestPageHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure BatchPostAndPrintInvoices_OneJobQueue()
+    var
+        SalesHeader: array[2] of Record "Sales Header";
+        ReportInbox: Record "Report Inbox";
+        LibraryJobQueue: Codeunit "Library - Job Queue";
+        JobQueueEntryId: Guid;
+    begin
+        // [SCENARIO 355799] Batch posting and printing invoices via one job queue
+        Initialize();
+        BindSubscription(LibraryJobQueue);
+        LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
+        LibraryJobQueue.SetDoNotSkipProcessBatchInBackground(true);
+        CreateInvoiceReportSelection();
+
+        // [GIVEN] Post and print with job queue is enabled
+        LibrarySales.SetPostAndPrintWithJobQueue(true);
+
+        // [GIVEN] Two invoices
+        CreateSalesDocument(SalesHeader[1], SalesHeader[1]."Document Type"::Invoice, false);
+        CreateSalesDocument(SalesHeader[2], SalesHeader[2]."Document Type"::Invoice, false);
+
+        // [WHEN] Post batch
+        RunBatchPostSales(SalesHeader[1]."Document Type", SalesHeader[1]."No." + '|' + SalesHeader[2]."No.", 0D, false);
+        FindAndRunJobQueueEntryByRecord(SalesHeader[1]);
+        JobQueueEntryId := SalesHeader[1]."Job Queue Entry ID";
+
+        // [THEN] All invoices are posted
+        VerifyPostedSalesInvoice(SalesHeader[1]."No.", SalesHeader[1]."Posting Date", false);
+        VerifyPostedSalesInvoice(SalesHeader[2]."No.", SalesHeader[2]."Posting Date", false);
+
+        // [THEN] All invoices are printed as PDF to Report Inbox
+        ReportInbox.SetRange("Job Queue Log Entry ID", JobQueueEntryId);
+        Assert.RecordCount(ReportInbox, 2);
+        ReportInbox.FindFirst();
+        Assert.IsTrue(StrPos(ReportInbox.Description, StrSubstNo('Print Sales Invoice No. %1', SalesHeader[1]."No.")) > 0, 'Report Inbox contains wrong printed document');
+        ReportInbox.Next();
+        Assert.IsTrue(StrPos(ReportInbox.Description, StrSubstNo('Print Sales Invoice No. %1', SalesHeader[2]."No.")) > 0, 'Report Inbox contains wrong printed document');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -922,6 +1214,17 @@ codeunit 134391 "ERM Sales Batch Posting"
         ReportSelections.Usage := ReportSelections.Usage::"S.Invoice";
         ReportSelections."Report ID" := REPORT::"Standard Sales - Invoice";
         If ReportSelections.Insert() Then;
+    end;
+
+    local procedure FindAndRunJobQueueEntryByRecord(var SalesHeader: Record "Sales Header")
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+    begin
+        SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
+        JobQueueEntry.Get(SalesHeader."Job Queue Entry ID");
+        JobQueueEntry.Status := JobQueueEntry.Status::Ready;
+        JobQueueEntry.Modify();
+        Codeunit.Run(Codeunit::"Job Queue Dispatcher", JobQueueEntry);
     end;
 
     local procedure VerifyPostedSalesInvoice(PreAssignedNo: Code[20]; PostingDate: Date; InvDisc: Boolean)

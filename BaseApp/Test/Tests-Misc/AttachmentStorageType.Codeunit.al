@@ -39,7 +39,7 @@ codeunit 136450 "Attachment Storage Type"
         NewDirName: Text;
     begin
         // Setup:
-        Initialize;
+        Initialize();
 
         // Exercise: Relocate Attachments to disk
         RelocateAttachments(MarketingSetup."Attachment Storage Type"::"Disk File",
@@ -60,7 +60,7 @@ codeunit 136450 "Attachment Storage Type"
         NewDirName2: Text;
     begin
         // Setup:
-        Initialize;
+        Initialize();
 
         // Create new directory on server
         RelocateAttachments(MarketingSetup."Attachment Storage Type"::"Disk File",
@@ -88,7 +88,7 @@ codeunit 136450 "Attachment Storage Type"
         AttachmentFileName: Text;
     begin
         // Setup:
-        Initialize;
+        Initialize();
 
         // Create new directory on server
         RelocateAttachments(MarketingSetup."Attachment Storage Type"::"Disk File",
@@ -96,10 +96,10 @@ codeunit 136450 "Attachment Storage Type"
 
         // Exercise: Remove attachment from interaction template
         InteractionTmplLanguage.SetFilter("Attachment No.", '<>0');
-        InteractionTmplLanguage.FindFirst;
+        InteractionTmplLanguage.FindFirst();
         InteractionTemplate.Get(InteractionTmplLanguage."Interaction Template Code");
         Attachment.Get(InteractionTmplLanguage."Attachment No.");
-        AttachmentFileName := Attachment.ConstDiskFileName;
+        AttachmentFileName := Attachment.ConstDiskFileName();
         InteractionTmplLanguage.RemoveAttachment(false); // don't prompt
 
         // Verify attachment removed
@@ -120,11 +120,11 @@ codeunit 136450 "Attachment Storage Type"
         Attachment: Record Attachment;
     begin
         // Setup:
-        Initialize;
+        Initialize();
 
         // Exercise: Remove attachment from interaction template
         InteractionTmplLanguage.SetFilter("Attachment No.", '<>0');
-        InteractionTmplLanguage.FindFirst;
+        InteractionTmplLanguage.FindFirst();
         InteractionTemplate.Get(InteractionTmplLanguage."Interaction Template Code");
         Attachment.Get(InteractionTmplLanguage."Attachment No.");
         InteractionTmplLanguage.RemoveAttachment(false); // don't prompt
@@ -143,14 +143,14 @@ codeunit 136450 "Attachment Storage Type"
         FromAttachment: Record Attachment;
     begin
         // Setup:
-        Initialize;
+        Initialize();
 
         // Exercise: Copy
         FindNonEmptyAttachment(FromAttachment);
         Attachment.WizEmbeddAttachment(FromAttachment);
 
         // Verify attachment
-        Assert.IsTrue(Attachment."Attachment File".HasValue, 'Attachment file not imported to DB.');
+        Assert.IsTrue(Attachment."Attachment File".HasValue(), 'Attachment file not imported to DB.');
         Assert.IsTrue(Attachment."Storage Type" = Attachment."Storage Type"::Embedded, 'Wrong storage type');
     end;
 
@@ -164,7 +164,7 @@ codeunit 136450 "Attachment Storage Type"
         NewDirName: Text;
     begin
         // Setup:
-        Initialize;
+        Initialize();
 
         FindNonEmptyAttachment(FromAttachment);
         RelocateAttachments(MarketingSetup."Attachment Storage Type"::"Disk File",
@@ -192,7 +192,7 @@ codeunit 136450 "Attachment Storage Type"
         ImportFromFile: Text;
     begin
         // Setup:
-        Initialize;
+        Initialize();
 
         RelocateAttachments(MarketingSetup."Attachment Storage Type"::"Disk File",
           CreateOrClearTempDirectory(NewDirName));
@@ -204,7 +204,7 @@ codeunit 136450 "Attachment Storage Type"
         Attachment.ImportAttachmentFromServerFile(ImportFromFile, false, false);
 
         // Verify attachment
-        Assert.IsTrue(Exists(Attachment.ConstDiskFileName), 'Attachment file not imported to disk.');
+        Assert.IsTrue(Exists(Attachment.ConstDiskFileName()), 'Attachment file not imported to disk.');
         Assert.IsTrue(Attachment."Storage Type" = Attachment."Storage Type"::"Disk File", 'Wrong storage type');
 
         // Rollback
@@ -221,7 +221,7 @@ codeunit 136450 "Attachment Storage Type"
         ImportFromFile: Text;
     begin
         // Setup:
-        Initialize;
+        Initialize();
 
         RelocateAttachments(MarketingSetup."Attachment Storage Type"::"Disk File",
           CreateOrClearTempDirectory(NewDirName));
@@ -235,7 +235,7 @@ codeunit 136450 "Attachment Storage Type"
 
         // Verify attachment
         Attachment.CalcFields("Attachment File");
-        Assert.IsTrue(Attachment."Attachment File".HasValue, 'Attachment file not imported to DB.');
+        Assert.IsTrue(Attachment."Attachment File".HasValue(), 'Attachment file not imported to DB.');
         Assert.IsTrue(Attachment."Storage Type" = Attachment."Storage Type"::Embedded, 'Wrong storage type');
 
         Rollback(NewDirName);
@@ -249,7 +249,7 @@ codeunit 136450 "Attachment Storage Type"
         ImportFromFile: Text;
     begin
         // Setup:
-        Initialize;
+        Initialize();
 
         // Exercise: Create & Import attachment
         ImportFromFile := CreateServerTxtFile(FileExtensionTxt);
@@ -259,7 +259,7 @@ codeunit 136450 "Attachment Storage Type"
 
         // Verify attachment
         Attachment.CalcFields("Attachment File");
-        Assert.IsTrue(Attachment."Attachment File".HasValue, 'Attachment file not imported to DB.');
+        Assert.IsTrue(Attachment."Attachment File".HasValue(), 'Attachment file not imported to DB.');
         Assert.IsTrue(Attachment."Storage Type" = Attachment."Storage Type"::Embedded, 'Wrong storage type');
     end;
 
@@ -271,7 +271,7 @@ codeunit 136450 "Attachment Storage Type"
         ImportFromFile: Text;
     begin
         // Setup:
-        Initialize;
+        Initialize();
 
         // Exercise: Create & Import attachment
         ImportFromFile := FileManagement.ClientTempFileName(FileExtensionTxt);
@@ -282,7 +282,7 @@ codeunit 136450 "Attachment Storage Type"
 
         // Verify attachment
         Attachment.CalcFields("Attachment File");
-        Assert.IsTrue(Attachment."Attachment File".HasValue, 'Attachment file not imported to DB.');
+        Assert.IsTrue(Attachment."Attachment File".HasValue(), 'Attachment file not imported to DB.');
         Assert.IsTrue(Attachment."Storage Type" = Attachment."Storage Type"::Embedded, 'Wrong storage type');
     end;
 
@@ -296,7 +296,7 @@ codeunit 136450 "Attachment Storage Type"
         ImportFromFile: Text;
     begin
         // Setup:
-        Initialize;
+        Initialize();
 
         RelocateAttachments(MarketingSetup."Attachment Storage Type"::"Disk File",
           CreateOrClearTempDirectory(NewDirName));
@@ -309,7 +309,7 @@ codeunit 136450 "Attachment Storage Type"
         Attachment.ImportAttachmentFromClientFile(ImportFromFile, false, false);
 
         // Verify attachment
-        Assert.IsTrue(FileManagement.ClientFileExists(Attachment.ConstDiskFileName), 'Attachment file not imported to disk.');
+        Assert.IsTrue(FileManagement.ClientFileExists(Attachment.ConstDiskFileName()), 'Attachment file not imported to disk.');
         Assert.IsTrue(Attachment."Storage Type" = Attachment."Storage Type"::"Disk File", 'Wrong storage type');
 
         Rollback(NewDirName);
@@ -325,7 +325,7 @@ codeunit 136450 "Attachment Storage Type"
         ImportFromFile: Text;
     begin
         // Setup:
-        Initialize;
+        Initialize();
 
         RelocateAttachments(MarketingSetup."Attachment Storage Type"::"Disk File",
           CreateOrClearTempDirectory(NewDirName));
@@ -356,7 +356,7 @@ codeunit 136450 "Attachment Storage Type"
         ExportToFile: Text;
     begin
         // Setup:
-        Initialize;
+        Initialize();
 
         FindNonEmptyAttachment(Attachment);
         RelocateAttachments(MarketingSetup."Attachment Storage Type"::"Disk File",
@@ -383,7 +383,7 @@ codeunit 136450 "Attachment Storage Type"
         ExportToFile: Text;
     begin
         // Setup:
-        Initialize;
+        Initialize();
 
         // Exercise: Export attachment
         ExportToFile := FileManagement.ServerTempFileName(FileExtensionTxt);
@@ -405,7 +405,7 @@ codeunit 136450 "Attachment Storage Type"
         ExportToFile: Text;
     begin
         // Setup:
-        Initialize;
+        Initialize();
 
         FindNonEmptyAttachment(Attachment);
         RelocateAttachments(MarketingSetup."Attachment Storage Type"::"Disk File",
@@ -433,7 +433,7 @@ codeunit 136450 "Attachment Storage Type"
         ExportToFile: Text;
     begin
         // Setup:
-        Initialize;
+        Initialize();
 
         // Exercise: Export attachment
         ExportToFile := FileManagement.ClientTempFileName(FileExtensionTxt);
@@ -454,13 +454,13 @@ codeunit 136450 "Attachment Storage Type"
         DataText: Text;
     begin
         // [SCENARIO] Attachment.Write() correctly writes BLOB text
-        Initialize;
+        Initialize();
         LibraryMarketing.CreateAttachment(TempAttachment);
 
-        DataText := GenerateContentBodyText;
+        DataText := GenerateContentBodyText();
         TempAttachment.Write(DataText);
 
-        Assert.IsTrue(TempAttachment."Attachment File".HasValue, AttachmentErr);
+        Assert.IsTrue(TempAttachment."Attachment File".HasValue(), AttachmentErr);
     end;
 
     [Test]
@@ -471,13 +471,13 @@ codeunit 136450 "Attachment Storage Type"
         DataText: Text;
     begin
         // [SCENARIO] Attachment.Read() correctly returns BLOB text
-        Initialize;
+        Initialize();
         LibraryMarketing.CreateAttachment(TempAttachment);
 
-        DataText := GenerateContentBodyText;
+        DataText := GenerateContentBodyText();
         TempAttachment.Write(DataText);
 
-        Assert.AreEqual(DataText, TempAttachment.Read, AttachmentErr);
+        Assert.AreEqual(DataText, TempAttachment.Read(), AttachmentErr);
     end;
 
     [Test]
@@ -487,11 +487,11 @@ codeunit 136450 "Attachment Storage Type"
         TempAttachment: Record Attachment temporary;
     begin
         // [SCENARIO] Attachment.Read() returns empty string for empty attachment
-        Initialize;
+        Initialize();
         LibraryMarketing.CreateAttachment(TempAttachment);
 
         Assert.IsFalse(TempAttachment."Attachment File".HasValue, AttachmentErr);
-        Assert.AreEqual('', TempAttachment.Read, AttachmentErr);
+        Assert.AreEqual('', TempAttachment.Read(), AttachmentErr);
     end;
 
     [Test]
@@ -519,13 +519,13 @@ codeunit 136450 "Attachment Storage Type"
         Attachment: Record Attachment;
     begin
         // [SCENARIO] Word Attachment has no HTML details
-        Initialize;
+        Initialize();
         FindWordAttachment(Attachment);
 
-        Assert.IsTrue(Attachment."Attachment File".HasValue, AttachmentErr);
-        Assert.IsFalse(Attachment.IsHTML, AttachmentErr);
-        Assert.IsFalse(Attachment.IsHTMLCustomLayout, AttachmentErr);
-        Assert.IsFalse(Attachment.IsHTMLReady, AttachmentErr);
+        Assert.IsTrue(Attachment."Attachment File".HasValue(), AttachmentErr);
+        Assert.IsFalse(Attachment.IsHTML(), AttachmentErr);
+        Assert.IsFalse(Attachment.IsHTMLCustomLayout(), AttachmentErr);
+        Assert.IsFalse(Attachment.IsHTMLReady(), AttachmentErr);
     end;
 
     [Test]
@@ -540,13 +540,13 @@ codeunit 136450 "Attachment Storage Type"
         // [SCENARIO] Empty Email Merge attachment has IsHTML=TRUE, IsHTMLReady=FALSE, IsHTMLCustomLayout=FALSE
         CreateEmptyHTMLAttachment(TempAttachment);
 
-        Assert.IsTrue(TempAttachment.IsHTML, AttachmentErr);
-        Assert.IsFalse(TempAttachment.IsHTMLReady, AttachmentErr);
-        Assert.IsFalse(TempAttachment.IsHTMLCustomLayout, AttachmentErr);
+        Assert.IsTrue(TempAttachment.IsHTML(), AttachmentErr);
+        Assert.IsFalse(TempAttachment.IsHTMLReady(), AttachmentErr);
+        Assert.IsFalse(TempAttachment.IsHTMLCustomLayout(), AttachmentErr);
         Assert.IsFalse(TempAttachment.ReadHTMLCustomLayoutAttachment(ContentBodyText, CustomLayoutCode), AttachmentErr);
 
         TempAttachment.Write('ABCDEF');
-        Assert.IsFalse(TempAttachment.IsHTMLCustomLayout, AttachmentErr);
+        Assert.IsFalse(TempAttachment.IsHTMLCustomLayout(), AttachmentErr);
         Assert.IsFalse(TempAttachment.ReadHTMLCustomLayoutAttachment(ContentBodyText, CustomLayoutCode), AttachmentErr);
     end;
 
@@ -559,12 +559,12 @@ codeunit 136450 "Attachment Storage Type"
     begin
         // [FEATURE] [Email Merge]
         // [SCENARIO] Email Merge attachment is deleted after delete "Interaction Tmpl. Language" record
-        Initialize;
+        Initialize();
         Attachment.Get(CreateInterLangCodeWithEmailMergeAttachment(InteractionTmplLanguage, ''));
 
         InteractionTmplLanguage.Delete(true);
 
-        Attachment.SetRecFilter;
+        Attachment.SetRecFilter();
         Assert.RecordIsEmpty(Attachment);
     end;
 
@@ -577,12 +577,12 @@ codeunit 136450 "Attachment Storage Type"
     begin
         // [FEATURE] [Email Merge]
         // [SCENARIO] Email Merge attachment is deleted after "Remove" action on Interaction Tmpl. Language record
-        Initialize;
+        Initialize();
         Attachment.Get(CreateInterLangCodeWithEmailMergeAttachment(InteractionTmplLanguage, ''));
 
         InteractionTmplLanguage.RemoveAttachment(false);
 
-        Attachment.SetRecFilter;
+        Attachment.SetRecFilter();
         Assert.RecordIsEmpty(Attachment);
     end;
 
@@ -595,7 +595,7 @@ codeunit 136450 "Attachment Storage Type"
     begin
         // [FEATURE] [Email Merge]
         // [SCENARIO] "Content Preview" page is opened for Email Merge attachment "OpenAttachment" record method
-        Initialize;
+        Initialize();
         LibraryMarketing.CreateEmailMergeAttachment(Attachment);
 
         Attachment.OpenAttachment('', false, '');
@@ -614,13 +614,13 @@ codeunit 136450 "Attachment Storage Type"
     begin
         // [FEATURE] [Email Merge]
         // [SCENARIO] "Content Preview" page is opened for AssistEdit action on "Attachment" field from "Interact. Tmpl. Languages" page
-        Initialize;
+        Initialize();
         Attachment.Get(CreateInterLangCodeWithEmailMergeAttachment(InteractionTmplLanguage, ''));
 
-        InteractTmplLanguages.OpenView;
+        InteractTmplLanguages.OpenView();
         InteractTmplLanguages.GotoRecord(InteractionTmplLanguage);
-        InteractTmplLanguages.Attachment.AssistEdit;
-        InteractTmplLanguages.Close;
+        InteractTmplLanguages.Attachment.AssistEdit();
+        InteractTmplLanguages.Close();
 
         InteractionTmplLanguage.Delete(true);
     end;
@@ -637,15 +637,15 @@ codeunit 136450 "Attachment Storage Type"
     begin
         // [FEATURE] [Email Merge]
         // [SCENARIO] "Content Preview" page is opened for AssistEdit action on "Attachment" field from "Interaction Templates" page
-        Initialize;
+        Initialize();
         LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
         Attachment.Get(CreateInterLangCodeWithEmailMergeAttachment(InteractionTmplLanguage, InteractionTemplate.Code));
         InteractionTemplate.Get(InteractionTmplLanguage."Interaction Template Code");
 
-        InteractionTemplates.OpenView;
+        InteractionTemplates.OpenView();
         InteractionTemplates.GotoRecord(InteractionTemplate);
-        InteractionTemplates.Attachment.AssistEdit;
-        InteractionTemplates.Close;
+        InteractionTemplates.Attachment.AssistEdit();
+        InteractionTemplates.Close();
 
         InteractionTemplate.Delete(true);
     end;
@@ -661,14 +661,14 @@ codeunit 136450 "Attachment Storage Type"
     begin
         // [FEATURE] [Email Merge]
         // [SCENARIO] "Content Preview" page is opened for AssistEdit action on "Attachment" field from "Interaction Log Entries" page
-        Initialize;
+        Initialize();
         CreateHTMLReadyAttachment(Attachment);
         MockInterLogEntry(InteractionLogEntry, InteractionLogEntry."Correspondence Type"::Email, Attachment."No.");
 
-        InteractionLogEntries.OpenView;
+        InteractionLogEntries.OpenView();
         InteractionLogEntries.GotoRecord(InteractionLogEntry);
-        InteractionLogEntries.Attachment.AssistEdit;
-        InteractionLogEntries.Close;
+        InteractionLogEntries.Attachment.AssistEdit();
+        InteractionLogEntries.Close();
 
         InteractionLogEntry.Delete(true);
     end;
@@ -683,7 +683,7 @@ codeunit 136450 "Attachment Storage Type"
     begin
         // [FEATURE] [Email Merge]
         // [SCENARIO] "Content Preview" page is opened for Email Merge attachment "ShowAttachment" record method
-        Initialize;
+        Initialize();
         LibraryMarketing.CreateEmailMergeAttachment(Attachment);
 
         Attachment.ShowAttachment(DummySegmentLine, '', false, false);
@@ -700,15 +700,15 @@ codeunit 136450 "Attachment Storage Type"
     begin
         // [FEATURE] [Email Merge]
         // [SCENARIO] A new Email Merge Attachment is created with correct HTML details
-        Initialize;
+        Initialize();
         Attachment.Get(CreateInterLangCodeWithEmailMergeAttachment(InteractionTmplLanguage, ''));
 
-        Assert.IsTrue(Attachment."Attachment File".HasValue, AttachmentErr);
+        Assert.IsTrue(Attachment."Attachment File".HasValue(), AttachmentErr);
         Assert.AreEqual(Attachment."Storage Type"::Embedded, Attachment."Storage Type", AttachmentErr);
         Assert.AreEqual(HtmlFileExtensionTxt, Attachment."File Extension", AttachmentErr);
-        Assert.IsTrue(Attachment.IsHTML, AttachmentErr);
-        Assert.IsTrue(Attachment.IsHTMLCustomLayout, AttachmentErr);
-        Assert.IsFalse(Attachment.IsHTMLReady, AttachmentErr);
+        Assert.IsTrue(Attachment.IsHTML(), AttachmentErr);
+        Assert.IsTrue(Attachment.IsHTMLCustomLayout(), AttachmentErr);
+        Assert.IsFalse(Attachment.IsHTMLReady(), AttachmentErr);
 
         // Tear Down
         InteractionTmplLanguage.Delete(true);
@@ -727,7 +727,7 @@ codeunit 136450 "Attachment Storage Type"
     begin
         // [FEATURE] [Email Merge]
         // [SCENARIO] A new Email Merge Attachment is created with correct BLOB
-        Initialize;
+        Initialize();
         Attachment.Get(CreateInterLangCodeWithEmailMergeAttachment(InteractionTmplLanguage, ''));
 
         CustomLayoutCodeLength := StrLen(InteractionTmplLanguage."Custom Layout Code");
@@ -737,7 +737,7 @@ codeunit 136450 "Attachment Storage Type"
 
         Assert.AreEqual(
           ExpectedLayoutCode,
-          Attachment.Read,
+          Attachment.Read(),
           AttachmentErr);
         Assert.IsTrue(Attachment.ReadHTMLCustomLayoutAttachment(ContentBodyText, CustomLayoutCode), AttachmentErr);
 
@@ -756,17 +756,17 @@ codeunit 136450 "Attachment Storage Type"
     begin
         // [FEATURE] [Email Merge]
         // [SCENARIO] Attachment.WriteHTMLCustomLayoutAttachment() writes custom layout data
-        Initialize;
+        Initialize();
         CreateEmptyHTMLAttachment(TempAttachment);
 
-        ContentBodyText := GenerateContentBodyText;
+        ContentBodyText := GenerateContentBodyText();
         CustomLayoutCode := Format(LibraryRandom.RandIntInRange(100, 999));
         TempAttachment.WriteHTMLCustomLayoutAttachment(ContentBodyText, CustomLayoutCode);
 
         CustomLayoutCode := PadStr('', MaxStrLen(CustomLayoutCode) - StrLen(CustomLayoutCode), '0') + CustomLayoutCode;
 
         ExpectedData := CustomLayoutCode + ContentBodyText;
-        Assert.AreEqual(ExpectedData, TempAttachment.Read, AttachmentErr);
+        Assert.AreEqual(ExpectedData, TempAttachment.Read(), AttachmentErr);
     end;
 
     [Test]
@@ -781,7 +781,7 @@ codeunit 136450 "Attachment Storage Type"
     begin
         // [FEATURE] [Email Merge]
         // [SCENARIO] Attachment.ReadHTMLCustomLayoutAttachment() reads custom layout data
-        Initialize;
+        Initialize();
         CreateEmptyHTMLAttachment(TempAttachment);
 
         ExpectedContentBodyText := GenerateContentBodyText;
@@ -802,7 +802,7 @@ codeunit 136450 "Attachment Storage Type"
     begin
         // [FEATURE] [Email Merge]
         // [SCENATIO] AttachmentManagement.LoadHTMLContent() returns empty text for empty attachment
-        Initialize;
+        Initialize();
         LibraryMarketing.CreateAttachment(TempAttachment);
         Assert.AreEqual('', AttachmentManagement.LoadHTMLContent(TempAttachment, DummySegmentLine), HTMLContentErr);
     end;
@@ -817,12 +817,12 @@ codeunit 136450 "Attachment Storage Type"
     begin
         // [FEATURE] [Email Merge]
         // [SCENATIO] AttachmentManagement.LoadHTMLContent() returns html content string for html-ready attachment
-        Initialize;
+        Initialize();
         CreateEmptyHTMLAttachment(TempAttachment);
-        HTMLContent := GetSimpleHTMLContent;
+        HTMLContent := GetSimpleHTMLContent();
         TempAttachment.Write(HTMLContent);
 
-        Assert.IsTrue(TempAttachment.IsHTMLReady, AttachmentErr);
+        Assert.IsTrue(TempAttachment.IsHTMLReady(), AttachmentErr);
         Assert.AreEqual(
           HTMLContent,
           AttachmentManagement.LoadHTMLContent(TempAttachment, DummySegmentLine),
@@ -841,7 +841,7 @@ codeunit 136450 "Attachment Storage Type"
     begin
         // [FEATURE] [Email Merge]
         // [SCENATIO] AttachmentManagement.LoadHTMLContent() returns html content string for custom layout attachment
-        Initialize;
+        Initialize();
         ContentBodyText := LibraryMarketing.CreateEmailMergeAttachment(TempAttachment);
 
         HTMLContent := AttachmentManagement.LoadHTMLContent(TempAttachment, DummySegmentLine);
@@ -866,7 +866,7 @@ codeunit 136450 "Attachment Storage Type"
         Assert.IsFalse(
           AttachmentManagement.GenerateHTMLContent(TempAttachment, DummySegmentLine),
           HTMLContentErr);
-        Assert.IsFalse(TempAttachment."Attachment File".HasValue, HTMLContentErr);
+        Assert.IsFalse(TempAttachment."Attachment File".HasValue(), HTMLContentErr);
     end;
 
     [Test]
@@ -881,12 +881,12 @@ codeunit 136450 "Attachment Storage Type"
         // [SCENATIO] AttachmentManagement.GenerateHTMLContent() returns html content string for html-ready attachment
         HTMLContent := CreateHTMLReadyAttachment(TempAttachment);
 
-        Assert.IsTrue(TempAttachment.IsHTMLReady, AttachmentErr);
+        Assert.IsTrue(TempAttachment.IsHTMLReady(), AttachmentErr);
         Assert.IsTrue(
           AttachmentManagement.GenerateHTMLContent(TempAttachment, DummySegmentLine),
           HTMLContentErr);
         Assert.IsTrue(TempAttachment."Attachment File".HasValue, HTMLContentErr);
-        Assert.AreEqual(HTMLContent, TempAttachment.Read, HTMLContentErr);
+        Assert.AreEqual(HTMLContent, TempAttachment.Read(), HTMLContentErr);
     end;
 
     [Test]
@@ -905,8 +905,8 @@ codeunit 136450 "Attachment Storage Type"
         Assert.IsTrue(
           AttachmentManagement.GenerateHTMLContent(TempAttachment, DummySegmentLine),
           HTMLContentErr);
-        Assert.IsTrue(TempAttachment."Attachment File".HasValue, HTMLContentErr);
-        Assert.AreEqual(HTMLContent, TempAttachment.Read, HTMLContentErr);
+        Assert.IsTrue(TempAttachment."Attachment File".HasValue(), HTMLContentErr);
+        Assert.AreEqual(HTMLContent, TempAttachment.Read(), HTMLContentErr);
     end;
 
     [Test]
@@ -914,7 +914,6 @@ codeunit 136450 "Attachment Storage Type"
     procedure SendAttachment_EmptyBuffer()
     var
         TempDeliverySorter: Record "Delivery Sorter" temporary;
-        AttachmentManagement: Codeunit AttachmentManagement;
     begin
         // [FEATURE] [Send]
         // [SCENARIO] AttachmentManagement.Send(): no error when called with empty buffer
@@ -927,7 +926,6 @@ codeunit 136450 "Attachment Storage Type"
     var
         InteractionLogEntry: Record "Interaction Log Entry";
         TempDeliverySorter: Record "Delivery Sorter" temporary;
-        AttachmentManagement: Codeunit AttachmentManagement;
     begin
         // [FEATURE] [Send]
         // [SCENARIO] AttachmentManagement.Send(): "Correspondence Type" is a mandatory field
@@ -974,7 +972,7 @@ codeunit 136450 "Attachment Storage Type"
 
         AttachmentManagement.Send(TempDeliverySorter);
 
-        InteractionLogEntry.Find;
+        InteractionLogEntry.Find();
         Assert.AreEqual(
           InteractionLogEntry."Delivery Status"::Error,
           InteractionLogEntry."Delivery Status",
@@ -1011,13 +1009,12 @@ codeunit 136450 "Attachment Storage Type"
         InteractionLogEntry: Record "Interaction Log Entry";
         Attachment: Record Attachment;
         TempDeliverySorter: Record "Delivery Sorter" temporary;
-        AttachmentManagement: Codeunit AttachmentManagement;
         LibraryWorkflow: Codeunit "Library - Workflow";
         EmailFeature: Codeunit "Email Feature";
     begin
         // [FEATURE] [Send]
         // [SCENARIO] AttachmentManagement.Send() with "html" attachment: InteractLogEntry."Delivery Status" = Error in case of canceling "Email Dialog"
-        Initialize;
+        Initialize();
         if EmailFeature.IsEnabled() then
             LibraryWorkflow.SetUpEmailAccount();
 
@@ -1028,7 +1025,7 @@ codeunit 136450 "Attachment Storage Type"
         AttachmentManagement.Send(TempDeliverySorter);
 
         // Verify email html content in EmailDialog_Cancel_MPH handler
-        InteractionLogEntry.Find;
+        InteractionLogEntry.Find();
         Assert.AreEqual(
           InteractionLogEntry."Delivery Status"::Error,
           InteractionLogEntry."Delivery Status",
@@ -1055,7 +1052,7 @@ codeunit 136450 "Attachment Storage Type"
 
         AttachmentManagement.Send(TempDeliverySorter);
 
-        InteractionLogEntry.Find;
+        InteractionLogEntry.Find();
         Assert.AreEqual(
           InteractionLogEntry."Delivery Status"::Error,
           InteractionLogEntry."Delivery Status",
@@ -1073,7 +1070,6 @@ codeunit 136450 "Attachment Storage Type"
         InteractionLogEntry: Record "Interaction Log Entry";
         Attachment: Record Attachment;
         TempDeliverySorter: Record "Delivery Sorter" temporary;
-        AttachmentManagement: Codeunit AttachmentManagement;
     begin
         // [FEATURE] [Send]
         // [SCENARIO] AttachmentManagement.Send() with "other" attachment: "Contact No." field is mandatory
@@ -1124,7 +1120,7 @@ codeunit 136450 "Attachment Storage Type"
         NewDirName: Text;
     begin
         // [SCENARIO 222748] Import/Show old exported attachment without extension
-        Initialize;
+        Initialize();
 
         // [GIVEN] TXT attachment
         CreateAttachment(Attachment);
@@ -1146,7 +1142,7 @@ codeunit 136450 "Attachment Storage Type"
         NewMessageId: Text;
     begin
         // [SCENARIO] Attachment SetMessageID clears "Email Message ID" before rewrite
-        Initialize;
+        Initialize();
         // [GIVE] Attachment record
         LibraryMarketing.CreateAttachment(Attachment);
         // [GIVEN] Email Message ID = 'ABC'
@@ -1157,7 +1153,7 @@ codeunit 136450 "Attachment Storage Type"
         Attachment.SetMessageID(NewMessageId);
         Attachment.Modify();
         // [THEN] The value of Email Message ID = 'AB'
-        Assert.AreEqual(NewMessageId, Attachment.GetMessageID, AttachmentErr);
+        Assert.AreEqual(NewMessageId, Attachment.GetMessageID(), AttachmentErr);
     end;
 
     [Test]
@@ -1170,7 +1166,7 @@ codeunit 136450 "Attachment Storage Type"
         FromEmailEntryID: Text;
     begin
         // [SCENARIO] Attachment SetEntryID clears "Email Entry ID" before rewrite
-        Initialize;
+        Initialize();
         // [GIVE] Attachment record
         LibraryMarketing.CreateAttachment(Attachment);
         // [GIVEN] Email Entry ID = 'ABC'
@@ -1199,7 +1195,7 @@ codeunit 136450 "Attachment Storage Type"
     begin
         // [FEATURE] [Word] [Email Merge]
         // [SCENARIO 296499] When processing Word document, WordManagement codeunit is activated
-        Initialize;
+        Initialize();
 
         BindSubscription(AttachmentStorageType);
 
@@ -1233,7 +1229,7 @@ codeunit 136450 "Attachment Storage Type"
     begin
         // [FEATURE] [Word] [Email Merge]
         // [SCENARIO 296499] When opening Interaction Log Entry attached Word document, WordManagement codeunit is activated
-        Initialize;
+        Initialize();
 
         BindSubscription(AttachmentStorageType);
 
@@ -1247,7 +1243,7 @@ codeunit 136450 "Attachment Storage Type"
         asserterror AttachmentManagement.Send(TempDeliverySorter);
         Assert.ExpectedError(AttachmentFileErrorTxt);
 
-        asserterror InteractionLogEntry.OpenAttachment;
+        asserterror InteractionLogEntry.OpenAttachment();
         Assert.ExpectedError(CouldNotFindAFileTxt);
 
         // IsFound value is stored in DataTypeBuffer using OnFindActiveSubscriberWordManagement meaning that WordManagement was activated as expected
@@ -1262,13 +1258,13 @@ codeunit 136450 "Attachment Storage Type"
     var
         DataTypeBuffer: Record "Data Type Buffer";
     begin
-        BindActiveDirectoryMockEvents;
-        LibraryVariableStorage.Clear;
+        BindActiveDirectoryMockEvents();
+        LibraryVariableStorage.Clear();
         DataTypeBuffer.DeleteAll();
         if IsInitialized then
             exit;
 
-        InitializeAttachments;
+        InitializeAttachments();
 
         IsInitialized := true;
 
@@ -1286,7 +1282,7 @@ codeunit 136450 "Attachment Storage Type"
 
         MarketingSetup.Get();
         MarketingSetupPage.SetRecord(MarketingSetup);
-        MarketingSetupPage.SetAttachmentStorageType;
+        MarketingSetupPage.SetAttachmentStorageType();
     end;
 
     local procedure Rollback(DirName: Text)
@@ -1294,7 +1290,7 @@ codeunit 136450 "Attachment Storage Type"
         // "Embed" attachments back into DB
         RelocateAttachments(MarketingSetup."Attachment Storage Type"::Embedded, '');
 
-        VerifyAttachmentsEmbeded;
+        VerifyAttachmentsEmbeded();
 
         if DirName <> '' then
             CreateOrClearTempDirectory(DirName);
@@ -1309,7 +1305,7 @@ codeunit 136450 "Attachment Storage Type"
         MarketingSetup.Validate("Attachment Storage Type", MarketingSetup."Attachment Storage Type"::Embedded);
         MarketingSetup.Modify();
 
-        EmbedAttachments;
+        EmbedAttachments();
         CreateAttachment(Attachment);
     end;
 
@@ -1317,7 +1313,7 @@ codeunit 136450 "Attachment Storage Type"
     var
         Attachment: Record Attachment;
     begin
-        if Attachment.FindSet then
+        if Attachment.FindSet() then
             repeat
                 if Attachment."Storage Type" <> Attachment."Storage Type"::Embedded then begin
                     Attachment."Storage Type" := Attachment."Storage Type"::Embedded;
@@ -1330,7 +1326,7 @@ codeunit 136450 "Attachment Storage Type"
                     Attachment."File Extension" := FileExtensionTxt;
                 end;
                 Attachment.Modify();
-            until Attachment.Next = 0;
+            until Attachment.Next() = 0;
     end;
 
     local procedure CreateAttachment(var Attachment: Record Attachment)
@@ -1372,15 +1368,15 @@ codeunit 136450 "Attachment Storage Type"
     begin
         InteractionTmplLanguage.Init();
         InteractionTmplLanguage."Interaction Template Code" := InteractionTemplateCode;
-        InteractionTmplLanguage."Custom Layout Code" := LibraryMarketing.FindEmailMergeCustomLayoutNo;
-        InteractionTmplLanguage.CreateAttachment;
+        InteractionTmplLanguage."Custom Layout Code" := LibraryMarketing.FindEmailMergeCustomLayoutNo();
+        InteractionTmplLanguage.CreateAttachment();
         exit(InteractionTmplLanguage."Attachment No.");
     end;
 
     local procedure CreateHTMLReadyAttachment(var Attachment: Record Attachment) HTMLContent: Text
     begin
         CreateEmptyHTMLAttachment(Attachment);
-        HTMLContent := GetSimpleHTMLContent;
+        HTMLContent := GetSimpleHTMLContent();
         Attachment.Write(HTMLContent);
         Attachment.Modify();
     end;
@@ -1391,7 +1387,7 @@ codeunit 136450 "Attachment Storage Type"
     begin
         LibraryMarketing.CreateCompanyContact(Contact);
         with InteractionLogEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(InteractionLogEntry, FieldNo("Entry No."));
             "Contact No." := Contact."No.";
             "Correspondence Type" := CorrespondenceType;
@@ -1404,7 +1400,7 @@ codeunit 136450 "Attachment Storage Type"
     local procedure MockDeliverySorter(var DeliverySorter: Record "Delivery Sorter"; InteractionLogEntry: Record "Interaction Log Entry")
     begin
         with DeliverySorter do begin
-            Init;
+            Init();
             "No." := InteractionLogEntry."Entry No.";
             "Correspondence Type" := InteractionLogEntry."Correspondence Type";
             "Attachment No." := InteractionLogEntry."Attachment No.";
@@ -1429,7 +1425,7 @@ codeunit 136450 "Attachment Storage Type"
             Assert.IsTrue(Attachment."Storage Pointer" = Path,
               StrSubstNo('Attachment %1 not relocated to disk', Attachment."No."));
             LibraryUtility.CheckFileNotEmpty(Attachment.ConstDiskFileName);
-        until Attachment.Next = 0;
+        until Attachment.Next() = 0;
     end;
 
     local procedure VerifyAttachmentsEmbeded()
@@ -1445,7 +1441,7 @@ codeunit 136450 "Attachment Storage Type"
             Attachment.CalcFields("Attachment File");
             Assert.IsTrue(Attachment."Attachment File".HasValue,
               StrSubstNo('Attachment %1 is empty in DB', Attachment."No."));
-        until Attachment.Next = 0;
+        until Attachment.Next() = 0;
     end;
 
     local procedure FindNonEmptyAttachment(var Attachment: Record Attachment)
@@ -1457,25 +1453,21 @@ codeunit 136450 "Attachment Storage Type"
             Attachment.CalcFields("Attachment File");
             if Attachment."Attachment File".HasValue then
                 exit;
-        until Attachment.Next = 0;
+        until Attachment.Next() = 0;
     end;
 
     local procedure FindWordAttachment(var Attachment: Record Attachment)
     begin
-        with Attachment do begin
-            SetRange("Storage Type", "Storage Type"::Embedded);
-            SetFilter("File Extension", StrSubstNo('%1|%2', 'DOC', 'DOCX'));
-            FindFirst;
-        end;
+        Attachment.SetRange("Storage Type", Attachment."Storage Type"::Embedded);
+        Attachment.SetFilter("File Extension", StrSubstNo('%1|%2', 'DOC', 'DOCX'));
+        Attachment.FindFirst();
     end;
 
     local procedure FindTXTAttachment(var Attachment: Record Attachment)
     begin
-        with Attachment do begin
-            SetRange("Storage Type", "Storage Type"::Embedded);
-            SetRange("File Extension", FileExtensionTxt);
-            FindFirst;
-        end;
+        Attachment.SetRange("Storage Type", Attachment."Storage Type"::Embedded);
+        Attachment.SetRange("File Extension", FileExtensionTxt);
+        Attachment.FindFirst();
     end;
 
     local procedure CreateServerTxtFile(FileExtension: Text) FileName: Text
@@ -1489,8 +1481,8 @@ codeunit 136450 "Attachment Storage Type"
         TxtFile.Create(FileName);
         TxtFile.CreateOutStream(StreamT);
         StreamT.WriteText('Text');
-        StreamT.WriteText;
-        TxtFile.Close;
+        StreamT.WriteText();
+        TxtFile.Close();
 
         exit(FileName);
     end;
@@ -1506,7 +1498,7 @@ codeunit 136450 "Attachment Storage Type"
 
         StreamWriter := ClientFileHelper.CreateText(FileName);
         StreamWriter.WriteLine('Text');
-        StreamWriter.Close;
+        StreamWriter.Close();
     end;
 
     local procedure GetSimpleHTMLContent(): Text
@@ -1526,8 +1518,8 @@ codeunit 136450 "Attachment Storage Type"
         OfficeHost: DotNet OfficeHost;
     begin
         OfficeAddinContext.DeleteAll();
-        SetOfficeHostUnAvailable;
-        SetOfficeHostProvider(CODEUNIT::"Library - Office Host Provider");
+        SetOfficeHostUnAvailable();
+        SetOfficeHostProvider(Codeunit::"Library - Office Host Provider");
         OfficeManagement.InitializeHost(OfficeHost, HostType);
     end;
 
@@ -1577,15 +1569,15 @@ codeunit 136450 "Attachment Storage Type"
     [Scope('OnPrem')]
     procedure EmailDialog_Cancel_MPH(var EmailDialog: TestPage "Email Dialog")
     begin
-        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText, EmailDialog.BodyText.Value);
-        EmailDialog.Cancel.Invoke;
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), EmailDialog.BodyText.Value);
+        EmailDialog.Cancel.Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure EmailEditorHandler(var EmailEditor: TestPage "Email Editor")
     begin
-        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText, EmailEditor.BodyField.Value);
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), EmailEditor.BodyField.Value);
     end;
 
     [StrMenuHandler]
@@ -1615,22 +1607,19 @@ codeunit 136450 "Attachment Storage Type"
 
     local procedure BindActiveDirectoryMockEvents()
     begin
-        if ActiveDirectoryMockEvents.Enabled then
+        if ActiveDirectoryMockEvents.Enabled() then
             exit;
         BindSubscription(ActiveDirectoryMockEvents);
-        ActiveDirectoryMockEvents.Enable;
+        ActiveDirectoryMockEvents.Enable();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 5054, 'OnFindActiveSubscriber', '', false, false)]
-    [Scope('OnPrem')]
     procedure OnFindActiveSubscriberWordManagement(var IsFound: Boolean)
     var
         DataTypeBuffer: Record "Data Type Buffer";
     begin
-        if DataTypeBuffer.FindLast then
-            DataTypeBuffer.ID := DataTypeBuffer.ID + 1
-        else
-            DataTypeBuffer.ID := 1;
+        if DataTypeBuffer.FindLast() then;
+        DataTypeBuffer.ID := DataTypeBuffer.ID + 1;
         DataTypeBuffer.Boolean := IsFound;
         DataTypeBuffer.Insert();
         Commit();

@@ -39,6 +39,10 @@ codeunit 8614 "Config. XML Exchange"
         ProgressStatusTxt: Label '%1: %2 records out of %3', Comment = '%1 = table name; %2 = number of processed records (integer); %3 = total number records (integer).';
         ImportedTableContentTxt: Label 'Table: %1, records: %2, total table fields: %3, imported fields: %4.', Locked = true;
         ExportedTableContentTxt: Label 'Table: %1, records: %2, exported fields: %3.', Locked = true;
+        PackageImportStartScopeAllMsg: Label 'Configuration package import started: %1', Comment = '%1 - package code', Locked = true;
+        PackageImportFinishScopeAllMsg: Label 'Configuration package imported successfully: %1', Comment = '%1 - package code', Locked = true;
+        PackageExportStartScopeAllMsg: Label 'Configuration package export started: %1', Comment = '%1 - package code', Locked = true;
+        PackageExportFinishScopeAllMsg: Label 'Configuration package exported successfully: %1', Comment = '%1 - package code', Locked = true;
 
     local procedure AddXMLComment(var PackageXML: DotNet XmlDocument; var Node: DotNet XmlNode; Comment: Text[250])
     var
@@ -335,6 +339,8 @@ codeunit 8614 "Config. XML Exchange"
         PackageExportFinishMsg: Label 'Export of RS package finished. Duration: %1 milliseconds.', Locked = true;
         DurationAsInt: BigInteger;
         StartTime: DateTime;
+        ExecutionId: Guid;
+        Dimensions: Dictionary of [Text, Text];
     begin
         StartTime := CurrentDateTime();
         Session.LogMessage('00009Q4', PackageExportStartMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', RapidStartTxt);
@@ -343,6 +349,13 @@ codeunit 8614 "Config. XML Exchange"
         ConfigPackage.Get(ConfigPackageTable."Package Code");
         ConfigPackage.TestField(Code);
         ConfigPackage.TestField("Package Name");
+
+        ExecutionId := CreateGuid();
+        Dimensions.Add('Category', RapidStartTxt);
+        Dimensions.Add('PackageCode', ConfigPackage.Code);
+        Dimensions.Add('ExecutionId', Format(ExecutionId, 0, 4));
+        Session.LogMessage('0000E3F', StrSubstNo(PackageExportStartScopeAllMsg, ConfigPackage.Code), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
+
         if not ConfigPackage."Exclude Config. Tables" and not ExcelMode then
             ConfigPackageMgt.AddConfigTables(ConfigPackage.Code);
 
@@ -359,6 +372,9 @@ codeunit 8614 "Config. XML Exchange"
         PackageXML.Save(XMLDataFile);
 
         DurationAsInt := CurrentDateTime() - StartTime;
+        Dimensions.Add('ExecutionTimeInMs', Format(DurationAsInt));
+        Session.LogMessage('0000E3G', StrSubstNo(PackageExportFinishScopeAllMsg, ConfigPackage.Code), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
+
         // Tag used for analytics - DO NOT MODIFY
         Session.LogMessage('00009Q5', StrSubstNo(PackageExportFinishMsg, DurationAsInt), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', RapidStartTxt);
 
@@ -521,9 +537,11 @@ codeunit 8614 "Config. XML Exchange"
         CurrRecordCount: Integer;
         TotalTableFields: Integer;
         ImportedTableFields: Integer;
+        ExecutionId: Guid;
+        Dimensions: Dictionary of [Text, Text];
     begin
         StartTime := CurrentDateTime();
-        Session.LogMessage('00009Q6', PackageImportStartMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', RapidStartTxt);
+        Session.LogMessage('00009Q6', PackageImportStartMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, Dimensions);
 
         FileSize := PackageXML.OuterXml.Length() * 2; // due to UTF-16 encoding
         DocumentElement := PackageXML.DocumentElement;
@@ -571,6 +589,13 @@ codeunit 8614 "Config. XML Exchange"
                 Evaluate(ConfigPackage."Min. Count For Async Import", Value);
             ConfigPackage.Modify();
         end;
+
+        ExecutionId := CreateGuid();
+        Dimensions.Add('Category', RapidStartTxt);
+        Dimensions.Add('PackageCode', PackageCode);
+        Dimensions.Add('ExecutionId', Format(ExecutionId, 0, 4));
+        Session.LogMessage('0000E3H', StrSubstNo(PackageImportStartScopeAllMsg, PackageCode), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
+
         Commit(); // to enable background processes to reference the ConfigPackage
 
         TableNodes := DocumentElement.ChildNodes;
@@ -627,6 +652,10 @@ codeunit 8614 "Config. XML Exchange"
 
         ConfigPackageMgt.UpdateConfigLinePackageData(ConfigPackage.Code);
         DurationAsInt := CurrentDateTime() - StartTime;
+
+        Dimensions.Add('ExecutionTimeInMs', Format(DurationAsInt));
+        Dimensions.Add('FileSizeInBytes', Format(FileSize));
+        Session.LogMessage('0000E3I', StrSubstNo(PackageImportFinishScopeAllMsg, PackageCode), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
         Session.LogMessage('00009Q7', StrSubstNo(PackageImportFinishMsg, DurationAsInt, FileSize), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', RapidStartTxt);
 
         // autoapply configuration lines

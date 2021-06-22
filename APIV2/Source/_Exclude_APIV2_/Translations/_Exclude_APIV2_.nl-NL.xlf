@@ -1851,6 +1851,12 @@
           <note from="Developer" annotates="general" priority="2">valueCode is a field name and should not be translated.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Dimension Set Lines - NamedType DimensionValueCodeDoesNotMatchADimensionValueErr</note>
         </trans-unit>
+        <trans-unit id="Page 2523640698 - NamedType 537402815" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The dimension set line already exists. Check existing dimension set lines and the default dimension set lines on the parent.</source>
+          <target state="translated">De dimensiesetregel bestaat al. Controleer bestaande dimensiesetregels en de standaarddimensiesetregels in het bovenliggende element.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Dimension Set Lines - NamedType RecordAlreadyExistErr</note>
+        </trans-unit>
         <trans-unit id="Page 3293418697 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Dimension Value</source>
           <target state="translated">Dimensiewaarde</target>
@@ -6518,6 +6524,222 @@
           <target state="translated">Laatst gewijzigd op</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Units of Measure - Control lastModifiedDateTime - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2253128152 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Vendor Payment</source>
+          <target state="translated">Leveranciersbetaling</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendor Payments - Property EntityCaption</note>
+        </trans-unit>
+        <trans-unit id="Page 2253128152 - Property 631549417" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Vendor Payments</source>
+          <target state="translated">Leveranciersbetalingen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendor Payments - Property EntitySetCaption</note>
+        </trans-unit>
+        <trans-unit id="Page 2253128152 - Control 2686962215 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Id</source>
+          <target state="translated">Id</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendor Payments - Control id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2253128152 - Control 2410987416 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Journal Id</source>
+          <target state="translated">Dagboek-id</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendor Payments - Control journalId - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2253128152 - Control 2006501256 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Journal Display Name</source>
+          <target state="translated">Weergavenaam van dagboek</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendor Payments - Control journalDisplayName - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2253128152 - Control 928535615 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Line No.</source>
+          <target state="translated">Regelnr.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendor Payments - Control lineNumber - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2253128152 - Control 149332515 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Vendor Id</source>
+          <target state="translated">Leveranciers-id</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendor Payments - Control vendorId - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2253128152 - Control 712552689 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Vendor No.</source>
+          <target state="translated">Leveranciersnr.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendor Payments - Control vendorNumber - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2253128152 - Control 1260828904 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Posting Date</source>
+          <target state="translated">Boekingsdatum</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendor Payments - Control postingDate - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2253128152 - Control 1150262424 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Document No.</source>
+          <target state="translated">Documentnr.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendor Payments - Control documentNumber - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2253128152 - Control 138905291 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>External Document No.</source>
+          <target state="translated">Extern documentnr.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendor Payments - Control externalDocumentNumber - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2253128152 - Control 1121446808 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Amount</source>
+          <target state="translated">Bedrag</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendor Payments - Control amount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2253128152 - Control 163678015 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Applies To Invoice Id</source>
+          <target state="translated">Vereffeningsfactuur-id</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendor Payments - Control appliesToInvoiceId - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2253128152 - Control 763246229 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Applies To Invoice No.</source>
+          <target state="translated">Vereffeningsfactuurnr.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendor Payments - Control appliesToInvoiceNumber - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2253128152 - Control 4232699882 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Description</source>
+          <target state="translated">Beschrijving</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendor Payments - Control description - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2253128152 - Control 2998405077 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Comment</source>
+          <target state="translated">Opmerking</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendor Payments - Control comment - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2253128152 - Control 2245436958 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Last Modified Date</source>
+          <target state="translated">Laatst gewijzigd op</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendor Payments - Control lastModifiedDateTime - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2253128152 - Control 252685889 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Dimension Set Lines</source>
+          <target state="translated">Dimensiesetregels</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendor Payments - Control dimensionSetLines - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2253128152 - NamedType 2316129571" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You must specify a journal batch ID or a journal ID to get a journal line.</source>
+          <target state="translated">U moet een dagboekbatch-id of een dagboek-id opgeven om een dagboekregel op te halen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendor Payments - NamedType FiltersNotSpecifiedErr</note>
+        </trans-unit>
+        <trans-unit id="Page 2253128152 - NamedType 3878809880" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The Journal Id and Journal Display Name do not match.</source>
+          <target state="translated">De dagboek-id en de weergavenaam van het dagboek komen niet overeen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendor Payments - NamedType JournalBatchIdNameNotMatchErr</note>
+        </trans-unit>
+        <trans-unit id="Page 2253128152 - NamedType 3222313909" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The Journal Batch Display Name cannot be changed.</source>
+          <target state="translated">De weergavenaam van de dagboekbatch kan niet worden gewijzigd.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendor Payments - NamedType CannotEditBatchNameErr</note>
+        </trans-unit>
+        <trans-unit id="Page 2253128152 - NamedType 541739840" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The Journal Id cannot be changed.</source>
+          <target state="translated">De dagboek-id kan niet worden gewijzigd.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendor Payments - NamedType CannotEditJournalIdErr</note>
+        </trans-unit>
+        <trans-unit id="Page 2253128152 - NamedType 65568925" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The vendor values do not match to a specific Vendor.</source>
+          <target state="translated">De leverancierswaarden komen niet overeen met een specifieke leverancier.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendor Payments - NamedType VendorValuesDontMatchErr</note>
+        </trans-unit>
+        <trans-unit id="Page 2253128152 - NamedType 3958563710" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The "vendorId" does not match to a Vendor.</source>
+          <target state="translated">De 'vendorId' komt niet overeen met een leverancier.</target>
+          <note from="Developer" annotates="general" priority="2">vendorId is a field name and should not be translated.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendor Payments - NamedType VendorIdDoesNotMatchAVendorErr</note>
+        </trans-unit>
+        <trans-unit id="Page 2253128152 - NamedType 2586568168" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The "vendorNumber" does not match to a Vendor.</source>
+          <target state="translated">Het 'vendorNumber' komt niet overeen met een leverancier.</target>
+          <note from="Developer" annotates="general" priority="2">vendorNumber is a field name and should not be translated.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendor Payments - NamedType VendorNumberDoesNotMatchAVendorErr</note>
+        </trans-unit>
+        <trans-unit id="Page 2253128152 - NamedType 3746247970" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The Applies To Invoice values do not match to the same Invoice.</source>
+          <target state="translated">De vereffeningsfactuurwaarden komen niet overeen met dezelfde factuur.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendor Payments - NamedType AppliesToDocValuesDontMatchErr</note>
+        </trans-unit>
+        <trans-unit id="Page 2253128152 - NamedType 1428228343" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The "appliesToInvoiceId" should be the ID of an Open, Paid, Corrective, or Canceled Invoice.</source>
+          <target state="translated">De "appliesToInvoiceId" moet de id zijn van een open, betaalde, corrigerende of geannuleerde factuur.</target>
+          <note from="Developer" annotates="general" priority="2">appliesToInvoiceId is a field name and should not be translated.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendor Payments - NamedType AppliesToInvoiceIdDoesNotMatchAnInvoiceErr</note>
+        </trans-unit>
+        <trans-unit id="Page 4034971528 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Vendor Payment Journal</source>
+          <target state="translated">Betalingsdagboek van leverancier</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendor Paym. Journals - Property EntityCaption</note>
+        </trans-unit>
+        <trans-unit id="Page 4034971528 - Property 631549417" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Vendor Payment Journals</source>
+          <target state="translated">Betalingsdagboeken van leveranciers</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendor Paym. Journals - Property EntitySetCaption</note>
+        </trans-unit>
+        <trans-unit id="Page 4034971528 - Control 2686962215 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Id</source>
+          <target state="translated">Id</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendor Paym. Journals - Control id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4034971528 - Control 707985127 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Code</source>
+          <target state="translated">Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendor Paym. Journals - Control code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4034971528 - Control 460507951 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Display Name</source>
+          <target state="translated">Weergavenaam</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendor Paym. Journals - Control displayName - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4034971528 - Control 175815001 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Balancing Account Id</source>
+          <target state="translated">Tegenrekening-id</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendor Paym. Journals - Control balancingAccountId - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4034971528 - Control 2661940603 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Balancing Account No.</source>
+          <target state="translated">Tegenrekeningnr.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendor Paym. Journals - Control balancingAccountNumber - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4034971528 - Control 2245436958 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Last Modified Date</source>
+          <target state="translated">Laatst gewijzigd op</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendor Paym. Journals - Control lastModifiedDateTime - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4034971528 - Control 3055012615 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Vendor Payments</source>
+          <target state="translated">Leveranciersbetalingen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendor Paym. Journals - Control vendorPayments - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2680707570 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Vendor</source>

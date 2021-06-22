@@ -365,6 +365,7 @@
                 RecalcAutoReserve(ToAsmOrderHeader);
                 Insert;
             end;
+            OnMakeAsmOrderLinkedToSalesOrderLineOnBeforeCheckDocumentType(Rec, ToAsmOrderHeader, AsmHeader, FromSalesLine, ToSalesOrderLine);
             if FromSalesLine."Document Type" = FromSalesLine."Document Type"::Quote then
                 DeleteAsmFromSalesLine(FromSalesLine);
         end;
@@ -1308,7 +1309,7 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeNeedsSynchronization(AssemblyHeader: Record "Assembly Header"; SalesLine: Record "Sales Line"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -1320,6 +1321,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSalesLineCheckAvailShowWarning(SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMakeAsmOrderLinkedToSalesOrderLineOnBeforeCheckDocumentType(var AssembleToOrderLink: Record "Assemble-to-Order Link"; var ToAssemblyHeader: Record "Assembly Header"; FromAssemblyHeader: Record "Assembly Header"; ToSalesLine: Record "Sales Line"; FromSalesLine: Record "Sales Line")
     begin
     end;
 
@@ -1354,7 +1360,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUpdateAsmOnBeforeSynchronizeAsmFromSalesLine(var AssembleToOrderLink: Record "Assemble-to-Order Link"; AssemblyHeader: Record "Assembly Header"; SalesLine: Record "Sales Line")
+    local procedure OnUpdateAsmOnBeforeSynchronizeAsmFromSalesLine(var AssembleToOrderLink: Record "Assemble-to-Order Link"; var AssemblyHeader: Record "Assembly Header"; SalesLine: Record "Sales Line")
     begin
     end;
 

@@ -57,6 +57,7 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerCompanyUpgradeTags.Add(GetFixAPISalesInvoicesCreatedFromOrders());
         PerCompanyUpgradeTags.Add(GetFixAPIPurchaseInvoicesCreatedFromOrders());
         PerCompanyUpgradeTags.Add(GetDeleteSalesOrdersOrphanedRecords());
+        PerCompanyUpgradeTags.Add(GetIntrastatJnlLinePartnerIDUpgradeTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
@@ -76,7 +77,6 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerDatabaseUpgradeTags.Add(GetCreateDefaultAADApplicationTag());
         PerDatabaseUpgradeTags.Add(GetMonitorSensitiveFieldPermissionUpgradeTag());
     end;
-
 
     [Obsolete('Function will be removed', '16.0')]
     procedure GetJobQueueEntryMergeErrorMessageFieldsUpgradeTag(): Code[250]
@@ -499,6 +499,12 @@ codeunit 9998 "Upgrade Tag Definitions"
     procedure GetPostCodeServiceKeyUpgradeTag(): Code[250];
     begin
         exit('MS-369092-PostCodeServiceKey-20200915')
+    end;
+
+    [Scope('OnPrem')]
+    procedure GetIntrastatJnlLinePartnerIDUpgradeTag(): Code[250]
+    begin
+        exit('MS-373278-IntrastatJnlLinePartnerID-20201001');
     end;
 
     procedure GetFixAPISalesInvoicesCreatedFromOrders(): Code[250];

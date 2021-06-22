@@ -8,7 +8,7 @@ codeunit 405 "Graph Mail"
     begin
         Session.LogMessage('00001QJ', RefreshRefreshTokenMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GraphMailCategoryTxt);
         GraphMailSetup.Get();
-        GraphMailSetup.RenewRefreshToken;
+        GraphMailSetup.RenewRefreshToken();
         GraphMailSetup.Modify(true);
     end;
 
@@ -23,7 +23,6 @@ codeunit 405 "Graph Mail"
         ClientResourceNameTxt: Label 'MailerResourceId', Locked = true;
         EmailTooLargeTxt: Label 'The email was too large and could not be sent. Consider removing an attachment and try again.';
         EmailForbiddenTxt: Label 'The sender is not authorized to send mail. Check that they have a valid Exchange license, or change the sender in settings.';
-        EmailFailedTxt: Label 'The email could not be sent. Please try again later.';
         RefreshTokenKeyTxt: Label 'RefreshTokenKey', Locked = true;
         Err503Msg: Label '(503) Server Unavailable', Locked = true;
         Err401Msg: Label '(401) Unauthorized', Locked = true;
@@ -34,6 +33,8 @@ codeunit 405 "Graph Mail"
     procedure PrepareMessage(TempEmailItem: Record "Email Item" temporary): Text
     var
         JSONManagement: Codeunit "JSON Management";
+        Attachments: Codeunit "Temp Blob List";
+        Attachment: Codeunit "Temp Blob";
         EmailAddressCollectionJsonArray: DotNet JArray;
         AttachmentCollectionJsonArray: DotNet JArray;
         PayloadJsonObject: DotNet JObject;
@@ -42,22 +43,25 @@ codeunit 405 "Graph Mail"
         EmailAddressJsonObject: DotNet JObject;
         ContentType: Text;
         MessageContent: Text;
+        AttachmentNames: List of [Text];
+        AttachmentStream: Instream;
+        Index: Integer;
     begin
-        MessageContent := TempEmailItem.GetBodyText;
+        MessageContent := TempEmailItem.GetBodyText();
 
         if TempEmailItem."Plaintext Formatted" then
             ContentType := 'text'
         else
             ContentType := 'html';
 
-        MessageJsonObject := MessageJsonObject.JObject;
+        MessageJsonObject := MessageJsonObject.JObject();
 
-        AttachmentCollectionJsonArray := AttachmentCollectionJsonArray.JArray;
+        AttachmentCollectionJsonArray := AttachmentCollectionJsonArray.JArray();
 
         if not TempEmailItem."Plaintext Formatted" then
             AddInlineImagesToAttachments(AttachmentCollectionJsonArray, MessageContent);
 
-        MessageContentJsonObject := MessageContentJsonObject.JObject;
+        MessageContentJsonObject := MessageContentJsonObject.JObject();
         JSONManagement.AddJPropertyToJObject(MessageContentJsonObject, 'content', MessageContent);
         JSONManagement.AddJPropertyToJObject(MessageContentJsonObject, 'contentType', ContentType);
 
@@ -66,42 +70,36 @@ codeunit 405 "Graph Mail"
         GetEmailAsJsonObject(EmailAddressJsonObject, TempEmailItem."From Name", TempEmailItem."From Address");
         JSONManagement.AddJObjectToJObject(MessageJsonObject, 'from', EmailAddressJsonObject);
 
-        EmailAddressCollectionJsonArray := EmailAddressCollectionJsonArray.JArray;
+        EmailAddressCollectionJsonArray := EmailAddressCollectionJsonArray.JArray();
         AddRecipients(EmailAddressCollectionJsonArray, TempEmailItem."Send to");
         JSONManagement.AddJArrayToJObject(MessageJsonObject, 'toRecipients', EmailAddressCollectionJsonArray);
 
         if TempEmailItem."Send CC" <> '' then begin
-            EmailAddressCollectionJsonArray := EmailAddressCollectionJsonArray.JArray;
+            EmailAddressCollectionJsonArray := EmailAddressCollectionJsonArray.JArray();
             AddRecipients(EmailAddressCollectionJsonArray, TempEmailItem."Send CC");
             JSONManagement.AddJArrayToJObject(MessageJsonObject, 'ccRecipients', EmailAddressCollectionJsonArray);
         end;
 
         if TempEmailItem."Send BCC" <> '' then begin
-            EmailAddressCollectionJsonArray := EmailAddressCollectionJsonArray.JArray;
+            EmailAddressCollectionJsonArray := EmailAddressCollectionJsonArray.JArray();
             AddRecipients(EmailAddressCollectionJsonArray, TempEmailItem."Send BCC");
             JSONManagement.AddJArrayToJObject(MessageJsonObject, 'bccRecipients', EmailAddressCollectionJsonArray);
         end;
 
-        AddAttachmentToMessage(AttachmentCollectionJsonArray, TempEmailItem."Attachment Name", TempEmailItem."Attachment File Path");
-        AddAttachmentToMessage(
-          AttachmentCollectionJsonArray, TempEmailItem."Attachment Name 2", TempEmailItem."Attachment File Path 2");
-        AddAttachmentToMessage(
-          AttachmentCollectionJsonArray, TempEmailItem."Attachment Name 3", TempEmailItem."Attachment File Path 3");
-        AddAttachmentToMessage(
-          AttachmentCollectionJsonArray, TempEmailItem."Attachment Name 4", TempEmailItem."Attachment File Path 4");
-        AddAttachmentToMessage(
-          AttachmentCollectionJsonArray, TempEmailItem."Attachment Name 5", TempEmailItem."Attachment File Path 5");
-        AddAttachmentToMessage(
-          AttachmentCollectionJsonArray, TempEmailItem."Attachment Name 6", TempEmailItem."Attachment File Path 6");
-        AddAttachmentToMessage(
-          AttachmentCollectionJsonArray, TempEmailItem."Attachment Name 7", TempEmailItem."Attachment File Path 7");
+        TempEmailItem.GetAttachments(Attachments, AttachmentNames);
+
+        for Index := 1 to Attachments.Count() do begin
+            Attachments.Get(Index, Attachment);
+            Attachment.CreateInStream(AttachmentStream);
+            AddAttachmentToMessage(AttachmentCollectionJsonArray, AttachmentNames.Get(Index), AttachmentStream);
+        end;
 
         JSONManagement.AddJArrayToJObject(MessageJsonObject, 'attachments', AttachmentCollectionJsonArray);
 
         JSONManagement.AddJPropertyToJObject(MessageJsonObject, 'importance', 'normal');
         JSONManagement.AddJPropertyToJObject(MessageJsonObject, 'subject', TempEmailItem.Subject);
 
-        JSONManagement.InitializeEmptyObject;
+        JSONManagement.InitializeEmptyObject();
         JSONManagement.GetJSONObject(PayloadJsonObject);
         JSONManagement.AddJObjectToJObject(PayloadJsonObject, 'message', MessageJsonObject);
         JSONManagement.AddJPropertyToJObject(PayloadJsonObject, 'saveToSentItems', 'true');
@@ -174,8 +172,6 @@ codeunit 405 "Graph Mail"
     end;
 
     procedure GetGraphError(): Text
-    var
-        EnvInfoProxy: Codeunit "Env. Info Proxy";
     begin
         if LastErrorMsg = '' then
             exit('');
@@ -186,9 +182,6 @@ codeunit 405 "Graph Mail"
         if StrPos(LastErrorMsg, Err403Msg) > 0 then
             exit(EmailForbiddenTxt);
 
-        if EnvInfoProxy.IsInvoicing then
-            exit(EmailFailedTxt);
-
         exit(LastErrorMsg);
     end;
 
@@ -197,7 +190,7 @@ codeunit 405 "Graph Mail"
         UrlHelper: Codeunit "Url Helper";
         Domain: Text;
     begin
-        Domain := UrlHelper.GetGraphUrl;
+        Domain := UrlHelper.GetGraphUrl();
         if Domain <> '' then
             exit(Domain);
 
@@ -222,10 +215,10 @@ codeunit 405 "Graph Mail"
     var
         GraphMailSetup: Record "Graph Mail Setup";
     begin
-        if not GraphMailSetup.ReadPermission then
+        if not GraphMailSetup.ReadPermission() then
             exit(false);
 
-        if not GraphMailSetup.Get then
+        if not GraphMailSetup.Get() then
             exit(false);
 
         if not GraphMailSetup.Enabled then
@@ -240,7 +233,7 @@ codeunit 405 "Graph Mail"
         if not IsolatedStorage.Contains(Format(RefreshTokenKeyTxt), DataScope::Company) then
             exit(false);
 
-        if GraphMailSetup."Expires On" < CurrentDateTime then
+        if GraphMailSetup."Expires On" < CurrentDateTime() then
             exit(false);
 
         exit(true);
@@ -306,29 +299,20 @@ codeunit 405 "Graph Mail"
         end;
     end;
 
-    local procedure AddAttachmentToMessage(var AttachmentCollectionJsonArray: DotNet JArray; AttachmentName: Text; AttachmentPath: Text)
+    local procedure AddAttachmentToMessage(var AttachmentCollectionJsonArray: DotNet JArray; AttachmentName: Text; AttachmentStream: InStream)
     var
         JSONManagement: Codeunit "JSON Management";
-        FileManagement: Codeunit "File Management";
-        Convert: DotNet Convert;
-        FileObj: DotNet File;
+        Base64Convert: Codeunit "Base64 Convert";
         AttachmentJsonObject: DotNet JObject;
     begin
         if AttachmentName = '' then
             exit;
 
-        if AttachmentPath = '' then
-            exit;
-
-        if not FILE.Exists(AttachmentPath) then
-            exit;
-
-        AttachmentJsonObject := AttachmentJsonObject.JObject;
+        AttachmentJsonObject := AttachmentJsonObject.JObject();
         JSONManagement.AddJPropertyToJObject(AttachmentJsonObject, '@odata.type', '#microsoft.graph.fileAttachment');
         JSONManagement.AddJPropertyToJObject(AttachmentJsonObject, 'name', AttachmentName);
-        FileManagement.IsAllowedPath(AttachmentPath, false);
         JSONManagement.AddJPropertyToJObject(
-          AttachmentJsonObject, 'contentBytes', Convert.ToBase64String(FileObj.ReadAllBytes(AttachmentPath)));
+          AttachmentJsonObject, 'contentBytes', Base64Convert.ToBase64(AttachmentStream));
 
         JSONManagement.AddJObjectToJArray(AttachmentCollectionJsonArray, AttachmentJsonObject);
     end;

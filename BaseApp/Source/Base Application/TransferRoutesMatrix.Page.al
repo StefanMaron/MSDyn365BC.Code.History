@@ -531,7 +531,8 @@ page 9285 "Transfer Routes Matrix"
 
     local procedure ShowRouteSpecification(MATRIX_ColumnOrdinal: Integer)
     begin
-        if TransferRoute.Get(Code, MatrixRecords[MATRIX_ColumnOrdinal].Code) then begin
+        Specification := '';
+        if TransferRoute.Get(Code, MatrixRecords[MATRIX_ColumnOrdinal].Code) then
             case Show of
                 Show::"Shipping Agent Code":
                     Specification := TransferRoute."Shipping Agent Code";
@@ -540,10 +541,8 @@ page 9285 "Transfer Routes Matrix"
                 Show::"In-Transit Code":
                     Specification := TransferRoute."In-Transit Code";
                 else
-                    Specification := '';
+                    OnShowRouteSpecificationCaseElse(TransferRoute, Show, Specification);
             end;
-        end else
-            Specification := '';
     end;
 
     local procedure MATRIX_OnAssistEdit(MATRIX_ColumnOrdinal: Integer)
@@ -594,6 +593,11 @@ page 9285 "Transfer Routes Matrix"
         Field30Visible := MATRIX_CurrentNoOfMatrixColumn >= 30;
         Field31Visible := MATRIX_CurrentNoOfMatrixColumn >= 31;
         Field32Visible := MATRIX_CurrentNoOfMatrixColumn >= 32;
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnShowRouteSpecificationCaseElse(var TransferRoute: Record "Transfer Route"; var Show: Option "In-Transit Code","Shipping Agent Code","Shipping Agent Service Code"; var SpecificationText: Text[80])
+    begin
     end;
 }
 

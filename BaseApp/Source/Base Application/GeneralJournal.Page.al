@@ -2162,25 +2162,25 @@ page 39 "General Journal"
             Validate("Posting Date", CurrentPostingDate);
     end;
 
-    local procedure SetDataForSimpleModeOnPropValidation(FiledNumber: Integer)
+    local procedure SetDataForSimpleModeOnPropValidation(FieldNumber: Integer)
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        if IsSimplePage and (Count > 0) then begin
+        if IsSimplePage then begin
             GenJournalLine.Reset();
             GenJournalLine.SetRange("Journal Template Name", "Journal Template Name");
             GenJournalLine.SetRange("Journal Batch Name", "Journal Batch Name");
             GenJournalLine.SetRange("Document No.", CurrentDocNo);
-            if GenJournalLine.Find('-') then
+            if GenJournalLine.Findset(true, false) then
                 repeat
-                    case FiledNumber of
+                    case FieldNumber of
                         GenJournalLine.FieldNo("Currency Code"):
                             GenJournalLine.Validate("Currency Code", CurrentCurrencyCode);
                         GenJournalLine.FieldNo("Posting Date"):
                             GenJournalLine.Validate("Posting Date", CurrentPostingDate);
                     end;
                     GenJournalLine.Modify();
-                until GenJournalLine.Next = 0;
+                until GenJournalLine.Next() = 0;
         end;
         CurrPage.Update(false);
     end;

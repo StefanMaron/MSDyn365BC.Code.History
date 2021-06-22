@@ -1,4 +1,4 @@
-codeunit 7000 "Sales Price Calc. Mgt."
+﻿codeunit 7000 "Sales Price Calc. Mgt."
 {
     ObsoleteState = Pending;
     ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
@@ -382,7 +382,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCalcBestLineDisc(SalesLineDisc, Item, IsHandled);
+        OnBeforeCalcBestLineDisc(SalesLineDisc, Item, IsHandled, QtyPerUOM, Qty);
         if IsHandled then
             exit;
 
@@ -1778,7 +1778,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcBestLineDisc(var SalesLineDisc: Record "Sales Line Discount"; Item: Record Item; var IsHandled: Boolean);
+    local procedure OnBeforeCalcBestLineDisc(var SalesLineDisc: Record "Sales Line Discount"; Item: Record Item; var IsHandled: Boolean; QtyPerUOM: Decimal; Qty: Decimal);
     begin
     end;
 

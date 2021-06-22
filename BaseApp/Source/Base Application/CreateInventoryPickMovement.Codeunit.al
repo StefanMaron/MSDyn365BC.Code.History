@@ -1183,7 +1183,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
 
                         if QtyToPickBase > 0 then
                             InsertTempHandlingSpec(
-                              Location.Code, WhseActivLine."Item No.", WhseActivLine."Variant Code", EntrySummary, QtyToPickBase);
+                              EntrySummary, WhseActivLine, QtyToPickBase);
                     end;
                 end;
             until not WhseItemTrackingFEFO.FindNextEntrySummaryFEFO(EntrySummary) or (RemQtyToPickBase = 0);
@@ -1203,14 +1203,22 @@ codeunit 7322 "Create Inventory Pick/Movement"
         end;
     end;
 
-    local procedure InsertTempHandlingSpec(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; EntrySummary: Record "Entry Summary"; QuantityBase: Decimal)
+    local procedure InsertTempHandlingSpec(EntrySummary: Record "Entry Summary"; WhseActivLine: Record "Warehouse Activity Line"; QuantityBase: Decimal)
     begin
         with TempHandlingSpecification do begin
             Init;
             "Entry No." := LastTempHandlingSpecNo + 1;
-            "Location Code" := LocationCode;
-            "Item No." := ItemNo;
-            "Variant Code" := VariantCode;
+            if WhseActivLine."Source Type" = DATABASE::"Prod. Order Component" then
+                SetSource(
+                  WhseActivLine."Source Type", WhseActivLine."Source Subtype", WhseActivLine."Source No.",
+                  WhseActivLine."Source Subline No.", '', WhseActivLine."Source Line No.")
+            else
+                SetSource(
+                  WhseActivLine."Source Type", WhseActivLine."Source Subtype", WhseActivLine."Source No.",
+                  WhseActivLine."Source Line No.", '', 0);
+            "Location Code" := WhseActivLine."Location Code";
+            "Item No." := WhseActivLine."Item No.";
+            "Variant Code" := WhseActivLine."Variant Code";
             CopyTrackingFromEntrySummary(EntrySummary);
             "Expiration Date" := EntrySummary."Expiration Date";
             OnInsertTempHandlingSpecOnBeforeValidateQtyBase(TempHandlingSpecification, EntrySummary);

@@ -1290,6 +1290,156 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Recurrence Schedule - Field End Date - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 1656495825 - Field 2756380846 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>CaptureIndex</source>
+          <target state="translated">CaptureIndex</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Captures - Field CaptureIndex - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1656495825 - Field 171145402 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Index</source>
+          <target state="translated">Índice</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Captures - Field Index - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1656495825 - Field 3060051996 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>ValueBlob</source>
+          <target state="translated">ValueBlob</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Captures - Field ValueBlob - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1656495825 - Field 1881551368 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Length</source>
+          <target state="translated">Longitud</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Captures - Field Length - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 28344312 - Field 1139687811 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>GroupIndex</source>
+          <target state="translated">GroupIndex</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Groups - Field GroupIndex - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 28344312 - Field 171145402 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Index</source>
+          <target state="translated">Índice</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Groups - Field Index - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 28344312 - Field 2961552353 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Name</source>
+          <target state="translated">Nombre</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Groups - Field Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 28344312 - Field 3060051996 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>ValueBlob</source>
+          <target state="translated">ValueBlob</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Groups - Field ValueBlob - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 28344312 - Field 1881551368 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Length</source>
+          <target state="translated">Longitud</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Groups - Field Length - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 28344312 - Field 3878926381 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Success</source>
+          <target state="translated">Correcto</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Groups - Field Success - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1641495975 - Field 2038629119 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>MatchIndex</source>
+          <target state="translated">MatchIndex</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Matches - Field MatchIndex - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1641495975 - Field 171145402 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Index</source>
+          <target state="translated">Índice</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Matches - Field Index - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1641495975 - Field 3060051996 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>ValueBlob</source>
+          <target state="translated">ValueBlob</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Matches - Field ValueBlob - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1641495975 - Field 1881551368 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Length</source>
+          <target state="translated">Longitud</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Matches - Field Length - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1641495975 - Field 3878926381 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Success</source>
+          <target state="translated">Correcto</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Matches - Field Success - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2794189023 - Field 1001505280 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>IgnoreCase</source>
+          <target state="translated">IgnoreCase</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Regex Options - Field IgnoreCase - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2794189023 - Field 2572413993 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Multiline</source>
+          <target state="translated">Multilínea</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Regex Options - Field Multiline - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2794189023 - Field 3963650414 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>ExplicitCapture</source>
+          <target state="translated">ExplicitCapture</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Regex Options - Field ExplicitCapture - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2794189023 - Field 1628235799 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Compiled</source>
+          <target state="translated">Compilado</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Regex Options - Field Compiled - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2794189023 - Field 3541926248 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Singleline</source>
+          <target state="translated">SingleLine</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Regex Options - Field Singleline - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2794189023 - Field 2272751685 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>IgnorePatternWhitespace</source>
+          <target state="translated">IgnorePatternWhitespace</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Regex Options - Field IgnorePatternWhitespace - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2794189023 - Field 2612374468 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>RightToLeft</source>
+          <target state="translated">RightToLeft</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Regex Options - Field RightToLeft - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2794189023 - Field 61155663 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>ECMAScript</source>
+          <target state="translated">ECMAScript</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Regex Options - Field ECMAScript - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2794189023 - Field 3024051472 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>CultureInvariant</source>
+          <target state="translated">CultureInvariant</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Regex Options - Field CultureInvariant - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2794189023 - Field 3798167227 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>MatchTimeoutInMs</source>
+          <target state="translated">MatchTimeoutInMs</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Regex Options - Field MatchTimeoutInMs - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 2219781045 - Field 1950707465 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>User SID</source>
           <target state="translated">SID de usuario</target>
@@ -2328,6 +2478,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Email Outbox - Field Error Message - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 1251581097 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Outbox</source>
+          <target state="translated">Bandeja de salida de correo electrónico</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Outbox - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 1251581097 - Property 3863440606" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>draft email</source>
           <target state="translated">borrador de correo electrónico</target>
@@ -2423,6 +2579,12 @@
           <target state="translated">Envía el mensaje de correo electrónico para su proceso. El estado cambiará a Pendiente hasta que se procese. Si el correo electrónico se envía correctamente, ya no se mostrará en la bandeja de salida.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Outbox - Action SendEmail - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1251581097 - Action 2026913255 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Refresh</source>
+          <target state="translated">Actualizar</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Outbox - Action Refresh - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1251581097 - Action 2026913255 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Refresh</source>
@@ -8060,6 +8222,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Video Link - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 3389183890 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Accounts</source>
+          <target state="translated">Cuentas de correo electrónico</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Accounts - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 3389183890 - Property 3863440606" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>SMTP,Office 365,Exchange,Outlook</source>
           <target state="translated">SMTP,Office 365,Exchange,Outlook</target>
@@ -8124,6 +8292,18 @@
           <target state="translated">Especifica el tipo de extensión de correo electrónico al que se agrega la cuenta.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Accounts - Control EmailConnector - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3389183890 - Control 2215568871 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Scenarios</source>
+          <target state="translated">Escenarios de correo electrónico</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Accounts - Control Scenarios - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3389183890 - Control 2215568871 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The email scenarios assigned to the selected account.</source>
+          <target state="translated">Los escenarios de correo electrónico asignados a la cuenta seleccionada.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Accounts - Control Scenarios - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3389183890 - Action 176562519 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>View settings for the email account.</source>
@@ -8267,7 +8447,7 @@
         </trans-unit>
         <trans-unit id="Page 3756518970 - Control 792907206 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Make outbound email communications easier by connecting email accounts to Business Central. For example, send sales quotes and orders without opening an email app.</source>
-          <target state="translated">Facilite las comunicaciones de correo electrónico saliente conectando las cuentas de correo electrónico a Business Central. Por ejemplo, envíe cotizaciones y órdenes de venta sin necesidad de abrir una aplicación de correo electrónico.</target>
+          <target state="translated">Facilite las comunicaciones de correo electrónico saliente conectando las cuentas de correo electrónico a Business Central. Por ejemplo, envíe cotizaciones de venta y pedidos sin necesidad de abrir una aplicación de correo electrónico.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Account Wizard - Control HeaderText - Property InstructionalText</note>
         </trans-unit>
@@ -8311,6 +8491,12 @@
           <target state="translated">Tenga cuidado al agregar cuentas de correo electrónico. Según la configuración, las cuentas pueden estar disponibles para todos los usuarios.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Account Wizard - Control UsageWarning - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3756518970 - Control 4067785176 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specify the type of email account to add</source>
+          <target state="translated">Especifique el tipo de cuenta de correo electrónico que desea agregar</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Account Wizard - Control Specify the type of email account to add - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3756518970 - Control 1123305005 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source> </source>
@@ -8654,6 +8840,18 @@
           <target state="translated">Cancele la asignación de los escenarios seleccionados. Después, la cuenta de correo electrónico predeterminada se usará para enviar correos electrónicos para los escenarios.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Scenario Setup - Action Unassign - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 329821768 - Control 2961552353 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The email scenario.</source>
+          <target state="translated">Escenario de correo electrónico.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Scenarios FactBox - Control Name - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 329821768 - Control 2961552353 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email scenario</source>
+          <target state="translated">Escenario de correo electrónico</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Scenarios FactBox - Control Name - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1514646453 - Control 2961552353 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The email scenario.</source>
@@ -9039,6 +9237,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Retention Policy Setup List - Action ApplyAll - Property ToolTip</note>
         </trans-unit>
+        <trans-unit id="Page 709229469 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sent Emails</source>
+          <target state="translated">Correos electrónicos enviados</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sent Emails - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 709229469 - Control 3552705779 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies a short description of the email that was sent.</source>
           <target state="translated">Especifica una descripción breve del mensaje de correo electrónico que se envió.</target>
@@ -9104,6 +9308,12 @@
           <target state="translated">Edite y envíe el mensaje de correo electrónico.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Sent Emails - Action EditAndSend - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 709229469 - Action 2026913255 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Refresh</source>
+          <target state="translated">Actualizar</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sent Emails - Action Refresh - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 709229469 - Action 2026913255 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Refresh</source>

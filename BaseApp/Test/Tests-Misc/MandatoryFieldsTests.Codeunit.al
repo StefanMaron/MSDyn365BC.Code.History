@@ -94,8 +94,11 @@ codeunit 134590 "Mandatory Fields Tests"
     procedure MandatoryFieldsOnSalesDocuments()
     var
         Customer: Record Customer;
+        LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         // [FEATURE] [Sales]
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+
         LibrarySales.DisableWarningOnCloseUnpostedDoc;
         LibrarySales.DisableWarningOnCloseUnreleasedDoc;
         LibrarySales.CreateCustomer(Customer);
@@ -111,8 +114,11 @@ codeunit 134590 "Mandatory Fields Tests"
     procedure MandatoryFieldsOnPurchaseDocuments()
     var
         Vendor: Record Vendor;
+        LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         // [FEATURE] [Purchase]
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+
         Initialize;
         LibraryPurchase.DisableWarningOnCloseUnpostedDoc;
         LibraryPurchase.DisableWarningOnCloseUnreleasedDoc;

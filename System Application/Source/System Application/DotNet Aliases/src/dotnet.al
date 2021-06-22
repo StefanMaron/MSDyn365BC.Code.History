@@ -679,6 +679,10 @@ dotnet
         {
         }
 
+        type("Microsoft.Dynamics.Nav.Runtime.CompoundTokenInfo"; "CompoundTokenInfo")
+        {
+        }
+
         type("Microsoft.Dynamics.Nav.Runtime.Designer.DesignerFieldProperty"; "DesignerFieldProperty")
         {
         }

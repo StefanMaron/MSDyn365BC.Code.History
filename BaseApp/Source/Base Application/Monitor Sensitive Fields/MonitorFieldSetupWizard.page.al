@@ -209,7 +209,12 @@ page 1368 "Monitor Field Setup Wizard"
                     Caption = 'That''s it!';
                     group("Click Finish")
                     {
-                        InstructionalText = 'To start monitoring the selected fields for changes, choose Finish. You will need to restart Business Central.';
+                        InstructionalText = 'For notifications, you must specify the fields for which to send them. Turn on the View Monitored Fields toggle, and then choose Finish to open the Monitored Fields Worksheet page. Choose Notify for each field.';
+                        ShowCaption = false;
+                    }
+                    group("Moniotr Notificaiton")
+                    {
+                        InstructionalText = 'If you just want to start monitoring fields, choose Finish. You will need to restart Business Central.';
                         ShowCaption = false;
                     }
                     field(OpenMonitorWorksheetPage; OpenMonitorWorksheetPage)

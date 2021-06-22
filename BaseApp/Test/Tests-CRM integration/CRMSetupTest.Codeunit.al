@@ -669,12 +669,12 @@ codeunit 139160 "CRM Setup Test"
 
     [Test]
     [HandlerFunctions('MessageDequeue')]
-    [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure CannotOpenPageIfAppAreaBasic()
     var
         ApplicationAreaSetup: Record "Application Area Setup";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
+        LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         // [FEATURE] [UI]
         // [GIVEN] Application Area is set to Basic for the current user
@@ -694,6 +694,7 @@ codeunit 139160 "CRM Setup Test"
         // [THEN] A message: "You do not have access to this page." and silent error
         // handled by MessageDequeue
         Assert.ExpectedError('');
+        LibraryApplicationArea.ClearApplicationAreaCache();
     end;
 
     [Test]

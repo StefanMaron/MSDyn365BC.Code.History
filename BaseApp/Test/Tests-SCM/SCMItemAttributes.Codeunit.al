@@ -2209,6 +2209,52 @@ codeunit 137413 "SCM Item Attributes"
         ItemAttributeValue.TestField("Date Value", AttrValue);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('EditItemAttributeValueListHandler')]
+    procedure ChangeItemAttributeValueMappingName()
+    var
+        Item: Record Item;
+        ItemAttribute: Record "Item Attribute";
+        ItemAttributeValue: Record "Item Attribute Value";
+        ItemAttributeValueMapping: Record "Item Attribute Value Mapping";
+        ItemAttributeValueEditor: Page "Item Attribute Value Editor";
+        OldItemAttributeID: Integer;
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 377465] The old "Item Attribute Value Mapping" must be deleted after change Name in page "Item Attribute Value List"
+        Initialize();
+
+        // [GIVEN] Item with attribute with name "IA1"
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemAttribute(ItemAttribute, ItemAttribute.Type::Text, '');
+        LibraryInventory.CreateItemAttributeValue(ItemAttributeValue, ItemAttribute.ID, '');
+        OldItemAttributeID := ItemAttribute.ID;
+        LibraryInventory.CreateItemAttributeValueMapping(
+            Database::Item, Item."No.", ItemAttribute.ID, ItemAttributeValue.ID);
+
+        // [GIVEN] Item Attribute with name "IA2"
+        LibraryInventory.CreateItemAttribute(ItemAttribute, ItemAttribute.Type::Text, '');
+
+        // [GIVEN] Open "Item Attribute Value List"
+        LibraryVariableStorage.Enqueue(ItemAttribute.Name);
+        Page.RunModal(Page::"Item Attribute Value Editor", Item);
+
+        // [WHEN] Change "IA1" to "IA2"
+        // In handler EditItemAttributeValueListHandler()
+
+        // [THEN] Record "Item Attribute Value Mapping" with Name = "IA1" deleted
+        ItemAttributeValueMapping.SetRange("Table ID", Database::Item);
+        ItemAttributeValueMapping.SetRange("No.", Item."No.");
+        ItemAttributeValueMapping.SetRange("Item Attribute ID", OldItemAttributeID);
+        Assert.RecordIsEmpty(ItemAttributeValueMapping);
+
+        // [THEN] Record "Item Attribute Value Mapping" with Name = "IA2" exists
+        ItemAttributeValueMapping.SetRange("Item Attribute ID", ItemAttribute.ID);
+        Assert.RecordIsNotEmpty(ItemAttributeValueMapping);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         ItemAttribute: Record "Item Attribute";
@@ -2773,6 +2819,17 @@ codeunit 137413 "SCM Item Attributes"
     procedure ItemAttributeValueChangeValueEditor(var ItemAttributeValueEditor: TestPage "Item Attribute Value Editor")
     begin
         ItemAttributeValueEditor.ItemAttributeValueList.Value.SetValue(LibraryVariableStorage.DequeueText);
+        ItemAttributeValueEditor.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure EditItemAttributeValueListHandler(var ItemAttributeValueEditor: TestPage "Item Attribute Value Editor")
+    var
+        ItemAttributeName: Text;
+    begin
+        ItemAttributeName := LibraryVariableStorage.DequeueText();
+        ItemAttributeValueEditor.ItemAttributeValueList."Attribute Name".SetValue(ItemAttributeName);
         ItemAttributeValueEditor.OK.Invoke;
     end;
 

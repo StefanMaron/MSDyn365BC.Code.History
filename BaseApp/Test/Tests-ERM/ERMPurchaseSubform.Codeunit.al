@@ -19,6 +19,7 @@ codeunit 134394 "ERM Purchase Subform"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryDimension: Codeunit "Library - Dimension";
+        LibraryApplicationArea: Codeunit "Library - Application Area";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
@@ -3749,6 +3750,7 @@ codeunit 134394 "ERM Purchase Subform"
         PurchaseHeader: Record "Purchase Header";
         VendorNoSeries: Text[20];
     begin
+        LibraryApplicationArea.DisableApplicationAreaSetup();
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Purchase Subform");
         LibraryVariableStorage.Clear;
         LibrarySetupStorage.Restore;

@@ -4183,6 +4183,128 @@ codeunit 137051 "SCM Warehouse - III"
         Assert.RecordIsEmpty(WarehouseActivityLine);
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingPageHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure WhseItemTrackingLinesWhenInvtMovementFromAsmConsumptionWithFEFO()
+    var
+        Bin: array[2] of Record Bin;
+        Item: Record Item;
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WhseItemTrackingLine: Record "Whse. Item Tracking Line";
+        Location: Record Location;
+        LotNo: Code[20];
+        PartQty: Decimal;
+    begin
+        // [FEATURE] [FEFO] [Lot Tracked Item] [Inventory Movement] [Assembly Order] [Consumption]
+        // [SCENARIO 372941] Inventory Movement created for Assembly Consumption of Lot-Tracked Item with FEFO in use creates Whse. Item Tracking Lines with source fields pointing to the Assembly Order
+        Initialize();
+        PartQty := LibraryRandom.RandDec(10, 2);
+
+        // [GIVEN] Location with Pick According To FEFO, Require Pick, Put-away and Bin Mandatory
+        CreateAndUpdateLocation(Location, true, true, true, false, false, true);
+        LibraryWarehouse.CreateBin(Bin[1], Location.Code, '', '', '');
+        LibraryWarehouse.CreateBin(Bin[2], Location.Code, '', '', '');
+        Location.Validate("To-Assembly Bin Code", Bin[2].Code);
+        Location.Modify(true);
+
+        // [GIVEN] Item "CHILD" with Item Tracking Code having Lot Tracking and expiration dates enabled
+        CreateTrackedItem(Item, true, false, false, false, true);
+
+        // [GIVEN] Lot "L1" with Expiration Date = 1/1/2020 and 15 PCS of "CHILD" Item
+        LotNo := LibraryUtility.GenerateGUID();
+        PostItemJournalLineWithLotNoExpiration(Item."No.", Location.Code, Bin[1].Code, LotNo, PartQty, CalcDate('<5Y>', WorkDate));
+
+        // [GIVEN] Assembly Order to make an Item from 15 PCS of "CHILD" Item created and released
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate(), LibraryInventory.CreateItemNo(), Location.Code, 1, '');
+        LibraryAssembly.CreateAssemblyLine(
+          AssemblyHeader, AssemblyLine, AssemblyLine.Type::Item, Item."No.", Item."Base Unit of Measure", PartQty, PartQty, '');
+        LibraryAssembly.ReleaseAO(AssemblyHeader);
+
+        // [WHEN] Create Inventory Movement from Assembly Order
+        LibraryWarehouse.CreateInvtPutPickMovement(
+          WarehouseActivityHeader."Source Document"::"Assembly Consumption", AssemblyHeader."No.", false, false, true);
+
+        // [THEN] No Whse. Item Tracking Lines with Empty Source fields created for the Location
+        WhseItemTrackingLine.SetRange("Location Code", Location.Code);
+        WhseItemTrackingLine.SetSourceFilter(0, 0, '', 0, false);
+        Assert.RecordIsEmpty(WhseItemTrackingLine);
+
+        // [THEN] Whse. Item Tracking Line for the Assembly Order created with Lot "L1"
+        WhseItemTrackingLine.SetSourceFilter(
+          DATABASE::"Assembly Line", AssemblyHeader."Document Type", AssemblyHeader."No.", AssemblyLine."Line No.", false);
+        WhseItemTrackingLine.FindFirst();
+        WhseItemTrackingLine.TestField("Lot No.", LotNo);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingPageHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure WhseItemTrackingLinesWhenInvtMovementFromProdComponentWithFEFO()
+    var
+        Bin: array[2] of Record Bin;
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ProdOrderComponent: Record "Prod. Order Component";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WhseItemTrackingLine: Record "Whse. Item Tracking Line";
+        Location: Record Location;
+        LotNo: Code[20];
+        PartQty: Decimal;
+    begin
+        // [FEATURE] [FEFO] [Lot Tracked Item] [Inventory Movement] [Prod. Order Component]
+        // [SCENARIO 372941] Inventory Movement created for Prod. Order Component of Lot-Tracked Item with FEFO in use creates Whse. Item Tracking Lines with source fields pointing to the Prod. Order Component
+        Initialize();
+        PartQty := LibraryRandom.RandDec(10, 2);
+
+        // [GIVEN] Location with Pick According To FEFO, Require Pick, Put-away and Bin Mandatory
+        CreateAndUpdateLocation(Location, true, true, true, false, false, true);
+        LibraryWarehouse.CreateBin(Bin[1], Location.Code, '', '', '');
+        LibraryWarehouse.CreateBin(Bin[2], Location.Code, '', '', '');
+        Location.Validate("To-Production Bin Code", Bin[2].Code);
+        Location.Modify(true);
+
+        // [GIVEN] Item "CHILD" with Item Tracking Code having Lot Tracking and expiration dates enabled
+        CreateTrackedItem(Item, true, false, false, false, true);
+
+        // [GIVEN] Lot "L1" with Expiration Date = 1/1/2020 and 15 PCS of "CHILD" Item
+        LotNo := LibraryUtility.GenerateGUID();
+        PostItemJournalLineWithLotNoExpiration(Item."No.", Location.Code, Bin[1].Code, LotNo, PartQty, CalcDate('<5Y>', WorkDate));
+
+        // [GIVEN] Released Prod. Order to make an Item from 15 PCS of "CHILD" Item with manual flushing
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, '', 0);
+        LibraryManufacturing.CreateProdOrderLine(
+          ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.", LibraryInventory.CreateItemNo(), '', Location.Code, 1);
+        LibraryManufacturing.CreateProductionOrderComponent(
+          ProdOrderComponent, ProductionOrder.Status, ProductionOrder."No.", ProdOrderLine."Line No.");
+        ProdOrderComponent.Validate("Item No.", Item."No.");
+        ProdOrderComponent.Validate("Location Code", Location.Code);
+        ProdOrderComponent.Validate("Flushing Method", ProdOrderComponent."Flushing Method"::Manual);
+        ProdOrderComponent.Validate("Quantity per", PartQty);
+        ProdOrderComponent.Modify(true);
+
+        // [WHEN] Create Inventory Movement from Production Order
+        LibraryWarehouse.CreateInvtPutPickMovement(
+          WarehouseActivityHeader."Source Document"::"Prod. Consumption", ProductionOrder."No.", false, false, true);
+
+        // [THEN] No Whse. Item Tracking Lines with Empty Source fields created for the Location
+        WhseItemTrackingLine.SetRange("Location Code", Location.Code);
+        WhseItemTrackingLine.SetSourceFilter(0, 0, '', 0, false);
+        Assert.RecordIsEmpty(WhseItemTrackingLine);
+
+        // [THEN] Whse. Item Tracking Line for the Prod. Order Component created with Lot "L1"
+        WhseItemTrackingLine.SetSourceFilter(
+          DATABASE::"Prod. Order Component", ProdOrderComponent.Status, ProdOrderComponent."Prod. Order No.",
+          ProdOrderComponent."Line No.", false);
+        WhseItemTrackingLine.SetSourceFilter('', ProdOrderComponent."Line No.");
+        WhseItemTrackingLine.FindFirst();
+        WhseItemTrackingLine.TestField("Lot No.", LotNo);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

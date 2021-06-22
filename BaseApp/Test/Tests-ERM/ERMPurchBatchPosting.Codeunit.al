@@ -25,6 +25,7 @@ codeunit 134337 "ERM Purch. Batch Posting"
         isInitialized: Boolean;
         BatchCompletedMsg: Label 'All the documents were processed.';
         NotificationMsg: Label 'An error or warning occured during operation Batch processing of Purchase Header records.';
+        DefaultCategoryCodeLbl: Label 'PURCHBCKGR';
 
     [Test]
     [HandlerFunctions('RequestPageHandlerBatchPostPurchaseInvoices,MessageHandler')]
@@ -780,6 +781,297 @@ codeunit 134337 "ERM Purch. Batch Posting"
         Assert.RecordIsEmpty(BatchProcessingSessionMap);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('RequestPageHandlerBatchPostPurchaseInvoices,MessageHandler')]
+    procedure BatchPostInvoices_OneJobQueue()
+    var
+        PurchaseHeader: array[2] of Record "Purchase Header";
+        LibraryJobQueue: Codeunit "Library - Job Queue";
+    begin
+        // [SCENARIO 355799] Batch posting invoices via one job queue
+        Initialize();
+        BindSubscription(LibraryJobQueue);
+        LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
+        LibraryJobQueue.SetDoNotSkipProcessBatchInBackground(true);
+
+        // [GIVEN] Post with job queue is enabled
+        LibraryPurchase.SetPostWithJobQueue(true);
+
+        // [GIVEN] Two invoices
+        CreatePurchaseDocument(PurchaseHeader[1], PurchaseHeader[1]."Document Type"::Invoice, false);
+        CreatePurchaseDocument(PurchaseHeader[2], PurchaseHeader[2]."Document Type"::Invoice, false);
+
+        // [WHEN] Post batch
+        RunBatchPostPurchase(PurchaseHeader[1]."Document Type", PurchaseHeader[1]."No." + '|' + PurchaseHeader[2]."No.", 0D, false);
+        FindAndRunJobQueueEntryByRecord(PurchaseHeader[1]);
+
+        // [THEN] All invoices are posted
+        VerifyPostedPurchaseInvoice(PurchaseHeader[1]."No.", PurchaseHeader[1]."Posting Date", false);
+        VerifyPostedPurchaseInvoice(PurchaseHeader[2]."No.", PurchaseHeader[2]."Posting Date", false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('RequestPageHandlerBatchPostPurchaseOrders,MessageHandler')]
+    procedure BatchPostOrders_OneJobQueue()
+    var
+        PurchaseHeader: array[2] of Record "Purchase Header";
+        LibraryJobQueue: Codeunit "Library - Job Queue";
+    begin
+        // [SCENARIO 355799] Batch posting orders via one job queue
+        Initialize();
+        BindSubscription(LibraryJobQueue);
+        LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
+        LibraryJobQueue.SetDoNotSkipProcessBatchInBackground(true);
+
+        // [GIVEN] Post with job queue is enabled
+        LibraryPurchase.SetPostWithJobQueue(true);
+
+        // [GIVEN] Two orders
+        CreatePurchaseDocument(PurchaseHeader[1], PurchaseHeader[1]."Document Type"::Order, false);
+        CreatePurchaseDocument(PurchaseHeader[2], PurchaseHeader[2]."Document Type"::Order, false);
+
+        // [WHEN] Post batch
+        RunBatchPostPurchase(PurchaseHeader[2]."Document Type", PurchaseHeader[1]."No." + '|' + PurchaseHeader[2]."No.", 0D, false);
+        FindAndRunJobQueueEntryByRecord(PurchaseHeader[1]);
+
+        // [THEN] All orders are posted
+        VerifyPostedPurchaseOrder(PurchaseHeader[1]."No.", PurchaseHeader[1]."Posting Date", false);
+        VerifyPostedPurchaseOrder(PurchaseHeader[2]."No.", PurchaseHeader[2]."Posting Date", false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('RequestPageHandlerBatchPostPurchaseCrMemos,MessageHandler')]
+    procedure BatchPostCreditMemos_OneJobQueue()
+    var
+        PurchaseHeader: array[2] of Record "Purchase Header";
+        LibraryJobQueue: Codeunit "Library - Job Queue";
+    begin
+        // [SCENARIO 355799] Batch posting credit memos via one job queue
+        Initialize();
+        BindSubscription(LibraryJobQueue);
+        LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
+        LibraryJobQueue.SetDoNotSkipProcessBatchInBackground(true);
+
+        // [GIVEN] Post with job queue is enabled
+        LibraryPurchase.SetPostWithJobQueue(true);
+
+        // [GIVEN] Two credit memos
+        CreatePurchaseDocument(PurchaseHeader[1], PurchaseHeader[1]."Document Type"::"Credit Memo", false);
+        CreatePurchaseDocument(PurchaseHeader[2], PurchaseHeader[2]."Document Type"::"Credit Memo", false);
+
+        // [WHEN] Post batch
+        RunBatchPostPurchase(PurchaseHeader[1]."Document Type", PurchaseHeader[1]."No." + '|' + PurchaseHeader[2]."No.", 0D, false);
+        FindAndRunJobQueueEntryByRecord(PurchaseHeader[1]);
+
+        // [THEN] All credit memos are posted
+        VerifyPostedPurchaseCrMemo(PurchaseHeader[1]."No.", PurchaseHeader[1]."Posting Date", false);
+        VerifyPostedPurchaseCrMemo(PurchaseHeader[2]."No.", PurchaseHeader[2]."Posting Date", false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('RequestPageHandlerBatchPostPurchaseReturnOrders,MessageHandler')]
+    procedure BatchPostReturnOrders_OneJobQueue()
+    var
+        PurchaseHeader: array[2] of Record "Purchase Header";
+        LibraryJobQueue: Codeunit "Library - Job Queue";
+    begin
+        // [SCENARIO 355799] Batch posting return orders via one job queue
+        Initialize();
+        BindSubscription(LibraryJobQueue);
+        LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
+        LibraryJobQueue.SetDoNotSkipProcessBatchInBackground(true);
+
+        // [GIVEN] Post with job queue is enabled
+        LibraryPurchase.SetPostWithJobQueue(true);
+
+        // [GIVEN] Two return orders
+        CreatePurchaseDocument(PurchaseHeader[1], PurchaseHeader[1]."Document Type"::"Return Order", false);
+        CreatePurchaseDocument(PurchaseHeader[2], PurchaseHeader[2]."Document Type"::"Return Order", false);
+
+        // [WHEN] Post batch
+        RunBatchPostPurchase(PurchaseHeader[2]."Document Type", PurchaseHeader[1]."No." + '|' + PurchaseHeader[2]."No.", 0D, false);
+        FindAndRunJobQueueEntryByRecord(PurchaseHeader[1]);
+
+        // [THEN] All return orders are posted
+        VerifyPostedPurchaseReturnOrder(PurchaseHeader[1]."No.", PurchaseHeader[1]."Posting Date", false);
+        VerifyPostedPurchaseReturnOrder(PurchaseHeader[2]."No.", PurchaseHeader[2]."Posting Date", false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('RequestPageHandlerBatchPostPurchaseInvoices,MessageHandler')]
+    procedure BatchPostInvoicesWithEmptyJobQueueCategoryCode_OneJobQueue()
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        PurchaseHeader: array[2] of Record "Purchase Header";
+        JobQueueLogEntry: Record "Job Queue Log Entry";
+        LibraryJobQueue: Codeunit "Library - Job Queue";
+        JobQueueEntryId: Guid;
+    begin
+        // [SCENARIO 355799] Batch posting invoices via one job queue with empty "Job Queue Category Code" in the setup
+        Initialize();
+        BindSubscription(LibraryJobQueue);
+        LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
+        LibraryJobQueue.SetDoNotSkipProcessBatchInBackground(true);
+
+        // [GIVEN] Post with job queue is enabled, "Job Queue Category Code" is empty
+        LibraryPurchase.SetPostWithJobQueue(true);
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup."Job Queue Category Code" := '';
+        PurchasesPayablesSetup.Modify();
+
+        // [GIVEN] Two invoices
+        CreatePurchaseDocument(PurchaseHeader[1], PurchaseHeader[1]."Document Type"::Invoice, false);
+        CreatePurchaseDocument(PurchaseHeader[2], PurchaseHeader[2]."Document Type"::Invoice, false);
+
+        // [WHEN] Post batch
+        RunBatchPostPurchase(PurchaseHeader[1]."Document Type", PurchaseHeader[1]."No." + '|' + PurchaseHeader[2]."No.", 0D, false);
+        FindAndRunJobQueueEntryByRecord(PurchaseHeader[1]);
+        JobQueueEntryId := PurchaseHeader[1]."Job Queue Entry ID";
+
+        // [THEN] Job queue log entry contains default "Job Queue Category Code"
+        JobQueueLogEntry.SetRange(ID, JobQueueEntryId);
+        JobQueueLogEntry.FindFirst();
+        Assert.IsTrue(JobQueueLogEntry."Job Queue Category Code" = DefaultCategoryCodeLbl, 'Job queue log entry has wrong Job Queue Category Code');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('RequestPageHandlerBatchPostPurchaseInvoices,SentNotificationHandler')]
+    procedure BatchPostInvoicesOneWithErrorBeforePosting_OneJobQueue()
+    var
+        PurchaseHeader: array[2] of Record "Purchase Header";
+        LibraryJobQueue: Codeunit "Library - Job Queue";
+    begin
+        // [SCENARIO 355799] Batch posting invoices via one job queue, one invoice has "Job Queue Status" = "Scheduled for Posting"
+        Initialize();
+        BindSubscription(LibraryJobQueue);
+        LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
+        LibraryJobQueue.SetDoNotSkipProcessBatchInBackground(true);
+
+        // [GIVEN] Post with job queue is enabled
+        LibraryPurchase.SetPostWithJobQueue(true);
+
+        // [GIVEN] Two invoices: I1 and I2, I2 has "Job Queue Status" = "Scheduled for Posting"
+        CreatePurchaseDocument(PurchaseHeader[1], PurchaseHeader[1]."Document Type"::Invoice, false);
+        CreatePurchaseDocument(PurchaseHeader[2], PurchaseHeader[2]."Document Type"::Invoice, false);
+        PurchaseHeader[2]."Job Queue Status" := PurchaseHeader[2]."Job Queue Status"::"Scheduled for Posting";
+        PurchaseHeader[2].Modify();
+
+        // [WHEN] Post batch
+        RunBatchPostPurchase(PurchaseHeader[1]."Document Type", PurchaseHeader[1]."No." + '|' + PurchaseHeader[2]."No.", 0D, false);
+        FindAndRunJobQueueEntryByRecord(PurchaseHeader[1]);
+
+        // [THEN] I1 is posted
+        VerifyPostedPurchaseInvoice(PurchaseHeader[1]."No.", PurchaseHeader[1]."Posting Date", false);
+
+        // [THEN] I2 is not posted
+        PurchaseHeader[2].Get(PurchaseHeader[2]."Document Type", PurchaseHeader[2]."No.");
+
+        // [THEN] Notification: 'An error occured during operation: batch processing of Purchase Header records.'
+        VerifyPurchHeaderNotification();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('RequestPageHandlerBatchPostPurchaseInvoices,MessageHandler')]
+    procedure BatchPostInvoicesOneWithErrorWhilePosting_OneJobQueue()
+    var
+        PurchaseHeader: array[2] of Record "Purchase Header";
+        JobQueueLogEntry: Record "Job Queue Log Entry";
+        ErrorMessage: Record "Error Message";
+        LibraryJobQueue: Codeunit "Library - Job Queue";
+        JobQueueEntryId: Guid;
+    begin
+        // [SCENARIO 355799] Batch posting invoices via one job queue, one invoice has error while posting
+        Initialize();
+        BindSubscription(LibraryJobQueue);
+        LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
+        LibraryJobQueue.SetDoNotSkipProcessBatchInBackground(true);
+
+        // [GIVEN] Post with job queue is enabled
+        LibraryPurchase.SetPostWithJobQueue(true);
+
+        // [GIVEN] Two invoices: I1 and I2, I2 has empty "Posting Date"
+        CreatePurchaseDocument(PurchaseHeader[1], PurchaseHeader[1]."Document Type"::Invoice, false);
+        CreatePurchaseDocument(PurchaseHeader[2], PurchaseHeader[2]."Document Type"::Invoice, false);
+        Codeunit.Run(Codeunit::"Release Purchase Document", PurchaseHeader[2]);
+        PurchaseHeader[2]."Posting Date" := 0D;
+        PurchaseHeader[2].Modify();
+
+        // [WHEN] Post batch
+        RunBatchPostPurchase(PurchaseHeader[1]."Document Type", PurchaseHeader[1]."No." + '|' + PurchaseHeader[2]."No.", 0D, false);
+        FindAndRunJobQueueEntryByRecord(PurchaseHeader[1]);
+        JobQueueEntryId := PurchaseHeader[1]."Job Queue Entry ID";
+
+        // [THEN] I1 is posted
+        VerifyPostedPurchaseInvoice(PurchaseHeader[1]."No.", PurchaseHeader[1]."Posting Date", false);
+
+        // [THEN] I2 is not posted, "Job Queue Status" = "Error"
+        PurchaseHeader[2].Get(PurchaseHeader[2]."Document Type", PurchaseHeader[2]."No.");
+        Assert.IsTrue(PurchaseHeader[2]."Job Queue Status" = PurchaseHeader[2]."Job Queue Status"::Error, 'Purchase header has wrong Job Queue Status');
+
+        // [THEN] Job queue log entry "Status" = "Error", "Error Message" contains error message about I2 "Posting Date"
+        JobQueueLogEntry.SetRange(ID, JobQueueEntryId);
+        JobQueueLogEntry.FindFirst();
+        Assert.IsTrue(JobQueueLogEntry.Status = JobQueueLogEntry.Status::Error, 'Job queue log entry has wrong status');
+        Assert.IsTrue(StrPos(JobQueueLogEntry."Error Message", 'Posting Date must have a value') > 0, 'Job queue log entry has wrong error message');
+
+        // [THEN] Error message register contains two records, one for error during posting and one for final message
+        ErrorMessage.SetRange("Register ID", JobQueueLogEntry."Error Message Register Id");
+        Assert.RecordCount(ErrorMessage, 2);
+        ErrorMessage.FindFirst();
+        Assert.IsTrue(StrPos(ErrorMessage.Description, 'Posting Date must have a value') > 0, 'Error message register contains wrong error');
+        ErrorMessage.Next();
+        Assert.AreEqual(ErrorMessage.Description, '1 purchase documents out of 2 have errors during posting.', 'Error message register contains wrong error');
+    end;
+
+    [Test]
+    [HandlerFunctions('BatchPostPurchaseInvoicesPrintRequestPageHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure BatchPostAndPrintInvoices_OneJobQueue()
+    var
+        PurchaseHeader: array[2] of Record "Purchase Header";
+        ReportInbox: Record "Report Inbox";
+        LibraryJobQueue: Codeunit "Library - Job Queue";
+        JobQueueEntryId: Guid;
+    begin
+        // [SCENARIO 355799] Batch posting and printing invoices via one job queue
+        Initialize();
+        BindSubscription(LibraryJobQueue);
+        LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
+        LibraryJobQueue.SetDoNotSkipProcessBatchInBackground(true);
+        CreateInvoiceReportSelection();
+
+        // [GIVEN] Post and print with job queue is enabled
+        LibraryPurchase.SetPostAndPrintWithJobQueue(true);
+
+        // [GIVEN] Two invoices
+        CreatePurchaseDocument(PurchaseHeader[1], PurchaseHeader[1]."Document Type"::Invoice, false);
+        CreatePurchaseDocument(PurchaseHeader[2], PurchaseHeader[2]."Document Type"::Invoice, false);
+
+        // [WHEN] Post batch
+        RunBatchPostPurchase(PurchaseHeader[1]."Document Type", PurchaseHeader[1]."No." + '|' + PurchaseHeader[2]."No.", 0D, false);
+        FindAndRunJobQueueEntryByRecord(PurchaseHeader[1]);
+        JobQueueEntryId := PurchaseHeader[1]."Job Queue Entry ID";
+
+        // [THEN] All invoices are posted
+        VerifyPostedPurchaseInvoice(PurchaseHeader[1]."No.", PurchaseHeader[1]."Posting Date", false);
+        VerifyPostedPurchaseInvoice(PurchaseHeader[2]."No.", PurchaseHeader[2]."Posting Date", false);
+
+        // [THEN] All invoices are printed as PDF to Report Inbox
+        ReportInbox.SetRange("Job Queue Log Entry ID", JobQueueEntryId);
+        Assert.RecordCount(ReportInbox, 2);
+        ReportInbox.FindFirst();
+        Assert.IsTrue(StrPos(ReportInbox.Description, StrSubstNo('Print Purchase Invoice No. %1', PurchaseHeader[1]."No.")) > 0, 'Report Inbox contains wrong printed document');
+        ReportInbox.Next();
+        Assert.IsTrue(StrPos(ReportInbox.Description, StrSubstNo('Print Purchase Invoice No. %1', PurchaseHeader[2]."No.")) > 0, 'Report Inbox contains wrong printed document');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -921,6 +1213,17 @@ codeunit 134337 "ERM Purch. Batch Posting"
         ReportSelections.Usage := ReportSelections.Usage::"P.Invoice";
         ReportSelections."Report ID" := REPORT::"Purchase - Invoice";
         If ReportSelections.Insert() Then;
+    end;
+
+    local procedure FindAndRunJobQueueEntryByRecord(var PurchaseHeader: Record "Purchase Header")
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+    begin
+        PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
+        JobQueueEntry.Get(PurchaseHeader."Job Queue Entry ID");
+        JobQueueEntry.Status := JobQueueEntry.Status::Ready;
+        JobQueueEntry.Modify();
+        Codeunit.Run(Codeunit::"Job Queue Dispatcher", JobQueueEntry);
     end;
 
     local procedure VerifyPostedPurchaseInvoice(PreAssignedNo: Code[20]; PostingDate: Date; InvDisc: Boolean)

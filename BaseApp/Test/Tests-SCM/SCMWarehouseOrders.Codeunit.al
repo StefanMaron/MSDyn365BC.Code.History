@@ -1996,6 +1996,62 @@ codeunit 137161 "SCM Warehouse Orders"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PickWorksheetAvailQtyToPickDedicatedBins()
+    var
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        Bin: Record Bin;
+        BinContent: Record "Bin Content";
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WhseWorksheetName: Record "Whse. Worksheet Name";
+        Quantity: Decimal;
+        Quantity2: Decimal;
+    begin
+        // [FEATURE] [Pick Worksheet] [Dedicated Bin] [Put-away]
+        // [SCENARIO 375084] Available Qty to Pick correctly accounts for quantity received not put-away that remains in a dedicated bin
+        Initialize();
+
+        // [GIVEN] Location with "Require Shipment", "Require Receive", "Require Pick", "Require Put-away" and "Bin Mandatory" and Bins "B1","B2"
+        LibraryWarehouse.CreateLocationWMS(Location, true, true, true, true, true);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
+        // [GIVEN] Bin "B1" set up as Dedicated and used on "Receipt Bin Code" for the Location
+        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID, '', '');
+        Bin.Validate(Dedicated, true);
+        Bin.Modify(true);
+        Location.Validate("Receipt Bin Code", Bin.Code);
+        Location.Modify(true);
+
+        // [GIVEN] Item created with fixed default bin content for bin "B2" on the Location
+        LibraryInventory.CreateItem(Item);
+        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID, '', '');
+        LibraryWarehouse.CreateBinContent(BinContent, Location.Code, '', Bin.Code, Item."No.", '', Item."Base Unit of Measure");
+        BinContent.Validate(Fixed, true);
+        BinContent.Validate(Default, true);
+        BinContent.Modify(true);
+
+        // [GIVEN] Warehouse Receipt posted for Purchase Order with 17 PCS of Item
+        // [GIVEN] Partial Put Away from Warehouse Receipt created and registered for 10 PCS of Item
+        Quantity := LibraryRandom.RandInt(10);
+        Quantity2 := LibraryRandom.RandIntInRange(Quantity, 2 * Quantity);
+        CreateAndRegisterPartialPutAwayFromWarehouseReceiptUsingPurchaseOrder(
+          Item."No.", 2 * Quantity + Quantity2, Location.Code, 2 * Quantity);  // Calculated Value Required.
+
+        // [GIVEN] Warehouse Shipment for a Sales Order with 5 PCS of Item created and released
+        CreateAndReleaseSalesOrder(SalesHeader, LibrarySales.CreateCustomerNo, Item."No.", Quantity, Location.Code);
+        CreateAndReleaseWarehouseShipment(WarehouseShipmentHeader, SalesHeader);
+
+        // [WHEN] Get Warehouse Shipment on the Pick Worksheet
+        GetWarehouseDocumentOnWarehouseWorksheetLine(WhseWorksheetName, Location.Code, WarehouseShipmentHeader."No.", '');
+
+        // [THEN] Quantity = 5, AvailableQtyToPick = 10 on the Pick Worksheet line
+        VerifyPickWorksheetLine(WhseWorksheetName, Item."No.", Quantity, 2 * Quantity, false);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Warehouse Orders");

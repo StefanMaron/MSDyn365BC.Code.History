@@ -1,4 +1,4 @@
-codeunit 980 "Payment Registration Mgt."
+﻿codeunit 980 "Payment Registration Mgt."
 {
     EventSubscriberInstance = Manual;
     TableNo = "Payment Registration Buffer";
@@ -69,6 +69,7 @@ codeunit 980 "Payment Registration Mgt."
         GenJnlPostBatch: Codeunit "Gen. Jnl.-Post Batch";
         PaymentToleranceManagement: Codeunit "Payment Tolerance Management";
     begin
+        OnBeforePost(TempPaymentRegistrationBuffer);
         with PaymentRegistrationSetup do begin
             Get(UserId);
             ValidateMandatoryFields(true);
@@ -651,6 +652,11 @@ codeunit 980 "Payment Registration Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGenJnlLineInsert(var GenJournalLine: Record "Gen. Journal Line"; TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    procedure OnBeforePost(var TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary)
     begin
     end;
 }

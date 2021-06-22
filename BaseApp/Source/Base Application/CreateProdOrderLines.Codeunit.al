@@ -1,4 +1,4 @@
-codeunit 99000787 "Create Prod. Order Lines"
+﻿codeunit 99000787 "Create Prod. Order Lines"
 {
     Permissions = TableData Item = r,
                   TableData "Sales Header" = r,
@@ -112,6 +112,7 @@ codeunit 99000787 "Create Prod. Order Lines"
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         SalesLineReserve: Codeunit "Sales Line-Reserve";
         ErrorOccured: Boolean;
+        QuantityBase: Decimal;
     begin
         OnBeforeCopyFromSalesOrder(SalesHeader, SalesLine, ProdOrder);
 
@@ -144,7 +145,9 @@ codeunit 99000787 "Create Prod. Order Lines"
                 ProdOrderLine.Description := SalesLine.Description;
                 ProdOrderLine."Description 2" := SalesLine."Description 2";
                 SalesLine.CalcFields("Reserved Qty. (Base)");
-                ProdOrderLine.Validate("Quantity (Base)", SalesLine."Outstanding Qty. (Base)" - SalesLine."Reserved Qty. (Base)");
+                QuantityBase := SalesLine."Outstanding Qty. (Base)" - SalesLine."Reserved Qty. (Base)";
+                OnCopyFromSalesOrderOnAfterCalcQuantityBase(ProdOrderLine, SalesLineIsSet, SalesLine, QuantityBase);
+                ProdOrderLine.Validate("Quantity (Base)", QuantityBase);
 
                 if Location.Get(ProdOrderLine."Location Code") and not Location."Require Pick" and (SalesLine."Bin Code" <> '') then
                     ProdOrderLine."Bin Code" := SalesLine."Bin Code";
@@ -672,6 +675,11 @@ codeunit 99000787 "Create Prod. Order Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyFromSalesOrderOnBeforeProdOrderLineModify(var ProdOrderLine: Record "Prod. Order Line"; SalesLine: Record "Sales Line"; SalesPlanningLine: Record "Sales Planning Line"; var NextProdOrderLineNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyFromSalesOrderOnAfterCalcQuantityBase(var ProdOrderLine: Record "Prod. Order Line"; SalesLineIsSet: Boolean; var SalesLine: Record "Sales Line"; var QuantityBase: Decimal)
     begin
     end;
 

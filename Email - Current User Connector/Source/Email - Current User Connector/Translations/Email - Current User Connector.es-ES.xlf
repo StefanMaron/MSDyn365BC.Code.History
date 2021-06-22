@@ -1,0 +1,116 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en-US" target-language="es-ES" original="Email - Current User Connector">
+    <body>
+      <group id="body">
+        <trans-unit id="Codeunit 1506430813 - NamedType 1293915263" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Users send emails from their sign-in account.</source>
+          <target state="translated">Los usuarios envían correos electrónicos desde su cuenta de inicio de sesión.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Current User Connector - NamedType ConnectorDescriptionTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1506430813 - NamedType 56622739" maxwidth="250" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Current User's Email Address</source>
+          <target state="translated">Dirección de correo electrónico del usuario actual</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Current User Connector - NamedType CurrentUsersEmailAddressTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1506430813 - NamedType 2802589388" maxwidth="250" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Current User</source>
+          <target state="translated">Usuario actual</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Current User Connector - NamedType CurrentUserTok</note>
+        </trans-unit>
+        <trans-unit id="EnumExtension 1506430813 - EnumValue 1780646972 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Current User</source>
+          <target state="translated">Usuario actual</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Enum 1993094577</note>
+        </trans-unit>
+        <trans-unit id="Page 1036501575 - Control 2141615146 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source> </source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Current User Email Account - Control NotDoneIcon - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1036501575 - Control 2141615146 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source> </source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Current User Email Account - Control NotDoneIcon - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1036501575 - Control 3123527090 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source></source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Current User Email Account - Control Info - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1036501575 - Control 3123527090 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Everyone will send email messages from their own email account.</source>
+          <target state="translated">Todos los usuarios enviarán mensajes de correo electrónico desde su propia cuenta de correo electrónico.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Current User Email Account - Control Info - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 1036501575 - Control 3694372469 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Everyone who uses this account must have a valid license for Microsoft Exchange.</source>
+          <target state="translated">Todos los usuarios que usen esta cuenta deben tener una licencia válida para Microsoft Exchange.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Current User Email Account - Control MoreInfo - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1036501575 - Control 1806367933 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source></source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Current User Email Account - Control EvenMoreInfo - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1036501575 - Control 1806367933 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Click Next and we will configure the account for you.</source>
+          <target state="translated">Haga clic en Siguiente para que configuremos la cuenta para usted.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Current User Email Account - Control EvenMoreInfo - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 1036501575 - Control 1205826660 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source></source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Current User Email Account - Control OnlyOne - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1036501575 - Control 1205826660 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>An email account of this type is already set up for you. You can only use one account at a time.</source>
+          <target state="translated">Ya está configurada una cuenta de correo electrónico de este tipo. Solo se puede usar una cuenta a la vez.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Current User Email Account - Control OnlyOne - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 1036501575 - Action 1235620153 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Next</source>
+          <target state="translated">Siguiente</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Current User Email Account - Action Next - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1036501575 - Action 1235620153 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source> </source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Current User Email Account - Action Next - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1036501575 - Action 742034285 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Back</source>
+          <target state="translated">Atrás</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Current User Email Account - Action Back - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1036501575 - Action 742034285 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source> </source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Current User Email Account - Action Back - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1036501575 - Action 1010501080 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>OK</source>
+          <target state="translated">Aceptar</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Current User Email Account - Action Ok - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1036501575 - Action 1010501080 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source> </source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Current User Email Account - Action Ok - Property ToolTip</note>
+        </trans-unit>
+      </group>
+    </body>
+  </file>
+</xliff>

@@ -1,4 +1,4 @@
-codeunit 905 "Assembly Line Management"
+﻿codeunit 905 "Assembly Line Management"
 {
     Permissions = TableData "Assembly Line" = rimd;
 
@@ -90,11 +90,13 @@ codeunit 905 "Assembly Line Management"
                         AssemblyLine.Validate("Resource Usage Type", AssemblyLine."Resource Usage Type"::Fixed);
                 end;
             AssemblyLine.Validate("Unit of Measure Code", BOMComponent."Unit of Measure Code");
+            OnAddBOMLineOnAfterValidateUOMCode(AssemblyLine, BOMComponent, AssemblyHeader);
             if AssemblyLine.Type <> AssemblyLine.Type::" " then
                 AssemblyLine.Validate(
                   "Quantity per",
                   AssemblyLine.CalcQuantityFromBOM(
                     BOMComponent.Type, BOMComponent."Quantity per", 1, QtyPerUoM, AssemblyLine."Resource Usage Type"));
+            OnAddBOMLineOnBeforeValidateQuantity(AssemblyHeader, AssemblyLine, BOMComponent);
             AssemblyLine.Validate(
                 Quantity,
                 AssemblyLine.CalcQuantityFromBOM(
@@ -182,16 +184,7 @@ codeunit 905 "Assembly Line Management"
                 TempAssemblyLine."Line No." := NextLineNo;
                 TempAssemblyLine.Insert(true);
                 AddBOMLine(AssemblyHeader, TempAssemblyLine, true, FromBOMComp, false, 1);
-                TempAssemblyLine.Quantity := TempAssemblyLine.Quantity * "Quantity per" * "Qty. per Unit of Measure";
-                TempAssemblyLine."Quantity (Base)" := TempAssemblyLine."Quantity (Base)" * "Quantity per" * "Qty. per Unit of Measure";
-                TempAssemblyLine."Quantity per" := TempAssemblyLine."Quantity per" * "Quantity per" * "Qty. per Unit of Measure";
-                TempAssemblyLine."Remaining Quantity" := TempAssemblyLine."Remaining Quantity" * "Quantity per" * "Qty. per Unit of Measure";
-                TempAssemblyLine."Remaining Quantity (Base)" :=
-                    TempAssemblyLine."Remaining Quantity (Base)" * "Quantity per" * "Qty. per Unit of Measure";
-                TempAssemblyLine."Quantity to Consume" :=
-                    TempAssemblyLine."Quantity to Consume" * "Quantity per" * "Qty. per Unit of Measure";
-                TempAssemblyLine."Quantity to Consume (Base)" :=
-                    TempAssemblyLine."Quantity to Consume (Base)" * "Quantity per" * "Qty. per Unit of Measure";
+                CalcTempAssemblyLineQuantityRelatedFields(AssemblyHeader, AsmLine, TempAssemblyLine);
                 TempAssemblyLine."Cost Amount" := TempAssemblyLine."Unit Cost" * TempAssemblyLine.Quantity;
                 TempAssemblyLine."Dimension Set ID" := "Dimension Set ID";
                 TempAssemblyLine."Shortcut Dimension 1 Code" := "Shortcut Dimension 1 Code";
@@ -203,9 +196,11 @@ codeunit 905 "Assembly Line Management"
             TempAssemblyLine.FindSet();
             ToAssemblyLine := TempAssemblyLine;
             ToAssemblyLine.Modify();
+            OnExplodeAsmListOnAfterToAssemblyLineModify(TempAssemblyLine, ToAssemblyLine);
             while TempAssemblyLine.Next <> 0 do begin
                 ToAssemblyLine := TempAssemblyLine;
                 ToAssemblyLine.Insert();
+                OnExplodeAsmListOnAfterToAssemblyLineInsert(TempAssemblyLine, ToAssemblyLine);
                 if ToAssemblyLine."Due Date" < WorkDate then begin
                     DueDateBeforeWorkDate := true;
                     NewLineDueDate := ToAssemblyLine."Due Date";
@@ -215,6 +210,29 @@ codeunit 905 "Assembly Line Management"
 
         if DueDateBeforeWorkDate then
             ShowDueDateBeforeWorkDateMsg(NewLineDueDate);
+    end;
+
+    local procedure CalcTempAssemblyLineQuantityRelatedFields(AssemblyHeader: Record "Assembly Header"; AsmLine: Record "Assembly Line"; var TempAssemblyLine: Record "Assembly Line" temporary)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCalcTempAssemblyLineQuantityRelatedFields(AssemblyHeader, TempAssemblyLine, AsmLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        with AsmLine do begin
+            TempAssemblyLine.Quantity := TempAssemblyLine.Quantity * "Quantity per" * "Qty. per Unit of Measure";
+            TempAssemblyLine."Quantity (Base)" := TempAssemblyLine."Quantity (Base)" * "Quantity per" * "Qty. per Unit of Measure";
+            TempAssemblyLine."Quantity per" := TempAssemblyLine."Quantity per" * "Quantity per" * "Qty. per Unit of Measure";
+            TempAssemblyLine."Remaining Quantity" := TempAssemblyLine."Remaining Quantity" * "Quantity per" * "Qty. per Unit of Measure";
+            TempAssemblyLine."Remaining Quantity (Base)" :=
+                TempAssemblyLine."Remaining Quantity (Base)" * "Quantity per" * "Qty. per Unit of Measure";
+            TempAssemblyLine."Quantity to Consume" :=
+                TempAssemblyLine."Quantity to Consume" * "Quantity per" * "Qty. per Unit of Measure";
+            TempAssemblyLine."Quantity to Consume (Base)" :=
+                TempAssemblyLine."Quantity to Consume (Base)" * "Quantity per" * "Qty. per Unit of Measure";
+        end;
     end;
 
     procedure UpdateWarningOnLines(AsmHeader: Record "Assembly Header")
@@ -263,6 +281,7 @@ codeunit 905 "Assembly Line Management"
             exit;
 
         NoOfLinesFound := CopyAssemblyData(AsmHeader, TempAssemblyHeader, TempAssemblyLine);
+        OnUpdateAssemblyLinesOnAfterCopyAssemblyData(TempAssemblyLine, ReplaceLinesFromBOM);
         if ReplaceLinesFromBOM then begin
             TempAssemblyLine.DeleteAll();
             if not ((AsmHeader."Quantity (Base)" = 0) or (AsmHeader."Item No." = '')) then begin  // condition to replace asm lines
@@ -321,6 +340,7 @@ codeunit 905 "Assembly Line Management"
                     AssemblyLine.Insert(true)
                 else
                     AssemblyLine.Modify(true);
+                OnUpdateAssemblyLinesOnBeforeAutoReserveAsmLine(AssemblyLine, ReplaceLinesFromBOM);
                 AsmHeader.AutoReserveAsmLine(AssemblyLine);
                 if AssemblyLine."Due Date" < WorkDate then begin
                     DueDateBeforeWorkDate := true;
@@ -430,10 +450,7 @@ codeunit 905 "Assembly Line Management"
 
             if UpdateQuantity then begin
                 QtyRatio := Quantity / OldAsmHeader.Quantity;
-                if AssemblyLine.FixedUsage then
-                    AssemblyLine.Validate(Quantity)
-                else
-                    AssemblyLine.Validate(Quantity, AssemblyLine.Quantity * QtyRatio);
+                UpdateAssemblyLineQuantity(AsmHeader, AssemblyLine, QtyRatio);
                 AssemblyLine.InitQtyToConsume();
             end;
 
@@ -451,8 +468,7 @@ codeunit 905 "Assembly Line Management"
                     AssemblyLine.InitQtyToConsume;
                     QtyToConsume := AssemblyLine.Quantity * "Quantity to Assemble" / Quantity;
                     RoundQty(QtyToConsume);
-                    if QtyToConsume <= AssemblyLine.MaxQtyToConsume then
-                        AssemblyLine.Validate("Quantity to Consume", QtyToConsume);
+                    UpdateQuantityToConsume(AsmHeader, AssemblyLine, QtyToConsume);
                 end;
 
             if UpdateDimension then
@@ -460,6 +476,34 @@ codeunit 905 "Assembly Line Management"
 
             AssemblyLine.Modify(true);
         end;
+    end;
+
+    local procedure UpdateQuantityToConsume(AsmHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line"; QtyToConsume: Decimal)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateQuantityToConsume(AsmHeader, AssemblyLine, QtyToConsume, IsHandled);
+        if IsHandled then
+            exit;
+
+        if QtyToConsume <= AssemblyLine.MaxQtyToConsume then
+            AssemblyLine.Validate("Quantity to Consume", QtyToConsume);
+    end;
+
+    local procedure UpdateAssemblyLineQuantity(AsmHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line"; QtyRatio: Decimal)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateAssemblyLineQuantity(AsmHeader, AssemblyLine, QtyRatio, IsHandled);
+        if IsHandled then
+            exit;
+
+        if AssemblyLine.FixedUsage then
+            AssemblyLine.Validate(Quantity)
+        else
+            AssemblyLine.Validate(Quantity, AssemblyLine.Quantity * QtyRatio);
     end;
 
     procedure ShowDueDateBeforeWorkDateMsg(ActualLineDueDate: Date)
@@ -484,6 +528,7 @@ codeunit 905 "Assembly Line Management"
             repeat
                 ToAssemblyLine := AssemblyLine;
                 ToAssemblyLine.Insert();
+                OnCopyAssemblyDataOnAfterToAssemblyLineInsert(AssemblyLine, ToAssemblyLine);
                 NoOfLinesInserted += 1;
             until AssemblyLine.Next() = 0;
     end;
@@ -559,6 +604,7 @@ codeunit 905 "Assembly Line Management"
                 end;
 
                 TempNewAsmLine.Modify();
+                OnDoVerificationsSkippedEarlierOnAfterTempNewAsmLineModify(TempNewAsmLine);
             until TempNewAsmLine.Next() = 0;
     end;
 
@@ -689,6 +735,16 @@ codeunit 905 "Assembly Line Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAddBOMLineOnAfterValidateUOMCode(var AssemblyLine: Record "Assembly Line"; BOMComponent: Record "BOM Component"; AssemblyHeader: Record "Assembly Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAddBOMLineOnBeforeValidateQuantity(AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line"; BOMComponent: Record "BOM Component")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterTransferBOMComponent(var AssemblyLine: Record "Assembly Line"; BOMComponent: Record "BOM Component"; AssemblyHeader: Record "Assembly Header")
     begin
     end;
@@ -715,6 +771,51 @@ codeunit 905 "Assembly Line Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcEarliestDueDate(var AsmHeader: Record "Assembly Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcTempAssemblyLineQuantityRelatedFields(AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line"; FromAssemblyLine: Record "Assembly Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateQuantityToConsume(AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line"; var QtyToConsume: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateAssemblyLineQuantity(AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line"; var QtyRatio: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyAssemblyDataOnAfterToAssemblyLineInsert(var AssemblyLine: Record "Assembly Line"; var ToAssemblyLine: Record "Assembly Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDoVerificationsSkippedEarlierOnAfterTempNewAsmLineModify(var AssemblyLine: Record "Assembly Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnExplodeAsmListOnAfterToAssemblyLineInsert(var FromAssemblyLine: Record "Assembly Line"; var ToAssemblyLine: Record "Assembly Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnExplodeAsmListOnAfterToAssemblyLineModify(var FromAssemblyLine: Record "Assembly Line"; var ToAssemblyLine: Record "Assembly Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateAssemblyLinesOnBeforeAutoReserveAsmLine(var AssemblyLine: Record "Assembly Line"; ReplaceLinesFromBOM: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateAssemblyLinesOnAfterCopyAssemblyData(var AssemblyLine: Record "Assembly Line"; ReplaceLinesFromBOM: Boolean)
     begin
     end;
 }

@@ -488,12 +488,13 @@
             PurchOrderLine.Validate("No.", "No.");
             OnAfterPurchOrderLineValidateNo(PurchOrderLine, RequisitionLine);
             PurchOrderLine."Variant Code" := "Variant Code";
+            OnInitPurchOrderLineOnAfterPurchOrderLineAssignVariantCode(PurchOrderLine, RequisitionLine);
             PurchOrderLine.Validate("Location Code", "Location Code");
             PurchOrderLine.Validate("Unit of Measure Code", "Unit of Measure Code");
             PurchOrderLine."Qty. per Unit of Measure" := "Qty. per Unit of Measure";
             PurchOrderLine."Prod. Order No." := "Prod. Order No.";
             PurchOrderLine."Prod. Order Line No." := "Prod. Order Line No.";
-            PurchOrderLine.Validate(Quantity, Quantity);
+            InitPurchOrderLineUpdateQuantity(RequisitionLine);
             if PurchOrderHeader."Prices Including VAT" then
                 PurchOrderLine.Validate("Direct Unit Cost", "Direct Unit Cost" * (1 + PurchOrderLine."VAT %" / 100))
             else
@@ -518,6 +519,18 @@
         end;
 
         OnAfterInitPurchOrderLine(PurchOrderLine, RequisitionLine);
+    end;
+
+    local procedure InitPurchOrderLineUpdateQuantity(var RequisitionLine: Record "Requisition Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeInitPurchOrderLineUpdateQuantity(PurchOrderLine, RequisitionLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        PurchOrderLine.Validate(Quantity, RequisitionLine.Quantity);
     end;
 
     procedure InsertPurchOrderLine(var ReqLine2: Record "Requisition Line"; var PurchOrderHeader: Record "Purchase Header")
@@ -1407,6 +1420,11 @@
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitPurchOrderLineUpdateQuantity(var PurchOrderLine: Record "Purchase Line"; var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
+    end;
+
     [IntegrationEvent(true, false)]
     local procedure OnBeforeOnRun(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
     begin
@@ -1454,6 +1472,11 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnFinalizeOrderHeaderOnAfterSetFiltersForNonRecurringReqLine(var RequisitionLine: Record "Requisition Line"; PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitPurchOrderLineOnAfterPurchOrderLineAssignVariantCode(var PurchOrderLine: Record "Purchase Line"; var RequisitionLine: Record "Requisition Line")
     begin
     end;
 
