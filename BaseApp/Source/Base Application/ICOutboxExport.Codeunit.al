@@ -80,6 +80,7 @@ codeunit 431 "IC Outbox Export"
         DocumentMailing: Codeunit "Document-Mailing";
         ICOutboxExportXML: XMLport "IC Outbox Imp/Exp";
         EmailDialog: Page "Email Dialog";
+        DocumentReference: RecordRef;
         InStream: InStream;
         OFile: File;
         FileName: Text;
@@ -153,6 +154,8 @@ codeunit 431 "IC Outbox Export"
                             EmailDialog.GetRecord(EmailItem);
                             OFile.Open(FileName);
                             OFile.CreateInStream(InStream);
+                            DocumentReference.GetTable(ICOutboxTrans);
+                            DocumentReference.GetBySystemId(ICOutboxTrans.SystemId);
                             DocumentMailing.EmailFile(
                               InStream,
                               StrSubstNo('%1.xml', ICPartner.Code),
@@ -161,7 +164,8 @@ codeunit 431 "IC Outbox Export"
                               EmailItem."Send to",
                               EmailItem.Subject,
                               true,
-                              5); // S.Test
+                              5, // S.Test
+                              DocumentReference);
                         end else
                             MailHandler.NewMessage(
                               ToName, CcName, '',
@@ -173,9 +177,9 @@ codeunit 431 "IC Outbox Export"
                     ICOutboxTrans.Find('-');
                     repeat
                         ICInboxOutboxMgt.MoveOutboxTransToHandledOutbox(ICOutboxTrans);
-                    until ICOutboxTrans.Next = 0;
+                    until ICOutboxTrans.Next() = 0;
                 end;
-            until ICPartner.Next = 0;
+            until ICPartner.Next() = 0;
         ICOutboxTrans.SetRange("IC Partner Code");
         if ICPartnerFilter <> '' then
             ICOutboxTrans.SetFilter("IC Partner Code", ICPartnerFilter);
@@ -207,7 +211,7 @@ codeunit 431 "IC Outbox Export"
                     if ICOutboxTrans."Line Action" = ICOutboxTrans."Line Action"::"Send to IC Partner" then
                         ICInboxOutboxMgt.MoveOutboxTransToHandledOutbox(ICOutboxTrans);
                 end;
-            until ICOutboxTrans.Next = 0;
+            until ICOutboxTrans.Next() = 0;
     end;
 
     local procedure ReturnToInbox(var ICOutboxTrans: Record "IC Outbox Transaction")
@@ -227,7 +231,7 @@ codeunit 431 "IC Outbox Export"
                     ICPartner.TestField(Blocked, false);
                 MoveICTransToPartnerCompany.RecreateInboxTrans(ICOutboxTrans);
                 ICOutboxTrans.Delete(true);
-            until ICOutboxTrans.Next = 0;
+            until ICOutboxTrans.Next() = 0;
     end;
 
     local procedure CancelTrans(var ICOutboxTrans: Record "IC Outbox Transaction")
@@ -236,7 +240,7 @@ codeunit 431 "IC Outbox Export"
         if ICOutboxTrans.Find('-') then
             repeat
                 ICInboxOutboxMgt.MoveOutboxTransToHandledOutbox(ICOutboxTrans);
-            until ICOutboxTrans.Next = 0;
+            until ICOutboxTrans.Next() = 0;
     end;
 
     local procedure UpdateICStatus(var ICOutboxTransaction: Record "IC Outbox Transaction")
@@ -273,7 +277,7 @@ codeunit 431 "IC Outbox Export"
                                     SalesHeader.Modify();
                                 end;
                         end;
-            until ICOutboxTransaction.Next = 0
+            until ICOutboxTransaction.Next() = 0
     end;
 
     local procedure ExportOutboxTransaction(var ICOutboxTransaction: Record "IC Outbox Transaction"; var FileName: Text)

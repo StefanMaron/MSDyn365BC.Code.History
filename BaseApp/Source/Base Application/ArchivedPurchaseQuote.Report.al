@@ -185,7 +185,7 @@ report 415 "Archived Purchase Quote"
                                     Continue := true;
                                     exit;
                                 end;
-                            until DimSetEntry1.Next = 0;
+                            until DimSetEntry1.Next() = 0;
                         end;
 
                         trigger OnPreDataItem()
@@ -297,7 +297,7 @@ report 415 "Archived Purchase Quote"
                                         Continue := true;
                                         exit;
                                     end;
-                                until DimSetEntry2.Next = 0;
+                                until DimSetEntry2.Next() = 0;
                             end;
 
                             trigger OnPreDataItem()
@@ -417,7 +417,7 @@ report 415 "Archived Purchase Quote"
                         repeat
                             PurchLineArchive := PurchLineArchive2;
                             PurchLineArchive.Insert();
-                        until PurchLineArchive2.Next = 0;
+                        until PurchLineArchive2.Next() = 0;
 
                     if Number > 1 then begin
                         CopyText := FormatDocument.GetCOPYText;

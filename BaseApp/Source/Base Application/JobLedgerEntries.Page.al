@@ -1,4 +1,4 @@
-﻿page 92 "Job Ledger Entries"
+page 92 "Job Ledger Entries"
 {
     ApplicationArea = Jobs;
     Caption = 'Job Ledger Entries';
@@ -426,7 +426,7 @@
                             repeat
                                 JobPlanningLine.Get(JobUsageLink."Job No.", JobUsageLink."Job Task No.", JobUsageLink."Line No.");
                                 JobPlanningLine.Mark := true;
-                            until JobUsageLink.Next = 0;
+                            until JobUsageLink.Next() = 0;
 
                         JobPlanningLine.MarkedOnly(true);
                         PAGE.Run(PAGE::"Job Planning Lines", JobPlanningLine);

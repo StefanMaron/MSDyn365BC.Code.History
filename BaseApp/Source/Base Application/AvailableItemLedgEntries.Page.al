@@ -19,44 +19,50 @@ page 504 "Available - Item Ledg. Entries"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Entry Type"; "Entry Type")
+                field("Entry Type"; Rec."Entry Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies which type of transaction that the entry is created from.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the document number on the entry. The document is the voucher that the entry was based on, for example, a receipt.';
                 }
-                field("Serial No."; "Serial No.")
+                field("Serial No."; Rec."Serial No.")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies a serial number if the posted item carries such a number.';
                     Visible = false;
                 }
-                field("Lot No."; "Lot No.")
+                field("Lot No."; Rec."Lot No.")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies a lot number if the posted item carries such a number.';
                     Visible = false;
                 }
-                field("Location Code"; "Location Code")
+                field("Package No."; Rec."Package No.")
+                {
+                    ApplicationArea = ItemTracking;
+                    ToolTip = 'Specifies a package number if the posted item carries such a number.';
+                    Visible = PackageTrackingVisible;
+                }
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code for the location that the entry is linked to.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the entry''s posting date.';
                 }
-                field("Remaining Quantity"; "Remaining Quantity")
+                field("Remaining Quantity"; Rec."Remaining Quantity")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the quantity in the Quantity field that remains to be processed.';
                 }
-                field("Reserved Quantity"; "Reserved Quantity")
+                field("Reserved Quantity"; Rec."Reserved Quantity")
                 {
                     ApplicationArea = Reservation;
                     Editable = false;
@@ -70,7 +76,7 @@ page 504 "Available - Item Ledg. Entries"
                     Editable = false;
                     ToolTip = 'Specifies the quantity of the item that is available for reservation.';
                 }
-                field(ReservedQuantity; GetReservedQtyInLine)
+                field(ReservedQuantity; GetReservedQtyInLine())
                 {
                     ApplicationArea = Reservation;
                     Caption = 'Current Reserved Quantity';
@@ -80,12 +86,12 @@ page 504 "Available - Item Ledg. Entries"
                     trigger OnDrillDown()
                     begin
                         ReservEntry2.Reset();
-                        SetReservationFilters(ReservEntry2);
+                        Rec.SetReservationFilters(ReservEntry2);
                         ReservEntry2.SetRange("Reservation Status", ReservEntry2."Reservation Status"::Reservation);
                         ReservMgt.MarkReservConnection(ReservEntry2, ReservEntry);
                         PAGE.RunModal(PAGE::"Reservation Entries", ReservEntry2);
-                        UpdateReservFrom;
-                        CurrPage.Update;
+                        UpdateReservFrom();
+                        CurrPage.Update();
                     end;
                 }
             }
@@ -111,7 +117,7 @@ page 504 "Available - Item Ledg. Entries"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions();
+                        Rec.ShowDimensions();
                     end;
                 }
             }
@@ -135,14 +141,14 @@ page 504 "Available - Item Ledg. Entries"
                     begin
                         ReservEntry.LockTable();
                         UpdateReservMgt;
-                        GetReservationQty(QtyReserved, QtyToReserve);
+                        Rec.GetReservationQty(QtyReserved, QtyToReserve);
                         ReservMgt.CalculateRemainingQty(NewQtyReserved2, NewQtyReserved);
                         if MaxQtyDefined and (Abs(MaxQtyToReserve) < Abs(NewQtyReserved)) then
                             NewQtyReserved := MaxQtyToReserve;
 
                         ReservMgt.CopySign(NewQtyReserved, QtyToReserve);
                         if NewQtyReserved <> 0 then begin
-                            OnBeforeCreateReservation(ReservEntry, "Lot No.", "Serial No.");
+                            OnBeforeCreateReservation(ReservEntry, Rec."Lot No.", Rec."Serial No.");
                             if Abs(NewQtyReserved) > Abs(QtyToReserve) then begin
                                 CreateReservation(QtyToReserve);
                                 MaxQtyToReserve := MaxQtyToReserve - QtyToReserve;
@@ -153,7 +159,7 @@ page 504 "Available - Item Ledg. Entries"
                             if MaxQtyToReserve < 0 then
                                 MaxQtyToReserve := 0;
                         end else
-                            Error(Text000);
+                            Error(FullyReservedErr);
                     end;
                 }
                 action(CancelReservation)
@@ -166,26 +172,26 @@ page 504 "Available - Item Ledg. Entries"
 
                     trigger OnAction()
                     begin
-                        if not Confirm(Text001, false) then
+                        if not Confirm(CancelReservationQst, false) then
                             exit;
 
-                        GetReservationQty(QtyReserved, QtyToReserve);
+                        Rec.GetReservationQty(QtyReserved, QtyToReserve);
 
                         ReservEntry2.Copy(ReservEntry);
                         if ReservMgt.IsPositive then
-                            SetReservationFilters(ReservEntry2)
+                            Rec.SetReservationFilters(ReservEntry2)
                         else
-                            Error(Text99000000);
+                            Error(CanCancelInventoryReservationOnlyErr);
                         ReservEntry2.SetRange("Expected Receipt Date");
                         if ReservEntry2.Find('-') then begin
-                            UpdateReservMgt;
+                            UpdateReservMgt();
                             repeat
                                 ReservEngineMgt.CancelReservation(ReservEntry2);
-                            until ReservEntry2.Next = 0;
+                            until ReservEntry2.Next() = 0;
 
                             TotalAvailQty := TotalAvailQty + QtyReserved;
                             MaxQtyToReserve := MaxQtyToReserve + QtyReserved;
-                            UpdateReservFrom;
+                            UpdateReservFrom();
                         end;
                     end;
                 }
@@ -202,14 +208,11 @@ page 504 "Available - Item Ledg. Entries"
     begin
         ReservEntry.TestField("Source Type");
 
-        SetFilters;
+        SetFilters();
+        SetPackageTrackingVisibility();
     end;
 
     var
-        Text000: Label 'Fully reserved.';
-        Text001: Label 'Do you want to cancel the reservation?';
-        Text002: Label 'Reservation cannot be carried out because the available quantity is already allocated in a warehouse.';
-        Text99000000: Label 'You can only cancel reservations to inventory.';
         ReservEntry: Record "Reservation Entry";
         ReservEntry2: Record "Reservation Entry";
         ReservMgt: Codeunit "Reservation Management";
@@ -222,6 +225,12 @@ page 504 "Available - Item Ledg. Entries"
         MaxQtyToReserve: Decimal;
         MaxQtyDefined: Boolean;
         CaptionText: Text;
+        [InDataSet]
+        PackageTrackingVisible: Boolean;
+        FullyReservedErr: Label 'Fully reserved.';
+        CancelReservationQst: Label 'Do you want to cancel the reservation?';
+        ReservationCannotBeCarriedErr: Label 'Reservation cannot be carried out because the available quantity is already allocated in a warehouse.';
+        CanCancelInventoryReservationOnlyErr: Label 'You can only cancel reservations to inventory.';
         CannotReserveFromSpecialOrderErr: Label 'You cannot reserve from this item ledger entry because the associated special sales order %1 has not been posted yet.', Comment = '%1: Sales Order No.';
 
     procedure SetSource(CurrentSourceRecRef: RecordRef; CurrentReservEntry: Record "Reservation Entry")
@@ -243,6 +252,7 @@ page 504 "Available - Item Ledg. Entries"
         CaptionText := ReservMgt.FilterReservFor(SourceRecRef, ReservEntry, Direction);
     end;
 
+#if not CLEAN16
     [Obsolete('Replaced by SetSource procedure.', '16.0')]
     procedure SetSalesLine(var CurrentSalesLine: Record "Sales Line"; CurrentReservEntry: Record "Reservation Entry")
     begin
@@ -306,17 +316,6 @@ page 504 "Available - Item Ledg. Entries"
         SetSource(SourceRecRef, CurrentReservEntry);
     end;
 
-    procedure SetTotalAvailQty(TotalAvailQty2: Decimal)
-    begin
-        TotalAvailQty := TotalAvailQty2;
-    end;
-
-    procedure SetMaxQtyToReserve(NewMaxQtyToReserve: Decimal)
-    begin
-        MaxQtyToReserve := NewMaxQtyToReserve;
-        MaxQtyDefined := true;
-    end;
-
     [Obsolete('Replaced by SetSource procedure.', '16.0')]
     procedure SetAssemblyLine(var CurrentAsmLine: Record "Assembly Line"; CurrentReservEntry: Record "Reservation Entry")
     begin
@@ -330,16 +329,28 @@ page 504 "Available - Item Ledg. Entries"
         SourceRecRef.GetTable(CurrentAsmHeader);
         SetSource(SourceRecRef, CurrentReservEntry);
     end;
+#endif
+
+    procedure SetTotalAvailQty(TotalAvailQty2: Decimal)
+    begin
+        TotalAvailQty := TotalAvailQty2;
+    end;
+
+    procedure SetMaxQtyToReserve(NewMaxQtyToReserve: Decimal)
+    begin
+        MaxQtyToReserve := NewMaxQtyToReserve;
+        MaxQtyDefined := true;
+    end;
 
     local procedure CreateReservation(var ReserveQuantity: Decimal)
     var
         TrackingSpecification: Record "Tracking Specification";
         SpecialOrderSalesNo: Code[20];
     begin
-        TestField("Drop Shipment", false);
-        TestField("Item No.", ReservEntry."Item No.");
-        TestField("Variant Code", ReservEntry."Variant Code");
-        TestField("Location Code", ReservEntry."Location Code");
+        Rec.TestField("Drop Shipment", false);
+        Rec.TestField("Item No.", ReservEntry."Item No.");
+        Rec.TestField("Variant Code", ReservEntry."Variant Code");
+        Rec.TestField("Location Code", ReservEntry."Location Code");
         SpecialOrderSalesNo := ReservMgt.FindUnfinishedSpecialOrderSalesNo(Rec);
         if SpecialOrderSalesNo <> '' then
             Error(CannotReserveFromSpecialOrderErr, SpecialOrderSalesNo);
@@ -357,12 +368,12 @@ page 504 "Available - Item Ledg. Entries"
            (ReserveQuantity = 0) and
            (QtyToReserve <> 0)
         then
-            Error(Text002);
+            Error(ReservationCannotBeCarriedErr);
 
         UpdateReservMgt();
         TrackingSpecification.InitTrackingSpecification(
-            DATABASE::"Item Ledger Entry", 0, '', '', 0, "Entry No.",
-            "Variant Code", "Location Code", "Qty. per Unit of Measure");
+            DATABASE::"Item Ledger Entry", 0, '', '', 0, Rec."Entry No.",
+            Rec."Variant Code", Rec."Location Code", Rec."Qty. per Unit of Measure");
         TrackingSpecification.CopyTrackingFromItemLedgEntry(Rec);
         ReservMgt.CreateReservation(
           ReservEntry.Description, 0D, 0, ReserveQuantity, TrackingSpecification);
@@ -388,7 +399,7 @@ page 504 "Available - Item Ledg. Entries"
     local procedure GetReservedQtyInLine(): Decimal
     begin
         ReservEntry2.Reset();
-        SetReservationFilters(ReservEntry2);
+        Rec.SetReservationFilters(ReservEntry2);
         ReservEntry2.SetRange("Reservation Status", ReservEntry2."Reservation Status"::Reservation);
         exit(ReservMgt.MarkReservConnection(ReservEntry2, ReservEntry));
     end;
@@ -396,27 +407,34 @@ page 504 "Available - Item Ledg. Entries"
     local procedure SetFilters()
     var
         ItemTrackingType: Enum "Item Tracking Type";
-        FieldFilter: Text[80];
+        FieldFilter: Text;
     begin
-        Reset();
-        SetRange("Item No.", ReservEntry."Item No.");
-        SetRange("Variant Code", ReservEntry."Variant Code");
-        SetRange("Location Code", ReservEntry."Location Code");
-        SetRange("Drop Shipment", false);
-        SetRange(Open, true);
+        Rec.Reset();
+        Rec.SetRange("Item No.", ReservEntry."Item No.");
+        Rec.SetRange("Variant Code", ReservEntry."Variant Code");
+        Rec.SetRange("Location Code", ReservEntry."Location Code");
+        Rec.SetRange("Drop Shipment", false);
+        Rec.SetRange(Open, true);
         if ReservEntry.FieldFilterNeeded(FieldFilter, ReservMgt.IsPositive, ItemTrackingType::"Lot No.") then
-            SetFilter("Lot No.", FieldFilter);
+            Rec.SetFilter("Lot No.", FieldFilter);
         if ReservEntry.FieldFilterNeeded(FieldFilter, ReservMgt.IsPositive, ItemTrackingType::"Serial No.") then
-            SetFilter("Serial No.", FieldFilter);
+            Rec.SetFilter("Serial No.", FieldFilter);
         if ReservMgt.IsPositive() then begin
-            SetRange(Positive, true);
-            SetFilter("Remaining Quantity", '>0');
+            Rec.SetRange(Positive, true);
+            Rec.SetFilter("Remaining Quantity", '>0');
         end else begin
-            SetRange(Positive, false);
-            SetFilter("Remaining Quantity", '<0');
+            Rec.SetRange(Positive, false);
+            Rec.SetFilter("Remaining Quantity", '<0');
         end;
 
         OnAfterSetFilters(Rec, ReservEntry);
+    end;
+
+    local procedure SetPackageTrackingVisibility()
+    var
+        PackageMgt: Codeunit "Package Management";
+    begin
+        PackageTrackingVisible := PackageMgt.IsEnabled();
     end;
 
     [IntegrationEvent(false, false)]

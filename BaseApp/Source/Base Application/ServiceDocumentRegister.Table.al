@@ -78,7 +78,7 @@ table 5936 "Service Document Register"
                 PostedServDocReg."Destination Document No." := InvoiceNo;
                 PostedServDocReg.Insert();
                 ServDocReg.Delete();
-            until ServDocReg.Next = 0;
+            until ServDocReg.Next() = 0;
     end;
 
     procedure ServiceDocument(SalesDocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order"; SalesDocNo: Code[20]; var ServTable: Integer; var ServDocNo: Code[20]): Boolean

@@ -195,7 +195,7 @@ codeunit 137096 "SCM Kitting - ATO"
         CollectSetupBOMComponent(TempItem, Item."No.");
 
         LibraryWarehouse.CreateBin(Bin, LocationCode, '', '', '');
-        TempItem.FindSet;
+        TempItem.FindSet();
         repeat
             LibraryWarehouse.CreateBinContent(BinContent, LocationCode, '', Bin.Code, TempItem."No.", '', TempItem."Base Unit of Measure");
             BinContent.Validate(Default, true);
@@ -387,7 +387,7 @@ codeunit 137096 "SCM Kitting - ATO"
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
         AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
-        AssemblyLine.FindSet;
+        AssemblyLine.FindSet();
         QtySupplement := LibraryRandom.RandInt(50);
         repeat
             LibraryInventory.FindItemJournalTemplate(ItemJournalTemplate);
@@ -510,7 +510,7 @@ codeunit 137096 "SCM Kitting - ATO"
         with AssemblyLine do begin
             SetRange("Document Type", AssemblyHeader."Document Type");
             SetRange("Document No.", AssemblyHeader."No.");
-            FindSet;
+            FindSet();
 
             repeat
                 case Type of
@@ -554,7 +554,7 @@ codeunit 137096 "SCM Kitting - ATO"
     begin
         Clear(BOMComponent);
         BOMComponent.SetRange("Parent Item No.", ItemNo);
-        BOMComponent.FindSet;
+        BOMComponent.FindSet();
 
         // Iterate through components of and update cost and price
         repeat
@@ -731,14 +731,14 @@ codeunit 137096 "SCM Kitting - ATO"
         AssemblyHeader.SetRange(Quantity, Qty);
         AssemblyHeader.SetRange("Quantity (Base)", Qty * LibraryInventory.GetQtyPerForItemUOM(Item."No.", UOM));
 
-        AssemblyHeader.FindSet;
+        AssemblyHeader.FindSet();
     end;
 
     local procedure FindItemAssemblyHeader(var AssemblyHeader: Record "Assembly Header"; ItemNo: Code[20]; Index: Integer)
     begin
         AssemblyHeader.Reset();
         AssemblyHeader.SetRange("Item No.", ItemNo);
-        AssemblyHeader.FindSet;
+        AssemblyHeader.FindSet();
         if Index > 1 then
             AssemblyHeader.Next(Index - 1);
     end;
@@ -771,7 +771,7 @@ codeunit 137096 "SCM Kitting - ATO"
         with BOMComponent do begin
             SetRange("Parent Item No.", ParentItemNo);
             SetRange(Type, Type::Item);
-            FindSet;
+            FindSet();
             ItemTrackingCode := FindItemTrackingLikeSNALL;
             repeat
                 Item.Get("No.");
@@ -3936,7 +3936,7 @@ codeunit 137096 "SCM Kitting - ATO"
         with AssemblyLine do begin
             SetRange("Document Type", AssemblyHeader."Document Type");
             SetRange("Document No.", AssemblyHeader."No.");
-            FindSet;
+            FindSet();
             repeat
                 Assert.AreEqual(
                   AssembledQty * "Quantity per", "Consumed Quantity", FieldName("Consumed Quantity"));
@@ -4912,7 +4912,7 @@ codeunit 137096 "SCM Kitting - ATO"
     begin
         with BOMComponent do begin
             SetRange("Parent Item No.", ItemNo);
-            FindSet;
+            FindSet();
 
             repeat
                 case Type of
@@ -5028,7 +5028,7 @@ codeunit 137096 "SCM Kitting - ATO"
 
         PostedAssemblyLine.SetRange("Document No.", PostedAssemblyHeader."No.");
         PostedAssemblyLine.SetRange(Type, PostedAssemblyLine.Type::Item);
-        PostedAssemblyLine.FindSet;
+        PostedAssemblyLine.FindSet();
         repeat
             VerifyAssemblyQtyOnWhseEntry(
               PostedAssemblyLine."No.", DATABASE::"Assembly Line",
@@ -5045,7 +5045,7 @@ codeunit 137096 "SCM Kitting - ATO"
         WarehouseEntry.SetRange("Source Type", SourceType);
         WarehouseEntry.SetRange("Source Document", SourceDocument);
         WarehouseEntry.SetRange("Source No.", SourceNo);
-        WarehouseEntry.FindSet;
+        WarehouseEntry.FindSet();
         repeat
             TotalQty += WarehouseEntry.Quantity;
         until WarehouseEntry.Next = 0;
@@ -5062,7 +5062,7 @@ codeunit 137096 "SCM Kitting - ATO"
         FindAssemblyLine(AssemblyHeader, AssemblyLine);
 
         Assert.AreEqual(TempQuoteAssemblyLine.Count, AssemblyLine.Count, DifferentNumberAsmLinesInOrderAndQuoteErr);
-        TempQuoteAssemblyLine.FindSet;
+        TempQuoteAssemblyLine.FindSet();
         with AssemblyLine do
             repeat
                 TestField("Line No.", TempQuoteAssemblyLine."Line No.");

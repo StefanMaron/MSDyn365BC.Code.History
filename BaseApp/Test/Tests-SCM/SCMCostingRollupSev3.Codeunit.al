@@ -1197,7 +1197,7 @@ codeunit 137614 "SCM Costing Rollup Sev 3"
         GLEntry.SetRange("Document Type", DocumentType);
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("Gen. Posting Type", GenPostingType);
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             ActualAmount := GLEntry.Amount;
         until GLEntry.Next = 0;

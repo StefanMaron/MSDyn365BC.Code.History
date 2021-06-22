@@ -16,19 +16,19 @@ codeunit 1802 "Data Migration Notifier"
         DataMigrationMgt: Codeunit "Data Migration Mgt.";
         DisableNotificationTxt: Label 'Disable notification';
 
-    [EventSubscriber(ObjectType::Page, 22, 'OnOpenPageEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Customer List", 'OnOpenPageEvent', '', false, false)]
     local procedure OnCustomerListOpen(var Rec: Record Customer)
     begin
         ShowListEmptyNotification(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Page, 27, 'OnOpenPageEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Vendor List", 'OnOpenPageEvent', '', false, false)]
     local procedure OnVendorListOpen(var Rec: Record Vendor)
     begin
         ShowListEmptyNotification(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Page, 31, 'OnOpenPageEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Item List", 'OnOpenPageEvent', '', false, false)]
     local procedure OnItemListOpen(var Rec: Record Item)
     begin
         ShowListEmptyNotification(Rec);
@@ -43,7 +43,7 @@ codeunit 1802 "Data Migration Notifier"
 
         RecRef.Reset();
 
-        if not RecRef.IsEmpty then
+        if not RecRef.IsEmpty() then
             exit;
         CreateNotification(NullGUID, ListEmptyMsg, NOTIFICATIONSCOPE::LocalScope, OpenDataMigrationTxt, 'OpenDataMigrationWizard', '');
     end;
@@ -53,7 +53,7 @@ codeunit 1802 "Data Migration Notifier"
         PAGE.Run(PAGE::"Data Migration Wizard");
     end;
 
-    [EventSubscriber(ObjectType::Table, 1800, 'OnGetInstructions', '', true, true)]
+    [EventSubscriber(ObjectType::Table, Database::"Data Migrator Registration", 'OnGetInstructions', '', true, true)]
     local procedure OnGetInstructionsSubscriber(var Sender: Record "Data Migrator Registration"; var Instructions: Text; var Handled: Boolean)
     begin
         Session.LogMessage('00001DB', Sender.Description, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', 'AL ' + Sender.TableName);
@@ -169,7 +169,7 @@ codeunit 1802 "Data Migration Notifier"
                         OnCustomerListGetCurrRec(Customer);
                         exit;
                     end;
-                until Customer.Next = 0;
+                until Customer.Next() = 0;
     end;
 
     procedure ShowContactNotificationIfVendWithoutContExist()
@@ -184,41 +184,37 @@ codeunit 1802 "Data Migration Notifier"
                         OnVendorListGetCurrRec(Vendor);
                         exit;
                     end;
-                until Vendor.Next = 0;
+                until Vendor.Next() = 0;
     end;
 
-    [EventSubscriber(ObjectType::Page, 9076, 'OnOpenPageEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Sales & Relationship Mgr. Act.", 'OnOpenPageEvent', '', false, false)]
     local procedure OnOpenSalesRelationshipMgrActPage(var Rec: Record "Relationship Mgmt. Cue")
     begin
         ShowContactNotificationIfCustWithoutContExist;
         ShowContactNotificationIfVendWithoutContExist;
     end;
 
-    [EventSubscriber(ObjectType::Page, 22, 'OnAfterGetCurrRecordEvent', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnCustomerListGetCurrRec(var Rec: Record Customer)
+    [EventSubscriber(ObjectType::Page, Page::"Customer List", 'OnAfterGetCurrRecordEvent', '', false, false)]
+    local procedure OnCustomerListGetCurrRec(var Rec: Record Customer)
     begin
         ShowCustomerContactCreationNotification(Rec."No.", DATABASE::Customer);
     end;
 
-    [EventSubscriber(ObjectType::Page, 21, 'OnAfterGetCurrRecordEvent', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnCustomerCardGetCurrRec(var Rec: Record Customer)
+    [EventSubscriber(ObjectType::Page, Page::"Customer Card", 'OnAfterGetCurrRecordEvent', '', false, false)]
+    local procedure OnCustomerCardGetCurrRec(var Rec: Record Customer)
     begin
         if Rec.Find then
             ShowCustomerContactCreationNotification(Rec."No.", DATABASE::Customer);
     end;
 
-    [EventSubscriber(ObjectType::Page, 27, 'OnAfterGetCurrRecordEvent', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnVendorListGetCurrRec(var Rec: Record Vendor)
+    [EventSubscriber(ObjectType::Page, Page::"Vendor List", 'OnAfterGetCurrRecordEvent', '', false, false)]
+    local procedure OnVendorListGetCurrRec(var Rec: Record Vendor)
     begin
         ShowCustomerContactCreationNotification(Rec."No.", DATABASE::Vendor);
     end;
 
-    [EventSubscriber(ObjectType::Page, 26, 'OnAfterGetCurrRecordEvent', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnVendorCardGetCurrRec(var Rec: Record Vendor)
+    [EventSubscriber(ObjectType::Page, Page::"Vendor Card", 'OnAfterGetCurrRecordEvent', '', false, false)]
+    local procedure OnVendorCardGetCurrRec(var Rec: Record Vendor)
     begin
         if Rec.Find then
             ShowCustomerContactCreationNotification(Rec."No.", DATABASE::Vendor);

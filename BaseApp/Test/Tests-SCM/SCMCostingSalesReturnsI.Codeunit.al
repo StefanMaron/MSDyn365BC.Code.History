@@ -498,7 +498,11 @@ codeunit 137012 "SCM Costing Sales Returns I"
         CopySalesDoc: Report "Copy Sales Document";
     begin
         CopySalesDoc.SetSalesHeader(SalesHeader);
+#if CLEAN17
+        CopySalesDoc.SetParameters(DocType, DocNo, IncludeHeader, RecalcLines);
+#else
         CopySalesDoc.InitializeRequest(DocType, DocNo, IncludeHeader, RecalcLines);
+#endif
         CopySalesDoc.UseRequestPage(false);
         CopySalesDoc.RunModal;
     end;
@@ -544,7 +548,7 @@ codeunit 137012 "SCM Costing Sales Returns I"
         // Update sales line for required fields, Random values used are important for test.
         SalesLine.SetRange("Document Type", SalesLine."Document Type");
         SalesLine.SetRange("Document No.", SalesLine."Document No.");
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         repeat
             SalesLine.Validate("Qty. to Ship", 0);
             SalesLine.Validate("Unit Price", LibraryRandom.RandDec(50, 2));
@@ -631,7 +635,7 @@ codeunit 137012 "SCM Costing Sales Returns I"
     begin
         SalesLine.SetRange("Document Type", SalesLine."Document Type");
         SalesLine.SetRange("Document No.", SalesLine."Document No.");
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         repeat
             TempSalesLine := SalesLine;
             TempSalesLine.Insert();
@@ -672,13 +676,13 @@ codeunit 137012 "SCM Costing Sales Returns I"
         ExpectedSalesCrMemoAmount: Decimal;
     begin
         CustLedgerEntry.SetRange("Customer No.", TempSalesLine."Sell-to Customer No.");
-        CustLedgerEntry.FindSet;
+        CustLedgerEntry.FindSet();
         repeat
             CustLedgerEntry.CalcFields(Amount);
             ActualCustLedgerAmount += CustLedgerEntry.Amount;
         until CustLedgerEntry.Next = 0;
 
-        TempSalesLine.FindSet;
+        TempSalesLine.FindSet();
         repeat
             ExpectedSalesInvoiceAmount +=
               TempSalesLine.Quantity * TempSalesLine."Unit Price" + TempSalesLine."VAT %" *
@@ -686,7 +690,7 @@ codeunit 137012 "SCM Costing Sales Returns I"
         until TempSalesLine.Next = 0;
 
         TempSalesLine2.Reset();
-        TempSalesLine2.FindSet;
+        TempSalesLine2.FindSet();
         repeat
             ExpectedSalesCrMemoAmount +=
               TempSalesLine2.Quantity * TempSalesLine2."Unit Price" + TempSalesLine2."VAT %" *

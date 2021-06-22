@@ -471,7 +471,7 @@ codeunit 136120 "Service Warranty and Discounts"
         ServiceInvoiceHeader.SetRange("Order No.", OrderNo);
         ServiceInvoiceHeader.FindFirst;
         ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
-        ServiceInvoiceLine.FindSet;
+        ServiceInvoiceLine.FindSet();
         repeat
             TotalAmount += ServiceInvoiceLine."Amount Including VAT";
         until ServiceInvoiceLine.Next = 0;
@@ -601,7 +601,7 @@ codeunit 136120 "Service Warranty and Discounts"
     begin
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type"::Order);
         ServiceLine.SetRange("Document No.", OrderNo);
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
     end;
 
     local procedure UpdateAndPostServiceLine(var TempServiceLine: Record "Service Line" temporary; LineDiscountType: Option; OrderNo: Code[20])
@@ -695,7 +695,7 @@ codeunit 136120 "Service Warranty and Discounts"
         ServiceInvoiceHeader.FindFirst;
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
         GLEntry.SetRange("Document No.", ServiceInvoiceHeader."No.");
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             GLEntry.TestField("Source Type", GLEntry."Source Type"::Customer);
             GLEntry.TestField("Source No.", ServiceInvoiceHeader."Bill-to Customer No.");
@@ -711,7 +711,7 @@ codeunit 136120 "Service Warranty and Discounts"
         ServiceInvoiceHeader.SetRange("Order No.", OrderNo);
         ServiceInvoiceHeader.FindFirst;
         ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
-        ServiceInvoiceLine.FindSet;
+        ServiceInvoiceLine.FindSet();
         repeat
             ServiceInvoiceLine.TestField("Line Discount %", LineDiscountPercentage);
         until ServiceInvoiceLine.Next = 0;
@@ -743,7 +743,7 @@ codeunit 136120 "Service Warranty and Discounts"
     begin
         // Verify that the values of the fields Type and No. of Service Invoice Line are equal to the value of the
         // field Type and No. of the relevant Service Line.
-        TempServiceLine.FindSet;
+        TempServiceLine.FindSet();
         ServiceInvoiceHeader.SetRange("Order No.", TempServiceLine."Document No.");
         ServiceInvoiceHeader.FindFirst;
         repeat
@@ -764,7 +764,7 @@ codeunit 136120 "Service Warranty and Discounts"
     begin
         ServiceLedgerEntry.SetRange("Document Type", ServiceLedgerEntry."Document Type"::Invoice);
         ServiceLedgerEntry.SetRange("Document No.", DocumentNo);
-        ServiceLedgerEntry.FindSet;
+        ServiceLedgerEntry.FindSet();
         repeat
             ServiceLedgerEntry.TestField("Customer No.", CustomerNo);
         until ServiceLedgerEntry.Next = 0;
@@ -800,7 +800,7 @@ codeunit 136120 "Service Warranty and Discounts"
     begin
         // Verify that the values of the fields Type and No. of Service Shipment Line are equal to the value of the
         // field Type and No. of the relevant Service Line.
-        TempServiceLine.FindSet;
+        TempServiceLine.FindSet();
         ServiceShipmentLine.SetRange("Order No.", TempServiceLine."Document No.");
         repeat
             ServiceShipmentLine.SetRange("Order Line No.", TempServiceLine."Line No.");

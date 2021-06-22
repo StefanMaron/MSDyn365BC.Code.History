@@ -90,16 +90,16 @@ page 9192 "Company Creation Wizard"
                         {
                             ShowCaption = false;
                             Visible = NOT IsSandbox;
-                            field(CompanyData; NewCompanyData)
+                            field(CompanyData; NewCompanyDataProduction)
                             {
                                 ApplicationArea = Basic, Suite;
-                                OptionCaption = 'Evaluation - Sample Data,Production - Setup Data Only,Create New - No Data';
                                 ShowCaption = false;
                                 Visible = NOT IsSandbox;
 
                                 trigger OnValidate()
                                 begin
-                                    UpdateDataDescription;
+                                    NewCompanyData := NewCompanyDataProduction;
+                                    UpdateDataDescription();
                                 end;
                             }
                         }
@@ -107,16 +107,16 @@ page 9192 "Company Creation Wizard"
                         {
                             ShowCaption = false;
                             Visible = IsSandbox;
-                            field(CompanyFullData; NewCompanyData)
+                            field(CompanyFullData; NewCompanyDataSandbox)
                             {
                                 ApplicationArea = Basic, Suite;
-                                OptionCaption = 'Evaluation - Sample Data,Production - Setup Data Only,,Advanced Evaluation - Complete Sample Data,Create New - No Data';
                                 ShowCaption = false;
                                 Visible = IsSandbox;
 
                                 trigger OnValidate()
                                 begin
-                                    UpdateDataDescription;
+                                    NewCompanyData := NewCompanyDataSandbox;
+                                    UpdateDataDescription();
                                 end;
                             }
                         }
@@ -157,7 +157,7 @@ page 9192 "Company Creation Wizard"
                             begin
                                 UserSelection.Open(Rec);
                                 ContainUsers := not IsEmpty;
-                                CurrPage.Update;
+                                CurrPage.Update();
                             end;
                         }
                         group(Users)
@@ -285,8 +285,11 @@ page 9192 "Company Creation Wizard"
     begin
         Step := Step::Start;
         NewCompanyData := NewCompanyData::"Standard Data";
+        NewCompanyDataProduction := NewCompanyDataProduction::"Production - Setup Data Only";
+        NewCompanyDataSandbox := NewCompanyDataSandbox::"Production - Setup Data Only";
         UpdateDataDescription();
         EnableControls();
+        CurrPage.Update(false);
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -315,7 +318,9 @@ page 9192 "Company Creation Wizard"
         SetupNotCompletedQst: Label 'The company has not yet been created.\\Are you sure that you want to exit?';
         ConfigurationPackageExists: Boolean;
         NewCompanyName: Text[30];
-        NewCompanyData: Option "Evaluation Data","Standard Data","None","Extended Data","Full No Data";
+        NewCompanyData: Enum "Company Data Type (Internal)";
+        NewCompanyDataProduction: Enum "Company Data Type (Production)";
+        NewCompanyDataSandbox: Enum "Company Data Type (Sandbox)";
         CompanyAlreadyExistsErr: Label 'A company with that name already exists. Try a different name.';
         NewCompanyDataDescription: Text;
         CompanyCreated: Boolean;
@@ -359,17 +364,17 @@ page 9192 "Company Creation Wizard"
         PermissionManager: Codeunit "Permission Manager";
     begin
         AssistedCompanySetup.CreateNewCompany(NewCompanyName);
-        OnAfterCreateNewCompany(NewCompanyData, NewCompanyName);
+        OnAfterCreateNewCompany(NewCompanyData.AsInteger(), NewCompanyName);
 
-        AssistedCompanySetup.SetUpNewCompany(NewCompanyName, NewCompanyData);
+        AssistedCompanySetup.SetUpNewCompany(NewCompanyName, NewCompanyData.AsInteger());
 
         if FindSet() then
             repeat
                 PermissionManager.AddUserToDefaultUserGroupsForCompany("User Security ID", NewCompanyName);
-            until Next = 0;
+            until Next() = 0;
 
         CompanyCreated := true;
-        OnFinishActionOnBeforeCurrPageClose(NewCompanyData, NewCompanyName);
+        OnFinishActionOnBeforeCurrPageClose(NewCompanyData.AsInteger(), NewCompanyName);
         CurrPage.Close();
         if not (NewCompanyData in [NewCompanyData::None, NewCompanyData::"Full No Data"]) then
             Message(CompanySetUpInProgressMsg, NewCompanyName);
@@ -451,7 +456,8 @@ page 9192 "Company Creation Wizard"
         ConfigurationPackageExists := false;
         if NewCompanyData in [NewCompanyData::None, NewCompanyData::"Full No Data"] then
             exit;
-        ConfigurationPackageExists := AssistedCompanySetup.FindConfigurationPackageFile(ConfigurationPackageFile, NewCompanyData);
+        ConfigurationPackageExists :=
+            AssistedCompanySetup.FindConfigurationPackageFile(ConfigurationPackageFile, NewCompanyData.AsInteger());
 
         if not ConfigurationPackageExists then
             Message(NoConfigurationPackageFileDefinedMsg)
@@ -477,7 +483,7 @@ page 9192 "Company Creation Wizard"
             NewCompanyData::None, NewCompanyData::"Full No Data":
                 NewCompanyDataDescription := NoDataTxt;
             else
-                OnUpdateDataDescriptionCaseElse(NewCompanyData, NewCompanyDataDescription);
+                OnUpdateDataDescriptionCaseElse(NewCompanyData.AsInteger(), NewCompanyDataDescription);
         end;
 
         if IsSandbox then

@@ -102,7 +102,7 @@ codeunit 2820 "Native - Attachments"
         exit(3600000);
     end;
 
-    [EventSubscriber(ObjectType::Table, 138, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Unlinked Attachment", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnAfterInsertUnlinkedAttachment(var Rec: Record "Unlinked Attachment"; RunTrigger: Boolean)
     begin
         if Rec.IsTemporary then

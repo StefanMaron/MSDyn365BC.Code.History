@@ -668,7 +668,7 @@ codeunit 134827 "UT Item Table"
     var
         Item: Record Item;
     begin
-        Item.FindSet;
+        Item.FindSet();
         repeat
             ItemList."No.".AssertEquals(Item."No.");
             ItemList.Next;

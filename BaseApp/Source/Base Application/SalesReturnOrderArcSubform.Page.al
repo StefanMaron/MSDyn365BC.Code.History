@@ -23,6 +23,7 @@ page 6628 "Sales Return Order Arc Subform"
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
+#if not CLEAN17
                 field("Cross-Reference No."; "Cross-Reference No.")
                 {
                     ApplicationArea = SalesReturnOrder;
@@ -32,6 +33,7 @@ page 6628 "Sales Return Order Arc Subform"
                     ObsoleteState = Pending;
                     ObsoleteTag = '17.0';
                 }
+#endif
                 field("Item Reference No."; "Item Reference No.")
                 {
                     ApplicationArea = SalesReturnOrder;

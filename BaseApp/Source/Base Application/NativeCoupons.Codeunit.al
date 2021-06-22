@@ -26,7 +26,7 @@ codeunit 2815 "Native - Coupons"
         if O365CouponClaim.Usage = O365CouponClaim.Usage::oneTime then begin
             O365PostedCouponClaim.SetRange("Claim ID", O365CouponClaimDocLink."Claim ID");
             O365PostedCouponClaim.SetRange("Graph Contact ID", O365CouponClaimDocLink."Graph Contact ID");
-            if not O365PostedCouponClaim.IsEmpty then
+            if not O365PostedCouponClaim.IsEmpty() then
                 Error(CouponAlreadyAppliedErr);
         end;
     end;

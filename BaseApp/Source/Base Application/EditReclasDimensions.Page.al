@@ -78,7 +78,7 @@ page 484 "Edit Reclas. Dimensions"
                 "Dimension Value Code" := DimSetEntry."Dimension Value Code";
                 "Dimension Value ID" := DimSetEntry."Dimension Value ID";
                 Insert;
-            until DimSetEntry.Next = 0;
+            until DimSetEntry.Next() = 0;
         DimSetEntry.SetRange("Dimension Set ID", NewDimSetId);
         if DimSetEntry.FindSet then
             repeat
@@ -91,7 +91,7 @@ page 484 "Edit Reclas. Dimensions"
                 "New Dimension Value Code" := DimSetEntry."Dimension Value Code";
                 "New Dimension Value ID" := DimSetEntry."Dimension Value ID";
                 Modify;
-            until DimSetEntry.Next = 0;
+            until DimSetEntry.Next() = 0;
     end;
 
     procedure SetFormCaption(NewFormCaption: Text[250])

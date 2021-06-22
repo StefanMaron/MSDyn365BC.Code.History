@@ -51,7 +51,7 @@ codeunit 1331 "Trial Balance Cache Mgt."
                     CaptionsSaved := true;
                 end;
                 Index := Index + 1;
-            until TrialBalanceCache.Next = 0;
+            until TrialBalanceCache.Next() = 0;
         exit(true);
     end;
 
@@ -66,7 +66,7 @@ codeunit 1331 "Trial Balance Cache Mgt."
     begin
         TrialBalanceCache.LockTable();
 
-        CacheFound := TrialBalanceCache.FindSet;
+        CacheFound := TrialBalanceCache.FindSet();
 
         if not IsCacheStale then
             exit;
@@ -84,7 +84,7 @@ codeunit 1331 "Trial Balance Cache Mgt."
                 end;
                 TrialBalanceCache.Modify();
                 Index := Index + 1;
-            until TrialBalanceCache.Next = 0
+            until TrialBalanceCache.Next() = 0
         else
             for Index := 1 to ArrayLen(DescriptionsArr) do begin
                 TrialBalanceCache.Init();

@@ -209,7 +209,7 @@ page 571 "No. Series List"
     local procedure DrillDownActionOnPage()
     begin
         DrillDown;
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

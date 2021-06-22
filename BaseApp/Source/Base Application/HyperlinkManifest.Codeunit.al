@@ -176,7 +176,7 @@ codeunit 1643 "Hyperlink Manifest"
                         Prefixes := RegExEscape(NewPrefix)
                     else
                         Prefixes := StrSubstNo('%1|%2', Prefixes, RegExEscape(NewPrefix));
-            until NoSeriesLine.Next = 0;
+            until NoSeriesLine.Next() = 0;
 
         exit(Prefixes);
     end;
@@ -299,7 +299,7 @@ codeunit 1643 "Hyperlink Manifest"
         exit(StrSubstNo('[\w%1]*[0-9]+', RegExEscape('_/#*+\|-')));
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1652, 'CreateDefaultAddins', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Add-in Manifest Management", 'CreateDefaultAddins', '', false, false)]
     local procedure OnCreateAddin(var OfficeAddin: Record "Office Add-in")
     begin
         if OfficeAddin.Get(AppIdTxt) then
@@ -310,7 +310,7 @@ codeunit 1643 "Hyperlink Manifest"
               AppIdTxt, CODEUNIT::"Hyperlink Manifest");
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1652, 'OnGenerateManifest', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Add-in Manifest Management", 'OnGenerateManifest', '', false, false)]
     local procedure OnGenerateManifest(var OfficeAddin: Record "Office Add-in"; var ManifestText: Text; CodeunitID: Integer)
     var
         AddinURL: Text;
@@ -328,28 +328,28 @@ codeunit 1643 "Hyperlink Manifest"
         SetHyperlinkAddinTriggers(ManifestText);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1652, 'GetAddin', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Add-in Manifest Management", 'GetAddin', '', false, false)]
     local procedure OnGetAddin(var OfficeAddin: Record "Office Add-in"; CodeunitID: Integer)
     begin
         if CanHandle(CodeunitID) then
             OfficeAddin.Get(AppIdTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1652, 'GetAddinID', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Add-in Manifest Management", 'GetAddinID', '', false, false)]
     local procedure OnGetAddinID(var ID: Text; CodeunitID: Integer)
     begin
         if CanHandle(CodeunitID) then
             ID := AppIdTxt;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1652, 'GetAddinVersion', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Add-in Manifest Management", 'GetAddinVersion', '', false, false)]
     local procedure OnGetAddinVersion(var Version: Text; CodeunitID: Integer)
     begin
         if CanHandle(CodeunitID) then
             Version := GetManifestVersion();
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1652, 'GetManifestCodeunit', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Add-in Manifest Management", 'GetManifestCodeunit', '', false, false)]
     local procedure OnGetCodeunitID(var CodeunitID: Integer; HostType: Text)
     var
         OfficeHostType: DotNet OfficeHostType;

@@ -500,7 +500,7 @@ codeunit 134812 "ERM CA GL Transfer"
 
         // Find transferred G/L Entries
         GLEntry.SetFilter("Entry No.", '>=%1', GLRegister."From Entry No.");
-        GLEntry.FindSet;
+        GLEntry.FindSet();
 
         // Find corresponfing Cost Register entry
         CostRegister.SetFilter(Source, Format(CostRegister.Source::"Transfer from G/L"));
@@ -508,7 +508,7 @@ codeunit 134812 "ERM CA GL Transfer"
 
         // Find corresponding Cost Entries
         CostEntry.SetRange("Entry No.", CostRegister."From Cost Entry No.", CostRegister."To Cost Entry No.");
-        CostEntry.FindSet;
+        CostEntry.FindSet();
 
         // Validate Cost Entries fields
         repeat

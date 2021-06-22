@@ -14,6 +14,9 @@ page 143 "Posted Sales Invoices"
                       ORDER(Descending);
     UsageCategory = History;
 
+    AboutTitle = 'About posted sales invoices';
+    AboutText = 'When sales invoices are posted, they appear here where you can follow the remaining amounts to be paid by your customers.';
+
     layout
     {
         area(content)
@@ -24,6 +27,8 @@ page 143 "Posted Sales Invoices"
                 field("No."; "No.")
                 {
                     ApplicationArea = Basic, Suite;
+                    AboutTitle = 'The final invoice number (No.)';
+                    AboutText = 'This is the invoice number uniquely identifying each posted sale. Your customers see this number on the invoices they receive from you.';
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
                 field("Order No."; "Order No.")
@@ -77,6 +82,8 @@ page 143 "Posted Sales Invoices"
                 field("Remaining Amount"; "Remaining Amount")
                 {
                     ApplicationArea = Basic, Suite;
+                    AboutTitle = 'What remains to be paid';
+                    AboutText = 'This column shows you what is not yet paid on each invoice. When full payment is registered, an invoice is marked as Closed.';
                     ToolTip = 'Specifies the amount that remains to be paid for the posted sales invoice.';
                 }
                 field("Sell-to Post Code"; "Sell-to Post Code")
@@ -332,6 +339,8 @@ page 143 "Posted Sales Invoices"
                     RunObject = Page "Sales Invoice Statistics";
                     RunPageLink = "No." = FIELD("No.");
                     ShortCutKey = 'F7';
+                    AboutTitle = 'Your profit from a sale';
+                    AboutText = 'Go here to see statistics about the selected invoice, your profit, and associated taxes.';
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
                 }
                 action("Co&mments")
@@ -641,6 +650,25 @@ page 143 "Posted Sales Invoices"
                     ToolTip = 'View or edit detailed information about the customer.';
                 }
             }
+        }
+    }
+
+    views
+    {
+        view(OnlyUnpaid)
+        {
+            Caption = 'Unpaid';
+            Filters = where(Cancelled = CONST(false), Closed = CONST(false));
+        }
+        view(OnlyPaid)
+        {
+            Caption = 'Paid';
+            Filters = where(Cancelled = CONST(false), Closed = CONST(true));
+        }
+        view(OnlyCancelled)
+        {
+            Caption = 'Canceled';
+            Filters = where(Cancelled = CONST(true));
         }
     }
 

@@ -29,11 +29,9 @@ table 1302 "Dimensions Template"
             Caption = 'Dimension Value Code';
             TableRelation = "Dimension Value".Code WHERE("Dimension Code" = FIELD("Dimension Code"));
         }
-        field(5; "Value Posting"; Option)
+        field(5; "Value Posting"; Enum "Default Dimension Value Posting Type")
         {
             Caption = 'Value Posting';
-            OptionCaption = ' ,Code Mandatory,Same Code,No Code';
-            OptionMembers = " ","Code Mandatory","Same Code","No Code";
 
             trigger OnValidate()
             begin
@@ -146,7 +144,7 @@ table 1302 "Dimensions Template"
             repeat
                 ConfigTemplateHeader.Get(ConfigTemplateLine."Template Code");
                 InitializeTempRecordFromConfigTemplate(TempDimensionsTemplate, ConfigTemplateHeader, MasterRecordTemplateCode, TableID);
-            until ConfigTemplateLine.Next = 0;
+            until ConfigTemplateLine.Next() = 0;
     end;
 
     procedure InitializeTempRecordFromConfigTemplate(var TempDimensionsTemplate: Record "Dimensions Template" temporary; ConfigTemplateHeader: Record "Config. Template Header"; MasterRecordTemplateCode: Code[10]; TableID: Integer)
@@ -191,7 +189,7 @@ table 1302 "Dimensions Template"
                 ConfigTemplateHeader.Get(ConfigTemplateLine."Template Code");
                 if ConfigTemplateHeader."Table ID" = DATABASE::"Default Dimension" then
                     InsertDimensionFromTemplate(ConfigTemplateHeader, MasterRecordNo, TableID);
-            until ConfigTemplateLine.Next = 0;
+            until ConfigTemplateLine.Next() = 0;
     end;
 
     local procedure InsertDimensionFromTemplate(ConfigTemplateHeader: Record "Config. Template Header"; MasterRecordNo: Code[20]; TableID: Integer)
@@ -238,7 +236,7 @@ table 1302 "Dimensions Template"
         if DefaultDimension.FindSet then
             repeat
                 CreateTemplateFromExistingDefaultDimension(DefaultDimension, MasterRecordTemplateCode);
-            until DefaultDimension.Next = 0;
+            until DefaultDimension.Next() = 0;
     end;
 
     local procedure CreateTemplateFromExistingDefaultDimension(DefaultDimension: Record "Default Dimension"; MasterRecordTemplateCode: Code[10])

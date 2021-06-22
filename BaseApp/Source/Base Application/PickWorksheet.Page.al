@@ -515,19 +515,21 @@ page 7345 "Pick Worksheet"
         WMSMgt: Codeunit "WMS Management";
         CrossDockMgt: Codeunit "Whse. Cross-Dock Management";
         UOMMgt: Codeunit "Unit of Measure Management";
-        CurrentWkshTemplateName: Code[10];
-        CurrentWkshName: Code[10];
-        CurrentLocationCode: Code[10];
-        CurrentSortingMethod: Enum "Whse. Activity Sorting Method";
-        ItemDescription: Text[100];
         QtyCrossDockedUOM: Decimal;
         QtyCrossDockedAllUOMBase: Decimal;
         QtyCrossDockedUOMBase: Decimal;
         OpenedFromBatch: Boolean;
 
+    protected var
+        CurrentWkshTemplateName: Code[10];
+        CurrentWkshName: Code[10];
+        CurrentLocationCode: Code[10];
+        CurrentSortingMethod: Enum "Whse. Activity Sorting Method";
+        ItemDescription: Text[100];
+
     protected procedure QtytoHandleOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     protected procedure CurrentWkshNameOnAfterValidate()

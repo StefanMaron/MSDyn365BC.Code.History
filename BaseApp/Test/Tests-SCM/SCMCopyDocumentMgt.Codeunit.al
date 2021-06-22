@@ -610,7 +610,7 @@ codeunit 137212 "SCM Copy Document Mgt."
 
         // [WHEN] Run "Get Posted Document Lines to Reverse" and select the posted invoice.
         LibraryVariableStorage.Enqueue(PostedInvoiceNo);
-        ReturnSalesHeader.GetPstdDocLinesToRevere;
+        ReturnSalesHeader.GetPstdDocLinesToReverse();
 
         // [THEN] Document line for "Q" pcs of "I" is created in the sales return order.
         FindSalesLine(ReturnSalesHeader, ReturnSalesLine);
@@ -1864,7 +1864,7 @@ codeunit 137212 "SCM Copy Document Mgt."
     begin
         SalesShipmentLine.SetRange("Document No.", SalesShptNo);
         SalesShipmentLine.SetRange(Type, SalesShipmentLine.Type::Item);
-        SalesShipmentLine.FindSet;
+        SalesShipmentLine.FindSet();
         SalesShipmentLine.Next(LineOrderNo - 1);
 
         exit(SalesShipmentLine."Line No.");
@@ -1891,7 +1891,7 @@ codeunit 137212 "SCM Copy Document Mgt."
     begin
         PurchRcptLine.SetRange("Document No.", PurchRcptNo);
         PurchRcptLine.SetRange(Type, PurchRcptLine.Type::Item);
-        PurchRcptLine.FindSet;
+        PurchRcptLine.FindSet();
         PurchRcptLine.Next(LineOrderNo - 1);
 
         exit(PurchRcptLine."Line No.");
@@ -1941,7 +1941,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         with PurchaseLine do begin
             SetRange("Document Type", PurchaseHeader."Document Type");
             SetRange("Document No.", PurchaseHeader."No.");
-            FindSet;
+            FindSet();
             repeat
                 Validate("Qty. to Receive", QtyToReceive);
                 Modify(true);
@@ -1956,7 +1956,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         with PurchaseLine do begin
             SetRange("Document Type", PurchaseHeader."Document Type");
             SetRange("Document No.", PurchaseHeader."No.");
-            FindSet;
+            FindSet();
             repeat
                 Validate("Return Qty. to Ship", ReturnQtyToShip);
                 Modify(true);
@@ -1971,7 +1971,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         with SalesLine do begin
             SetRange("Document Type", SalesHeader."Document Type");
             SetRange("Document No.", SalesHeader."No.");
-            FindSet;
+            FindSet();
             repeat
                 Validate("Qty. to Ship", QtyToShip);
                 Modify(true);
@@ -1986,7 +1986,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         with SalesLine do begin
             SetRange("Document Type", SalesHeader."Document Type");
             SetRange("Document No.", SalesHeader."No.");
-            FindSet;
+            FindSet();
             repeat
                 Validate("Return Qty. to Receive", ReturnQtyToReceive);
                 Modify(true);
@@ -2003,7 +2003,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         SalesLine.SetRange("Document No.", DestNo);
         SalesLine.SetRange("Document Type", DestType);
         SalesLine.SetFilter(Type, '<>%1', SalesLine.Type::" ");
-        SalesLine.FindSet;
+        SalesLine.FindSet();
 
         case SourceType of
             "Sales Document Type From"::Order,
@@ -2036,7 +2036,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         FromItemChargeAssignmentPurch.SetRange("Document No.", FromDocNo);
         ToItemChargeAssignmentPurch.SetRange("Document Type", ToDocType);
         ToItemChargeAssignmentPurch.SetRange("Document No.", ToDocNo);
-        FromItemChargeAssignmentPurch.FindSet;
+        FromItemChargeAssignmentPurch.FindSet();
         repeat
             ToItemChargeAssignmentPurch.SetRange("Item Charge No.", FromItemChargeAssignmentPurch."Item Charge No.");
             ToItemChargeAssignmentPurch.FindFirst;
@@ -2053,7 +2053,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         FromItemChargeAssignmentSales.SetRange("Document No.", FromDocNo);
         ToItemChargeAssignmentSales.SetRange("Document Type", ToDocType);
         ToItemChargeAssignmentSales.SetRange("Document No.", ToDocNo);
-        FromItemChargeAssignmentSales.FindSet;
+        FromItemChargeAssignmentSales.FindSet();
         repeat
             ToItemChargeAssignmentSales.SetRange("Item Charge No.", FromItemChargeAssignmentSales."Item Charge No.");
             ToItemChargeAssignmentSales.FindFirst;
@@ -2067,7 +2067,7 @@ codeunit 137212 "SCM Copy Document Mgt."
     begin
         ItemChargeAssignmentSales.SetRange("Document No.", SalesHeader."No.");
         ItemChargeAssignmentSales.SetRange("Document Type", SalesHeader."Document Type");
-        ItemChargeAssignmentSales.FindSet;
+        ItemChargeAssignmentSales.FindSet();
 
         Assert.AreEqual(
           ItemChargeAssignmentSales."Applies-to Doc. Type",
@@ -2093,7 +2093,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         SalesLine2.SetRange("Document No.", SourceNo);
         SalesLine2.SetRange("Document Type", CopyDocumentMgt.GetSalesDocumentType(SourceType));
         SalesLine2.SetFilter(Type, '<>%1', SalesLine2.Type::" ");
-        SalesLine2.FindSet;
+        SalesLine2.FindSet();
         repeat
             SalesLine.TestField(Type, SalesLine2.Type);
             SalesLine.TestField("No.", SalesLine2."No.");
@@ -2115,7 +2115,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         SalesHeader.TestField("Sell-to Customer No.", SalesCrMemoHeader."Sell-to Customer No.");
         SalesCrMemoLine.SetRange("Document No.", SourceNo);
         SalesCrMemoLine.SetFilter(Type, '<>%1', SalesCrMemoLine.Type::" ");
-        SalesCrMemoLine.FindSet;
+        SalesCrMemoLine.FindSet();
         repeat
             SalesLine.TestField(Type, SalesCrMemoLine.Type);
             SalesLine.TestField("No.", SalesCrMemoLine."No.");
@@ -2137,7 +2137,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         SalesHeader.TestField("Sell-to Customer No.", SalesShipmentHeader."Sell-to Customer No.");
         SalesShipmentLine.SetRange("Document No.", SourceNo);
         SalesShipmentLine.SetFilter(Type, '<>%1', SalesShipmentLine.Type::" ");
-        SalesShipmentLine.FindSet;
+        SalesShipmentLine.FindSet();
         repeat
             SalesLine.TestField(Type, SalesShipmentLine.Type);
             SalesLine.TestField("No.", SalesShipmentLine."No.");
@@ -2159,7 +2159,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         SalesHeader.TestField("Sell-to Customer No.", SalesInvoiceHeader."Sell-to Customer No.");
         SalesInvoiceLine.SetRange("Document No.", SourceNo);
         SalesInvoiceLine.SetFilter(Type, '<>%1', SalesInvoiceLine.Type::" ");
-        SalesInvoiceLine.FindSet;
+        SalesInvoiceLine.FindSet();
         repeat
             SalesLine.TestField(Type, SalesInvoiceLine.Type);
             SalesLine.TestField("No.", SalesInvoiceLine."No.");
@@ -2181,7 +2181,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         SalesHeader.TestField("Sell-to Customer No.", ReturnReceiptHeader."Sell-to Customer No.");
         ReturnReceiptLine.SetRange("Document No.", SourceNo);
         ReturnReceiptLine.SetFilter(Type, '<>%1', ReturnReceiptLine.Type::" ");
-        ReturnReceiptLine.FindSet;
+        ReturnReceiptLine.FindSet();
         repeat
             SalesLine.TestField(Type, ReturnReceiptLine.Type);
             SalesLine.TestField("No.", ReturnReceiptLine."No.");
@@ -2236,7 +2236,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", DocumentNo);
         SalesLine.SetRange(Type, LineType);
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         Assert.AreEqual(ItemNo1, SalesLine."No.", '');
         SalesLine.Next;
         Assert.AreEqual(ItemNo2, SalesLine."No.", '');
@@ -2250,7 +2250,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         PurchaseLine.SetRange("Document Type", DocumentType);
         PurchaseLine.SetRange("Document No.", DocumentNo);
         PurchaseLine.SetRange(Type, LineType);
-        PurchaseLine.FindSet;
+        PurchaseLine.FindSet();
         Assert.AreEqual(ItemNo1, PurchaseLine."No.", '');
         PurchaseLine.Next;
         Assert.AreEqual(ItemNo2, PurchaseLine."No.", '');

@@ -42,7 +42,7 @@ codeunit 46 SelectionFilterManagement
                 LastRecRef := FirstRecRef;
                 More := TempRecRefCount > 0;
                 while More do
-                    if RecRef.Next = 0 then
+                    if RecRef.Next() = 0 then
                         More := false
                     else begin
                         SavePos := TempRecRef.GetPosition;
@@ -127,7 +127,7 @@ codeunit 46 SelectionFilterManagement
     procedure AddQuotes(inString: Text): Text
     begin
         inString := ReplaceString(inString, '''', '''''');
-        if DelChr(inString, '=', ' &|()*@<>=.') = inString then
+        if DelChr(inString, '=', ' &|()*@<>=.!?') = inString then
             exit(inString);
         exit('''' + inString + '''');
     end;
@@ -309,12 +309,28 @@ codeunit 46 SelectionFilterManagement
         exit(GetSelectionFilter(RecRef, Campaign.FieldNo("No.")));
     end;
 
+    procedure GetSelectionFilterForEmployee(var Employee: Record Employee): Text
+    var
+        RecRef: RecordRef;
+    begin
+        RecRef.GetTable(Employee);
+        exit(GetSelectionFilter(RecRef, Employee.FieldNo("No.")));
+    end;
+
     procedure GetSelectionFilterForLotNoInformation(var LotNoInformation: Record "Lot No. Information"): Text
     var
         RecRef: RecordRef;
     begin
         RecRef.GetTable(LotNoInformation);
         exit(GetSelectionFilter(RecRef, LotNoInformation.FieldNo("Lot No.")));
+    end;
+
+    procedure GetSelectionFilterForPackageNoInformation(var PackageNoInformation: Record "Package No. Information"): Text
+    var
+        RecRef: RecordRef;
+    begin
+        RecRef.GetTable(PackageNoInformation);
+        exit(GetSelectionFilter(RecRef, PackageNoInformation.FieldNo("Package No.")));
     end;
 
     procedure GetSelectionFilterForSerialNoInformation(var SerialNoInformation: Record "Serial No. Information"): Text

@@ -154,7 +154,7 @@ table 7318 "Posted Whse. Receipt Header"
                                 OrderStatus := OrderStatus::"Partially Put Away";
                     end;
                     First := false;
-                until Next = 0;
+                until Next() = 0;
         end;
         exit(OrderStatus);
     end;
@@ -259,7 +259,7 @@ table 7318 "Posted Whse. Receipt Header"
 
         if UserId <> '' then begin
             WhseEmployee.SetRange("User ID", UserId);
-            if WhseEmployee.IsEmpty then
+            if WhseEmployee.IsEmpty() then
                 Error(Text000, UserId);
         end;
     end;

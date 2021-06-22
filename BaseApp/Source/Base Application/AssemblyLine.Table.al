@@ -1,4 +1,4 @@
-﻿table 901 "Assembly Line"
+table 901 "Assembly Line"
 {
     Caption = 'Assembly Line';
     DrillDownPageID = "Assembly Lines";
@@ -1251,11 +1251,13 @@
         OnAfterFilterLinesWithItemToPlan(Rec, Item, DocumentType.AsInteger());
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by SetItemToPlanFilters().', '17.0')]
     procedure FilterLinesWithItemToPlan(var Item: Record Item; DocumentType: Option)
     begin
         SetItemToPlanFilters(Item, "Assembly Document Type".FromInteger(DocumentType));
     end;
+#endif
 
     procedure FindItemToPlanLines(var Item: Record Item; DocumentType: Enum "Assembly Document Type"): Boolean
     begin
@@ -1263,11 +1265,13 @@
         exit(Find('-'));
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by FindItemToPlanLines().', '17.0')]
     procedure FindLinesWithItemToPlan(var Item: Record Item; DocumentType: Option): Boolean
     begin
         exit(FindItemToPlanLines(Item, "Assembly Document Type".FromInteger(DocumentType)));
     end;
+#endif
 
     procedure ItemToPlanLinesExist(var Item: Record Item; DocumentType: Enum "Assembly Document Type"): Boolean
     begin
@@ -1275,11 +1279,13 @@
         exit(not IsEmpty);
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by ItemToPlanLinesExist().', '17.0')]
     procedure LinesWithItemToPlanExist(var Item: Record Item; DocumentType: Option): Boolean
     begin
         exit(ItemToPlanLinesExist(Item, "Assembly Document Type".FromInteger(DocumentType)));
     end;
+#endif
 
     procedure FilterLinesForReservation(ReservationEntry: Record "Reservation Entry"; DocumentType: Option; AvailabilityFilter: Text; Positive: Boolean)
     begin

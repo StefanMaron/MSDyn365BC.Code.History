@@ -976,9 +976,8 @@ codeunit 134274 "Transformation Rules Tests"
         TransformationRule."Transformation Type" := TransformationType;
     end;
 
-    [EventSubscriber(ObjectType::Table, 1237, 'OnBeforeIsDataFormatUpdateAllowed', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnBeforeIsDataFormatUpdateAllowed(FieldNumber: Integer; var DataFormatUpdateAllowed: boolean; var isHandled: boolean)
+    [EventSubscriber(ObjectType::Table, Database::"Transformation Rule", 'OnBeforeIsDataFormatUpdateAllowed', '', false, false)]
+    local procedure OnBeforeIsDataFormatUpdateAllowed(FieldNumber: Integer; var DataFormatUpdateAllowed: boolean; var isHandled: boolean)
     begin
         DataFormatUpdateAllowed := true;
         isHandled := true;

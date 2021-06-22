@@ -52,6 +52,10 @@ table 5499 "Aged Report Entity"
         {
             Caption = 'Period Length';
         }
+        field(13; "Display Order"; Integer)
+        {
+            Caption = 'Display Order';
+        }
     }
 
     keys

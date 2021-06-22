@@ -1,4 +1,4 @@
-﻿page 122 "G/L Entries Preview"
+page 122 "G/L Entries Preview"
 {
     Caption = 'G/L Entries Preview';
     DataCaptionExpression = GetCaption;

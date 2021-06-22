@@ -1,4 +1,4 @@
-﻿page 98 "Purch. Cr. Memo Subform"
+page 98 "Purch. Cr. Memo Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';
@@ -42,9 +42,9 @@
 
                     trigger OnValidate()
                     begin
-                        TempOptionLookupBuffer.SetCurrentType(Type.AsInteger());
-                        if TempOptionLookupBuffer.AutoCompleteOption(TypeAsText, TempOptionLookupBuffer."Lookup Type"::Sales) then
-                            Validate(Type, TempOptionLookupBuffer.ID);
+                        TempOptionLookupBuffer.SetCurrentType(Rec.Type.AsInteger());
+                        if TempOptionLookupBuffer.AutoCompleteLookup(TypeAsText, "Option Lookup Type"::Sales) then
+                            Rec.Validate(Type, TempOptionLookupBuffer.ID);
                         TempOptionLookupBuffer.ValidateOption(TypeAsText);
                         UpdateEditableOnRow();
                         UpdateTypeText();
@@ -67,6 +67,7 @@
                         DeltaUpdateTotals();
                     end;
                 }
+#if not CLEAN16                
                 field("Cross-Reference No."; "Cross-Reference No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -86,6 +87,7 @@
                         DeltaUpdateTotals();
                     end;
                 }
+#endif
                 field("Item Reference No."; "Item Reference No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -905,6 +907,17 @@
                             ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByLocation)
                         end;
                     }
+                    action(Lot)
+                    {
+                        ApplicationArea = ItemTracking;
+                        Caption = 'Lot';
+                        Image = LotInfo;
+                        RunObject = Page "Item Availability by Lot No.";
+                        RunPageLink = "No." = field("No."),
+                            "Location Filter" = field("Location Code"),
+                            "Variant Filter" = field("Variant Code");
+                        ToolTip = 'View the current and projected quantity of the item in each lot.';
+                    }
                     action("BOM Level")
                     {
                         AccessByPermission = TableData "BOM Buffer" = R;
@@ -1000,13 +1013,13 @@
 
     trigger OnDeleteRecord(): Boolean
     var
-        ReservePurchLine: Codeunit "Purch. Line-Reserve";
+        PurchLineReserve: Codeunit "Purch. Line-Reserve";
     begin
         if (Quantity <> 0) and ItemExists("No.") then begin
             Commit();
-            if not ReservePurchLine.DeleteLineConfirm(Rec) then
+            if not PurchLineReserve.DeleteLineConfirm(Rec) then
                 exit(false);
-            ReservePurchLine.DeleteLine(Rec);
+            PurchLineReserve.DeleteLine(Rec);
         end;
         DocumentTotals.PurchaseDocTotalsNotUpToDate();
     end;
@@ -1020,8 +1033,8 @@
     trigger OnInit()
     begin
         PurchasesPayablesSetup.Get();
-        TempOptionLookupBuffer.FillBuffer(TempOptionLookupBuffer."Lookup Type"::Purchases);
-        IsFoundation := ApplicationAreaMgmtFacade.IsFoundationEnabled;
+        TempOptionLookupBuffer.FillLookupBuffer("Option Lookup Type"::Purchases);
+        IsFoundation := ApplicationAreaMgmtFacade.IsFoundationEnabled();
         Currency.InitRoundingPrecision();
     end;
 
@@ -1046,8 +1059,6 @@
     end;
 
     var
-        TotalPurchaseHeader: Record "Purchase Header";
-        TotalPurchaseLine: Record "Purchase Line";
         Currency: Record Currency;
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         TempOptionLookupBuffer: Record "Option Lookup Buffer" temporary;
@@ -1057,9 +1068,6 @@
         DocumentTotals: Codeunit "Document Totals";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         Text000: Label 'Unable to run this function while in View mode.';
-        VATAmount: Decimal;
-        InvoiceDiscountAmount: Decimal;
-        InvoiceDiscountPct: Decimal;
         AmountWithDiscountAllowed: Decimal;
         InvDiscAmountEditable: Boolean;
         UpdateAllowedVar: Boolean;
@@ -1073,7 +1081,12 @@
         ItemReferenceVisible: Boolean;
 
     protected var
+        TotalPurchaseHeader: Record "Purchase Header";
+        TotalPurchaseLine: Record "Purchase Line";
         ShortcutDimCode: array[8] of Code[20];
+        InvoiceDiscountAmount: Decimal;
+        InvoiceDiscountPct: Decimal;
+        VATAmount: Decimal;
         DimVisible1: Boolean;
         DimVisible2: Boolean;
         DimVisible3: Boolean;
@@ -1184,7 +1197,7 @@
         DocumentTotals.GetTotalPurchaseHeaderAndCurrency(Rec, TotalPurchaseHeader, Currency);
     end;
 
-    local procedure CalculateTotals()
+    procedure CalculateTotals()
     begin
         DocumentTotals.PurchaseCheckIfDocumentChanged(Rec, xRec);
         DocumentTotals.CalculatePurchaseSubPageTotals(

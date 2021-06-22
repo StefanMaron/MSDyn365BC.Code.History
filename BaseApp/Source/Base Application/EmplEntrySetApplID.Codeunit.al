@@ -30,7 +30,7 @@ codeunit 112 "Empl. Entry-SetAppl.ID"
             repeat
                 TempEmplLedgEntry := EmplLedgEntry;
                 TempEmplLedgEntry.Insert();
-            until EmplLedgEntry.Next = 0;
+            until EmplLedgEntry.Next() = 0;
         end;
 
         if TempEmplLedgEntry.FindSet then
@@ -53,7 +53,7 @@ codeunit 112 "Empl. Entry-SetAppl.ID"
                 if EmplLedgEntryToUpdate."Entry No." = ApplyingEmplLedgEntry."Entry No." then
                     EmplLedgEntryToUpdate."Applying Entry" := ApplyingEmplLedgEntry."Applying Entry";
                 EmplLedgEntryToUpdate.Modify();
-            until TempEmplLedgEntry.Next = 0;
+            until TempEmplLedgEntry.Next() = 0;
     end;
 }
 

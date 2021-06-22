@@ -11,6 +11,8 @@ codeunit 135209 "Azure Key Vault Module Test"
     var
         Assert: Codeunit Assert;
         MLForecastTok: Label 'ml-forecast';
+        FakeSecret: Label 'a fake secret', Locked = true;
+        AnotherFakeSecret: Label 'another fake secret', Locked = true;
         MachineLearningTok: Label 'machinelearning';
         AmcNameTok: Label 'amcname';
         AmcPasswordTok: Label 'amcpassword';
@@ -36,14 +38,14 @@ codeunit 135209 "Azure Key Vault Module Test"
         // [GIVEN] A configured Azure Key Vault
         MockAzureKeyvaultSecretProvider := MockAzureKeyvaultSecretProvider.MockAzureKeyVaultSecretProvider;
         MockAzureKeyvaultSecretProvider.AddSecretMapping(AllowedApplicationSecretsSecretNameTxt, 'ml-forecast,');
-        MockAzureKeyvaultSecretProvider.AddSecretMappingFromFile('ml-forecast', LibraryUtility.GetInetRoot + GetFakeSecret);
+        MockAzureKeyvaultSecretProvider.AddSecretMapping('ml-forecast', FakeSecret);
         AzureKeyVaultTestLibrary.SetAzureKeyVaultSecretProvider(MockAzureKeyvaultSecretProvider);
 
         // [WHEN] The key vault is called
         AzureKeyVault.GetAzureKeyVaultSecret('ml-forecast', Secret);
 
         // [THEN] The value is retrieved
-        Assert.AreEqual('SecretFromKeyVault', Secret, 'The returned secret was incorrect');
+        Assert.AreEqual(FakeSecret, Secret, 'The returned secret was incorrect');
     end;
 
     [Test]
@@ -61,24 +63,24 @@ codeunit 135209 "Azure Key Vault Module Test"
         // [GIVEN] A configured Azure Key Vault
         MockAzureKeyvaultSecretProvider := MockAzureKeyvaultSecretProvider.MockAzureKeyVaultSecretProvider;
         MockAzureKeyvaultSecretProvider.AddSecretMapping(AllowedApplicationSecretsSecretNameTxt, ',ml-forecast');
-        MockAzureKeyvaultSecretProvider.AddSecretMappingFromFile('ml-forecast', LibraryUtility.GetInetRoot + GetAnotherFakeSecret);
+        MockAzureKeyvaultSecretProvider.AddSecretMapping('ml-forecast', AnotherFakeSecret);
         AzureKeyVaultTestLibrary.SetAzureKeyVaultSecretProvider(MockAzureKeyvaultSecretProvider);
 
         // [WHEN] The key vault is called
         AzureKeyVault.GetAzureKeyVaultSecret('ml-forecast', Secret);
 
         // [THEN] The value is retrieved
-        Assert.AreEqual('AnotherSecretFromTheKeyVault', Secret, 'The returned secret was incorrect');
+        Assert.AreEqual(AnotherFakeSecret, Secret, 'The returned secret was incorrect');
 
         // [WHEN] The Key Vault Secret Provider is changed
         MockAzureKeyvaultSecretProvider := MockAzureKeyvaultSecretProvider.MockAzureKeyVaultSecretProvider;
         MockAzureKeyvaultSecretProvider.AddSecretMapping(AllowedApplicationSecretsSecretNameTxt, 'ml-forecast');
-        MockAzureKeyvaultSecretProvider.AddSecretMappingFromFile('ml-forecast', LibraryUtility.GetInetRoot + GetFakeSecret);
+        MockAzureKeyvaultSecretProvider.AddSecretMapping('ml-forecast', FakeSecret);
         AzureKeyVaultTestLibrary.SetAzureKeyVaultSecretProvider(MockAzureKeyvaultSecretProvider);
         AzureKeyVault.GetAzureKeyVaultSecret('ml-forecast', Secret);
 
         // [THEN] The cache is cleared and the value is retrieved
-        Assert.AreEqual('SecretFromKeyVault', Secret, 'The returned secret was incorrect');
+        Assert.AreEqual(FakeSecret, Secret, 'The returned secret was incorrect');
     end;
 
     [Test]
@@ -93,6 +95,7 @@ codeunit 135209 "Azure Key Vault Module Test"
         MachineLearning: Text;
         AmcName: Text;
         Amcpassword: Text;
+        MachineLearningCredentials: Text;
         YodleeCobrandPassword: Text;
         YodleeCobranName: Text;
         YodleeServiceUri: Text;
@@ -104,25 +107,18 @@ codeunit 135209 "Azure Key Vault Module Test"
         // [SCENARIO] Azure Key vault is present and stores the following keys
 
         // [GIVEN] A key vault
+        MachineLearningCredentials := '{"ApiKeys":["test"],"Limit":"10","ApiUris":["https://services.azureml.net/workspaces/fc0584f5f74a4aa19a55096fc8ebb2b7"]}'; // non-existing API URI
+
         MockAzureKeyvaultSecretProvider := MockAzureKeyvaultSecretProvider.MockAzureKeyVaultSecretProvider;
-        MockAzureKeyvaultSecretProvider.AddSecretMappingFromFile(
-          StrSubstNo('ml-forecast-%1', TenantId), LibraryUtility.GetInetRoot + GetMachineLearningCredentialsSecret);
-        MockAzureKeyvaultSecretProvider.AddSecretMappingFromFile(
-          MLForecastTok, LibraryUtility.GetInetRoot + GetMachineLearningCredentialsSecret);
-        MockAzureKeyvaultSecretProvider.AddSecretMappingFromFile(
-          MachineLearningTok, LibraryUtility.GetInetRoot + GetMachineLearningCredentialsSecret);
-        MockAzureKeyvaultSecretProvider.AddSecretMappingFromFile(
-          StrSubstNo('machinelearning-%1', TenantId), LibraryUtility.GetInetRoot + GetMachineLearningCredentialsSecret);
-        MockAzureKeyvaultSecretProvider.AddSecretMappingFromFile(
-          AmcNameTok, LibraryUtility.GetInetRoot + GetMachineLearningCredentialsSecret);
-        MockAzureKeyvaultSecretProvider.AddSecretMappingFromFile(
-          AmcPasswordTok, LibraryUtility.GetInetRoot + GetMachineLearningCredentialsSecret);
-        MockAzureKeyvaultSecretProvider.AddSecretMappingFromFile(
-          YodleeCobrandNameTok, LibraryUtility.GetInetRoot + GetMachineLearningCredentialsSecret);
-        MockAzureKeyvaultSecretProvider.AddSecretMappingFromFile(
-          YodleeCobrandPasswordTok, LibraryUtility.GetInetRoot + GetMachineLearningCredentialsSecret);
-        MockAzureKeyvaultSecretProvider.AddSecretMappingFromFile(
-          YodleeServiceUriTok, LibraryUtility.GetInetRoot + GetMachineLearningCredentialsSecret);
+        MockAzureKeyvaultSecretProvider.AddSecretMapping(StrSubstNo('ml-forecast-%1', TenantId), MachineLearningCredentials);
+        MockAzureKeyvaultSecretProvider.AddSecretMapping(MLForecastTok, MachineLearningCredentials);
+        MockAzureKeyvaultSecretProvider.AddSecretMapping(MachineLearningTok, MachineLearningCredentials);
+        MockAzureKeyvaultSecretProvider.AddSecretMapping(StrSubstNo('machinelearning-%1', TenantId), MachineLearningCredentials);
+        MockAzureKeyvaultSecretProvider.AddSecretMapping(AmcNameTok, MachineLearningCredentials);
+        MockAzureKeyvaultSecretProvider.AddSecretMapping(AmcPasswordTok, MachineLearningCredentials);
+        MockAzureKeyvaultSecretProvider.AddSecretMapping(YodleeCobrandNameTok, MachineLearningCredentials);
+        MockAzureKeyvaultSecretProvider.AddSecretMapping(YodleeCobrandPasswordTok, MachineLearningCredentials);
+        MockAzureKeyvaultSecretProvider.AddSecretMapping(YodleeServiceUriTok, MachineLearningCredentials);
 
         AzureKeyVaultTestLibrary.SetAzureKeyVaultSecretProvider(MockAzureKeyvaultSecretProvider);
 
@@ -170,7 +166,7 @@ codeunit 135209 "Azure Key Vault Module Test"
         // [GIVEN] A configured Azure Key Vault
         MockAzureKeyvaultSecretProvider := MockAzureKeyvaultSecretProvider.MockAzureKeyVaultSecretProvider;
         MockAzureKeyvaultSecretProvider.AddSecretMapping(AllowedApplicationSecretsSecretNameTxt, 'somesecret');
-        MockAzureKeyvaultSecretProvider.AddSecretMappingFromFile('somesecret', LibraryUtility.GetInetRoot + GetAnotherFakeSecret);
+        MockAzureKeyvaultSecretProvider.AddSecretMapping('somesecret', FakeSecret);
         AzureKeyVaultTestLibrary.SetAzureKeyVaultSecretProvider(MockAzureKeyvaultSecretProvider);
 
         // [WHEN] The key vault is called with an unknown key
@@ -188,6 +184,7 @@ codeunit 135209 "Azure Key Vault Module Test"
         AzureKeyVaultTestLibrary: Codeunit "Azure Key Vault Test Library";
         ImageAnalysisManagement: Codeunit "Image Analysis Management";
         MockAzureKeyvaultSecretProvider: DotNet MockAzureKeyVaultSecretProvider;
+        ImageAnalysisParams: Text;
         ApiUri: Text[250];
         ApiKey: Text[200];
         LimitType: Option Year,Month,Day,Hour;
@@ -196,10 +193,10 @@ codeunit 135209 "Azure Key Vault Module Test"
         // [SCENARIO] Retrival of image analysis secrets from Azure Key Vault
 
         // [GIVEN] A key vault
+        ImageAnalysisParams := '[{"key":"key1","endpoint":"endpoint1","limittype":"Month","limitvalue":"200"}]';
         MockAzureKeyvaultSecretProvider := MockAzureKeyvaultSecretProvider.MockAzureKeyVaultSecretProvider;
         MockAzureKeyvaultSecretProvider.AddSecretMapping(AllowedApplicationSecretsSecretNameTxt, 'cognitive-vision-params');
-        MockAzureKeyvaultSecretProvider.AddSecretMappingFromFile(
-          'cognitive-vision-params', LibraryUtility.GetInetRoot + GetImageAnalysisSecret);
+        MockAzureKeyvaultSecretProvider.AddSecretMapping('cognitive-vision-params', ImageAnalysisParams);
         AzureKeyVaultTestLibrary.SetAzureKeyVaultSecretProvider(MockAzureKeyvaultSecretProvider);
 
         // [WHEN] The secrets are retrieved
@@ -221,14 +218,15 @@ codeunit 135209 "Azure Key Vault Module Test"
         AzureKeyVaultTestLibrary: Codeunit "Azure Key Vault Test Library";
         MailManagement: Codeunit "Mail Management";
         MockAzureKeyvaultSecretProvider: DotNet MockAzureKeyVaultSecretProvider;
+        SMTPSettings: Text;
     begin
         // [SCENARIO] Retrival of SMTP secrets from Azure Key Vault
 
         // [GIVEN] A key vault
+        SMTPSettings := '[{"Server":"smtp.test.com","ServerPort":"25","Authentication":"Basic","User":"TestUser","Password":"Pass123!","SecureConnection":"true"}]';
         MockAzureKeyvaultSecretProvider := MockAzureKeyvaultSecretProvider.MockAzureKeyVaultSecretProvider;
         MockAzureKeyvaultSecretProvider.AddSecretMapping(AllowedApplicationSecretsSecretNameTxt, 'SmtpSetup');
-        MockAzureKeyvaultSecretProvider.AddSecretMappingFromFile(
-          'SmtpSetup', LibraryUtility.GetInetRoot + GetSMTPSecret);
+        MockAzureKeyvaultSecretProvider.AddSecretMapping('SmtpSetup', SMTPSettings);
         AzureKeyVaultTestLibrary.SetAzureKeyVaultSecretProvider(MockAzureKeyvaultSecretProvider);
 
         // [WHEN] The secrets are retrieved
@@ -257,43 +255,14 @@ codeunit 135209 "Azure Key Vault Module Test"
         // [GIVEN] A configured Azure Key Vault
         MockAzureKeyvaultSecretProvider := MockAzureKeyvaultSecretProvider.MockAzureKeyVaultSecretProvider;
         MockAzureKeyvaultSecretProvider.AddSecretMapping(AllowedApplicationSecretsSecretNameTxt, 'isv-anykey');
-        MockAzureKeyvaultSecretProvider.AddSecretMappingFromFile('isv-anykey', LibraryUtility.GetInetRoot + GetFakeSecret);
+        MockAzureKeyvaultSecretProvider.AddSecretMapping('isv-anykey', FakeSecret);
         AzureKeyVaultTestLibrary.SetAzureKeyVaultSecretProvider(MockAzureKeyvaultSecretProvider);
 
         // [WHEN] The key vault is called with an ISV key
         AzureKeyVault.GetAzureKeyVaultSecret('isv-anykey', Secret);
 
         // [THEN] A secret is returned
-        Assert.AreEqual('SecretFromKeyVault', Secret, 'The returned secret was incorrect');
-    end;
-
-    [Normal]
-    local procedure GetFakeSecret(): Text
-    begin
-        exit('\App\Test\Files\AzureKeyVaultSecret\FakeSecret.txt');
-    end;
-
-    [Normal]
-    local procedure GetAnotherFakeSecret(): Text
-    begin
-        exit('\App\Test\Files\AzureKeyVaultSecret\AnotherFakeSecret.txt');
-    end;
-
-    local procedure GetMachineLearningCredentialsSecret(): Text
-    begin
-        exit('\App\Test\Files\AzureKeyVaultSecret\TimeSeriesForecastSecret.txt');
-    end;
-
-    [Normal]
-    local procedure GetImageAnalysisSecret(): Text
-    begin
-        exit('\App\Test\Files\AzureKeyVaultSecret\ImageAnalysisSecret.txt');
-    end;
-
-    [Normal]
-    local procedure GetSMTPSecret(): Text
-    begin
-        exit('\App\Test\Files\AzureKeyVaultSecret\SMTPSetupSecret.txt');
+        Assert.AreEqual(FakeSecret, Secret, 'The returned secret was incorrect');
     end;
 }
 

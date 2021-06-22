@@ -111,7 +111,7 @@ codeunit 5944 SignServContractDoc
                 FiledServContractHeader2."Contract Type Relation" := ToServContractHeader."Contract Type";
                 FiledServContractHeader2."Contract No. Relation" := ToServContractHeader."Contract No.";
                 FiledServContractHeader2.Modify();
-            until FiledServContractHeader.Next = 0;
+            until FiledServContractHeader.Next() = 0;
 
         FromServContractLine.Reset();
         FromServContractLine.SetRange("Contract Type", FromServContractHeader."Contract Type");
@@ -129,7 +129,7 @@ codeunit 5944 SignServContractDoc
                 Clear(ServLogMgt);
                 WPostLine := WPostLine + 1;
                 Window.Update(2, WPostLine);
-            until FromServContractLine.Next = 0;
+            until FromServContractLine.Next() = 0;
 
         CopyServComments(FromServContractHeader, ToServContractHeader);
 
@@ -165,7 +165,7 @@ codeunit 5944 SignServContractDoc
             repeat
                 ToServContractLine."New Line" := false;
                 ToServContractLine.Modify();
-            until ToServContractLine.Next = 0;
+            until ToServContractLine.Next() = 0;
 
         CopyServHours(ToServContractHeader);
         DeleteServContractHeader(FromServContractHeader);
@@ -234,7 +234,7 @@ codeunit 5944 SignServContractDoc
                 Clear(ServLogMgt);
                 WPostLine := WPostLine + 1;
                 Window.Update(2, WPostLine);
-            until ServContractLine.Next = 0;
+            until ServContractLine.Next() = 0;
 
         if InvoicingStartingPeriod and
            not ServContractHeader.Prepaid and
@@ -267,7 +267,7 @@ codeunit 5944 SignServContractDoc
             repeat
                 ServContractLine."New Line" := false;
                 ServContractLine.Modify();
-            until ServContractLine.Next = 0;
+            until ServContractLine.Next() = 0;
 
         if ServMgtSetup."Register Contract Changes" then
             ContractChangeLog.LogContractChange(
@@ -328,7 +328,7 @@ codeunit 5944 SignServContractDoc
                 then
                     ServContractLine."Next Planned Service Date" := StartingDate;
                 ServContractLine.Modify();
-            until ServContractLine.Next = 0;
+            until ServContractLine.Next() = 0;
 
         if not HideDialog then begin
             ServContractLine.Reset();
@@ -452,7 +452,7 @@ codeunit 5944 SignServContractDoc
                       RemainingAmt +
                       Round(
                         ServContractLine."Line Amount" / 12 * NoOfMonthsAndMParts, Currency."Amount Rounding Precision");
-                until ServContractLine.Next = 0;
+                until ServContractLine.Next() = 0;
         end;
 
         if InvoiceNow then begin
@@ -493,7 +493,7 @@ codeunit 5944 SignServContractDoc
                       RemainingAmt +
                       Round(
                         ServContractLine."Line Amount" / 12 * NoOfMonthsAndMParts, Currency."Amount Rounding Precision");
-                until ServContractLine.Next = 0;
+                until ServContractLine.Next() = 0;
             if RemainingAmt <> 0 then begin
                 ServHeader.Get(ServHeader."Document Type"::Invoice, ServHeaderNo);
                 if FromServContractHeader."Contract Lines on Invoice" then begin
@@ -523,7 +523,7 @@ codeunit 5944 SignServContractDoc
                               FromServContractHeader."Contract No.",
                               FirstPrepaidPostingDate, LastPrepaidPostingDate,
                               AppliedEntry, false);
-                        until ServContractLine.Next = 0;
+                        until ServContractLine.Next() = 0;
                 end else begin
                     ServContractMgt.CreateHeadingServLine(
                       ServHeader,
@@ -555,7 +555,7 @@ codeunit 5944 SignServContractDoc
                 if (ServContractLine."Contract Expiration Date" <> 0D) and (ServContractHeader."Last Invoice Date" <> 0D) then
                     if ServContractLine."Contract Expiration Date" > ServContractHeader."Last Invoice Date" then
                         NonExpiredContractLineExists := true;
-            until ServContractLine.Next = 0;
+            until ServContractLine.Next() = 0;
         if InvoiceNow and (not NonExpiredContractLineExists) then begin
             if not FromServContractHeader.Prepaid then
                 FromServContractHeader."Last Invoice Date" := InvoiceTo
@@ -658,7 +658,7 @@ codeunit 5944 SignServContractDoc
                       Text021,
                       FromServContractHeader."Contract No.",
                       FromServContractHeader."Customer No.");
-            until FromServContractLine.Next = 0;
+            until FromServContractLine.Next() = 0;
 
         ServMgtSetup.Get();
         if ServMgtSetup."Salesperson Mandatory" then
@@ -672,7 +672,7 @@ codeunit 5944 SignServContractDoc
             repeat
                 if ServMgtSetup."Contract Rsp. Time Mandatory" then
                     FromServContractLine.TestField("Response Time (Hours)");
-            until FromServContractLine.Next = 0;
+            until FromServContractLine.Next() = 0;
 
         ServContractMgt.CopyCheckSCDimToTempSCDim(FromServContractHeader);
 
@@ -835,7 +835,7 @@ codeunit 5944 SignServContractDoc
         ServContractLine.SetRange("Contract No.", ServContractHeader."Contract No.");
         ServContractLine.SetRange("Line Amount", 0);
         ServContractLine.SetFilter("Line Discount %", '<%1', 100);
-        if not ServContractLine.IsEmpty then
+        if not ServContractLine.IsEmpty() then
             Error(
               Text004,
               ServContractHeader."Contract No.",
@@ -876,7 +876,7 @@ codeunit 5944 SignServContractDoc
                       ServContractHeader."Contract Type",
                       ServContractHeader."Contract No.",
                       InvoiceFrom, InvoiceTo, AppliedEntry, not NewLine);
-                until ServContractLine.Next = 0;
+                until ServContractLine.Next() = 0;
         end else begin
             ServContractMgt.CreateHeadingServLine(
               ServHeader,
@@ -921,7 +921,7 @@ codeunit 5944 SignServContractDoc
                 ToServCommentLine.Date := FromServCommentLine.Date;
                 OnCopyServCommentsOnAfterToServCommentLineInsert(FromServCommentLine, ToServCommentLine);
                 ToServCommentLine.Insert();
-            until FromServCommentLine.Next = 0;
+            until FromServCommentLine.Next() = 0;
     end;
 
     local procedure CopyServHours(ToServContractHeader: Record "Service Contract Header")
@@ -938,7 +938,7 @@ codeunit 5944 SignServContractDoc
                 ToServHour."Service Contract Type" := FromServHour."Service Contract Type"::Contract;
                 ToServHour."Service Contract No." := ToServContractHeader."Contract No.";
                 ToServHour.Insert();
-            until FromServHour.Next = 0;
+            until FromServHour.Next() = 0;
     end;
 
     local procedure CopyContractServDiscounts(FromServContractHeader: Record "Service Contract Header"; ToServContractHeader: Record "Service Contract Header")
@@ -955,7 +955,7 @@ codeunit 5944 SignServContractDoc
                 ToContractServDisc."Contract Type" := FromContractServDisc."Contract Type"::Contract;
                 ToContractServDisc."Contract No." := ToServContractHeader."Contract No.";
                 if ToContractServDisc.Insert() then;
-            until FromContractServDisc.Next = 0;
+            until FromContractServDisc.Next() = 0;
     end;
 
     local procedure DeleteServContractHeader(FromServContractHeader: Record "Service Contract Header")

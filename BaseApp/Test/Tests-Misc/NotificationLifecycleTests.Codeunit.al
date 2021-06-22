@@ -133,7 +133,7 @@ codeunit 139480 "Notification Lifecycle Tests"
         // [THEN] The context is stored
         NotificationLifecycleMgt.GetNotificationsForRecord(Customer.RecordId, TempNotificationContext, true);
         Assert.AreEqual(2, TempNotificationContext.Count, 'Unexpected number of NotificationContext records');
-        TempNotificationContext.FindSet;
+        TempNotificationContext.FindSet();
         repeat
             Assert.IsFalse(IsNullGuid(TempNotificationContext."Notification ID"), 'Unexpected notification GUID in NotificationContext');
             Assert.AreEqual(Customer.RecordId, TempNotificationContext."Record ID", 'Unexpected Record ID in NotificationContext');

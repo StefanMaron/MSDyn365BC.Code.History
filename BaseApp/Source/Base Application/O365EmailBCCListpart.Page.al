@@ -46,7 +46,7 @@ page 2127 "O365 Email BCC Listpart"
                     if not Confirm(DeleteQst, true) then
                         exit;
                     Delete(true);
-                    CurrPage.Update;
+                    CurrPage.Update();
                 end;
             }
             action(Open)

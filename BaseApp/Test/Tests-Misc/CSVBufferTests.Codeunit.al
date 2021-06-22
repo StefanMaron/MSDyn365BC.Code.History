@@ -130,7 +130,7 @@ codeunit 135100 "CSV Buffer Tests"
 
         // [WHEN] A filter is applied to the buffer
         TempCSVBuffer.GetCSVLinesWhere(1, '02', TempResultCSVBuffer);
-        TempResultCSVBuffer.FindSet;
+        TempResultCSVBuffer.FindSet();
 
         // [THEN] The number of lines matches the number of lines after the filter application
         Assert.AreEqual(2, TempResultCSVBuffer.Count, 'The number of records do not match.');

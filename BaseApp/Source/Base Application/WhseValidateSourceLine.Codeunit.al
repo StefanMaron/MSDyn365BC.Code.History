@@ -1,4 +1,4 @@
-﻿codeunit 5777 "Whse. Validate Source Line"
+codeunit 5777 "Whse. Validate Source Line"
 {
 
     trigger OnRun()
@@ -253,7 +253,7 @@
         then begin
             WhseManagement.SetSourceFilterForWhseRcptLine(WhseRcptLine, SourceType, SourceSubType, SourceNo, SourceLineNo, true);
             OnWhseLinesExistOnAfterWhseRcptLineSetFilters(WhseRcptLine, SourceType, SourceSubType, SourceNo, SourceLineNo, SourceQty);
-            if not WhseRcptLine.IsEmpty then begin
+            if not WhseRcptLine.IsEmpty() then begin
                 TableCaptionValue := WhseRcptLine.TableCaption;
                 exit(true);
             end;
@@ -268,14 +268,14 @@
         then begin
             WhseShptLine.SetSourceFilter(SourceType, SourceSubType, SourceNo, SourceLineNo, true);
             OnWhseLinesExistOnAfterWhseShptLineSetFilters(WhseShptLine, SourceType, SourceSubType, SourceNo, SourceLineNo, SourceQty);
-            if not WhseShptLine.IsEmpty then begin
+            if not WhseShptLine.IsEmpty() then begin
                 TableCaptionValue := WhseShptLine.TableCaption;
                 exit(true);
             end;
         end;
 
         WhseActivLine.SetSourceFilter(SourceType, SourceSubType, SourceNo, SourceLineNo, SourceSublineNo, true);
-        if not WhseActivLine.IsEmpty then begin
+        if not WhseActivLine.IsEmpty() then begin
             TableCaptionValue := WhseActivLine.TableCaption;
             exit(true);
         end;
@@ -344,6 +344,7 @@
         LinesExist: Boolean;
         QtyChecked: Boolean;
         QtyRemainingToBePicked: Decimal;
+        IsHandled: Boolean;
     begin
         with NewItemJnlLine do begin
             case "Entry Type" of
@@ -364,19 +365,22 @@
                 "Entry Type"::Consumption:
                     begin
                         TestField("Order Type", "Order Type"::Production);
-                        if Location.Get("Location Code") and Location."Require Pick" and Location."Require Shipment" then
-                            if ProdOrderComp.Get(
-                                 ProdOrderComp.Status::Released,
-                                 "Order No.", "Order Line No.", "Prod. Order Comp. Line No.") and
-                               (ProdOrderComp."Flushing Method" = ProdOrderComp."Flushing Method"::Manual) and
-                               (Quantity >= 0)
-                            then begin
-                                QtyRemainingToBePicked :=
-                                  Quantity - CalcNextLevelProdOutput(ProdOrderComp) -
-                                  ProdOrderComp."Qty. Picked" + ProdOrderComp."Expected Quantity" - ProdOrderComp."Remaining Quantity";
-                                CheckQtyRemainingToBePickedForConsumption(NewItemJnlLine, OldItemJnlLine, ProdOrderComp, QtyRemainingToBePicked);
-                                QtyChecked := true;
-                            end;
+                        IsHandled := false;
+                        OnItemLineVerifyChangeOnBeforeCheckConsumptionQty(NewItemJnlLine, Location, QtyChecked, IsHandled);
+                        if not Ishandled then
+                            if Location.Get("Location Code") and Location."Require Pick" and Location."Require Shipment" then
+                                if ProdOrderComp.Get(
+                                    ProdOrderComp.Status::Released,
+                                    "Order No.", "Order Line No.", "Prod. Order Comp. Line No.") and
+                                    (ProdOrderComp."Flushing Method" = ProdOrderComp."Flushing Method"::Manual) and
+                                    (Quantity >= 0)
+                                then begin
+                                    QtyRemainingToBePicked :=
+                                        Quantity - CalcNextLevelProdOutput(ProdOrderComp) -
+                                        ProdOrderComp."Qty. Picked" + ProdOrderComp."Expected Quantity" - ProdOrderComp."Remaining Quantity";
+                                    CheckQtyRemainingToBePickedForConsumption(NewItemJnlLine, OldItemJnlLine, ProdOrderComp, QtyRemainingToBePicked);
+                                    QtyChecked := true;
+                                end;
 
                         LinesExist :=
                           WhseLinesExist(
@@ -672,6 +676,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeVerifyFieldNotChanged(NewRecRef: RecordRef; OldRecRef: RecordRef; FieldNumber: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnItemLineVerifyChangeOnBeforeCheckConsumptionQty(NewItemJournalLine: Record "Item Journal Line"; Location: Record Location; var QtyChecked: Boolean; var IsHandled: Boolean)
     begin
     end;
 

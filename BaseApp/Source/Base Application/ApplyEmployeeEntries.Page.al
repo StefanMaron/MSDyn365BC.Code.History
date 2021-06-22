@@ -79,80 +79,80 @@ page 234 "Apply Employee Entries"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Applies-to ID"; "Applies-to ID")
+                field("Applies-to ID"; Rec."Applies-to ID")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the ID of entries that will be applied to when you choose the Apply Entries action.';
                     Visible = AppliesToIDVisible;
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = BasicHR;
                     Editable = false;
                     ToolTip = 'Specifies the employee entry''s posting date.';
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = BasicHR;
                     Editable = false;
                     ToolTip = 'Specifies the employee entry''s document type.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = BasicHR;
                     Editable = false;
                     ToolTip = 'Specifies the employee entry''s document number.';
                 }
-                field("Employee No."; "Employee No.")
+                field("Employee No."; Rec."Employee No.")
                 {
                     ApplicationArea = BasicHR;
                     Editable = false;
                     ToolTip = 'Specifies the number of the employee account that the entry is linked to.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = BasicHR;
                     Editable = false;
                     ToolTip = 'Specifies a description of the employee entry.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the currency code for the amount on the line.';
                 }
-                field("Original Amount"; "Original Amount")
+                field("Original Amount"; Rec."Original Amount")
                 {
                     ApplicationArea = BasicHR;
                     Editable = false;
                     ToolTip = 'Specifies the amount of the original entry.';
                     Visible = false;
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = BasicHR;
                     Editable = false;
                     ToolTip = 'Specifies the amount of the entry.';
                     Visible = false;
                 }
-                field("Debit Amount"; "Debit Amount")
+                field("Debit Amount"; Rec."Debit Amount")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the total of the ledger entries that represent debits.';
                     Visible = false;
                 }
-                field("Credit Amount"; "Credit Amount")
+                field("Credit Amount"; Rec."Credit Amount")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the total of the ledger entries that represent credits.';
                     Visible = false;
                 }
-                field("Remaining Amount"; "Remaining Amount")
+                field("Remaining Amount"; Rec."Remaining Amount")
                 {
                     ApplicationArea = BasicHR;
                     Editable = false;
                     ToolTip = 'Specifies the amount that remains to be applied to before the entry is totally applied to.';
                 }
-                field("CalcApplnRemainingAmount(""Remaining Amount"")"; CalcApplnRemainingAmount("Remaining Amount"))
+                field("CalcApplnRemainingAmount(""Remaining Amount"")"; CalcApplnRemainingAmount(Rec."Remaining Amount"))
                 {
                     ApplicationArea = BasicHR;
                     AutoFormatExpression = ApplnCurrencyCode;
@@ -160,7 +160,7 @@ page 234 "Apply Employee Entries"
                     Caption = 'Appln. Remaining Amount';
                     ToolTip = 'Specifies the amount that remains to be applied to before the entry is totally applied to.';
                 }
-                field("Amount to Apply"; "Amount to Apply")
+                field("Amount to Apply"; Rec."Amount to Apply")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the amount to apply.';
@@ -169,15 +169,15 @@ page 234 "Apply Employee Entries"
                     begin
                         CODEUNIT.Run(CODEUNIT::"Empl. Entry-Edit", Rec);
 
-                        if (xRec."Amount to Apply" = 0) or ("Amount to Apply" = 0) and
+                        if (xRec."Amount to Apply" = 0) or (Rec."Amount to Apply" = 0) and
                            ((ApplnType = ApplnType::"Applies-to ID") or (CalcType = CalcType::Direct))
                         then
                             SetEmplApplId;
-                        Get("Entry No.");
-                        AmounttoApplyOnAfterValidate;
+                        Rec.Get(Rec."Entry No.");
+                        AmounttoApplyOnAfterValidate();
                     end;
                 }
-                field("CalcApplnAmounttoApply(""Amount to Apply"")"; CalcApplnAmounttoApply("Amount to Apply"))
+                field("CalcApplnAmounttoApply(""Amount to Apply"")"; CalcApplnAmounttoApply(Rec."Amount to Apply"))
                 {
                     ApplicationArea = BasicHR;
                     AutoFormatExpression = ApplnCurrencyCode;
@@ -185,29 +185,29 @@ page 234 "Apply Employee Entries"
                     Caption = 'Appln. Amount to Apply';
                     ToolTip = 'Specifies the amount to apply.';
                 }
-                field("Payment Reference"; "Payment Reference")
+                field("Payment Reference"; Rec."Payment Reference")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the payment to the employee.';
                 }
-                field(Open; Open)
+                field(Open; Rec.Open)
                 {
                     ApplicationArea = BasicHR;
                     Editable = false;
                     ToolTip = 'Specifies whether the amount on the entry has been fully paid or there is still a remaining amount that must be applied to.';
                 }
-                field(Positive; Positive)
+                field(Positive; Rec.Positive)
                 {
                     ApplicationArea = BasicHR;
                     Editable = false;
                     ToolTip = 'Specifies if the entry to be applied is positive.';
                 }
-                field("Global Dimension 1 Code"; "Global Dimension 1 Code")
+                field("Global Dimension 1 Code"; Rec."Global Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                 }
-                field("Global Dimension 2 Code"; "Global Dimension 2 Code")
+                field("Global Dimension 2 Code"; Rec."Global Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
@@ -333,7 +333,7 @@ page 234 "Apply Employee Entries"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions();
+                        Rec.ShowDimensions();
                     end;
                 }
                 action("Detailed &Ledger Entries")
@@ -362,8 +362,8 @@ page 234 "Apply Employee Entries"
 
                     trigger OnAction()
                     begin
-                        Navigate.SetDoc("Posting Date", "Document No.");
-                        Navigate.Run;
+                        Navigate.SetDoc(Rec."Posting Date", Rec."Document No.");
+                        Navigate.Run();
                     end;
                 }
             }
@@ -386,10 +386,10 @@ page 234 "Apply Employee Entries"
 
                     trigger OnAction()
                     begin
-                        if (CalcType = CalcType::GenJnlLine) and (ApplnType = ApplnType::"Applies-to Doc. No.") then
+                        if (CalcType = CalcType::"Gen. Jnl. Line") and (ApplnType = ApplnType::"Applies-to Doc. No.") then
                             Error(CannotSetAppliesToIDErr);
 
-                        SetEmplApplId;
+                        SetEmplApplId();
                     end;
                 }
                 action(ActionPostApplication)
@@ -439,16 +439,16 @@ page 234 "Apply Employee Entries"
                     begin
                         ShowAppliedEntries := not ShowAppliedEntries;
                         if ShowAppliedEntries then
-                            if CalcType = CalcType::GenJnlLine then
-                                SetRange("Applies-to ID", GenJnlLine."Applies-to ID")
+                            if CalcType = CalcType::"Gen. Jnl. Line" then
+                                Rec.SetRange("Applies-to ID", GenJnlLine."Applies-to ID")
                             else begin
                                 EmplEntryApplID := UserId;
                                 if EmplEntryApplID = '' then
                                     EmplEntryApplID := '***';
-                                SetRange("Applies-to ID", EmplEntryApplID);
+                                Rec.SetRange("Applies-to ID", EmplEntryApplID);
                             end
                         else
-                            SetRange("Applies-to ID");
+                            Rec.SetRange("Applies-to ID");
                     end;
                 }
             }
@@ -458,7 +458,7 @@ page 234 "Apply Employee Entries"
     trigger OnAfterGetCurrRecord()
     begin
         if ApplnType = ApplnType::"Applies-to Doc. No." then
-            CalcApplnAmount;
+            CalcApplnAmount();
     end;
 
     trigger OnInit()
@@ -469,8 +469,8 @@ page 234 "Apply Employee Entries"
     trigger OnModifyRecord(): Boolean
     begin
         CODEUNIT.Run(CODEUNIT::"Empl. Entry-Edit", Rec);
-        if "Applies-to ID" <> xRec."Applies-to ID" then
-            CalcApplnAmount;
+        if Rec."Applies-to ID" <> xRec."Applies-to ID" then
+            CalcApplnAmount();
         exit(false);
     end;
 
@@ -479,7 +479,7 @@ page 234 "Apply Employee Entries"
         OfficeMgt: Codeunit "Office Management";
     begin
         if CalcType = CalcType::Direct then begin
-            Empl.Get("Employee No.");
+            Empl.Get(Rec."Employee No.");
             ApplnCurrencyCode := '';
             FindApplyingEntry;
         end;
@@ -488,8 +488,8 @@ page 234 "Apply Employee Entries"
 
         GLSetup.Get();
 
-        if CalcType = CalcType::GenJnlLine then
-            CalcApplnAmount;
+        if CalcType = CalcType::"Gen. Jnl. Line" then
+            CalcApplnAmount();
         PostingDone := false;
         IsOfficeAddin := OfficeMgt.IsAvailable;
     end;
@@ -497,22 +497,22 @@ page 234 "Apply Employee Entries"
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
         if CloseAction = ACTION::LookupOK then
-            LookupOKOnPush;
+            LookupOKOnPush();
         if ApplnType = ApplnType::"Applies-to Doc. No." then begin
             CheckEarlierPostingDate();
             if OK then begin
-                if "Amount to Apply" = 0 then
-                    "Amount to Apply" := "Remaining Amount";
+                if Rec."Amount to Apply" = 0 then
+                    Rec."Amount to Apply" := Rec."Remaining Amount";
                 CODEUNIT.Run(CODEUNIT::"Empl. Entry-Edit", Rec);
             end;
         end;
 
         if CheckActionPerformed then begin
             Rec := TempApplyingEmplLedgEntry;
-            "Applying Entry" := false;
+            Rec."Applying Entry" := false;
             if AppliesToID = '' then begin
-                "Applies-to ID" := '';
-                "Amount to Apply" := 0;
+                Rec."Applies-to ID" := '';
+                Rec."Amount to Apply" := 0;
             end;
             CODEUNIT.Run(CODEUNIT::"Empl. Entry-Edit", Rec);
         end;
@@ -534,7 +534,7 @@ page 234 "Apply Employee Entries"
         ApplnRounding: Decimal;
         ApplnType: Option " ","Applies-to Doc. No.","Applies-to ID";
         AmountRoundingPrecision: Decimal;
-        CalcType: Option Direct,GenJnlLine,PurchHeader;
+        CalcType: Enum "Vendor Apply Calculation Type";
         EmplEntryApplID: Code[50];
         AppliesToID: Code[50];
         ValidExchRate: Boolean;
@@ -568,15 +568,15 @@ page 234 "Apply Employee Entries"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckEarlierPostingDate(TempApplyingEmplLedgEntry, Rec, CalcType, IsHandled);
+        OnBeforeCheckEarlierPostingDate(TempApplyingEmplLedgEntry, Rec, CalcType.AsInteger(), IsHandled);
         if IsHandled then
             exit;
 
-        if OK and (TempApplyingEmplLedgEntry."Posting Date" < "Posting Date") then begin
+        if OK and (TempApplyingEmplLedgEntry."Posting Date" < Rec."Posting Date") then begin
             OK := false;
             Error(
               EarlierPostingDateErr, TempApplyingEmplLedgEntry."Document Type", TempApplyingEmplLedgEntry."Document No.",
-              "Document Type", "Document No.");
+              Rec."Document Type", Rec."Document No.");
         end;
     end;
 
@@ -591,7 +591,7 @@ page 234 "Apply Employee Entries"
             ApplyingAmount := -GenJnlLine.Amount;
         ApplnDate := GenJnlLine."Posting Date";
         ApplnCurrencyCode := GenJnlLine."Currency Code";
-        CalcType := CalcType::GenJnlLine;
+        CalcType := CalcType::"Gen. Jnl. Line";
 
         case ApplnTypeSelect of
             GenJnlLine.FieldNo("Applies-to Doc. No."):
@@ -600,7 +600,7 @@ page 234 "Apply Employee Entries"
                 ApplnType := ApplnType::"Applies-to ID";
         end;
 
-        SetApplyingEmplLedgEntry;
+        SetApplyingEmplLedgEntry();
     end;
 
     procedure SetEmplLedgEntry(NewEmplLedgEntry: Record "Employee Ledger Entry")
@@ -616,27 +616,27 @@ page 234 "Apply Employee Entries"
         case CalcType of
             CalcType::Direct:
                 begin
-                    if "Applying Entry" then begin
+                    if Rec."Applying Entry" then begin
                         if TempApplyingEmplLedgEntry."Entry No." <> 0 then
                             EmplLedgEntry := TempApplyingEmplLedgEntry;
                         CODEUNIT.Run(CODEUNIT::"Empl. Entry-Edit", Rec);
-                        if "Applies-to ID" = '' then
-                            SetEmplApplId;
-                        CalcFields(Amount);
+                        if Rec."Applies-to ID" = '' then
+                            SetEmplApplId();
+                        Rec.CalcFields(Amount);
                         TempApplyingEmplLedgEntry := Rec;
                         if EmplLedgEntry."Entry No." <> 0 then begin
                             Rec := EmplLedgEntry;
-                            "Applying Entry" := false;
-                            SetEmplApplId;
+                            Rec."Applying Entry" := false;
+                            SetEmplApplId();
                         end;
-                        SetFilter("Entry No.", '<> %1', TempApplyingEmplLedgEntry."Entry No.");
+                        Rec.SetFilter("Entry No.", '<> %1', TempApplyingEmplLedgEntry."Entry No.");
                         ApplyingAmount := TempApplyingEmplLedgEntry."Remaining Amount";
                         ApplnDate := TempApplyingEmplLedgEntry."Posting Date";
                         ApplnCurrencyCode := TempApplyingEmplLedgEntry."Currency Code";
                     end;
-                    CalcApplnAmount;
+                    CalcApplnAmount();
                 end;
-            CalcType::GenJnlLine:
+            CalcType::"Gen. Jnl. Line":
                 begin
                     TempApplyingEmplLedgEntry."Posting Date" := GenJnlLine."Posting Date";
                     TempApplyingEmplLedgEntry."Document Type" := GenJnlLine."Document Type";
@@ -652,7 +652,7 @@ page 234 "Apply Employee Entries"
                     TempApplyingEmplLedgEntry."Currency Code" := GenJnlLine."Currency Code";
                     TempApplyingEmplLedgEntry.Amount := GenJnlLine.Amount;
                     TempApplyingEmplLedgEntry."Remaining Amount" := GenJnlLine.Amount;
-                    CalcApplnAmount;
+                    CalcApplnAmount();
                 end;
         end;
     end;
@@ -665,7 +665,7 @@ page 234 "Apply Employee Entries"
         if TempApplyingEmplLedgEntry."Entry No." <> 0 then
             GenJnlApply.CheckAgainstApplnCurrency(
               ApplnCurrencyCode, "Currency Code", GenJnlLine."Account Type"::Employee, true);
-        OnSetCustApplIdAfterCheckAgainstApplnCurrency(Rec, CalcType, GenJnlLine);
+        OnSetCustApplIdAfterCheckAgainstApplnCurrency(Rec, CalcType.AsInteger(), GenJnlLine);
 
         EmplLedgEntry.Copy(Rec);
         CurrPage.SetSelectionFilter(EmplLedgEntry);
@@ -683,16 +683,17 @@ page 234 "Apply Employee Entries"
     begin
         if EmplLedgerEntry.FindSet() then
             repeat
-                if (CalcType = CalcType::GenJnlLine) and (TempApplyingEmplLedgEntry."Posting Date" < EmplLedgerEntry."Posting Date") then
+                if (CalcType = CalcType::"Gen. Jnl. Line") and (TempApplyingEmplLedgEntry."Posting Date" < EmplLedgerEntry."Posting Date") then
                     Error(
                         EarlierPostingDateErr, TempApplyingEmplLedgEntry."Document Type", TempApplyingEmplLedgEntry."Document No.",
                         EmplLedgerEntry."Document Type", EmplLedgerEntry."Document No.");
             until EmplLedgerEntry.Next() = 0;
     end;
 
-    local procedure CalcApplnAmount()
+    protected procedure CalcApplnAmount()
     begin
-        OnBeforeCalcApplnAmount(Rec, GenJnlLine, AppliedEmplLedgEntry, CalcType, ApplnType);
+        OnBeforeCalcApplnAmount(Rec, GenJnlLine, AppliedEmplLedgEntry, CalcType.AsInteger(), ApplnType);
+
         AppliedAmount := 0;
         PmtDiscAmount := 0;
         DifferentCurrenciesInAppln := false;
@@ -722,9 +723,9 @@ page 234 "Apply Employee Entries"
 
                     HandlChosenEntries(0, EmplLedgEntry."Remaining Amount");
                 end;
-            CalcType::GenJnlLine:
+            CalcType::"Gen. Jnl. Line":
                 begin
-                    FindAmountRounding;
+                    FindAmountRounding();
                     if GenJnlLine."Bal. Account Type" = GenJnlLine."Bal. Account Type"::Employee then
                         CODEUNIT.Run(CODEUNIT::"Exchange Acc. G/L Journal Line", GenJnlLine);
 
@@ -751,7 +752,7 @@ page 234 "Apply Employee Entries"
                                     if not DifferentCurrenciesInAppln then
                                         DifferentCurrenciesInAppln := ApplnCurrencyCode <> "Currency Code";
                                 end;
-                                CheckRounding;
+                                CheckRounding();
                             end;
                         ApplnType::"Applies-to ID":
                             begin
@@ -773,14 +774,14 @@ page 234 "Apply Employee Entries"
     local procedure CalcApplnRemainingAmount(Amt: Decimal) ApplnRemainingAmount: Decimal
     begin
         ValidExchRate := true;
-        if ApplnCurrencyCode = "Currency Code" then
+        if ApplnCurrencyCode = Rec."Currency Code" then
             exit(Amt);
 
         if ApplnDate = 0D then
-            ApplnDate := "Posting Date";
+            ApplnDate := Rec."Posting Date";
         ApplnRemainingAmount :=
           CurrExchRate.ApplnExchangeAmtFCYToFCY(
-            ApplnDate, "Currency Code", ApplnCurrencyCode, Amt, ValidExchRate);
+            ApplnDate, Rec."Currency Code", ApplnCurrencyCode, Amt, ValidExchRate);
 
         OnAfterCalcApplnRemainingAmount(Rec, ApplnRemainingAmount);
     end;
@@ -789,14 +790,14 @@ page 234 "Apply Employee Entries"
     begin
         ValidExchRate := true;
 
-        if ApplnCurrencyCode = "Currency Code" then
+        if ApplnCurrencyCode = Rec."Currency Code" then
             exit(AmounttoApply);
 
         if ApplnDate = 0D then
-            ApplnDate := "Posting Date";
+            ApplnDate := Rec."Posting Date";
         ApplnAmountToApply :=
           CurrExchRate.ApplnExchangeAmtFCYToFCY(
-            ApplnDate, "Currency Code", ApplnCurrencyCode, AmounttoApply, ValidExchRate);
+            ApplnDate, Rec."Currency Code", ApplnCurrencyCode, AmounttoApply, ValidExchRate);
 
         OnAfterCalcApplnAmountToApply(Rec, ApplnAmountToApply);
     end;
@@ -806,7 +807,7 @@ page 234 "Apply Employee Entries"
         if ApplnCurrencyCode = '' then begin
             Currency.Init();
             Currency.Code := '';
-            Currency.InitRoundingPrecision;
+            Currency.InitRoundingPrecision();
         end else
             if ApplnCurrencyCode <> Currency.Code then
                 Currency.Get(ApplnCurrencyCode);
@@ -814,14 +815,14 @@ page 234 "Apply Employee Entries"
         AmountRoundingPrecision := Currency."Amount Rounding Precision";
     end;
 
-    local procedure CheckRounding()
+    protected procedure CheckRounding()
     begin
         ApplnRounding := 0;
 
         case CalcType of
-            CalcType::PurchHeader:
+            CalcType::"Purchase Header":
                 exit;
-            CalcType::GenJnlLine:
+            CalcType::"Gen. Jnl. Line":
                 if (GenJnlLine."Document Type" <> GenJnlLine."Document Type"::Payment) and
                    (GenJnlLine."Document Type" <> GenJnlLine."Document Type"::Refund)
                 then
@@ -831,7 +832,7 @@ page 234 "Apply Employee Entries"
         if ApplnCurrencyCode = '' then
             ApplnRoundingPrecision := GLSetup."Appln. Rounding Precision"
         else begin
-            if ApplnCurrencyCode <> "Currency Code" then
+            if ApplnCurrencyCode <> Rec."Currency Code" then
                 Currency.Get(ApplnCurrencyCode);
             ApplnRoundingPrecision := Currency."Appln. Rounding Precision";
         end;
@@ -853,7 +854,7 @@ page 234 "Apply Employee Entries"
                 EmplEntryApplID := '***';
 
             EmplLedgEntry.SetCurrentKey("Employee No.", "Applies-to ID", Open);
-            EmplLedgEntry.SetRange("Employee No.", "Employee No.");
+            EmplLedgEntry.SetRange("Employee No.", Rec."Employee No.");
             if AppliesToID = '' then
                 EmplLedgEntry.SetRange("Applies-to ID", EmplEntryApplID)
             else
@@ -864,19 +865,19 @@ page 234 "Apply Employee Entries"
             if EmplLedgEntry.FindFirst then begin
                 EmplLedgEntry.CalcFields(Amount, "Remaining Amount");
                 TempApplyingEmplLedgEntry := EmplLedgEntry;
-                SetFilter("Entry No.", '<>%1', EmplLedgEntry."Entry No.");
+                Rec.SetFilter("Entry No.", '<>%1', EmplLedgEntry."Entry No.");
                 ApplyingAmount := EmplLedgEntry."Remaining Amount";
                 ApplnDate := EmplLedgEntry."Posting Date";
                 ApplnCurrencyCode := EmplLedgEntry."Currency Code";
             end;
-            CalcApplnAmount;
+            CalcApplnAmount();
         end;
     end;
 
     local procedure AmounttoApplyOnAfterValidate()
     begin
         if ApplnType <> ApplnType::"Applies-to Doc. No." then begin
-            CalcApplnAmount;
+            CalcApplnAmount();
             CurrPage.Update(false);
         end;
     end;
@@ -924,7 +925,7 @@ page 234 "Apply Employee Entries"
                 if not PreviewMode then begin
                     Message(ApplicationPostedMsg);
                     PostingDone := true;
-                    CurrPage.Close;
+                    CurrPage.Close();
                 end;
             end else
                 Error(MustSelectEntryErr);
@@ -965,7 +966,7 @@ page 234 "Apply Employee Entries"
             repeat
                 TempAppliedEmplLedgEntry := AppliedEmplLedgEntry;
                 TempAppliedEmplLedgEntry.Insert();
-            until AppliedEmplLedgEntry.Next = 0;
+            until AppliedEmplLedgEntry.Next() = 0;
         end else
             exit;
 
@@ -974,13 +975,13 @@ page 234 "Apply Employee Entries"
         repeat
             if not FromZeroGenJnl then
                 TempAppliedEmplLedgEntry.SetRange(Positive, CurrentAmount < 0);
-            if TempAppliedEmplLedgEntry.FindFirst then begin
+            if TempAppliedEmplLedgEntry.FindFirst() then begin
                 if ((CurrentAmount + TempAppliedEmplLedgEntry."Amount to Apply") * CurrentAmount) >= 0 then
                     AppliedAmount := AppliedAmount + CorrectionAmount;
                 CurrentAmount := CurrentAmount + TempAppliedEmplLedgEntry."Amount to Apply";
             end else begin
                 TempAppliedEmplLedgEntry.SetRange(Positive);
-                TempAppliedEmplLedgEntry.FindFirst;
+                TempAppliedEmplLedgEntry.FindFirst();
             end;
 
             AppliedAmount := AppliedAmount + TempAppliedEmplLedgEntry."Amount to Apply";
@@ -988,8 +989,8 @@ page 234 "Apply Employee Entries"
             TempAppliedEmplLedgEntry.Delete();
             TempAppliedEmplLedgEntry.SetRange(Positive);
 
-        until not TempAppliedEmplLedgEntry.FindFirst;
-        CheckRounding;
+        until not TempAppliedEmplLedgEntry.FindFirst();
+        CheckRounding();
     end;
 
     [IntegrationEvent(false, false)]

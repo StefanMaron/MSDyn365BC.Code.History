@@ -1093,7 +1093,7 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
         ActualAmount: Decimal;
         ActualVATAmount: Decimal;
     begin
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         GLEntry.CalcSums(Amount, "VAT Amount");
         ActualAmount := GLEntry.Amount;
         ActualVATAmount := GLEntry."VAT Amount";

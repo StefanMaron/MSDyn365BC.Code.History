@@ -1,4 +1,4 @@
-﻿page 128 "Vend. Ledg. Entries Preview"
+page 128 "Vend. Ledg. Entries Preview"
 {
     Caption = 'Vendor Entries Preview';
     DataCaptionFields = "Vendor No.";
@@ -419,13 +419,13 @@
             repeat
                 Rec := TempVendLedgerEntry;
                 Insert;
-            until TempVendLedgerEntry.Next = 0;
+            until TempVendLedgerEntry.Next() = 0;
 
         if TempDetailedVendLedgEntry2.FindSet then
             repeat
                 TempDetailedVendLedgEntry := TempDetailedVendLedgEntry2;
                 TempDetailedVendLedgEntry.Insert();
-            until TempDetailedVendLedgEntry2.Next = 0;
+            until TempDetailedVendLedgEntry2.Next() = 0;
     end;
 
     local procedure CalcAmounts(var AmountFCY: Decimal; var AmountLCY: Decimal; var RemainingAmountFCY: Decimal; var RemainingAmountLCY: Decimal; var OriginalAmountFCY: Decimal; var OriginalAmountLCY: Decimal)
@@ -452,7 +452,7 @@
                 end;
                 RemainingAmountFCY += TempDetailedVendLedgEntry.Amount;
                 RemainingAmountLCY += TempDetailedVendLedgEntry."Amount (LCY)";
-            until TempDetailedVendLedgEntry.Next = 0;
+            until TempDetailedVendLedgEntry.Next() = 0;
     end;
 
     local procedure DrilldownAmounts(AmountType: Option Amount,"Remaining Amount","Original Amount")

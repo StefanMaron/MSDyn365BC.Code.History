@@ -52,7 +52,7 @@ page 831 "Workflow Webhook Subscriptions"
                 {
                     ApplicationArea = All;
                     Caption = 'Client Id', Locked = true;
-                    ToolTip = 'Specifies the id for the client from Flow.';
+                    ToolTip = 'Specifies the id for the client from Power Automate.';
                 }
                 field(enabled; Enabled)
                 {

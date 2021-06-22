@@ -545,7 +545,7 @@ codeunit 134481 "ERM Dimension Archive Document"
         LibraryDimension.FindDimensionSetEntry(DimensionSetEntry, SalesLine."Dimension Set ID");
         CopyDimSetEntry(TempDimensionSetEntry, DimensionSetEntry);
         TempDimensionSetEntry.SetFilter("Dimension Code", '<>%1', ShortcutDimensionCode);
-        TempDimensionSetEntry.FindSet;
+        TempDimensionSetEntry.FindSet();
     end;
 
     local procedure CreatePurchOrderWithDim(var PurchaseHeader: Record "Purchase Header"; var TempDimensionSetEntry: Record "Dimension Set Entry" temporary)
@@ -565,7 +565,7 @@ codeunit 134481 "ERM Dimension Archive Document"
         LibraryDimension.FindDimensionSetEntry(DimensionSetEntry, PurchaseLine."Dimension Set ID");
         CopyDimSetEntry(TempDimensionSetEntry, DimensionSetEntry);
         TempDimensionSetEntry.SetFilter("Dimension Code", '<>%1', ShortcutDimensionCode);
-        TempDimensionSetEntry.FindSet;
+        TempDimensionSetEntry.FindSet();
     end;
 
     local procedure CreateCustomerWithDim(): Code[20]

@@ -23,7 +23,7 @@ page 7375 "Inventory Put-away"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Location Code"; "Location Code")
@@ -303,7 +303,7 @@ page 7375 "Inventory Put-away"
 
     trigger OnDeleteRecord(): Boolean
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)

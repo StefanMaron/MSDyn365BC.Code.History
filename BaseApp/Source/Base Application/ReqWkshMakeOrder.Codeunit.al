@@ -1,4 +1,4 @@
-﻿codeunit 333 "Req. Wksh.-Make Order"
+codeunit 333 "Req. Wksh.-Make Order"
 {
     Permissions = TableData "Sales Line" = m;
     TableNo = "Requisition Line";
@@ -46,7 +46,8 @@
         TempPurchaseOrderToPrint: Record "Purchase Header" temporary;
         ReqWkshMakeOrders: Codeunit "Req. Wksh.-Make Order";
         TransferExtendedText: Codeunit "Transfer Extended Text";
-        ReserveReqLine: Codeunit "Req. Line-Reserve";
+        ReqLineReserve: Codeunit "Req. Line-Reserve";
+        UOMMgt: Codeunit "Unit of Measure Management";
         DimMgt: Codeunit DimensionManagement;
         Window: Dialog;
         OrderDateReq: Date;
@@ -191,7 +192,7 @@
                                 TempFailedReqLine := ReqLine;
                                 if not TempFailedReqLine.Find then
                                     Delete(true);
-                            until Next = 0;
+                            until Next() = 0;
 
                     ReqLine3.SetRange("Worksheet Template Name", "Worksheet Template Name");
                     ReqLine3.SetRange("Journal Batch Name", "Journal Batch Name");
@@ -231,7 +232,7 @@
                 Window.Update(2, LineCount);
             CheckRecurringReqLine(ReqLine);
             CheckRequisitionLine(ReqLine);
-            if ReqLine.Next = 0 then
+            if ReqLine.Next() = 0 then
                 ReqLine.FindSet();
         until ReqLine."Line No." = StartLineNo;
     end;
@@ -283,7 +284,7 @@
                   TableCaption, "Worksheet Template Name", "Journal Batch Name", "Line No.",
                   DimMgt.GetDimCombErr);
 
-            TableID[1] := DimMgt.TypeToTableID3(Type);
+            TableID[1] := DimMgt.TypeToTableID3(Type.AsInteger());
             No[1] := "No.";
             if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
                 if "Line No." <> 0 then
@@ -421,7 +422,7 @@
                                         repeat
                                             SalesOrderLine.Get(SalesOrderLine."Document Type"::Order, PurchOrderLine."Special Order Sales No.",
                                               PurchOrderLine."Special Order Sales Line No.");
-                                        until PurchOrderLine.Next = 0;
+                                        until PurchOrderLine.Next() = 0;
                                 end;
                                 MakeRecurringTexts(ReqLine);
                                 InsertPurchOrderLine(ReqLine, PurchOrderHeader);
@@ -590,7 +591,7 @@
                     PurchOrderLine.UpdateUnitCost;
                 end;
 
-            ReserveReqLine.TransferReqLineToPurchLine(ReqLine2, PurchOrderLine, "Quantity (Base)", false);
+            ReqLineReserve.TransferReqLineToPurchLine(ReqLine2, PurchOrderLine, "Quantity (Base)", false);
 
             DimensionSetIDArr[1] := PurchOrderLine."Dimension Set ID";
             DimensionSetIDArr[2] := "Dimension Set ID";
@@ -622,10 +623,8 @@
                 TestField(
                   Quantity,
                   Round(
-                    SalesOrderLine."Outstanding Quantity" *
-                    SalesOrderLine."Qty. per Unit of Measure" /
-                    "Qty. per Unit of Measure",
-                    0.00001));
+                    SalesOrderLine."Outstanding Quantity" * SalesOrderLine."Qty. per Unit of Measure" / "Qty. per Unit of Measure",
+                    UOMMgt.QtyRndPrecision()));
                 TestField("No.", SalesOrderLine."No.");
                 TestField("Location Code", SalesOrderLine."Location Code");
                 TestField("Variant Code", SalesOrderLine."Variant Code");
@@ -737,7 +736,7 @@
             PurchOrderHeader.Mark(true);
             TempDocumentEntry.Init();
             TempDocumentEntry."Table ID" := DATABASE::"Purchase Header";
-            TempDocumentEntry."Document Type" := PurchOrderHeader."Document Type"::Order.AsInteger();
+            TempDocumentEntry."Document Type" := PurchOrderHeader."Document Type"::Order;
             TempDocumentEntry."Document No." := PurchOrderHeader."No.";
             TempDocumentEntry."Entry No." := TempDocumentEntry.Count + 1;
             TempDocumentEntry.Insert();
@@ -774,7 +773,7 @@
         FinalizeOrderHeader(PurchOrderHeader, ReqLine);
     end;
 
-    local procedure FinalizeOrderHeader(PurchOrderHeader: Record "Purchase Header"; var ReqLine: Record "Requisition Line")
+    procedure FinalizeOrderHeader(PurchOrderHeader: Record "Purchase Header"; var ReqLine: Record "Requisition Line")
     var
         ReqLine2: Record "Requisition Line";
         IsHandled: Boolean;
@@ -809,7 +808,7 @@
                         ReqLine2."Line Discount %" := 0;
                     end;
                     ReqLine2.Modify();
-                until ReqLine2.Next = 0;
+                until ReqLine2.Next() = 0;
             end;
         end else begin
             // Not a recurring journal
@@ -841,7 +840,7 @@
                                 ReqLine2.Delete(true);
                             end;
                         end;
-                    until ReqLine2.Next = 0;
+                    until ReqLine2.Next() = 0;
                 end;
         end;
         OnAfterFinalizeOrderHeader(PurchOrderHeader, ReqLine);
@@ -985,7 +984,7 @@
             repeat
                 TempFailedReqLine := TryFailedReqLine;
                 if TempFailedReqLine.Insert() then;
-            until TryFailedReqLine.Next = 0;
+            until TryFailedReqLine.Next() = 0;
     end;
 
     procedure GetTryParam(var TryPurchOrderHeader: Record "Purchase Header"; var TryLineCount: Integer; var TryNextLineNo: Integer; var TryPrevPurchCode: Code[10]; var TryPrevShipToCode: Code[10]; var TryPrevLocationCode: Code[10]; var TryOrderCounter: Integer; var TryOrderLineCounter: Integer)
@@ -1088,7 +1087,7 @@
                             SetFailedReqLine(ReqLine);
                             CounterFailed := CounterFailed + 1;
                         end;
-                until Next = 0;
+                until Next() = 0;
     end;
 
     local procedure SetPurchOrderHeader()

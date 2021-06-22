@@ -99,7 +99,7 @@ page 7200 "CDS Connection Setup"
                     ApplicationArea = Suite;
                     Editable = IsEditable;
                     Visible = IsClientIdClientSecretVisible;
-                    ToolTip = 'Specifies the Redirect URL of the Azure Active Directory application that will be used to connect to the Dataverse environment.', Comment = 'Dataverse and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
+                    ToolTip = 'Specifies the Redirect URL of the Azure Active Directory app registration that will be used to connect to the Dataverse environment.', Comment = 'Dataverse and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
                 }
                 field("SDK Version"; "Proxy Version")
                 {
@@ -123,7 +123,7 @@ page 7200 "CDS Connection Setup"
                 {
                     ApplicationArea = Suite;
                     Caption = 'Enabled', Comment = 'Name of the check box that shows whether the connection to the Dataverse environment is enabled.';
-                    ToolTip = 'Specifies whether the connection to the Dataverse environment is enabled. When you check this checkbox, you will be prompted to sign-in with an administrator user account and give consent to the application that will be used to connect to Dataverse. The account will be used one time to install and configure components that the integration requires.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
+                    ToolTip = 'Specifies whether the connection to the Dataverse environment is enabled. When you select this check box, you will be prompted to sign-in with an administrator user account and give consent to the app registration that will be used to connect to Dataverse. The account will be used one time to install and configure components that the integration requires.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
 
                     trigger OnValidate()
                     var
@@ -223,7 +223,7 @@ page 7200 "CDS Connection Setup"
                     Caption = 'Entities availability checked';
                     Editable = false;
                     StyleExpr = EntitiesStatusStyleExpr;
-                    ToolTip = 'Specifies whether the entities are available in Dataverse. You cannot change this setting.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
+                    ToolTip = 'Specifies whether the tables are available in Dataverse. You cannot change this setting.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
 
                     trigger OnDrillDown()
                     begin
@@ -242,7 +242,7 @@ page 7200 "CDS Connection Setup"
                 {
                     ApplicationArea = Advanced;
                     Editable = IsEditable;
-                    ToolTip = 'Specifies the authentication type that will be used to authenticate with the ComDataverse environment.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
+                    ToolTip = 'Specifies the authentication type that will be used to authenticate with the Dataverse environment.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
                 }
                 field("Connection String"; "Connection String")
                 {
@@ -265,7 +265,7 @@ page 7200 "CDS Connection Setup"
                 {
                     ApplicationArea = Suite;
                     Editable = IsEditable;
-                    ToolTip = 'Specifies the type of owner that will be assigned to any record that is created while synchronizing from Business Central to Dataverse.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
+                    ToolTip = 'Specifies the type of owner that will be assigned to any row that is created while synchronizing from Business Central to Dataverse.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
 
                     trigger OnValidate()
                     begin
@@ -308,15 +308,16 @@ page 7200 "CDS Connection Setup"
                 Promoted = true;
                 PromotedCategory = Process;
                 Enabled = IsEditable;
-                ToolTip = 'Runs Dataverse Connection Setup Wizard.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
+                ToolTip = 'Start the Dataverse Connection Setup guide.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
 
                 trigger OnAction()
                 var
-                    AssistedSetup: Codeunit "Assisted Setup";
+                    GuidedExperience: Codeunit "Guided Experience";
+                    GuidedExperienceType: Enum "Guided Experience Type";
                 begin
                     CDSIntegrationImpl.RegisterAssistedSetup();
                     Commit(); // Make sure all data is committed before we run the wizard
-                    AssistedSetup.Run(Page::"CDS Connection Setup Wizard");
+                    GuidedExperience.Run(GuidedExperienceType::"Assisted Setup", ObjectType::Page, Page::"CDS Connection Setup Wizard");
                     CurrPage.Update(false);
                     RefreshStatuses := true;
                 end;
@@ -402,7 +403,7 @@ page 7200 "CDS Connection Setup"
                 Promoted = true;
                 PromotedCategory = Category6;
                 PromotedIsBig = true;
-                ToolTip = 'Start all the default integration jobs for synchronizing Business Central record types and Dataverse entities, as defined on the Integration Table Mappings page.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
+                ToolTip = 'Start all of the default integration jobs for synchronizing Business Central record types and Dataverse tables. Data is synchronized according to the mappings defined on the Integration Table Mappings page.';
 
                 trigger OnAction()
                 begin
@@ -446,7 +447,7 @@ page 7200 "CDS Connection Setup"
 
                 trigger OnAction()
                 begin
-                    CDSIntegrationImpl.ImportAndConfigureIntegrationSolution(Rec, true);
+                    CDSIntegrationImpl.ImportAndConfigureIntegrationSolution(Rec, true, true);
 
                     if CDSIntegrationImpl.CheckIntegrationRequirements(Rec, true) then begin
                         Session.LogMessage('0000CDH', SuccessfullyRedeployedSolutionTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
@@ -580,8 +581,8 @@ page 7200 "CDS Connection Setup"
 
     trigger OnInit()
     var
-        EnvironmentInfo: Codeunit "Environment Information";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
+        EnvironmentInfo: Codeunit "Environment Information";
     begin
         ApplicationAreaMgmtFacade.CheckAppAreaOnlyBasic();
         SoftwareAsAService := EnvironmentInfo.IsSaaSInfrastructure();
@@ -675,9 +676,9 @@ page 7200 "CDS Connection Setup"
         CategoryTok: Label 'AL Dataverse Integration', Locked = true;
         DisableIntegrationQst: Label 'You are about to disable your integration with Dataverse, but some records are still coupled. If you will re-enable the integration later, you must remove all couplings before you disable the integration.\\Do you want to continue anyway?';
         CDSConnEnabledOnPageTxt: Label 'Dataverse Connection has been enabled from Dataverse Connection Setup page', Locked = true;
-        CDSConnDisabledOnPageTxt: Label 'Dataverse Connection has been disabled from Dataverse Connection Setup page', Locked = true;
-        SuccessfullyRedeployedSolutionTxt: Label 'The Dataverse solutin has been successfully redeployed', Locked = true;
-        UnsuccessfullyRedeployedSolutionTxt: Label 'The Dataverse solutin has failed to be redeployed', Locked = true;
+        CDSConnDisabledOnPageTxt: Label 'The connection to Dataverse has been disabled from the Dataverse Connection Setup page', Locked = true;
+        SuccessfullyRedeployedSolutionTxt: Label 'The Dataverse solution has been successfully redeployed', Locked = true;
+        UnsuccessfullyRedeployedSolutionTxt: Label 'The Dataverse solution has failed to be redeployed', Locked = true;
         IsEditable: Boolean;
         IsUserNamePasswordVisible: Boolean;
         IsClientIdClientSecretVisible: Boolean;

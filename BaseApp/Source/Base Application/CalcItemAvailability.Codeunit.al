@@ -32,7 +32,7 @@ codeunit 5530 "Calc. Item Availability"
             repeat
                 RequestInvtEventBuf := TempInvtEventBuf;
                 RequestInvtEventBuf.Insert();
-            until TempInvtEventBuf.Next = 0;
+            until TempInvtEventBuf.Next() = 0;
     end;
 
     procedure GetDocumentEntries(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item)
@@ -106,7 +106,7 @@ codeunit 5530 "Calc. Item Availability"
 
                 ItemLedgEntry.Find('+');
                 ItemLedgEntry.CopyFilters(FilterItemLedgEntry);
-            until ItemLedgEntry.Next = 0;
+            until ItemLedgEntry.Next() = 0;
         end;
 
         exit(true);
@@ -123,7 +123,7 @@ codeunit 5530 "Calc. Item Availability"
             repeat
                 InvtEventBuf.TransferFromPurchase(PurchLine);
                 InsertEntry(InvtEventBuf);
-            until PurchLine.Next = 0;
+            until PurchLine.Next() = 0;
 
         exit(true);
     end;
@@ -139,7 +139,7 @@ codeunit 5530 "Calc. Item Availability"
             repeat
                 InvtEventBuf.TransferFromSalesReturn(SalesLine);
                 InsertEntry(InvtEventBuf);
-            until SalesLine.Next = 0;
+            until SalesLine.Next() = 0;
 
         exit(true);
     end;
@@ -155,7 +155,7 @@ codeunit 5530 "Calc. Item Availability"
             repeat
                 InvtEventBuf.TransferFromProdOrder(ProdOrderLine);
                 InsertEntry(InvtEventBuf);
-            until ProdOrderLine.Next = 0;
+            until ProdOrderLine.Next() = 0;
 
         exit(true);
     end;
@@ -171,7 +171,7 @@ codeunit 5530 "Calc. Item Availability"
             repeat
                 InvtEventBuf.TransferFromInboundTransOrder(TransLine);
                 InsertEntry(InvtEventBuf);
-            until TransLine.Next = 0;
+            until TransLine.Next() = 0;
 
         exit(true)
     end;
@@ -187,7 +187,7 @@ codeunit 5530 "Calc. Item Availability"
             repeat
                 InvtEventBuf.TransferFromSales(SalesLine);
                 InsertEntry(InvtEventBuf);
-            until SalesLine.Next = 0;
+            until SalesLine.Next() = 0;
 
         exit(true);
     end;
@@ -203,7 +203,7 @@ codeunit 5530 "Calc. Item Availability"
             repeat
                 InvtEventBuf.TransferFromServiceNeed(ServLine);
                 InsertEntry(InvtEventBuf);
-            until ServLine.Next = 0;
+            until ServLine.Next() = 0;
 
         exit(true);
     end;
@@ -219,7 +219,7 @@ codeunit 5530 "Calc. Item Availability"
             repeat
                 InvtEventBuf.TransferFromJobNeed(JobPlanningLine);
                 InsertEntry(InvtEventBuf);
-            until JobPlanningLine.Next = 0;
+            until JobPlanningLine.Next() = 0;
 
         exit(true);
     end;
@@ -235,7 +235,7 @@ codeunit 5530 "Calc. Item Availability"
             repeat
                 InvtEventBuf.TransferFromPurchReturn(PurchLine);
                 InsertEntry(InvtEventBuf);
-            until PurchLine.Next = 0;
+            until PurchLine.Next() = 0;
 
         exit(true);
     end;
@@ -251,7 +251,7 @@ codeunit 5530 "Calc. Item Availability"
             repeat
                 InvtEventBuf.TransferFromProdComp(ProdOrderComp);
                 InsertEntry(InvtEventBuf);
-            until ProdOrderComp.Next = 0;
+            until ProdOrderComp.Next() = 0;
 
         exit(true);
     end;
@@ -267,7 +267,7 @@ codeunit 5530 "Calc. Item Availability"
             repeat
                 InvtEventBuf.TransferFromOutboundTransOrder(TransLine);
                 InsertEntry(InvtEventBuf);
-            until TransLine.Next = 0;
+            until TransLine.Next() = 0;
 
         exit(true);
     end;
@@ -283,7 +283,7 @@ codeunit 5530 "Calc. Item Availability"
             repeat
                 InvtEventBuf.TransferFromAsmOrderLine(AsmLine);
                 InsertEntry(InvtEventBuf);
-            until AsmLine.Next = 0;
+            until AsmLine.Next() = 0;
 
         exit(true);
     end;
@@ -299,7 +299,7 @@ codeunit 5530 "Calc. Item Availability"
             repeat
                 InvtEventBuf.TransferFromAsmOrder(AsmHeader);
                 InsertEntry(InvtEventBuf);
-            until AsmHeader.Next = 0;
+            until AsmHeader.Next() = 0;
 
         exit(true);
     end;
@@ -394,14 +394,14 @@ codeunit 5530 "Calc. Item Availability"
                                 if ItemLedgEntry.FindSet then
                                     repeat
                                         RemainingForecastQty += ItemLedgEntry.Quantity;
-                                    until ItemLedgEntry.Next = 0;
+                                    until ItemLedgEntry.Next() = 0;
                             end else begin
                                 ItemLedgEntry.SetRange("Entry Type", ItemLedgEntry."Entry Type"::Sale);
                                 if ItemLedgEntry.FindSet then begin
                                     repeat
                                         if not ItemLedgEntry."Derived from Blanket Order" then
                                             RemainingForecastQty += ItemLedgEntry.Quantity;
-                                    until ItemLedgEntry.Next = 0;
+                                    until ItemLedgEntry.Next() = 0;
                                     // Undo shipment shall neutralize consumption from sales
                                     RemainingForecastQty += AjustForUndoneShipments(ItemLedgEntry);
                                 end;
@@ -419,7 +419,7 @@ codeunit 5530 "Calc. Item Availability"
                                     if not (InvtEventBuf.Positive or InvtEventBuf."Derived from Blanket Order")
                                     then
                                         RemainingForecastQty += InvtEventBuf."Remaining Quantity (Base)";
-                                until (InvtEventBuf.Next = 0) or (RemainingForecastQty < 0);
+                                until (InvtEventBuf.Next() = 0) or (RemainingForecastQty < 0);
 
                             if RemainingForecastQty < 0 then
                                 RemainingForecastQty := 0;
@@ -428,8 +428,8 @@ codeunit 5530 "Calc. Item Availability"
                             InsertEntry(InvtEventBuf);
 
                             ProdForecastEntry.SetRange("Forecast Date", ExcludeForecastBefore, ToDate);
-                        until ProdForecastEntry.Next = 0;
-                until ProdForecastEntry2.Next = 0;
+                        until ProdForecastEntry.Next() = 0;
+                until ProdForecastEntry2.Next() = 0;
         end;
         InvtEventBuf.Copy(CopyOfInvtEventBuf);
     end;
@@ -452,7 +452,7 @@ codeunit 5530 "Calc. Item Availability"
                     if InvtEventBuf.Find('-') then
                         repeat
                             QtyReleased -= InvtEventBuf."Remaining Quantity (Base)";
-                        until InvtEventBuf.Next = 0;
+                        until InvtEventBuf.Next() = 0;
                     SetRange("Document No.", "Document No.");
                     SetRange("Line No.", "Line No.");
                     repeat
@@ -463,10 +463,10 @@ codeunit 5530 "Calc. Item Availability"
                             QtyReleased := 0;
                         end else
                             QtyReleased -= "Outstanding Qty. (Base)";
-                    until Next = 0;
+                    until Next() = 0;
                     SetRange("Document No.");
                     SetRange("Line No.");
-                until Next = 0;
+                until Next() = 0;
         end;
 
         InvtEventBuf.Copy(CopyOfInvtEventBuf);
@@ -523,7 +523,7 @@ codeunit 5530 "Calc. Item Availability"
                                 InsertEntry(InvtEventBuf);
                             end;
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
 
         OnAfterGetPlanningLines(InvtEventBuf, Item, ReqLine, RecRef);
@@ -548,7 +548,7 @@ codeunit 5530 "Calc. Item Availability"
                     InsertEntry(InvtEventBuf);
                 end;
                 InvtEventBuf.Copy(CameFromInvtEventBuf);
-            until InvtEventBuf.Next = 0;
+            until InvtEventBuf.Next() = 0;
         InvtEventBuf.Copy(CopyOfInvtEventBuf);
 
         // Insert possible replacements
@@ -556,7 +556,7 @@ codeunit 5530 "Calc. Item Availability"
             repeat
                 InvtEventBuf.TransferFromPlanProdComp(PlanningComp);
                 InsertEntry(InvtEventBuf);
-            until PlanningComp.Next = 0;
+            until PlanningComp.Next() = 0;
     end;
 
     local procedure GetPlanningTransDemand(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item)
@@ -582,7 +582,7 @@ codeunit 5530 "Calc. Item Availability"
                 end;
                 InvtEventBuf.TransferFromReqLineTransDemand(TransferReqLine);
                 InsertEntry(InvtEventBuf);
-            until TransferReqLine.Next = 0;
+            until TransferReqLine.Next() = 0;
     end;
 
     procedure InsertEntry(var NewInvtEventBuffer: Record "Inventory Event Buffer")
@@ -631,7 +631,7 @@ codeunit 5530 "Calc. Item Availability"
             repeat
                 if not CorItemLedgEntry."Derived from Blanket Order" then
                     AdjustQty += CorItemLedgEntry.Quantity;
-            until CorItemLedgEntry.Next = 0;
+            until CorItemLedgEntry.Next() = 0;
         ItemLedgEntry.SetRange(Correction);
     end;
 
@@ -679,7 +679,7 @@ codeunit 5530 "Calc. Item Availability"
         SKU.SetRange("Replenishment System", Item."Replenishment System"::Purchase, Item."Replenishment System"::"Prod. Order");
         SKU.SetFilter("Reordering Policy", '<>%1', SKU."Reordering Policy"::" ");
         if SKU.Find('-') then
-            if SKU.Next = 0 then
+            if SKU.Next() = 0 then
                 ReplenishmentLocation := SKU."Location Code";
         exit(ReplenishmentLocation <> '');
     end;

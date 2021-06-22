@@ -98,7 +98,7 @@ report 5696 "Date Compress FA Ledger"
                                 SummarizeEntry(NewFALedgEntry, FALedgEntry2);
                         end else
                             EqualDim := false;
-                    until (Next = 0) or not EqualDim;
+                    until (Next() = 0) or not EqualDim;
                     InsertNewEntry(NewFALedgEntry);
                 end;
 

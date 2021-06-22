@@ -63,6 +63,11 @@ codeunit 73 "Purch.-Explode BOM"
         NoOfBOMComp: Integer;
         Selection: Integer;
 
+    procedure CallExplodeBOMCompLines(PurchLine: Record "Purchase Line")
+    begin
+        ExplodeBOMCompLines(PurchLine);
+    end;
+
     local procedure ExplodeBOMCompLines(PurchLine: Record "Purchase Line")
     var
         PreviousPurchLine: Record "Purchase Line";
@@ -165,7 +170,7 @@ codeunit 73 "Purch.-Explode BOM"
 
                     PreviousPurchLine := ToPurchLine;
                 end;
-            until FromBOMComp.Next = 0;
+            until FromBOMComp.Next() = 0;
 
             if TransferExtendedText.PurchCheckIfAnyExtText(ToPurchLine, false) then
                 TransferExtendedText.InsertPurchExtText(ToPurchLine);

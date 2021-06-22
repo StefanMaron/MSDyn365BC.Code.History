@@ -1,4 +1,4 @@
-﻿table 99000772 "Production BOM Line"
+table 99000772 "Production BOM Line"
 {
     Caption = 'Production BOM Line';
 
@@ -165,7 +165,7 @@
         }
         field(22; Comment; Boolean)
         {
-            CalcFormula = Exist ("Production BOM Comment Line" WHERE("Production BOM No." = FIELD("Production BOM No."),
+            CalcFormula = Exist("Production BOM Comment Line" WHERE("Production BOM No." = FIELD("Production BOM No."),
                                                                      "Version Code" = FIELD("Version Code"),
                                                                      "BOM Line No." = FIELD("Line No.")));
             Caption = 'Comment';

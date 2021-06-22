@@ -173,7 +173,7 @@ page 8904 "Project Manager Role Center"
                         ApplicationArea = Jobs;
                         Caption = 'Jobs Setup';
                         RunObject = page "Jobs Setup";
-                        AccessByPermission = tabledata 167 = R;
+                        AccessByPermission = TableData "Job" = R;
                     }
                     action("Job Posting Groups")
                     {

@@ -1313,7 +1313,7 @@ codeunit 136203 "Marketing Task Management"
         Contact: Record Contact;
         Counter: Integer;
     begin
-        Contact.FindSet;
+        Contact.FindSet();
         // Create 2 to 10 Segment Line - Boundary 2 is important.
         for Counter := 2 to 2 + LibraryRandom.RandInt(8) do begin
             LibraryMarketing.CreateSegmentLine(SegmentLine, SegmentHeaderNo);
@@ -1379,7 +1379,7 @@ codeunit 136203 "Marketing Task Management"
         ActivityStep: Record "Activity Step";
     begin
         ActivityStep.SetRange("Activity Code", ActivityCode);
-        ActivityStep.FindSet;
+        ActivityStep.FindSet();
         repeat
             Task.SetRange("Contact Company No.", ContactNo);
             Task.SetRange("System To-do Type", Task."System To-do Type"::"Contact Attendee");
@@ -1398,7 +1398,7 @@ codeunit 136203 "Marketing Task Management"
         ActivityStep: Record "Activity Step";
     begin
         ActivityStep.SetRange("Activity Code", ActivityCode);
-        ActivityStep.FindSet;
+        ActivityStep.FindSet();
         repeat
             Task.SetRange("Salesperson Code", SalespersonCode);
             Task.SetRange("Activity Code", ActivityCode);
@@ -1416,7 +1416,7 @@ codeunit 136203 "Marketing Task Management"
         ActivityStep: Record "Activity Step";
     begin
         ActivityStep.SetRange("Activity Code", ActivityCode);
-        ActivityStep.FindSet;
+        ActivityStep.FindSet();
         repeat
             Task.SetRange("Team Code", TeamCode);
             Task.SetRange("System To-do Type", Task."System To-do Type"::Team);
@@ -1465,7 +1465,7 @@ codeunit 136203 "Marketing Task Management"
         Task: Record "To-do";
     begin
         SegmentLine.SetRange("Segment No.", SegmentNo);
-        SegmentLine.FindSet;
+        SegmentLine.FindSet();
         repeat
             Task.SetRange("Contact No.", SegmentLine."Contact No.");
             Task.SetRange("Segment No.", SegmentLine."Segment No.");
@@ -1574,7 +1574,7 @@ codeunit 136203 "Marketing Task Management"
               TempAttendee, TempAttendee."Attendance Type"::"To-do Organizer", TempAttendee."Attendee Type"::Salesperson, SalespersonCode2);
 
         SegmentLine.SetRange("Segment No.", SegmentNo);
-        SegmentLine.FindSet;
+        SegmentLine.FindSet();
         repeat
             CreateAttendee(
               TempAttendee, TempAttendee."Attendance Type"::Required, TempAttendee."Attendee Type"::Contact, SegmentLine."Contact No.");
@@ -1658,12 +1658,28 @@ codeunit 136203 "Marketing Task Management"
     procedure ModalFormHandlerMakePhoneCallChangeDateTime(var MakePhoneCall: TestPage "Make Phone Call")
     begin
         // Modifying the "Time of Interaction" and Date we check mentioned fields on the page are editable
+        Assert.IsFalse(MakePhoneCall.Finish.Visible(), 'MakePhoneCall.Finish.Visible #1');
+        Assert.IsFalse(MakePhoneCall.Date.Visible(), 'MakePhoneCall.Date.Visible');
+        Assert.IsFalse(MakePhoneCall."Time of Interaction".Visible(), 'MakePhoneCall."Time of Interaction".Visible');
+        MakePhoneCall.ShowMoreLess1.Drilldown(); // to show additional controls
+        Assert.IsTrue(MakePhoneCall.Date.Visible(), 'MakePhoneCall.Date. not Visible');
+        Assert.IsTrue(MakePhoneCall."Time of Interaction".Visible(), 'MakePhoneCall."Time of Interaction". not Visible');
+
         MakePhoneCall.Date.AssertEquals(Today);
         MakePhoneCall."Time of Interaction".SetValue(Time);
         MakePhoneCall.Date.SetValue(Today - 1);
         LibraryVariableStorage.Enqueue(MakePhoneCall."Time of Interaction".AsTime);
         LibraryVariableStorage.Enqueue(Today - 1);
-        MakePhoneCall.OK().Invoke();
+
+        MakePhoneCall.Next.Invoke(); // step 2
+        Assert.IsFalse(MakePhoneCall.Finish.Visible(), 'MakePhoneCall.Finish.Visible #2');
+        Assert.IsFalse(MakePhoneCall."Interaction Successful".Visible(), 'MakePhoneCall."Interaction Successful".Visible #2');
+        MakePhoneCall.ShowMoreLess2.Drilldown(); // to show additional controls
+        Assert.IsTrue(MakePhoneCall."Interaction Successful".Visible(), 'MakePhoneCall."Interaction Successful".not Visible #2');
+
+        MakePhoneCall.Next.Invoke(); // step 3
+        Assert.IsTrue(MakePhoneCall.Finish.Visible(), 'MakePhoneCall.Finish.not Visible #3');
+        MakePhoneCall.Finish.Invoke();
     end;
 }
 

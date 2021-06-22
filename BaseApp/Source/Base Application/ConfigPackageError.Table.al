@@ -106,7 +106,7 @@ table 8617 "Config. Package Error"
             repeat
                 MatrixColumnCaptions[i] := ConfigPackageField."Field Name";
                 i := i + 1;
-            until ConfigPackageField.Next = 0;
+            until ConfigPackageField.Next() = 0;
         ConfigPackageField.Get("Package Code", "Table ID", "Field ID");
         MatrixColumnCaptions[i] := ConfigPackageField."Field Name";
 

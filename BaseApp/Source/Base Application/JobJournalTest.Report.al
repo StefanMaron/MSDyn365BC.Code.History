@@ -172,7 +172,7 @@ report 1005 "Job Journal - Test"
                                     Continue := true;
                                     exit;
                                 end;
-                            until DimSetEntry.Next = 0;
+                            until DimSetEntry.Next() = 0;
                         end;
 
                         trigger OnPreDataItem()

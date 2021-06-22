@@ -1,12 +1,16 @@
 page 9173 "User Personalization List"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'User Personalizations';
+    Caption = 'User Settings';
+    AdditionalSearchTerms = 'User Personalization,User Preferences';
     CardPageID = "User Personalization Card";
     Editable = false;
     PageType = List;
     SourceTable = "User Personalization";
     UsageCategory = Lists;
+    HelpLink = 'https://go.microsoft.com/fwlink/?linkid=2149387';
+    AboutTitle = 'About user settings';
+    AboutText = 'User settings control the look and feel of the user interface the next time the users log in. Each user can also make their own choices in their My Settings page, unless you restrict their permissions.';
 
     layout
     {
@@ -15,19 +19,38 @@ page 9173 "User Personalization List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("User ID"; "User ID")
+                field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'User ID';
+                    ToolTip = 'Specifies the user’s unique identifier.';
                     DrillDown = false;
-                    ToolTip = 'Specifies the user ID of a user who is using Database Server Authentication to log on to Business Central.';
                 }
-                field("Profile ID"; "Profile ID")
+                field("Full Name"; Rec."Full Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Full Name';
+                    ToolTip = 'Specifies the user’s full name.';
+                    Editable = false;
+                    Visible = false;
+                }
+                field(Role; Rec.Role)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Role';
+                    ToolTip = 'Specifies the user role that defines the user’s default Role Center and role-specific customizations. Unless restricted by permissions, users can change their role on the My Settings page.';
+                }
+                field("Profile ID"; Rec."Profile ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Profile ID';
-                    Lookup = false;
                     ToolTip = 'Specifies the ID of the profile that is associated with the current user.';
+                    Editable = false;
+                    Lookup = false;
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The field "Role" will be used to show the caption associated to the Profile ID';
+                    ObsoleteTag = '18.0';
 
                     trigger OnValidate()
                     var
@@ -36,34 +59,58 @@ page 9173 "User Personalization List"
                         UserPersonalizationCard.SetExperienceToEssential("Profile ID");
                     end;
                 }
-                field("Language ID"; "Language ID")
+                field("Language"; Rec."Language Name")
                 {
                     ApplicationArea = Basic, Suite;
-                    BlankZero = true;
+                    Caption = 'Language';
+                    ToolTip = 'Specifies the language in which Business Central will display. Users can change this on the My Settings page.';
+                }
+                field("Language ID"; Rec."Language ID")
+                {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Language ID';
                     ToolTip = 'Specifies the ID of the language that Microsoft Windows is set up to run for the selected user.';
+                    BlankZero = true;
+                    Editable = false;
+                    Lookup = false;
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The field "Language" will be used to show the language name instead of the "Language ID"';
+                    ObsoleteTag = '18.0';
                 }
-                field("Locale ID"; "Locale ID")
+                field(Region; Rec.Region)
                 {
                     ApplicationArea = Basic, Suite;
-                    BlankZero = true;
+                    Caption = 'Region';
+                    Importance = Additional;
+                    ToolTip = 'Specifies the region setting for the user. The region defines display formats, for example, for dates, numbering, symbols, and currency. Users can change this on the My Settings page.';
+                }
+                field("Locale ID"; Rec."Locale ID")
+                {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Locale ID';
                     ToolTip = 'Specifies the ID of the locale that Microsoft Windows is set up to run for the selected user.';
+                    BlankZero = true;
+                    Editable = false;
+                    Lookup = false;
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The field "Region" will be used to show the region name instead of the "Locale ID"';
+                    ObsoleteTag = '18.0';
                 }
-                field("Time Zone"; "Time Zone")
+                field("Time Zone"; Rec."Time Zone")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Time Zone';
-                    ToolTip = 'Specifies the time zone that Microsoft Windows is set up to run for the selected user.';
+                    ToolTip = 'Specifies the time zone for the user. Users can change this on the My Settings page.';
                     Visible = false;
                 }
-                field(Company; Company)
+                field(Company; Rec.Company)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Company';
+                    ToolTip = 'Specifies the company that the user works in. Unless restricted by permissions, users can change this on the My Settings page.';
                     Lookup = false;
-                    ToolTip = 'Specifies the company that is associated with the user.';
                 }
             }
         }
@@ -88,22 +135,15 @@ page 9173 "User Personalization List"
 
     trigger OnOpenPage()
     begin
-        HideExternalUsers;
+        UserSettings.HideExternalUsers(Rec);
     end;
 
-    local procedure HideExternalUsers()
-    var
-        EnvironmentInfo: Codeunit "Environment Information";
-        OriginalFilterGroup: Integer;
+    trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
-        if not EnvironmentInfo.IsSaaS then
-            exit;
-
-        OriginalFilterGroup := FilterGroup;
-        FilterGroup := 2;
-        CalcFields("License Type");
-        SetFilter("License Type", '<>%1', "License Type"::"External User");
-        FilterGroup := OriginalFilterGroup;
+        if UserSettings.IsRestartRequiredIfChangeIsForCurrentUser() and (CloseAction <> ACTION::Cancel) then
+            UserSettings.RestartSession();
     end;
-}
 
+    var
+        UserSettings: Codeunit "User Settings";
+}

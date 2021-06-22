@@ -3,45 +3,25 @@
   <file datatype="xml" source-language="en-US" target-language="en-US" original="Late Payment Prediction Tests">
     <body>
       <group id="body">
-        <trans-unit id="Codeunit 856479737 - NamedType 3074054855" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Want to know if a sales document will be paid on time? The Late Payment Prediction extension can predict that.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Prediction Test - NamedType EnableNotificationMsg</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 856479737 - NamedType 2188504547" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The payment is predicted to be late, with Low confidence in the prediction.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Prediction Test - NamedType PredictionResultWillBeLateTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 856479737 - NamedType 1671929504" size-unit="char" translate="yes" xml:space="preserve">
-          <source>To predict a late payment, choose the %1 action. Want to learn more about the late payment predictions?</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Prediction Test - NamedType LearnMoreNotificationTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 856479737 - NamedType 3982224871" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Predict Payment</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Prediction Test - NamedType PredictActionCaptionTxt</note>
+        <trans-unit id="Codeunit 856479737 - NamedType 2058625442" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You cannot use the model because its quality of %1 is below the value in the Model Quality Threshold field. That means its predictions are unlikely to meet your accuracy requirements. You can evaluate the model again to confirm its quality. To use the model anyway, enter a value that is less than or equal to %1 in the Model Quality Threshold field.</source>
+          <note from="Developer" annotates="general" priority="2">%1 = current model quality (decimal)</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Prediction Test - NamedType CurrentModelLowerQualityThanDesiredErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 856479737 - NamedType 637644000" size-unit="char" translate="yes" xml:space="preserve">
           <source>Some model</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Prediction Test - NamedType DefaultDummyModelTxt</note>
         </trans-unit>
-        <trans-unit id="Codeunit 856479737 - NamedType 3136516953" size-unit="char" translate="yes" xml:space="preserve">
-          <source>A model is being created right now. Please try again later.</source>
+        <trans-unit id="Codeunit 856479737 - NamedType 3074054855" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Want to know if a sales document will be paid on time? The Late Payment Prediction extension can predict that.</source>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Prediction Test - NamedType TrainingInProgressErr</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Prediction Test - NamedType EnableNotificationMsg</note>
         </trans-unit>
-        <trans-unit id="Codeunit 856479737 - NamedType 298627209" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Data available is insufficient to create a new model or to test an existing one</source>
+        <trans-unit id="Codeunit 856479737 - NamedType 1671929504" size-unit="char" translate="yes" xml:space="preserve">
+          <source>To predict a late payment, choose the %1 action. Want to learn more about the late payment predictions?</source>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Prediction Test - NamedType NotEnoughDataAvailableErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 856479737 - NamedType 4075731924" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The quality of the new model is %1%, which is lower than the quality of the model you are using now, which is %2%. Are you sure you want to use the new model?</source>
-          <note from="Developer" annotates="general" priority="2">%1 = Quality of new model, %2 = Quality of existing model.</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Prediction Test - NamedType TrainedModelIsOfPoorerQualityCnfQst</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Prediction Test - NamedType LearnMoreNotificationTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 856479737 - NamedType 2640373066" size-unit="char" translate="yes" xml:space="preserve">
           <source>A new model has been created with a quality of %1%.</source>
@@ -53,15 +33,35 @@
           <note from="Developer" annotates="general" priority="2">%1 = Quality of the existing model</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Prediction Test - NamedType ModelTestedMsg</note>
         </trans-unit>
-        <trans-unit id="Codeunit 856479737 - NamedType 2058625442" size-unit="char" translate="yes" xml:space="preserve">
-          <source>You cannot use the model because its quality of %1 is below the value in the Model Quality Threshold field. That means its predictions are unlikely to meet your accuracy requirements. You can evaluate the model again to confirm its quality. To use the model anyway, enter a value that is less than or equal to %1 in the Model Quality Threshold field.</source>
-          <note from="Developer" annotates="general" priority="2">%1 = current model quality (decimal)</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Prediction Test - NamedType CurrentModelLowerQualityThanDesiredErr</note>
-        </trans-unit>
         <trans-unit id="Codeunit 856479737 - NamedType 750515220" size-unit="char" translate="yes" xml:space="preserve">
           <source>No prediction needed. The payment for this sales document is already overdue.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Prediction Test - NamedType NoLPPForLatePaymentTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 856479737 - NamedType 298627209" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Data available is insufficient to create a new model or to test an existing one</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Prediction Test - NamedType NotEnoughDataAvailableErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 856479737 - NamedType 3982224871" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Predict Payment</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Prediction Test - NamedType PredictActionCaptionTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 856479737 - NamedType 2188504547" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The payment is predicted to be late, with Low confidence in the prediction.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Prediction Test - NamedType PredictionResultWillBeLateTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 856479737 - NamedType 4075731924" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The quality of the new model is %1%, which is lower than the quality of the model you are using now, which is %2%. Are you sure you want to use the new model?</source>
+          <note from="Developer" annotates="general" priority="2">%1 = Quality of new model, %2 = Quality of existing model.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Prediction Test - NamedType TrainedModelIsOfPoorerQualityCnfQst</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 856479737 - NamedType 3136516953" size-unit="char" translate="yes" xml:space="preserve">
+          <source>A model is being created right now. Please try again later.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit LP Prediction Test - NamedType TrainingInProgressErr</note>
         </trans-unit>
       </group>
     </body>

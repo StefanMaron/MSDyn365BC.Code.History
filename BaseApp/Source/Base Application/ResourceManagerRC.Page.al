@@ -141,7 +141,7 @@ page 8906 "Resource Manager Role Center"
                         ApplicationArea = Jobs;
                         Caption = 'Resources Setup';
                         RunObject = page "Resources Setup";
-                        AccessByPermission = tabledata 156 = R;
+                        AccessByPermission = TableData "Resource" = R;
                     }
                     action("Work Types")
                     {
@@ -169,7 +169,7 @@ page 8906 "Resource Manager Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Resource Prices';
                         RunObject = page "Resource Prices";
-                        AccessByPermission = tabledata 156 = R;
+                        AccessByPermission = TableData "Resource" = R;
                         ObsoleteState = Pending;
                         ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
                         ObsoleteTag = '17.0';
@@ -179,7 +179,7 @@ page 8906 "Resource Manager Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Rounding Methods';
                         RunObject = page "Rounding Methods";
-                        AccessByPermission = tabledata 156 = R;
+                        AccessByPermission = TableData "Resource" = R;
                     }
                     action("Journal Templates")
                     {

@@ -454,7 +454,7 @@ codeunit 134350 "Test Item Charge Extendibility"
     var
         i: Integer;
     begin
-        ItemChargeAssignmentSales.FindSet;
+        ItemChargeAssignmentSales.FindSet();
         for i := ItemChargeAssignmentSales.Count downto 2 do begin
             ItemChargeAssignmentSales."Qty. to Assign" := Round(TotalQtyToAssign / (i + 1));
             ItemChargeAssignmentSales."Amount to Assign" := Round(TotalAmtToAssign / (i + 1));
@@ -472,7 +472,7 @@ codeunit 134350 "Test Item Charge Extendibility"
     var
         i: Integer;
     begin
-        ItemChargeAssignmentPurch.FindSet;
+        ItemChargeAssignmentPurch.FindSet();
         for i := ItemChargeAssignmentPurch.Count downto 2 do begin
             ItemChargeAssignmentPurch."Qty. to Assign" := Round(TotalQtyToAssign / (i + 1));
             ItemChargeAssignmentPurch."Amount to Assign" := Round(TotalAmtToAssign / (i + 1));
@@ -529,7 +529,7 @@ codeunit 134350 "Test Item Charge Extendibility"
         i: Integer;
     begin
         FilterItemChargeAssignmentSales(ItemChargeAssignmentSales, SalesLine, SalesLine2);
-        ItemChargeAssignmentSales.FindSet;
+        ItemChargeAssignmentSales.FindSet();
         for i := 0 to ItemChargeAssignmentSales.Count - 2 do begin
             Assert.AreEqual(Round(TotalQtyToAssign / (SalesLine2.Count - i), 0.00001),
               ItemChargeAssignmentSales."Qty. to Assign", 'Wrong Qty. to Assign');
@@ -551,7 +551,7 @@ codeunit 134350 "Test Item Charge Extendibility"
         j: Integer;
     begin
         FilterItemChargeAssignmentSales(ItemChargeAssignmentSales, SalesLine, SalesLine2);
-        ItemChargeAssignmentSales.FindSet;
+        ItemChargeAssignmentSales.FindSet();
         for i := ItemChargeAssignmentSales.Count downto 2 do begin
             j := i + 1;
             Assert.AreEqual(Round(TotalQtyToAssign / j), ItemChargeAssignmentSales."Qty. to Assign", 'Wrong Qty. to Assign');
@@ -581,7 +581,7 @@ codeunit 134350 "Test Item Charge Extendibility"
         i: Integer;
     begin
         FilterItemChargeAssignmentPurch(ItemChargeAssignmentPurch, PurchaseLine, PurchaseLine2);
-        ItemChargeAssignmentPurch.FindSet;
+        ItemChargeAssignmentPurch.FindSet();
         for i := 0 to ItemChargeAssignmentPurch.Count - 2 do begin
             Assert.AreEqual(Round(TotalQtyToAssign / (PurchaseLine2.Count - i), 0.00001),
               ItemChargeAssignmentPurch."Qty. to Assign", 'Wrong Qty. to Assign');
@@ -603,7 +603,7 @@ codeunit 134350 "Test Item Charge Extendibility"
         j: Integer;
     begin
         FilterItemChargeAssignmentPurch(ItemChargeAssignmentPurch, PurchaseLine, PurchaseLine2);
-        ItemChargeAssignmentPurch.FindSet;
+        ItemChargeAssignmentPurch.FindSet();
         for i := ItemChargeAssignmentPurch.Count downto 2 do begin
             j := i + 1;
             Assert.AreEqual(Round(TotalQtyToAssign / j), ItemChargeAssignmentPurch."Qty. to Assign", 'Wrong Qty. to Assign');
@@ -625,7 +625,7 @@ codeunit 134350 "Test Item Charge Extendibility"
         NewInstruction := Instruction;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5807, 'OnBeforeShowSuggestItemChargeAssignStrMenu', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Charge Assgnt. (Sales)", 'OnBeforeShowSuggestItemChargeAssignStrMenu', '', false, false)]
     local procedure ManipulateStrMenuOnBeforeShowSuggestItemChargeAssignSalesStrMenu(SalesLine: Record "Sales Line"; var SuggestItemChargeMenuTxt: Text; var SuggestItemChargeMessageTxt: Text; var Selection: Integer)
     begin
         SuggestItemChargeMenuTxt := NewStrMenuTxt;
@@ -633,9 +633,8 @@ codeunit 134350 "Test Item Charge Extendibility"
         SuggestItemChargeMessageTxt := NewInstruction;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5807, 'OnAssignItemCharges', '', false, false)]
-    [Scope('OnPrem')]
-    procedure AssignByFairyDustOnAssignItemChargesSales(SelectionTxt: Text; var ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)"; Currency: Record Currency; SalesHeader: Record "Sales Header"; TotalQtyToAssign: Decimal; TotalAmtToAssign: Decimal; var ItemChargesAssigned: Boolean)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Charge Assgnt. (Sales)", 'OnAssignItemCharges', '', false, false)]
+    local procedure AssignByFairyDustOnAssignItemChargesSales(SelectionTxt: Text; var ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)"; Currency: Record Currency; SalesHeader: Record "Sales Header"; TotalQtyToAssign: Decimal; TotalAmtToAssign: Decimal; var ItemChargesAssigned: Boolean)
     begin
         Assert.AreEqual(SelectStr(NewSelection, NewStrMenuTxt), SelectionTxt, 'Wrong option selected');
         Assert.AreEqual(AssignByFairyDustMenuText, SelectionTxt, 'Wrong option selected');
@@ -643,7 +642,7 @@ codeunit 134350 "Test Item Charge Extendibility"
         ItemChargesAssigned := true;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5805, 'OnBeforeShowSuggestItemChargeAssignStrMenu', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Charge Assgnt. (Purch.)", 'OnBeforeShowSuggestItemChargeAssignStrMenu', '', false, false)]
     local procedure ManipulateStrMenuOnBeforeShowSuggestItemChargeAssignPurchStrMenu(PurchLine: Record "Purchase Line"; var SuggestItemChargeMenuTxt: Text; var SuggestItemChargeMessageTxt: Text; var Selection: Integer)
     begin
         SuggestItemChargeMenuTxt := NewStrMenuTxt;
@@ -651,9 +650,8 @@ codeunit 134350 "Test Item Charge Extendibility"
         SuggestItemChargeMessageTxt := NewInstruction;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5805, 'OnAssignItemCharges', '', false, false)]
-    [Scope('OnPrem')]
-    procedure AssignByFairyDustOnAssignItemChargesPurch(SelectionTxt: Text; var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; Currency: Record Currency; PurchaseHeader: Record "Purchase Header"; TotalQtyToAssign: Decimal; TotalAmtToAssign: Decimal; var ItemChargesAssigned: Boolean)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Charge Assgnt. (Purch.)", 'OnAssignItemCharges', '', false, false)]
+    local procedure AssignByFairyDustOnAssignItemChargesPurch(SelectionTxt: Text; var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; Currency: Record Currency; PurchaseHeader: Record "Purchase Header"; TotalQtyToAssign: Decimal; TotalAmtToAssign: Decimal; var ItemChargesAssigned: Boolean)
     begin
         Assert.AreEqual(SelectStr(NewSelection, NewStrMenuTxt), SelectionTxt, 'Wrong option selected');
         Assert.AreEqual(AssignByFairyDustMenuText, SelectionTxt, 'Wrong option selected');

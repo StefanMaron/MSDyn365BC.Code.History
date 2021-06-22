@@ -195,7 +195,7 @@ codeunit 139301 "Assisted Company Setup Tests"
 
         // [WHEN] The user tries to enable the wizard
         Companies.OpenEdit;
-        Companies.FindFirstField(Name, CompanyName); // Company will be CRONUS in testruns
+        Companies.FindFirstField(CompanyNameVar, CompanyName); // Company will be CRONUS in testruns
 
         // [THEN] An error is thrown if that company already is set up
         asserterror Companies.EnableAssistedCompanySetup.SetValue(true);
@@ -225,7 +225,7 @@ codeunit 139301 "Assisted Company Setup Tests"
 
         // [WHEN] The user tries to enable the wizard
         Companies.OpenEdit;
-        Companies.FindFirstField(Name, NewCompanyName);
+        Companies.FindFirstField(CompanyNameVar, NewCompanyName);
         Companies.EnableAssistedCompanySetup.SetValue(true);
 
         // [THEN] A wizard record was created
@@ -424,46 +424,6 @@ codeunit 139301 "Assisted Company Setup Tests"
 
         // [THEN] Status of assisted setup remains Not Completed
         Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"Assisted Company Setup Wizard"), 'Set Up Company status should not be completed.');
-    end;
-
-    [Test]
-    [HandlerFunctions('MessageHandler,ConfirmYesHandler')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure TestWizardVerifyCostingMethodChange()
-    var
-        InventorySetup: Record "Inventory Setup";
-        AssistedCompanySetupWizard: TestPage "Assisted Company Setup Wizard";
-    begin
-        // [GIVEN] A newly setup company
-        InitializeForWizard;
-
-        // [GIVEN] No pre-existing inventory setup
-        InventorySetup.DeleteAll();
-
-        // [WHEN] Opening Assisted Company Setup wizard and navigating to costing methods page
-        OpenWizardAndGoToCostAccountingPage(AssistedCompanySetupWizard);
-
-        // [THEN] The initial value is the default costing method for new companies (FIFO)
-        AssistedCompanySetupWizard."Costing Method".AssertEquals(InventorySetup."Default Costing Method"::FIFO);
-
-        // [WHEN] Changing the costing method to Average
-        AssistedCompanySetupWizard."Costing Method".SetValue(InventorySetup."Default Costing Method"::Average);
-
-        // [THEN] The inventory setup Default Costing Method is updated to Average
-        VerifyInventorySetup(AssistedCompanySetupWizard, "Costing Method"::Average);
-
-        // [WHEN] Reopening the Wizard on the costing method page
-        AssistedCompanySetupWizard.Close;
-        OpenWizardAndGoToCostAccountingPage(AssistedCompanySetupWizard);
-
-        // [THEN] The wizard shows the previously changed value of Average
-        AssistedCompanySetupWizard."Costing Method".AssertEquals(InventorySetup."Default Costing Method"::Average);
-
-        // [WHEN] Changing the Costing Method to LIFO
-        AssistedCompanySetupWizard."Costing Method".SetValue(InventorySetup."Default Costing Method"::LIFO);
-        // [THEN] The costing method is updated to LIFO in the Inventory Setup
-        VerifyInventorySetup(AssistedCompanySetupWizard, "Costing Method"::LIFO);
     end;
 
     [Test]
@@ -707,7 +667,7 @@ codeunit 139301 "Assisted Company Setup Tests"
         AssistedSetupTestLibrary.CallOnRegister();
 
         AssistedSetupPag.OpenView;
-        AssistedSetupPag.FILTER.SetFilter("Page ID", Format(PAGE::"Item List"));
+        AssistedSetupPag.FILTER.SetFilter("Object ID to Run", Format(PAGE::"Item List"));
         Assert.AreEqual(FirstTestPageNameTxt, AssistedSetupPag.Name.Value, 'Wrong page name');
         AssistedSetupPag.Close;
     end;
@@ -726,10 +686,10 @@ codeunit 139301 "Assisted Company Setup Tests"
         AssistedSetupTestLibrary.CallOnRegister();
 
         AssistedSetupPag.OpenView;
-        AssistedSetupPag.FILTER.SetFilter("Page ID", Format(PAGE::"Item List"));
+        AssistedSetupPag.FILTER.SetFilter("Object ID to Run", Format(PAGE::"Item List"));
         Assert.AreEqual(FirstTestPageNameTxt, AssistedSetupPag.Name.Value, 'Wrong page name');
 
-        AssistedSetupPag.FILTER.SetFilter("Page ID", Format(PAGE::"Customer List"));
+        AssistedSetupPag.FILTER.SetFilter("Object ID to Run", Format(PAGE::"Customer List"));
         Assert.AreEqual(SecondTestPageNameTxt, AssistedSetupPag.Name.Value, 'Wrong page name');
 
         AssistedSetupPag.Close;
@@ -748,7 +708,7 @@ codeunit 139301 "Assisted Company Setup Tests"
         AssistedSetupTestLibrary.DeleteAll();
 
         AssistedSetupPag.OpenView;
-        AssistedSetupPag.FILTER.SetFilter("Page ID", Format(PAGE::"Item List"));
+        AssistedSetupPag.FILTER.SetFilter("Object ID to Run", Format(PAGE::"Item List"));
         // [THEN] Assisted Setup has records
         Assert.AreEqual(FirstTestPageNameTxt, AssistedSetupPag.Name.Value, 'Wrong page name');
         AssistedSetupPag.Close;
@@ -759,7 +719,7 @@ codeunit 139301 "Assisted Company Setup Tests"
         AssistedSetupTestLibrary.DeleteAll();
 
         AssistedSetupPag.OpenView;
-        AssistedSetupPag.FILTER.SetFilter("Page ID", Format(PAGE::"Item List"));
+        AssistedSetupPag.FILTER.SetFilter("Object ID to Run", Format(PAGE::"Item List"));
         Assert.IsFalse(AssistedSetupPag.First, 'Unexpected Inactive page within the filter, inactive page should have been deleted.');
         AssistedSetupPag.Close;
     end;
@@ -778,7 +738,7 @@ codeunit 139301 "Assisted Company Setup Tests"
         AssistedSetupTestLibrary.DeleteAll();
 
         AssistedSetupPag.OpenView;
-        AssistedSetupPag.FILTER.SetFilter("Page ID", Format(PAGE::"Item List"));
+        AssistedSetupPag.FILTER.SetFilter("Object ID to Run", Format(PAGE::"Item List"));
         // [THEN] Assisted Setup has records
         Assert.AreEqual(FirstTestPageNameTxt, AssistedSetupPag.Name.Value, 'Wrong page name');
         AssistedSetupPag."Start Setup".Invoke;
@@ -811,106 +771,6 @@ codeunit 139301 "Assisted Company Setup Tests"
     begin
         BankAccount.Get(BankAccNo);
         exit(BankAccount."Bank Acc. Posting Group");
-    end;
-
-    [Test]
-    [HandlerFunctions('MessageHandler,ConfirmYesHandler')]
-    [Scope('OnPrem')]
-    procedure AssistedCompanySetupWizardSkipAccountingPeriodEnabled()
-    var
-        AssistedCompanySetupWizard: TestPage "Assisted Company Setup Wizard";
-    begin
-        // [FEATURE] [UT] [UI] [Assisted Company Setup Wizard] [SkipAccountingPeriod]
-        // [SCENARIO 273424] SkipAccountingPeriod is enabled and editable on page Assisted Company Setup Wizard
-        InitializeForWizard;
-        AssistedCompanySetupWizard.OpenEdit;
-
-        Assert.IsTrue(AssistedCompanySetupWizard.SkipAccountingPeriod.Enabled, '');
-        Assert.IsTrue(AssistedCompanySetupWizard.SkipAccountingPeriod.Editable, '');
-
-        AssistedCompanySetupWizard.Close;
-    end;
-
-    [Test]
-    [HandlerFunctions('MessageHandler,ConfirmYesHandler')]
-    [Scope('OnPrem')]
-    procedure AssistedCompanySetupWizardSkipAccountingPeriodSetYes()
-    var
-        AssistedCompanySetupWizard: TestPage "Assisted Company Setup Wizard";
-    begin
-        // [FEATURE] [UT] [UI] [Assisted Company Setup Wizard] [SkipAccountingPeriod]
-        // [SCENARIO 273424] When SkipAccountingPeriod is enabled then AccountingPeriodStartDate is cleared and disabled on page Assisted Company Setup Wizard
-        InitializeForWizard;
-        AssistedCompanySetupWizard.OpenEdit;
-
-        // [GIVEN] AccountingPeriodStartDate = 01/23/2020 in Assisted Company Setup Wizard
-        AssistedCompanySetupWizard.AccountingPeriodStartDate.SetValue(WorkDate);
-
-        // [WHEN] Stan sets value SkipAccountingPeriod = Yes in Assisted Company Setup Wizard
-        AssistedCompanySetupWizard.SkipAccountingPeriod.SetValue(true);
-
-        // [THEN] AccountingPeriodStartDate is <blank> in Assisted Company Setup Wizard
-        AssistedCompanySetupWizard.AccountingPeriodStartDate.AssertEquals('');
-
-        // [THEN] AccountingPeriodStartDate is not editable in Assisted Company Setup Wizard
-        Assert.IsFalse(AssistedCompanySetupWizard.AccountingPeriodStartDate.Editable, '');
-
-        AssistedCompanySetupWizard.Close;
-    end;
-
-    [Test]
-    [HandlerFunctions('MessageHandler,ConfirmYesHandler')]
-    [Scope('OnPrem')]
-    procedure AssistedCompanySetupWizardSkipAccountingPeriodSetNo()
-    var
-        AssistedCompanySetupWizard: TestPage "Assisted Company Setup Wizard";
-    begin
-        // [FEATURE] [UT] [UI] [Assisted Company Setup Wizard] [SkipAccountingPeriod]
-        // [SCENARIO 273424] When SkipAccountingPeriod is disabled then AccountingPeriodStartDate is enabled and its value is restored on page Assisted Company Setup Wizard
-        InitializeForWizard;
-        AssistedCompanySetupWizard.OpenEdit;
-
-        // [GIVEN] Stan set AccountingPeriodStartDate = 01/23/2020 in Assisted Company Setup Wizard
-        AssistedCompanySetupWizard.AccountingPeriodStartDate.SetValue(WorkDate);
-
-        // [GIVEN] Stan set SkipAccountingPeriod = Yes in Assisted Company Setup Wizard
-        AssistedCompanySetupWizard.SkipAccountingPeriod.SetValue(true);
-
-        // [WHEN] Stan sets SkipAccountingPeriod = No in Assisted Company Setup Wizard
-        AssistedCompanySetupWizard.SkipAccountingPeriod.SetValue(false);
-
-        // [THEN] AccountingPeriodStartDate = 01/23/2020 in Assisted Company Setup Wizard
-        AssistedCompanySetupWizard.AccountingPeriodStartDate.AssertEquals(WorkDate);
-
-        // [THEN] AccountingPeriodStartDate is editable in Assisted Company Setup Wizard
-        Assert.IsTrue(AssistedCompanySetupWizard.AccountingPeriodStartDate.Editable, '');
-
-        AssistedCompanySetupWizard.Close;
-    end;
-
-    [Test]
-    [HandlerFunctions('MessageHandler,ConfirmYesHandler')]
-    [Scope('OnPrem')]
-    procedure AssistedCompanySetupWizardSkipAccountingPeriodAndStartingDateBothBlankErr()
-    var
-        AssistedCompanySetupWizard: TestPage "Assisted Company Setup Wizard";
-    begin
-        // [FEATURE] [UT] [UI] [Assisted Company Setup Wizard] [SkipAccountingPeriod]
-        // [SCENARIO 273424] When SkipAccountingPeriod is disabled and set value AccountingPeriodStartDate = <blank> then error is shown on Assisted Company Setup Wizard page
-        InitializeForWizard;
-        AssistedCompanySetupWizard.OpenEdit;
-
-        // [GIVEN] Stan set SkipAccountingPeriod = No in Assisted Company Setup Wizard
-        AssistedCompanySetupWizard.SkipAccountingPeriod.SetValue(false);
-
-        // [WHEN] Stan tries to clear AccountingPeriodStartDate in Assisted Company Setup Wizard
-        asserterror AssistedCompanySetupWizard.AccountingPeriodStartDate.SetValue('');
-
-        // [THEN] Error message "Fiscal Year Start Date must not be blank. Please, specify the date or select the Skip for Now check box."
-        Assert.ExpectedError(AccountingPeriodStartDateBlankErr);
-        Assert.ExpectedErrorCode(TestValidationCodeErr);
-
-        AssistedCompanySetupWizard.Close;
     end;
 
     [Test]

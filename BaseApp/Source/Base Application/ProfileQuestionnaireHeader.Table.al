@@ -16,23 +16,19 @@ table 5087 "Profile Questionnaire Header"
         {
             Caption = 'Description';
         }
-        field(3; "Contact Type"; Option)
+        field(3; "Contact Type"; Enum "Profile Questionnaire Contact Type")
         {
             Caption = 'Contact Type';
-            OptionCaption = ' ,Companies,People';
-            OptionMembers = " ",Companies,People;
         }
         field(4; "Business Relation Code"; Code[10])
         {
             Caption = 'Business Relation Code';
             TableRelation = "Business Relation";
         }
-        field(5; Priority; Option)
+        field(5; Priority; Enum "Profile Questionnaire Priority")
         {
             Caption = 'Priority';
             InitValue = Normal;
-            OptionCaption = 'Very Low,Low,Normal,High,Very High';
-            OptionMembers = "Very Low",Low,Normal,High,"Very High";
 
             trigger OnValidate()
             var
@@ -41,7 +37,7 @@ table 5087 "Profile Questionnaire Header"
                 ContProfileAnswer.SetCurrentKey("Profile Questionnaire Code");
                 ContProfileAnswer.SetRange("Profile Questionnaire Code", Code);
                 ContProfileAnswer.ModifyAll("Profile Questionnaire Priority", Priority);
-                Modify;
+                Modify();
             end;
         }
     }

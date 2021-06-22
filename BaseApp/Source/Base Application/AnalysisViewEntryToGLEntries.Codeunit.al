@@ -74,7 +74,7 @@ codeunit 413 AnalysisViewEntryToGLEntries
                         TempGLEntry := GLEntry;
                         if TempGLEntry.Insert() then;
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -142,7 +142,7 @@ codeunit 413 AnalysisViewEntryToGLEntries
                         CFForecastEntry := CFForecastEntry2;
                         CFForecastEntry.Insert();
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

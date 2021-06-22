@@ -1565,7 +1565,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         LibraryReportDataset.AssertElementWithValueExists('PrintLineDetails', true);
         with SalesShipmentLine do begin
             SetFilter("Document No.", SalesShipmentHeader."No.");
-            FindSet;
+            FindSet();
             repeat
                 VerifyReportLine("No.", Description, Quantity, "Unit of Measure Code");
             until Next = 0;
@@ -1580,7 +1580,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         LibraryReportDataset.AssertElementWithValueExists('PrintLineDetails', true);
         with ServiceShipmentLine do begin
             SetFilter("Document No.", ServiceShipmentHeader."No.");
-            FindSet;
+            FindSet();
             repeat
                 VerifyReportLine("No.", Description, Quantity, "Unit of Measure Code");
             until Next = 0;
@@ -1595,7 +1595,7 @@ codeunit 137112 "SCM Certificate Of Supply"
         LibraryReportDataset.AssertElementWithValueExists('PrintLineDetails', true);
         with ReturnShipmentLine do begin
             SetFilter("Document No.", ReturnShipmentHeader."No.");
-            FindSet;
+            FindSet();
             repeat
                 VerifyReportLine("No.", Description, Quantity, "Unit of Measure Code");
             until Next = 0;

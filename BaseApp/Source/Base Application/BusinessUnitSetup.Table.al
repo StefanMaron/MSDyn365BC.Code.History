@@ -51,7 +51,7 @@ table 1827 "Business Unit Setup"
                     Include := true;
                     Insert;
                 end;
-            until Company.Next = 0;
+            until Company.Next() = 0;
     end;
 }
 

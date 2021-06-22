@@ -574,7 +574,7 @@ codeunit 136307 "Job Consumption - Planning"
         JobPlanningLines.OK.Invoke;
     end;
 
-    local procedure Transfer2Journal(LineType: Option; ConsumableType: Enum "Job Planning Line Type"; Fraction: Decimal)
+    local procedure Transfer2Journal(LineType: Enum "Job Planning Line Line Type"; ConsumableType: Enum "Job Planning Line Type"; Fraction: Decimal)
     var
         JobTask: Record "Job Task";
         JobPlanningLine: Record "Job Planning Line";
@@ -722,7 +722,7 @@ codeunit 136307 "Job Consumption - Planning"
         JobLedgerEntry.FindFirst;
     end;
 
-    local procedure JobUsageLinkApplied(var JobUsageLink: Record "Job Usage Link"; Job: Record Job; JobPlanningLineType: Option Budget,Billable,"Both Budget and Billable")
+    local procedure JobUsageLinkApplied(var JobUsageLink: Record "Job Usage Link"; Job: Record Job; JobPlanningLineType: Enum "Job Planning Line Line Type")
     var
         JobPlanningLine: Record "Job Planning Line";
     begin
@@ -739,7 +739,7 @@ codeunit 136307 "Job Consumption - Planning"
         JobPlanningLine: Record "Job Planning Line";
     begin
         JobPlanningLine.SetRange("Job No.", Job."No.");
-        JobPlanningLine.FindSet;
+        JobPlanningLine.FindSet();
         repeat
             JobPlanningLine.TestField("Qty. to Transfer to Journal", 0)
         until JobPlanningLine.Next = 0;

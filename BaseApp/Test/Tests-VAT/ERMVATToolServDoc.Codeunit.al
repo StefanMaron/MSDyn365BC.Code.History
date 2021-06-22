@@ -1081,7 +1081,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         ServiceHeader.Find;
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
     end;
 
     local procedure GetServiceShipmentLine(var ServiceShipmentLine: Record "Service Shipment Line"; ServiceHeader: Record "Service Header")
@@ -1300,7 +1300,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
 
         ServiceLine.SetRange("VAT Prod. Posting Group", VATProdPostingGroup);
         ServiceLine.SetRange("Gen. Prod. Posting Group", GenProdPostingGroup);
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
 
         repeat
             ERMVATToolHelper.GetReservationEntryService(ReservationEntry, ServiceLine);
@@ -1316,7 +1316,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
 
         ServiceLine.SetRange("VAT Prod. Posting Group", VATProdPostingGroup);
         ServiceLine.SetRange("Gen. Prod. Posting Group", GenProdPostingGroup);
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
 
         repeat
             ERMVATToolHelper.GetReservationEntryService(ReservationEntry, ServiceLine);
@@ -1341,14 +1341,14 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         ServiceLn.Reset();
         ServiceLn.SetFilter("VAT Prod. Posting Group", StrSubstNo('%1|%2', VATProdPostingGroupOld, VATProdPostingGroupNew));
         ServiceLn.SetFilter("Gen. Prod. Posting Group", StrSubstNo('%1|%2', GenProdPostingGroupOld, GenProdPostingGroupNew));
-        ServiceLn.FindSet;
+        ServiceLn.FindSet();
 
         // Compare Number of lines.
         Assert.AreEqual(TempRecRef.Count, ServiceLn.Count, StrSubstNo(ERMVATToolHelper.GetConversionErrorCount, ServiceLn.GetFilters));
 
         TempRecRef.Reset();
         SetTempTableService(TempRecRef, TempServiceLn);
-        TempServiceLn.FindSet;
+        TempServiceLn.FindSet();
 
         repeat
             if TempServiceLn."Description 2" = Format(TempServiceLn."Line No.") then

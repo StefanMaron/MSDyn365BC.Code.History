@@ -1,4 +1,4 @@
-﻿codeunit 5407 "Prod. Order Status Management"
+codeunit 5407 "Prod. Order Status Management"
 {
     Permissions = TableData "Source Code Setup" = r,
                   TableData "Production Order" = rimd,
@@ -32,8 +32,8 @@
         Item: Record Item;
         InvtSetup: Record "Inventory Setup";
         DimMgt: Codeunit DimensionManagement;
-        ReserveProdOrderLine: Codeunit "Prod. Order Line-Reserve";
-        ReserveProdOrderComp: Codeunit "Prod. Order Comp.-Reserve";
+        ProdOrderLineReserve: Codeunit "Prod. Order Line-Reserve";
+        ProdOrderCompReserve: Codeunit "Prod. Order Comp.-Reserve";
         ReservMgt: Codeunit "Reservation Management";
         CalendarMgt: Codeunit "Shop Calendar Management";
         UpdateProdOrderCost: Codeunit "Update Prod. Order Cost";
@@ -49,12 +49,15 @@
         Text008: Label '%1 %2 cannot be finished as the associated subcontract order %3 has not been fully delivered.';
         Text009: Label 'You cannot finish line %1 on %2 %3. It has consumption or capacity posted with no output.';
         Text010: Label 'You must specify a %1 in %2 %3 %4.';
+        ProdOrderCompRemainToPickErr: Label 'You cannot finish production order no. %1 because there is an outstanding pick for one or more components.', Comment = '%1: Production Order No.';
 
+#if not CLEAN17
     [Obsolete('Replaced by ChangeProdOrderStatus with enum parameter NewStatus.', '17.0')]
     procedure ChangeStatusOnProdOrder(ProdOrder: Record "Production Order"; NewStatus: Option Quote,Planned,"Firm Planned",Released,Finished; NewPostingDate: Date; NewUpdateUnitCost: Boolean)
     begin
         ChangeProdOrderStatus(ProdOrder, "Production Order Status".FromInteger(NewStatus), NewPostingDate, NewUpdateUnitCost);
     end;
+#endif
 
     procedure ChangeProdOrderStatus(ProdOrder: Record "Production Order"; NewStatus: Enum "Production Order Status"; NewPostingDate: Date; NewUpdateUnitCost: Boolean)
     begin
@@ -202,7 +205,7 @@
                         end;
                         ToProdOrderLine.BlockDynamicTracking(true);
                         ToProdOrderLine.Validate(Quantity);
-                        ReserveProdOrderLine.TransferPOLineToPOLine(FromProdOrderLine, ToProdOrderLine, 0, true);
+                        ProdOrderLineReserve.TransferPOLineToPOLine(FromProdOrderLine, ToProdOrderLine, 0, true);
                     end;
                     ToProdOrderLine.Validate("Unit Cost", "Unit Cost");
                     OnCopyFromProdOrderLine(ToProdOrderLine, FromProdOrderLine);
@@ -256,7 +259,7 @@
                     OnCopyFromProdOrderRoutingLine(ToProdOrderRtngLine, FromProdOrderRtngLine);
                     ToProdOrderRtngLine.Insert();
                     OnAfterToProdOrderRtngLineInsert(ToProdOrderRtngLine, FromProdOrderRtngLine);
-                until Next = 0;
+                until Next() = 0;
                 DeleteAll();
             end;
         end;
@@ -299,13 +302,13 @@
                     end else begin
                         ToProdOrderComp.BlockDynamicTracking(true);
                         ToProdOrderComp.Validate("Expected Quantity");
-                        ReserveProdOrderComp.TransferPOCompToPOComp(FromProdOrderComp, ToProdOrderComp, 0, true);
+                        ProdOrderCompReserve.TransferPOCompToPOComp(FromProdOrderComp, ToProdOrderComp, 0, true);
                         if ToProdOrderComp.Status in [ToProdOrderComp.Status::"Firm Planned", ToProdOrderComp.Status::Released] then
                             ToProdOrderComp.AutoReserve();
                     end;
                     OnCopyFromProdOrderComp(ToProdOrderComp, FromProdOrderComp);
                     ToProdOrderComp.Modify();
-                until Next = 0;
+                until Next() = 0;
                 OnAfterTransProdOrderComp(FromProdOrder, ToProdOrder);
                 DeleteAll();
             end;
@@ -327,7 +330,7 @@
                     ToProdOrderRoutTool.Status := ToProdOrder.Status;
                     ToProdOrderRoutTool."Prod. Order No." := ToProdOrder."No.";
                     ToProdOrderRoutTool.Insert();
-                until Next = 0;
+                until Next() = 0;
                 DeleteAll();
             end;
         end;
@@ -348,7 +351,7 @@
                     ToProdOrderRtngPersonnel.Status := ToProdOrder.Status;
                     ToProdOrderRtngPersonnel."Prod. Order No." := ToProdOrder."No.";
                     ToProdOrderRtngPersonnel.Insert();
-                until Next = 0;
+                until Next() = 0;
                 DeleteAll();
             end;
         end;
@@ -369,7 +372,7 @@
                     ToProdOrderRtngQltyMeas.Status := ToProdOrder.Status;
                     ToProdOrderRtngQltyMeas."Prod. Order No." := ToProdOrder."No.";
                     ToProdOrderRtngQltyMeas.Insert();
-                until Next = 0;
+                until Next() = 0;
                 DeleteAll();
             end;
         end;
@@ -390,7 +393,7 @@
                     ToProdOrderCommentLine.Status := ToProdOrder.Status;
                     ToProdOrderCommentLine."Prod. Order No." := ToProdOrder."No.";
                     ToProdOrderCommentLine.Insert();
-                until Next = 0;
+                until Next() = 0;
                 DeleteAll();
             end;
         end;
@@ -412,7 +415,7 @@
                     ToProdOrderRtngComment.Status := ToProdOrder.Status;
                     ToProdOrderRtngComment."Prod. Order No." := ToProdOrder."No.";
                     ToProdOrderRtngComment.Insert();
-                until Next = 0;
+                until Next() = 0;
                 DeleteAll();
             end;
         end;
@@ -433,7 +436,7 @@
                     ToProdOrderBOMComment.Status := ToProdOrder.Status;
                     ToProdOrderBOMComment."Prod. Order No." := ToProdOrder."No.";
                     ToProdOrderBOMComment.Insert();
-                until Next = 0;
+                until Next() = 0;
                 DeleteAll();
             end;
         end;
@@ -464,7 +467,7 @@
                         ToProdOrderCapNeed."Allocated Time" := ToProdOrderCapNeed."Needed Time";
                         OnCopyFromProdOrderCapacityNeed(ToProdOrderCapNeed, FromProdOrderCapNeed);
                         ToProdOrderCapNeed.Insert();
-                    until Next = 0;
+                    until Next() = 0;
                     DeleteAll();
                 end;
             end;
@@ -558,7 +561,7 @@
                             ItemTrackingMgt.CopyItemTracking(RowID1, ItemJnlLine.RowID1, false);
                         PostFlushItemJnlLine(ItemJnlLine);
                     end;
-                until Next = 0;
+                until Next() = 0;
                 Window.Close;
             end;
         end;
@@ -630,7 +633,7 @@
                       ItemJnlLine."Dimension Set ID", ItemJnlLine."Shortcut Dimension 1 Code", ItemJnlLine."Shortcut Dimension 2 Code");
                     OnAfterUpdateGlobalDim(ItemJnlLine, ProdOrderRtngLine, ProdOrderLine);
                     if IsLastOperation then
-                        ReserveProdOrderLine.TransferPOLineToItemJnlLine(ProdOrderLine, ItemJnlLine, ItemJnlLine."Output Quantity (Base)");
+                        ProdOrderLineReserve.TransferPOLineToItemJnlLine(ProdOrderLine, ItemJnlLine, ItemJnlLine."Output Quantity (Base)");
                     PostFlushItemJnlLine(ItemJnlLine);
                 end;
 
@@ -750,12 +753,12 @@
                     ProdOrderRtngLine.SetRange("Prod. Order No.", "Prod. Order No.");
                     ProdOrderRtngLine.SetRange("Routing Reference No.", "Line No.");
                     ProdOrderRtngLine.SetRange("Next Operation No.", '');
-                    if not ProdOrderRtngLine.IsEmpty then begin
+                    if not ProdOrderRtngLine.IsEmpty() then begin
                         ProdOrderRtngLine.SetFilter("Flushing Method", '<>%1', ProdOrderRtngLine."Flushing Method"::Backward);
                         ShowWarning := not ProdOrderRtngLine.IsEmpty;
                     end else
                         ShowWarning := true;
-                until (Next = 0) or ShowWarning;
+                until (Next() = 0) or ShowWarning;
 
             OnCheckMissingOutput(ProdOrder, ProdOrderLine, ProdOrderRtngLine, ShowWarning);
             if ShowWarning then
@@ -765,18 +768,17 @@
 
         with ProdOrderComp do begin
             ShowWarning := false;
-            SetAutoCalcFields("Pick Qty. (Base)");
             SetProdOrderCompFilters(ProdOrderComp, ProdOrder);
             if FindSet then
                 repeat
-                    TestField("Pick Qty. (Base)", 0);
+                    CheckNothingRemainingToPickForProdOrderComp(ProdOrderComp);
                     if (("Flushing Method" <> "Flushing Method"::Backward) and
                         ("Flushing Method" <> "Flushing Method"::"Pick + Backward") and
                         ("Routing Link Code" = '')) or
                        (("Routing Link Code" <> '') and not RtngWillFlushComp(ProdOrderComp))
                     then
                         ShowWarning := true;
-                until Next = 0;
+                until Next() = 0;
 
             OnCheckMissingConsumption(ProdOrder, ProdOrderLine, ProdOrderRtngLine, ShowWarning);
             if ShowWarning then
@@ -815,6 +817,7 @@
         SourceCodeSetupRead := true;
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by same with enum parameter NewStatus.', '17.0')]
     procedure SetPostingInfo(Status: Option Quote,Planned,"Firm Planned",Released,Finished; PostingDate: Date; UpdateUnitCost: Boolean)
     begin
@@ -822,6 +825,7 @@
         NewPostingDate := PostingDate;
         NewUpdateUnitCost := UpdateUnitCost;
     end;
+#endif
 
     procedure SetPostingInfo(Status: Enum "Production Order Status"; PostingDate: Date; UpdateUnitCost: Boolean)
     begin
@@ -845,7 +849,7 @@
                     if not OutputExists(ProdOrderLine) then
                         if MatrOrCapConsumpExists(ProdOrderLine) then
                             Error(Text009, ProdOrderLine."Line No.", ToProdOrder.TableCaption, ProdOrderLine."Prod. Order No.");
-            until ProdOrderLine.Next = 0;
+            until ProdOrderLine.Next() = 0;
     end;
 
     local procedure OutputExists(ProdOrderLine: Record "Prod. Order Line"): Boolean
@@ -881,7 +885,7 @@
         ItemLedgEntry.SetRange("Order No.", ProdOrderLine."Prod. Order No.");
         ItemLedgEntry.SetRange("Order Line No.", ProdOrderLine."Line No.");
         ItemLedgEntry.SetRange("Entry Type", ItemLedgEntry."Entry Type"::Consumption);
-        if not ItemLedgEntry.IsEmpty then
+        if not ItemLedgEntry.IsEmpty() then
             exit(true);
 
         CapLedgEntry.SetCurrentKey("Order Type", "Order No.", "Order Line No.", "Routing No.", "Routing Reference No.");
@@ -961,7 +965,7 @@
                     PageManagement.GetPageCaption(PageManagement.GetPageID(ToProdOrder)),
                     ToProdOrder."No.", ToProdOrder.Description));
                 RecordLink.Modify(true);
-            until RecordLink.Next = 0;
+            until RecordLink.Next() = 0;
     end;
 
     local procedure IsStatusSimulatedOrPlanned(Status: Enum "Production Order Status"): Boolean
@@ -1008,6 +1012,24 @@
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetTimeAndQuantityOmItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; ProdOrderRoutingLine: Record "Prod. Order Routing Line")
     begin
+    end;
+
+    local procedure CheckNothingRemainingToPickForProdOrderComp(ProdOrderComponent: Record "Prod. Order Component")
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        WarehouseActivityLine.SetFilter(
+          "Activity Type", '%1|%2|%3',
+          WarehouseActivityLine."Activity Type"::"Invt. Movement", WarehouseActivityLine."Activity Type"::"Invt. Pick",
+          WarehouseActivityLine."Activity Type"::Pick);
+        WarehouseActivityLine.SetSourceFilter(
+          DATABASE::"Prod. Order Component", ProdOrderComponent.Status, ProdOrderComponent."Prod. Order No.",
+          ProdOrderComponent."Prod. Order Line No.", ProdOrderComponent."Line No.", true);
+        WarehouseActivityLine.SetRange("Original Breakbulk", false);
+        WarehouseActivityLine.SetRange("Breakbulk No.", 0);
+        WarehouseActivityLine.SetFilter("Qty. Outstanding (Base)", '<>%1', 0);
+        if not WarehouseActivityLine.IsEmpty() then
+            Error(ProdOrderCompRemainToPickErr, ProdOrderComponent."Prod. Order No.");
     end;
 
     [IntegrationEvent(false, false)]

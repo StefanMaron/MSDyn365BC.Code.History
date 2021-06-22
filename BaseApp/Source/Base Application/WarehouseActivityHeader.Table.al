@@ -585,12 +585,12 @@ table 5766 "Warehouse Activity Header"
                             WhseActivLine3."Sorting Sequence No." := SequenceNo;
                             WhseActivLine3.Modify();
                             SequenceNo := SequenceNo + 10000;
-                        until WhseActivLine3.Next = 0;
+                        until WhseActivLine3.Next() = 0;
 
                     WhseActivLine2."Sorting Sequence No." := SequenceNo;
                     WhseActivLine2.Modify();
                     SequenceNo := SequenceNo + 10000;
-                until WhseActivLine2.Next = 0;
+                until WhseActivLine2.Next() = 0;
             end;
         end;
     end;
@@ -615,7 +615,7 @@ table 5766 "Warehouse Activity Header"
                             TempWhseActivLine.Init();
                             TempWhseActivLine.Copy(WhseActivLine2);
                             TempWhseActivLine.Insert();
-                        until WhseActivLine2.Next = 0;
+                        until WhseActivLine2.Next() = 0;
                     TempWhseActivLine.SetRange("Breakbulk No.", 0);
                     if TempWhseActivLine.Find('-') then
                         repeat
@@ -633,8 +633,8 @@ table 5766 "Warehouse Activity Header"
                                     WhseActivLine3."Sorting Sequence No." := SequenceNo;
                                     WhseActivLine3.Modify();
                                     SequenceNo := SequenceNo + 10000;
-                                until WhseActivLine2.Next = 0;
-                        until TempWhseActivLine.Next = 0;
+                                until WhseActivLine2.Next() = 0;
+                        until TempWhseActivLine.Next() = 0;
                 end else begin
                     SortLinesBinShelf(WhseActivLine2, SequenceNo, SortingOrder::Bin);
                     WhseActivLine2.SetCurrentKey("Activity Type", "No.", "Sorting Sequence No.");
@@ -671,12 +671,12 @@ table 5766 "Warehouse Activity Header"
                                     BreakBulkWhseActivLine."Sorting Sequence No." := SequenceNo;
                                     BreakBulkWhseActivLine.Modify();
                                     SequenceNo := SequenceNo + 10000;
-                                until BreakBulkWhseActivLine.Next = 0;
-                        until WhseActivLine3.Next = 0;
+                                until BreakBulkWhseActivLine.Next() = 0;
+                        until WhseActivLine3.Next() = 0;
                     WhseActivLine2."Sorting Sequence No." := SequenceNo;
                     WhseActivLine2.Modify();
                     SequenceNo := SequenceNo + 10000;
-                until WhseActivLine2.Next = 0;
+                until WhseActivLine2.Next() = 0;
             WhseActivLine2.SetRange("Action Type", WhseActivLine2."Action Type"::Place);
             WhseActivLine2.SetRange("Breakbulk No.", 0);
             if WhseActivLine2.Find('-') then
@@ -684,7 +684,7 @@ table 5766 "Warehouse Activity Header"
                     WhseActivLine2."Sorting Sequence No." := SequenceNo;
                     WhseActivLine2.Modify();
                     SequenceNo := SequenceNo + 10000;
-                until WhseActivLine2.Next = 0;
+                until WhseActivLine2.Next() = 0;
         end;
     end;
 
@@ -709,9 +709,9 @@ table 5766 "Warehouse Activity Header"
                             WhseActivLine3."Sorting Sequence No." := SequenceNo;
                             WhseActivLine3.Modify();
                             SequenceNo := SequenceNo + 10000;
-                        until WhseActivLine3.Next = 0;
+                        until WhseActivLine3.Next() = 0;
                 end;
-            until WhseActivLine2.Next = 0;
+            until WhseActivLine2.Next() = 0;
         end;
         WhseActivLine2.SetRange("Action Type", WhseActivLine2."Action Type"::Place);
         WhseActivLine2.SetRange("Breakbulk No.", 0);
@@ -720,7 +720,7 @@ table 5766 "Warehouse Activity Header"
                 WhseActivLine2."Sorting Sequence No." := SequenceNo;
                 WhseActivLine2.Modify();
                 SequenceNo := SequenceNo + 10000;
-            until WhseActivLine2.Next = 0;
+            until WhseActivLine2.Next() = 0;
     end;
 
     local procedure SortTakeLines(var NewWhseActivLine2: Record "Warehouse Activity Line"; var NewSequenceNo: Integer)
@@ -737,7 +737,7 @@ table 5766 "Warehouse Activity Header"
                     WhseActivLine3."Sorting Sequence No." := NewSequenceNo;
                     WhseActivLine3.Modify();
                     NewSequenceNo := NewSequenceNo + 10000;
-                until WhseActivLine3.Next = 0;
+                until WhseActivLine3.Next() = 0;
 
             NewWhseActivLine2.Mark(true);
             NewWhseActivLine2."Sorting Sequence No." := NewSequenceNo;
@@ -767,7 +767,7 @@ table 5766 "Warehouse Activity Header"
                 TempWarehouseActivityLine := WarehouseActivityLineLocal;
                 TempWarehouseActivityLine.Insert();
             end;
-        until WarehouseActivityLineLocal.Next = 0;
+        until WarehouseActivityLineLocal.Next() = 0;
         case SortOrder of
             SortOrder::Bin:
                 TempWarehouseActivityLine.SetCurrentKey("Activity Type", "No.", "Bin Code");
@@ -789,7 +789,7 @@ table 5766 "Warehouse Activity Header"
                     WarehouseActivityLineLocal."Sorting Sequence No." := NewSequenceNo;
                     WarehouseActivityLineLocal.Modify();
                 end;
-        until TempWarehouseActivityLine.Next = 0;
+        until TempWarehouseActivityLine.Next() = 0;
         SeqNo := NewSequenceNo;
     end;
 
@@ -930,7 +930,7 @@ table 5766 "Warehouse Activity Header"
 
         if UserId <> '' then begin
             WhseEmployee.SetRange("User ID", UserId);
-            if WhseEmployee.IsEmpty then
+            if WhseEmployee.IsEmpty() then
                 Error(Text001, UserId);
         end;
     end;

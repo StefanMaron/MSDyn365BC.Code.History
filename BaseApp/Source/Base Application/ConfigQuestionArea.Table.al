@@ -51,11 +51,11 @@ table 8611 "Config. Question Area"
                 if (xRec."Table ID" <> "Table ID") and (xRec."Table ID" > 0) then begin
                     ConfigQuestion.SetRange("Questionnaire Code", "Questionnaire Code");
                     ConfigQuestion.SetRange("Question Area Code", Code);
-                    if not ConfigQuestion.IsEmpty then
+                    if not ConfigQuestion.IsEmpty() then
                         Error(Text000, Code);
                     ConfigQuestionArea.SetRange("Questionnaire Code", "Questionnaire Code");
                     ConfigQuestionArea.SetRange("Table ID", "Table ID");
-                    if not ConfigQuestionArea.IsEmpty then
+                    if not ConfigQuestionArea.IsEmpty() then
                         Error(Text001, "Table ID");
                 end;
                 CalcFields("Table Name", "Table Caption");

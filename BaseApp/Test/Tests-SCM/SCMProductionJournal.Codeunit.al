@@ -341,7 +341,7 @@ codeunit 137034 "SCM Production Journal"
 
         // Verify: Verification of Dimensions on Production Journal lines.
         // Dimensions for Consumption Entries.
-        TempItemJournalLine2.FindSet;
+        TempItemJournalLine2.FindSet();
         VerifyDimensionSetEntry(DefaultDimension);
         TempItemJournalLine2.Next;
         VerifyDimensionSetEntry(DefaultDimension2);
@@ -1120,6 +1120,46 @@ codeunit 137034 "SCM Production Journal"
         RecurringConsumptionJournal.Description.AssertEquals(ProductionOrder.Description);
     end;
 
+    [Test]
+    procedure ItemNoIsUpdatedOnValidateProdOrderCompLineNo()
+    var
+        ProdItem: Record Item;
+        CompItem: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+        ConsumpItemJournalTemplate: Record "Item Journal Template";
+        ConsumpItemJournalBatch: Record "Item Journal Batch";
+        ConsumpItemJournalLine: Record "Item Journal Line";
+    begin
+        // [FEATURE] [Consumption] [Prod. Order Component] [UT]
+        // [SCENARIO 390313] Item No. is updated on consumption journal line when Stan validates "Prod. Order Comp Line No." field.
+        Initialize();
+
+        LibraryInventory.CreateItem(CompItem);
+
+        // [GIVEN] Production Order with component "C"
+        CreateProductionItem(ProdItem, CompItem);
+        CreateAndRefreshRelProdOrder(ProductionOrder, ProductionOrder."Source Type"::Item, ProdItem."No.");
+        ProdOrderComponent.SetRange("Item No.", CompItem."No.");
+        ProdOrderComponent.FindFirst();
+
+        // [GIVEN] Open consumption journal and select the Production Order No.
+        LibraryInventory.SelectItemJournalTemplateName(
+          ConsumpItemJournalTemplate, ConsumpItemJournalTemplate.Type::Consumption);
+        LibraryInventory.SelectItemJournalBatchName(
+          ConsumpItemJournalBatch, ConsumpItemJournalTemplate.Type, ConsumpItemJournalTemplate.Name);
+        LibraryInventory.CreateItemJnlLineWithNoItem(
+          ConsumpItemJournalLine, ConsumpItemJournalBatch, ConsumpItemJournalTemplate.Name, ConsumpItemJournalBatch.Name,
+          ConsumpItemJournalLine."Entry Type"::Consumption);
+        ConsumpItemJournalLine.Validate("Order No.", ProductionOrder."No.");
+
+        // [WHEN] Select the prod. order component line no. in "Prod. Order Comp. Line No." field.
+        ConsumpItemJournalLine.Validate("Prod. Order Comp. Line No.", ProdOrderComponent."Line No.");
+
+        // [THEN] Item No. on the consumption journal line is now "C".
+        ConsumpItemJournalLine.TestField("Item No.", CompItem."No.");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1314,7 +1354,7 @@ codeunit 137034 "SCM Production Journal"
             exit(RoutingLine."Operation No.");
     end;
 
-    local procedure CreateProductionItem(var ParentItem: Record Item; var ChildItem: Record Item)
+    local procedure CreateProductionItem(var ParentItem: Record Item; ChildItem: Record Item)
     var
         ProductionBOMHeader: Record "Production BOM Header";
     begin
@@ -1433,7 +1473,7 @@ codeunit 137034 "SCM Production Journal"
     begin
         ProdOrderLine.SetRange(Status, ProductionOrder.Status::Released);
         ProdOrderLine.SetRange("Prod. Order No.", ProdOrderNo);
-        ProdOrderLine.FindSet;
+        ProdOrderLine.FindSet();
     end;
 
     local procedure CreateAndRefreshRelProdOrder(var ProductionOrder: Record "Production Order"; SourceType: Enum "Prod. Order Source Type"; SourceNo: Code[20])
@@ -1632,7 +1672,7 @@ codeunit 137034 "SCM Production Journal"
     begin
         ProdOrderComponent.SetRange(Status, ProdOrderComponent.Status::Released);
         ProdOrderComponent.SetRange("Prod. Order No.", ProdOrderNo);
-        ProdOrderComponent.FindSet;
+        ProdOrderComponent.FindSet();
     end;
 
     local procedure SelectConsumptionJournal(var ItemJournalLine: Record "Item Journal Line"; ProdOrderNo: Code[20])
@@ -1640,14 +1680,14 @@ codeunit 137034 "SCM Production Journal"
         ItemJournalLine.SetRange("Order No.", ProdOrderNo);
         ItemJournalLine.SetRange("Entry Type", ItemJournalLine."Entry Type"::Consumption);
         ItemJournalLine.SetRange("Item No.", ReserveItemNo);
-        ItemJournalLine.FindSet;
+        ItemJournalLine.FindSet();
     end;
 
     local procedure CopyProductionJournalToTemp(var ItemJournalLine: Record "Item Journal Line"; ProdOrderNo: Code[20])
     begin
         TempItemJournalLine.DeleteAll();
         ItemJournalLine.SetRange("Order No.", ProdOrderNo);
-        ItemJournalLine.FindSet;
+        ItemJournalLine.FindSet();
         repeat
             TempItemJournalLine := ItemJournalLine;
             if TempItemJournalLine.Insert() then;
@@ -1662,7 +1702,7 @@ codeunit 137034 "SCM Production Journal"
         TempItemJournalLine2.DeleteAll();
         TempDimensionSetEntry.DeleteAll();
         ItemJournalLine.SetRange("Order No.", ProdOrderNo);
-        ItemJournalLine.FindSet;
+        ItemJournalLine.FindSet();
         repeat
             TempItemJournalLine2 := ItemJournalLine;
             TempItemJournalLine2.Insert();
@@ -1735,7 +1775,7 @@ codeunit 137034 "SCM Production Journal"
     begin
         SelectProdOrderComponent(ProdOrderComponent, ProdOrderNo);
         ProductionOrder.Get(ProductionOrder.Status::Released, ProdOrderNo);
-        TempItemJournalLine.FindSet;
+        TempItemJournalLine.FindSet();
         repeat
             Assert.AreEqual(ProdOrderComponent."Quantity per" * ProductionOrder.Quantity, TempItemJournalLine.Quantity, ErrMsgQuantity);
             TempItemJournalLine.Next;
@@ -1744,7 +1784,7 @@ codeunit 137034 "SCM Production Journal"
 
     local procedure VerifyConsumpEntriesAfterPost()
     begin
-        TempItemJournalLine.FindSet;
+        TempItemJournalLine.FindSet();
         repeat
             Assert.AreEqual(0, TempItemJournalLine.Quantity, ErrMsgQuantity);
         until TempItemJournalLine.Next = 0;
@@ -1760,8 +1800,8 @@ codeunit 137034 "SCM Production Journal"
         ProdOrderLine.FindFirst;
         SelectProdOrderComponent(ProdOrderComponent, ProdOrderNo);
         ProdOrderComponent.SetRange("Prod. Order Line No.", ProdOrderLine."Line No.");
-        ProdOrderComponent.FindSet;
-        TempItemJournalLine.FindSet;
+        ProdOrderComponent.FindSet();
+        TempItemJournalLine.FindSet();
         repeat
             Assert.AreEqual(ProdOrderComponent."Quantity per" * ProdOrderLine.Quantity, TempItemJournalLine.Quantity, ErrMsgQuantity);
             TempItemJournalLine.Next;
@@ -1775,7 +1815,7 @@ codeunit 137034 "SCM Production Journal"
     begin
         ProductionOrder.Get(ProductionOrder.Status::Released, ProdOrderNo);
         TempItemJournalLine.SetRange("Entry Type", TempItemJournalLine."Entry Type"::Output);
-        TempItemJournalLine.FindSet;
+        TempItemJournalLine.FindSet();
         repeat
             Assert.AreEqual(ProductionOrder.Quantity, TempItemJournalLine."Output Quantity", ErrMsgQuantity);
             Assert.AreEqual(0, TempItemJournalLine."Setup Time", StrSubstNo(ErrMsgTime, TempItemJournalLine.FieldCaption("Setup Time")));
@@ -1786,7 +1826,7 @@ codeunit 137034 "SCM Production Journal"
     local procedure VerifyOutputEntriesAfterPost()
     begin
         TempItemJournalLine.SetRange("Entry Type", TempItemJournalLine."Entry Type"::Output);
-        TempItemJournalLine.FindSet;
+        TempItemJournalLine.FindSet();
         repeat
             Assert.AreEqual(0, TempItemJournalLine."Output Quantity", ErrMsgQuantity);
             Assert.AreEqual(0, TempItemJournalLine."Setup Time", StrSubstNo(ErrMsgTime, TempItemJournalLine.FieldCaption("Setup Time")));
@@ -1802,7 +1842,7 @@ codeunit 137034 "SCM Production Journal"
         FamilyLine.SetRange("Item No.", ItemNo);
         FamilyLine.FindFirst;
         TempItemJournalLine.SetRange("Entry Type", TempItemJournalLine."Entry Type"::Output);
-        TempItemJournalLine.FindSet;
+        TempItemJournalLine.FindSet();
         repeat
             Assert.AreEqual(FamilyLine.Quantity, TempItemJournalLine."Output Quantity", ErrMsgQuantity);
             Assert.AreEqual(0, TempItemJournalLine."Setup Time", StrSubstNo(ErrMsgTime, TempItemJournalLine.FieldCaption("Setup Time")));
@@ -1889,7 +1929,7 @@ codeunit 137034 "SCM Production Journal"
             exit;
 
         ItemJournalLine.SetRange("Entry Type", ItemJournalLine."Entry Type"::Output);
-        ItemJournalLine.FindSet;
+        ItemJournalLine.FindSet();
         repeat
             ItemJournalLine.Validate("Setup Time", LibraryRandom.RandInt(5));  // Random values not important.
             ItemJournalLine.Validate("Run Time", LibraryRandom.RandInt(5));
@@ -1913,7 +1953,7 @@ codeunit 137034 "SCM Production Journal"
         if PostedProdJournal then
             exit;
 
-        ItemJournalLine.FindSet;
+        ItemJournalLine.FindSet();
 
         // Post Production Journal lines.
         CODEUNIT.Run(CODEUNIT::"Item Jnl.-Post Batch", ItemJournalLine);
@@ -1942,7 +1982,7 @@ codeunit 137034 "SCM Production Journal"
         if PostedProdJournal then
             exit;
 
-        ItemJournalLine.FindSet;
+        ItemJournalLine.FindSet();
 
         // Post Production Journal lines.
         CODEUNIT.Run(CODEUNIT::"Item Jnl.-Post Batch", ItemJournalLine);

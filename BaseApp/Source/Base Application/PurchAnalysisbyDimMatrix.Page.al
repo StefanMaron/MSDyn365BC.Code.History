@@ -44,7 +44,7 @@ page 9225 "Purch. Analysis by Dim Matrix"
                     trigger OnDrillDown()
                     begin
                         ItemAnalysisMgt.DrillDown(
-                          CurrentAnalysisArea, ItemStatisticsBuffer, CurrentItemAnalysisViewCode,
+                          CurrentAnalysisArea.AsInteger(), ItemStatisticsBuffer, CurrentItemAnalysisViewCode,
                           ItemFilter, LocationFilter, DateFilter,
                           Dim1Filter, Dim2Filter, Dim3Filter, BudgetFilter,
                           LineDimOption, Rec,
@@ -67,7 +67,7 @@ page 9225 "Purch. Analysis by Dim Matrix"
                     trigger OnDrillDown()
                     begin
                         ItemAnalysisMgt.DrillDown(
-                          CurrentAnalysisArea, ItemStatisticsBuffer, CurrentItemAnalysisViewCode,
+                          CurrentAnalysisArea.AsInteger(), ItemStatisticsBuffer, CurrentItemAnalysisViewCode,
                           ItemFilter, LocationFilter, DateFilter,
                           Dim1Filter, Dim2Filter, Dim3Filter, BudgetFilter,
                           LineDimOption, Rec,
@@ -612,7 +612,7 @@ page 9225 "Purch. Analysis by Dim Matrix"
                         ItemAnalysisViewToExcel: Codeunit "Export Item Analysis View";
                     begin
                         ItemAnalysisViewToExcel.SetCommonFilters(
-                          CurrentAnalysisArea, CurrentItemAnalysisViewCode,
+                          CurrentAnalysisArea.AsInteger(), CurrentItemAnalysisViewCode,
                           ItemAnalysisViewEntry, DateFilter, ItemFilter, Dim1Filter, Dim2Filter, Dim3Filter, LocationFilter);
                         ItemAnalysisViewEntry.FindFirst;
                         ItemAnalysisViewToExcel.ExportData(
@@ -782,7 +782,7 @@ page 9225 "Purch. Analysis by Dim Matrix"
         ColumnDimOption: Option Item,Period,Location,"Dimension 1","Dimension 2","Dimension 3";
         PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
         ShowActualBudget: Option "Actual Amounts","Budgeted Amounts",Variance,"Variance%","Index%";
-        CurrentAnalysisArea: Option Sales,Purchase,Inventory;
+        CurrentAnalysisArea: Enum "Analysis Area Type";
         CurrentItemAnalysisViewCode: Code[10];
         LocationFilter: Code[250];
         ItemFilter: Code[250];
@@ -878,7 +878,7 @@ page 9225 "Purch. Analysis by Dim Matrix"
         ItemAnalysisView.Copy(ItemAnalysisView1);
 
         CurrentItemAnalysisViewCode := CurrentItemAnalysisViewCode1;
-        CurrentAnalysisArea := CurrentAnalysisArea1;
+        CurrentAnalysisArea := "Analysis Area Type".FromInteger(CurrentAnalysisArea1);
 
         LineDimOption := LineDimOption1;
         ColumnDimOption := ColumnDimOption1;
@@ -925,7 +925,7 @@ page 9225 "Purch. Analysis by Dim Matrix"
         if not AmtFromBuffer then begin
             Amt := ItemAnalysisMgt.CalcAmount(
                 ValueType, SetColFilter,
-                CurrentAnalysisArea, ItemStatisticsBuffer, CurrentItemAnalysisViewCode,
+                CurrentAnalysisArea.AsInteger(), ItemStatisticsBuffer, CurrentItemAnalysisViewCode,
                 ItemFilter, LocationFilter, DateFilter, BudgetFilter,
                 Dim1Filter, Dim2Filter, Dim3Filter,
                 LineDimOption, Rec,
@@ -965,7 +965,7 @@ page 9225 "Purch. Analysis by Dim Matrix"
           Dim1Filter, Dim2Filter, Dim3Filter);
 
         ItemAnalysisMgt.DrillDown(
-          CurrentAnalysisArea, ItemStatisticsBuffer, CurrentItemAnalysisViewCode,
+          CurrentAnalysisArea.AsInteger(), ItemStatisticsBuffer, CurrentItemAnalysisViewCode,
           ItemFilter, LocationFilter, DateFilter,
           Dim1Filter, Dim2Filter, Dim3Filter, BudgetFilter,
           LineDimOption, Rec,

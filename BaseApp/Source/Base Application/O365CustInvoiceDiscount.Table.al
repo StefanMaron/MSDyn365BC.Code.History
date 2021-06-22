@@ -57,7 +57,7 @@ table 2113 "O365 Cust. Invoice Discount"
     begin
         CustInvoiceDisc.SetRange(Code, Code);
         CustInvoiceDisc.SetRange("Minimum Amount", "Minimum Amount");
-        if not CustInvoiceDisc.IsEmpty then
+        if not CustInvoiceDisc.IsEmpty() then
             Error(DuplicateMinimumAmountErr, "Minimum Amount");
     end;
 }

@@ -321,7 +321,7 @@ codeunit 1806 "Excel Data Migrator"
                     TempExcelBuffer.CloseBook;
                     ConfigPackageTable.Delete(true);
                 end;
-            until ConfigPackageTable.Next = 0;
+            until ConfigPackageTable.Next() = 0;
     end;
 
     local procedure ValidateTemplateAndImportDataStream(FileStream: InStream)
@@ -346,7 +346,7 @@ codeunit 1806 "Excel Data Migrator"
                     TempExcelBuffer.CloseBook;
                     ConfigPackageTable.Delete(true);
                 end;
-            until ConfigPackageTable.Next = 0;
+            until ConfigPackageTable.Next() = 0;
     end;
 
     local procedure ValidateTemplateAndImportDataCommon(var TempExcelBuffer: Record "Excel Buffer" temporary; var ConfigPackageField: Record "Config. Package Field"; var ConfigPackageTable: Record "Config. Package Table")
@@ -405,7 +405,7 @@ codeunit 1806 "Excel Data Migrator"
                     // Go to next line
                     TempExcelBuffer.SetFilter("Row No.", '%1..', TempExcelBuffer."Row No." + 1);
                 end;
-            until TempExcelBuffer.Next = 0;
+            until TempExcelBuffer.Next() = 0;
 
         TempExcelBuffer.Reset();
         TempExcelBuffer.DeleteAll();
@@ -465,16 +465,16 @@ codeunit 1806 "Excel Data Migrator"
                 repeat
                     CalcFields("No. of Package Records");
                     DataMigrationEntity.InsertRecord("Table ID", "No. of Package Records");
-                until Next = 0;
+                until Next() = 0;
     end;
 
-    [EventSubscriber(ObjectType::Table, 1800, 'OnRegisterDataMigrator', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Data Migrator Registration", 'OnRegisterDataMigrator', '', false, false)]
     local procedure RegisterExcelDataMigrator(var Sender: Record "Data Migrator Registration")
     begin
         Sender.RegisterDataMigrator(GetCodeunitNumber, DataMigratorDescriptionTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 1800, 'OnHasSettings', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Data Migrator Registration", 'OnHasSettings', '', false, false)]
     local procedure HasSettings(var Sender: Record "Data Migrator Registration"; var HasSettings: Boolean)
     begin
         if Sender."No." <> GetCodeunitNumber then
@@ -483,7 +483,7 @@ codeunit 1806 "Excel Data Migrator"
         HasSettings := true;
     end;
 
-    [EventSubscriber(ObjectType::Table, 1800, 'OnOpenSettings', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Data Migrator Registration", 'OnOpenSettings', '', false, false)]
     local procedure OpenSettings(var Sender: Record "Data Migrator Registration"; var Handled: Boolean)
     begin
         if Sender."No." <> GetCodeunitNumber then
@@ -493,7 +493,7 @@ codeunit 1806 "Excel Data Migrator"
         Handled := true;
     end;
 
-    [EventSubscriber(ObjectType::Table, 1800, 'OnValidateSettings', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Data Migrator Registration", 'OnValidateSettings', '', false, false)]
     local procedure ValidateSettings(var Sender: Record "Data Migrator Registration")
     var
         DataMigrationSetup: Record "Data Migration Setup";
@@ -510,7 +510,7 @@ codeunit 1806 "Excel Data Migrator"
                 PAGE.RunModal(PAGE::"Data Migration Settings");
     end;
 
-    [EventSubscriber(ObjectType::Table, 1800, 'OnHasTemplate', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Data Migrator Registration", 'OnHasTemplate', '', false, false)]
     local procedure HasTemplate(var Sender: Record "Data Migrator Registration"; var HasTemplate: Boolean)
     begin
         if Sender."No." <> GetCodeunitNumber then
@@ -519,7 +519,7 @@ codeunit 1806 "Excel Data Migrator"
         HasTemplate := true;
     end;
 
-    [EventSubscriber(ObjectType::Table, 1800, 'OnGetInstructions', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Data Migrator Registration", 'OnGetInstructions', '', false, false)]
     local procedure GetInstructions(var Sender: Record "Data Migrator Registration"; var Instructions: Text; var Handled: Boolean)
     var
         TypeHelper: Codeunit "Type Helper";
@@ -535,7 +535,7 @@ codeunit 1806 "Excel Data Migrator"
         Handled := true;
     end;
 
-    [EventSubscriber(ObjectType::Table, 1800, 'OnDownloadTemplate', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Data Migrator Registration", 'OnDownloadTemplate', '', false, false)]
     local procedure DownloadTemplate(var Sender: Record "Data Migrator Registration"; var Handled: Boolean)
     begin
         if Sender."No." <> GetCodeunitNumber then
@@ -547,7 +547,7 @@ codeunit 1806 "Excel Data Migrator"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Table, 1800, 'OnDataImport', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Data Migrator Registration", 'OnDataImport', '', false, false)]
     local procedure ImportData(var Sender: Record "Data Migrator Registration"; var Handled: Boolean)
     begin
         if Sender."No." <> GetCodeunitNumber then
@@ -561,7 +561,7 @@ codeunit 1806 "Excel Data Migrator"
         Handled := false;
     end;
 
-    [EventSubscriber(ObjectType::Table, 1800, 'OnSelectDataToApply', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Data Migrator Registration", 'OnSelectDataToApply', '', false, false)]
     local procedure SelectDataToApply(var Sender: Record "Data Migrator Registration"; var DataMigrationEntity: Record "Data Migration Entity"; var Handled: Boolean)
     begin
         if Sender."No." <> GetCodeunitNumber then
@@ -572,7 +572,7 @@ codeunit 1806 "Excel Data Migrator"
         Handled := true;
     end;
 
-    [EventSubscriber(ObjectType::Table, 1800, 'OnHasAdvancedApply', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Data Migrator Registration", 'OnHasAdvancedApply', '', false, false)]
     local procedure HasAdvancedApply(var Sender: Record "Data Migrator Registration"; var HasAdvancedApply: Boolean)
     begin
         if Sender."No." <> GetCodeunitNumber then
@@ -581,7 +581,7 @@ codeunit 1806 "Excel Data Migrator"
         HasAdvancedApply := false;
     end;
 
-    [EventSubscriber(ObjectType::Table, 1800, 'OnOpenAdvancedApply', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Data Migrator Registration", 'OnOpenAdvancedApply', '', false, false)]
     local procedure OpenAdvancedApply(var Sender: Record "Data Migrator Registration"; var DataMigrationEntity: Record "Data Migration Entity"; var Handled: Boolean)
     var
         ConfigPackage: Record "Config. Package";
@@ -599,7 +599,7 @@ codeunit 1806 "Excel Data Migrator"
         Handled := true;
     end;
 
-    [EventSubscriber(ObjectType::Table, 1800, 'OnApplySelectedData', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Data Migrator Registration", 'OnApplySelectedData', '', false, false)]
     local procedure ApplySelectedData(var Sender: Record "Data Migrator Registration"; var DataMigrationEntity: Record "Data Migration Entity"; var Handled: Boolean)
     var
         ConfigPackage: Record "Config. Package";
@@ -622,7 +622,7 @@ codeunit 1806 "Excel Data Migrator"
             repeat
                 ConfigPackageTable.SetRange("Table ID", DataMigrationEntity."Table ID");
                 ConfigPackageManagement.ValidatePackageRelations(ConfigPackageTable, TempConfigPackageTable, true);
-            until DataMigrationEntity.Next = 0;
+            until DataMigrationEntity.Next() = 0;
         DataMigrationEntity.SetRange(Selected);
         ConfigPackageTable.SetRange("Table ID");
         ConfigPackageManagement.SetHideDialog(false);
@@ -639,7 +639,7 @@ codeunit 1806 "Excel Data Migrator"
                     ConfigPackageTable.Get(PackageCodeTxt, DataMigrationEntity."Table ID");
                     ConfigPackageTable.Delete(true);
                 end;
-            until DataMigrationEntity.Next = 0;
+            until DataMigrationEntity.Next() = 0;
 
         Window.Open(ApplyingMsg);
         RemoveDemoData(ConfigPackageTable);// Remove the demo data before importing Accounts(if any)
@@ -648,7 +648,7 @@ codeunit 1806 "Excel Data Migrator"
         Handled := true;
     end;
 
-    [EventSubscriber(ObjectType::Table, 1800, 'OnHasErrors', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Data Migrator Registration", 'OnHasErrors', '', false, false)]
     local procedure HasErrors(var Sender: Record "Data Migrator Registration"; var HasErrors: Boolean)
     var
         ConfigPackage: Record "Config. Package";
@@ -661,7 +661,7 @@ codeunit 1806 "Excel Data Migrator"
         HasErrors := ConfigPackage."No. of Errors" <> 0;
     end;
 
-    [EventSubscriber(ObjectType::Table, 1800, 'OnShowErrors', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Data Migrator Registration", 'OnShowErrors', '', false, false)]
     local procedure ShowErrors(var Sender: Record "Data Migrator Registration"; var Handled: Boolean)
     var
         ConfigPackageError: Record "Config. Package Error";

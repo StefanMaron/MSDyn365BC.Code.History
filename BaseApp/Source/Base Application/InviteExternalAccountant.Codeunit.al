@@ -271,9 +271,9 @@ codeunit 9033 "Invite External Accountant"
 
     procedure UpdateAssistedSetup()
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
     begin
-        AssistedSetup.Complete(PAGE::"Invite External Accountant");
+        GuidedExperience.CompleteAssistedSetup(ObjectType::Page, PAGE::"Invite External Accountant");
     end;
 
     local procedure InvokeRequestWithGraphAccessToken(Url: Text; Verb: Text; Body: Text; var ResponseContent: Text): Boolean
@@ -355,31 +355,31 @@ codeunit 9033 "Invite External Accountant"
         Session.LogMessage('0000B97', StrSubstNo(InviteExternalAccountantWizardFailedTxt, stepFailed, ErrorMessage), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', InviteExternalAccountantTelemetryCategoryTxt);
     end;
 
-    [EventSubscriber(ObjectType::Page, 9033, 'OnInvitationStart', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Invite External Accountant", 'OnInvitationStart', '', false, false)]
     local procedure SendTelemetryForInvitationStart()
     begin
         Session.LogMessage('0000178', InviteExternalAccountantTelemetryStartTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', InviteExternalAccountantTelemetryCategoryTxt);
     end;
 
-    [EventSubscriber(ObjectType::Page, 9033, 'OnInvitationNoExternalAccountantLicenseFail', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Invite External Accountant", 'OnInvitationNoExternalAccountantLicenseFail', '', false, false)]
     local procedure SendTelemetryForInvitationNoExternalAccountantLicenseFail()
     begin
         Session.LogMessage('0000179', InviteExternalAccountantTelemetryLicenseFailTxt, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', InviteExternalAccountantTelemetryCategoryTxt);
     end;
 
-    [EventSubscriber(ObjectType::Page, 9033, 'OnInvitationNoAADPermissionsFail', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Invite External Accountant", 'OnInvitationNoAADPermissionsFail', '', false, false)]
     local procedure SendTelemetryForInvitationNoAADPermissionsFail()
     begin
         Session.LogMessage('000017A', InviteExternalAccountantTelemetryAADPermissionFailTxt, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', InviteExternalAccountantTelemetryCategoryTxt);
     end;
 
-    [EventSubscriber(ObjectType::Page, 9033, 'OnInvitationNoUserTablePermissionsFail', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Invite External Accountant", 'OnInvitationNoUserTablePermissionsFail', '', false, false)]
     local procedure SendTelemetryForInvitationNoUserTableWritePermissionsFail()
     begin
         Session.LogMessage('00001DK', InviteExternalAccountantTelemetryUserTablePermissionFailTxt, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', InviteExternalAccountantTelemetryCategoryTxt);
     end;
 
-    [EventSubscriber(ObjectType::Page, 9033, 'OnInvitationEnd', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Invite External Accountant", 'OnInvitationEnd', '', false, false)]
     local procedure SendTelemetryForInvitationEnd(WasInvitationSuccessful: Boolean; Result: Text; TargetLicense: Text)
     begin
         if WasInvitationSuccessful then
@@ -388,7 +388,7 @@ codeunit 9033 "Invite External Accountant"
             Session.LogMessage('000017C', StrSubstNo(InviteExternalAccountantTelemetryEndTxt, Result, TargetLicense), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', InviteExternalAccountantTelemetryCategoryTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 9033, 'OnInvitationCreateNewUser', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Invite External Accountant", 'OnInvitationCreateNewUser', '', false, false)]
     local procedure SendTelemetryForInvitationCreateNewUser(UserCreated: Boolean)
     begin
         if UserCreated then

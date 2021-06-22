@@ -25,7 +25,7 @@ page 7315 "Warehouse Movement"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field(CurrentLocationCode; CurrentLocationCode)
@@ -235,7 +235,7 @@ page 7315 "Warehouse Movement"
 
     trigger OnDeleteRecord(): Boolean
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     trigger OnOpenPage()
@@ -269,12 +269,12 @@ page 7315 "Warehouse Movement"
 
     local procedure SortingMethodOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure BreakbulkFilterOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

@@ -371,9 +371,9 @@ codeunit 802 "Online Map Management"
         InsertParam(
           'BING',
           Text015,
-          'http://bing.com/maps/default.aspx?where1={1}+{2}+{6}&v=2&mkt={7}',
-          'http://bing.com/maps/default.aspx?rtp=adr.{1}+{2}+{6}~adr.{1}+{2}+{6}&v=2&mkt={7}&rtop={9}~0~0',
-          'http://bing.com/maps/default.aspx?rtp=pos.{10}_{11}~adr.{1}+{2}+{6}&v=2&mkt={7}&rtop={9}~0~0',
+          'https://bing.com/maps/default.aspx?where1={1}+{2}+{6}&v=2&mkt={7}',
+          'https://bing.com/maps/default.aspx?rtp=adr.{1}+{2}+{6}~adr.{1}+{2}+{6}&v=2&mkt={7}&rtop={9}~0~0',
+          'https://bing.com/maps/default.aspx?rtp=pos.{10}_{11}~adr.{1}+{2}+{6}&v=2&mkt={7}&rtop={9}~0~0',
           false, '', '0,1',
           'http://go.microsoft.com/fwlink/?LinkId=519372');
         OnlineMapSetup."Map Parameter Setup Code" := 'BING';
@@ -397,7 +397,7 @@ codeunit 802 "Online Map Management"
         OnlineMapParameterSetup.Insert(true);
     end;
 
-    [EventSubscriber(ObjectType::Table, 1400, 'OnRegisterServiceConnection', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Service Connection", 'OnRegisterServiceConnection', '', false, false)]
     procedure HandleMAPRegisterServiceConnection(var ServiceConnection: Record "Service Connection")
     var
         OnlineMapSetup: Record "Online Map Setup";

@@ -447,7 +447,7 @@ table 7338 "Bin Creation Worksheet Line"
         BinCreateWkshName.SetRange("Worksheet Template Name", CurrentWkshTemplateName);
         BinCreateWkshName.SetRange("Location Code", CurrentLocationCode);
         BinCreateWkshName.SetRange(Name, CurrentWkshName);
-        if not BinCreateWkshName.IsEmpty then
+        if not BinCreateWkshName.IsEmpty() then
             exit;
 
         BinCreateWkshName.SetRange(Name);
@@ -528,7 +528,7 @@ table 7338 "Bin Creation Worksheet Line"
                       BinContent."Max. Qty.", Cubage, Weight);
                     TotalCubage := TotalCubage + Cubage;
                     TotalWeight := TotalWeight + Weight;
-                until BinContent.Next = 0;
+                until BinContent.Next() = 0;
 
             if (not CheckWeight) and
                ("Maximum Cubage" > 0) and ("Maximum Cubage" - TotalCubage < 0)

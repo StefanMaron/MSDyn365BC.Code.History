@@ -89,7 +89,7 @@ table 725 "Custom Address Format"
                 if CustomAddressFormatLine.Separator <> '' then
                     "Line Format" += CustomAddressFormatLine.Separator;
                 "Line Format" += ' ';
-            until CustomAddressFormatLine.Next = 0;
+            until CustomAddressFormatLine.Next() = 0;
 
         if CustomAddressFormatLine.Count > 1 then
             "Field ID" := 0;

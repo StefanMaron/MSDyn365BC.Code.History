@@ -371,9 +371,10 @@ codeunit 134201 "Document Approval - Comments"
         Initialize;
         SetupUsers(UserSetup);
         SetApprovalAdmin(UserSetup."Approver ID");
-        WorkflowSetup.InsertSalesDocumentApprovalWorkflow(Workflow, SalesHeader."Document Type"::Order.AsInteger(),
-          WorkflowStepArgument."Approver Type"::Approver, WorkflowStepArgument."Approver Limit Type"::"Approver Chain",
-          '', BlankDateFormula);
+        WorkflowSetup.InsertSalesDocumentApprovalWorkflowSteps(
+            Workflow, SalesHeader."Document Type"::Order,
+            WorkflowStepArgument."Approver Type"::Approver, WorkflowStepArgument."Approver Limit Type"::"Approver Chain",
+            '', BlankDateFormula);
         Workflow.Validate(Template, false);
         Workflow.Validate(Enabled, true);
         Workflow.Modify(true);
@@ -409,9 +410,10 @@ codeunit 134201 "Document Approval - Comments"
         Initialize;
         SetupUsers(UserSetup);
         SetApprovalAdmin(UserSetup."Approver ID");
-        WorkflowSetup.InsertPurchaseDocumentApprovalWorkflow(Workflow, PurchaseHeader."Document Type"::Order.AsInteger(),
-          WorkflowStepArgument."Approver Type"::Approver, WorkflowStepArgument."Approver Limit Type"::"Approver Chain",
-          '', BlankDateFormula);
+        WorkflowSetup.InsertPurchaseDocumentApprovalWorkflowSteps(
+            Workflow, PurchaseHeader."Document Type"::Order,
+            WorkflowStepArgument."Approver Type"::Approver, WorkflowStepArgument."Approver Limit Type"::"Approver Chain",
+            '', BlankDateFormula);
         Workflow.Validate(Template, false);
         Workflow.Validate(Enabled, true);
         Workflow.Modify(true);
@@ -1149,8 +1151,8 @@ codeunit 134201 "Document Approval - Comments"
         SetupUsers(UserSetup);
         SetApprovalAdmin(UserSetup."Approver ID");
         LibraryWorkflow.DeleteAllExistingWorkflows();
-        WorkflowSetup.InsertPurchaseDocumentApprovalWorkflow(
-            Workflow, PurchaseHeader."Document Type"::Order.AsInteger(),
+        WorkflowSetup.InsertPurchaseDocumentApprovalWorkflowSteps(
+            Workflow, PurchaseHeader."Document Type"::Order,
             WorkflowStepArgument."Approver Type"::"Salesperson/Purchaser",
             WorkflowStepArgument."Approver Limit Type"::"Approver Chain", '', BlankDateFormula);
         Workflow.Validate(Template, false);
@@ -1344,7 +1346,7 @@ codeunit 134201 "Document Approval - Comments"
         ApprovalEntry.SetRange("Table ID", TableID);
         ApprovalEntry.SetRange("Document Type", DocumentType);
         ApprovalEntry.SetRange("Document No.", DocumentNo);
-        ApprovalEntry.FindSet;
+        ApprovalEntry.FindSet();
     end;
 
     local procedure InsertApprovalCommentsForPurchDocument(DocumentType: Enum "Purchase Document Type")
@@ -1455,9 +1457,10 @@ codeunit 134201 "Document Approval - Comments"
         case TableNo of
             DATABASE::"Purchase Header":
                 begin
-                    WorkflowSetup.InsertPurchaseDocumentApprovalWorkflow(Workflow, DocumentType.AsInteger(),
-                      WorkflowStepArgument."Approver Type"::"Salesperson/Purchaser",
-                      WorkflowStepArgument."Approver Limit Type"::"Approver Chain", '', BlankDateFormula);
+                    WorkflowSetup.InsertPurchaseDocumentApprovalWorkflowSteps(
+                        Workflow, DocumentType,
+                        WorkflowStepArgument."Approver Type"::"Salesperson/Purchaser",
+                        WorkflowStepArgument."Approver Limit Type"::"Approver Chain", '', BlankDateFormula);
                     Workflow.Validate(Template, false);
                     Workflow.Modify(true);
                     Workflow.InsertAfterFunctionName(WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode,
@@ -1465,9 +1468,10 @@ codeunit 134201 "Document Approval - Comments"
                 end;
             DATABASE::"Sales Header":
                 begin
-                    WorkflowSetup.InsertSalesDocumentApprovalWorkflow(Workflow, DocumentType.AsInteger(),
-                      WorkflowStepArgument."Approver Type"::"Salesperson/Purchaser",
-                      WorkflowStepArgument."Approver Limit Type"::"Approver Chain", '', BlankDateFormula);
+                    WorkflowSetup.InsertSalesDocumentApprovalWorkflowSteps(
+                        Workflow, DocumentType,
+                        WorkflowStepArgument."Approver Type"::"Salesperson/Purchaser",
+                        WorkflowStepArgument."Approver Limit Type"::"Approver Chain", '', BlankDateFormula);
                     Workflow.Validate(Template, false);
                     Workflow.Modify(true);
                     Workflow.InsertAfterFunctionName(WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode,

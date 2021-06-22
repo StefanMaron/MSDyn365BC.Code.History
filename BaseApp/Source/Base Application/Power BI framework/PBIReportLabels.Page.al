@@ -34,7 +34,7 @@ page 6318 "PBI Report Labels"
     var
         PowerBILabelMgt: Codeunit "Power BI Label Mgt.";
     begin
-        PowerBILabelMgt.GetReportLabels(Rec);
+        PowerBILabelMgt.GetReportLabelsForUserLanguage(Rec, UserSecurityId());
     end;
 }
 

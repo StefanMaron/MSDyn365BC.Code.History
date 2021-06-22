@@ -118,7 +118,7 @@ page 9901 "Export Data"
             repeat
                 Rec := Company;
                 Insert;
-            until Company.Next = 0;
+            until Company.Next() = 0;
 
         MarkAll;
     end;
@@ -165,7 +165,7 @@ page 9901 "Export Data"
                 repeat
                     SelectedCompany := Rec;
                     SelectedCompany.Insert();
-                until Next = 0;
+                until Next() = 0;
         end;
 
         CurrPage.Update(false);

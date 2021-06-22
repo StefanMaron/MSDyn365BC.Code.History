@@ -23,7 +23,7 @@ page 7377 "Inventory Pick"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Location Code"; "Location Code")
@@ -46,7 +46,7 @@ page 7377 "Inventory Pick"
                     trigger OnLookup(var Text: Text): Boolean
                     begin
                         CODEUNIT.Run(CODEUNIT::"Create Inventory Pick/Movement", Rec);
-                        CurrPage.Update;
+                        CurrPage.Update();
                         CurrPage.WhseActivityLines.PAGE.UpdateForm;
                     end;
 
@@ -304,7 +304,7 @@ page 7377 "Inventory Pick"
 
     trigger OnDeleteRecord(): Boolean
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -350,7 +350,7 @@ page 7377 "Inventory Pick"
 
     local procedure SourceNoOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
         CurrPage.WhseActivityLines.PAGE.UpdateForm;
     end;
 

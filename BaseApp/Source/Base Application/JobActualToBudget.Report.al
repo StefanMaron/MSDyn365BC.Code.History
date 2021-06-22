@@ -134,7 +134,7 @@ report 1009 "Job Actual To Budget"
                             if not JobDiffBuffer.Find('-') then
                                 CurrReport.Break();
                         end else
-                            if JobDiffBuffer.Next = 0 then
+                            if JobDiffBuffer.Next() = 0 then
                                 CurrReport.Break();
                         Amt[1] := JobDiffBuffer.Quantity;
                         Amt[4] := JobDiffBuffer."Total Cost";
@@ -223,7 +223,7 @@ report 1009 "Job Actual To Budget"
                             if not JobDiffBuffer2.Find('-') then
                                 CurrReport.Break();
                         end else
-                            if JobDiffBuffer2.Next = 0 then
+                            if JobDiffBuffer2.Next() = 0 then
                                 CurrReport.Break();
                         Amt[2] := JobDiffBuffer2.Quantity;
                         Amt[5] := JobDiffBuffer2."Total Cost";

@@ -128,18 +128,16 @@ codeunit 1390 "Document Notifications"
         SalesHeader.DontNotifyCurrentUserAgain(Notification.Id);
     end;
 
-    [EventSubscriber(ObjectType::Page, 1518, 'OnInitializingNotificationWithDefaultState', '', false, false)]
-    [Scope('OnPrem')]
-    procedure EnableModifyCustomerAddressNotificationOnInitializingWithDefaultState()
+    [EventSubscriber(ObjectType::Page, Page::"My Notifications", 'OnInitializingNotificationWithDefaultState', '', false, false)]
+    local procedure EnableModifyCustomerAddressNotificationOnInitializingWithDefaultState()
     var
         SalesHeader: Record "Sales Header";
     begin
         SalesHeader.SetModifyCustomerAddressNotificationDefaultState;
     end;
 
-    [EventSubscriber(ObjectType::Page, 1518, 'OnInitializingNotificationWithDefaultState', '', false, false)]
-    [Scope('OnPrem')]
-    procedure EnableModifyBillToCustomerAddressNotificationOnInitializingWithDefaultState()
+    [EventSubscriber(ObjectType::Page, Page::"My Notifications", 'OnInitializingNotificationWithDefaultState', '', false, false)]
+    local procedure EnableModifyBillToCustomerAddressNotificationOnInitializingWithDefaultState()
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -285,25 +283,23 @@ codeunit 1390 "Document Notifications"
         PurchaseHeader.DontNotifyCurrentUserAgain(Notification.Id);
     end;
 
-    [EventSubscriber(ObjectType::Page, 1518, 'OnInitializingNotificationWithDefaultState', '', false, false)]
-    [Scope('OnPrem')]
-    procedure EnableModifyVendorAddressNotificationOnInitializingWithDefaultState()
+    [EventSubscriber(ObjectType::Page, Page::"My Notifications", 'OnInitializingNotificationWithDefaultState', '', false, false)]
+    local procedure EnableModifyVendorAddressNotificationOnInitializingWithDefaultState()
     var
         PurchaseHeader: Record "Purchase Header";
     begin
         PurchaseHeader.SetModifyVendorAddressNotificationDefaultState;
     end;
 
-    [EventSubscriber(ObjectType::Page, 1518, 'OnInitializingNotificationWithDefaultState', '', false, false)]
-    [Scope('OnPrem')]
-    procedure EnableModifyPayToVendorAddressNotificationOnInitializingWithDefaultState()
+    [EventSubscriber(ObjectType::Page, Page::"My Notifications", 'OnInitializingNotificationWithDefaultState', '', false, false)]
+    local procedure EnableModifyPayToVendorAddressNotificationOnInitializingWithDefaultState()
     var
         PurchaseHeader: Record "Purchase Header";
     begin
         PurchaseHeader.SetModifyPayToVendorAddressNotificationDefaultState;
     end;
 
-    [EventSubscriber(ObjectType::Page, 1518, 'OnInitializingNotificationWithDefaultState', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"My Notifications", 'OnInitializingNotificationWithDefaultState', '', false, false)]
     local procedure EnablePurchExternalDocAlreadyExistNotificationOnInitializingWithDefaultState()
     var
         PurchaseHeader: Record "Purchase Header";

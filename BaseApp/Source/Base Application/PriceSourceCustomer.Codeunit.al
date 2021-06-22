@@ -34,7 +34,7 @@ codeunit 7032 "Price Source - Customer" implements "Price Source"
 
     procedure IsLookupOK(var PriceSource: Record "Price Source"): Boolean
     var
-        xPriceSource : Record "Price Source";
+        xPriceSource: Record "Price Source";
     begin
         xPriceSource := PriceSource;
         if Customer.Get(xPriceSource."Source No.") then;
@@ -58,6 +58,7 @@ codeunit 7032 "Price Source - Customer" implements "Price Source"
 
     local procedure FillAdditionalFields(var PriceSource: Record "Price Source")
     begin
+        PriceSource.Description := Customer.Name;
         PriceSource."Currency Code" := Customer."Currency Code";
         PriceSource."Allow Line Disc." := Customer."Allow Line Disc.";
         PriceSource."Price Includes VAT" := Customer."Prices Including VAT";

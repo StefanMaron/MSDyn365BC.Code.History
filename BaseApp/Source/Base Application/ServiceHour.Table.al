@@ -110,7 +110,7 @@ table 5910 "Service Hour"
                 ServHour2.Validate("Service Contract No.", GetFilter("Service Contract No."));
                 if not ServHour2.Insert() then
                     ServHour2.Modify();
-            until ServHour.Next = 0;
+            until ServHour.Next() = 0;
     end;
 }
 

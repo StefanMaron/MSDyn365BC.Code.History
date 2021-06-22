@@ -168,7 +168,7 @@ codeunit 9179 "Application Area Mgmt. Facade"
         exit(ApplicationAreaMgmt.IsInventoryAnalysisEnabled());
     end;
 
-    [Obsolete('Invoicing Application Area has been discontinued.', '18.0')]
+    [Obsolete('Microsoft Invoicing is not supported in Business Central', '18.0')]
     procedure IsInvoicingOnlyEnabled(): Boolean
     begin
         exit(false);
@@ -366,7 +366,28 @@ codeunit 9179 "Application Area Mgmt. Facade"
         exit(ApplicationAreaMgmt.IsAdvancedExperienceEnabled());
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 9178, 'OnGetBasicExperienceAppAreas', '', false, false)]
+    procedure GetBasicApplicationAreas(var TempApplicationAreaSetup: Record "Application Area Setup" temporary)
+    var
+        ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
+    begin
+        ApplicationAreaMgmt.GetBasicExperienceAppAreas(TempApplicationAreaSetup);
+    end;
+
+    procedure GetEssentialExperienceAppAreas(var TempApplicationAreaSetup: Record "Application Area Setup" temporary)
+    var
+        ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
+    begin
+        ApplicationAreaMgmt.GetEssentialExperienceAppAreas(TempApplicationAreaSetup);
+    end;
+
+    procedure GetPremiumExperienceAppAreas(var TempApplicationAreaSetup: Record "Application Area Setup" temporary)
+    var
+        ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
+    begin
+        ApplicationAreaMgmt.GetPremiumExperienceAppAreas(TempApplicationAreaSetup);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Application Area Mgmt.", 'OnGetBasicExperienceAppAreas', '', false, false)]
     local procedure RaiseOnGetBasicExperienceAppAreas(var TempApplicationAreaSetup: Record "Application Area Setup" temporary)
     begin
         OnGetBasicExperienceAppAreas(TempApplicationAreaSetup);
@@ -377,7 +398,7 @@ codeunit 9179 "Application Area Mgmt. Facade"
     begin
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 9178, 'OnGetEssentialExperienceAppAreas', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Application Area Mgmt.", 'OnGetEssentialExperienceAppAreas', '', false, false)]
     local procedure RaiseOnGetEssentialExperienceAppAreas(var TempApplicationAreaSetup: Record "Application Area Setup" temporary)
     begin
         OnGetEssentialExperienceAppAreas(TempApplicationAreaSetup);
@@ -388,7 +409,7 @@ codeunit 9179 "Application Area Mgmt. Facade"
     begin
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 9178, 'OnGetPremiumExperienceAppAreas', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Application Area Mgmt.", 'OnGetPremiumExperienceAppAreas', '', false, false)]
     local procedure RaiseOnGetPremiumExperienceAppAreas(var TempApplicationAreaSetup: Record "Application Area Setup" temporary)
     begin
         OnGetPremiumExperienceAppAreas(TempApplicationAreaSetup);
@@ -399,7 +420,7 @@ codeunit 9179 "Application Area Mgmt. Facade"
     begin
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 9178, 'OnBeforeLookupExperienceTier', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Application Area Mgmt.", 'OnBeforeLookupExperienceTier', '', false, false)]
     local procedure RaiseOnBeforeLookupExperienceTier(var TempExperienceTierBuffer: Record "Experience Tier Buffer" temporary)
     begin
         OnBeforeLookupExperienceTier(TempExperienceTierBuffer);
@@ -410,7 +431,7 @@ codeunit 9179 "Application Area Mgmt. Facade"
     begin
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 9178, 'OnSetExperienceTier', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Application Area Mgmt.", 'OnSetExperienceTier', '', false, false)]
     local procedure RaiseOnSetExperienceTier(ExperienceTierSetup: Record "Experience Tier Setup"; var TempApplicationAreaSetup: Record "Application Area Setup" temporary; var ApplicationAreasSet: Boolean)
     begin
         OnSetExperienceTier(ExperienceTierSetup, TempApplicationAreaSetup, ApplicationAreasSet);
@@ -421,7 +442,7 @@ codeunit 9179 "Application Area Mgmt. Facade"
     begin
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 9178, 'OnValidateApplicationAreas', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Application Area Mgmt.", 'OnValidateApplicationAreas', '', false, false)]
     local procedure RaiseOnValidateApplicationAreas(ExperienceTierSetup: Record "Experience Tier Setup"; TempApplicationAreaSetup: Record "Application Area Setup" temporary)
     begin
         OnValidateApplicationAreas(ExperienceTierSetup, TempApplicationAreaSetup);
@@ -439,6 +460,7 @@ codeunit 9179 "Application Area Mgmt. Facade"
         ApplicationAreaMgmt.SetHideApplicationAreaError(NewHideApplicationAreaError);
     end;
 
+    [Obsolete('Use GetExperienceTierCurrentCompany instead', '18.0')]
     procedure DeprecatedGetExperienceTierCurrentCompany(var ExperienceTier: Option ,,,,,Basic,,,,,,,,,,Essential,,,,,Custom,,,,,Advanced)
     var
         EnvironmentInfo: Codeunit "Environment Information";
@@ -456,6 +478,7 @@ codeunit 9179 "Application Area Mgmt. Facade"
         end;
     end;
 
+    [Obsolete('Use SaveExperienceTierCurrentCompany instead', '18.0')]
     procedure DeprecatedSetExperienceTierCurrentCompany(ExperienceTier: Option ,,,,,Basic,,,,,,,,,,Essential,,,,,Custom,,,,,Advanced)
     var
         SaveGlobalLanguage: Integer;

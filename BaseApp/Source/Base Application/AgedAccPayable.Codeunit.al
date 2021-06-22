@@ -18,7 +18,7 @@ codeunit 764 "Aged Acc. Payable"
         with BusChartBuf do begin
             Initialize;
             SetXAxis(OverDueText, "Data Type"::String);
-            AddMeasure(AmountText, 1, "Data Type"::Decimal, "Chart Type"::Column);
+            AddDecimalMeasure(AmountText, 1, "Chart Type"::Column);
 
             InitParameters(BusChartBuf, PeriodLength, NoOfPeriods, TempEntryNoAmountBuf);
             CalculateAgedAccPayable(
@@ -30,7 +30,7 @@ codeunit 764 "Aged Acc. Payable"
                     PeriodIndex := TempEntryNoAmountBuf."Entry No.";
                     AddColumn(FormatColumnName(PeriodIndex, PeriodLength, NoOfPeriods, "Period Length"));
                     SetValueByIndex(0, PeriodIndex, RoundAmount(TempEntryNoAmountBuf.Amount));
-                until TempEntryNoAmountBuf.Next = 0
+                until TempEntryNoAmountBuf.Next() = 0
         end;
     end;
 
@@ -44,7 +44,7 @@ codeunit 764 "Aged Acc. Payable"
         with BusChartBuf do begin
             Initialize;
             SetXAxis(OverDueText, "Data Type"::String);
-            AddMeasure(AmountText, 1, "Data Type"::Decimal, "Chart Type"::Column);
+            AddDecimalMeasure(AmountText, 1, "Chart Type"::Column);
 
             InitParameters(BusChartBuf, PeriodLength, NoOfPeriods, TempEntryNoAmountBuf);
             CalculateAgedAccPayablePerVendor(
@@ -56,7 +56,7 @@ codeunit 764 "Aged Acc. Payable"
                     PeriodIndex := TempEntryNoAmountBuf."Entry No.";
                     AddColumn(FormatColumnName(PeriodIndex, PeriodLength, NoOfPeriods, "Period Length"));
                     SetValueByIndex(0, PeriodIndex, RoundAmount(TempEntryNoAmountBuf.Amount));
-                until TempEntryNoAmountBuf.Next = 0
+                until TempEntryNoAmountBuf.Next() = 0
         end;
     end;
 
@@ -80,7 +80,7 @@ codeunit 764 "Aged Acc. Payable"
             if VendLedgEntry.FindSet then
                 repeat
                     RemainingAmountLCY += VendLedgEntry."Remaining Amt. (LCY)";
-                until VendLedgEntry.Next = 0;
+                until VendLedgEntry.Next() = 0;
 
             InsertAmountBuffer(Index, '', -RemainingAmountLCY, StartDate, EndDate, TempEntryNoAmountBuffer)
         end;
@@ -175,7 +175,7 @@ codeunit 764 "Aged Acc. Payable"
         else
             VendLedgEntry.SetRange("Due Date", StartDate, EndDate);
         VendLedgEntry.SetRange(Open, true);
-        if VendLedgEntry.IsEmpty then
+        if VendLedgEntry.IsEmpty() then
             exit;
         PAGE.Run(PAGE::"Vendor Ledger Entries", VendLedgEntry);
     end;

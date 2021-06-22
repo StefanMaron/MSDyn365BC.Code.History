@@ -10,7 +10,7 @@ codeunit 132473 "Payroll Service Extension Mock"
         TempAvailableServiceConnection: Record "Service Connection" temporary;
         TempNewGenJournalLine: Record "Gen. Journal Line" temporary;
 
-    [EventSubscriber(ObjectType::Codeunit, 1660, 'OnRegisterPayrollService', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Payroll Management", 'OnRegisterPayrollService', '', false, false)]
     local procedure RegisterPayrollService(var TempServiceConnection: Record "Service Connection" temporary)
     begin
         TempAvailableServiceConnection.Reset();
@@ -21,7 +21,7 @@ codeunit 132473 "Payroll Service Extension Mock"
             until TempAvailableServiceConnection.Next = 0;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1660, 'OnImportPayroll', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Payroll Management", 'OnImportPayroll', '', false, false)]
     procedure ImportPayrollTransactions(var TempServiceConnection: Record "Service Connection" temporary; GenJournalLine: Record "Gen. Journal Line")
     begin
         TempNewGenJournalLine.Reset();

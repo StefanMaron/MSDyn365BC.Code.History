@@ -41,7 +41,7 @@ codeunit 137035 "SCM PS Bugs-I"
         OutputIsMissingQst: Label 'Some output is still missing. Do you still want to finish the order?';
         ConsumptionIsMissingQst: Label 'Some consumption is still missing. Do you still want to finish the order?';
         UpdateInterruptedErr: Label 'The update has been interrupted to respect the warning.';
-        OustandingPickLineExistsErr: Label 'Pick Qty. (Base) must be equal to ''0''';
+        OustandingPickLineExistsErr: Label 'You cannot finish production order no. %1 because there is an outstanding pick for one or more components.';
 
     [Test]
     [Scope('OnPrem')]
@@ -100,6 +100,7 @@ codeunit 137035 "SCM PS Bugs-I"
         FindProdOrder(ProductionOrder, ProductionOrder.Status::Planned, ItemNo);
     end;
 
+#if not CLEAN16
     [Test]
     [Scope('OnPrem')]
     procedure CrossRefDisconBarCode()
@@ -141,7 +142,9 @@ codeunit 137035 "SCM PS Bugs-I"
         Assert.AreEqual(
           StrSubstNo(ErrCrossReferenceNo, ItemCrossReference."Cross-Reference No."), GetLastErrorText, ErrorGeneratedMustBeSame);
     end;
+#endif
 
+#if not CLEAN16
     [Test]
     [Scope('OnPrem')]
     procedure CrossRefPurchaseOrderUnitCost()
@@ -161,6 +164,7 @@ codeunit 137035 "SCM PS Bugs-I"
         // 3. Verify : Verify Direct Unit Cost of Purchase Line.
         PurchaseLine.TestField("Direct Unit Cost", DirectUnitCost);
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -600,8 +604,6 @@ codeunit 137035 "SCM PS Bugs-I"
         LibraryInventory.SetAutomaticCostPosting(false);
         LibraryInventory.SetExpectedCostPosting(false);
 
-        LibraryERM.SetUseLegacyGLEntryLocking(false);
-
         // Create BOM Item and Create Stock keeping Unit.
         CreateItem(
           Item, Item."Costing Method", '', '', Item."Manufacturing Policy"::"Make-to-Stock", Item."Reordering Policy",
@@ -785,8 +787,6 @@ codeunit 137035 "SCM PS Bugs-I"
         // 1. Setup : Update Sales and Inventory Setup.
         Initialize(false);
 
-        LibraryERM.SetUseLegacyGLEntryLocking(true);
-
         LibraryInventory.SetAutomaticCostPosting(true);
         LibraryInventory.SetExpectedCostPosting(true);
 
@@ -855,6 +855,7 @@ codeunit 137035 "SCM PS Bugs-I"
         ProdOrderLine.TestField("Routing No.", Item2."Routing No.");
     end;
 
+#if not CLEAN16
     [Test]
     [Scope('OnPrem')]
     procedure ItemCrossReferenceDescriptionInPurchOrder()
@@ -877,6 +878,7 @@ codeunit 137035 "SCM PS Bugs-I"
         Assert.AreEqual(
           ItemCrossReference.Description, PurchaseLine.Description, StrSubstNo(WrongDescriptionInOrderErr, PurchaseHeader.TableCaption));
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -900,6 +902,7 @@ codeunit 137035 "SCM PS Bugs-I"
           ItemReference.Description, PurchaseLine.Description, StrSubstNo(WrongDescriptionInOrderErr, PurchaseHeader.TableCaption));
     end;
 
+#if not CLEAN16
     [Test]
     [Scope('OnPrem')]
     procedure ItemCrossReferenceDescriptionInSalesOrder()
@@ -922,6 +925,7 @@ codeunit 137035 "SCM PS Bugs-I"
         Assert.AreEqual(
           ItemCrossReference.Description, SalesLine.Description, StrSubstNo(WrongDescriptionInOrderErr, SalesHeader.TableCaption));
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1120,7 +1124,40 @@ codeunit 137035 "SCM PS Bugs-I"
         asserterror LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
 
         // [THEN] The error is raised pointing to the outstanding pick line that prevents changing status.
-        Assert.ExpectedError(OustandingPickLineExistsErr);
+        Assert.ExpectedError(StrSubstNo(OustandingPickLineExistsErr, ProductionOrder."No."));
+    end;
+
+    [Test]
+    procedure NoOutstandingInvtPickOfComponentCanExistWhenFinishingProdOrder()
+    var
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ProdOrderComponent: Record "Prod. Order Component";
+    begin
+        // [FEATURE] [Production Order] [Production Order Status] [Consumption] [Inventory Pick] [UT]
+        // [SCENARIO 284740] Finishing production order is interrupted with error if outstanding inventory pick line exists for a prod. order component.
+        Initialize(false);
+
+        // [GIVEN] Released production order.
+        CreateRefreshRelProdOrder(ProductionOrder, ProductionOrder."Source Type"::Item, LibraryInventory.CreateItemNo(), '');
+
+        // [GIVEN] Nothing is left to output in the order.
+        FindProdOrderLine(ProdOrderLine, ProductionOrder."No.", ProductionOrder.Status);
+        ProdOrderLine."Remaining Quantity" := 0;
+        ProdOrderLine.Modify();
+
+        // [GIVEN] First prod. order component is not consumed and does not have outstanding pick lines.
+        CreateProdOrderComponent(ProdOrderComponent, ProdOrderLine);
+
+        // [GIVEN] Second prod. order component is not consumed. An outstanding inventory pick is created for this component.
+        CreateProdOrderComponent(ProdOrderComponent, ProdOrderLine);
+        MockInvtPickForProdOrderComponent(ProdOrderComponent);
+
+        // [WHEN] Change status of the production order to "Finished".
+        asserterror LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
+
+        // [THEN] The error is raised pointing to the outstanding inventory pick line that prevents finishing the order.
+        Assert.ExpectedError(StrSubstNo(OustandingPickLineExistsErr, ProductionOrder."No."));
     end;
 
     [Test]
@@ -1385,6 +1422,7 @@ codeunit 137035 "SCM PS Bugs-I"
         Item.Modify(true);
     end;
 
+#if not CLEAN16
     local procedure CreateItemWithCrossReference(var ItemCrossReference: Record "Item Cross Reference"; CrossRefType: Option; CrossRefTypeNo: Code[30])
     var
         Item: Record Item;
@@ -1395,6 +1433,7 @@ codeunit 137035 "SCM PS Bugs-I"
         ItemCrossReference.Validate(Description, LibraryUtility.GenerateGUID);
         ItemCrossReference.Modify(true);
     end;
+#endif
 
     local procedure CreateItemWithItemReference(var ItemReference: Record "Item Reference"; RefType: Enum "Item Reference Type"; RefTypeNo: Code[30])
     var
@@ -1604,6 +1643,21 @@ codeunit 137035 "SCM PS Bugs-I"
         WarehouseActivityLine.Insert();
     end;
 
+    local procedure MockInvtPickForProdOrderComponent(ProdOrderComponent: Record "Prod. Order Component")
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        WarehouseActivityLine."Activity Type" := WarehouseActivityLine."Activity Type"::"Invt. Pick";
+        WarehouseActivityLine."Source Type" := DATABASE::"Prod. Order Component";
+        WarehouseActivityLine."Source Subtype" := ProdOrderComponent.Status;
+        WarehouseActivityLine."Source No." := ProdOrderComponent."Prod. Order No.";
+        WarehouseActivityLine."Source Line No." := ProdOrderComponent."Prod. Order Line No.";
+        WarehouseActivityLine."Source Subline No." := ProdOrderComponent."Line No.";
+        WarehouseActivityLine."Qty. Outstanding (Base)" := ProdOrderComponent."Remaining Qty. (Base)";
+        WarehouseActivityLine."Action Type" := WarehouseActivityLine."Action Type"::Take;
+        WarehouseActivityLine.Insert();
+    end;
+
     local procedure DeleteProdOrderLine(ProdOrderNo: Code[20])
     var
         ProdOrderLine: Record "Prod. Order Line";
@@ -1641,7 +1695,7 @@ codeunit 137035 "SCM PS Bugs-I"
     begin
         ProdOrderLine.SetRange(Status, Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProdOrderNo);
-        ProdOrderLine.FindSet;
+        ProdOrderLine.FindSet();
     end;
 
     local procedure FindPurchaseHeader(var PurchaseHeader: Record "Purchase Header"; BuyfromVendorNo: Code[20])
@@ -1687,6 +1741,7 @@ codeunit 137035 "SCM PS Bugs-I"
         GetSalesOrders.Run;
     end;
 
+#if not CLEAN16
     local procedure ItemCrossReferenceSetup(var PurchaseLine: Record "Purchase Line"; var ItemCrossReference: Record "Item Cross Reference"; CrossReferenceType: Option; CrossReferenceTypeNo: Code[10]; VariantExist: Boolean)
     var
         PurchaseHeader: Record "Purchase Header";
@@ -1705,6 +1760,7 @@ codeunit 137035 "SCM PS Bugs-I"
         LibraryInventory.CreateItemCrossReference(ItemCrossReference, Item."No.", CrossReferenceType, CrossReferenceTypeNo);
         FindPurchaseLine(PurchaseLine, PurchaseHeader."No.");
     end;
+#endif
 
     local procedure ItemReferenceSetup(var PurchaseLine: Record "Purchase Line"; var ItemReference: Record "Item Reference"; ReferenceType: Enum "Item Reference Type"; ReferenceTypeNo: Code[10]; VariantExist: Boolean)
     var
@@ -1830,7 +1886,7 @@ codeunit 137035 "SCM PS Bugs-I"
         ItemJournalLine: Record "Item Journal Line";
     begin
         ItemJournalLine.SetRange("Order No.", ProdOrderNo);
-        ItemJournalLine.FindSet;
+        ItemJournalLine.FindSet();
         repeat
             ItemJournalLine.Validate("Starting Time", StartingTime);
             ItemJournalLine.Validate("Ending Time", StartingTime - LibraryRandom.RandInt(LibraryUtility.ConvertHoursToMilliSec(1)));
@@ -1911,7 +1967,7 @@ codeunit 137035 "SCM PS Bugs-I"
         until ProdOrderLine.Next = 0;
         ProductionOrder.Get(ProductionOrder.Status::Released, ProdOrderNo);
         FamilyLine.SetRange("Family No.", FamilyNo);
-        FamilyLine.FindSet;
+        FamilyLine.FindSet();
         repeat
             ItemUnitOfMeasure.Get(FamilyLine."Item No.", FamilyLine."Unit of Measure Code");
             ExpProdOrderQuantity += ProductionOrder.Quantity * FamilyLine.Quantity * ItemUnitOfMeasure."Qty. per Unit of Measure";
@@ -1935,7 +1991,7 @@ codeunit 137035 "SCM PS Bugs-I"
     begin
         ProdOrderComponent.SetRange(Status, Status);
         ProdOrderComponent.SetRange("Prod. Order No.", ProdOrderNo);
-        ProdOrderComponent.FindSet;
+        ProdOrderComponent.FindSet();
         repeat
             ExpComponentCost += ProdOrderComponent."Unit Cost";
         until ProdOrderComponent.Next = 0;
@@ -1975,7 +2031,7 @@ codeunit 137035 "SCM PS Bugs-I"
     begin
         ValueEntry.SetRange("Document No.", ProdOrderNo);
         ValueEntry.SetRange("Item No.", ItemNo);
-        ValueEntry.FindSet;
+        ValueEntry.FindSet();
         repeat
             ValueEntryActCost += ValueEntry."Cost Amount (Expected)";
         until ValueEntry.Next = 0;

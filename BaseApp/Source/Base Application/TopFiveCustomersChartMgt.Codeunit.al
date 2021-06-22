@@ -24,9 +24,9 @@ codeunit 1326 "Top Five Customers Chart Mgt."
             Initialize;
             if GLSetup.Get then;
             if EnvInfoProxy.IsInvoicing then
-                AddMeasure(StrSubstNo(SalesAmountCaptionTxt, GLSetup.GetCurrencySymbol), 1, "Data Type"::Decimal, "Chart Type"::Doughnut)
+                AddDecimalMeasure(StrSubstNo(SalesAmountCaptionTxt, GLSetup.GetCurrencySymbol), 1, "Chart Type"::Doughnut)
             else
-                AddMeasure(SalesLCYYCaptionTxt, 1, "Data Type"::Decimal, "Chart Type"::Doughnut);
+                AddDecimalMeasure(SalesLCYYCaptionTxt, 1, "Chart Type"::Doughnut);
             SetXAxis(CustomerXCaptionTxt, "Data Type"::String);
             CalcTopSalesCustomers(CustomerName, SalesLCY);
             for ColumnIndex := 1 to 6 do begin
@@ -59,7 +59,7 @@ codeunit 1326 "Top Five Customers Chart Mgt."
         ColumnIndex: Integer;
         OtherCustomersSalesLCY: Decimal;
     begin
-        if TopCustomersBySalesBuffer.IsEmpty then
+        if TopCustomersBySalesBuffer.IsEmpty() then
             TopCustomersBySalesJob.UpdateCustomerTopList;
 
         if TopCustomersBySalesBuffer.FindSet then begin
@@ -70,7 +70,7 @@ codeunit 1326 "Top Five Customers Chart Mgt."
                     SalesLCY[TopCustomersBySalesBuffer.Ranking] := TopCustomersBySalesBuffer.SalesLCY
                 end else
                     OtherCustomersSalesLCY += TopCustomersBySalesBuffer.SalesLCY;
-            until TopCustomersBySalesBuffer.Next = 0;
+            until TopCustomersBySalesBuffer.Next() = 0;
 
             if OtherCustomersSalesLCY <> 0 then begin
                 CustomerName[6] := AllOtherCustomersTxt;
@@ -84,28 +84,20 @@ codeunit 1326 "Top Five Customers Chart Mgt."
     local procedure DrillDownCust(DrillDownName: Text[100])
     var
         Customer: Record Customer;
-        EnvInfoProxy: Codeunit "Env. Info Proxy";
     begin
         Customer.SetRange(Name, DrillDownName);
         Customer.FindFirst;
-        if EnvInfoProxy.IsInvoicing then
-            PAGE.Run(PAGE::"BC O365 Sales Customer Card", Customer)
-        else
-            PAGE.Run(PAGE::"Customer Card", Customer);
+        PAGE.Run(PAGE::"Customer Card", Customer);
     end;
 
     local procedure DrillDownOtherCustList()
     var
         Customer: Record Customer;
-        EnvInfoProxy: Codeunit "Env. Info Proxy";
     begin
         Customer.SetFilter("No.", GetFilterToExcludeTopFiveCustomers);
         Customer.SetCurrentKey(Name);
         Customer.Ascending(true);
-        if EnvInfoProxy.IsInvoicing then
-            PAGE.Run(PAGE::"BC O365 Customer List", Customer)
-        else
-            PAGE.Run(PAGE::"Customer List", Customer);
+        PAGE.Run(PAGE::"Customer List", Customer);
     end;
 
     local procedure GetFilterToExcludeTopFiveCustomers(): Text
@@ -122,7 +114,7 @@ codeunit 1326 "Top Five Customers Chart Mgt."
                 else
                     FilterToExcludeTopFiveCustomers += StrSubstNo('&<>%1', TopCustomersBySalesBuffer.CustomerNo);
                 CustomerCounter += 1;
-            until (TopCustomersBySalesBuffer.Next = 0) or (CustomerCounter = 6);
+            until (TopCustomersBySalesBuffer.Next() = 0) or (CustomerCounter = 6);
         exit(FilterToExcludeTopFiveCustomers);
     end;
 }

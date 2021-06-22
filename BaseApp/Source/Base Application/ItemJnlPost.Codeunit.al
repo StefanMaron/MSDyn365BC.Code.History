@@ -1,4 +1,4 @@
-﻿codeunit 241 "Item Jnl.-Post"
+codeunit 241 "Item Jnl.-Post"
 {
     TableNo = "Item Journal Line";
 

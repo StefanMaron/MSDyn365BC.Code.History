@@ -57,6 +57,7 @@
         ItemChargeAssgntSales.Insert();
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by InsertItemChargeAssignment()', '17.0')]
     procedure InsertItemChargeAssgnt(ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)"; ApplToDocType: Option; ApplToDocNo2: Code[20]; ApplToDocLineNo2: Integer; ItemNo2: Code[20]; Description2: Text[100]; var NextLineNo: Integer)
     begin
@@ -79,6 +80,7 @@
             FromItemChargeAssgntSales, "Sales Applies-to Document Type".FromInteger(ApplToDocType), FromApplToDocNo, FromApplToDocLineNo,
             FromItemNo, FromDescription, QtyToAssign, AmountToAssign, NextLineNo, ItemChargeAssgntSales);
     end;
+#endif
 
     procedure Summarize(var TempToItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)" temporary; var ToItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)")
     begin
@@ -205,7 +207,7 @@
             ItemChargeAssgntSales.SetRange("Document No.", "Document No.");
             ItemChargeAssgntSales.SetRange("Document Line No.", "Line No.");
         end;
-        if ItemChargeAssgntSales.IsEmpty then
+        if ItemChargeAssgntSales.IsEmpty() then
             exit;
 
         IsHandled := false;
@@ -594,7 +596,7 @@
 
             if TotalQtyToAssign = ItemChargeAssgntLineQty then begin
                 TotalAmountToAssign := ItemChargeAssgntLineAmt;
-                ItemChargeAssignmentSales.FindSet;
+                ItemChargeAssignmentSales.FindSet();
                 repeat
                     if not ItemChargeAssignmentSales.SalesLineInvoiced then begin
                         TempItemChargeAssgntSales := ItemChargeAssignmentSales;

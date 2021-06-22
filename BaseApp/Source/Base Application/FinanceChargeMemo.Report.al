@@ -35,6 +35,24 @@ report 118 "Finance Charge Memo"
             column(EMailCaption; EMailCaptionLbl)
             {
             }
+            column(ContactPhoneNoLbl; ContactPhoneNoLbl)
+            {
+            }
+            column(ContactMobilePhoneNoLbl; ContactMobilePhoneNoLbl)
+            {
+            }
+            column(ContactEmailLbl; ContactEmailLbl)
+            {
+            }
+            column(ContactPhoneNo; PrimaryContact."Phone No.")
+            {
+            }
+            column(ContactMobilePhoneNo; PrimaryContact."Mobile Phone No.")
+            {
+            }
+            column(ContactEmail; PrimaryContact."E-mail")
+            {
+            }
             dataitem("Integer"; "Integer")
             {
                 DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
@@ -209,7 +227,7 @@ report 118 "Finance Charge Memo"
                                 Continue := true;
                                 exit;
                             end;
-                        until DimSetEntry.Next = 0;
+                        until DimSetEntry.Next() = 0;
                     end;
 
                     trigger OnPreDataItem()
@@ -326,7 +344,7 @@ report 118 "Finance Charge Memo"
                                 Continue := Type = Type::" ";
                                 if Continue and (Description = '') then
                                     StartLineNo := "Line No.";
-                            until (Next = 0) or not Continue;
+                            until (Next() = 0) or not Continue;
                         end;
                         if Find('+') then begin
                             EndLineNo := "Line No." + 1;
@@ -533,6 +551,8 @@ report 118 "Finance Charge Memo"
                     VATNoText := ''
                 else
                     VATNoText := "Issued Fin. Charge Memo Header".GetCustomerVATRegistrationNumberLbl();
+
+                Customer.GetPrimaryContact("Customer No.", PrimaryContact);
                 if "Currency Code" = '' then begin
                     GLSetup.TestField("LCY Code");
                     TotalText := StrSubstNo(Text000, GLSetup."LCY Code");
@@ -641,7 +661,7 @@ report 118 "Finance Charge Memo"
                       19, "Issued Fin. Charge Memo Header"."No.", 0, 0, DATABASE::Customer,
                       "Issued Fin. Charge Memo Header"."Customer No.", '', '', "Issued Fin. Charge Memo Header"."Posting Description", '');
 
-                until "Issued Fin. Charge Memo Header".Next = 0;
+                until "Issued Fin. Charge Memo Header".Next() = 0;
     end;
 
     trigger OnPreReport()
@@ -654,6 +674,8 @@ report 118 "Finance Charge Memo"
         Text000: Label 'Total %1';
         Text001: Label 'Total %1 Incl. VAT';
         Text002: Label 'Page %1';
+        PrimaryContact: Record Contact;
+        Customer: Record Customer;
         GLSetup: Record "General Ledger Setup";
         CompanyInfo: Record "Company Information";
         CompanyInfo1: Record "Company Information";
@@ -717,6 +739,9 @@ report 118 "Finance Charge Memo"
         DoctDateCaptionLbl: Label 'Document Date';
         HomePageCaptionLbl: Label 'Home Page';
         EMailCaptionLbl: Label 'Email';
+        ContactPhoneNoLbl: Label 'Contact Phone No.';
+        ContactMobilePhoneNoLbl: Label 'Contact Mobile Phone No.';
+        ContactEmailLbl: Label 'Contact E-Mail';
         TotalAmount: Decimal;
         TotalVatAmount: Decimal;
         ShowMIRLines: Boolean;

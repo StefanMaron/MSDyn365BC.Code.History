@@ -28,7 +28,8 @@ codeunit 6300 "Azure AD Mgt."
     end;
 
     [NonDebuggable]
-    local procedure AcquireTokenByAuthorizationCode(AuthorizationCode: Text; ResourceUrl: Text) AccessToken: Text
+    [Scope('OnPrem')]
+    procedure AcquireTokenByAuthorizationCode(AuthorizationCode: Text; ResourceUrl: Text) AccessToken: Text
     var
         AzureADAuthFlow: Codeunit "Azure AD Auth Flow";
     begin
@@ -166,7 +167,7 @@ codeunit 6300 "Azure AD Mgt."
     [Scope('OnPrem')]
     procedure GetRedirectUrl(): Text[150]
     begin
-        if not IsSaaS and not AzureADAppSetup.IsEmpty then begin
+        if not IsSaaS and not AzureADAppSetup.IsEmpty() then begin
             // Use existing redirect URL if already in table - necessary for Windows client which would otherwise
             // generate a different URL for each computer and thus not match the company's Azure application.
             AzureADAppSetup.FindFirst;
@@ -225,7 +226,7 @@ codeunit 6300 "Azure AD Mgt."
             AzureADAuthFlow.Initialize(GetRedirectUrl);
             ClientID := AzureADAuthFlow.GetSaasClientId;
         end else begin
-            if AzureADAppSetup.IsEmpty then
+            if AzureADAppSetup.IsEmpty() then
                 Error(AzureADNotSetupErr, PRODUCTNAME.Short);
 
             AzureADAppSetup.FindFirst;
@@ -246,7 +247,7 @@ codeunit 6300 "Azure AD Mgt."
 
     procedure IsAzureADAppSetupDone(): Boolean
     begin
-        if (not IsSaaS) and AzureADAppSetup.IsEmpty then
+        if (not IsSaaS) and AzureADAppSetup.IsEmpty() then
             exit(false);
 
         exit(true);
@@ -255,16 +256,18 @@ codeunit 6300 "Azure AD Mgt."
     [Obsolete('To add the record "Azure AD App Setup Wizard" in the Assisted Setup table use the method Add provided in the Assisted Setup codeunit', '16.0')]
     procedure CreateAssistedSetup()
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
         Info: ModuleInfo;
         AssistedSetupGroup: Enum "Assisted Setup Group";
+        VideoCategory: Enum "Video Category";
     begin
         if IsSaaS() then
             exit;
         NavApp.GetCurrentModuleInfo(Info);
-        AssistedSetup.Add(Info.Id(), PAGE::"Azure AD App Setup Wizard", AzureAdSetupTxt, AssistedSetupGroup::GettingStarted);
+        GuidedExperience.InsertAssistedSetup(AzureAdSetupTxt, CopyStr(AzureAdSetupTxt, 1, 50), '', 0, ObjectType::Page,
+            PAGE::"Azure AD App Setup Wizard", AssistedSetupGroup::GettingStarted, '', VideoCategory::Uncategorized, '');
         if IsAzureADAppSetupDone then
-            AssistedSetup.Complete(PAGE::"Azure AD App Setup Wizard");
+            GuidedExperience.CompleteAssistedSetup(ObjectType::Page, PAGE::"Azure AD App Setup Wizard");
     end;
 
     [Scope('OnPrem')]

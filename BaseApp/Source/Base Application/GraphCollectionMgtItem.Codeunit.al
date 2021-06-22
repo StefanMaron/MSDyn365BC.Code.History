@@ -110,7 +110,7 @@ codeunit 5470 "Graph Collection Mgt - Item"
         exit(JSONManagement.WriteObjectToString);
     end;
 
-    [Obsolete('Integration Records will be replaced by SystemID and SystemLastDateTimeModified', '17.0')]
+    [Obsolete('Integration Records will be replaced by SystemID and SystemModifiedAt ', '17.0')]
     procedure UpdateIntegrationRecords(OnlyItemsWithoutId: Boolean)
     var
         Item: Record Item;
@@ -375,7 +375,7 @@ codeunit 5470 "Graph Collection Mgt - Item"
             CombinedDateTime := CreateDateTime(Item."Last Date Modified", Item."Last Time Modified");
             Item."Last DateTime Modified" := DotNet_DateTimeOffset.ConvertToUtcDateTime(CombinedDateTime);
             Item.Modify();
-        until Item.Next = 0;
+        until Item.Next() = 0;
     end;
 
     local procedure RegisterFieldSet(var TempFieldSet: Record "Field" temporary; FieldNo: Integer)
@@ -428,7 +428,7 @@ codeunit 5470 "Graph Collection Mgt - Item"
             Error(ValueMustBeEqualErr, UOMConversionComplexTypeToUnitOfMeasure, Item."Base Unit of Measure");
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5465, 'ApiSetup', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Mgt - General Tools", 'ApiSetup', '', false, false)]
     local procedure HandleApiSetup()
     begin
         EnableItemODataWebService;
@@ -436,7 +436,7 @@ codeunit 5470 "Graph Collection Mgt - Item"
         UpdateIds;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5150, 'OnUpdateRelatedRecordIdFields', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Management", 'OnUpdateRelatedRecordIdFields', '', false, false)]
     local procedure HandleUpdateRelatedRecordIdFields(var RecRef: RecordRef)
     var
         Item: Record Item;
@@ -468,7 +468,7 @@ codeunit 5470 "Graph Collection Mgt - Item"
         repeat
             Item.UpdateReferencedIds;
             Item.Modify(false);
-        until Item.Next = 0;
+        until Item.Next() = 0;
     end;
 }
 

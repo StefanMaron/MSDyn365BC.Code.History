@@ -23,7 +23,7 @@ codeunit 1140 "OAuth 2.0 Mgt."
         EnvironmentBlocksErr: Label 'Environment blocks an outgoing HTTP request to ''%1''.', Comment = '%1 - url, e.g. https://microsoft.com';
         ConnectionErr: Label 'Connection to the remote service ''%1'' could not be established.', Comment = '%1 - url, e.g. https://microsoft.com';
 
-    [EventSubscriber(ObjectType::Page, 1140, 'OnAfterGetCurrRecordEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"OAuth 2.0 Setup", 'OnAfterGetCurrRecordEvent', '', false, false)]
     local procedure OnAfterGetCurrRecordPageEvent(var Rec: Record "OAuth 2.0 Setup")
     var
         SetupNotification: Notification;

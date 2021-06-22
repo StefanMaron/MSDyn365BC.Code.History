@@ -74,7 +74,7 @@ codeunit 7320 "Whse. Undo Quantity"
         if TempWhseJnlLine.Find('-') then
             repeat
                 WhseJnlRegLine.RegisterWhseJnlLine(TempWhseJnlLine);
-            until TempWhseJnlLine.Next = 0;
+            until TempWhseJnlLine.Next() = 0;
     end;
 
     procedure UndoPostedWhseRcptLine(var PostedWhseRcptLine: Record "Posted Whse. Receipt Line")
@@ -247,7 +247,7 @@ codeunit 7320 "Whse. Undo Quantity"
         if PostedWhseRcptLine2.Find('-') then begin
             repeat
                 Sum := Sum + PostedWhseRcptLine2."Qty. (Base)";
-            until PostedWhseRcptLine2.Next = 0;
+            until PostedWhseRcptLine2.Next() = 0;
 
             if Sum = 0 then begin
                 WhsePutAwayRequest.SetRange("Document Type", WhsePutAwayRequest."Document Type"::Receipt);
@@ -267,12 +267,12 @@ codeunit 7320 "Whse. Undo Quantity"
         if PostedWhseShptLine2.Find('-') then begin
             repeat
                 Sum := Sum + PostedWhseShptLine2."Qty. (Base)";
-            until PostedWhseShptLine2.Next = 0;
+            until PostedWhseShptLine2.Next() = 0;
 
             if Sum = 0 then begin
                 WhsePickRequest.SetRange("Document Type", WhsePickRequest."Document Type"::Shipment);
                 WhsePickRequest.SetRange("Document No.", PostedWhseShptLine."No.");
-                if not WhsePickRequest.IsEmpty then
+                if not WhsePickRequest.IsEmpty() then
                     WhsePickRequest.DeleteAll();
             end;
         end;

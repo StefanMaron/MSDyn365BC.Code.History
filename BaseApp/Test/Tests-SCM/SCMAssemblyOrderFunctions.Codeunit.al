@@ -735,7 +735,7 @@ codeunit 137907 "SCM Assembly Order Functions"
     begin
         with RequisitionLine do begin
             SetRange("No.", ItemNo);
-            FindSet;
+            FindSet();
             ModifyAll("Accept Action Message", true, true);
         end;
     end;
@@ -840,7 +840,7 @@ codeunit 137907 "SCM Assembly Order Functions"
             AsmLine.SetRange("Document No.", AsmHeader."No.");
             AsmLine.SetRange(Type, AsmLine.Type::Item);
             AsmLine.SetRange("No.", ChildItem."No.");
-            AsmLine.FindSet;
+            AsmLine.FindSet();
             AsmLineMgt.ExplodeAsmList(AsmLine);
         end;
 

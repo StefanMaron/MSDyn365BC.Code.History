@@ -441,6 +441,35 @@ codeunit 134073 "Check Document No. Unit Test"
         Assert.AreEqual(DocumentNo, GetLastNoUsedFromNoSeries(NoSeriesCode), '');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure NoSeriesMgtInstanceIsNotClearedAfterRunCheckDocNoBasedOnNoSeries()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        NoSeriesMgtInstance: Codeunit NoSeriesManagement;
+        LastDocNo: Code[20];
+        NoSeriesCode: Code[20];
+        TryNoSeriesCode: Code[20];
+    begin
+        // [FEATURE] [UT] [No. Series]
+        // [SCENARIO 390143] Run CheckDocNoBasedOnNoSeries() function of GenJournalLine table when global variables of NoSeriesMgtInstance codeunit are initialized.
+
+        // [GIVEN] No. Series with Manual Nos. = true.
+        NoSeriesCode := CreateNoSeriesWithManualNos(true);
+
+        // [GIVEN] Global variable TryNoSeriesCode is initialized inside NoSeriesMgtInstance with mock value.
+        TryNoSeriesCode := LibraryUtility.GenerateGUID();
+        NoSeriesMgtInstance.SetParametersBeforeRun(TryNoSeriesCode, LibraryRandom.RandDate(20));
+
+        // [WHEN] Run CheckDocNoBasedOnNoSeries() function of GenJournalLine table.
+        GenJournalLine.CheckDocNoBasedOnNoSeries(LastDocNo, NoSeriesCode, NoSeriesMgtInstance);
+
+        // [THEN] TryNoSeriesCode was not reset.
+        asserterror NoSeriesMgtInstance.Run();
+        Assert.ExpectedError(StrSubstNo('The No. Series does not exist. Identification fields and values: Code=''%1''', TryNoSeriesCode));
+        Assert.ExpectedErrorCode('DB:RecordNotFound');
+    end;
+
     local procedure CreateGenJnlBatch(var GenJnlBatch: Record "Gen. Journal Batch")
     var
         BankAcc: Record "Bank Account";

@@ -6,11 +6,9 @@ table 5928 "Service Status Priority Setup"
 
     fields
     {
-        field(1; "Service Order Status"; Option)
+        field(1; "Service Order Status"; Enum "Service Document Status")
         {
             Caption = 'Service Order Status';
-            OptionCaption = 'Pending,In Process,Finished,On Hold';
-            OptionMembers = Pending,"In Process",Finished,"On Hold";
         }
         field(2; Priority; Option)
         {

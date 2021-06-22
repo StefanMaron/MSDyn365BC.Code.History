@@ -232,7 +232,7 @@ codeunit 1637 "Office Document Handler"
             repeat
                 CreateDocumentMatchRecord(TempOfficeDocumentSelection, Series, DocType,
                   SalesHeader."No.", false, SalesHeader."Document Date");
-            until SalesHeader.Next = 0;
+            until SalesHeader.Next() = 0;
 
         // Posted Invoices
         if DocType = TempOfficeDocumentSelection."Document Type"::Invoice then
@@ -240,7 +240,7 @@ codeunit 1637 "Office Document Handler"
                 repeat
                     CreateDocumentMatchRecord(TempOfficeDocumentSelection, Series, DocType,
                       SalesInvoiceHeader."No.", true, SalesInvoiceHeader."Document Date");
-                until SalesInvoiceHeader.Next = 0;
+                until SalesInvoiceHeader.Next() = 0;
 
         // Posted Credit Memos
         if DocType = TempOfficeDocumentSelection."Document Type"::"Credit Memo" then
@@ -248,7 +248,7 @@ codeunit 1637 "Office Document Handler"
                 repeat
                     CreateDocumentMatchRecord(TempOfficeDocumentSelection, Series, DocType,
                       SalesCrMemoHeader."No.", true, SalesCrMemoHeader."Document Date");
-                until SalesCrMemoHeader.Next = 0;
+                until SalesCrMemoHeader.Next() = 0;
     end;
 
     local procedure GetPurchaseDocuments(var TempOfficeDocumentSelection: Record "Office Document Selection" temporary; Series: Integer; DocType: Enum "Purchase Document Type")
@@ -263,7 +263,7 @@ codeunit 1637 "Office Document Handler"
             repeat
                 CreateDocumentMatchRecord(TempOfficeDocumentSelection, Series, DocType,
                   PurchaseHeader."No.", false, PurchaseHeader."Document Date");
-            until PurchaseHeader.Next = 0;
+            until PurchaseHeader.Next() = 0;
 
         // Posted Invoices
         if DocType = TempOfficeDocumentSelection."Document Type"::Invoice then
@@ -271,7 +271,7 @@ codeunit 1637 "Office Document Handler"
                 repeat
                     CreateDocumentMatchRecord(TempOfficeDocumentSelection, Series, DocType,
                       PurchInvHeader."No.", true, PurchInvHeader."Document Date");
-                until PurchInvHeader.Next = 0;
+                until PurchInvHeader.Next() = 0;
 
         // Posted Credit Memos
         if DocType = TempOfficeDocumentSelection."Document Type"::"Credit Memo" then
@@ -279,7 +279,7 @@ codeunit 1637 "Office Document Handler"
                 repeat
                     CreateDocumentMatchRecord(TempOfficeDocumentSelection, Series, DocType,
                       PurchCrMemoHdr."No.", true, PurchCrMemoHdr."Document Date");
-                until PurchCrMemoHdr.Next = 0;
+                until PurchCrMemoHdr.Next() = 0;
     end;
 
     local procedure OpenIndividualSalesDocument(TempOfficeAddinContext: Record "Office Add-in Context" temporary; TempOfficeDocumentSelection: Record "Office Document Selection" temporary)
@@ -372,7 +372,7 @@ codeunit 1637 "Office Document Handler"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Table, 36, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnNewInvoice(var Rec: Record "Sales Header"; RunTrigger: Boolean)
     var
         TempOfficeAddinContext: Record "Office Add-in Context" temporary;
@@ -385,7 +385,7 @@ codeunit 1637 "Office Document Handler"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Table, 112, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Invoice Header", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnPostInvoice(var Rec: Record "Sales Invoice Header"; RunTrigger: Boolean)
     var
         TempOfficeAddinContext: Record "Office Add-in Context" temporary;
@@ -398,7 +398,7 @@ codeunit 1637 "Office Document Handler"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Table, 36, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterDeleteEvent', '', false, false)]
     local procedure OnDeleteInvoice(var Rec: Record "Sales Header"; RunTrigger: Boolean)
     var
         TempOfficeAddinContext: Record "Office Add-in Context" temporary;
@@ -429,7 +429,7 @@ codeunit 1637 "Office Document Handler"
             OfficeInvoice.Modify();
     end;
 
-    [EventSubscriber(ObjectType::Page, 1637, 'OnDisableMessage', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Office Suggested Line Items", 'OnDisableMessage', '', false, false)]
     local procedure DisableSuggestedLinesOnDisableMessage()
     var
         InstructionMgt: Codeunit "Instruction Mgt.";
@@ -439,7 +439,7 @@ codeunit 1637 "Office Document Handler"
         Session.LogMessage('00001KG', SuggestedItemsDisabledTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', OfficeMgt.GetOfficeAddinTelemetryCategory());
     end;
 
-    [EventSubscriber(ObjectType::Table, 38, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnAfterInsertEvent', '', false, false)]
     local procedure GenerateLinesOnAfterInsertPurchaseHeader(var Rec: Record "Purchase Header"; RunTrigger: Boolean)
     var
         OfficeMgt: Codeunit "Office Management";
@@ -457,7 +457,7 @@ codeunit 1637 "Office Document Handler"
         GenerateLinesForDocument(HeaderRecRef);
     end;
 
-    [EventSubscriber(ObjectType::Table, 36, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterInsertEvent', '', false, false)]
     local procedure GenerateLinesOnAfterInsertSalesHeader(var Rec: Record "Sales Header"; RunTrigger: Boolean)
     var
         OfficeMgt: Codeunit "Office Management";
@@ -476,7 +476,7 @@ codeunit 1637 "Office Document Handler"
         GenerateLinesForDocument(HeaderRecRef);
     end;
 
-    [EventSubscriber(ObjectType::Table, 36, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterDeleteEvent', '', false, false)]
     local procedure UnlinkOfficeDocumentOnAfterDeleteSalesHeader(var Rec: Record "Sales Header"; RunTrigger: Boolean)
     var
         OfficeInvoice: Record "Office Invoice";
@@ -486,7 +486,7 @@ codeunit 1637 "Office Document Handler"
         OfficeInvoice.UnlinkDocument(Rec."No.", false);
     end;
 
-    [EventSubscriber(ObjectType::Table, 38, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnAfterDeleteEvent', '', false, false)]
     local procedure UnlinkOfficeDocumentOnAfterDeletePurchaseHeader(var Rec: Record "Purchase Header"; RunTrigger: Boolean)
     var
         OfficeInvoice: Record "Office Invoice";
@@ -518,7 +518,7 @@ codeunit 1637 "Office Document Handler"
     var
         PageAction: Action;
     begin
-        if TempOfficeSuggestedLineItem.IsEmpty then
+        if TempOfficeSuggestedLineItem.IsEmpty() then
             exit;
 
         PageAction := PAGE.RunModal(PAGE::"Office Suggested Line Items", TempOfficeSuggestedLineItem);

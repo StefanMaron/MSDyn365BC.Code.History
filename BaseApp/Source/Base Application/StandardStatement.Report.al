@@ -1,4 +1,4 @@
-﻿report 1316 "Standard Statement"
+report 1316 "Standard Statement"
 {
     RDLCLayout = './StandardStatement.rdlc';
     WordLayout = './StandardStatement.docx';
@@ -288,7 +288,7 @@
                                             DetailedCustLedgEntry2.SetRange("Entry Type", "Entry Type"::Application);
                                             DetailedCustLedgEntry2.SetRange("Transaction No.", "Transaction No.");
                                             DetailedCustLedgEntry2.SetFilter("Currency Code", '<>%1', "Currency Code");
-                                            if not DetailedCustLedgEntry2.IsEmpty then begin
+                                            if not DetailedCustLedgEntry2.IsEmpty() then begin
                                                 Description := MulticurrencyAppLbl;
                                                 DueDate := 0D;
                                             end else
@@ -483,7 +483,7 @@
                             if not IsFirstLoop then
                                 IsFirstLoop := true
                             else
-                                if TempCurrency2.Next = 0 then
+                                if TempCurrency2.Next() = 0 then
                                     CurrReport.Break();
                             CustLedgerEntry.SetCurrentKey("Customer No.", "Posting Date", "Currency Code");
                             CustLedgerEntry.SetRange("Customer No.", Customer."No.");
@@ -622,7 +622,7 @@
                                 if not TempAgingBandBuf.Find('-') then
                                     CurrReport.Break();
                             end else
-                                if TempAgingBandBuf.Next = 0 then
+                                if TempAgingBandBuf.Next() = 0 then
                                     CurrReport.Break();
                             AgingBandCurrencyCode := TempAgingBandBuf."Currency Code";
                             if AgingBandCurrencyCode = '' then

@@ -28,7 +28,7 @@ codeunit 5801 "Show Applied Entries"
                 if ItemApplnEntry.Find('-') then
                     repeat
                         InsertTempEntry(TempItemLedgerEntry, ItemApplnEntry."Outbound Item Entry No.", ItemApplnEntry.Quantity);
-                    until ItemApplnEntry.Next = 0;
+                    until ItemApplnEntry.Next() = 0;
             end else begin
                 ItemApplnEntry.Reset();
                 ItemApplnEntry.SetCurrentKey("Outbound Item Entry No.", "Item Ledger Entry No.", "Cost Application");
@@ -39,7 +39,7 @@ codeunit 5801 "Show Applied Entries"
                 if ItemApplnEntry.Find('-') then
                     repeat
                         InsertTempEntry(TempItemLedgerEntry, ItemApplnEntry."Inbound Item Entry No.", -ItemApplnEntry.Quantity);
-                    until ItemApplnEntry.Next = 0;
+                    until ItemApplnEntry.Next() = 0;
             end;
     end;
 

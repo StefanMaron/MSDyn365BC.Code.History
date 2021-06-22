@@ -36,7 +36,7 @@ codeunit 138051 "O365 Test Auto Tax Setup"
         // [THEN] The system automatically creates the tax area and tax area lines and jurisdictions corresponding to city and state
         Assert.IsTrue(TaxArea.Get(SalesHeader."Tax Area Code"), 'Tax Area Code does not exists..?');
         TaxAreaLine.SetRange("Tax Area", SalesHeader."Tax Area Code");
-        TaxAreaLine.FindSet;
+        TaxAreaLine.FindSet();
         repeat
             TaxJurisdiction.Get(TaxAreaLine."Tax Jurisdiction Code");
         until TaxAreaLine.Next = 0;

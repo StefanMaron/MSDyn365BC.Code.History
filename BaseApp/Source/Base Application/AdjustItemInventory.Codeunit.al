@@ -48,11 +48,11 @@ codeunit 1327 "Adjust Item Inventory"
                 ItemJnlLine.Validate("Location Code", TempItemJournalLine."Location Code");
                 ItemJnlLine.Insert(true);
             end;
-        until TempItemJournalLine.Next = 0;
+        until TempItemJournalLine.Next() = 0;
 
         ItemJnlLine.SetRange("Journal Template Name", ItemTemplate);
         ItemJnlLine.SetRange("Journal Batch Name", ItemBatch);
-        if ItemJnlLine.IsEmpty then
+        if ItemJnlLine.IsEmpty() then
             exit;
 
         LastErrorText := PostItemJnlLines(ItemJnlLine);

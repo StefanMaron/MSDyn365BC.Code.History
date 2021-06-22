@@ -1,7 +1,8 @@
+#if not CLEAN16
 codeunit 134238 "PowerBI-Sync URL fields tests"
 {
     ObsoleteState = Pending;
-    ObsoleteReason = 'The object will be removed with obsoleted field G/L Bank Account No.';
+    ObsoleteReason = 'The object will be removed with obsoleted field "Embed URL" in the Power BI objects.';
     Subtype = Test;
     TestPermissions = Disabled;
     ObsoleteTag = '16.0';
@@ -662,3 +663,4 @@ codeunit 134238 "PowerBI-Sync URL fields tests"
             RecordRefToCreate.Insert(true);
     end;
 }
+#endif

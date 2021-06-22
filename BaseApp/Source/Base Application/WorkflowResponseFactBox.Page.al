@@ -43,7 +43,7 @@ page 1525 "Workflow Response FactBox"
         end;
         FilterGroup(CurrFilterGroup);
 
-        if IsEmpty then
+        if IsEmpty() then
             PopulateTableFromEvent(WorkflowCode, ParentEventStepID);
 
         exit(Find(Which));

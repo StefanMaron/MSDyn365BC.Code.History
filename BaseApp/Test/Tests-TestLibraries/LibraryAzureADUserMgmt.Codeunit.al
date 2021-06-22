@@ -25,7 +25,7 @@ codeunit 131020 "Library - Azure AD User Mgmt."
             exit(AzureADMgtSetup."Azure AD User Mgt. Codeunit ID" = CODEUNIT::"Library - Azure AD User Mgmt.");
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 9012, 'OnInitialize', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Azure AD Graph", 'OnInitialize', '', false, false)]
     local procedure OnInitialize(var GraphQuery: DotNet GraphQuery)
     begin
         if not CanHandle then

@@ -143,7 +143,7 @@ page 634 "Chart of Accounts Overview"
                 if GLAcc."Account Type" = GLAcc."Account Type"::"Begin-Total" then
                     Totaling := GetEndTotal(GLAcc);
                 Insert;
-            until GLAcc.Next = 0;
+            until GLAcc.Next() = 0;
 
         if FindFirst then;
     end;

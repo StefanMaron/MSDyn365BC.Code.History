@@ -318,7 +318,7 @@ page 8614 "Config. Package Card"
     begin
         ConfigPackageTable.SetRange("Package Code", Code);
         ConfigPackageTable.SetRange("Processing Report ID", 0);
-        if not ConfigPackageTable.IsEmpty then
+        if not ConfigPackageTable.IsEmpty() then
             REPORT.RunModal(REPORT::"Config. Package - Process", false, false, ConfigPackageTable);
     end;
 
@@ -331,7 +331,7 @@ page 8614 "Config. Package Card"
         if ConfigPackageTable.FindSet then
             repeat
                 REPORT.RunModal(ConfigPackageTable."Processing Report ID", false, false, ConfigPackageTable)
-            until ConfigPackageTable.Next = 0;
+            until ConfigPackageTable.Next() = 0;
     end;
 }
 

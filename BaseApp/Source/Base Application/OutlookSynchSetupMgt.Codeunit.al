@@ -163,7 +163,7 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
                     TempOSynchLookupName.Name := "Outlook Collection";
                     TempOSynchLookupName."Entry No." := "Element No.";
                     TempOSynchLookupName.Insert();
-                until Next = 0;
+                until Next() = 0;
 
             CollectionName := ShowLookupNames(TempOSynchLookupName);
             if CollectionName <> '' then begin
@@ -305,7 +305,7 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
             repeat
                 TempOSynchFilter.TransferFields(OSynchFilter);
                 TempOSynchFilter.Insert();
-            until OSynchFilter.Next = 0;
+            until OSynchFilter.Next() = 0;
 
         LookUpOk := OSynchFiltersForm.RunModal = ACTION::OK;
         ShowWarning := LookUpOk and ((OSynchFilter.Count = 0) and (MasterTableNo <> 0));
@@ -317,7 +317,7 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
                 repeat
                     OSynchFilter.TransferFields(TempOSynchFilter);
                     OSynchFilter.Insert();
-                until TempOSynchFilter.Next = 0;
+                until TempOSynchFilter.Next() = 0;
             Commit();
         end else
             OSynchFiltersForm.GetRecord(OSynchFilter);
@@ -383,7 +383,7 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
                     else
                         EntityList := EntityList + ', ' + OSynchDependency."Depend. Synch. Entity Code";
                 end;
-            until OSynchDependency.Next = 0;
+            until OSynchDependency.Next() = 0;
 
             if CountAvailable = OSynchDependency.Count then
                 exit(true);
@@ -672,7 +672,7 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
                   StrSubstNo('%1%2%3=%4(%5)',
                     TempString, Delimiter, OSynchFilter.GetFieldCaption, Format(OSynchFilter.Type), OSynchFilter.Value);
                 Delimiter := ',';
-            until OSynchFilter.Next = 0;
+            until OSynchFilter.Next() = 0;
 
             TempString := StrSubstNo('WHERE(%1)', TempString);
             if StrLen(TempString) > 250 then
@@ -719,7 +719,7 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
                     end;
             end;
             Delimiter := ',';
-        until OSynchFilterIn.Next = 0;
+        until OSynchFilterIn.Next() = 0;
 
         OutFilterString := CopyStr(StrSubstNo('WHERE(%1)', FilterString), 1, 250);
     end;
@@ -742,7 +742,7 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
                 ToOSynchFilter.Init();
                 ToOSynchFilter := FromOSynchFilter;
                 if ToOSynchFilter.Insert() then;
-            until FromOSynchFilter.Next = 0;
+            until FromOSynchFilter.Next() = 0;
     end;
 
     procedure ComposeFilterRecords(var FromOSynchFilter: Record "Outlook Synch. Filter"; var ToOSynchFilter: Record "Outlook Synch. Filter"; RecRef: RecordRef; FilteringType: Integer)
@@ -758,7 +758,7 @@ codeunit 5300 "Outlook Synch. Setup Mgt."
                   FromOSynchFilter."Master Table Field No.",
                   FilteringType,
                   Format(FieldRef));
-            until FromOSynchFilter.Next = 0;
+            until FromOSynchFilter.Next() = 0;
     end;
 
     procedure CreateFilterCondition(var OSynchFilterIn: Record "Outlook Synch. Filter"; TableID: Integer; FieldID: Integer; FilterType: Integer; FilterValue: Text)

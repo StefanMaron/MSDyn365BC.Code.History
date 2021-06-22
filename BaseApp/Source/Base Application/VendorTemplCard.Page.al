@@ -31,6 +31,11 @@ page 1386 "Vendor Templ. Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies which transactions with the vendor that cannot be processed, for example a vendor that is declared insolvent.';
                 }
+                field("No. Series"; "No. Series")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the number series that will be used to assign numbers to vendors.';
+                }
             }
             group(AddressAndContact)
             {

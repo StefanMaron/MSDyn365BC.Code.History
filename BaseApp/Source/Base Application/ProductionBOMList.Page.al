@@ -1,6 +1,5 @@
 page 99000787 "Production BOM List"
 {
-    AccessByPermission = TableData "Production Order" = R;
     AdditionalSearchTerms = 'bill of materials';
     ApplicationArea = Manufacturing;
     Caption = 'Production BOMs';

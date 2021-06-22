@@ -25,7 +25,7 @@ page 940 "Blanket Assembly Order"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Item No."; "Item No.")
@@ -263,7 +263,7 @@ page 940 "Blanket Assembly Order"
                     trigger OnAction()
                     begin
                         RefreshBOM;
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 action("Show Availability")

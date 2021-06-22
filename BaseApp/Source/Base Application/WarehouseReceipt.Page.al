@@ -3,7 +3,7 @@ page 5768 "Warehouse Receipt"
     Caption = 'Warehouse Receipt';
     PageType = Document;
     PopulateAllFields = true;
-    PromotedActionCategories = 'New,Process,Report,Print/Send,Posting,Receipt,Navigate';
+    PromotedActionCategories = 'New,Process,Report,Print/Send,Posting,Receipt,Navigate,Prepare';
     RefreshOnActivate = true;
     SourceTable = "Warehouse Receipt Header";
 
@@ -22,7 +22,7 @@ page 5768 "Warehouse Receipt"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Location Code"; "Location Code")
@@ -179,7 +179,7 @@ page 5768 "Warehouse Receipt"
                     Ellipsis = true;
                     Image = UseFilters;
                     Promoted = true;
-                    PromotedCategory = Process;
+                    PromotedCategory = Category8;
                     ToolTip = 'Retrieve the released source document lines that define which items to receive or ship.';
 
                     trigger OnAction()
@@ -196,7 +196,7 @@ page 5768 "Warehouse Receipt"
                     Ellipsis = true;
                     Image = GetSourceDoc;
                     Promoted = true;
-                    PromotedCategory = Process;
+                    PromotedCategory = Category8;
                     ShortCutKey = 'Shift+F11';
                     ToolTip = 'Open the list of released source documents, such as purchase orders, to select the document to receive items for. ';
 
@@ -370,7 +370,7 @@ page 5768 "Warehouse Receipt"
 
     local procedure SortingMethodOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

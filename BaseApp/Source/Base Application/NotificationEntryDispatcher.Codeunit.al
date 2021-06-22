@@ -1,4 +1,4 @@
-﻿codeunit 1509 "Notification Entry Dispatcher"
+codeunit 1509 "Notification Entry Dispatcher"
 {
     Permissions = TableData "User Setup" = r,
                   TableData "Notification Entry" = rimd,
@@ -39,7 +39,7 @@
                 else
                     if ScheduledInstantly(UserSetup."User ID", TempNotificationEntryFromTo.Type) then
                         DispatchForNotificationType(TempNotificationEntryFromTo.Type, UserSetup, TempNotificationEntryFromTo."Sender User ID")
-            until TempNotificationEntryFromTo.Next = 0;
+            until TempNotificationEntryFromTo.Next() = 0;
             Commit();
             ErrorMessageMgt.Finish(ErrorMessageHandler);
         end;
@@ -75,7 +75,7 @@
 
         FilterToActiveNotificationEntries(NotificationEntry);
 
-        NotificationSetup.GetNotificationSetupForUser(NotificationType.AsInteger(), NotificationEntry."Recipient User ID");
+        NotificationSetup.GetNotificationTypeSetupForUser(NotificationType, NotificationEntry."Recipient User ID");
 
         case NotificationSetup."Notification Method" of
             NotificationSetup."Notification Method"::Email:
@@ -102,10 +102,13 @@
         DocumentMailing: Codeunit "Document-Mailing";
         ErrorMessageMgt: Codeunit "Error Message Management";
         FileManagement: Codeunit "File Management";
+        TempBlob: Codeunit "Temp Blob";
+        SourceReference: RecordRef;
         BodyText: Text;
         MailSubject: Text;
         IsEmailedSuccessfully: Boolean;
         IsHandled: Boolean;
+        AttachmentStream: InStream;
     begin
         if not GetHTMLBodyText(NotificationEntry, BodyText) then
             exit;
@@ -116,9 +119,13 @@
         if IsHandled then
             exit;
 
+        TempBlob.CreateInStream(AttachmentStream);
+        SourceReference.GetTable(NotificationEntry);
+        SourceReference.GetBySystemId(NotificationEntry.SystemId);
+
         if EmailFeature.IsEnabled() then
             IsEmailedSuccessfully := DocumentMailing.EmailFile(
-             '', '', HtmlBodyFilePath, MailSubject, Email, true, Enum::"Email Scenario"::"Notification")
+             AttachmentStream, '', HtmlBodyFilePath, MailSubject, Email, true, Enum::"Email Scenario"::"Notification", SourceReference)
         else
             IsEmailedSuccessfully := DocumentMailing.EmailFileWithSubjectAndSender(
              '', '', HtmlBodyFilePath, MailSubject, Email, true, NotificationEntry."Sender User ID");
@@ -144,7 +151,7 @@
             if AddNote(NotificationEntry, BodyText) then
                 NotificationManagement.MoveNotificationEntryToSentNotificationEntries(
                   NotificationEntry, BodyText, false, NotificationSetup."Notification Method"::Note.AsInteger());
-        until NotificationEntry.Next = 0;
+        until NotificationEntry.Next() = 0;
     end;
 
     local procedure AddNote(var NotificationEntry: Record "Notification Entry"; var Body: Text): Boolean
@@ -188,9 +195,9 @@
     begin
         repeat
             NotificationEntry.Mark(true);
-        until NotificationEntry.Next = 0;
+        until NotificationEntry.Next() = 0;
         NotificationEntry.MarkedOnly(true);
-        NotificationEntry.FindSet;
+        NotificationEntry.FindSet();
     end;
 
     local procedure ConvertHtmlFileToText(HtmlBodyFilePath: Text; var BodyText: Text)
@@ -240,7 +247,7 @@
         exit(true);
     end;
 
-    local procedure GetTargetRecRef(var NotificationEntry: Record "Notification Entry"; var TargetRecRefOut: RecordRef)
+    procedure GetTargetRecRef(var NotificationEntry: Record "Notification Entry"; var TargetRecRefOut: RecordRef)
     var
         ApprovalEntry: Record "Approval Entry";
         OverdueApprovalEntry: Record "Overdue Approval Entry";
@@ -277,7 +284,7 @@
             repeat
                 if ApprovalNotificationEntryIsOutdated(NotificationEntry) then
                     NotificationEntry.Delete();
-            until NotificationEntry.Next = 0;
+            until NotificationEntry.Next() = 0;
     end;
 
     local procedure ApprovalNotificationEntryIsOutdated(var NotificationEntry: Record "Notification Entry"): Boolean
@@ -314,11 +321,11 @@
             repeat
                 TempNotificationEntryFromTo.SetRange("Sender User ID", NotificationEntry."Sender User ID");
                 TempNotificationEntryFromTo.SetRange("Recipient User ID", NotificationEntry."Recipient User ID");
-                if TempNotificationEntryFromTo.IsEmpty then begin
+                if TempNotificationEntryFromTo.IsEmpty() then begin
                     TempNotificationEntryFromTo := NotificationEntry;
                     TempNotificationEntryFromTo.Insert();
                 end;
-            until NotificationEntry.Next = 0;
+            until NotificationEntry.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

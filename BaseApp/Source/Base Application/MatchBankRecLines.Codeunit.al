@@ -7,6 +7,8 @@ codeunit 1252 "Match Bank Rec. Lines"
 
     var
         MatchSummaryMsg: Label '%1 reconciliation lines out of %2 are matched.\\';
+        MatchDetailsTxt: Label 'This statement line matched the corresponding bank account ledger entry on the following fields: %1.', Comment = '%1 - a comma-separated list of field captions.';
+        MatchedManuallyTxt: Label 'This statement line was matched manually.';
         MissingMatchMsg: Label 'Text shorter than %1 characters cannot be matched.';
         ProgressBarMsg: Label 'Please wait while the operation is being completed.';
         Relation: Option "One-to-One","One-to-Many";
@@ -17,6 +19,7 @@ codeunit 1252 "Match Bank Rec. Lines"
     var
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+        PaymentMatchingDetails: Record "Payment Matching Details";
         BankAccEntrySetReconNo: Codeunit "Bank Acc. Entry Set Recon.-No.";
     begin
         if SelectedBankAccReconciliationLine.FindFirst then begin
@@ -33,7 +36,8 @@ codeunit 1252 "Match Bank Rec. Lines"
                     BankAccountLedgerEntry.Get(SelectedBankAccountLedgerEntry."Entry No.");
                     BankAccEntrySetReconNo.RemoveApplication(BankAccountLedgerEntry);
                     BankAccEntrySetReconNo.ApplyEntries(BankAccReconciliationLine, BankAccountLedgerEntry, Relation::"One-to-Many");
-                until SelectedBankAccountLedgerEntry.Next = 0;
+                    PaymentMatchingDetails.CreatePaymentMatchingDetail(BankAccReconciliationLine, MatchedManuallyTxt);
+                until SelectedBankAccountLedgerEntry.Next() = 0;
             end;
         end;
     end;
@@ -110,10 +114,19 @@ codeunit 1252 "Match Bank Rec. Lines"
     procedure MatchSingle(BankAccReconciliation: Record "Bank Acc. Reconciliation"; DateRange: Integer)
     var
         TempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary;
+        RecordMatchMgt: Codeunit "Record Match Mgt.";
         BankRecMatchCandidates: Query "Bank Rec. Match Candidates";
         Window: Dialog;
         Score: Integer;
         CountMatchCandidates: Integer;
+        AmountMatched: Boolean;
+        DocumentNoMatched: Boolean;
+        ExternalDocumentNoMatched: Boolean;
+        TransactionDateMatched: Boolean;
+        RelatedPartyMatched: Boolean;
+        DescriptionMatched: Boolean;
+        ListOfMatchFields: Text;
+        FilterDate: Date;
     begin
         TempBankStatementMatchingBuffer.DeleteAll();
 
@@ -123,34 +136,29 @@ codeunit 1252 "Match Bank Rec. Lines"
         SetNormalizingFactor(10);
         BankRecMatchCandidates.SetRange(Rec_Line_Bank_Account_No, BankAccReconciliation."Bank Account No.");
         BankRecMatchCandidates.SetRange(Rec_Line_Statement_No, BankAccReconciliation."Statement No.");
+        FilterDate := BankAccReconciliation.MatchCandidateFilterDate();
+        if FilterDate <> 0D then
+            BankRecMatchCandidates.SetFilter(Posting_Date, '<=' + Format(FilterDate));
         if BankRecMatchCandidates.Open then
             while BankRecMatchCandidates.Read do begin
                 CountMatchCandidates += 1;
-                Score := 0;
+                Score := CalculateMatchScore(BankRecMatchCandidates, DateRange);
 
-                if BankRecMatchCandidates.Rec_Line_Difference = BankRecMatchCandidates.Remaining_Amount then
-                    Score += 13;
-
-                Score += GetDescriptionMatchScore(BankRecMatchCandidates.Rec_Line_Description, BankRecMatchCandidates.Description,
-                    BankRecMatchCandidates.Document_No, BankRecMatchCandidates.External_Document_No);
-
-                Score += GetDescriptionMatchScore(BankRecMatchCandidates.Rec_Line_RltdPty_Name, BankRecMatchCandidates.Description,
-                    BankRecMatchCandidates.Document_No, BankRecMatchCandidates.External_Document_No);
-
-                Score += GetDescriptionMatchScore(BankRecMatchCandidates.Rec_Line_Transaction_Info, BankRecMatchCandidates.Description,
-                    BankRecMatchCandidates.Document_No, BankRecMatchCandidates.External_Document_No);
-
-                if BankRecMatchCandidates.Rec_Line_Transaction_Date <> 0D then
-                    case true of
-                        BankRecMatchCandidates.Rec_Line_Transaction_Date = BankRecMatchCandidates.Posting_Date:
-                            Score += 1;
-                        Abs(BankRecMatchCandidates.Rec_Line_Transaction_Date - BankRecMatchCandidates.Posting_Date) > DateRange:
-                            Score := 0;
-                    end;
-
-                if Score > 2 then
+                if Score > 2 then begin
                     TempBankStatementMatchingBuffer.AddMatchCandidate(BankRecMatchCandidates.Rec_Line_Statement_Line_No,
                       BankRecMatchCandidates.Entry_No, Score, "Gen. Journal Account Type"::"G/L Account", '');
+
+                    AmountMatched := (BankRecMatchCandidates.Rec_Line_Difference = BankRecMatchCandidates.Remaining_Amount);
+                    TransactionDateMatched := (BankRecMatchCandidates.Rec_Line_Transaction_Date = BankRecMatchCandidates.Posting_Date);
+                    RelatedPartyMatched := (GetDescriptionMatchScore(BankRecMatchCandidates.Rec_Line_RltdPty_Name, BankRecMatchCandidates.Description, BankRecMatchCandidates.Document_No, BankRecMatchCandidates.External_Document_No) > 0);
+                    DocumentNoMatched := (RecordMatchMgt.CalculateStringNearness(BankRecMatchCandidates.Rec_Line_Description, BankRecMatchCandidates.Document_No, GetMatchLengthTreshold(), GetNormalizingFactor()) = GetNormalizingFactor()) or (RecordMatchMgt.CalculateStringNearness(BankRecMatchCandidates.Rec_Line_Transaction_Info, BankRecMatchCandidates.Document_No, GetMatchLengthTreshold(), GetNormalizingFactor()) = GetNormalizingFactor());
+                    ExternalDocumentNoMatched := (RecordMatchMgt.CalculateStringNearness(BankRecMatchCandidates.Rec_Line_Description, BankRecMatchCandidates.External_Document_No, GetMatchLengthTreshold(), GetNormalizingFactor()) = GetNormalizingFactor()) or (RecordMatchMgt.CalculateStringNearness(BankRecMatchCandidates.Rec_Line_Transaction_Info, BankRecMatchCandidates.External_Document_No, GetMatchLengthTreshold(), GetNormalizingFactor()) = GetNormalizingFactor());
+                    DescriptionMatched := (RecordMatchMgt.CalculateStringNearness(BankRecMatchCandidates.Rec_Line_Description, BankRecMatchCandidates.Description, GetMatchLengthTreshold(), GetNormalizingFactor()) >= 0.8 * GetNormalizingFactor()) or (RecordMatchMgt.CalculateStringNearness(BankRecMatchCandidates.Rec_Line_Transaction_Info, BankRecMatchCandidates.Description, GetMatchLengthTreshold(), GetNormalizingFactor()) >= 0.8 * GetNormalizingFactor());
+
+                    ListOfMatchFields := ListOfMatchedFields(AmountMatched, DocumentNoMatched, ExternalDocumentNoMatched, TransactionDateMatched, RelatedPartyMatched, DescriptionMatched);
+                    TempBankStatementMatchingBuffer."Match Details" := StrSubstNo(MatchDetailsTxt, ListOfMatchFields);
+                    TempBankStatementMatchingBuffer.Modify();
+                end;
             end;
 
         SaveOneToOneMatching(TempBankStatementMatchingBuffer, BankAccReconciliation."Bank Account No.",
@@ -162,10 +170,75 @@ codeunit 1252 "Match Bank Rec. Lines"
         ShowMatchSummary(BankAccReconciliation);
     end;
 
+    local procedure ListOfMatchedFields(AmountMatched: Boolean; DocumentNoMatched: Boolean; ExternalDocumentNoMatched: Boolean; TransactionDateMatched: Boolean; RelatedPartyMatched: Boolean; DescriptionMatched: Boolean): Text
+    var
+        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+        ListOfFields: Text;
+        Comma: Text;
+    begin
+        Comma := ', ';
+        if AmountMatched then
+            ListOfFields += BankAccountLedgerEntry.FieldCaption(BankAccountLedgerEntry."Remaining Amount");
+
+        if DocumentNoMatched then begin
+            if ListOfFields <> '' then
+                ListOfFields += Comma;
+            ListOfFields += BankAccountLedgerEntry.FieldCaption(BankAccountLedgerEntry."Document No.");
+        end;
+
+        if ExternalDocumentNoMatched then begin
+            if ListOfFields <> '' then
+                ListOfFields += Comma;
+            ListOfFields += BankAccountLedgerEntry.FieldCaption(BankAccountLedgerEntry."External Document No.");
+        end;
+
+        if TransactionDateMatched then begin
+            if ListOfFields <> '' then
+                ListOfFields += Comma;
+            ListOfFields += BankAccountLedgerEntry.FieldCaption(BankAccountLedgerEntry."Posting Date");
+        end;
+
+        if RelatedPartyMatched or DescriptionMatched then begin
+            if ListOfFields <> '' then
+                ListOfFields += Comma;
+            ListOfFields += BankAccountLedgerEntry.FieldCaption(BankAccountLedgerEntry.Description);
+        end;
+
+        exit(ListOfFields);
+    end;
+
+    local procedure CalculateMatchScore(var BankRecMatchCandidates: Query "Bank Rec. Match Candidates"; DateRange: Integer): Integer
+    var
+        Score: Integer;
+    begin
+        if BankRecMatchCandidates.Rec_Line_Difference = BankRecMatchCandidates.Remaining_Amount then
+            Score += 13;
+
+        Score += GetDescriptionMatchScore(BankRecMatchCandidates.Rec_Line_Description, BankRecMatchCandidates.Description,
+            BankRecMatchCandidates.Document_No, BankRecMatchCandidates.External_Document_No);
+
+        Score += GetDescriptionMatchScore(BankRecMatchCandidates.Rec_Line_RltdPty_Name, BankRecMatchCandidates.Description,
+            BankRecMatchCandidates.Document_No, BankRecMatchCandidates.External_Document_No);
+
+        Score += GetDescriptionMatchScore(BankRecMatchCandidates.Rec_Line_Transaction_Info, BankRecMatchCandidates.Description,
+            BankRecMatchCandidates.Document_No, BankRecMatchCandidates.External_Document_No);
+
+        if BankRecMatchCandidates.Rec_Line_Transaction_Date <> 0D then
+            case true of
+                BankRecMatchCandidates.Rec_Line_Transaction_Date = BankRecMatchCandidates.Posting_Date:
+                    Score += 1;
+                Abs(BankRecMatchCandidates.Rec_Line_Transaction_Date - BankRecMatchCandidates.Posting_Date) > DateRange:
+                    Score := 0;
+            end;
+
+        exit(Score);
+    end;
+
     local procedure SaveOneToOneMatching(var TempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary; BankAccountNo: Code[20]; StatementNo: Code[20])
     var
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        PaymentMatchingDetails: Record "Payment Matching Details";
         BankAccEntrySetReconNo: Codeunit "Bank Acc. Entry Set Recon.-No.";
     begin
         TempBankStatementMatchingBuffer.Reset();
@@ -179,8 +252,9 @@ codeunit 1252 "Match Bank Rec. Lines"
                   BankAccReconciliationLine."Statement Type"::"Bank Reconciliation",
                   BankAccountNo, StatementNo,
                   TempBankStatementMatchingBuffer."Line No.");
-                BankAccEntrySetReconNo.ApplyEntries(BankAccReconciliationLine, BankAccountLedgerEntry, Relation::"One-to-One");
-            until TempBankStatementMatchingBuffer.Next = 0;
+                if BankAccEntrySetReconNo.ApplyEntries(BankAccReconciliationLine, BankAccountLedgerEntry, Relation::"One-to-One") then
+                    PaymentMatchingDetails.CreatePaymentMatchingDetail(BankAccReconciliationLine, TempBankStatementMatchingBuffer."Match Details");
+            until TempBankStatementMatchingBuffer.Next() = 0;
     end;
 
     local procedure ShowMatchSummary(BankAccReconciliation: Record "Bank Acc. Reconciliation")

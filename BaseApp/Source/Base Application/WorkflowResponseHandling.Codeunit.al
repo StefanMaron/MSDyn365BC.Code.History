@@ -934,7 +934,7 @@ codeunit 1521 "Workflow Response Handling"
             exit;
 
         WorkflowResponse.SetRange(Description, Description);
-        if not WorkflowResponse.IsEmpty then begin
+        if not WorkflowResponse.IsEmpty() then begin
             if SystemInitialization.IsInProgress or (GetExecutionContext <> ExecutionContext::Normal) then
                 exit;
             Error(ResponseAlreadyExistErr, Description);
@@ -1159,7 +1159,7 @@ codeunit 1521 "Workflow Response Handling"
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange("Over-Receipt Approval Status", PurchaseLine."Over-Receipt Approval Status"::Pending);
-        if not PurchaseLine.IsEmpty then
+        if not PurchaseLine.IsEmpty() then
             PurchaseLine.ModifyAll("Over-Receipt Approval Status", PurchaseLine."Over-Receipt Approval Status"::Approved);
     end;
 

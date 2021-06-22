@@ -12,6 +12,7 @@ codeunit 131900 "Library - Marketing"
         LibraryRandom: Codeunit "Library - Random";
         LibraryERM: Codeunit "Library - ERM";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryPurchase: Codeunit "Library - Purchase";
 
     procedure CreateActivity(var Activity: Record Activity)
     begin
@@ -239,6 +240,17 @@ codeunit 131900 "Library - Marketing"
         ContactBusinessRelation.Modify(true);
     end;
 
+    procedure CreateBusinessRelationBetweenContactAndVendor(var ContactBusinessRelation: Record "Contact Business Relation"; ContactNo: Code[20]; VendorNo: Code[20])
+    var
+        BusinessRelation: Record "Business Relation";
+    begin
+        CreateBusinessRelation(BusinessRelation);
+        CreateContactBusinessRelation(ContactBusinessRelation, ContactNo, BusinessRelation.Code);
+        ContactBusinessRelation."Link to Table" := ContactBusinessRelation."Link to Table"::Vendor;
+        ContactBusinessRelation."No." := VendorNo;
+        ContactBusinessRelation.Modify(true);
+    end;
+
     procedure CreateContactWithCustomer(var Contact: Record Contact; var Customer: Record Customer)
     var
         ContactBusinessRelation: Record "Contact Business Relation";
@@ -246,6 +258,15 @@ codeunit 131900 "Library - Marketing"
         CreateCompanyContact(Contact);
         LibrarySales.CreateCustomer(Customer);
         CreateBusinessRelationBetweenContactAndCustomer(ContactBusinessRelation, Contact."No.", Customer."No.");
+    end;
+
+    procedure CreateContactWithVendor(var Contact: Record Contact; var Vendor: Record Vendor)
+    var
+        ContactBusinessRelation: Record "Contact Business Relation";
+    begin
+        CreateCompanyContact(Contact);
+        LibraryPurchase.CreateVendor(Vendor);
+        CreateBusinessRelationBetweenContactAndVendor(ContactBusinessRelation, Contact."No.", Vendor."No.");
     end;
 
     procedure CreateCustomerFromContact(var Customer: Record Customer; Contact: Record Contact)
@@ -607,7 +628,7 @@ codeunit 131900 "Library - Marketing"
 
     procedure FindContact(var Contact: Record Contact)
     begin
-        Contact.FindSet;
+        Contact.FindSet();
     end;
 
     procedure FindCustomerTemplate(var CustomerTemplate: Record "Customer Template")

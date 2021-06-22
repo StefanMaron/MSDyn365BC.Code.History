@@ -312,7 +312,7 @@ codeunit 130011 "Backup Management"
         TableMetadata.SetFilter(ID, TableFilter);
         TableMetadata.SetRange(DataIsExternal, false);
         TableMetadata.SetFilter(ObsoleteState, '<>%1', TableMetadata.ObsoleteState::Removed);
-        TableMetadata.FindSet;
+        TableMetadata.FindSet();
         repeat
             TempTableMetadata.Copy(TableMetadata);
             TempTableMetadata.Insert
@@ -473,7 +473,7 @@ codeunit 130011 "Backup Management"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 49, 'OnAfterGetDatabaseTableTriggerSetup', '', true, true)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"GlobalTriggerManagement", 'OnAfterGetDatabaseTableTriggerSetup', '', true, true)]
     local procedure OnAfterGetDatabaseTableTriggerSetupHandler(TableId: Integer; var OnDatabaseInsert: Boolean; var OnDatabaseModify: Boolean; var OnDatabaseDelete: Boolean; var OnDatabaseRename: Boolean)
     begin
         OnDatabaseInsert := GetDatabaseTableTriggerSetup(TableId);

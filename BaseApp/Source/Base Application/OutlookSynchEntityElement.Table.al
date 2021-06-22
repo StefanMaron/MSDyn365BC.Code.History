@@ -201,7 +201,7 @@ table 5301 "Outlook Synch. Entity Element"
         OSynchSetupDetail.Reset();
         OSynchSetupDetail.SetRange("Synch. Entity Code", "Synch. Entity Code");
         OSynchSetupDetail.SetRange("Element No.", "Element No.");
-        if not OSynchSetupDetail.IsEmpty then
+        if not OSynchSetupDetail.IsEmpty() then
             Error(Text001);
 
         OSynchSetupDetail.DeleteAll(true);
@@ -296,7 +296,7 @@ table 5301 "Outlook Synch. Entity Element"
             if OSynchUserSetup."No. of Elements" > 0 then
                 if OSynchSetupDetail.Get(OSynchUserSetup."User ID", "Synch. Entity Code", "Element No.") then
                     Error(Text004, OSynchUserSetup."User ID");
-        until OSynchUserSetup.Next = 0;
+        until OSynchUserSetup.Next() = 0;
     end;
 
     procedure CheckCollectionName()

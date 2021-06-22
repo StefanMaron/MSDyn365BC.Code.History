@@ -1,4 +1,4 @@
-﻿page 248 "VAT Registration Config"
+page 248 "VAT Registration Config"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'EU VAT Registration No. Validation Service Setup';

@@ -13,7 +13,7 @@ codeunit 134311 "WF Notification Setup"
         LibraryWorkflow: Codeunit "Library - Workflow";
         LibraryUtility: Codeunit "Library - Utility";
         TestUserID: Code[50];
-        NotificationType: Option;
+        NotificationType: Enum "Notification Method Type";
 
     [Test]
     [Scope('OnPrem')]
@@ -47,10 +47,10 @@ codeunit 134311 "WF Notification Setup"
     var
         NotificationSchedule: Record "Notification Schedule";
     begin
-        NotificationSchedule.NewRecord(TestUserID, NotificationType);
+        NotificationSchedule.CreateNewRecord(TestUserID, NotificationType);
 
-        LibraryWorkflow.CreateNotificationSetup(NotificationSetup, TestUserID,
-          NotificationType, NotificationSetup."Notification Method"::Email);
+        LibraryWorkflow.CreateNotificationSetup(
+            NotificationSetup, TestUserID, NotificationType, NotificationSetup."Notification Method"::Email);
     end;
 }
 

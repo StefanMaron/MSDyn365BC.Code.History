@@ -100,11 +100,9 @@ table 7343 "Posted Invt. Pick Line"
             Caption = 'Qty. (Base)';
             DecimalPlaces = 0 : 5;
         }
-        field(31; "Shipping Advice"; Option)
+        field(31; "Shipping Advice"; Enum "Sales Header Shipping Advice")
         {
             Caption = 'Shipping Advice';
-            OptionCaption = 'Partial,Complete';
-            OptionMembers = Partial,Complete;
         }
         field(34; "Due Date"; Date)
         {
@@ -175,6 +173,16 @@ table 7343 "Posted Invt. Pick Line"
         {
             Caption = 'Expiration Date';
         }
+        field(6515; "Package No."; Code[50])
+        {
+            Caption = 'Package No.';
+            CaptionClass = '6,1';
+
+            trigger OnLookup()
+            begin
+                ItemTrackingMgt.LookupTrackingNoInfo("Item No.", "Variant Code", "Item Tracking Type"::"Package No.", "Package No.");
+            end;
+        }
         field(7300; "Bin Code"; Code[20])
         {
             Caption = 'Bin Code';
@@ -220,14 +228,6 @@ table 7343 "Posted Invt. Pick Line"
         }
         key(Key3; "Source Type", "Source Subtype", "Source No.", "Source Line No.", "Source Subline No.")
         {
-        }
-        key(Key4; "Lot No.")
-        {
-            Enabled = false;
-        }
-        key(Key5; "Serial No.")
-        {
-            Enabled = false;
         }
     }
 

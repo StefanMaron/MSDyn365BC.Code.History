@@ -113,13 +113,15 @@ page 5469 "API Setup"
                 Caption = 'Fix Sales Shipment Line API Records';
                 Image = Setup;
                 Promoted = false;
+                ObsoleteReason = 'This action will be removed together with the upgrade code.';
+                ObsoleteState = Pending;
+                ObsoleteTag = '18.0';
                 ToolTip = 'Updates records that are used by the salesShipmentLines API.';
 
                 trigger OnAction()
                 var
                     GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
                 begin
-                    Codeunit.Run(CODEUNIT::"API Fix Sales Shipment Line");
                     GraphMgtGeneralTools.ScheduleUpdateAPIRecordsJob(Codeunit::"API Fix Sales Shipment Line");
                 end;
             }
@@ -130,13 +132,15 @@ page 5469 "API Setup"
                 Caption = 'Fix Purchase Recepit Line API Records';
                 Image = Setup;
                 Promoted = false;
+                ObsoleteReason = 'This action will be removed together with the upgrade code.';
+                ObsoleteState = Pending;
+                ObsoleteTag = '18.0';
                 ToolTip = 'Updates records that are used by the purchaseReceiptLines API.';
 
                 trigger OnAction()
                 var
                     GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
                 begin
-                    Codeunit.Run(CODEUNIT::"API Fix Purch Rcpt Line");
                     GraphMgtGeneralTools.ScheduleUpdateAPIRecordsJob(Codeunit::"API Fix Purch Rcpt Line");
                 end;
             }
@@ -148,6 +152,7 @@ page 5469 "API Setup"
                 Image = Setup;
                 Promoted = false;
                 ToolTip = 'Updates records that are used by the purchaseOrders API';
+                Visible = false;
 
                 trigger OnAction()
                 var

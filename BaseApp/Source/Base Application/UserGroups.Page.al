@@ -7,6 +7,8 @@ page 9830 "User Groups"
     PageType = List;
     SourceTable = "User Group";
     UsageCategory = Lists;
+    AboutTitle = 'About user groups';
+    AboutText = 'User groups help you manage permissions. When you assign permissions to a group, every member of the group inherits these permissions.';
 
     layout
     {
@@ -24,29 +26,29 @@ page 9830 "User Groups"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the record.';
                 }
-                field(YourProfileID; YourProfileID)
+                field(YourProfileID; Rec."Default Profile ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Default Profile';
-                    Editable = false;
                     ToolTip = 'Specifies the default profile for members in this user group. The profile determines the layout of the home page, navigation and many other settings that help define the user''s role.​';
 
-                    trigger OnAssistEdit()
+                    trigger OnLookup(var Text: Text): Boolean
                     var
                         AllProfileTable: Record "All Profile";
-                        ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
                     begin
-                        if PAGE.RunModal(PAGE::"Available Roles", AllProfileTable) = ACTION::LookupOK then begin
-                            YourProfileID := AllProfileTable."Profile ID";
-                            "Default Profile ID" := AllProfileTable."Profile ID";
-                            "Default Profile App ID" := AllProfileTable."App ID";
-                            "Default Profile Scope" := AllProfileTable.Scope;
-                            if ("Default Profile ID" <> xRec."Default Profile ID") or
-                               ("Default Profile App ID" <> xRec."Default Profile App ID") or
-                               ("Default Profile Scope" <> xRec."Default Profile Scope")
-                            then
-                                ConfPersonalizationMgt.ChangePersonalizationForUserGroupMembers(Code, xRec."Default Profile ID", YourProfileID);
-                        end
+                        if PAGE.RunModal(PAGE::"Available Roles", AllProfileTable) = ACTION::LookupOK then
+                            UpdateProfile(AllProfileTable);
+                    end;
+
+                    trigger OnValidate()
+                    var
+                        AllProfileTable: Record "All Profile";
+                    begin
+                        AllProfileTable.SetFilter("Profile ID", Rec."Default Profile ID");
+                        if AllProfileTable.FindFirst() then
+                            UpdateProfile(AllProfileTable)
+                        else
+                            Error(InvalidProfileCodeErr);
                     end;
                 }
             }
@@ -85,36 +87,40 @@ page 9830 "User Groups"
             action(UserGroupMembers)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'User Group Members';
+                Caption = 'Members';
                 Image = Users;
                 Promoted = true;
+                PromotedOnly = true;
                 PromotedCategory = Process;
                 PromotedIsBig = true;
                 RunObject = Page "User Group Members";
                 RunPageLink = "User Group Code" = FIELD(Code);
                 Scope = Repeater;
                 ToolTip = 'View or edit the members of the user group.';
+                AboutTitle = 'Members of the group';
+                AboutText = 'Manage the people who are in the selected user group. A user can be a member of multiple user groups at the same time.';
             }
             action(UserGroupPermissionSets)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'User Group Permission Sets';
+                Caption = 'Permissions';
                 Image = Permission;
                 Promoted = true;
+                PromotedOnly = true;
                 PromotedCategory = Process;
                 PromotedIsBig = true;
                 RunObject = Page "User Group Permission Sets";
                 RunPageLink = "User Group Code" = FIELD(Code);
                 Scope = Repeater;
                 ToolTip = 'View or edit the permission sets that are assigned to the user group.';
+                AboutTitle = 'Define permissions for the group';
+                AboutText = 'Manage which permissions the members of the selected group get with their membership.';
             }
             action(PageUserbyUserGroup)
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'User by User Group';
                 Image = User;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Page "User by User Group";
                 ToolTip = 'View and assign user groups to users.';
             }
@@ -123,8 +129,6 @@ page 9830 "User Groups"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Permission Set by User Group';
                 Image = Permission;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Page "Permission Set by User Group";
                 ToolTip = 'View or edit the available permission sets and apply permission sets to existing user groups.';
             }
@@ -174,19 +178,6 @@ page 9830 "User Groups"
         }
     }
 
-    trigger OnAfterGetCurrRecord()
-    begin
-        YourProfileID := "Default Profile ID";
-    end;
-
-    trigger OnAfterGetRecord()
-    begin
-        if Code = '' then
-            YourProfileID := ''
-        else
-            YourProfileID := "Default Profile ID";
-    end;
-
     trigger OnOpenPage()
     var
         PermissionManager: Codeunit "Permission Manager";
@@ -195,8 +186,23 @@ page 9830 "User Groups"
             SetRange(Code, IntelligentCloudTok);
     end;
 
+    local procedure UpdateProfile(AllProfileTable: Record "All Profile")
     var
-        YourProfileID: Code[30];
+        ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
+    begin
+        "Default Profile ID" := AllProfileTable."Profile ID";
+        "Default Profile App ID" := AllProfileTable."App ID";
+        "Default Profile Scope" := AllProfileTable.Scope;
+        if ("Default Profile ID" <> xRec."Default Profile ID") or
+           ("Default Profile App ID" <> xRec."Default Profile App ID") or
+           ("Default Profile Scope" <> xRec."Default Profile Scope")
+        then
+            ConfPersonalizationMgt.ChangePersonalizationForUserGroupMembers(Code, xRec."Default Profile ID", Rec."Default Profile ID");
+        CurrPage.Update();
+    end;
+
+    var
         IntelligentCloudTok: Label 'INTELLIGENT CLOUD', Locked = true;
+        InvalidProfileCodeErr: Label 'The provided profile code does not match any existing profiles.';
 }
 

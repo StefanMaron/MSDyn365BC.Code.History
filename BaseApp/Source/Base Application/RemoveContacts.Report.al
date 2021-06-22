@@ -340,19 +340,19 @@ report 5186 "Remove Contacts"
                         repeat
                             TempCont2 := Cont;
                             if TempCont2.Insert() then;
-                        until Cont.Next = 0
+                        until Cont.Next() = 0
                 end else begin
                     TempCont2 := TempCont;
                     TempCont2.Insert();
                 end;
-            until TempCont.Next = 0;
+            until TempCont.Next() = 0;
 
         TempCont.DeleteAll();
         if TempCont2.Find('-') then
             repeat
                 TempCont := TempCont2;
                 TempCont.Insert();
-            until TempCont2.Next = 0;
+            until TempCont2.Next() = 0;
         TempCont2.DeleteAll();
     end;
 
@@ -376,7 +376,7 @@ report 5186 "Remove Contacts"
                               SegLine."Segment No.", SegLine."Contact No.", SegLine."Line No.");
                         end;
                 end;
-            until SegLine.Next = 0;
+            until SegLine.Next() = 0;
     end;
 }
 

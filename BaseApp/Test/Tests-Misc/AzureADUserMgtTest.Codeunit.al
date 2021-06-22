@@ -417,9 +417,9 @@ codeunit 132907 AzureADUserMgtTest
         UserGroupMember: Record "User Group Member";
     begin
         UserGroupMember.SetRange("User Security ID", User."User Security ID");
-        UserGroupMember.FindSet;
+        UserGroupMember.FindSet();
         UserGroupPlan.SetRange("Plan ID", UserGroupPlan."Plan ID");
-        UserGroupPlan.FindSet;
+        UserGroupPlan.FindSet();
 
         Assert.RecordCount(UserGroupMember, UserGroupPlan.Count);
         repeat

@@ -49,14 +49,14 @@ table 480 "Dimension Set Entry"
         }
         field(5; "Dimension Name"; Text[30])
         {
-            CalcFormula = Lookup (Dimension.Name WHERE(Code = FIELD("Dimension Code")));
+            CalcFormula = Lookup(Dimension.Name WHERE(Code = FIELD("Dimension Code")));
             Caption = 'Dimension Name';
             Editable = false;
             FieldClass = FlowField;
         }
         field(6; "Dimension Value Name"; Text[50])
         {
-            CalcFormula = Lookup ("Dimension Value".Name WHERE("Dimension Code" = FIELD("Dimension Code"),
+            CalcFormula = Lookup("Dimension Value".Name WHERE("Dimension Code" = FIELD("Dimension Code"),
                                                                Code = FIELD("Dimension Value Code")));
             Caption = 'Dimension Value Name';
             Editable = false;
@@ -143,7 +143,7 @@ table 480 "Dimension Set Entry"
                 if not DimSetTreeNode.Insert(true) then
                     DimSetTreeNode.Get(DimSetTreeNode."Parent Dimension Set ID", DimSetTreeNode."Dimension Value ID");
             end;
-        until DimSetEntry.Next = 0;
+        until DimSetEntry.Next() = 0;
         if not DimSetTreeNode."In Use" then begin
             if Found then begin
                 DimSetTreeNode.LockTable();
@@ -170,7 +170,7 @@ table 480 "Dimension Set Entry"
                 DimSetEntry2."Dimension Set ID" := NewID;
                 DimSetEntry2."Global Dimension No." := DimSetEntry2.GetGlobalDimNo();
                 DimSetEntry2.Insert();
-            until DimSetEntry.Next = 0;
+            until DimSetEntry.Next() = 0;
     end;
 
     procedure UpdateGlobalDimensionNo(DimensionCode: Code[20]; GlobalDimensionNo: Integer)

@@ -221,12 +221,12 @@ table 1222 "Data Exch. Def"
 
         DataExchLineDef.SetRange("Data Exch. Def Code", Code);
         DataExchLineDef.SetRange("Parent Code", '');
-        DataExchLineDef.FindSet;
+        DataExchLineDef.FindSet();
 
         repeat
             DataExchMapping.SetRange("Data Exch. Def Code", DataExch."Data Exch. Def Code");
             DataExchMapping.SetRange("Data Exch. Line Def Code", DataExchLineDef.Code);
-            DataExchMapping.FindSet;
+            DataExchMapping.FindSet();
 
             repeat
                 if DataExchMapping."Pre-Mapping Codeunit" <> 0 then
@@ -237,8 +237,8 @@ table 1222 "Data Exch. Def"
 
                 if DataExchMapping."Post-Mapping Codeunit" <> 0 then
                     CODEUNIT.Run(DataExchMapping."Post-Mapping Codeunit", DataExch);
-            until DataExchMapping.Next = 0;
-        until DataExchLineDef.Next = 0;
+            until DataExchMapping.Next() = 0;
+        until DataExchLineDef.Next() = 0;
     end;
 }
 

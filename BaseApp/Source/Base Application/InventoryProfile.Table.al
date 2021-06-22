@@ -267,6 +267,11 @@ table 99000853 "Inventory Profile"
         {
             Caption = 'MPS Order';
         }
+        field(6515; "Package No."; Code[50])
+        {
+            Caption = 'Package No.';
+            CaptionClass = '6,1';
+        }
     }
 
     keys
@@ -516,7 +521,7 @@ table 99000853 "Inventory Profile"
             Binding := ReservEntry.Binding;
             repeat
                 ReservedQty := ReservedQty + ReservEntry."Quantity (Base)";
-            until ReservEntry.Next = 0;
+            until ReservEntry.Next() = 0;
         end;
     end;
 
@@ -917,7 +922,7 @@ table 99000853 "Inventory Profile"
                            (("Fixed Date" = 0D) or ("Fixed Date" > ReservEntry."Shipment Date"))
                         then
                             "Fixed Date" := ReservEntry."Shipment Date";
-            until ReservEntry.Next = 0;
+            until ReservEntry.Next() = 0;
         exit(AutoReservedQty);
     end;
 
@@ -1149,6 +1154,14 @@ table 99000853 "Inventory Profile"
         OnAfterSetTrackingFilter(Rec, InventoryProfile);
     end;
 
+    procedure SetTrackingFilterFromInvtProfile(InventoryProfile: Record "Inventory Profile")
+    begin
+        SetRange("Lot No.", InventoryProfile."Lot No.");
+        SetRange("Serial No.", InventoryProfile."Serial No.");
+
+        OnAfterSetTrackingFilterFromInvtProfile(Rec, InventoryProfile);
+    end;
+
     procedure TrackingExists() IsTrackingExists: Boolean
     begin
         IsTrackingExists := ("Lot No." <> '') or ("Serial No." <> '');
@@ -1253,6 +1266,11 @@ table 99000853 "Inventory Profile"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetTrackingFilter(var InventoryProfile: Record "Inventory Profile"; FromInventoryProfile: Record "Inventory Profile")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromInvtProfile(var InventoryProfile: Record "Inventory Profile"; FromInventoryProfile: Record "Inventory Profile")
     begin
     end;
 

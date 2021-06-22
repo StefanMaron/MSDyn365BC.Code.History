@@ -78,7 +78,7 @@ report 295 "Combine Shipments"
                                 SalesLineInvoice.SetRange("Shipment Line No.", SalesShipmentLine."Line No.");
                                 if SalesLineInvoice.FindFirst then
                                     SalesGetShpt.GetItemChargeAssgnt(SalesShipmentLine, SalesLineInvoice."Qty. to Invoice");
-                            until SalesShipmentLine.Next = 0;
+                            until SalesShipmentLine.Next() = 0;
                     end;
                 }
 

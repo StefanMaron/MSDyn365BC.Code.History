@@ -13,13 +13,13 @@ codeunit 130610 "Library - Mock CRM Connection"
         GlobalSkipReading: Boolean;
         SetTestAsDefaultConnection: Boolean;
 
-    [EventSubscriber(ObjectType::Table, 5330, 'OnReadingCRMData', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"CRM Connection Setup", 'OnReadingCRMData', '', false, false)]
     local procedure OnReadingCRMData(var SkipReading: Boolean)
     begin
         SkipReading := GlobalSkipReading;
     end;
 
-    [EventSubscriber(ObjectType::Table, 5330, 'OnGetDefaultCRMConnection', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"CRM Connection Setup", 'OnGetDefaultCRMConnection', '', false, false)]
     local procedure OnGetDefaultCRMConnection(var ConnectionName: Text)
     begin
         if SetTestAsDefaultConnection then begin

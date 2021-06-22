@@ -118,7 +118,7 @@ report 1137 "Transfer Budget to Actual"
                 Window2.Update(1, CostJnlLineStep div 100000);
                 CostJnlLine := TempCostJnlLine;
                 CAJnlPostLine.RunWithCheck(CostJnlLine);
-            until TempCostJnlLine.Next = 0;
+            until TempCostJnlLine.Next() = 0;
         Window2.Close;
     end;
 }

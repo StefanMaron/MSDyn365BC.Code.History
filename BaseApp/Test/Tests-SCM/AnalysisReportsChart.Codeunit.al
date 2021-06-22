@@ -954,7 +954,7 @@ codeunit 137409 "Analysis Reports Chart"
         AnalysisLineTemplate: Record "Analysis Line Template";
         AnalysisReportChartMatrixTestPage: TestPage "Analysis Report Chart Matrix";
         AnalysisReportChartMatrix: Page "Analysis Report Chart Matrix";
-        AnalysisArea: Integer;
+        AnalysisArea: Enum "Analysis Area Type";
         Counter: Integer;
         MaxNumberOfMatrixColumns: Integer;
     begin
@@ -966,7 +966,7 @@ codeunit 137409 "Analysis Reports Chart"
         MaxNumberOfMatrixColumns := 12;
 
         // [GIVEN] Created Analysis Report Chart Setup using Analysis Column Template with 13 columns
-        AnalysisArea := 0;
+        AnalysisArea := "Analysis Area Type"::Sales;
         LibraryInventory.CreateAnalysisColumnTemplate(AnalysisColumnTemplate, AnalysisArea);
 
         for Counter := 1 to MaxNumberOfMatrixColumns + 1 do begin
@@ -989,7 +989,8 @@ codeunit 137409 "Analysis Reports Chart"
         AnalysisReportChartSetup.Insert();
 
         for Counter := 1 to MaxNumberOfMatrixColumns + 1 do
-            CreateOnePerfIndSetupLine(AnalysisReportChartSetup, AnalysisLine."Line No.", Counter * 10000, '', '', AnalysisArea);
+            CreateOnePerfIndSetupLine(
+                AnalysisReportChartSetup, AnalysisLine."Line No.", Counter * 10000, '', '', AnalysisArea.AsInteger());
 
         // [WHEN] Open Analysis Report Chart Matrix on created Analysis Report Chart Setup
         AnalysisReportChartMatrix.SetFilters(AnalysisReportChartSetup);
@@ -1152,9 +1153,9 @@ codeunit 137409 "Analysis Reports Chart"
                               PeriodFormManagement.CreatePeriodFormat(BusinessChartBuffer."Period Length", PeriodEnd), ActualChartValue,
                               StrSubstNo(DimensionValueNotEqualERR, RowIndex + 1));
 
-                        AnalysisLine.FindSet;
+                        AnalysisLine.FindSet();
                         repeat
-                            AnalysisColumn.FindSet;
+                            AnalysisColumn.FindSet();
                             repeat
                                 MeasureName := StrSubstNo(MeasureTXT, AnalysisLine.Description, AnalysisColumn."Column Header");
                                 VerifyChartMeasure(
@@ -1170,14 +1171,14 @@ codeunit 137409 "Analysis Reports Chart"
                 end;
             AnalysisReportChartSetup."Base X-Axis on"::Line:
                 begin
-                    AnalysisLine.FindSet;
+                    AnalysisLine.FindSet();
                     RowIndex := 0;
                     repeat
                         Clear(ActualChartValue);
                         BusinessChartBuffer.GetValue(AnalysisLine.FieldCaption(Description), RowIndex, ActualChartValue);
                         Assert.AreEqual(AnalysisLine.Description, ActualChartValue, StrSubstNo(DimensionValueNotEqualERR, RowIndex + 1));
 
-                        AnalysisColumn.FindSet;
+                        AnalysisColumn.FindSet();
                         repeat
                             MeasureName := AnalysisColumn."Column Header";
                             VerifyChartMeasure(
@@ -1188,14 +1189,14 @@ codeunit 137409 "Analysis Reports Chart"
                 end;
             AnalysisReportChartSetup."Base X-Axis on"::Column:
                 begin
-                    AnalysisColumn.FindSet;
+                    AnalysisColumn.FindSet();
                     RowIndex := 0;
                     repeat
                         Clear(ActualChartValue);
                         BusinessChartBuffer.GetValue(AnalysisColumn.FieldCaption("Column Header"), RowIndex, ActualChartValue);
                         Assert.AreEqual(AnalysisColumn."Column Header", ActualChartValue, StrSubstNo(DimensionValueNotEqualERR, RowIndex + 1));
 
-                        AnalysisLine.FindSet;
+                        AnalysisLine.FindSet();
                         repeat
                             MeasureName := AnalysisLine.Description;
                             VerifyChartMeasure(
@@ -1230,9 +1231,9 @@ codeunit 137409 "Analysis Reports Chart"
         ValueEntry: Record "Value Entry";
         AnalysisReportName: Code[10];
         ItemNo: Code[20];
-        AnalysisArea: Option;
+        AnalysisArea: Enum "Analysis Area Type";
     begin
-        AnalysisArea := 0;
+        AnalysisArea := "Analysis Area Type"::Sales;
         SetupAnalysisReport2ItemAndTotalLines2Cols(
           AnalysisLine, AnalysisColumn, AnalysisArea, AnalysisColumn."Value Type"::"Sales Amount", Invoiced);
         AnalysisReportName := '';
@@ -1244,7 +1245,7 @@ codeunit 137409 "Analysis Reports Chart"
               CalculatePeriodEndDate(
                 CalculateNextDate(StartDate, NoOfPeriods - 1, AnalysisReportChartSetup."Period Length"),
                 AnalysisReportChartSetup."Period Length");
-        AnalysisLine.FindSet;
+        AnalysisLine.FindSet();
         ItemNo := CopyStr(AnalysisLine.Range, 1, 20);
         SetupItemEntries(ItemLedgerEntry, ValueEntry, ItemNo, StartDate, EndDate, PeriodLength, ItemLedgerEntry."Entry Type"::Sale);
         AnalysisLine.Next;
@@ -1252,7 +1253,7 @@ codeunit 137409 "Analysis Reports Chart"
         SetupItemEntries(ItemLedgerEntry, ValueEntry, ItemNo, StartDate, EndDate, PeriodLength, ItemLedgerEntry."Entry Type"::Sale);
     end;
 
-    local procedure SetupChartParam(var AnalysisReportChartSetup: Record "Analysis Report Chart Setup"; var AnalysisLine: Record "Analysis Line"; var AnalysisColumn: Record "Analysis Column"; AnalysisReportName: Code[10]; AnalysisArea: Option; ShowPer: Option; PeriodLength: Option; StartDate: Date; EndDate: Date; NoOfPeriods: Integer)
+    local procedure SetupChartParam(var AnalysisReportChartSetup: Record "Analysis Report Chart Setup"; var AnalysisLine: Record "Analysis Line"; var AnalysisColumn: Record "Analysis Column"; AnalysisReportName: Code[10]; AnalysisArea: Enum "Analysis Area Type"; ShowPer: Option; PeriodLength: Option; StartDate: Date; EndDate: Date; NoOfPeriods: Integer)
     begin
         Clear(AnalysisReportChartSetup);
         AnalysisReportChartSetup."User ID" := UserId;
@@ -1280,11 +1281,11 @@ codeunit 137409 "Analysis Reports Chart"
     var
         MeasureName: Text[111];
     begin
-        AnalysisLine.FindSet;
+        AnalysisLine.FindSet();
         case AnalysisReportChartSetup."Base X-Axis on" of
             AnalysisReportChartSetup."Base X-Axis on"::Period:
             repeat
-                AnalysisColumn.FindSet;
+                AnalysisColumn.FindSet();
                 repeat
                     MeasureName := StrSubstNo(MeasureTXT, AnalysisLine.Description, AnalysisColumn."Column Header");
                     CreateOnePerfIndSetupLine(AnalysisReportChartSetup, AnalysisLine."Line No.", AnalysisColumn."Line No.", MeasureName,
@@ -1300,7 +1301,7 @@ codeunit 137409 "Analysis Reports Chart"
                           AnalysisReportChartSetup, AnalysisLine."Line No.", 0, MeasureName, Format(AnalysisLine."Line No."),
                           LibraryRandom.RandIntInRange(1, 3));
                     until AnalysisLine.Next = 0;
-                    AnalysisColumn.FindSet;
+                    AnalysisColumn.FindSet();
                     repeat
                         MeasureName := AnalysisColumn."Column Header";
                         CreateOnePerfIndSetupLine(
@@ -1330,7 +1331,7 @@ codeunit 137409 "Analysis Reports Chart"
         AnalysisReportChartLine.Insert();
     end;
 
-    local procedure SetupAnalysisReport2ItemAndTotalLines2Cols(var AnalysisLine: Record "Analysis Line"; var AnalysisColumn: Record "Analysis Column"; AnalysisArea: Option; ColumnValueType: Enum "Analysis Column Type"; Invoiced: Boolean)
+    local procedure SetupAnalysisReport2ItemAndTotalLines2Cols(var AnalysisLine: Record "Analysis Line"; var AnalysisColumn: Record "Analysis Column"; AnalysisArea: Enum "Analysis Area Type"; ColumnValueType: Enum "Analysis Column Type"; Invoiced: Boolean)
     var
         AnalysisReportName: Record "Analysis Report Name";
     begin
@@ -1353,7 +1354,7 @@ codeunit 137409 "Analysis Reports Chart"
           ItemLedgerEntry, ValueEntry, Item."No.", WorkDate, WorkDate, 0, ItemLedgerEntry."Entry Type"::Sale);
     end;
 
-    local procedure CreateAnalysisLineTempl2ItemAndTotal(var AnalysisLine: Record "Analysis Line"; AnalysisArea: Option)
+    local procedure CreateAnalysisLineTempl2ItemAndTotal(var AnalysisLine: Record "Analysis Line"; AnalysisArea: Enum "Analysis Area Type")
     var
         AnalysisLineTemplate: Record "Analysis Line Template";
         TotalFormula: Text[250];
@@ -1377,10 +1378,10 @@ codeunit 137409 "Analysis Reports Chart"
 
         AnalysisLine.SetRange("Analysis Area", AnalysisArea);
         AnalysisLine.SetRange("Analysis Line Template Name", AnalysisLineTemplate.Name);
-        AnalysisLine.FindSet;
+        AnalysisLine.FindSet();
     end;
 
-    local procedure CreateAnalysisLine(var AnalysisLine: Record "Analysis Line"; AnalysisArea: Option; AnalysisLineTemplateName: Code[10])
+    local procedure CreateAnalysisLine(var AnalysisLine: Record "Analysis Line"; AnalysisArea: Enum "Analysis Area Type"; AnalysisLineTemplateName: Code[10])
     begin
         LibraryInventory.CreateAnalysisLine(AnalysisLine, AnalysisArea, AnalysisLineTemplateName);
         AnalysisLine.Validate("Row Ref. No.", Format(LibraryRandom.RandInt(100)));
@@ -1392,7 +1393,7 @@ codeunit 137409 "Analysis Reports Chart"
         AnalysisLine.Modify(true);
     end;
 
-    local procedure CreateAnalysisColTempl2Cols(var AnalysisColumn: Record "Analysis Column"; AnalysisArea: Option; FirstColValueType: Enum "Analysis Column Type"; IsInvoiced: Boolean)
+    local procedure CreateAnalysisColTempl2Cols(var AnalysisColumn: Record "Analysis Column"; AnalysisArea: Enum "Analysis Area Type"; FirstColValueType: Enum "Analysis Column Type"; IsInvoiced: Boolean)
     var
         AnalysisColumnTemplate: Record "Analysis Column Template";
         ColumnFormula: Code[80];
@@ -1422,7 +1423,7 @@ codeunit 137409 "Analysis Reports Chart"
 
         AnalysisColumn.SetRange("Analysis Area", AnalysisArea);
         AnalysisColumn.SetRange("Analysis Column Template", AnalysisColumnTemplate.Name);
-        AnalysisColumn.FindSet;
+        AnalysisColumn.FindSet();
     end;
 
     local procedure SetupItemEntries(var ItemLedgerEntry: Record "Item Ledger Entry"; var ValueEntry: Record "Value Entry"; ItemNo: Code[20]; StartingDate: Date; EndingDate: Date; PeriodLength: Option; ILEEntryType: Enum "Item Ledger Document Type")
@@ -1528,9 +1529,9 @@ codeunit 137409 "Analysis Reports Chart"
                                 LineIndex := LibraryRandom.RandIntInRange(0, NoOfLines - 2);
                                 ColumnIndex := LibraryRandom.RandIntInRange(0, NoOfColumns - 2);
                                 BusinessChartBuffer."Drill-Down Measure Index" := LineIndex * NoOfColumns + ColumnIndex;
-                                AnalysisLine.FindSet;
+                                AnalysisLine.FindSet();
                                 AnalysisLine.Next(LineIndex);
-                                AnalysisColumn.FindSet;
+                                AnalysisColumn.FindSet();
                                 AnalysisColumn.Next(ColumnIndex);
                             end;
                     end;
@@ -1556,9 +1557,9 @@ codeunit 137409 "Analysis Reports Chart"
                                 BusinessChartBuffer."Drill-Down Measure Index" := LibraryRandom.RandIntInRange(0, NoOfColumns - 2);
                             end;
                     end;
-                    AnalysisLine.FindSet;
+                    AnalysisLine.FindSet();
                     AnalysisLine.Next(BusinessChartBuffer."Drill-Down X Index");
-                    AnalysisColumn.FindSet;
+                    AnalysisColumn.FindSet();
                     AnalysisColumn.Next(BusinessChartBuffer."Drill-Down Measure Index");
                 end;
             AnalysisReportChartSetup."Base X-Axis on"::Column:
@@ -1582,9 +1583,9 @@ codeunit 137409 "Analysis Reports Chart"
                                 BusinessChartBuffer."Drill-Down Measure Index" := LibraryRandom.RandIntInRange(0, NoOfLines - 2);
                             end;
                     end;
-                    AnalysisLine.FindSet;
+                    AnalysisLine.FindSet();
                     AnalysisLine.Next(BusinessChartBuffer."Drill-Down Measure Index");
-                    AnalysisColumn.FindSet;
+                    AnalysisColumn.FindSet();
                     AnalysisColumn.Next(BusinessChartBuffer."Drill-Down X Index");
                 end;
         end;

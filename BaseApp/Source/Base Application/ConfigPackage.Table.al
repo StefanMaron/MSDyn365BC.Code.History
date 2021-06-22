@@ -141,7 +141,7 @@ table 8623 "Config. Package"
         ConfigPackageError.FilterGroup(2);
         ConfigPackageError.SetRange("Package Code", Code);
         ConfigPackageError.FilterGroup(0);
-        if not ConfigPackageError.IsEmpty then
+        if not ConfigPackageError.IsEmpty() then
             PAGE.Run(PAGE::"Config. Package Errors", ConfigPackageError);
     end;
 }

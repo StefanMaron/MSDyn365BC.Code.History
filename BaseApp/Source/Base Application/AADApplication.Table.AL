@@ -108,10 +108,10 @@ table 9012 "AAD Application"
             User.Modify();
             exit;
         end;
-
+        // The "AAD Application" have been removed earlier and id being recreated now
         User.SetRange("License Type", User."License Type"::"Full User");
         User.SetRange(State, User.State::Enabled);
-        if User.IsEmpty then begin
+        if User.IsEmpty() then begin
             ErrText := StrSubstNo(UserMustExistErr, Rec.TableCaption);
             Error(ErrText);
         end;
@@ -127,7 +127,7 @@ table 9012 "AAD Application"
         User: Record User;
     begin
         User.SetRange("User Security ID", "User ID");
-        if not User.IsEmpty then
+        if not User.IsEmpty() then
             exit(true);
 
         User.SetRange("User Security ID");

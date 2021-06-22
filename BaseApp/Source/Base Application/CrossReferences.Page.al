@@ -1,3 +1,4 @@
+#if not CLEAN16
 page 5723 "Cross References"
 {
     Caption = 'Item Cross References';
@@ -73,4 +74,4 @@ page 5723 "Cross References"
     {
     }
 }
-
+#endif

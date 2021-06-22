@@ -47,7 +47,7 @@ report 99001023 "Get Action Messages"
                                     TempNewActionMsgEntry."New Date" := TrkgReservEntry."Shipment Date";
                                     TempNewActionMsgEntry.Insert();
                                 end;
-                            until ActionMessageEntry.Next = 0;
+                            until ActionMessageEntry.Next() = 0;
 
                             TempNewActionMsgEntry.Find('-');
                             repeat
@@ -55,7 +55,7 @@ report 99001023 "Get Action Messages"
                                 NextEntryNo := NextEntryNo + 1;
                                 TempActionMsgEntry."Entry No." := NextEntryNo;
                                 TempActionMsgEntry.Insert();
-                            until TempNewActionMsgEntry.Next = 0;
+                            until TempNewActionMsgEntry.Next() = 0;
                         end else begin
                             if ActionMessageEntry.Find('+') then
                                 UpdateActionMsgList(ActionMessageEntry."Source Type", ActionMessageEntry."Source Subtype",
@@ -68,7 +68,7 @@ report 99001023 "Get Action Messages"
                         ActionMessageEntry.SetRange("Location Code");
                         ActionMessageEntry.SetRange("Bin Code");
                         ActionMessageEntry.SetRange("Variant Code");
-                    until ActionMessageEntry.Next = 0;
+                    until ActionMessageEntry.Next() = 0;
             end;
 
             trigger OnPostDataItem()
@@ -93,7 +93,7 @@ report 99001023 "Get Action Messages"
 
                 repeat
                     GetActionMessages(TempActionMsgEntry);
-                until TempActionMsgEntry.Next = 0;
+                until TempActionMsgEntry.Next() = 0;
 
                 if not PlanningLinesInserted then
                     Error(Text008);
@@ -103,14 +103,14 @@ report 99001023 "Get Action Messages"
                     repeat
                         ReservMgt.SetReservSource(TempReqLineList);
                         ReservMgt.AutoTrack(TempReqLineList."Net Quantity (Base)");
-                    until TempReqLineList.Next = 0;
+                    until TempReqLineList.Next() = 0;
 
                 // Dynamic tracking is run for the handled Planning Components:
                 if TempPlanningCompList.Find('-') then
                     repeat
                         ReservMgt.SetReservSource(TempPlanningCompList);
                         ReservMgt.AutoTrack(TempPlanningCompList."Net Quantity (Base)");
-                    until TempPlanningCompList.Next = 0;
+                    until TempPlanningCompList.Next() = 0;
             end;
 
             trigger OnPreDataItem()

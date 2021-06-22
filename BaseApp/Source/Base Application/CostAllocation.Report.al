@@ -486,7 +486,7 @@ report 1131 "Cost Allocation"
                 Window2.Update(1, CostJnlLineStep div 100000);
                 CostJnlLine := TempCostJnlLine;
                 CAJnlPostLine.RunWithCheck(CostJnlLine);
-            until TempCostJnlLine.Next = 0;
+            until TempCostJnlLine.Next() = 0;
             TempCostJnlLine.DeleteAll();
         end;
         Window2.Close;

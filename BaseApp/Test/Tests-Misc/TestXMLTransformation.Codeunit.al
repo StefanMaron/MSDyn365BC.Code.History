@@ -318,12 +318,12 @@ codeunit 139149 "Test XML Transformation"
           '<?xml version="1.0" encoding="UTF-8"?>' +
           '<persons>' +
           '<person username="MP123456">' +
-          '<name>Annette</name>' +
-          '<surname>Hill</surname>' +
+          '<name>Ester</name>' +
+          '<surname>Henderson</surname>' +
           '</person>' +
           '<person username="PK123456">' +
-          '<name>Bart</name>' +
-          '<surname>Duncan</surname>' +
+          '<name>Benjamin</name>' +
+          '<surname>Chiu</surname>' +
           '</person>' +
           '</persons>');
     end;
@@ -391,11 +391,11 @@ codeunit 139149 "Test XML Transformation"
           '<transform>' + Environment.NewLine +
           '  <record>' + Environment.NewLine +
           '    <username>MP123456</username>' + Environment.NewLine +
-          '    <fullname>Annette Hill</fullname>' + Environment.NewLine +
+          '    <fullname>Ester Henderson</fullname>' + Environment.NewLine +
           '  </record>' + Environment.NewLine +
           '  <record>' + Environment.NewLine +
           '    <username>PK123456</username>' + Environment.NewLine +
-          '    <fullname>Bart Duncan</fullname>' + Environment.NewLine +
+          '    <fullname>Benjamin Chiu</fullname>' + Environment.NewLine +
           '  </record>' + Environment.NewLine +
           '</transform>');
     end;
@@ -419,11 +419,11 @@ codeunit 139149 "Test XML Transformation"
           '<transform>' +
           '<record>' +
           '<username>MP123456</username>' +
-          '<fullname>Annette Hill</fullname>' +
+          '<fullname>Ester Henderson</fullname>' +
           '</record>' +
           '<record>' +
           '<username>PK123456</username>' +
-          '<fullname>Bart Duncan</fullname>' +
+          '<fullname>Benjamin Chiu</fullname>' +
           '</record>' +
           '</transform>');
     end;

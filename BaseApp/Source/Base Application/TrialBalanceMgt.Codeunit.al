@@ -25,6 +25,19 @@ codeunit 1318 "Trial Balance Mgt."
         UpdateArrays(DescriptionsArr, ValuesArr, PeriodCaptionTxt, NoOfColumns);
     end;
 
+    procedure SetupIsInPlace(): Boolean
+    var
+        TrialBalanceSetup: Record "Trial Balance Setup";
+    begin
+        if not TrialBalanceSetup.Get() then
+            exit(false);
+        if TrialBalanceSetup."Account Schedule Name" = '' then
+            exit(false);
+        if TrialBalanceSetup."Column Layout Name" = '' then
+            exit(false);
+        exit(true);
+    end;
+
     local procedure Initialize()
     var
         TrialBalanceSetup: Record "Trial Balance Setup";
@@ -86,8 +99,8 @@ codeunit 1318 "Trial Balance Mgt."
                         PeriodCaptionTxt[Offset] := StrSubstNo('%1..%2', FromDate, ToDate);
                         Offset := Offset - 1;
                         TempNoOfColumns := TempNoOfColumns - 1;
-                    until (TempColumnLayout.Next = 0) or (TempNoOfColumns = 0);
-            until AccScheduleLine.Next = 0;
+                    until (TempColumnLayout.Next() = 0) or (TempNoOfColumns = 0);
+            until AccScheduleLine.Next() = 0;
 
         if Counter < ArrayLen(ValuesArr, 1) then
             Error(LessRowsThanExpectedErr);

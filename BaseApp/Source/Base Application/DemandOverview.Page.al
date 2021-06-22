@@ -1,4 +1,4 @@
-﻿page 5830 "Demand Overview"
+page 5830 "Demand Overview"
 {
     AccessByPermission = TableData "Service Header" = R;
     AdditionalSearchTerms = 'supply planning,availability overview';
@@ -569,7 +569,7 @@
                     Rec := TempAvailCalcOverview;
                     Insert;
                 end;
-            until TempAvailCalcOverview.Next = 0;
+            until TempAvailCalcOverview.Next() = 0;
         CopyFilters(AvailCalcOverviewFilters);
         ExpandAll(TempAvailCalcOverview);
         Copy(AvailCalcOverviewFilters);
@@ -623,7 +623,7 @@
             repeat
                 Rec := AvailCalcOverview;
                 Insert;
-            until AvailCalcOverview.Next = 0;
+            until AvailCalcOverview.Next() = 0;
 
         Window.Close;
         Copy(AvailCalcOverviewFilters);

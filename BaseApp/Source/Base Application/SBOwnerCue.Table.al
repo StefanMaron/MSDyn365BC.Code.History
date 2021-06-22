@@ -56,8 +56,8 @@ table 9060 "SB Owner Cue"
             Caption = 'SOs Shipped Not Invoiced';
             FieldClass = FlowField;
             ObsoleteReason = 'Poor performance';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '18.0';
         }
         field(8; "Customers - Blocked"; Integer)
         {

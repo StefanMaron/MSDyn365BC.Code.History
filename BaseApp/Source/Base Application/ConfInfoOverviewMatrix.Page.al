@@ -552,7 +552,7 @@ page 9283 "Conf. Info. Overview Matrix"
         ConfidentialInformation.SetRange("Employee No.", "No.");
         ConfidentialInformation.SetRange("Confidential Code", MatrixRecords[MATRIX_ColumnOrdinal].Code);
         PAGE.Run(PAGE::"Confidential Information", ConfidentialInformation);
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure MATRIX_OnAfterGetRecord(MATRIX_ColumnOrdinal: Integer)

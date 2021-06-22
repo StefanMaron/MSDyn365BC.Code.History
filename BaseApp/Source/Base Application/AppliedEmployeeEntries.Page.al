@@ -208,7 +208,7 @@ page 63 "Applied Employee Entries"
             if Find('-') then
                 repeat
                     Mark(true);
-                until Next = 0;
+                until Next() = 0;
 
             SetCurrentKey("Entry No.");
             SetRange("Closed by Entry No.");
@@ -256,14 +256,14 @@ page 63 "Applied Employee Entries"
                                 if Find('-') then
                                     Mark(true);
                             end;
-                        until DtldEmplLedgEntry2.Next = 0;
+                        until DtldEmplLedgEntry2.Next() = 0;
                 end else begin
                     SetCurrentKey("Entry No.");
                     SetRange("Entry No.", DtldEmplLedgEntry1."Applied Empl. Ledger Entry No.");
                     if Find('-') then
                         Mark(true);
                 end;
-            until DtldEmplLedgEntry1.Next = 0;
+            until DtldEmplLedgEntry1.Next() = 0;
     end;
 
     local procedure SetControlVisibility()

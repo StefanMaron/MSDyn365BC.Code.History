@@ -194,7 +194,7 @@ codeunit 2104 "O365 Send + Resend Invoice"
             O365CouponClaim.SetRange("Document No. Filter", "No.");
             O365CouponClaim.SetRange("Is applied", true);
             O365CouponClaim.SetRange("Is Valid", false);
-            if not O365CouponClaim.IsEmpty then begin
+            if not O365CouponClaim.IsEmpty() then begin
                 Message(CouponsNotValidMsg);
                 exit(false);
             end;

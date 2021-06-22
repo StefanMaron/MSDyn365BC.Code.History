@@ -164,7 +164,7 @@ report 950 "Create Time Sheets"
         for i := 1 to NoOfPeriods do
             LastDate := CalcDate('<1W>', LastDate);
 
-        if AccountingPeriod.IsEmpty then begin
+        if AccountingPeriod.IsEmpty() then begin
             FirstAccPeriodStartingDate := CalcDate('<-CM>', StartingDate);
             LastAccPeriodStartingDate := CalcDate('<CM>', StartingDate);
         end else begin
@@ -177,10 +177,10 @@ report 950 "Create Time Sheets"
             LastAccPeriodStartingDate := AccountingPeriod."Starting Date";
 
             AccountingPeriod.SetRange("Starting Date", FirstAccPeriodStartingDate, LastAccPeriodStartingDate);
-            AccountingPeriod.FindSet;
+            AccountingPeriod.FindSet();
             repeat
                 AccountingPeriod.TestField(Closed, false);
-            until AccountingPeriod.Next = 0;
+            until AccountingPeriod.Next() = 0;
         end;
     end;
 

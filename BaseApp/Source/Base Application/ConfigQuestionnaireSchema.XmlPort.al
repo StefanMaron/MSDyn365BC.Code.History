@@ -13,7 +13,7 @@ xmlport 8611 "Config. Questionnaire Schema"
 
                 trigger OnBeforePassVariable()
                 begin
-                    currXMLport.Skip;
+                    currXMLport.Skip();
                 end;
             }
             tableelement("Config. Questionnaire"; "Config. Questionnaire")

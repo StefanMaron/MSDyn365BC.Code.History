@@ -10,13 +10,17 @@ codeunit 5702 "Dist. Integration"
         SalesLine: Record "Sales Line";
         PurchLine: Record "Purchase Line";
         ItemVariant: Record "Item Variant";
+#if not CLEAN18
         ItemCrossReference: Record "Item Cross Reference";
+#endif
         ItemReference: Record "Item Reference";
         Item: Record Item;
         Found: Boolean;
         Text001: Label 'The Quantity per Unit of Measure %1 has changed from %2 to %3 since the sales order was created. Adjust the quantity on the sales order or the unit of measure.', Comment = '%1=Unit of Measure Code,%2=Qty. per Unit of Measure in Sales Line,%3=Qty. per Unit of Measure in Item Unit of Measure';
         CrossRefWrongTypeErr: Label 'The cross reference type must be Customer or Vendor.';
 
+#if not CLEAN18
+    [Obsolete('Replaced by same procedure from Item Reference Management codeunit.', '18.0')]
     procedure EnterSalesItemCrossRef(var SalesLine2: Record "Sales Line")
     begin
         with SalesLine2 do
@@ -63,7 +67,10 @@ codeunit 5702 "Dist. Integration"
                 end;
             end;
     end;
+#endif
 
+#if not CLEAN18
+    [Obsolete('Replaced by same procedure from Item Reference Management codeunit.', '18.0')]
     procedure ICRLookupSalesItem(var SalesLine2: Record "Sales Line"; var ReturnedCrossRef: Record "Item Cross Reference"; ShowDialog: Boolean)
     var
         IsHandled: Boolean;
@@ -79,7 +86,10 @@ codeunit 5702 "Dist. Integration"
               ReturnedCrossRef, ShowDialog, SalesLine."No.", SalesLine."Cross-Reference No.", SalesLine."Sell-to Customer No.",
               ReturnedCrossRef."Cross-Reference Type"::Customer);
     end;
+#endif
 
+#if not CLEAN18
+    [Obsolete('Replaced by same procedure from Item Reference Management codeunit.', '18.0')]
     procedure EnterPurchaseItemCrossRef(var PurchLine2: Record "Purchase Line")
     var
         IsHandled: Boolean;
@@ -133,7 +143,10 @@ codeunit 5702 "Dist. Integration"
                 end;
             end;
     end;
+#endif
 
+#if not CLEAN18
+    [Obsolete('Replaced by same procedure from Item Reference Management codeunit.', '18.0')]
     procedure ICRLookupPurchaseItem(var PurchLine2: Record "Purchase Line"; var ReturnedCrossRef: Record "Item Cross Reference"; ShowDialog: Boolean)
     var
         IsHandled: Boolean;
@@ -149,7 +162,9 @@ codeunit 5702 "Dist. Integration"
               ReturnedCrossRef, ShowDialog, PurchLine."No.", PurchLine."Cross-Reference No.", PurchLine."Buy-from Vendor No.",
               ReturnedCrossRef."Cross-Reference Type"::Vendor);
     end;
+#endif
 
+#if not CLEAN18
     local procedure FilterItemCrossReferenceByItemVendor(var ItemCrossReference: Record "Item Cross Reference"; ItemVendor: Record "Item Vendor")
     begin
         ItemCrossReference.Reset();
@@ -159,7 +174,9 @@ codeunit 5702 "Dist. Integration"
         ItemCrossReference.SetRange("Cross-Reference Type No.", ItemVendor."Vendor No.");
         ItemCrossReference.SetRange("Cross-Reference No.", ItemVendor."Vendor Item No.");
     end;
+#endif
 
+#if not CLEAN18
     local procedure FillItemCrossReferenceFromItemVendor(var ItemCrossReference: Record "Item Cross Reference"; ItemVend: Record "Item Vendor")
     begin
         ItemCrossReference.Init();
@@ -173,7 +190,9 @@ codeunit 5702 "Dist. Integration"
             ItemCrossReference.Validate("Unit of Measure", Item."Base Unit of Measure");
         end;
     end;
+#endif
 
+#if not CLEAN18
     local procedure CreateItemCrossReference(ItemVend: Record "Item Vendor")
     var
         ItemCrossReference: Record "Item Cross Reference";
@@ -181,16 +200,22 @@ codeunit 5702 "Dist. Integration"
         FillItemCrossReferenceFromItemVendor(ItemCrossReference, ItemVend);
         ItemCrossReference.Insert();
     end;
+#endif
 
+#if not CLEAN18
+    [Obsolete('Replaced by same procedure from Item Reference Management codeunit.', '18.0')]
     procedure InsertItemCrossReference(ItemVend: Record "Item Vendor")
     var
         ItemCrossReference: Record "Item Cross Reference";
     begin
         FilterItemCrossReferenceByItemVendor(ItemCrossReference, ItemVend);
-        if ItemCrossReference.IsEmpty then
+        if ItemCrossReference.IsEmpty() then
             CreateItemCrossReference(ItemVend);
     end;
+#endif
 
+#if not CLEAN18
+    [Obsolete('Replaced by same procedure from Item Reference Management codeunit.', '18.0')]
     procedure DeleteItemCrossReference(ItemVend: Record "Item Vendor")
     var
         ItemCrossReference: Record "Item Cross Reference";
@@ -198,7 +223,10 @@ codeunit 5702 "Dist. Integration"
         FilterItemCrossReferenceByItemVendor(ItemCrossReference, ItemVend);
         ItemCrossReference.DeleteAll();
     end;
+#endif
 
+#if not CLEAN18
+    [Obsolete('Replaced by same procedure from Item Reference Management codeunit.', '18.0')]
     procedure UpdateItemCrossReference(ItemVend: Record "Item Vendor"; xItemVend: Record "Item Vendor")
     begin
         // delete the item cross references
@@ -207,7 +235,9 @@ codeunit 5702 "Dist. Integration"
         // insert the updated item cross references - faster then RENAME
         InsertItemCrossReference(ItemVend);
     end;
+#endif
 
+#if not CLEAN18
     local procedure FindOrSelectICROnCrossReferenceList(var ItemCrossReferenceToReturn: Record "Item Cross Reference"; ShowDialog: Boolean; ItemNo: Code[20]; CrossRefNo: Code[20]; CrossRefTypeNo: Code[30]; CrossRefType: Integer)
     var
         TempRecRequired: Boolean;
@@ -245,7 +275,9 @@ codeunit 5702 "Dist. Integration"
 
         ItemCrossReferenceToReturn.Copy(ItemCrossReference);
     end;
+#endif
 
+#if not CLEAN18
     local procedure InitItemCrossReferenceFilters(var ItemCrossReference: Record "Item Cross Reference"; ItemNo: Code[20]; CrossRefNo: Code[20]; CrossRefType: Integer)
     begin
         with ItemCrossReference do begin
@@ -256,11 +288,13 @@ codeunit 5702 "Dist. Integration"
             SetRange("Item No.", ItemNo);
             SetFilter("Cross-Reference Type", '<>%1', GetCrossReferenceTypeToExclude(CrossRefType));
             SetRange("Discontinue Bar Code", false);
-            if IsEmpty then
+            if IsEmpty() then
                 SetRange("Item No.");
         end;
     end;
+#endif
 
+#if not CLEAN18
     local procedure GetCrossReferenceTypeToExclude(CrossRefType: Integer): Integer
     begin
         case CrossRefType of
@@ -272,7 +306,9 @@ codeunit 5702 "Dist. Integration"
                 Error(CrossRefWrongTypeErr);
         end;
     end;
+#endif
 
+#if not CLEAN18
     local procedure CountItemCrossReference(var ItemCrossReference: Record "Item Cross Reference"; var QtyCustOrVendCR: Integer; var QtyBarCodeAndBlankCR: Integer; CrossRefType: Integer; CrossRefTypeNo: Code[30])
     var
         ItemCrossReferenceToCheck: Record "Item Cross Reference";
@@ -283,7 +319,9 @@ codeunit 5702 "Dist. Integration"
         SetFiltersBarCodeOrBlankTypeItemCrossRef(ItemCrossReferenceToCheck);
         QtyBarCodeAndBlankCR := ItemCrossReferenceToCheck.Count();
     end;
+#endif
 
+#if not CLEAN18
     local procedure BarCodeCRAreMappedToDifferentItems(var ItemCrossReference: Record "Item Cross Reference"): Boolean
     var
         ItemCrossReferenceToCheck: Record "Item Cross Reference";
@@ -294,7 +332,9 @@ codeunit 5702 "Dist. Integration"
         ItemCrossReferenceToCheck.SetFilter("Item No.", '<>%1', ItemCrossReferenceToCheck."Item No.");
         exit(not ItemCrossReferenceToCheck.IsEmpty);
     end;
+#endif
 
+#if not CLEAN18
     local procedure CustVendAndBarCodeCRAreMappedToDifferentItems(var ItemCrossReference: Record "Item Cross Reference"; CrossRefType: Integer; CrossRefTypeNo: Code[30]): Boolean
     var
         ItemCrossReferenceToCheck: Record "Item Cross Reference";
@@ -306,7 +346,9 @@ codeunit 5702 "Dist. Integration"
         SetFiltersBarCodeOrBlankTypeItemCrossRef(ItemCrossReferenceToCheck);
         exit(not ItemCrossReferenceToCheck.IsEmpty);
     end;
+#endif
 
+#if not CLEAN18
     local procedure RunPageCrossReferenceListOnRealOrTempRec(var ItemCrossReference: Record "Item Cross Reference"; RunOnTempRec: Boolean; CrossRefType: Integer; CrossRefTypeNo: Code[30]): Boolean
     begin
         if RunOnTempRec then
@@ -314,7 +356,9 @@ codeunit 5702 "Dist. Integration"
                 ItemCrossReference, CrossRefType, CrossRefTypeNo));
         exit(RunPageCrossReferenceList(ItemCrossReference));
     end;
+#endif
 
+#if not CLEAN18
     local procedure RunPageCrossReferenceListOnTempRecord(var ItemCrossReference: Record "Item Cross Reference"; CrossRefType: Integer; CrossRefTypeNo: Code[30]): Boolean
     var
         TempItemCrossReference: Record "Item Cross Reference" temporary;
@@ -331,22 +375,28 @@ codeunit 5702 "Dist. Integration"
         end;
         exit(false);
     end;
+#endif
 
+#if not CLEAN18
     local procedure RunPageCrossReferenceList(var ItemCrossReference: Record "Item Cross Reference"): Boolean
     begin
         ItemCrossReference.FindFirst;
         exit(PAGE.RunModal(PAGE::"Cross Reference List", ItemCrossReference) = ACTION::LookupOK);
     end;
+#endif
 
+#if not CLEAN18
     local procedure InsertTempRecords(var TempItemCrossReference: Record "Item Cross Reference" temporary; var ItemCrossReferenceToCopy: Record "Item Cross Reference")
     begin
         if ItemCrossReferenceToCopy.FindSet then
             repeat
                 TempItemCrossReference := ItemCrossReferenceToCopy;
                 TempItemCrossReference.Insert();
-            until ItemCrossReferenceToCopy.Next = 0;
+            until ItemCrossReferenceToCopy.Next() = 0;
     end;
+#endif
 
+#if not CLEAN18
     local procedure FindFirstCustVendItemCrossReference(var ItemCrossReference: Record "Item Cross Reference"; CrossRefType: Integer; CrossRefTypeNo: Code[30]): Boolean
     var
         ItemCrossReferenceToCheck: Record "Item Cross Reference";
@@ -359,7 +409,9 @@ codeunit 5702 "Dist. Integration"
         end;
         exit(false);
     end;
+#endif
 
+#if not CLEAN18
     local procedure FindFirstBarCodeOrBlankTypeItemCrossReference(var ItemCrossReference: Record "Item Cross Reference")
     var
         ItemCrossReferenceToCheck: Record "Item Cross Reference";
@@ -369,14 +421,18 @@ codeunit 5702 "Dist. Integration"
         ItemCrossReferenceToCheck.FindFirst;
         ItemCrossReference.Copy(ItemCrossReferenceToCheck);
     end;
+#endif
 
+#if not CLEAN18
     local procedure SetFiltersTypeAndTypeNoItemCrossRef(var ItemCrossReference: Record "Item Cross Reference"; CrossRefType: Integer; CrossRefTypeNo: Code[30])
     begin
         ItemCrossReference.SetRange("Cross-Reference Type", CrossRefType);
         ItemCrossReference.SetRange("Cross-Reference Type No.", CrossRefTypeNo);
         OnAfterSetFiltersTypeAndTypeNoItemCrossRef(ItemCrossReference, CrossRefType, CrossRefTypeNo);
     end;
+#endif
 
+#if not CLEAN18
     local procedure SetFiltersBarCodeOrBlankTypeItemCrossRef(var ItemCrossReference: Record "Item Cross Reference")
     begin
         ItemCrossReference.SetFilter(
@@ -384,6 +440,7 @@ codeunit 5702 "Dist. Integration"
           ItemCrossReference."Cross-Reference Type"::"Bar Code");
         ItemCrossReference.SetRange("Cross-Reference Type No.");
     end;
+#endif
 
     procedure GetSpecialOrders(var PurchHeader: Record "Purchase Header")
     var
@@ -457,7 +514,7 @@ codeunit 5702 "Dist. Integration"
                                   ItemUnitOfMeasure."Qty. per Unit of Measure");
 
                     ProcessSalesLine(SalesLine, PurchLine, NextLineNo, PurchHeader);
-                until SalesLine.Next = 0
+                until SalesLine.Next() = 0
             else
                 Error(ItemsNotFoundErr, SalesHeader."No.");
 
@@ -515,9 +572,10 @@ codeunit 5702 "Dist. Integration"
     [EventSubscriber(ObjectType::Table, Database::Item, 'OnAfterDeleteRelatedData', '', false, false)]
     local procedure ItemOnAfterDeleteRelatedData(Item: Record Item)
     begin
+#if not CLEAN16
         ItemCrossReference.SetRange("Item No.", Item."No.");
         ItemCrossReference.DeleteAll();
-
+#endif
         ItemReference.SetRange("Item No.", Item."No.");
         ItemReference.DeleteAll();
     end;
@@ -525,11 +583,12 @@ codeunit 5702 "Dist. Integration"
     [EventSubscriber(ObjectType::Table, Database::Customer, 'OnAfterDeleteEvent', '', false, false)]
     local procedure CustomerOnAfterDelete(var Rec: Record Customer)
     begin
+#if not CLEAN16
         ItemCrossReference.SetCurrentKey("Cross-Reference Type", "Cross-Reference Type No.");
         ItemCrossReference.SetRange("Cross-Reference Type", ItemCrossReference."Cross-Reference Type"::Customer);
         ItemCrossReference.SetRange("Cross-Reference Type No.", Rec."No.");
         ItemCrossReference.DeleteAll();
-
+#endif
         ItemReference.SetCurrentKey("Reference Type", "Reference Type No.");
         ItemReference.SetRange("Reference Type", ItemReference."Reference Type"::Customer);
         ItemReference.SetRange("Reference Type No.", Rec."No.");
@@ -539,11 +598,12 @@ codeunit 5702 "Dist. Integration"
     [EventSubscriber(ObjectType::Table, Database::Vendor, 'OnAfterDeleteEvent', '', false, false)]
     local procedure VendorOnAfterDelete(var Rec: Record Vendor)
     begin
+#if not CLEAN16
         ItemCrossReference.SetCurrentKey("Cross-Reference Type", "Cross-Reference Type No.");
         ItemCrossReference.SetRange("Cross-Reference Type", ItemCrossReference."Cross-Reference Type"::Vendor);
         ItemCrossReference.SetRange("Cross-Reference Type No.", Rec."No.");
         ItemCrossReference.DeleteAll();
-
+#endif
         ItemReference.SetCurrentKey("Reference Type", "Reference Type No.");
         ItemReference.SetRange("Reference Type", ItemReference."Reference Type"::Vendor);
         ItemReference.SetRange("Reference Type No.", Rec."No.");
@@ -575,40 +635,61 @@ codeunit 5702 "Dist. Integration"
     begin
     end;
 
+#if not CLEAN18
+    [Obsolete('Replaced by event fron Item Reference Management codeunit.', '18.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterSalesItemCrossRefFound(var SalesLine: Record "Sales Line"; ItemCrossReference: Record "Item Cross Reference")
     begin
     end;
+#endif
 
+#if not CLEAN18
+    [Obsolete('Replaced by event fron Item Reference Management codeunit.', '18.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterSalesItemCrossRefNotFound(var SalesLine: Record "Sales Line"; var ItemVariant: Record "Item Variant")
     begin
     end;
+#endif
 
+#if not CLEAN16
+    [Obsolete('Replaced by event fron Item Reference Management codeunit.', '18.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterPurchItemCrossRefFound(var PurchLine: Record "Purchase Line"; ItemCrossReference: Record "Item Cross Reference")
     begin
     end;
+#endif
 
+#if not CLEAN18
+    [Obsolete('Replaced by event fron Item Reference Management codeunit.', '18.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterPurchItemCrossRefNotFound(var PurchaseLine: Record "Purchase Line"; var ItemVariant: Record "Item Variant")
     begin
     end;
+#endif
 
+#if not CLEAN18
+    [Obsolete('Replaced by event fron Item Reference Management codeunit.', '18.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetFiltersTypeAndTypeNoItemCrossRef(var ItemCrossReference: Record "Item Cross Reference"; CrossRefType: Integer; CrossRefTypeNo: Code[30])
     begin
     end;
+#endif
 
+#if not CLEAN18
+    [Obsolete('Replaced by event fron Item Reference Management codeunit.', '18.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeICRLookupSalesItem(var SalesLine: Record "Sales Line"; var ItemCrossReference: Record "Item Cross Reference"; ShowDialog: Boolean; var IsHandled: Boolean)
     begin
     end;
+#endif
 
+#if not CLEAN18
+    [Obsolete('Replaced by event fron Item Reference Management codeunit.', '18.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeICRLookupPurchaseItem(var PurchaseLine: Record "Purchase Line"; var ItemCrossReference: Record "Item Cross Reference"; ShowDialog: Boolean; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnGetSpecialOrdersOnAfterSalesLineSetFilters(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")

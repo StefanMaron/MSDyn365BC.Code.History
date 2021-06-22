@@ -44,7 +44,7 @@ codeunit 137033 "SCM Item Journal"
     begin
         // Setup: Update Sales Receivables setup.
         // Create Item Journal Lines and run Save As Standard Journal report and clear Item Journal Lines.
-        Initialize;
+        Initialize();
         StockoutWarning := UpdateSalesReceivableSetup(false);
         StandardItemJournalCode := CreateStdJournalSetup(TempItemJournalLine, ItemJournalBatch, 4, true);  // No of Items = 4.
 
@@ -66,10 +66,11 @@ codeunit 137033 "SCM Item Journal"
         StockoutWarning: Boolean;
         NbNotifs: Integer;
     begin
+        Initialize();
         StockoutWarning := UpdateSalesReceivableSetup(true);
         CreateItemJournal(ItemJournalLine);
         // open the page
-        ItemJournalLines.OpenEdit;
+        ItemJournalLines.OpenEdit();
         Assert.IsTrue(
           ItemJournalLines.GotoKey(
             ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name", ItemJournalLine."Line No."),
@@ -111,7 +112,7 @@ codeunit 137033 "SCM Item Journal"
         StandardItemJournalCode: Code[10];
     begin
         // Setup: Create Item Journal Lines and run Save As Standard Journal report and clear Item Journal Lines.
-        Initialize;
+        Initialize();
         StandardItemJournalCode := CreateStdJournalSetup(TempItemJournalLine, ItemJournalBatch, 3, true);  // No of Items = 3.
         CreateItemJnlFromStdJournal(ItemJournalBatch, StandardItemJournalCode);
         UpdateItemJournalLineQuantity(TempItemJournalLine2, ItemJournalBatch, StandardItemJournalCode);
@@ -129,7 +130,7 @@ codeunit 137033 "SCM Item Journal"
         StandardItemJournalCode: Code[10];
     begin
         // Setup: Create Item Journal Lines and run Save As Standard Journal report and clear Item Journal Lines.
-        Initialize;
+        Initialize();
         StandardItemJournalCode := CreateStdJournalSetup(TempItemJournalLine, ItemJournalBatch, 4, false);  // No of Items = 4.
         SelectItemJournalLine(ItemJournalLine, ItemJournalBatch);
         StandardItemJournalCode := SaveAsStandardJournal(ItemJournalBatch, ItemJournalLine, false, true, '');  // Unit Amount Not Saved.
@@ -140,6 +141,8 @@ codeunit 137033 "SCM Item Journal"
     [Normal]
     local procedure StdJournalLines(var TempItemJournalLine: Record "Item Journal Line" temporary; ItemJournalBatch: Record "Item Journal Batch"; StandardItemJournalCode: Code[10])
     begin
+        Initialize();
+
         // Exercise: Populate Item Journal Lines from Standard Item Journal.
         CreateItemJnlFromStdJournal(ItemJournalBatch, StandardItemJournalCode);
 
@@ -164,7 +167,7 @@ codeunit 137033 "SCM Item Journal"
         StandardItemJournalCode2: Code[10];
     begin
         // Setup: Create Item Journal Lines and run Save As Standard Journal report and clear Item Journal Lines.
-        Initialize;
+        Initialize();
         CreateItemsAndCopyToTemp(TempItem, 4);  // No of Items = 4.
         StandardItemJournalCode := CreateItemJournalAndCopyToTemp(TempItemJournalLine, TempItem, ItemJournalBatch, true);
         StandardItemJournalCode2 := CreateItemJournalAndCopyToTemp(TempItemJournalLine2, TempItem, ItemJournalBatch2, true);
@@ -194,7 +197,7 @@ codeunit 137033 "SCM Item Journal"
         StandardItemJournalCode: Code[10];
     begin
         // Setup: Create Item Journal Line and run Save As Standard Journal report and clear Item Journal Line.
-        Initialize;
+        Initialize();
         CreateItemWithoutCost(TempItem, Item);  // No of Item = 1.
         StandardItemJournalCode := CreateItemJournalAndCopyToTemp(TempItemJournalLine, TempItem, ItemJournalBatch, true);
         CreateItemJnlFromStdJournal(ItemJournalBatch, StandardItemJournalCode);
@@ -222,7 +225,7 @@ codeunit 137033 "SCM Item Journal"
     begin
         // Setup: Create Item Journal Line and run Save As Standard Journal report and clear Item Journal Line.
         // Modify Unit Cost of Item on Item Journal Line.
-        Initialize;
+        Initialize();
         StandardItemJournalCode := CreateStdJournalSetup(TempItemJournalLine, ItemJournalBatch, 1, true);  // No of Item = 1.
         CreateItemJnlFromStdJournal(ItemJournalBatch, StandardItemJournalCode);
         UpdateItemJournalUnitCost(ItemJournalLine, ItemJournalBatch);
@@ -247,7 +250,7 @@ codeunit 137033 "SCM Item Journal"
         StandardItemJournalCode: Code[10];
     begin
         // Setup: Create Item Journal Lines and run Save As Standard Journal report and clear Item Journal Lines.
-        Initialize;
+        Initialize();
         StandardItemJournalCode := CreateStdJournalSetup(TempItemJournalLine, ItemJournalBatch, 4, true);  // No of Items = 4.
         CreateItemJnlFromStdJournal(ItemJournalBatch, StandardItemJournalCode);
         UpdateItemJournalDocumentNo(ItemJournalLine, ItemJournalBatch);
@@ -266,6 +269,7 @@ codeunit 137033 "SCM Item Journal"
         ItemJournalLine: Record "Item Journal Line";
     begin
         // Posting Item Journal and Verifying Item Ledger Entries.
+        Initialize();
 
         // Setup: Create Item Journal with Entry Type Positive Adjustment.
         CreateItemJournal(ItemJournalLine);
@@ -295,7 +299,7 @@ codeunit 137033 "SCM Item Journal"
         // Complex scenario: create 2 Item Journal lines, 1st with transfer, 2nd - with Bin reclassification.
         // Verify Item Ledger Entries: they should be created only for 1st Jnl. Line
 
-        Initialize;
+        Initialize();
 
         // Create 2 locations, 1st with Bin numbers, second - without
         CreateLocationWithBin(OldLocation, OldBinCode, NewBinCode);
@@ -341,7 +345,7 @@ codeunit 137033 "SCM Item Journal"
         Item: Record Item;
     begin
         // [SCENARIO] Item Journal's Unit Amount field gets updated from the Unit Price value on item Card instead of Unit Cost when Entry Type=Sales.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with "A" with "Unit Price" = "X"
         CreateItem(Item);
@@ -368,7 +372,7 @@ codeunit 137033 "SCM Item Journal"
     begin
         // [FEATURE] [Item Journal] [Bin]
         // [SCENARIO 376316] Posting Item Reclassification Line should be prohibited for New Bin with Block Movement Inbound
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location "X" with two Bins: Bin1 without "Block Movement" and Bin2 with "Block Movement" = "Inbound"
         CreateLocationWithTwoBinsBlockMovement(Location, OldBin, OldBin."Block Movement"::" ", NewBin, NewBin."Block Movement"::Inbound);
@@ -396,7 +400,7 @@ codeunit 137033 "SCM Item Journal"
     begin
         // [FEATURE] [Item Journal] [Bin]
         // [SCENARIO 376316] Posting Item Reclassification Line should be prohibited for Bin with Block Movement Outbound
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location "X" with two Bins: Bin1 with "Block Movement" = "Outbound" and Bin2 without "Block Movement"
         CreateLocationWithTwoBinsBlockMovement(Location, OldBin, OldBin."Block Movement"::Outbound, NewBin, NewBin."Block Movement"::" ");
@@ -424,7 +428,7 @@ codeunit 137033 "SCM Item Journal"
     begin
         // [FEATURE] [Item Journal] [Bin]
         // [SCENARIO 376316] Posting Item Reclassification Line should be prohibited for New Bin with Block Movement All
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location "X" with two Bins: Bin1 without "Block Movement" and Bin2 with "Block Movement" = "All"
         CreateLocationWithTwoBinsBlockMovement(Location, OldBin, OldBin."Block Movement"::" ", NewBin, NewBin."Block Movement"::All);
@@ -452,7 +456,7 @@ codeunit 137033 "SCM Item Journal"
     begin
         // [FEATURE] [Item Journal] [Bin]
         // [SCENARIO 376316] Posting Item Reclassification Line should be prohibited for Bin with Block Movement All
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location "X" with two Bins: Bin1 with "Block Movement" = "All" and Bin2 without "Block Movement"
         CreateLocationWithTwoBinsBlockMovement(Location, OldBin, OldBin."Block Movement"::All, NewBin, NewBin."Block Movement"::" ");
@@ -478,7 +482,7 @@ codeunit 137033 "SCM Item Journal"
     begin
         // [FEATURE] [Item Journal] [Bin]
         // [SCENARIO 377504] Posting Item Journal Line with "Entry Type" = "Sales" should be prohibited for Bin with Block Movement Outbound
-        Initialize;
+        Initialize();
 
         // [GIVEN] Bin "B" with "Block Movement" = "Outbound"
         CreateLocationWithBinBlockMovement(Location, Bin, Bin."Block Movement"::Outbound);
@@ -503,7 +507,7 @@ codeunit 137033 "SCM Item Journal"
     begin
         // [FEATURE] [Item Journal] [Bin]
         // [SCENARIO 377504] Posting Item Journal Line with "Entry Type" = "Negative Adjmt." and negative Quantity should be prohibited for Bin with Block Movement Inbound
-        Initialize;
+        Initialize();
 
         // [GIVEN] Bin "B" with "Block Movement" = "Inbound"
         CreateLocationWithBinBlockMovement(Location, Bin, Bin."Block Movement"::Inbound);
@@ -530,7 +534,7 @@ codeunit 137033 "SCM Item Journal"
     begin
         // [FEATURE] [Item Journal] [Bin]
         // [SCENARIO 377504] Posting Item Journal Line with "Entry Type" = "Consumption" should be prohibited for Bin with Block Movement Outbound
-        Initialize;
+        Initialize();
 
         // [GIVEN] Bin "B" with "Block Movement" = "Outbound"
         CreateLocationWithBinBlockMovement(Location, Bin, Bin."Block Movement"::Outbound);
@@ -555,7 +559,7 @@ codeunit 137033 "SCM Item Journal"
     begin
         // [FEATURE] [Item Journal] [Bin]
         // [SCENARIO 377504] Posting Item Journal Line with "Entry Type" = "Assembly Consumption" and negative Quantity should be prohibited for Bin with Block Movement Inbound
-        Initialize;
+        Initialize();
 
         // [GIVEN] Bin "B" with "Block Movement" = "Inbound"
         CreateLocationWithBinBlockMovement(Location, Bin, Bin."Block Movement"::Inbound);
@@ -582,7 +586,7 @@ codeunit 137033 "SCM Item Journal"
     begin
         // [FEATURE] [Item Journal] [Bin]
         // [SCENARIO 377504] Posting Item Journal Line with "Entry Type" = "Purchase" should be prohibited for Bin with Block Movement Inbound
-        Initialize;
+        Initialize();
 
         // [GIVEN] Bin "B" with "Block Movement" = "Inbound"
         CreateLocationWithBinBlockMovement(Location, Bin, Bin."Block Movement"::Inbound);
@@ -607,7 +611,7 @@ codeunit 137033 "SCM Item Journal"
     begin
         // [FEATURE] [Item Journal] [Bin]
         // [SCENARIO 377504] Posting Item Journal Line with "Entry Type" = "Positive Adjmt." and negative Quantity should be prohibited for Bin with Block Movement Outbound
-        Initialize;
+        Initialize();
 
         // [GIVEN] Bin "B" with "Block Movement" = "Outbound"
         CreateLocationWithBinBlockMovement(Location, Bin, Bin."Block Movement"::Outbound);
@@ -634,7 +638,7 @@ codeunit 137033 "SCM Item Journal"
     begin
         // [FEATURE] [Item Journal] [Bin]
         // [SCENARIO 377504] Posting Item Journal Line with "Entry Type" = "Output" should be prohibited for Bin with Block Movement Inbound
-        Initialize;
+        Initialize();
 
         // [GIVEN] Bin "B" with "Block Movement" = "Inbound"
         CreateLocationWithBinBlockMovement(Location, Bin, Bin."Block Movement"::Inbound);
@@ -661,7 +665,7 @@ codeunit 137033 "SCM Item Journal"
     begin
         // [FEATURE] [Item Journal] [Bin]
         // [SCENARIO 377504] Posting Item Journal Line with "Entry Type" = "Assembly Output" and negative Quantity should be prohibited for Bin with Block Movement Outbound
-        Initialize;
+        Initialize();
 
         // [GIVEN] Bin "B" with "Block Movement" = "Outbound"
         CreateLocationWithBinBlockMovement(Location, Bin, Bin."Block Movement"::Outbound);
@@ -686,27 +690,25 @@ codeunit 137033 "SCM Item Journal"
         ItemJournalLine: Record "Item Journal Line";
     begin
         // [SCENARIO 202372] Unit Amount should be equal to Unit Cost on positive adjustment item journal line when Quantity is updated, and Costing Method of the item is other than Standard.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with Costing Method = "FIFO" and Unit Cost = "X".
         CreateItemWithCostingMethod(Item, Item."Costing Method"::FIFO);
 
-        with ItemJournalLine do begin
-            // [GIVEN] Positive adjustment item journal line with quantity "Q1" of item "I".
-            CreateItemJournalLine(ItemJournalLine, Item."No.");
+        // [GIVEN] Positive adjustment item journal line with quantity "Q1" of item "I".
+        CreateItemJournalLine(ItemJournalLine, Item."No.");
 
-            // [GIVEN] Unit Cost on the journal line is updated to "Y".
-            Validate("Unit Cost", LibraryRandom.RandDecInRange(20, 40, 2));
+        // [GIVEN] Unit Cost on the journal line is updated to "Y".
+        ItemJournalLine.Validate("Unit Cost", LibraryRandom.RandDecInRange(20, 40, 2));
 
-            // [WHEN] Update Quantity on the journal line to "Q2".
-            Validate(Quantity, LibraryRandom.RandIntInRange(20, 40));
+        // [WHEN] Update Quantity on the journal line to "Q2".
+        ItemJournalLine.Validate(Quantity, LibraryRandom.RandIntInRange(20, 40));
 
-            // [THEN] Unit Amount is equal to "Y".
-            TestField("Unit Amount", "Unit Cost");
+        // [THEN] Unit Amount is equal to "Y".
+        ItemJournalLine.TestField("Unit Amount", ItemJournalLine."Unit Cost");
 
-            // [THEN] Amount is equal to "Q2" * "Y".
-            TestField(Amount, "Unit Cost" * Quantity);
-        end;
+        // [THEN] Amount is equal to "Q2" * "Y".
+        ItemJournalLine.TestField(Amount, ItemJournalLine."Unit Cost" * ItemJournalLine.Quantity);
     end;
 
     [Test]
@@ -717,28 +719,26 @@ codeunit 137033 "SCM Item Journal"
         ItemJournalLine: Record "Item Journal Line";
     begin
         // [SCENARIO 202372] Unit Amount should be equal to Unit Cost on negative adjustment item journal line when Quantity is updated, and Costing Method of the item is other than Standard.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with Costing Method = "FIFO" and Unit Cost = "X".
         CreateItemWithCostingMethod(Item, Item."Costing Method"::FIFO);
 
-        with ItemJournalLine do begin
-            // [GIVEN] Negative adjustment item journal line with quantity "Q1" of item "I".
-            CreateItemJournalLine(ItemJournalLine, Item."No.");
-            Validate("Entry Type", "Entry Type"::"Negative Adjmt.");
+        // [GIVEN] Negative adjustment item journal line with quantity "Q1" of item "I".
+        CreateItemJournalLine(ItemJournalLine, Item."No.");
+        ItemJournalLine.Validate("Entry Type", ItemJournalLine."Entry Type"::"Negative Adjmt.");
 
-            // [GIVEN] Unit Cost on the journal line is updated to "Y".
-            Validate("Unit Cost", LibraryRandom.RandDecInRange(20, 40, 2));
+        // [GIVEN] Unit Cost on the journal line is updated to "Y".
+        ItemJournalLine.Validate("Unit Cost", LibraryRandom.RandDecInRange(20, 40, 2));
 
-            // [WHEN] Update Quantity on the journal line to "Q2".
-            Validate(Quantity, LibraryRandom.RandIntInRange(20, 40));
+        // [WHEN] Update Quantity on the journal line to "Q2".
+        ItemJournalLine.Validate(Quantity, LibraryRandom.RandIntInRange(20, 40));
 
-            // [THEN] Unit Amount is equal to "Y".
-            TestField("Unit Amount", "Unit Cost");
+        // [THEN] Unit Amount is equal to "Y".
+        ItemJournalLine.TestField("Unit Amount", ItemJournalLine."Unit Cost");
 
-            // [THEN] Amount is equal to "Q2" * "Y".
-            TestField(Amount, "Unit Cost" * Quantity);
-        end;
+        // [THEN] Amount is equal to "Q2" * "Y".
+        ItemJournalLine.TestField(Amount, ItemJournalLine."Unit Cost" * ItemJournalLine.Quantity);
     end;
 
     [Test]
@@ -750,7 +750,7 @@ codeunit 137033 "SCM Item Journal"
         ItemJournalLine: Record "Item Journal Line";
     begin
         // [SCENARIO 222394] Unit Amount should be equal to Unit Cost on positive adjustment item journal line when Unit of Measure Code is updated, and Costing Method of the item is other than Standard.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with Costing Method = "FIFO" and Unit Cost = "X".
         CreateItemWithCostingMethod(Item, Item."Costing Method"::FIFO);
@@ -758,19 +758,17 @@ codeunit 137033 "SCM Item Journal"
         // [GIVEN] Alternate unit of measure "UOM" for the item. Quantity per base unit of measure = "Q".
         LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", LibraryRandom.RandIntInRange(2, 5));
 
-        with ItemJournalLine do begin
-            // [GIVEN] Positive adjustment item journal line.
-            CreateItemJournalLine(ItemJournalLine, Item."No.");
+        // [GIVEN] Positive adjustment item journal line.
+        CreateItemJournalLine(ItemJournalLine, Item."No.");
 
-            // [WHEN] Update Unit of Measure on the journal line to "UOM".
-            Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
+        // [WHEN] Update Unit of Measure on the journal line to "UOM".
+        ItemJournalLine.Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
 
-            // [THEN] Unit Cost is equal to "X" * "Q".
-            TestField("Unit Cost", Item."Unit Cost" * ItemUnitOfMeasure."Qty. per Unit of Measure");
+        // [THEN] Unit Cost is equal to "X" * "Q".
+        ItemJournalLine.TestField("Unit Cost", Item."Unit Cost" * ItemUnitOfMeasure."Qty. per Unit of Measure");
 
-            // [THEN] Unit Amount is equal to Unit Cost.
-            TestField("Unit Amount", "Unit Cost");
-        end;
+        // [THEN] Unit Amount is equal to Unit Cost.
+        ItemJournalLine.TestField("Unit Amount", ItemJournalLine."Unit Cost");
     end;
 
     [Test]
@@ -782,7 +780,7 @@ codeunit 137033 "SCM Item Journal"
         ItemJournal: TestPage "Item Journal";
     begin
         // [SCENARIO 202372] Unit Cost cannot be changed on item journal line for an item with Costing Method = Standard.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with Costing Method = "Standard" and Unit Cost = "X".
         CreateItemWithCostingMethod(Item, Item."Costing Method"::Standard);
@@ -791,7 +789,7 @@ codeunit 137033 "SCM Item Journal"
         CreateItemJournalLine(ItemJournalLine, Item."No.");
 
         // [WHEN] Update Quantity on the journal line to "Q2".
-        ItemJournal.OpenEdit;
+        ItemJournal.OpenEdit();
         ItemJournal.GotoRecord(ItemJournalLine);
         asserterror ItemJournal."Unit Cost".SetValue(LibraryRandom.RandDecInRange(20, 40, 2));
 
@@ -807,7 +805,7 @@ codeunit 137033 "SCM Item Journal"
         ItemJournalLine: Record "Item Journal Line";
     begin
         // [SCENARIO 202372] Unit Cost should be reset to Unit Cost on the item card if Item No. is re-validated on item journal line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with Costing Method = "FIFO" and Unit Cost = "X".
         CreateItemWithCostingMethod(Item, Item."Costing Method"::FIFO);
@@ -841,7 +839,7 @@ codeunit 137033 "SCM Item Journal"
     begin
         // [FEATURE] [Standard Item Journal]
         // [SCENARIO 202372] Unit Amount should be equal to Unit Cost on positive adjustment standard item journal line when Quantity is updated, and Costing Method of the item is other than Standard.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with Costing Method = "FIFO" and Unit Cost = "X".
         CreateItemWithCostingMethod(Item, Item."Costing Method"::FIFO);
@@ -853,19 +851,17 @@ codeunit 137033 "SCM Item Journal"
         StandardItemJournalCode := SaveItemJournalLineAsNewStandardJournal(ItemJournalLine, true, true);
         FindStandardItemJournalLine(StandardItemJournalLine, StandardItemJournalCode, Item."No.");
 
-        with StandardItemJournalLine do begin
-            // [GIVEN] Unit Cost on the standard journal line is updated to "Y".
-            Validate("Unit Cost", LibraryRandom.RandDecInRange(20, 40, 2));
+        // [GIVEN] Unit Cost on the standard journal line is updated to "Y".
+        StandardItemJournalLine.Validate("Unit Cost", LibraryRandom.RandDecInRange(20, 40, 2));
 
-            // [WHEN] Update Quantity on the standard journal line to "Q2".
-            Validate(Quantity, LibraryRandom.RandIntInRange(20, 40));
+        // [WHEN] Update Quantity on the standard journal line to "Q2".
+        StandardItemJournalLine.Validate(Quantity, LibraryRandom.RandIntInRange(20, 40));
 
-            // [THEN] Unit Amount is equal to "Y".
-            TestField("Unit Amount", "Unit Cost");
+        // [THEN] Unit Amount is equal to "Y".
+        StandardItemJournalLine.TestField("Unit Amount", StandardItemJournalLine."Unit Cost");
 
-            // [THEN] Amount is equal to "Q2" * "Y".
-            TestField(Amount, "Unit Cost" * Quantity);
-        end;
+        // [THEN] Amount is equal to "Q2" * "Y".
+        StandardItemJournalLine.TestField(Amount, StandardItemJournalLine."Unit Cost" * StandardItemJournalLine.Quantity);
     end;
 
     [Test]
@@ -879,7 +875,7 @@ codeunit 137033 "SCM Item Journal"
     begin
         // [FEATURE] [Standard Item Journal]
         // [SCENARIO 202372] Unit Amount should be equal to Unit Cost on negative adjustment standard item journal line when Quantity is updated, and Costing Method of the item is other than Standard.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with Costing Method = "FIFO" and Unit Cost = "X".
         CreateItemWithCostingMethod(Item, Item."Costing Method"::FIFO);
@@ -893,19 +889,17 @@ codeunit 137033 "SCM Item Journal"
         StandardItemJournalCode := SaveItemJournalLineAsNewStandardJournal(ItemJournalLine, true, true);
         FindStandardItemJournalLine(StandardItemJournalLine, StandardItemJournalCode, Item."No.");
 
-        with StandardItemJournalLine do begin
-            // [GIVEN] Unit Cost on the standard journal line is updated to "Y".
-            Validate("Unit Cost", LibraryRandom.RandDecInRange(20, 40, 2));
+        // [GIVEN] Unit Cost on the standard journal line is updated to "Y".
+        StandardItemJournalLine.Validate("Unit Cost", LibraryRandom.RandDecInRange(20, 40, 2));
 
-            // [WHEN] Update Quantity on the standard journal line to "Q2".
-            Validate(Quantity, LibraryRandom.RandIntInRange(20, 40));
+        // [WHEN] Update Quantity on the standard journal line to "Q2".
+        StandardItemJournalLine.Validate(Quantity, LibraryRandom.RandIntInRange(20, 40));
 
-            // [THEN] Amount is equal to "Q2" * "Y".
-            TestField(Amount, "Unit Cost" * Quantity);
+        // [THEN] Amount is equal to "Q2" * "Y".
+        StandardItemJournalLine.TestField(Amount, StandardItemJournalLine."Unit Cost" * StandardItemJournalLine.Quantity);
 
-            // [THEN] Unit Amount is equal to "Y".
-            TestField("Unit Amount", "Unit Cost");
-        end;
+        // [THEN] Unit Amount is equal to "Y".
+        StandardItemJournalLine.TestField("Unit Amount", StandardItemJournalLine."Unit Cost");
     end;
 
     [Test]
@@ -920,7 +914,7 @@ codeunit 137033 "SCM Item Journal"
     begin
         // [FEATURE] [Standard Item Journal]
         // [SCENARIO 222394] Unit Amount should be equal to Unit Cost on positive adjustment standard item journal line when Unit of Measure Code is updated, and Costing Method of the item is other than Standard.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with Costing Method = "FIFO" and Unit Cost = "X".
         CreateItemWithCostingMethod(Item, Item."Costing Method"::FIFO);
@@ -957,7 +951,7 @@ codeunit 137033 "SCM Item Journal"
     begin
         // [FEATURE] [Standard Item Journal]
         // [SCENARIO 202372] Unit Cost cannot be changed on standard item journal line for an item with Costing Method = Standard.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with Costing Method = "Standard" and Unit Cost = "X".
         CreateItemWithCostingMethod(Item, Item."Costing Method"::Standard);
@@ -970,7 +964,7 @@ codeunit 137033 "SCM Item Journal"
         FindStandardItemJournalLine(StandardItemJournalLine, StandardItemJournalCode, Item."No.");
 
         // [WHEN] Update Quantity on the standard journal line to "Q2".
-        StandardItemJournal.OpenEdit;
+        StandardItemJournal.OpenEdit();
         StandardItemJournal.FILTER.SetFilter(Code, StandardItemJournalCode);
         StandardItemJournal.StdItemJnlLines.GotoRecord(StandardItemJournalLine);
         asserterror StandardItemJournal.StdItemJnlLines."Unit Cost".SetValue(LibraryRandom.RandDecInRange(20, 40, 2));
@@ -990,7 +984,7 @@ codeunit 137033 "SCM Item Journal"
     begin
         // [FEATURE] [Standard Item Journal]
         // [SCENARIO 202372] Unit Cost should be reset to Unit Cost on the item card if Item No. is re-validated on standard item journal line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with Costing Method = "FIFO" and Unit Cost = "X".
         CreateItemWithCostingMethod(Item, Item."Costing Method"::FIFO);
@@ -1002,19 +996,17 @@ codeunit 137033 "SCM Item Journal"
         StandardItemJournalCode := SaveItemJournalLineAsNewStandardJournal(ItemJournalLine, true, true);
         FindStandardItemJournalLine(StandardItemJournalLine, StandardItemJournalCode, Item."No.");
 
-        with StandardItemJournalLine do begin
-            // [GIVEN] Unit Cost on the standard journal line is updated to "Y".
-            Validate("Unit Cost", LibraryRandom.RandDecInRange(20, 40, 2));
+        // [GIVEN] Unit Cost on the standard journal line is updated to "Y".
+        StandardItemJournalLine.Validate("Unit Cost", LibraryRandom.RandDecInRange(20, 40, 2));
 
-            // [WHEN] Item No. is re-validated on the standard item journal.
-            Validate("Item No.", Item."No.");
+        // [WHEN] Item No. is re-validated on the standard item journal.
+        StandardItemJournalLine.Validate("Item No.", Item."No.");
 
-            // [THEN] Unit Amount is reset to "X".
-            TestField("Unit Amount", Item."Unit Cost");
+        // [THEN] Unit Amount is reset to "X".
+        StandardItemJournalLine.TestField("Unit Amount", Item."Unit Cost");
 
-            // [THEN] Amount is equal to "Q1" * "X".
-            TestField(Amount, Item."Unit Cost" * Quantity);
-        end;
+        // [THEN] Amount is equal to "Q1" * "X".
+        StandardItemJournalLine.TestField(Amount, Item."Unit Cost" * StandardItemJournalLine.Quantity);
     end;
 
     [Test]
@@ -1027,7 +1019,7 @@ codeunit 137033 "SCM Item Journal"
     begin
         // [SCENARIO 201724] "Quantity (Base)" and Amount in Standard Item Journal Line are zeroes if no check "Save Quantity" checkbox.
         // [FEATURE] [Standard Item Journal]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item Journal Line "IJL" with populated Item "I" and some Quantity.
         CreateItemJournalLine(ItemJournalLine, LibraryInventory.CreateItemNo);
@@ -1050,7 +1042,7 @@ codeunit 137033 "SCM Item Journal"
     begin
         // [SCENARIO 209275] Bin Block Movement All raises error on inbound posting.
         // [FEATURE] [Transfer]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location "FL", "Bin Mandatory" off;
         // [GIVEN] Location "TL", "Bin Mandatory" on, Bin "B" of "TL", "B"."Block Movement" = All;
@@ -1071,7 +1063,7 @@ codeunit 137033 "SCM Item Journal"
     begin
         // [SCENARIO 209275] Bin Block Movement Inbound raises error on inbound posting.
         // [FEATURE] [Transfer]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location "FL", "Bin Mandatory" off;
         // [GIVEN] Location "TL", "Bin Mandatory" on, Bin "B" of "TL", "B"."Block Movement" = Inbound;
@@ -1097,7 +1089,7 @@ codeunit 137033 "SCM Item Journal"
     begin
         // [FEATURE] [Item Tracking]
         // [SCENARIO 228096] Custom key is reset before posting item journal batch in order to prevent multiple posting of one line. This happens because a line can be split during posting, and NEXT function in a loop can find earlier posted line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Lot-tracked item.
         LibraryItemTracking.CreateLotItem(Item);
@@ -1160,7 +1152,7 @@ codeunit 137033 "SCM Item Journal"
     begin
         // [FEATURE] [UI] [Lookup] [Item] [Blocked] [Standard Item Journal]
         // [SCENARIO 278748] Stan doesn't see blocked items in Item List when he looks up Item No in Standard Item Journal
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two Items: Blocked and Non-Blocked
         NonBlockedItemNo := LibraryInventory.CreateItemNo;
@@ -1171,7 +1163,7 @@ codeunit 137033 "SCM Item Journal"
         CreateStandardItemJournal(StandardItemJournal);
 
         // [GIVEN] Stan opened page Standard Item Journal
-        StandardItemJournalPage.OpenEdit;
+        StandardItemJournalPage.OpenEdit();
         StandardItemJournalPage.GotoRecord(StandardItemJournal);
 
         // [WHEN] Stan Looks Up "Item No." in Standard Item Journal Subform
@@ -1195,7 +1187,7 @@ codeunit 137033 "SCM Item Journal"
     begin
         // [FEATURE] [UT] [Batch] [Performance]
         // [SCENARIO 301026] COD 13 "Item Jnl.-Post Batch" resets auto calc fields
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item Journal Line with enabled auto calc fields for "Reserved Quantity" field
         SelectItemJournal(ItemJournalBatch);
@@ -1230,7 +1222,7 @@ codeunit 137033 "SCM Item Journal"
     begin
         // [FEATURE] [Calculate Inventory] [Blocked]
         // [SCENARIO 316985] Calculate Inventory report doesn't try to create lines for Blocked Items
-        Initialize;
+        Initialize();
 
         // [GIVEN] Items "I1" and "I2" had stock
         LibraryInventory.CreateItem(Item);
@@ -1276,7 +1268,7 @@ codeunit 137033 "SCM Item Journal"
     begin
         // [FEATURE] [UT] [UI] [Applies-to Entry]
         // [SCENARIO 338231] "Applies-to Entry" field lookup shows Item Ledger entries with no filter on "Positive" when Item Reclassification Journal line quantity is = 0
-        Initialize;
+        Initialize();
         ItemLedgerEntry.DeleteAll;
 
         // [GIVEN] Item with inventory stock, e.g. "positive" and Open Item Ledger Entry
@@ -1325,7 +1317,7 @@ codeunit 137033 "SCM Item Journal"
     begin
         // [FEATURE] [UT] [UI] [Applies-to Entry]
         // [SCENARIO 338231] "Applies-to Entry" field lookup shows Item Ledger entries with "Positive" = TRUE value when Item Reclassification Journal line quantity is positive
-        Initialize;
+        Initialize();
         ItemLedgerEntry.DeleteAll;
 
         // [GIVEN] Item with inventory stock, e.g. "positive" and Open Item Ledger Entry
@@ -1373,7 +1365,7 @@ codeunit 137033 "SCM Item Journal"
     begin
         // [FEATURE] [UT] [UI] [Applies-to Entry]
         // [SCENARIO 338231] "Applies-to Entry" field lookup shows Item Ledger entries with "Positive" = FALSE value when Item Reclassification Journal line quantity is negative
-        Initialize;
+        Initialize();
         ItemLedgerEntry.DeleteAll;
 
         // [GIVEN] Item with inventory stock, e.g. "positive" and Open Item Ledger Entry
@@ -1415,8 +1407,8 @@ codeunit 137033 "SCM Item Journal"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Item Journal");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Item Journal");
@@ -1580,7 +1572,7 @@ codeunit 137033 "SCM Item Journal"
         ItemJournalLine: Record "Item Journal Line";
         "Count": Integer;
     begin
-        TempItem.FindSet;
+        TempItem.FindSet();
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
         LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
         for Count := 1 to TempItem.Count do begin
@@ -1613,7 +1605,7 @@ codeunit 137033 "SCM Item Journal"
 
     local procedure CopyItemJournalLinesToTemp(var TempItemJournalLine: Record "Item Journal Line" temporary; ItemJournalLine: Record "Item Journal Line")
     begin
-        ItemJournalLine.FindSet;
+        ItemJournalLine.FindSet();
         repeat
             TempItemJournalLine := ItemJournalLine;
             TempItemJournalLine.Insert();
@@ -1624,7 +1616,7 @@ codeunit 137033 "SCM Item Journal"
     var
         ItemReclassJournal: TestPage "Item Reclass. Journal";
     begin
-        ItemReclassJournal.OpenEdit;
+        ItemReclassJournal.OpenEdit();
         ItemReclassJournal.CurrentJnlBatchName.SetValue(JournalBatchName);
         ItemReclassJournal.FILTER.SetFilter("Document No.", DocumentNo);
         ItemReclassJournal.FILTER.SetFilter("Item No.", ItemNo);
@@ -1717,7 +1709,7 @@ codeunit 137033 "SCM Item Journal"
     begin
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
-        ItemJournalLine.FindSet;
+        ItemJournalLine.FindSet();
     end;
 
     local procedure CreateItemWithoutCost(var TempItem: Record Item temporary; var Item: Record Item)
@@ -1798,7 +1790,7 @@ codeunit 137033 "SCM Item Journal"
     var
         ItemJournalLine: Record "Item Journal Line";
     begin
-        TempItemJournalLine.FindSet;
+        TempItemJournalLine.FindSet();
         SelectItemJournalLine(ItemJournalLine, ItemJournalBatch);
         repeat
             Assert.AreEqual(TempItemJournalLine.Amount, ItemJournalLine.Amount, ItemJournalAmountErr);
@@ -1820,7 +1812,7 @@ codeunit 137033 "SCM Item Journal"
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        TempItemJournalLine.FindSet;
+        TempItemJournalLine.FindSet();
         repeat
             ItemLedgerEntry.SetRange("Item No.", TempItemJournalLine."Item No.");
             ItemLedgerEntry.SetRange("Entry Type", TempItemJournalLine."Entry Type");
@@ -2008,7 +2000,7 @@ codeunit 137033 "SCM Item Journal"
         Assert.AreEqual(LibraryVariableStorage.DequeueText, ItemList."No.".Value, '');
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 23, 'OnBeforeCode', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Batch", 'OnBeforeCode', '', false, false)]
     local procedure OnBeforeCode(var ItemJournalLine: Record "Item Journal Line")
     begin
         // Verify auto calc field is reset

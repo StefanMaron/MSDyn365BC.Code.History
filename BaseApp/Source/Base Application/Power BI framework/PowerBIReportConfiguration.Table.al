@@ -24,7 +24,11 @@ table 6301 "Power BI Report Configuration"
         }
         field(4; EmbedUrl; Text[250])
         {
+#if not CLEAN16
             ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
             ObsoleteReason = 'The field has been extended to a bigger field. Use ReportEmbedUrl field instead.';
             Caption = 'EmbedUrl';
             DataClassification = CustomerContent;

@@ -209,6 +209,14 @@ codeunit 131330 "Library - Fixed Asset"
         FADeprBook.ModifyAll("No. of Depreciation Years", LibraryRandom.RandIntInRange(2, 5));
     end;
 
+    procedure CreateFixedAssetNo(): Code[20]
+    var
+        FixedAsset: Record "Fixed Asset";
+    begin
+        CreateFixedAssetWithSetup(FixedAsset);
+        exit(FixedAsset."No.");
+    end;
+
     procedure CreateGLBudgetName(var GLBudgetName: Record "G/L Budget Name")
     begin
         GLBudgetName.Init();
@@ -396,12 +404,12 @@ codeunit 131330 "Library - Fixed Asset"
 
     procedure FindEmployee(var Employee: Record Employee)
     begin
-        Employee.FindSet;
+        Employee.FindSet();
     end;
 
     procedure FindFAClass(var FAClass: Record "FA Class")
     begin
-        FAClass.FindSet;
+        FAClass.FindSet();
     end;
 
     procedure FindFAJournalBatch(var FAJournalBatch: Record "FA Journal Batch"; JournalTemplateName: Code[10])
@@ -417,17 +425,17 @@ codeunit 131330 "Library - Fixed Asset"
 
     procedure FindFALocation(var FALocation: Record "FA Location")
     begin
-        FALocation.FindSet;
+        FALocation.FindSet();
     end;
 
     procedure FindFASubclass(var FASubclass: Record "FA Subclass")
     begin
-        FASubclass.FindSet;
+        FASubclass.FindSet();
     end;
 
     procedure FindInsurance(var Insurance: Record Insurance)
     begin
-        Insurance.FindSet;
+        Insurance.FindSet();
     end;
 
     procedure GetDefaultDeprBook(): Code[10]
@@ -489,7 +497,7 @@ codeunit 131330 "Library - Fixed Asset"
 
         GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
         GLEntry.SetRange("FA Entry Type", GLEntry."FA Entry Type"::"Fixed Asset");
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             Assert.IsTrue(
               GLEntry."FA Entry No." in [FARegister."From Entry No." .. FARegister."To Entry No."],
@@ -509,7 +517,7 @@ codeunit 131330 "Library - Fixed Asset"
 
         GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
         GLEntry.SetRange("FA Entry Type", GLEntry."FA Entry Type"::Maintenance);
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             Assert.IsTrue(
               GLEntry."FA Entry No." in [FARegister."From Maintenance Entry No." .. FARegister."To Maintenance Entry No."],

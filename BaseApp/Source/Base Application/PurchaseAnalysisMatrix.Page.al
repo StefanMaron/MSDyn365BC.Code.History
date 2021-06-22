@@ -534,7 +534,7 @@ page 9205 "Purchase Analysis Matrix"
                 end;
                 SetStyle(i);
                 i := i + 1;
-            until AnalysisColumn.Next = 0;
+            until AnalysisColumn.Next() = 0;
         Emphasize := Bold;
     end;
 

@@ -360,7 +360,7 @@ page 1270 "OCR Service Setup"
         if Confirm(DisableEnableQst, true) then begin
             Enabled := false;
             UpdateBasedOnEnable;
-            CurrPage.Update;
+            CurrPage.Update();
         end;
     end;
 

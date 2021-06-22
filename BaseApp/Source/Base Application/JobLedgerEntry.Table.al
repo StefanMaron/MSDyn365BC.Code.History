@@ -1,4 +1,4 @@
-﻿table 169 "Job Ledger Entry"
+table 169 "Job Ledger Entry"
 {
     Caption = 'Job Ledger Entry';
     DrillDownPageID = "Job Ledger Entries";
@@ -387,11 +387,9 @@
             Caption = 'Line Discount %';
             DecimalPlaces = 0 : 5;
         }
-        field(1022; "Line Type"; Option)
+        field(1022; "Line Type"; Enum "Job Line Type")
         {
             Caption = 'Line Type';
-            OptionCaption = ' ,Budget,Billable,Both Budget and Billable';
-            OptionMembers = " ",Budget,Billable,"Both Budget and Billable";
         }
         field(1023; "Original Unit Cost (LCY)"; Decimal)
         {
@@ -458,6 +456,11 @@
         field(5901; "Posted Service Shipment No."; Code[20])
         {
             Caption = 'Posted Service Shipment No.';
+        }
+        field(6515; "Package No."; Code[50])
+        {
+            Caption = 'Package No.';
+            CaptionClass = '6,1';
         }
     }
 

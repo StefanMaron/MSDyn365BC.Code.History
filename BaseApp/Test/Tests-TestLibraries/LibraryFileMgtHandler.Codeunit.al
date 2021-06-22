@@ -16,7 +16,7 @@ codeunit 131106 "Library - File Mgt Handler"
         BeforeDownloadHandlerActivated := NewBeforeDownloadHandlerActivated;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 419, 'OnBeforeDownloadHandler', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"File Management", 'OnBeforeDownloadHandler', '', false, false)]
     local procedure HandleOnBeforeDownloadHandler(var ToFolder: Text; ToFileName: Text; FromFileName: Text; var IsHandled: Boolean)
     begin
         if not BeforeDownloadHandlerActivated then

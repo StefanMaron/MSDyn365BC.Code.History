@@ -302,7 +302,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
     begin
         PostedAssemblyLine.SetRange("Document No.", PostedAssemblyHeader."No.");
         PostedAssemblyLine.SetRange(Type, PostedAssemblyLine.Type::Item, PostedAssemblyLine.Type::Resource);
-        PostedAssemblyLine.FindSet;
+        PostedAssemblyLine.FindSet();
 
         repeat
             LibraryReportDataset.SetRange('LineNo_PostedAssemblyLine', PostedAssemblyLine."Line No.");
@@ -342,7 +342,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
         i: Integer;
     begin
         Clear(DimText);
-        if DimensionSetEntry.IsEmpty then
+        if DimensionSetEntry.IsEmpty() then
             exit;
 
         i := 1;
@@ -837,7 +837,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
     begin
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
         AssemblyLine.SetRange(Type, AssemblyLine.Type::Item, AssemblyLine.Type::Resource);
-        AssemblyLine.FindSet;
+        AssemblyLine.FindSet();
 
         repeat
             LibraryReportDataset.SetRange('No_AssemblyLine', AssemblyLine."No.");
@@ -876,7 +876,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange(Type, SalesLine.Type::Item);
-        SalesLine.FindSet;
+        SalesLine.FindSet();
 
         repeat
             LibraryReportDataset.SetRange('LineNo_SalesLine', SalesLine."Line No.");
@@ -907,7 +907,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
                     // verify the lines
                     AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
                     AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
-                    AssemblyLine.FindSet;
+                    AssemblyLine.FindSet();
 
                     repeat
                         LibraryReportDataset.SetRange('No_AssemblyLine', AssemblyLine."No.");

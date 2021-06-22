@@ -1,4 +1,4 @@
-﻿codeunit 5521 "Make Supply Orders (Yes/No)"
+codeunit 5521 "Make Supply Orders (Yes/No)"
 {
     TableNo = "Requisition Line";
 

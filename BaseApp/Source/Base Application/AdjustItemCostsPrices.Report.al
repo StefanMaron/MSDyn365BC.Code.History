@@ -286,7 +286,7 @@ report 794 "Adjust Item Costs/Prices"
     begin
         if Item.GetFilters <> '' then begin
             FilteredItem.SetRange("No.", ItemNo);
-            if FilteredItem.IsEmpty then
+            if FilteredItem.IsEmpty() then
                 CurrReport.Skip();
         end;
     end;

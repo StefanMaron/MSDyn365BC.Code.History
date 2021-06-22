@@ -59,6 +59,7 @@ codeunit 99000833 "Req. Line-Reserve"
         FromTrackingSpecification."Source Type" := 0;
     end;
 
+#if not CLEAN16
     [Obsolete('Replaced by CreateReservation(ReqLine, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry)', '16.0')]
     procedure CreateReservation(var ReqLine: Record "Requisition Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForSerialNo: Code[50]; ForLotNo: Code[50])
     var
@@ -68,17 +69,20 @@ codeunit 99000833 "Req. Line-Reserve"
         ForReservEntry."Lot No." := ForLotNo;
         CreateReservation(ReqLine, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry);
     end;
+#endif
 
     procedure CreateReservationSetFrom(TrackingSpecification: Record "Tracking Specification")
     begin
         FromTrackingSpecification := TrackingSpecification;
     end;
 
+#if not CLEAN16
     [Obsolete('Replaced by ReqLine.SetReservationFilters(FilterReservEntry)', '16.0')]
     procedure FilterReservFor(var FilterReservEntry: Record "Reservation Entry"; ReqLine: Record "Requisition Line")
     begin
         ReqLine.SetReservationFilters(FilterReservEntry);
     end;
+#endif
 
     procedure Caption(ReqLine: Record "Requisition Line") CaptionText: Text
     begin
@@ -360,7 +364,7 @@ codeunit 99000833 "Req. Line-Reserve"
         TransLine.TestField("Transfer-from Code", ReqLine."Transfer-from Code");
 
         if TransferAll then begin
-            OldReservEntry.FindSet;
+            OldReservEntry.FindSet();
             OldReservEntry.TestField("Qty. per Unit of Measure", TransLine."Qty. per Unit of Measure");
 
             repeat
@@ -580,7 +584,7 @@ codeunit 99000833 "Req. Line-Reserve"
 
     local procedure MatchThisEntry(EntryNo: Integer): Boolean
     begin
-        exit(EntryNo = 21);
+        exit(EntryNo = "Reservation Summary Type"::"Requisition Line".AsInteger());
     end;
 
     local procedure MatchThisTable(TableID: Integer): Boolean

@@ -56,12 +56,12 @@ codeunit 394 "FinChrgMemo-Make"
                             Currency.Code := CustLedgEntry."Currency Code";
                             if Currency.Insert() then;
                         end;
-                    until CustLedgEntry.Next = 0;
+                    until CustLedgEntry.Next() = 0;
                 CustLedgEntry.CopyFilters(CustLedgEntry2);
                 if Currency.Find('-') then
                     repeat
                         FinChrgMemoCheck(Currency.Code);
-                    until Currency.Next = 0;
+                    until Currency.Next() = 0;
             end;
 
             if ((CustAmountLCY = 0) or (CustAmountLCY < FinChrgTerms."Minimum Amount (LCY)")) and
@@ -78,7 +78,7 @@ codeunit 394 "FinChrgMemo-Make"
                     repeat
                         if TempCurrency.Get(Currency.Code) then
                             MakeFinChrgMemo(Currency.Code);
-                    until Currency.Next = 0;
+                    until Currency.Next() = 0;
         end;
         exit(true);
     end;
@@ -213,7 +213,7 @@ codeunit 394 "FinChrgMemo-Make"
                             if TempCurrency.Insert() then;
                         end;
                     OnAfterFinChrgMemoLineCreated(FinChrgMemoLine, Checking);
-                until CustLedgEntry.Next = 0;
+                until CustLedgEntry.Next() = 0;
     end;
 
     local procedure GetLastLineNo(MemoNo: Code[20]): Integer

@@ -84,7 +84,7 @@ codeunit 1882 "Sandbox Deploymt. Cleanup"
         if Company.FindSet then
             repeat
                 OnClearConfiguration(Company.Name);
-            until Company.Next = 0;
+            until Company.Next() = 0;
         OnClearConfiguration('');
     end;
 }

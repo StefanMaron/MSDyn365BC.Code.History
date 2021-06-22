@@ -484,7 +484,7 @@ table 96 "G/L Budget Entry"
         AnalysisViewBudgetEntry.SetRange("G/L Account No.", GLBudgetEntry."G/L Account No.");
         AnalysisViewBudgetEntry.SetRange("Posting Date", GLBudgetEntry.Date);
         AnalysisViewBudgetEntry.SetRange("Business Unit Code", GLBudgetEntry."Business Unit Code");
-        if not AnalysisViewBudgetEntry.IsEmpty then
+        if not AnalysisViewBudgetEntry.IsEmpty() then
             Error(AnalysisViewBudgetEntryExistsErr);
     end;
 

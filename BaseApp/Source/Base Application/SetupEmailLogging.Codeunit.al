@@ -45,6 +45,7 @@ codeunit 1641 "Setup Email Logging"
         MissingClientSecretTelemetryTxt: Label 'The client secret has not been initialized.', Locked = true;
         InitializedClientIdTelemetryTxt: Label 'The client ID has been initialized.', Locked = true;
         InitializedClientSecretTelemetryTxt: Label 'The client secret has been initialized.', Locked = true;
+        InitializedRedirectUrlTelemetryTxt: Label 'The redirect URL has been initialized.', Locked = true;
         EmailLoggingClientIdAKVSecretNameLbl: Label 'emaillogging-clientid', Locked = true;
         EmailLoggingClientSecretAKVSecretNameLbl: Label 'emaillogging-clientsecret', Locked = true;
         TenantOAuthAuthorityUrlLbl: Label 'https://login.microsoftonline.com/%1/oauth2', Locked = true;
@@ -452,6 +453,7 @@ codeunit 1641 "Setup Email Logging"
         exit(true);
     end;
 
+
     [Scope('OnPrem')]
     [NonDebuggable]
     procedure PromptAdminConsent(var AccessToken: Text)
@@ -633,21 +635,24 @@ codeunit 1641 "Setup Email Logging"
     [Scope('OnPrem')]
     procedure RegisterAssistedSetup()
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
         Language: Codeunit Language;
         ModuleInfo: ModuleInfo;
         AssistedSetupGroup: Enum "Assisted Setup Group";
         VideoCategory: Enum "Video Category";
+        GuidedExperienceType: Enum "Guided Experience Type";
         CurrentGlobalLanguage: Integer;
     begin
-        if AssistedSetup.Exists(Page::"Setup Email Logging") then
+        if GuidedExperience.Exists(GuidedExperienceType::"Assisted Setup", ObjectType::Page, Page::"Setup Email Logging") then
             exit;
 
         CurrentGlobalLanguage := GLOBALLANGUAGE;
         NavApp.GetCurrentModuleInfo(ModuleInfo);
-        AssistedSetup.Add(ModuleInfo.Id(), Page::"Setup Email Logging", SetupEmailLoggingTitleTxt, AssistedSetupGroup::ApprovalWorkflows, VideoUrlSetupEmailLoggingTxt, VideoCategory::ApprovalWorkflows, SetupEmailLoggingHelpTxt, SetupEmailLoggingDescriptionTxt);
+        GuidedExperience.InsertAssistedSetup(SetupEmailLoggingTitleTxt, CopyStr(SetupEmailLoggingTitleTxt, 1, 50), SetupEmailLoggingDescriptionTxt, 0, ObjectType::Page,
+            Page::"Setup Email Logging", AssistedSetupGroup::ApprovalWorkflows, VideoUrlSetupEmailLoggingTxt, VideoCategory::ApprovalWorkflows, SetupEmailLoggingHelpTxt);
         GLOBALLANGUAGE(Language.GetDefaultApplicationLanguageId());
-        AssistedSetup.AddTranslation(Page::"Setup Email Logging", Language.GetDefaultApplicationLanguageId(), SetupEmailLoggingTitleTxt);
+        GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page, Page::"Setup Email Logging",
+            Language.GetDefaultApplicationLanguageId(), SetupEmailLoggingTitleTxt);
         GLOBALLANGUAGE(CurrentGlobalLanguage);
     end;
 
@@ -659,16 +664,19 @@ codeunit 1641 "Setup Email Logging"
         EnvironmentInformation: Codeunit "Environment Information";
         RedirectURL: Text;
     begin
-        if EnvironmentInformation.IsSaaS() then
+        OnGetEmailLoggingRedirectURL(RedirectURL);
+        if RedirectURL <> '' then begin
+            Session.LogMessage('0000DUZ', InitializedRedirectUrlTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             exit(RedirectURL);
+        end;
+
+        if EnvironmentInformation.IsSaaSInfrastructure() then
+            exit('');
 
         if MarketingSetup.Get() then
-            RedirectURL := MarketingSetup."Exchange Redirect URL";
+            exit(MarketingSetup."Exchange Redirect URL");
 
-        if RedirectURL = '' then
-            OnGetEmailLoggingRedirectURL(RedirectURL);
-
-        exit(RedirectURL);
+        exit('');
     end;
 
     [IntegrationEvent(false, false)]

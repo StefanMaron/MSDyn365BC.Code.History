@@ -1,4 +1,4 @@
-﻿codeunit 1751 "Data Classification Eval. Data"
+codeunit 1751 "Data Classification Eval. Data"
 {
     procedure CreateEvaluationData()
     var
@@ -27,7 +27,7 @@
                 DataSensitivity."Field No" := Field."No.";
                 DataSensitivity."Data Sensitivity" := DataSensitivity."Data Sensitivity"::Unclassified;
                 if DataSensitivity.Insert() then;
-            until Field.Next = 0;
+            until Field.Next() = 0;
 
         ClassifyTablesPart1;
         ClassifyTablesPart2;
@@ -59,7 +59,7 @@
                 DataSensitivity.Reset();
                 DataSensitivity.SetRange("Table No", TableMetadata.ID);
                 DataSensitivity.DeleteAll();
-            until TableMetadata.Next = 0;
+            until TableMetadata.Next() = 0;
     end;
 
     local procedure ClassifyTablesPart1()
@@ -310,6 +310,7 @@
         ClassifyEmailRecipient();
         ClassifyEmailMessageAttachment();
         ClassifyPostedGenJournalLine();
+        ClassifyWordTemplate();
     end;
 
     local procedure ClassifyTablesToNormalPart1()
@@ -636,8 +637,10 @@
     begin
         SetTableFieldsToNormal(DATABASE::"Posted Payment Recon. Hdr");
         SetTableFieldsToNormal(DATABASE::"Payment Matching Details");
+#if not CLEAN18
         SetTableFieldsToNormal(DATABASE::"Mini Customer Template");
         SetTableFieldsToNormal(DATABASE::"Item Template");
+#endif
         SetTableFieldsToNormal(DATABASE::"Dimensions Template");
         SetTableFieldsToNormal(DATABASE::"O365 Device Setup Instructions");
         SetTableFieldsToNormal(DATABASE::"O365 Getting Started Page Data");
@@ -698,7 +701,6 @@
         SetTableFieldsToNormal(DATABASE::"Business Unit Setup");
         SetTableFieldsToNormal(DATABASE::"Business Unit Information");
         SetTableFieldsToNormal(DATABASE::"Consolidation Account");
-        SetTableFieldsToNormal(DATABASE::"Business Setup");
         SetTableFieldsToNormal(3700); // "Manual Setup" table
         SetTableFieldsToNormal(1876); // "Business Setup Icon" table
         SetTableFieldsToNormal(DATABASE::"VAT Setup Posting Groups");
@@ -786,7 +788,9 @@
         SetTableFieldsToNormal(DATABASE::"RM Matrix Management");
         SetTableFieldsToNormal(DATABASE::"Interaction Tmpl. Language");
         SetTableFieldsToNormal(DATABASE::"Segment Interaction Language");
+#if not CLEAN18
         SetTableFieldsToNormal(DATABASE::"Customer Template");
+#endif
         SetTableFieldsToNormal(DATABASE::Rating);
         SetTableFieldsToNormal(DATABASE::"Interaction Template Setup");
         SetTableFieldsToNormal(DATABASE::"Current Salesperson");
@@ -889,8 +893,6 @@
         SetTableFieldsToNormal(DATABASE::"API Entities Setup");
         SetTableFieldsToNormal(DATABASE::"Sales Invoice Line Aggregate");
         SetTableFieldsToNormal(DATABASE::"Purch. Inv. Line Aggregate");
-        SetTableFieldsToNormal(DATABASE::"Journal Lines Entity Setup");
-        SetTableFieldsToNormal(DATABASE::"Account Entity Setup");
         SetTableFieldsToNormal(DATABASE::"Aged Report Entity");
         SetTableFieldsToNormal(DATABASE::"Acc. Schedule Line Entity");
         SetTableFieldsToNormal(DATABASE::"Unplanned Demand");
@@ -931,7 +933,9 @@
         SetTableFieldsToNormal(DATABASE::"Responsibility Center");
         SetTableFieldsToNormal(DATABASE::"Item Substitution");
         SetTableFieldsToNormal(DATABASE::"Substitution Condition");
+#if not CLEAN16
         SetTableFieldsToNormal(DATABASE::"Item Cross Reference");
+#endif
         SetTableFieldsToNormal(DATABASE::"Item Reference");
         SetTableFieldsToNormal(DATABASE::"Nonstock Item");
         SetTableFieldsToNormal(DATABASE::"Nonstock Item Setup");
@@ -1024,6 +1028,7 @@
         SetTableFieldsToNormal(DATABASE::"Item Tracking Setup");
         SetTableFieldsToNormal(DATABASE::"Serial No. Information");
         SetTableFieldsToNormal(DATABASE::"Lot No. Information");
+        SetTableFieldsToNormal(DATABASE::"Package No. Information");
         SetTableFieldsToNormal(DATABASE::"Item Tracking Comment");
         SetTableFieldsToNormal(DATABASE::"Whse. Item Tracking Line");
         SetTableFieldsToNormal(DATABASE::"Return Reason");
@@ -1074,6 +1079,14 @@
         SetTableFieldsToNormal(DATABASE::"Exp. Phys. Invt. Tracking");
         SetTableFieldsToNormal(DATABASE::"Pstd. Exp. Phys. Invt. Track");
         SetTableFieldsToNormal(DATABASE::"Phys. Invt. Count Buffer");
+        SetTableFieldsToNormal(DATABASE::"Invt. Document Header");
+        SetTableFieldsToNormal(DATABASE::"Invt. Receipt Header");
+        SetTableFieldsToNormal(DATABASE::"Invt. Receipt Line");
+        SetTableFieldsToNormal(DATABASE::"Invt. Document Line");
+        SetTableFieldsToNormal(DATABASE::"Invt. Shipment Header");
+        SetTableFieldsToNormal(DATABASE::"Invt. Shipment Line");
+        SetTableFieldsToNormal(DATABASE::"Direct Trans. Header");
+        SetTableFieldsToNormal(DATABASE::"Direct Trans. Line");
     end;
 
     local procedure ClassifyTablesToNormalPart8()
@@ -1123,15 +1136,6 @@
         SetTableFieldsToNormal(DATABASE::"Miniform Function Group");
         SetTableFieldsToNormal(DATABASE::"Miniform Function");
         SetTableFieldsToNormal(DATABASE::"Item Identifier");
-        SetTableFieldsToNormal(DATABASE::"MS-Event Emitter Event Codes");
-        SetTableFieldsToNormal(DATABASE::"MS-QBO Customer");
-        SetTableFieldsToNormal(DATABASE::"MS-QBO Item");
-        SetTableFieldsToNormal(DATABASE::"MS-QBO Invoice");
-        SetTableFieldsToNormal(DATABASE::"MS-QBO Modified Field List");
-        SetTableFieldsToNormal(DATABASE::"MS-QBO Setup");
-        SetTableFieldsToNormal(DATABASE::"MS-QBO Synchronization Error");
-        SetTableFieldsToNormal(DATABASE::"MS-QBO Start Sync. Service");
-        SetTableFieldsToNormal(DATABASE::"MS-QBO Failed Syncs");
         SetTableFieldsToNormal(DATABASE::"MS-QBD Setup");
         SetTableFieldsToNormal(DATABASE::"Dimensions Field Map");
         SetTableFieldsToNormal(DATABASE::"Record Set Definition");
@@ -1183,7 +1187,6 @@
         SetTableFieldsToNormal(DATABASE::"Autocomplete Address");
         SetTableFieldsToNormal(DATABASE::"Postcode Service Config");
         SetTableFieldsToNormal(DATABASE::TempStack);
-        SetTableFieldsToNormal(DATABASE::"Profile Resource Import/Export");
         SetTableFieldsToNormal(DATABASE::"Experience Tier Setup");
         SetTableFieldsToNormal(DATABASE::"Generic Chart Setup");
         SetTableFieldsToNormal(DATABASE::"Generic Chart Filter");
@@ -1301,7 +1304,9 @@
         SetTableFieldsToNormal(DATABASE::"Positive Pay Entry");
         SetTableFieldsToNormal(DATABASE::"OCR Service Setup");
         SetTableFieldsToNormal(DATABASE::"Doc. Exch. Service Setup");
+#if not CLEAN18
         SetTableFieldsToNormal(DATABASE::"Mini Vendor Template");
+#endif
         SetTableFieldsToNormal(DATABASE::"User Preference");
         SetTableFieldsToNormal(DATABASE::"O365 Getting Started");
         SetTableFieldsToNormal(DATABASE::"User Tours");
@@ -1336,7 +1341,7 @@
         SetTableFieldsToNormal(DATABASE::"Power BI User Configuration");
         SetTableFieldsToNormal(DATABASE::"Power BI Report Configuration");
         SetTableFieldsToNormal(DATABASE::"Power BI Report Uploads");
-        SetTableFieldsToNormal(DATABASE::"Power BI Ongoing Deployments");
+        SetTableFieldsToNormal(DATABASE::"Power BI User Status");
         SetTableFieldsToNormal(DATABASE::"Power BI Service Status Setup");
         SetTableFieldsToNormal(DATABASE::"Power BI Customer Reports");
         SetTableFieldsToNormal(DATABASE::"Power BI Blob");
@@ -1369,8 +1374,6 @@
         SetTableFieldsToNormal(DATABASE::"Document Service");
         SetTableFieldsToNormal(DATABASE::"Graph Business Setting");
         SetTableFieldsToNormal(DATABASE::"Data Privacy Entities");
-        SetTableFieldsToNormal(DATABASE::"Email Attachment");
-        SetTableFieldsToNormal(DATABASE::"Data Class. Notif. Setup");
         SetTableFieldsToNormal(DATABASE::"Isolated Certificate");
         SetTableFieldsToNormal(DATABASE::"No. Series Tenant");
         SetTableFieldsToNormal(DATABASE::"OAuth 2.0 Setup");
@@ -1390,6 +1393,13 @@
         SetTableFieldsToNormal(DATABASE::"Designed Query Filter");
         SetTableFieldsToNormal(DATABASE::"Designed Query Join");
         SetTableFieldsToNormal(DATABASE::"Designed Query Order By");
+        SetTableFieldsToNormal(Database::"Dim Correct Selection Criteria");
+        SetTableFieldsToNormal(Database::"Dim Correction Blocked Setup");
+        SetTableFieldsToNormal(Database::"Dim Correction Change");
+        SetTableFieldsToNormal(Database::"Dim Correction Set Buffer");
+        SetTableFieldsToNormal(Database::"Dim Correction Entry Log");
+        SetTableFieldsToNormal(Database::"Dimension Correction");
+        SetTableFieldsToNormal(Database::"Invalidated Dim Correction");
         SetTableFieldsToNormal(Database::"Retention Period");
         SetTableFieldsToNormal(Database::"Retention Policy Setup");
         SetTableFieldsToNormal(Database::"Retention Policy Setup Line");
@@ -1397,6 +1407,15 @@
         SetTableFieldsToNormal(Database::"Feature Data Update Status");
         SetTableFieldsToNormal(Database::"Integration Management Setup");
         SetTableFieldsToNormal(Database::"OData Initialized Status");
+        SetTableFieldsToNormal(149000); // Database::"BCPT Header"
+        SetTableFieldsToNormal(149001); // Database::"BCPT Line"
+        SetTableFieldsToNormal(149002); // Database::"BCPT Log Entry"
+        SetTableFieldsToNormal(149003); // Database::"BCPT Parameter Line"
+        SetTableFieldsToNormal(DATABASE::"Availability Info. Buffer");
+
+#if not CLEAN18
+        SetTableFieldsToNormal(DATABASE::"Power BI Ongoing Deployments");
+#endif
     end;
 
     procedure SetTableFieldsToNormal(TableNo: Integer)
@@ -2807,7 +2826,6 @@
     begin
         TableNo := DATABASE::"Job Queue Entry";
         SetTableFieldsToNormal(TableNo);
-        SetFieldToCompanyConfidential(TableNo, DummyJobQueueEntry.FieldNo("On Hold Due to Inactivity"));
         SetFieldToCompanyConfidential(TableNo, DummyJobQueueEntry.FieldNo("Manual Recurrence"));
         SetFieldToCompanyConfidential(TableNo, DummyJobQueueEntry.FieldNo("System Task ID"));
         SetFieldToCompanyConfidential(TableNo, DummyJobQueueEntry.FieldNo("Rerun Delay (sec.)"));
@@ -3433,6 +3451,12 @@
     begin
         SetFieldToPersonal(8904, 3); // Attachment
         SetFieldToPersonal(8904, 4); // Attachment Name
+    end;
+
+    local procedure ClassifyWordTemplate()
+    begin
+        SetFieldToPersonal(9988, 2); // Name
+        SetFieldToPersonal(9988, 4); // Template
     end;
 
     local procedure ClassifyTermsAndConditionsState()
@@ -4992,7 +5016,6 @@
         SetFieldToPersonal(TableNo, DummyResource.FieldNo("Time Sheet Owner User ID"));
         SetFieldToPersonal(TableNo, DummyResource.FieldNo(County));
         SetFieldToPersonal(TableNo, DummyResource.FieldNo("Post Code"));
-        SetFieldToPersonal(TableNo, DummyResource.FieldNo(Picture));
         SetFieldToSensitive(TableNo, DummyResource.FieldNo("Employment Date"));
         SetFieldToSensitive(TableNo, DummyResource.FieldNo(Education));
         SetFieldToSensitive(TableNo, DummyResource.FieldNo("Social Security No."));
@@ -5914,7 +5937,6 @@
         SetFieldToPersonal(TableNo, DummyVendor.FieldNo(County));
         SetFieldToPersonal(TableNo, DummyVendor.FieldNo("Post Code"));
         SetFieldToPersonal(TableNo, DummyVendor.FieldNo(GLN));
-        SetFieldToPersonal(TableNo, DummyVendor.FieldNo(Picture));
         SetFieldToSensitive(TableNo, DummyVendor.FieldNo("VAT Registration No."));
         SetFieldToPersonal(TableNo, DummyVendor.FieldNo("Telex Answer Back"));
         SetFieldToPersonal(TableNo, DummyVendor.FieldNo("Fax No."));

@@ -11,12 +11,10 @@ table 7136 "Item Budget Buffer"
             DataClassification = SystemMetadata;
             TableRelation = Item;
         }
-        field(2; "Source Type"; Option)
+        field(2; "Source Type"; Enum "Analysis Source Type")
         {
             Caption = 'Source Type';
             DataClassification = SystemMetadata;
-            OptionCaption = ' ,Customer,Vendor,Item';
-            OptionMembers = " ",Customer,Vendor,Item;
         }
         field(3; "Source No."; Code[20])
         {

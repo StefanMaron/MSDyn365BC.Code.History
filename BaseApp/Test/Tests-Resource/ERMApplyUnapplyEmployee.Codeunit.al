@@ -459,7 +459,7 @@ codeunit 134114 "ERM Apply Unapply Employee"
         EmployeeLedgerEntry.CalcFields("Remaining Amount");
         LibraryERM.SetApplyEmployeeEntry(EmployeeLedgerEntry, EmployeeLedgerEntry."Remaining Amount");
         LibraryERM.FindEmployeeLedgerEntry(EmployeeLedgerEntry2, DocumentType2, DocumentNo2);
-        EmployeeLedgerEntry2.FindSet;
+        EmployeeLedgerEntry2.FindSet();
         repeat
             EmployeeLedgerEntry2.CalcFields("Remaining Amount");
             EmployeeLedgerEntry2.Validate("Amount to Apply", EmployeeLedgerEntry2."Remaining Amount");
@@ -526,13 +526,13 @@ codeunit 134114 "ERM Apply Unapply Employee"
         DetailedEmployeeLedgEntry.SetRange("Entry Type", EntryType);
         DetailedEmployeeLedgEntry.SetRange("Document No.", DocumentNo);
         DetailedEmployeeLedgEntry.SetRange("Employee No.", EmployeeNo);
-        DetailedEmployeeLedgEntry.FindSet;
+        DetailedEmployeeLedgEntry.FindSet();
     end;
 
     local procedure FindGLEntries(var GLEntry: Record "G/L Entry"; DocumentNo: Code[20])
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.FindSet;
+        GLEntry.FindSet();
     end;
 
     local procedure GetTotalAppliedAmount(EmployeeNo: Code[20]; PostingDate: Date): Decimal
@@ -543,7 +543,7 @@ codeunit 134114 "ERM Apply Unapply Employee"
         with EmployeeLedgerEntry do begin
             SetRange("Employee No.", EmployeeNo);
             SetRange("Posting Date", PostingDate);
-            FindSet;
+            FindSet();
             repeat
                 CalcFields(Amount);
                 TotalAmount += Amount;
@@ -588,7 +588,7 @@ codeunit 134114 "ERM Apply Unapply Employee"
         with EmployeeLedgerEntry do begin
             SetRange("Employee No.", EmployeeNo);
             SetRange("Applying Entry", false);
-            FindSet;
+            FindSet();
             repeat
                 Validate("Applies-to ID", DocumentNo);
                 CalcFields("Remaining Amount");

@@ -1,4 +1,4 @@
-﻿codeunit 99000813 "Carry Out Action"
+codeunit 99000813 "Carry Out Action"
 {
     Permissions = TableData "Prod. Order Capacity Need" = rid;
     TableNo = "Requisition Line";
@@ -199,7 +199,7 @@
                 PlanningComp2."Dimension Set ID" := ReqLine2."Dimension Set ID";
                 PlanningComp2.Insert();
                 OnCarryOutToReqWkshOnAfterPlanningCompInsert(PlanningComp2, PlanningComp);
-            until PlanningComp.Next = 0;
+            until PlanningComp.Next() = 0;
 
         PlanningRoutingLine.SetRange("Worksheet Template Name", ReqLine."Worksheet Template Name");
         PlanningRoutingLine.SetRange("Worksheet Batch Name", ReqLine."Journal Batch Name");
@@ -211,7 +211,7 @@
                 PlanningRoutingLine2."Worksheet Batch Name" := ReqJournalName;
                 OnCarryOutToReqWkshOnAfterPlanningRoutingLineInsert(PlanningRoutingLine2, PlanningRoutingLine);
                 PlanningRoutingLine2.Insert();
-            until PlanningRoutingLine.Next = 0;
+            until PlanningRoutingLine.Next() = 0;
 
         ProdOrderCapNeed.SetRange("Worksheet Template Name", ReqLine."Worksheet Template Name");
         ProdOrderCapNeed.SetRange("Worksheet Batch Name", ReqLine."Journal Batch Name");
@@ -223,7 +223,7 @@
                 ProdOrderCapNeed2."Worksheet Batch Name" := ReqJournalName;
                 ProdOrderCapNeed.Delete();
                 ProdOrderCapNeed2.Insert();
-            until ProdOrderCapNeed.Next = 0;
+            until ProdOrderCapNeed.Next() = 0;
 
         OnAfterCarryOutToReqWksh(ReqLine2, ReqLine);
     end;
@@ -234,7 +234,7 @@
             repeat
                 TransferHeader := TempTransHeaderToPrint;
                 TransferHeader.Insert();
-            until TempTransHeaderToPrint.Next = 0;
+            until TempTransHeaderToPrint.Next() = 0;
     end;
 
     procedure ProdOrderChgAndReshedule(ReqLine: Record "Requisition Line"): Boolean
@@ -285,7 +285,7 @@
                             CheckDateConflict.ProdOrderComponentCheck(ProdOrderComp, false, false);
                         end else
                             PlanningComponent.Delete(true);
-                    until PlanningComponent.Next = 0;
+                    until PlanningComponent.Next() = 0;
 
                 if "Planning Level" = 0 then
                     if ProdOrder.Get("Ref. Order Status", "Ref. Order No.") then begin
@@ -404,7 +404,7 @@
                             CheckDateConflict.AssemblyLineCheck(AsmLine, false);
                         end else
                             PlanningComponent.Delete(true);
-                    until PlanningComponent.Next = 0;
+                    until PlanningComponent.Next() = 0;
 
                 PrintAsmOrder(AsmHeader);
             end else begin
@@ -546,7 +546,7 @@
                 ProdOrderChoice::Planned:
                     MfgSetup.TestField("Planned Order Nos.");
                 ProdOrderChoice::"Firm Planned",
-              ProdOrderChoice::"Firm Planned & Print":
+                ProdOrderChoice::"Firm Planned & Print":
                     MfgSetup.TestField("Firm Planned Order Nos.");
             end;
 
@@ -566,6 +566,7 @@
             ProdOrder."Source No." := ReqLine."No.";
             ProdOrder.Validate(Description, ReqLine.Description);
             ProdOrder."Description 2" := ReqLine."Description 2";
+            ProdOrder."Variant Code" := ReqLine."Variant Code";
             ProdOrder."Creation Date" := Today;
             ProdOrder."Last Date Modified" := Today;
             ProdOrder."Inventory Posting Group" := Item."Inventory Posting Group";
@@ -585,7 +586,7 @@
             ProdOrder."Shortcut Dimension 1 Code" := ReqLine."Shortcut Dimension 1 Code";
             ProdOrder."Shortcut Dimension 2 Code" := ReqLine."Shortcut Dimension 2 Code";
             ProdOrder."Dimension Set ID" := ReqLine."Dimension Set ID";
-            ProdOrder.UpdateDatetime;
+            ProdOrder.UpdateDatetime();
             OnInsertProdOrderWithReqLine(ProdOrder, ReqLine);
             ProdOrder.Modify();
             InsertTempProdOrder(ReqLine, ProdOrder);
@@ -754,14 +755,14 @@
         if BOMComp.Find('-') then
             repeat
                 AsmHeader.AddBOMLine(BOMComp);
-            until BOMComp.Next = 0;
+            until BOMComp.Next() = 0;
 
         OnAfterInsertAsmHeader(ReqLine, AsmHeader);
 
         PrintAsmOrder(AsmHeader);
         TempDocumentEntry.Init();
         TempDocumentEntry."Table ID" := DATABASE::"Assembly Header";
-        TempDocumentEntry."Document Type" := AsmHeader."Document Type"::Order.AsInteger();
+        TempDocumentEntry."Document Type" := AsmHeader."Document Type"::Order;
         TempDocumentEntry."Document No." := AsmHeader."No.";
         TempDocumentEntry."Entry No." := TempDocumentEntry.Count + 1;
         TempDocumentEntry.Insert();
@@ -820,7 +821,7 @@
                 AsmLine.AutoReserve();
                 ReservMgt.SetReservSource(AsmLine);
                 ReservMgt.AutoTrack(AsmLine."Remaining Quantity (Base)");
-            until PlanningComponent.Next = 0;
+            until PlanningComponent.Next() = 0;
     end;
 
     procedure InsertTransHeader(ReqLine: Record "Requisition Line"; var TransHeader: Record "Transfer Header")
@@ -919,7 +920,7 @@
             PrintOrder := true;
             repeat
                 PrintTransferOrder(TempTransHeaderToPrint);
-            until TempTransHeaderToPrint.Next = 0;
+            until TempTransHeaderToPrint.Next() = 0;
 
             TempTransHeaderToPrint.DeleteAll();
         end;
@@ -997,7 +998,7 @@
         PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
         PurchaseHeader.SetFilter("No.", PurchaseOrderNoFilter);
         PurchaseHeader.SetFilter("Buy-from Vendor No.", '<>%1', '');
-        ReportSelections.PrintWithGUIYesNoWithCheckVendor(
+        ReportSelections.PrintWithDialogWithCheckForVend(
             ReportSelections.Usage::"P.Order", PurchaseHeader, false, PurchaseHeader.FieldNo("Buy-from Vendor No."));
     end;
 
@@ -1078,7 +1079,7 @@
                 ProdOrderRtngLine.Insert();
                 OnAfterProdOrderRtngLineInsert(ProdOrderRtngLine, PlanningRtngLine, ProdOrder, ReqLine);
                 CalcProdOrder.TransferTaskInfo(ProdOrderRtngLine, ReqLine."Routing Version Code");
-            until PlanningRtngLine.Next = 0;
+            until PlanningRtngLine.Next() = 0;
 
         exit(not PlanningRtngLine.IsEmpty);
     end;
@@ -1109,7 +1110,7 @@
 
                 ReservMgt.SetReservSource(ProdOrderComp2);
                 ReservMgt.AutoTrack(ProdOrderComp2."Remaining Qty. (Base)");
-            until PlanningComponent.Next = 0;
+            until PlanningComponent.Next() = 0;
     end;
 
     procedure TransferCapNeed(ReqLine: Record "Requisition Line"; ProdOrder: Record "Production Order"; RoutingNo: Code[20]; RoutingRefNo: Integer)
@@ -1135,7 +1136,7 @@
                 NewProdOrderCapNeed."Worksheet Line No." := 0;
                 NewProdOrderCapNeed.UpdateDatetime;
                 NewProdOrderCapNeed.Insert();
-            until ProdOrderCapNeed.Next = 0;
+            until ProdOrderCapNeed.Next() = 0;
     end;
 
     procedure UpdateComponentLink(ProdOrderLine: Record "Prod. Order Line")
@@ -1150,7 +1151,7 @@
             repeat
                 ProdOrderComp."Supplied-by Line No." := ProdOrderLine."Line No.";
                 ProdOrderComp.Modify();
-            until ProdOrderComp.Next = 0;
+            until ProdOrderComp.Next() = 0;
     end;
 
     procedure SetCreatedDocumentBuffer(var TempDocumentEntryNew: Record "Document Entry" temporary)
@@ -1165,7 +1166,7 @@
 
         TempDocumentEntry.Init();
         TempDocumentEntry."Table ID" := DATABASE::"Production Order";
-        TempDocumentEntry."Document Type" := NewProdOrder.Status.AsInteger();
+        TempDocumentEntry."Document Type" := NewProdOrder.Status;
         TempDocumentEntry."Document No." := NewProdOrder."No.";
         TempDocumentEntry."Entry No." := TempDocumentEntry.Count + 1;
         TempDocumentEntry.Insert();
@@ -1493,7 +1494,7 @@
                 ProdOrderCompCmtLine.CopyFromProdBOMComponent(ProductionBOMCommentLine, ProdOrderComponent);
                 if not ProdOrderCompCmtLine.Insert() then
                     ProdOrderCompCmtLine.Modify();
-            until ProductionBOMCommentLine.Next = 0;
+            until ProductionBOMCommentLine.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

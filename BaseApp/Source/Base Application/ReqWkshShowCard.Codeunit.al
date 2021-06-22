@@ -1,4 +1,4 @@
-﻿codeunit 335 "Req. Wksh.-Show Card"
+codeunit 335 "Req. Wksh.-Show Card"
 {
     TableNo = "Requisition Line";
 

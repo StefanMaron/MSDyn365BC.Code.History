@@ -1,6 +1,6 @@
 table 1543 "Flow Service Configuration"
 {
-    Caption = 'Flow Service Configuration';
+    Caption = 'Power Automate Service Configuration';
     DataPerCompany = false;
 
     fields
@@ -11,7 +11,7 @@ table 1543 "Flow Service Configuration"
         }
         field(2; "Flow Service"; Option)
         {
-            Caption = 'Flow Service';
+            Caption = 'Power Automate Service';
             OptionCaption = 'Production Service,Testing Service (TIP 1),Testing Service (TIP 2)';
             OptionMembers = "Production Service","Testing Service (TIP 1)","Testing Service (TIP 2)";
         }

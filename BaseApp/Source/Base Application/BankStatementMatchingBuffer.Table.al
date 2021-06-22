@@ -52,6 +52,11 @@ table 1250 "Bank Statement Matching Buffer"
             OptionCaption = 'Not Considered,Fully,Partially,No';
             OptionMembers = "Not Considered",Fully,Partially,No;
         }
+        field(14; "Match Details"; Text[250])
+        {
+            Caption = 'Match Details';
+            DataClassification = SystemMetadata;
+        }
     }
 
     keys

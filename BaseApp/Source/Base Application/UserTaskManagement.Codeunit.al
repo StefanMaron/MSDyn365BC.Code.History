@@ -63,7 +63,7 @@ codeunit 1174 "User Task Management"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Table, 1175, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"User Task Group", 'OnAfterDeleteEvent', '', false, false)]
     local procedure OnAfterDeleteUserTaskGroup(var Rec: Record "User Task Group"; RunTrigger: Boolean)
     var
         UserTask: Record "User Task";
@@ -93,7 +93,7 @@ codeunit 1174 "User Task Management"
         if UserTaskGroupMember.FindSet then begin
             repeat
                 FilterTxt := FilterTxt + UserTaskGroupMember."User Task Group Code" + '|';
-            until UserTaskGroupMember.Next = 0;
+            until UserTaskGroupMember.Next() = 0;
         end;
 
         // delete last char (|) to create a filter string

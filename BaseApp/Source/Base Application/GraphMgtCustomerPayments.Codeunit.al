@@ -33,6 +33,7 @@ codeunit 5479 "Graph Mgt - Customer Payments"
         GraphMgtJournalLines.SetPaymentsValues(GenJournalLine, TempGenJournalLine);
     end;
 
+    [Obsolete('This function will be removed, the Integration Record is replaced by systemId and systemLastModifiedDateTime', '18.0')]
     procedure UpdateIntegrationRecords(OnlyItemsWithoutId: Boolean)
     var
         GenJnlLine: Record "Gen. Journal Line";
@@ -43,7 +44,7 @@ codeunit 5479 "Graph Mgt - Customer Payments"
         GraphMgtGeneralTools.UpdateIntegrationRecords(GenJnlLineRecordRef, GenJnlLine.FieldNo(Id), OnlyItemsWithoutId);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5465, 'ApiSetup', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Mgt - General Tools", 'ApiSetup', '', false, false)]
     local procedure HandleApiSetup()
     begin
         UpdateIds;
@@ -63,7 +64,7 @@ codeunit 5479 "Graph Mgt - Customer Payments"
                     UpdateAppliesToInvoiceID;
                     UpdateJournalBatchID;
                     Modify(false);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 }

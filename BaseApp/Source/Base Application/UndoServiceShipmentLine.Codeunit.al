@@ -101,7 +101,7 @@ codeunit 5818 "Undo Service Shipment Line"
                 if not HideDialog then
                     Window.Open(Text003);
                 CheckServShptLine(ServShptLine);
-            until Next = 0;
+            until Next() = 0;
 
             ServItem.SetCurrentKey("Sales/Serv. Shpt. Document No.");
             ServItem.SetRange("Sales/Serv. Shpt. Document No.", "Document No.");
@@ -118,10 +118,10 @@ codeunit 5818 "Undo Service Shipment Line"
             Find('-');
             repeat
                 TempGlobalItemLedgEntry.Reset();
-                if not TempGlobalItemLedgEntry.IsEmpty then
+                if not TempGlobalItemLedgEntry.IsEmpty() then
                     TempGlobalItemLedgEntry.DeleteAll();
                 TempGlobalItemEntryRelation.Reset();
-                if not TempGlobalItemEntryRelation.IsEmpty then
+                if not TempGlobalItemEntryRelation.IsEmpty() then
                     TempGlobalItemEntryRelation.DeleteAll();
 
                 if not HideDialog then
@@ -164,7 +164,7 @@ codeunit 5818 "Undo Service Shipment Line"
                 Correction := true;
                 Modify;
 
-            until Next = 0;
+            until Next() = 0;
             ServLedgEntriesPost.FinishServiceRegister(ServLedgEntryNo, WarrantyLedgEntryNo);
 
             InvtSetup.Get();
@@ -332,7 +332,7 @@ codeunit 5818 "Undo Service Shipment Line"
                 ItemEntryRelation := TempItemEntryRelation;
                 ItemEntryRelation.TransferFieldsServShptLine(NewServShptLine);
                 ItemEntryRelation.Insert();
-            until TempItemEntryRelation.Next = 0;
+            until TempItemEntryRelation.Next() = 0;
     end;
 
     local procedure PostResJnlLine(var ServiceShptLine: Record "Service Shipment Line")
@@ -391,7 +391,7 @@ codeunit 5818 "Undo Service Shipment Line"
             repeat
                 if ServItem.CheckIfCanBeDeleted = '' then
                     if ServItem.Delete(true) then;
-            until ServItem.Next = 0;
+            until ServItem.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

@@ -19,6 +19,7 @@ codeunit 136142 "Service Warehouse Integration"
         LibrarySales: Codeunit "Library - Sales";
         LibraryService: Codeunit "Library - Service";
         LibraryWarehouse: Codeunit "Library - Warehouse";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         ItemNo: array[4] of Code[20];
         SerialItem: Code[20];
         LotItem: Code[20];
@@ -68,11 +69,10 @@ codeunit 136142 "Service Warehouse Integration"
         ServiceHeader: Record "Service Header";
     begin
         // [SCENARIO] Try to create whse shipment from an open service order. Error expected.
-        CleanSetupData;
-        CheckInit;
+        Initialize();
         CreateServiceOrder(ServiceHeader, 2, WhiteLocationCode, 0, 0, 0, 0, false);
         CreateWhseShipment(ServiceHeader, false);
-        CleanSetupData;
+        CleanSetupData();
     end;
 
     [Test]
@@ -82,13 +82,12 @@ codeunit 136142 "Service Warehouse Integration"
         ServiceHeader: Record "Service Header";
     begin
         // [SCENARIO] Try to create whse shipment from existing released service order. Message expected. Possible to navigate to Whse shipment lines with correct contents.
-        CleanSetupData;
-        CheckInit;
+        Initialize();
         CreateServiceOrder(ServiceHeader, 3, WhiteLocationCode, 0, 0, 0, 0, false);
         LibraryService.ReleaseServiceDocument(ServiceHeader);
         CreateWhseShipment(ServiceHeader, true);
         VerifyWhseShipmentLinesAgainstServiceOrder(ServiceHeader."No.", false); // No date check because the whse shipment header does not have a blank shipment date.
-        CleanSetupData;
+        CleanSetupData();
     end;
 
     [Test]
@@ -99,8 +98,7 @@ codeunit 136142 "Service Warehouse Integration"
         ServiceLine: Record "Service Line";
     begin
         // [SCENARIO] Reopen service order and verify that certain fields cannot be modified.
-        CleanSetupData;
-        CheckInit;
+        Initialize();
         CreateServiceOrder(ServiceHeader, 4, WhiteLocationCode, 0, 0, 0, 0, false);
         LibraryService.ReleaseServiceDocument(ServiceHeader);
         CreateWhseShipment(ServiceHeader, true);
@@ -113,7 +111,7 @@ codeunit 136142 "Service Warehouse Integration"
         // Verification contains several consequent error assertions, hence need to commit to avoid rollback after the first error
         Commit();
         CheckServiceLineNoModification(ServiceLine);
-        CleanSetupData;
+        CleanSetupData();
     end;
 
     [Test]
@@ -124,8 +122,7 @@ codeunit 136142 "Service Warehouse Integration"
         ServiceLine: Record "Service Line";
     begin
         // [SCENARIO] Reopen service order and verify that lines with reference to whse shipment cannot be deleted.
-        CleanSetupData;
-        CheckInit;
+        Initialize();
         CreateServiceOrder(ServiceHeader, 5, WhiteLocationCode, 0, 0, 0, 0, false);
         LibraryService.ReleaseServiceDocument(ServiceHeader);
         CreateWhseShipment(ServiceHeader, true);
@@ -135,7 +132,7 @@ codeunit 136142 "Service Warehouse Integration"
         ServiceLine.SetRange(Type, ServiceLine.Type::Item);
         ServiceLine.FindFirst;
         asserterror ServiceLine.Delete(true);
-        CleanSetupData;
+        CleanSetupData();
     end;
 
     [Test]
@@ -149,8 +146,7 @@ codeunit 136142 "Service Warehouse Integration"
         WhseShipmentCreatePick: Report "Whse.-Shipment - Create Pick";
     begin
         // [SCENARIO] Try to create pick from Whse shipment. Verify pick lines
-        CleanSetupData;
-        CheckInit;
+        Initialize();
         CreateServiceOrder(ServiceHeader, 6, WhiteLocationCode, 0, 0, 0, 0, false);
         LibraryService.ReleaseServiceDocument(ServiceHeader);
         CreateWhseShipment(ServiceHeader, true);
@@ -166,7 +162,7 @@ codeunit 136142 "Service Warehouse Integration"
         WhseShipmentCreatePick.RunModal;
         Clear(WhseShipmentCreatePick);
         VerifyWhseShptLinesAgainstPick(ServiceHeader."No.", TempWarehouseShipmentLine."No.");
-        CleanSetupData;
+        CleanSetupData();
     end;
 
     [Test]
@@ -180,8 +176,7 @@ codeunit 136142 "Service Warehouse Integration"
         WhseShipmentCreatePick: Report "Whse.-Shipment - Create Pick";
     begin
         // [SCENARIO] Try to register pick. Verify that registered pick exists.
-        CleanSetupData;
-        CheckInit;
+        Initialize();
         CreateServiceOrder(ServiceHeader, 7, WhiteLocationCode, 0, 0, 0, 0, false);
         LibraryService.ReleaseServiceDocument(ServiceHeader);
         CreateWhseShipment(ServiceHeader, true);
@@ -198,7 +193,7 @@ codeunit 136142 "Service Warehouse Integration"
         Clear(WhseShipmentCreatePick);
         RegisterPick(TempWarehouseShipmentLine."No.");
         VerifyWhseShptLinesAgainstRegisteredPick(ServiceHeader."No.", TempWarehouseShipmentLine."No.");
-        CleanSetupData;
+        CleanSetupData();
     end;
 
     [Test]
@@ -214,8 +209,7 @@ codeunit 136142 "Service Warehouse Integration"
     begin
         // [SCENARIO] Post warehouse shipment as ship and verify that:
         // [SCENARIO] Non-posted whse shipment is deleted; Posted whse shipment is created; Service Shipment is created
-        CleanSetupData;
-        CheckInit;
+        Initialize();
         CreateServiceOrder(ServiceHeader, 8, WhiteLocationCode, 0, 0, 0, 0, false);
         LibraryService.ReleaseServiceDocument(ServiceHeader);
         CreateWhseShipment(ServiceHeader, true);
@@ -242,7 +236,7 @@ codeunit 136142 "Service Warehouse Integration"
         VerifyPostedServiceShipmentExists(ServiceHeader."No.");
         // Verify that service lines are correct regarding Qty shipped on the service lines
         VerifyServiceLinesAreShipped(ServiceHeader."No.");
-        CleanSetupData;
+        CleanSetupData();
     end;
 
     [Test]
@@ -259,8 +253,7 @@ codeunit 136142 "Service Warehouse Integration"
     begin
         // [SCENARIO] Post warehouse shipment as ship and invoice and verify that: Non-posted whse shipment is deleted;
         // [SCENARIO] Posted whse shipment is created; Service Shipment is created; Service Invoice is created.
-        CleanSetupData;
-        CheckInit;
+        Initialize();
         CreateServiceOrder(ServiceHeader, 9, WhiteLocationCode, 0, 0, 0, 0, false);
         ServiceHeader.Validate("Posting Date", WorkDate);
         ServiceHeader.Modify(true);
@@ -286,7 +279,7 @@ codeunit 136142 "Service Warehouse Integration"
         VerifyServiceLinesAreInvoiced(ServiceHeader."No.", 0);
         // Verify that a service invoice exists with correct quantities
         VerifyServiceInvoice(ServiceHeader."No.", TempServiceLine, 0);
-        CleanSetupData;
+        CleanSetupData();
     end;
 
     [Test]
@@ -304,8 +297,7 @@ codeunit 136142 "Service Warehouse Integration"
         // [SCENARIO] Post whse shipment (ship & invoice) with qty to ship < qty and verify that:
         // [SCENARIO] Posted whse shipment: Qty = Qty to ship on the whse shipment; Posted service shipment: Qty = Qty to ship on the whse shipment
         // [SCENARIO] Posted service invoice: Qty = Qty to ship on the whse shipment; Service order: Qty to ship = 0 and Qty to invoice = 0.
-        CleanSetupData;
-        CheckInit;
+        Initialize();
         CreateServiceOrder(ServiceHeader, 10, WhiteLocationCode, 0, 0, 0, 0, false);
         CollectServiceLines(ServiceHeader."No.", TempServiceLine);
         LibraryService.ReleaseServiceDocument(ServiceHeader);
@@ -333,7 +325,7 @@ codeunit 136142 "Service Warehouse Integration"
         VerifyPostedWhseShipmentHeaderExists(ServiceHeader."No.");
         // Posted whse shipment lines:
         VerifyPostedWhseShipmentLines(ServiceHeader."No.");
-        CleanSetupData;
+        CleanSetupData();
     end;
 
     [Test]
@@ -344,12 +336,12 @@ codeunit 136142 "Service Warehouse Integration"
         ServiceHeader: Record "Service Header";
         ServiceOrderTP: TestPage "Service Order";
     begin
-        CleanSetupData;
-        CheckInit;
+        Initialize();
         CreateServiceOrder(ServiceHeader, 10, '', 0, 0, 0, 0, false);
         ServiceOrderTP.OpenNew;
         ServiceOrderTP.GotoRecord(ServiceHeader);
-        ServiceOrderTP.ServItemLines."Service Lines".Invoke;
+        ServiceOrderTP.ServItemLines."Service Lines".Invoke();
+        CleanSetupData();
     end;
 
     [Test]
@@ -361,8 +353,7 @@ codeunit 136142 "Service Warehouse Integration"
         LibraryWarehouse: Codeunit "Library - Warehouse";
     begin
         // [SCENARIO] Create service order and release to ship. Create warehouse shipment. Select "Get Source Documents".
-        CleanSetupData;
-        CheckInit;
+        Initialize();
         CreateServiceOrder(ServiceHeader, 10, WhiteLocationCode, 0, 0, 0, 0, false);
         LibraryService.ReleaseServiceDocument(ServiceHeader);
         // Create empty shipment:
@@ -372,7 +363,7 @@ codeunit 136142 "Service Warehouse Integration"
         WarehouseShipmentHeader.Validate("Location Code", WhiteLocationCode);
         WarehouseShipmentHeader.Modify();
         PullScenarioVerifyWhseRqst(ServiceHeader."No.", WarehouseShipmentHeader);
-        CleanSetupData;
+        CleanSetupData();
     end;
 
     [Test]
@@ -385,8 +376,8 @@ codeunit 136142 "Service Warehouse Integration"
     begin
         // [SCENARIO] Create service order and release to ship. Create warehouse shipment. Select "Get Source Documents".
         // [SCENARIO] Service Order is displayed in the overview
-        CleanSetupData;
-        CheckInit;
+        CleanSetupData();
+        Initialize();
         CreateServiceOrder(ServiceHeader, 10, WhiteLocationCode, 0, 0, 0, 0, false);
         LibraryService.ReleaseServiceDocument(ServiceHeader);
         // Create empty shipment:
@@ -396,7 +387,7 @@ codeunit 136142 "Service Warehouse Integration"
         WarehouseShipmentHeader.Validate("Location Code", WhiteLocationCode);
         WarehouseShipmentHeader.Modify();
         PullScenarioVerifyWhseRqst(ServiceHeader."No.", WarehouseShipmentHeader);
-        CleanSetupData;
+        CleanSetupData();
     end;
 
     [Test]
@@ -410,8 +401,7 @@ codeunit 136142 "Service Warehouse Integration"
         // [SCENARIO] (Customer filter) Create service order and release to ship. Create empty warehouse shipment. Select "Use filters to get source documents".
         // [SCENARIO] Select WhseSourceFilter[1] (without service orders).
         // [SCENARIO] Run and verify that whse shipment lines for the service order are NOT added to the whse shipment
-        CleanSetupData;
-        CheckInit;
+        Initialize();
         CreateServiceOrder(ServiceHeader, 10, WhiteLocationCode, 0, 0, 0, 0, false);
         LibraryService.ReleaseServiceDocument(ServiceHeader);
         // Create empty shipment:
@@ -419,7 +409,7 @@ codeunit 136142 "Service Warehouse Integration"
         WarehouseShipmentHeader.Validate("Location Code", WhiteLocationCode);
         WarehouseShipmentHeader.Modify();
         asserterror RunGetSourceBatch(WhseSourceFilter[1], WarehouseShipmentHeader); // Expected error: "There are no Warehouse Shipment Lines created."
-        CleanSetupData;
+        CleanSetupData();
     end;
 
     [Test]
@@ -433,8 +423,7 @@ codeunit 136142 "Service Warehouse Integration"
         // [SCENARIO] (Customer filter) Create service order and release to ship. Create empty warehouse shipment. Select "Use filters to get source documents".
         // [SCENARIO] Select WhseSourceFilter[2] (with service orders and Customer no set to the used customer).
         // [SCENARIO] Run and verify that whse shipment lines for the service order are added to the whse shipment
-        CleanSetupData;
-        CheckInit;
+        Initialize();
         CreateServiceOrder(ServiceHeader, 10, WhiteLocationCode, 0, 0, 0, 0, false);
         LibraryService.ReleaseServiceDocument(ServiceHeader);
         // Create empty shipment:
@@ -445,7 +434,7 @@ codeunit 136142 "Service Warehouse Integration"
         RunGetSourceBatch(WhseSourceFilter[2], WarehouseShipmentHeader);
         // Verify that line exists:
         VerifyWhseShptLineExistence(ServiceHeader."No.");
-        CleanSetupData;
+        CleanSetupData();
     end;
 
     [Test]
@@ -459,8 +448,7 @@ codeunit 136142 "Service Warehouse Integration"
         // [SCENARIO] (Customer filter) Create service order and release to ship. Create empty warehouse shipment. Select "Use filters to get source documents".
         // [SCENARIO] Select WhseSourceFilter[3] (with service orders and Customer no <> the used customer).
         // [SCENARIO] Run and verify that whse shipment lines for the service order are NOT added to the whse shipment
-        CleanSetupData;
-        CheckInit;
+        Initialize();
         CreateServiceOrder(ServiceHeader, 10, WhiteLocationCode, 0, 0, 0, 0, false);
         LibraryService.ReleaseServiceDocument(ServiceHeader);
         // Create empty shipment:
@@ -469,7 +457,7 @@ codeunit 136142 "Service Warehouse Integration"
         WarehouseShipmentHeader.Modify();
         // Get source documents with source filter 3 (incl services but without customer no. in range):
         asserterror RunGetSourceBatch(WhseSourceFilter[3], WarehouseShipmentHeader); // Expected error: "There are no Warehouse Shipment Lines created."
-        CleanSetupData;
+        CleanSetupData();
     end;
 
     [Test]
@@ -483,8 +471,7 @@ codeunit 136142 "Service Warehouse Integration"
         // [SCENARIO] (Customer filter) Create service order and release to ship. Create empty warehouse shipment. Select "Use filters to get source documents".
         // [SCENARIO] Select WhseSourceFilter[4] (with service orders and Customer filter blank).
         // [SCENARIO] Run and verify that whse shipment lines for the service order are added to the whse shipment
-        CleanSetupData;
-        CheckInit;
+        Initialize();
         CreateServiceOrder(ServiceHeader, 10, WhiteLocationCode, 0, 0, 0, 0, false);
         LibraryService.ReleaseServiceDocument(ServiceHeader);
         // Create empty shipment:
@@ -495,7 +482,7 @@ codeunit 136142 "Service Warehouse Integration"
         RunGetSourceBatch(WhseSourceFilter[4], WarehouseShipmentHeader);
         // Verify that line exists:
         VerifyWhseShptLineExistence(ServiceHeader."No.");
-        CleanSetupData;
+        CleanSetupData();
     end;
 
     [Test]
@@ -509,8 +496,7 @@ codeunit 136142 "Service Warehouse Integration"
         // [SCENARIO] (Shipment Method Code filter) Create service order and release to ship. Create empty warehouse shipment. Select "Use filters to get source documents".
         // [SCENARIO] Select WhseSourceFilter[5] (with service orders and Shipping method code Filter <> the shipping method code for the order).
         // [SCENARIO] Run and verify that whse shipment lines for the service order are NOT added to the whse shipment
-        CleanSetupData;
-        CheckInit;
+        Initialize();
         CreateServiceOrder(ServiceHeader, 10, WhiteLocationCode, 0, 0, 0, 0, false);
         ServiceHeader."Shipment Method Code" := ShipmentMethodCode;
         ServiceHeader.Modify();
@@ -521,7 +507,7 @@ codeunit 136142 "Service Warehouse Integration"
         WarehouseShipmentHeader.Modify();
         // Get source documents with source filter 5
         asserterror RunGetSourceBatch(WhseSourceFilter[5], WarehouseShipmentHeader); // Expected error: "There are no Warehouse Shipment Lines created."
-        CleanSetupData;
+        CleanSetupData();
     end;
 
     [Test]
@@ -535,8 +521,7 @@ codeunit 136142 "Service Warehouse Integration"
         // [SCENARIO] (Shipment Method Code filter) Create service order and release to ship. Create empty warehouse shipment. Select "Use filters to get source documents".
         // [SCENARIO] Select WhseSourceFilter[6] (with service orders and Shipping method code Filter = the shipping method code for the order).
         // [SCENARIO] Run and verify that whse shipment lines for the service order are added to the whse shipment
-        CleanSetupData;
-        CheckInit;
+        Initialize();
         CreateServiceOrder(ServiceHeader, 10, WhiteLocationCode, 0, 0, 0, 0, false);
         LibraryService.ReleaseServiceDocument(ServiceHeader);
         // Create empty shipment:
@@ -547,7 +532,7 @@ codeunit 136142 "Service Warehouse Integration"
         RunGetSourceBatch(WhseSourceFilter[6], WarehouseShipmentHeader);
         // Verify that line exists:
         VerifyWhseShptLineExistence(ServiceHeader."No.");
-        CleanSetupData;
+        CleanSetupData();
     end;
 
     [Test]
@@ -561,8 +546,7 @@ codeunit 136142 "Service Warehouse Integration"
         // [SCENARIO] (Shipping agent code filter) Create service order and release to ship. Create empty warehouse shipment. Select "Use filters to get source documents".
         // [SCENARIO] Select WhseSourceFilter[7] (with service orders and Shipping method code Filter = the shipping method code for the order).
         // [SCENARIO] Run and verify that whse shipment lines for the service order are added to the whse shipment
-        CleanSetupData;
-        CheckInit;
+        Initialize();
         CreateServiceOrder(ServiceHeader, 10, WhiteLocationCode, 0, 0, 0, 0, false);
         LibraryService.ReleaseServiceDocument(ServiceHeader);
         // Create empty shipment:
@@ -571,7 +555,7 @@ codeunit 136142 "Service Warehouse Integration"
         WarehouseShipmentHeader.Modify();
         // Get source documents with source filter 7
         asserterror RunGetSourceBatch(WhseSourceFilter[7], WarehouseShipmentHeader); // Expected error: "There are no Warehouse Shipment Lines created."
-        CleanSetupData;
+        CleanSetupData();
     end;
 
     [Test]
@@ -585,8 +569,7 @@ codeunit 136142 "Service Warehouse Integration"
         // [SCENARIO] (Shipping agent code filter) Create service order and release to ship. Create empty warehouse shipment. Select "Use filters to get source documents".
         // [SCENARIO] Select WhseSourceFilter[8] (with service orders and Shipping method code Filter = the shipping method code for the order).
         // [SCENARIO] Run and verify that whse shipment lines for the service order are added to the whse shipment
-        CleanSetupData;
-        CheckInit;
+        Initialize();
         CreateServiceOrder(ServiceHeader, 10, WhiteLocationCode, 0, 0, 0, 0, false);
         LibraryService.ReleaseServiceDocument(ServiceHeader);
         // Create empty shipment:
@@ -597,7 +580,7 @@ codeunit 136142 "Service Warehouse Integration"
         RunGetSourceBatch(WhseSourceFilter[8], WarehouseShipmentHeader);
         // Verify that line exists:
         VerifyWhseShptLineExistence(ServiceHeader."No.");
-        CleanSetupData;
+        CleanSetupData();
     end;
 
     [Test]
@@ -611,8 +594,7 @@ codeunit 136142 "Service Warehouse Integration"
         // [SCENARIO] (Shipping agent services code filter) Create service order and release to ship. Create empty warehouse shipment. Select "Use filters to get source documents".
         // [SCENARIO] Select WhseSourceFilter[9] (with service orders and Shipping method code Filter = the shipping method code for the order).
         // [SCENARIO] Run and verify that whse shipment lines for the service order are added to the whse shipment
-        CleanSetupData;
-        CheckInit;
+        Initialize();
         CreateServiceOrder(ServiceHeader, 10, WhiteLocationCode, 0, 0, 0, 0, false);
         LibraryService.ReleaseServiceDocument(ServiceHeader);
         // Create empty shipment:
@@ -621,7 +603,7 @@ codeunit 136142 "Service Warehouse Integration"
         WarehouseShipmentHeader.Modify();
         // Get source documents with source filter 9
         asserterror RunGetSourceBatch(WhseSourceFilter[9], WarehouseShipmentHeader); // Expected error: "There are no Warehouse Shipment Lines created."
-        CleanSetupData;
+        CleanSetupData();
     end;
 
     [Test]
@@ -635,8 +617,7 @@ codeunit 136142 "Service Warehouse Integration"
         // [SCENARIO] (Shipping agent services code filter) Create service order and release to ship. Create empty warehouse shipment. Select "Use filters to get source documents".
         // [SCENARIO] Select WhseSourceFilter[10] (with service orders and Shipping method code Filter = the shipping method code for the order).
         // [SCENARIO] Run and verify that whse shipment lines for the service order are added to the whse shipment
-        CleanSetupData;
-        CheckInit;
+        Initialize();
         CreateServiceOrder(ServiceHeader, 10, WhiteLocationCode, 0, 0, 0, 0, false);
         LibraryService.ReleaseServiceDocument(ServiceHeader);
         // Create empty shipment:
@@ -647,7 +628,7 @@ codeunit 136142 "Service Warehouse Integration"
         RunGetSourceBatch(WhseSourceFilter[10], WarehouseShipmentHeader);
         // Verify that line exists:
         VerifyWhseShptLineExistence(ServiceHeader."No.");
-        CleanSetupData;
+        CleanSetupData();
     end;
 
     [Test]
@@ -660,8 +641,7 @@ codeunit 136142 "Service Warehouse Integration"
         // [SCENARIO] Select "Get Source Documents". Verify:
         // [SCENARIO] Whse shipment: Due Date = ServiceLine."Needed by date" - Service Line.Shipping Time
         // [SCENARIO] Whse shipment: Shipping Date = ServiceLine."Needed by date" - ServiceLine.Shipping Time - Location."Whse Outbound handling time"(7D)
-        CleanSetupData;
-        CheckInit;
+        Initialize();
         Evaluate(ServiceHeaderShippingTime[1], '<2D>');
         Evaluate(InvSetupOutboundWhseHandlingTime[2], '<-7D>');
         ServiceLine.SuspendStatusCheck(true);
@@ -670,7 +650,7 @@ codeunit 136142 "Service Warehouse Integration"
         Assert.AreEqual(
           CalcDate(InvSetupOutboundWhseHandlingTime[2], ServiceLine.GetDueDate), ServiceLine.GetShipmentDate,
           'Service Line shipment date calculation without location code');
-        CleanSetupData;
+        CleanSetupData();
     end;
 
     [Test]
@@ -697,8 +677,7 @@ codeunit 136142 "Service Warehouse Integration"
         WhsePostShipment: Codeunit "Whse.-Post Shipment";
         WhseShipmentNo: Code[20];
     begin
-        CleanSetupData;
-        CheckInit;
+        Initialize();
         CreateServiceOrder(ServiceHeader, 0, WhiteLocationCode, 10, 10, 10, 0, true);
         ServiceHeader.Find;
         LibraryService.ReleaseServiceDocument(ServiceHeader);
@@ -727,7 +706,7 @@ codeunit 136142 "Service Warehouse Integration"
         WhsePostShipment.Run(WarehouseShipmentLine);
         // Verify item ledger entries:
         VerifyT32T337(ServiceHeader."No.", TempReservationEntryT5902);
-        CleanSetupData;
+        CleanSetupData();
     end;
 
     [Test]
@@ -743,8 +722,7 @@ codeunit 136142 "Service Warehouse Integration"
         WhsePostShipment: Codeunit "Whse.-Post Shipment";
         WhseShipmentNo: Code[20];
     begin
-        CleanSetupData;
-        CheckInit;
+        Initialize();
         CreateServiceOrder(ServiceHeader, 0, WhiteLocationCode, 5, 5, 5, 0, false);
         LibraryService.ReleaseServiceDocument(ServiceHeader);
         CreateWhseShipment(ServiceHeader, true);
@@ -785,8 +763,7 @@ codeunit 136142 "Service Warehouse Integration"
         ServiceOrderTP: TestPage "Service Order";
         WhseShipmentNo: Code[20];
     begin
-        CleanSetupData;
-        CheckInit;
+        Initialize();
         ItemTrackingOption := 1;
         // Create order
         CreateServiceOrder(ServiceHeader, 0, WhiteLocationCode, 0, 0, 0, 5, true);
@@ -810,7 +787,7 @@ codeunit 136142 "Service Warehouse Integration"
         ReservationEntry.Modify();
         // Now it should be possible to pick:
         TryCreatePick(WhseShipmentNo, false);
-        CleanSetupData;
+        CleanSetupData();
     end;
 
     [Test]
@@ -1035,7 +1012,7 @@ codeunit 136142 "Service Warehouse Integration"
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type"::Order);
         ServiceLine.SetRange("Document No.", ServiceOrderNo);
         Assert.IsFalse(ServiceLine.IsEmpty, 'No Service lines created on the service order');
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             TempServiceLine := ServiceLine;
             TempServiceLine.Insert();
@@ -1052,7 +1029,7 @@ codeunit 136142 "Service Warehouse Integration"
         WarehouseShipmentLine.SetRange("Source Subtype", 1); // 1 = Order
         WarehouseShipmentLine.SetRange("Source No.", ServiceOrderNo);
         Assert.IsFalse(WarehouseShipmentLine.IsEmpty, 'No warehouse lines exist for the service order');
-        WarehouseShipmentLine.FindSet;
+        WarehouseShipmentLine.FindSet();
         repeat
             TempWarehouseShipmentLine := WarehouseShipmentLine;
             TempWarehouseShipmentLine.Insert();
@@ -1092,8 +1069,8 @@ codeunit 136142 "Service Warehouse Integration"
         Assert.AreEqual(
           TempWarehouseShipmentLine.Count, TempServiceLine.Count,
           'The numbers of service lines of type Item and warehouse shipment lines do not match');
-        TempServiceLine.FindSet;
-        TempWarehouseShipmentLine.FindSet;
+        TempServiceLine.FindSet();
+        TempWarehouseShipmentLine.FindSet();
         repeat
             CompareLineFields(TempServiceLine, TempWarehouseShipmentLine);
         until (TempServiceLine.Next = 0) and (TempWarehouseShipmentLine.Next = 0);
@@ -1452,18 +1429,20 @@ codeunit 136142 "Service Warehouse Integration"
         WhiteLocationCode := Location.Code;
     end;
 
-    local procedure CheckInit()
+    local procedure Initialize()
     var
         ServiceItem: Record "Service Item";
     begin
-        // Init functionality
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Service Warehouse Integration");
+
         if not SetupDataInitialized then begin
-            CreateTestNoSeriesBackupData;
-            LibraryERMCountryData.CreateVATData;
-            LibraryERMCountryData.UpdateSalesReceivablesSetup;
-            LibraryERMCountryData.UpdateGeneralPostingSetup;
+            CreateTestNoSeriesBackupData();
+            LibraryERMCountryData.CreateVATData();
+            LibraryERMCountryData.UpdateSalesReceivablesSetup();
+            LibraryERMCountryData.UpdateGeneralPostingSetup();
             SetupDataInitialized := true;
         end;
+
         if not BasicDataInitialized then begin
             CreateCustomer;
             LibraryService.CreateServiceItem(ServiceItem, CustomerNo);
@@ -1697,7 +1676,7 @@ codeunit 136142 "Service Warehouse Integration"
         Assert.IsTrue(TempWhseActivityLine.FindSet, 'No warehouse pick lines for pick with item tracking');
         Assert.AreEqual(
           TempReservationEntry.Count, TempWhseActivityLine.Count, 'WhseShpt and Reg.pick lines, action ' + Format(TakePlace));
-        TempReservationEntry.FindSet;
+        TempReservationEntry.FindSet();
         repeat
             CompareLineFields4(TempReservationEntry, TempWhseActivityLine);
         until (TempReservationEntry.Next = 0) or (TempWhseActivityLine.Next = 0);
@@ -1740,7 +1719,7 @@ codeunit 136142 "Service Warehouse Integration"
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type"::Order);
         ServiceLine.SetRange("Document No.", ServiceOrderNo);
         ServiceLine.SetRange(Type, ServiceLine.Type::Item);
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             Assert.AreEqual(ServiceLine.Quantity, ServiceLine."Quantity Shipped", 'Wrong shipped quantity on service line');
             Assert.AreEqual(0, ServiceLine."Qty. to Ship", 'Wrong Qty. to ship on service line');
@@ -1754,7 +1733,7 @@ codeunit 136142 "Service Warehouse Integration"
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type"::Order);
         ServiceLine.SetRange("Document No.", ServiceOrderNo);
         ServiceLine.SetRange(Type, ServiceLine.Type::Item);
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             Assert.AreEqual(ServiceLine.Quantity - Delta, ServiceLine."Quantity Invoiced", 'Wrong invoiced quantity on service line');
             Assert.AreEqual(0, ServiceLine."Qty. to Ship", 'Wrong Qty. to ship on service line');
@@ -1773,8 +1752,8 @@ codeunit 136142 "Service Warehouse Integration"
         ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
         TempServiceLine.SetRange(Type, TempServiceLine.Type::Item);
         Assert.AreEqual(TempServiceLine.Count, ServiceInvoiceLine.Count, 'Number of service invoice lines after invoicing service order');
-        TempServiceLine.FindSet;
-        ServiceInvoiceLine.FindSet;
+        TempServiceLine.FindSet();
+        ServiceInvoiceLine.FindSet();
         repeat
             Assert.AreEqual(TempServiceLine."No.", ServiceInvoiceLine."No.",
               StrSubstNo('%1 , %2', ServiceInvoiceLine.TableCaption, ServiceInvoiceLine.FieldCaption("No.")));
@@ -1799,8 +1778,8 @@ codeunit 136142 "Service Warehouse Integration"
 
     local procedure VerifyWhseShipmentDueDateShipmentDate(var TempServiceLine: Record "Service Line" temporary; var TempWhseShipmentLine: Record "Warehouse Shipment Line" temporary)
     begin
-        TempServiceLine.FindSet;
-        TempWhseShipmentLine.FindSet;
+        TempServiceLine.FindSet();
+        TempWhseShipmentLine.FindSet();
         Assert.AreEqual(TempServiceLine.Count, TempWhseShipmentLine.Count, 'No. of TempServiceLines and TempWhseShpmntLines differ');
         repeat
             Assert.AreEqual(
@@ -1837,8 +1816,8 @@ codeunit 136142 "Service Warehouse Integration"
         CollectWarehouseShipmentLines(ServiceOrderNo, TempWarehouseShipmentLine);
         CollectPostedWarehouseShipmentLines(ServiceOrderNo, TempPostedWhseShipmentLine);
         Assert.AreEqual(TempWarehouseShipmentLine.Count, TempPostedWhseShipmentLine.Count, 'Number of posted warehouse shipment lines');
-        TempWarehouseShipmentLine.FindSet;
-        TempPostedWhseShipmentLine.FindSet;
+        TempWarehouseShipmentLine.FindSet();
+        TempPostedWhseShipmentLine.FindSet();
         repeat
             Assert.AreEqual(
               TempWarehouseShipmentLine."Qty. Shipped", TempPostedWhseShipmentLine.Quantity, 'Quantity on posted whse shipment line');
@@ -2082,7 +2061,7 @@ codeunit 136142 "Service Warehouse Integration"
             SetRange("Source Type", DATABASE::"Warehouse Shipment Line");
             SetRange("Source Subtype", 0);
             Assert.IsTrue(Count > 0, 'No item tracking found for warehouse shipment');
-            FindSet;
+            FindSet();
             repeat
                 TempWhseItemTrackingLine := WhseItemTrackingLine;
                 TempWhseItemTrackingLine.Insert();
@@ -2097,8 +2076,8 @@ codeunit 136142 "Service Warehouse Integration"
         Assert.AreEqual(
           TempReservationEntry.Count, TempWhseItemTrackingLine.Count,
           'The numbers of service order item tracking lines and whse shipment item tracking lines do not match');
-        TempReservationEntry.FindSet;
-        TempWhseItemTrackingLine.FindSet;
+        TempReservationEntry.FindSet();
+        TempWhseItemTrackingLine.FindSet();
         repeat
             Assert.AreEqual(
               TempReservationEntry."Quantity (Base)", -TempWhseItemTrackingLine."Quantity (Base)", 'Item Tracking Quantity (Base)');
@@ -2121,7 +2100,7 @@ codeunit 136142 "Service Warehouse Integration"
             SetRange("Source Type", DATABASE::"Service Line");
             SetRange("Source Subtype", 1);
             Assert.IsTrue(Count > 0, 'No item tracking found for service order');
-            FindSet;
+            FindSet();
             repeat
                 TempReservationEntry := ReservationEntry;
                 TempReservationEntry.Insert();
@@ -2138,7 +2117,7 @@ codeunit 136142 "Service Warehouse Integration"
         j: Integer;
     begin
         // SerialNo
-        TempWhseActivityLine.FindSet;
+        TempWhseActivityLine.FindSet();
         SN := 'S0010';
         for i := 1 to SerialQty do begin
             SN := IncStr(SN);
@@ -2186,7 +2165,7 @@ codeunit 136142 "Service Warehouse Integration"
         Assert.IsTrue(RegisteredWhseActivityLine.FindSet, 'No lines on registered pick');
         Assert.AreEqual(
           RegisteredWhseActivityLine.Count / 2, TempWhseItemTrackingLine.Count, 'Number of item tracking lines on whse shipment lines');
-        TempWhseItemTrackingLine.FindSet;
+        TempWhseItemTrackingLine.FindSet();
         repeat
             VerifyT6550T5773Fields(RegisteredWhseActivityLine, TempWhseItemTrackingLine);
             RegisteredWhseActivityLine.Next;
@@ -2216,7 +2195,7 @@ codeunit 136142 "Service Warehouse Integration"
             SetRange("Source Type", DATABASE::"Service Line");
             SetRange("Source Subtype", 1);
             Assert.AreEqual(TempWhseItemTrackingLine.Count, Count, 'Number of item tracking lines for service order');
-            FindSet;
+            FindSet();
             repeat
                 Assert.AreEqual(-TempWhseItemTrackingLine."Quantity (Base)", "Quantity (Base)", 'Service Line Item Tracking Quantity (Base');
                 Assert.AreEqual(TempWhseItemTrackingLine."Item No.", "Item No.", 'Service Line Item Tracking Item No.');
@@ -2239,7 +2218,7 @@ codeunit 136142 "Service Warehouse Integration"
             SetRange("Document No.", ServiceShipmentHeader."No.");
             Assert.IsTrue(FindSet, 'No item tracking entries found for posted service shipment.');
             Assert.AreEqual(TempWhseItemTrackingLine.Count, Count, 'Number of item tracking lines for posted service shipment');
-            TempWhseItemTrackingLine.FindSet;
+            TempWhseItemTrackingLine.FindSet();
             repeat
                 Assert.AreEqual(-TempWhseItemTrackingLine."Quantity (Base)", Quantity, 'Service Line Item Tracking Quantity (Base');
                 Assert.AreEqual(TempWhseItemTrackingLine."Item No.", "Item No.", 'Service Line Item Tracking Item No.');
@@ -2261,7 +2240,7 @@ codeunit 136142 "Service Warehouse Integration"
             SetRange("Source Type", DATABASE::"Warehouse Shipment Line");
             Assert.IsTrue(FindSet, 'No whse item tracking information found for whse shipment');
             Assert.AreEqual(TempReservationEntry.Count, Count, 'Wrong number of item tracking lines for whse shipment');
-            TempReservationEntry.FindSet;
+            TempReservationEntry.FindSet();
             repeat
                 Assert.AreEqual(TempReservationEntry."Location Code", "Location Code", 'Whse item tracking location code');
                 Assert.AreEqual(-TempReservationEntry."Quantity (Base)", "Quantity (Base)", 'Whse item tracking Quantity (base)');
@@ -2282,7 +2261,7 @@ codeunit 136142 "Service Warehouse Integration"
             SetRange("Order No.", ServiceOrderNo);
             Assert.IsTrue(FindSet, 'No item ledger entries found after posting whse shipment');
             Assert.AreEqual(TempReservationEntry.Count, Count, 'Wrong number of item ledger entries after posting of whse shipment.');
-            TempReservationEntry.FindSet;
+            TempReservationEntry.FindSet();
             repeat
                 Assert.AreEqual(TempReservationEntry."Item No.", "Item No.", 'Item ledger entry Item no');
                 Assert.AreEqual(TempReservationEntry."Location Code", "Location Code", 'Item Ledger Entry Location Code');

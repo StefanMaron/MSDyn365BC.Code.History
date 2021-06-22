@@ -325,6 +325,7 @@ codeunit 6223 "OpenXML Management"
         if IsNull(WorkBookPart.CustomXmlMappingsPart.MapInfo) then
             Error(MissingXMLMapErr);
         XMLSchemaDataFile := FileMgt.ServerTempFileName('');
+        FileMgt.IsAllowedPath(XMLSchemaDataFile, false);
         XMLWriter := XMLWriter.Create(XMLSchemaDataFile);
         WorkBookPart.CustomXmlMappingsPart.MapInfo.FirstChild.FirstChild.WriteTo(XMLWriter);
         XMLWriter.Close;

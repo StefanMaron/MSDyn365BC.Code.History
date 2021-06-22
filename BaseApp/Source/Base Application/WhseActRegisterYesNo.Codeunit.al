@@ -1,4 +1,4 @@
-﻿codeunit 7306 "Whse.-Act.-Register (Yes/No)"
+codeunit 7306 "Whse.-Act.-Register (Yes/No)"
 {
     TableNo = "Warehouse Activity Line";
 

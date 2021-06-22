@@ -133,7 +133,7 @@ codeunit 134343 "UI Ledger Entries Page"
     [Test]
     [HandlerFunctions('ConfirmHandlerYes,DeleteChangeLogeRPH,ErrorMessagesMPH')]
     [Scope('OnPrem')]
-    [Obsolete('The functionality has been replaced with the retention policy module in system application.','17.0')]
+    [Obsolete('The functionality has been replaced with the retention policy module in system application.', '17.0')]
     procedure DeleteChangeLogEntriesForGLEntry()
     var
         ChangeLogEntry: Record "Change Log Entry";
@@ -305,7 +305,7 @@ codeunit 134343 "UI Ledger Entries Page"
 
         // [GIVEN] Customer with two bank accounts: "A" and "B"
         LibrarySales.CreateCustomer(Customer);
-        MockCustomerLedgerEntryWithDocNo(CustLedgerEntry, Customer."No.", 0, '');
+        MockCustomerLedgerEntryWithDocNo(CustLedgerEntry, Customer."No.", "Gen. Journal Document Type"::" ", '');
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount[1], Customer."No.");
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount[2], Customer."No.");
 
@@ -491,7 +491,7 @@ codeunit 134343 "UI Ledger Entries Page"
         exit(GLEntry."Entry No.");
     end;
 
-    [Obsolete('The functionality has been replaced with the retention policy module in system application.','17.0')]
+    [Obsolete('The functionality has been replaced with the retention policy module in system application.', '17.0')]
     local procedure RunDeleteChangeLogEntries()
     var
         ChangeLogEntry: Record "Change Log Entry";
@@ -557,7 +557,7 @@ codeunit 134343 "UI Ledger Entries Page"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
-    [Obsolete('The functionality has been replaced with the retention policy module in system application.','17.0')]
+    [Obsolete('The functionality has been replaced with the retention policy module in system application.', '17.0')]
     procedure DeleteChangeLogeRPH(var ChangeLogDelete: TestRequestPage "Change Log - Delete")
     begin
         ChangeLogDelete.OK.Invoke;

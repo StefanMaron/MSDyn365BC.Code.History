@@ -56,6 +56,7 @@ codeunit 926 "Assembly Line-Reserve"
         FromTrackingSpecification."Source Type" := 0;
     end;
 
+#if not CLEAN16
     [Obsolete('Replaced by CreateReservation(AssemblyLine, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry)', '16.0')]
     procedure CreateReservation(AssemblyLine: Record "Assembly Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForSerialNo: Code[50]; ForLotNo: Code[50])
     var
@@ -65,6 +66,7 @@ codeunit 926 "Assembly Line-Reserve"
         ForReservEntry."Lot No." := ForLotNo;
         CreateReservation(AssemblyLine, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry);
     end;
+#endif
 
     local procedure CreateBindingReservation(AssemblyLine: Record "Assembly Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal)
     var
@@ -270,7 +272,8 @@ codeunit 926 "Assembly Line-Reserve"
         TrackingSpecification.InitFromAsmLine(AssemblyLine);
         ItemTrackingLines.SetSourceSpec(TrackingSpecification, AssemblyLine."Due Date");
         ItemTrackingLines.SetInbound(AssemblyLine.IsInbound);
-        ItemTrackingLines.RunModal;
+        OnCallItemTrackingOnBeforeItemTrackingLinesRunModal(AssemblyLine, ItemTrackingLines);
+        ItemTrackingLines.RunModal();
     end;
 
     procedure DeleteLineConfirm(var AssemblyLine: Record "Assembly Line"): Boolean
@@ -369,7 +372,7 @@ codeunit 926 "Assembly Line-Reserve"
                             DATABASE::"Assembly Line", NewAssemblyLine."Document Type".AsInteger(), NewAssemblyLine."Document No.", '', 0,
                             NewAssemblyLine."Line No.", NewAssemblyLine."Qty. per Unit of Measure", OldReservEntry, TransferQty);
 
-                until (OldReservEntry.Next = 0) or (TransferQty = 0);
+                until (OldReservEntry.Next() = 0) or (TransferQty = 0);
         end;
     end;
 
@@ -466,12 +469,13 @@ codeunit 926 "Assembly Line-Reserve"
 
     local procedure EntryStartNo(): Integer
     begin
-        exit(151);
+        exit("Reservation Summary Type"::"Assembly Quote Line".AsInteger());
     end;
 
     local procedure MatchThisEntry(EntryNo: Integer): Boolean
     begin
-        exit(EntryNo in [151, 152, 153, 154, 155]);
+        exit(EntryNo in ["Reservation Summary Type"::"Assembly Quote Line".AsInteger(),
+                         "Reservation Summary Type"::"Assembly Order Line".AsInteger()]);
     end;
 
     local procedure MatchThisTable(TableID: Integer): Boolean
@@ -623,7 +627,7 @@ codeunit 926 "Assembly Line-Reserve"
                 AssemblyLine.CalcFields("Reserved Qty. (Base)");
                 TempEntrySummary."Total Reserved Quantity" -= AssemblyLine."Reserved Qty. (Base)";
                 TotalQuantity += AssemblyLine."Remaining Quantity (Base)";
-            until AssemblyLine.Next = 0;
+            until AssemblyLine.Next() = 0;
 
         if TotalQuantity = 0 then
             exit;
@@ -652,6 +656,11 @@ codeunit 926 "Assembly Line-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnVerifyChangeOnBeforeHasError(NewAssemblyLine: Record "Assembly Line"; OldAssemblyLine: Record "Assembly Line"; var HasError: Boolean; var ShowError: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCallItemTrackingOnBeforeItemTrackingLinesRunModal(var AssemblyLine: Record "Assembly Line"; var ItemTrackingLines: Page "Item Tracking Lines")
     begin
     end;
 }

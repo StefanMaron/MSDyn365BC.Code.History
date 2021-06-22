@@ -52,7 +52,7 @@ codeunit 1024 "Job Jnl.-B.Post+Print"
                     Mark(true);
                     JnlWithErrors := true;
                 end;
-            until Next = 0;
+            until Next() = 0;
 
             if not JnlWithErrors then
                 Message(Text001)

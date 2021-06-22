@@ -1133,7 +1133,7 @@ codeunit 136202 "Marketing Document Logging"
         SalesLineArchive.SetRange("Document Type", SalesHeaderArchive."Document Type");
         SalesLineArchive.SetRange("Document No.", SalesHeaderArchive."No.");
         SalesLineArchive.SetRange("Version No.", SalesHeaderArchive."Version No.");
-        SalesLineArchive.FindSet;
+        SalesLineArchive.FindSet();
         repeat
             SalesLine.Get(SalesHeaderArchive."Document Type", SalesHeaderArchive."No.", SalesLineArchive."Line No.");
             SalesLine.TestField(Type, SalesLineArchive.Type);
@@ -1172,7 +1172,7 @@ codeunit 136202 "Marketing Document Logging"
     begin
         SalesLine.SetRange("Document Type", SalesLine."Document Type");
         SalesLine.SetRange("Document No.", SalesLine."Document No.");
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         SalesHeaderArchive.SetRange("Document Type", SalesLine."Document Type");
         SalesHeaderArchive.SetRange("No.", SalesLine."Document No.");
         SalesHeaderArchive.FindLast;

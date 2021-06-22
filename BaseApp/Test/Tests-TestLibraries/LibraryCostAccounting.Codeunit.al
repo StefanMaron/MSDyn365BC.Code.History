@@ -451,7 +451,7 @@ codeunit 131340 "Library - Cost Accounting"
     var
         CostType: Record "Cost Type";
     begin
-        if CostType.IsEmpty then
+        if CostType.IsEmpty() then
             exit;
 
         CostType.DeleteAll(true);
@@ -511,12 +511,12 @@ codeunit 131340 "Library - Cost Accounting"
         CostAllocationSource.SetFilter("Credit to Cost Type", '<>%1', '');
         CostAllocationSource.SetFilter("Cost Center Code", '<>%1', '');
 
-        if CostAllocationSource.IsEmpty then begin
+        if CostAllocationSource.IsEmpty() then begin
             CostAllocationSource.SetRange("Cost Center Code");
             CostAllocationSource.SetFilter("Cost Object Code", '<>%1', '');
         end;
 
-        if CostAllocationSource.IsEmpty then
+        if CostAllocationSource.IsEmpty() then
             Error(StrSubstNo(NoRecordsInFilterErr, CostAllocationSource.TableCaption, CostAllocationSource.GetFilters));
 
         CostAllocationSource.Next(LibraryRandom.RandInt(CostAllocationSource.Count));
@@ -525,7 +525,7 @@ codeunit 131340 "Library - Cost Accounting"
     procedure FindCostType(var CostType: Record "Cost Type")
     begin
         GetAllCostTypes(CostType);
-        if CostType.IsEmpty then
+        if CostType.IsEmpty() then
             Error(StrSubstNo(NoRecordsInFilterErr, CostType.TableCaption, CostType.GetFilters));
 
         CostType.Next(LibraryRandom.RandInt(CostType.Count));
@@ -536,10 +536,10 @@ codeunit 131340 "Library - Cost Accounting"
         GLAccount: Record "G/L Account";
     begin
         GLAccount.SetFilter("Cost Type No.", '<>%1', '');
-        if GLAccount.IsEmpty then
+        if GLAccount.IsEmpty() then
             Error(StrSubstNo(NoRecordsInFilterErr, GLAccount.TableCaption, GLAccount.GetFilters));
 
-        GLAccount.FindSet;
+        GLAccount.FindSet();
         GLAccount.Next(LibraryRandom.RandInt(GLAccount.Count));
         CostType.Get(GLAccount."Cost Type No.");
     end;
@@ -549,7 +549,7 @@ codeunit 131340 "Library - Cost Accounting"
         GetAllCostTypes(CostType);
         CostType.SetFilter("Cost Center Code", '<>%1', '');
         CostType.SetFilter("Cost Object Code", '%1', '');
-        if CostType.IsEmpty then
+        if CostType.IsEmpty() then
             Error(StrSubstNo(NoRecordsInFilterErr, CostType.TableCaption, CostType.GetFilters));
 
         CostType.Next(LibraryRandom.RandInt(CostType.Count));
@@ -561,7 +561,7 @@ codeunit 131340 "Library - Cost Accounting"
         CostCenter.SetFilter(Blocked, '%1', false);
         CostCenter.SetFilter("Net Change", '<>%1', 0);
         CostCenter.SetFilter("Balance at Date", '<>%1', 0);
-        if CostCenter.IsEmpty then
+        if CostCenter.IsEmpty() then
             Error(StrSubstNo(NoRecordsInFilterErr, CostCenter.TableCaption, CostCenter.GetFilters));
 
         CostCenter.Next(LibraryRandom.RandInt(CostCenter.Count));
@@ -576,7 +576,7 @@ codeunit 131340 "Library - Cost Accounting"
     begin
         CostJournalBatch.SetRange("Journal Template Name", CostJournalTemplateName);
         CostJournalBatch.SetRange("Delete after Posting", DeleteAfterPosting);
-        if CostJournalBatch.IsEmpty then
+        if CostJournalBatch.IsEmpty() then
             CreateCostJournalBatch(CostJournalBatch, CostJournalTemplateName)
         else
             CostJournalBatch.FindFirst;
@@ -593,7 +593,7 @@ codeunit 131340 "Library - Cost Accounting"
         CostObject.SetFilter(Blocked, '%1', false);
         CostObject.SetFilter("Net Change", '<>%1', 0);
         CostObject.SetFilter("Balance at Date", '<>%1', 0);
-        if CostObject.IsEmpty then
+        if CostObject.IsEmpty() then
             Error(StrSubstNo(NoRecordsInFilterErr, CostObject.TableCaption, CostObject.GetFilters));
 
         CostObject.Next(LibraryRandom.RandInt(CostObject.Count));
@@ -603,7 +603,7 @@ codeunit 131340 "Library - Cost Accounting"
     begin
         LibraryERM.FindGLAccount(GLAccount);
         GLAccount.SetFilter("Cost Type No.", '<>%1', '');
-        if GLAccount.IsEmpty then
+        if GLAccount.IsEmpty() then
             Error(StrSubstNo(NoRecordsInFilterErr, GLAccount.TableCaption, GLAccount.GetFilters));
 
         GLAccount.Next(LibraryRandom.RandInt(GLAccount.Count));
@@ -612,10 +612,10 @@ codeunit 131340 "Library - Cost Accounting"
     procedure FindGLAccountsByCostType(var GLAccount: Record "G/L Account"; GLAccountRange: Text[50])
     begin
         GLAccount.SetFilter("No.", GLAccountRange);
-        if GLAccount.IsEmpty then
+        if GLAccount.IsEmpty() then
             Error(StrSubstNo(NoRecordsInFilterErr, GLAccount.TableCaption, GLAccount.GetFilters));
 
-        GLAccount.FindSet;
+        GLAccount.FindSet();
     end;
 
     procedure FindIncomeStmtGLAccount(var GLAccount: Record "G/L Account")
@@ -629,18 +629,18 @@ codeunit 131340 "Library - Cost Accounting"
         CostType.Init();
         CostType.SetFilter(Type, Format(CostType.Type::"Cost Type"));
         CostType.SetFilter("G/L Account Range", '<>%1', '');
-        if CostType.IsEmpty then
+        if CostType.IsEmpty() then
             Error(StrSubstNo(NoRecordsInFilterErr, CostType.TableCaption, CostType.GetFilters));
-        CostType.FindSet;
+        CostType.FindSet();
     end;
 
     procedure GetAllIncomeStmtGLAccounts(var GLAccount: Record "G/L Account")
     begin
         LibraryERM.FindGLAccount(GLAccount);
         GLAccount.SetFilter("Income/Balance", Format(GLAccount."Income/Balance"::"Income Statement"));
-        if GLAccount.IsEmpty then
+        if GLAccount.IsEmpty() then
             Error(StrSubstNo(NoRecordsInFilterErr, GLAccount.TableCaption, GLAccount.GetFilters));
-        GLAccount.FindSet;
+        GLAccount.FindSet();
     end;
 
     procedure GetAllocTargetEntryAmount(var CostAllocationTarget: Record "Cost Allocation Target"; TotalAmount: Decimal; TableNumber: Integer; KeyFieldNumber: Integer; AmountFieldNumber: Integer; FromValue: Integer; ToValue: Integer) TotalDebitValue: Decimal
@@ -655,9 +655,9 @@ codeunit 131340 "Library - Cost Accounting"
         RecordRef.Open(TableNumber);
         KeyFieldRef := RecordRef.Field(KeyFieldNumber);
         KeyFieldRef.SetRange(FromValue, (ToValue - 1));
-        RecordRef.FindSet;
+        RecordRef.FindSet();
 
-        if RecordRef.IsEmpty then
+        if RecordRef.IsEmpty() then
             Error(StrSubstNo(NoRecordsInFilterErr, RecordRef.Name, RecordRef.GetFilters));
 
         if RecordRef.Count <> CostAllocationTarget.Count then
@@ -971,7 +971,7 @@ codeunit 131340 "Library - Cost Accounting"
         repeat
             GLAccount.SetFilter("No.", CostType."G/L Account Range");
             if GLAccount.Count > 1 then begin
-                GLAccount.FindSet;
+                GLAccount.FindSet();
                 repeat
                     if GLAccount."Cost Type No." <> CostType."No." then
                         Error(GetCostTypesFromGLErr);

@@ -1,4 +1,4 @@
-﻿codeunit 7303 "Whse. Jnl.-Register"
+codeunit 7303 "Whse. Jnl.-Register"
 {
     TableNo = "Warehouse Journal Line";
 

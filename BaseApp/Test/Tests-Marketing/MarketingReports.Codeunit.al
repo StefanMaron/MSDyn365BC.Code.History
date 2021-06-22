@@ -1482,7 +1482,11 @@ codeunit 136901 "Marketing Reports"
         TempSegmentLine.Validate("Campaign No.", CampaignNo2);
         TempSegmentLine.Validate("Information Flow", TempSegmentLine."Information Flow"::Outbound);
         TempSegmentLine.Validate("Initiated By", TempSegmentLine."Initiated By"::Us);
+#if CLEAN17
+        TempSegmentLine.FinishSegLineWizard(true);
+#else
         TempSegmentLine.FinishWizard(true);
+#endif
     end;
 
     [ModalPageHandler]

@@ -345,7 +345,7 @@ codeunit 136302 "Job Consumption Purchase"
         DimensionValuePosting(DefaultDimension."Value Posting"::"Same Code");
     end;
 
-    local procedure DimensionValuePosting(ValuePosting: Option)
+    local procedure DimensionValuePosting(ValuePosting: Enum "Default Dimension value Posting Type")
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -452,7 +452,7 @@ codeunit 136302 "Job Consumption Purchase"
         VerifyDimensionErrorMessage(ExpectedError);
     end;
 
-    local procedure PostOrderWithDimValuePostingError(ValuePosting: Option; var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; var DefaultDimension: Record "Default Dimension")
+    local procedure PostOrderWithDimValuePostingError(ValuePosting: Enum "Default Dimension value Posting Type"; var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; var DefaultDimension: Record "Default Dimension")
     var
         Job: Record Job;
     begin
@@ -764,7 +764,7 @@ codeunit 136302 "Job Consumption Purchase"
         GeneralPostingSetup.Get(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         CreatePurchaseHeader(PurchaseHeader."Document Type"::"Credit Memo", PurchaseHeader."Buy-from Vendor No.", PurchaseHeader);
-        PurchaseHeader.GetPstdDocLinesToRevere;
+        PurchaseHeader.GetPstdDocLinesToReverse();
 
         // [WHEN] Post Purchase Credit Memo.
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -2094,7 +2094,7 @@ codeunit 136302 "Job Consumption Purchase"
         PostPurchOrderWithItemPreventNegativeInventory(PurchHeader, PurchLine);
         // [GIVEN] Purchase Credit Memo with line copied from Posted Purchase Invoice
         CreatePurchaseHeader(PurchHeader."Document Type"::"Credit Memo", PurchHeader."Buy-from Vendor No.", PurchHeader);
-        PurchHeader.GetPstdDocLinesToRevere;
+        PurchHeader.GetPstdDocLinesToReverse();
 
         // [WHEN] Post Purchase Credit Memo
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
@@ -2954,7 +2954,7 @@ codeunit 136302 "Job Consumption Purchase"
 
     local procedure CalculatePurchaseLineQuantityToInvoice(var TempPurchaseLine: Record "Purchase Line" temporary) Quantity: Decimal
     begin
-        TempPurchaseLine.FindSet;
+        TempPurchaseLine.FindSet();
         repeat
             Quantity += TempPurchaseLine."Qty. to Invoice";
         until TempPurchaseLine.Next = 0;
@@ -3048,7 +3048,7 @@ codeunit 136302 "Job Consumption Purchase"
           DefaultDimension, DATABASE::Job, JobTask."Job No.", DimensionValue."Dimension Code", DimensionValue.Code);
     end;
 
-    local procedure CreateDefaultDimForJob(JobNo: Code[20]; ValuePosting: Option)
+    local procedure CreateDefaultDimForJob(JobNo: Code[20]; ValuePosting: Enum "Default Dimension value Posting Type")
     var
         DefaultDimension: Record "Default Dimension";
         Dimension: Record Dimension;
@@ -3378,7 +3378,7 @@ codeunit 136302 "Job Consumption Purchase"
         JobUnitCost: Decimal;
         AmountRoundingPrecision: Decimal;
     begin
-        PurchaseLine.FindSet;
+        PurchaseLine.FindSet();
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         repeat
             if CurrencyCode <> '' then begin
@@ -3404,7 +3404,7 @@ codeunit 136302 "Job Consumption Purchase"
 
     local procedure CalculatePurchaseLineAmountValueGL(var PurchaseLine: Record "Purchase Line"; CurrencyFactor: Decimal) Total: Decimal
     begin
-        PurchaseLine.FindSet;
+        PurchaseLine.FindSet();
         repeat
             if CurrencyFactor <> 0 then
                 Total += Round(PurchaseLine."Line Amount" / CurrencyFactor, LibraryERM.GetAmountRoundingPrecision)
@@ -3819,7 +3819,7 @@ codeunit 136302 "Job Consumption Purchase"
     begin
         JobLedgerEntry.SetRange("Document No.", DocumentNo);
         JobLedgerEntry.SetRange("Job No.", JobNo);
-        JobLedgerEntry.FindSet;
+        JobLedgerEntry.FindSet();
     end;
 
     local procedure FindLocation(): Code[10]
@@ -3874,7 +3874,7 @@ codeunit 136302 "Job Consumption Purchase"
     begin
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindSet;
+        PurchaseLine.FindSet();
     end;
 
     local procedure GetAndUpdatePurchaseLines(PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
@@ -4269,7 +4269,7 @@ codeunit 136302 "Job Consumption Purchase"
         PurchaseLine: Record "Purchase Line";
     begin
         PurchRcptLine.SetRange("Order No.", OrderPurchaseHeader."No.");
-        PurchRcptLine.FindSet;
+        PurchRcptLine.FindSet();
         Assert.AreNotEqual(PurchRcptLine."Job No.", '', 'No job info on receipt line');
         GetPurchaseLines(InvoicePurchaseHeader, PurchaseLine);
         Assert.AreEqual(PurchRcptLine.Count, PurchaseLine.Count, '# purchase invoice lines');
@@ -4294,7 +4294,7 @@ codeunit 136302 "Job Consumption Purchase"
         PurchInvHeader.SetRange("Order No.", DocNo);
         PurchInvHeader.FindFirst;
         PurchInvLine.SetRange("Document No.", PurchInvHeader."No.");
-        PurchInvLine.FindSet;
+        PurchInvLine.FindSet();
         repeat
             JobLedgerEntry.SetRange("Document No.", PurchInvLine."Document No.");
             JobLedgerEntry.SetRange("No.", PurchInvLine."No.");
@@ -4310,7 +4310,7 @@ codeunit 136302 "Job Consumption Purchase"
     begin
         with JobLedgerEntry do begin
             SetRange("No.", ItemNo);
-            FindSet;
+            FindSet();
             repeat
                 Assert.AreNearlyEqual(
                   DirectUnitCost, "Total Cost", LibraryERM.GetAmountRoundingPrecision,
@@ -4371,7 +4371,7 @@ codeunit 136302 "Job Consumption Purchase"
         repeat
             asserterror PurchaseLine.Validate("Job No.", '');
             asserterror PurchaseLine.Validate("Job Task No.", '');
-            asserterror PurchaseLine.Validate("Job Line Type", PurchaseLine."Job Line Type" + 1);  // Add 1 to change option type.
+            asserterror PurchaseLine.Validate("Job Line Type", PurchaseLine."Job Line Type".AsInteger() + 1);  // Add 1 to change option type.
             asserterror PurchaseLine.Validate("Job Unit Price", LibraryRandom.RandInt(100));
             asserterror PurchaseLine.Validate("Job Line Amount", LibraryRandom.RandInt(100));
             asserterror PurchaseLine.Validate("Job Line Discount Amount", LibraryRandom.RandInt(100));
@@ -4425,7 +4425,7 @@ codeunit 136302 "Job Consumption Purchase"
         ExpectedCount: Integer;
     begin
         PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
-        PurchaseLine.FindSet;
+        PurchaseLine.FindSet();
         repeat
             ItemLedgerEntry.SetRange(Description, PurchaseLine.Description);
             if PurchaseLine."Job No." = '' then
@@ -4433,7 +4433,7 @@ codeunit 136302 "Job Consumption Purchase"
             else
                 ExpectedCount := 2;
             Assert.AreEqual(ExpectedCount, ItemLedgerEntry.Count, '# item ledger entries');
-            ItemLedgerEntry.FindSet;
+            ItemLedgerEntry.FindSet();
             repeat
                 ItemLedgerEntry.TestField("Job No.", PurchaseLine."Job No.");
                 ItemLedgerEntry.TestField("Job Task No.", PurchaseLine."Job Task No.")
@@ -4464,7 +4464,7 @@ codeunit 136302 "Job Consumption Purchase"
     begin
         with ItemLedgerEntry do begin
             SetRange("Item No.", Item."No.");
-            FindSet;
+            FindSet();
             repeat
                 TestField("Unit of Measure Code", Item."Base Unit of Measure");
             until Next = 0;
@@ -4477,7 +4477,7 @@ codeunit 136302 "Job Consumption Purchase"
     begin
         with ItemLedgerEntry do begin
             SetRange("Item No.", ItemNo);
-            FindSet;
+            FindSet();
             repeat
                 CalcFields("Cost Amount (Actual)", "Cost Amount (Expected)");
                 TestField("Completely Invoiced", true);
@@ -4539,11 +4539,11 @@ codeunit 136302 "Job Consumption Purchase"
         ValueEntry: Record "Value Entry";
     begin
         PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
-        PurchaseLine.FindSet;
+        PurchaseLine.FindSet();
         repeat
             ValueEntry.SetRange(Description, PurchaseLine.Description);
             Assert.IsFalse(ValueEntry.IsEmpty, 'value entries not found');
-            ValueEntry.FindSet;
+            ValueEntry.FindSet();
             repeat
                 ValueEntry.TestField("Job No.", PurchaseLine."Job No.");
                 ValueEntry.TestField("Job Task No.", PurchaseLine."Job Task No.")
@@ -4586,7 +4586,7 @@ codeunit 136302 "Job Consumption Purchase"
     var
         TotalGLAmount: Decimal;
     begin
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             TotalGLAmount += GLEntry.Amount + GLEntry."VAT Amount";
         until GLEntry.Next = 0;
@@ -4780,7 +4780,7 @@ codeunit 136302 "Job Consumption Purchase"
         JobLedgerEntry.SetRange(Type, JobLedgerEntry.Type::"G/L Account");
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         FindGLEntry(GLEntry, DocumentNo, DocumentType);
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             with JobLedgerEntry do begin
                 SetRange("Ledger Entry Type", "Ledger Entry Type"::"G/L Account");
@@ -4799,7 +4799,7 @@ codeunit 136302 "Job Consumption Purchase"
     begin
         FindJobLedgerEntry(JobLedgerEntry, DocumentNo, JobNo);
         JobLedgerEntry.SetRange(Type, JobLedgerEntry.Type::Item);
-        JobLedgerEntry.FindSet;
+        JobLedgerEntry.FindSet();
         repeat
             JobLedgerEntry.TestField("Ledger Entry Type", JobLedgerEntry."Ledger Entry Type"::Item);
             ItemLedgerEntry.Get(JobLedgerEntry."Ledger Entry No.");

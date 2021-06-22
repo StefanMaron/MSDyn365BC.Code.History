@@ -107,7 +107,7 @@ page 5172 "Answer Points"
                             SetRange("Profile Questionnaire Code", ProfileQuestnHeader.Code);
                             CurrQuestnCode := ProfileQuestnHeader.Code;
                             SetRatingFilter;
-                            CurrPage.Update;
+                            CurrPage.Update();
                         end;
                 end;
             }

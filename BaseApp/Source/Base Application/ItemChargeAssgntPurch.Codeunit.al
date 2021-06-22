@@ -62,6 +62,7 @@
         ItemChargeAssgntPurch.Insert();
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by InsertItemChargeAssignment()', '17.0')]
     procedure InsertItemChargeAssgnt(ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; ApplToDocType: Option; ApplToDocNo2: Code[20]; ApplToDocLineNo2: Integer; ItemNo2: Code[20]; Description2: Text[100]; var NextLineNo: Integer)
     begin
@@ -84,6 +85,7 @@
             FromItemChargeAssgntPurch, "Purchase Applies-to Document Type".FromInteger(ApplToDocType), FromApplToDocNo, FromApplToDocLineNo, FromItemNo, FromDescription,
             QtyToAssign, AmountToAssign, NextLineNo, ItemChargeAssgntPurch);
     end;
+#endif
 
     procedure Summarize(var TempToItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)" temporary; var ToItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)")
     begin
@@ -291,7 +293,7 @@
             ItemChargeAssgntPurch.SetRange("Document No.", "Document No.");
             ItemChargeAssgntPurch.SetRange("Document Line No.", "Line No.");
         end;
-        if ItemChargeAssgntPurch.IsEmpty then
+        if ItemChargeAssgntPurch.IsEmpty() then
             exit;
 
         ItemChargeAssgntPurch.SetRange("Applies-to Doc. Type", ItemChargeAssgntPurch."Applies-to Doc. Type"::"Transfer Receipt");
@@ -744,7 +746,7 @@
 
             if TotalQtyToAssign = ItemChargeAssgntLineQty then begin
                 TotalAmountToAssign := ItemChargeAssgntLineAmt;
-                ItemChargeAssignmentPurch.FindSet;
+                ItemChargeAssignmentPurch.FindSet();
                 repeat
                     if not ItemChargeAssignmentPurch.PurchLineInvoiced then begin
                         TempItemChargeAssgntPurch := ItemChargeAssignmentPurch;

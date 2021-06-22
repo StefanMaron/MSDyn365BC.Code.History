@@ -45,7 +45,7 @@ codeunit 1239 "XML Buffer Reader"
         if TempXMLBuffer.FindAttributes(TempAttributeXMLBuffer) then
             repeat
                 Header += TempAttributeXMLBuffer.Name + '="' + TempAttributeXMLBuffer.Value + '" ';
-            until TempAttributeXMLBuffer.Next = 0;
+            until TempAttributeXMLBuffer.Next() = 0;
         Header += '/>';
 
         XMLDOMManagement.LoadXMLDocumentFromText(Header, XmlDocument);
@@ -78,7 +78,7 @@ codeunit 1239 "XML Buffer Reader"
                 SaveProcessingInstructions(TempElementXMLBuffer, ChildElement, XmlDocument);
                 SaveAttributes(TempElementXMLBuffer, ChildElement, XmlDocument);
                 SaveChildElements(TempElementXMLBuffer, ChildElement, XmlDocument);
-            until TempElementXMLBuffer.Next = 0;
+            until TempElementXMLBuffer.Next() = 0;
     end;
 
     local procedure SaveAttributes(var TempParentElementXMLBuffer: Record "XML Buffer" temporary; XMLCurrElement: DotNet XmlNode; XmlDocument: DotNet XmlDocument)
@@ -91,7 +91,7 @@ codeunit 1239 "XML Buffer Reader"
                 Attribute := XmlDocument.CreateAttribute(TempAttributeXMLBuffer.Name);
                 Attribute.InnerText := TempAttributeXMLBuffer.Value;
                 XMLCurrElement.Attributes.SetNamedItem(Attribute);
-            until TempAttributeXMLBuffer.Next = 0;
+            until TempAttributeXMLBuffer.Next() = 0;
     end;
 
     local procedure SaveProcessingInstructions(var TempParentElementXMLBuffer: Record "XML Buffer" temporary; XMLCurrElement: DotNet XmlNode; XmlDocument: DotNet XmlDocument)
@@ -103,7 +103,7 @@ codeunit 1239 "XML Buffer Reader"
             repeat
                 ProcessingInstruction := XmlDocument.CreateProcessingInstruction(TempXMLBuffer.Name, TempXMLBuffer.GetValue);
                 XMLCurrElement.AppendChild(ProcessingInstruction);
-            until TempXMLBuffer.Next = 0;
+            until TempXMLBuffer.Next() = 0;
     end;
 }
 

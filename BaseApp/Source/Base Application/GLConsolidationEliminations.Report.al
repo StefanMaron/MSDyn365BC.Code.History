@@ -384,7 +384,7 @@ report 16 "G/L Consolidation Eliminations"
                 TempGenJournalLine := GenJournalLine;
                 TempGenJournalLine."Line No." := LineNo;
                 TempGenJournalLine.Insert();
-            until GenJournalLine.Next = 0;
+            until GenJournalLine.Next() = 0;
 
         GenJournalLine.SetRange("Account Type");
         GenJournalLine.SetRange("Account No.");
@@ -399,7 +399,7 @@ report 16 "G/L Consolidation Eliminations"
                 TempGenJournalLine.Description := GLAccount.Name;
                 TempGenJournalLine.Amount *= -1;
                 TempGenJournalLine.Insert();
-            until GenJournalLine.Next = 0;
+            until GenJournalLine.Next() = 0;
     end;
 }
 

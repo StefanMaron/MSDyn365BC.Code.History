@@ -6,9 +6,8 @@ codeunit 9165 "Help & Support Management"
     begin
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 2000000006, 'GetSupportInformation', '', true, true)]
-    [Scope('OnPrem')]
-    procedure GetSupportInformation(var Name: Text; var Email: Text; var Url: Text)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Action Triggers", 'GetSupportInformation', '', true, true)]
+    local procedure GetSupportInformation(var Name: Text; var Email: Text; var Url: Text)
     var
         SupportContactInformation: Record "Support Contact Information";
     begin
@@ -28,7 +27,7 @@ codeunit 9165 "Help & Support Management"
         Url := SupportContactInformation.URL;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 2000000006, 'OpenLastErrorPage', '', true, true)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Action Triggers", 'OpenLastErrorPage', '', true, true)]
     local procedure OpenLastError()
     begin
         PAGE.Run(PAGE::"Latest Error");

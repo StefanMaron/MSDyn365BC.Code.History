@@ -80,7 +80,7 @@ page 5404 "Item Units of Measure"
                         Item.Find;
                         Item.Validate("Base Unit of Measure", ItemBaseUOM);
                         Item.Modify(true);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }

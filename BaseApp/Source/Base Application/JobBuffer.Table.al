@@ -112,7 +112,7 @@ table 1017 "Job Buffer"
                     end else
                         TempJobBuffer[1].Insert();
                 end;
-            until JobWIPGLEntry.Next = 0;
+            until JobWIPGLEntry.Next() = 0;
     end;
 
     procedure InitJobBuffer()
@@ -204,13 +204,13 @@ table 1017 "Job Buffer"
                             TempJobBuffer[1].Insert();
                     end;
                 end;
-            until JobLedgEntry.Next = 0;
+            until JobLedgEntry.Next() = 0;
 
         if TempJobBuffer[1].Find('-') then
             repeat
                 JobBuffer2 := TempJobBuffer[1];
                 JobBuffer2.Insert();
-            until TempJobBuffer[1].Next = 0;
+            until TempJobBuffer[1].Next() = 0;
         TempJobBuffer[1].DeleteAll();
     end;
 
@@ -267,13 +267,13 @@ table 1017 "Job Buffer"
                     end else
                         TempJobBuffer[1].Insert();
                 end;
-            until JobLedgEntry.Next = 0;
+            until JobLedgEntry.Next() = 0;
 
         if TempJobBuffer[1].Find('-') then
             repeat
                 JobBuffer2 := TempJobBuffer[1];
                 JobBuffer2.Insert();
-            until TempJobBuffer[1].Next = 0;
+            until TempJobBuffer[1].Next() = 0;
         TempJobBuffer[1].DeleteAll();
     end;
 }

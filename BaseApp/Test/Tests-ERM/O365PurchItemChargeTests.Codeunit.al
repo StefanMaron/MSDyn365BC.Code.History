@@ -375,7 +375,7 @@ codeunit 135300 "O365 Purch Item Charge Tests"
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange(Type, PurchaseLine.Type::"Charge (Item)");
-        PurchaseLine.FindSet;
+        PurchaseLine.FindSet();
         repeat
             PurchaseLine.CalcFields("Qty. to Assign");
             Assert.AreEqual(PurchaseLine.Quantity, PurchaseLine."Qty. to Assign", IncorrectCreditMemoQtyAssignmentErr)
@@ -392,14 +392,14 @@ codeunit 135300 "O365 Purch Item Charge Tests"
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange(Type, PurchaseLine.Type::"Charge (Item)");
-        PurchaseLine.FindSet;
+        PurchaseLine.FindSet();
         repeat
             PurchaseLine.CalcFields("Qty. to Assign");
             Assert.IsTrue(PurchaseLine."Qty. to Assign" = 0, IncorrectCreditMemoQtyAssignmentErr);
         until PurchaseLine.Next = 0;
     end;
 
-    local procedure VerifyCostAmountOnValueEntries(var Item: array[4] of Record Item; PurchaseLine: Record "Purchase Line"; ValueEntryDocumentType: Option; Sign: Integer)
+    local procedure VerifyCostAmountOnValueEntries(var Item: array[4] of Record Item; PurchaseLine: Record "Purchase Line"; ValueEntryDocumentType: Enum "Item Ledger Document Type"; Sign: Integer)
     var
         ValueEntry: Record "Value Entry";
         Index: Integer;

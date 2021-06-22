@@ -30,7 +30,7 @@ page 8611 "Config. Question Area"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Table Name"; "Table Name")
@@ -92,7 +92,7 @@ page 8611 "Config. Question Area"
                         if ConfigQuestionArea.FindSet then begin
                             repeat
                                 QuestionnaireMgt.UpdateQuestions(ConfigQuestionArea);
-                            until ConfigQuestionArea.Next = 0;
+                            until ConfigQuestionArea.Next() = 0;
                             Message(Text001);
                         end;
                     end;
@@ -113,7 +113,7 @@ page 8611 "Config. Question Area"
                         if ConfigQuestionArea.FindSet then begin
                             repeat
                                 QuestionnaireMgt.ApplyAnswer(ConfigQuestionArea);
-                            until ConfigQuestionArea.Next = 0;
+                            until ConfigQuestionArea.Next() = 0;
                             Message(Text002);
                         end;
                     end;

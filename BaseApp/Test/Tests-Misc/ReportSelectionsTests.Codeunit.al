@@ -1904,9 +1904,12 @@ codeunit 134421 "Report Selections Tests"
         ContactBusinessRelation: Record "Contact Business Relation";
         PurchaseHeader: Record "Purchase Header";
         Vendor: Record Vendor;
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
     begin
         // [FEATURE] [Email] [Purchase]
         // [SCENARIO 372081] Purchase document Send suggests E-mail of "Buy-from Contact No.".
+
+        LibraryEmailFeature.SetEmailFeatureEnabled(true);
         Initialize();
         SetupReportSelectionsVendor(true, true);
 
@@ -2162,7 +2165,7 @@ codeunit 134421 "Report Selections Tests"
         ContactBusinessRelation.FindByRelation(ContactBusinessRelation."Link to Table"::Customer, CustomerNo);
         InteractionLogEntry.SetRange("Contact No.", ContactBusinessRelation."Contact No.");
         InteractionLogEntry.SetRange("Document Type", DocumentType);
-        InteractionLogEntry.FindSet;
+        InteractionLogEntry.FindSet();
     end;
 
     local procedure InsertCustomReportSelectionCustomer(var CustomReportSelection: Record "Custom Report Selection"; CustomerNo: Code[20]; ReportID: Integer; UseForEmailAttachment: Boolean; UseForEmailBody: Boolean; EmailBodyLayoutCode: Code[20]; SendToAddress: Text[200]; ReportUsage: Enum "Report Selection Usage")

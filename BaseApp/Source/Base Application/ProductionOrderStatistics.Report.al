@@ -170,7 +170,7 @@ report 99000791 "Production Order Statistics"
                           ProdOrderLine,
                           ActCost[1], ActCost[2], ActCost[3], ActCost[4], ActCost[5],
                           DummyVar, DummyVar, DummyVar, DummyVar, DummyVar);
-                    until ProdOrderLine.Next = 0;
+                    until ProdOrderLine.Next() = 0;
 
                 CalcTotal(StdCost, StdCost[6]);
                 CalcTotal(ExpCost, ExpCost[6]);

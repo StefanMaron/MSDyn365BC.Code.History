@@ -843,7 +843,7 @@ codeunit 134486 "Check Dimensions On Posting"
         /*
         Assert.RecordCount(TempErrorMessage, ErrorCount);
         i := 0;
-        TempErrorMessage.FindSet;
+        TempErrorMessage.FindSet();
         repeat
             i += 1;
             Assert.ExpectedMessage(ExpectedErrorMessage[i], TempErrorMessage.Description);
@@ -1999,7 +1999,7 @@ codeunit 134486 "Check Dimensions On Posting"
         LibraryDimension.CreateDimWithDimValue(DimensionValue[1]);
         LibraryDimension.CreateDimWithDimValue(DimensionValue[2]);
         Dimension.SetFilter(Code, '<>%1', DimensionValue[1]."Dimension Code");
-        Dimension.FindSet;
+        Dimension.FindSet();
         repeat
             LibraryDimension.CreateDimensionCombination(DimensionCombination, DimensionValue[1]."Dimension Code", Dimension.Code);
         until Dimension.Next = 0;
@@ -2150,8 +2150,8 @@ codeunit 134486 "Check Dimensions On Posting"
         ErrorMessagesPage.Trap;
         ErrorMessages.Run;
 
-        // [WHEN] Drill Down on "Description"
-        ErrorMessagesPage.Description.DrillDown;
+        // [WHEN] Drill Down on "Context"
+        ErrorMessagesPage.Context.DrillDown;
         // [THEN] "Edit Dimension Set Entries" page is open, where "Dimension Code" = 'Department'
         Assert.AreEqual(DimensionValue."Dimension Code", LibraryVariableStorage.DequeueText, 'Doc Dim Code'); // from DocDimsModalPageHandler
         LibraryVariableStorage.AssertEmpty;
@@ -2193,8 +2193,8 @@ codeunit 134486 "Check Dimensions On Posting"
         ErrorMessagesPage.Trap;
         ErrorMessages.Run;
 
-        // [WHEN] Drill Down on "Description"
-        ErrorMessagesPage.Description.DrillDown;
+        // [WHEN] Drill Down on "Context"
+        ErrorMessagesPage.Context.DrillDown;
         // [THEN] "Edit Dimension Set Entries" page is open, where "Dimension Code" = 'Department'
         Assert.AreEqual(DimensionValue."Dimension Code", LibraryVariableStorage.DequeueText, 'Doc Dim Code'); // from DocLineDimsModalPageHandler
         LibraryVariableStorage.AssertEmpty;
@@ -2273,8 +2273,8 @@ codeunit 134486 "Check Dimensions On Posting"
         ErrorMessagesPage.Trap;
         ErrorMessages.Run;
 
-        // [WHEN] Drill Down on "Description"
-        ErrorMessagesPage.Description.DrillDown;
+        // [WHEN] Drill Down on "Context"
+        ErrorMessagesPage.Context.DrillDown;
         // [THEN] "Edit Dimension Set Entries" page is open, where "Dimension Code" = 'Department'
         Assert.AreEqual(DimensionValue."Dimension Code", LibraryVariableStorage.DequeueText, 'Doc Dim Code'); // from DocDimsModalPageHandler
         LibraryVariableStorage.AssertEmpty;
@@ -2316,8 +2316,8 @@ codeunit 134486 "Check Dimensions On Posting"
         ErrorMessagesPage.Trap;
         ErrorMessages.Run;
 
-        // [WHEN] Drill Down on "Description"
-        ErrorMessagesPage.Description.DrillDown;
+        // [WHEN] Drill Down on "Context"
+        ErrorMessagesPage.Context.DrillDown;
         // [THEN] "Edit Dimension Set Entries" page is open, where "Dimension Code" = 'Department'
         Assert.AreEqual(DimensionValue."Dimension Code", LibraryVariableStorage.DequeueText, 'Doc Dim Code'); // from DocDimsModalPageHandler
         LibraryVariableStorage.AssertEmpty;
@@ -2819,14 +2819,14 @@ codeunit 134486 "Check Dimensions On Posting"
           DefaultDimension, CustomerNo, DimensionValue."Dimension Code", DimensionValue.Code);
     end;
 
-    local procedure CreateDefaultDimensionWithValuePostingForCustomer(var DefaultDimension: Record "Default Dimension"; DimensionCode: Code[20]; DimensionValueCode: Code[20]; CustomerNo: Code[20]; ValuePosting: Option)
+    local procedure CreateDefaultDimensionWithValuePostingForCustomer(var DefaultDimension: Record "Default Dimension"; DimensionCode: Code[20]; DimensionValueCode: Code[20]; CustomerNo: Code[20]; ValuePosting: Enum "Default Dimension value Posting Type")
     begin
         LibraryDimension.CreateDefaultDimensionCustomer(DefaultDimension, CustomerNo, DimensionCode, DimensionValueCode);
         DefaultDimension.Validate("Value Posting", ValuePosting);
         DefaultDimension.Modify(true);
     end;
 
-    local procedure CreateDefaultDimensionWithValuePostingForGLAcc(var DefaultDimension: Record "Default Dimension"; DimensionCode: Code[20]; DimensionValueCode: Code[20]; GLAccNo: Code[20]; ValuePosting: Option)
+    local procedure CreateDefaultDimensionWithValuePostingForGLAcc(var DefaultDimension: Record "Default Dimension"; DimensionCode: Code[20]; DimensionValueCode: Code[20]; GLAccNo: Code[20]; ValuePosting: Enum "Default Dimension value Posting Type")
     begin
         LibraryDimension.CreateDefaultDimensionGLAcc(DefaultDimension, GLAccNo, DimensionCode, DimensionValueCode);
         DefaultDimension.Validate("Value Posting", ValuePosting);
@@ -3038,7 +3038,7 @@ codeunit 134486 "Check Dimensions On Posting"
         LibraryErrorMessage.GetErrorMessages(TempErrorMessage);
         Assert.RecordCount(TempErrorMessage, ErrorCount);
         i := 0;
-        TempErrorMessage.FindSet;
+        TempErrorMessage.FindSet();
         repeat
             i += 1;
             Assert.ExpectedMessage(ExpectedErrorMessage[i], TempErrorMessage.Description);
@@ -3056,7 +3056,7 @@ codeunit 134486 "Check Dimensions On Posting"
         LibraryErrorMessage.GetErrorMessages(TempErrorMessage);
         Assert.RecordCount(TempErrorMessage, ErrorCount);
         i := 0;
-        TempErrorMessage.FindSet;
+        TempErrorMessage.FindSet();
         repeat
             i += 1;
             Assert.ExpectedMessage(ExpectedErrorMessage[i], TempErrorMessage.Description);
@@ -3094,13 +3094,13 @@ codeunit 134486 "Check Dimensions On Posting"
         Reply := true;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 80, 'OnAfterCheckSalesDoc', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnAfterCheckSalesDoc', '', false, false)]
     local procedure OnAfterCheckSalesDoc(var SalesHeader: Record "Sales Header"; CommitIsSuppressed: Boolean; WhseShip: Boolean; WhseReceive: Boolean)
     begin
         Error(OnAfterCheckDocErr);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 90, 'OnAfterCheckPurchDoc', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnAfterCheckPurchDoc', '', false, false)]
     local procedure OnAfterCheckPurchDoc(var PurchHeader: Record "Purchase Header"; CommitIsSupressed: Boolean; WhseShip: Boolean; WhseReceive: Boolean)
     begin
         Error(OnAfterCheckDocErr);

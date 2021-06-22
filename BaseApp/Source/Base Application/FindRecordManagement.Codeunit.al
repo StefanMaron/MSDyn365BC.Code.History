@@ -288,7 +288,7 @@ codeunit 703 "Find Record Management"
                 if Abs(TextLength - StrLen(Description)) <= Treshold then
                     if TypeHelper.TextDistance(UpperCase(SearchText), UpperCase(Description)) <= Treshold then
                         exit(true);
-            until (RecRef.Next = 0) or (RecCount > 1000);
+            until (RecRef.Next() = 0) or (RecCount > 1000);
 
         exit(false);
     end;

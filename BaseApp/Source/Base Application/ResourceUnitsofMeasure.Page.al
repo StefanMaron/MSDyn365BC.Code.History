@@ -53,7 +53,7 @@ page 210 "Resource Units of Measure"
                     begin
                         Res.Validate("Base Unit of Measure", ResBaseUOM);
                         Res.Modify(true);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }

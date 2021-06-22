@@ -816,7 +816,7 @@ codeunit 132590 "Type Helper Unit Tests"
 
         TypeHelper.GetUserClientTypeOffset(UserOffset);
         TimeZone.SetFilter("Display Name", '*:00*');
-        TimeZone.FindSet;
+        TimeZone.FindSet();
         TimeZone.Next(LibraryRandom.RandInt(TimeZone.Count));
         TypeHelper.GetTimezoneOffset(TimeZoneOffset, TimeZone.ID);
 

@@ -59,11 +59,13 @@ table 1512 "Notification Setup"
             NotificationSchedule.Delete(true);
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by GetNotificationTypeSetup().', '17.0')]
     procedure GetNotificationSetup(NotificationType: Option "New Record",Approval,Overdue)
     begin
         GetNotificationTypeSetup("Notification Entry Type".FromInteger(NotificationType));
     end;
+#endif
 
     procedure GetNotificationTypeSetup(NotificationType: Enum "Notification Entry Type")
     var
@@ -77,11 +79,13 @@ table 1512 "Notification Setup"
         Get('', NotificationType)
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by GetNotificationTypeSetupForUser().', '17.0')]
     procedure GetNotificationSetupForUser(NotificationType: Option "New Record",Approval,Overdue; RecipientUserID: Code[50])
     begin
         GetNotificationTypeSetupForUser("Notification Entry Type".FromInteger(NotificationType), RecipientUserID);
     end;
+#endif
 
     procedure GetNotificationTypeSetupForUser(NotificationType: Enum "Notification Entry Type"; RecipientUserID: Code[50])
     begin

@@ -304,7 +304,7 @@ report 7323 "Create Invt Put-away/Pick/Mvmt"
                     Type::"Invt. Movement":
                         WhseDocPrint.PrintInvtMovementHeader(TempWhseActivHdr, false);
                 end;
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 

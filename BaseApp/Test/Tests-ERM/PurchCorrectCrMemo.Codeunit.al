@@ -1045,7 +1045,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         InventoryPeriod.Insert();
     end;
 
-    local procedure MockDtldVendLedgEntry(VendLedgEntryNo: Integer; EntryType: Option)
+    local procedure MockDtldVendLedgEntry(VendLedgEntryNo: Integer; EntryType: Enum "Detailed CV Ledger Entry Type")
     var
         DetailedVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin

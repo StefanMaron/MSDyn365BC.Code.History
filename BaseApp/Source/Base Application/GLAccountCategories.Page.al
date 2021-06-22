@@ -1,4 +1,4 @@
-﻿page 790 "G/L Account Categories"
+page 790 "G/L Account Categories"
 {
     AccessByPermission = TableData "G/L Account Category" = R;
     AdditionalSearchTerms = 'general ledger account categories';
@@ -237,7 +237,7 @@
 
     trigger OnOpenPage()
     begin
-        if IsEmpty then
+        if IsEmpty() then
             InitializeDataSet;
         SetAutoCalcFields("Has Children");
 

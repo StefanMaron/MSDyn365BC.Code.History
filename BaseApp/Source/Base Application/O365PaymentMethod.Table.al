@@ -44,7 +44,7 @@ table 2154 "O365 Payment Method"
                 Code := PaymentMethod.Code;
                 Description := PaymentMethod.GetDescriptionInCurrentLanguage;
                 if Insert() then;
-            until PaymentMethod.Next = 0;
+            until PaymentMethod.Next() = 0;
         if Get(PreviousPaymentMethodCode) then;
     end;
 }

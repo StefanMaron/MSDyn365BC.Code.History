@@ -230,7 +230,7 @@ codeunit 133771 "Remittance REP Check UT"
         exit(VendorLedgerEntry3."Entry No.");
     end;
 
-    local procedure CreateDetailedVendorLedgerEntry(VendorLedgerEntry: Record "Vendor Ledger Entry"; AppliedVendLedgerEntryNo: Integer; EntryType: Option; DocumentType: Enum "Gen. Journal Document Type"; Sign: Integer): Decimal
+    local procedure CreateDetailedVendorLedgerEntry(VendorLedgerEntry: Record "Vendor Ledger Entry"; AppliedVendLedgerEntryNo: Integer; EntryType: Enum "Detailed CV Ledger Entry Type"; DocumentType: Enum "Gen. Journal Document Type"; Sign: Integer): Decimal
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
@@ -247,7 +247,7 @@ codeunit 133771 "Remittance REP Check UT"
         exit(DetailedVendorLedgEntry.Amount);
     end;
 
-    local procedure MockVendorLedgerEntryWithDetailedEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; EntryType: Option; Sign: Integer)
+    local procedure MockVendorLedgerEntryWithDetailedEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; EntryType: Enum "Detailed CV Ledger Entry Type"; Sign: Integer)
     begin
         CreateVendorLedgerEntry(VendorLedgerEntry, GenJournalLine."Applies-to ID", GenJournalLine."Account No.", DocumentType);
         CreateDetailedVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Entry No.", EntryType, DocumentType, Sign);
@@ -336,7 +336,7 @@ codeunit 133771 "Remittance REP Check UT"
         with VendorLedgerEntry do begin
             LibraryReportDataset.LoadDataSetFile;
             SetRange("Vendor No.", GenJournalLine."Account No.");
-            FindSet;
+            FindSet();
             repeat
                 CalcFields("Remaining Amount");
                 LibraryReportDataset.AssertElementWithValueExists(

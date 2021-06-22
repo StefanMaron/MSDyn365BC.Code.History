@@ -4,6 +4,9 @@ page 5446 "Automation User Permission"
     DelayedInsert = true;
     PageType = ListPart;
     SourceTable = "Access Control";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'API version beta will be deprecated.';
+    ObsoleteTag = '18.0';
 
     layout
     {

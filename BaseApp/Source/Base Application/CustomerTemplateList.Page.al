@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5156 "Customer Template List"
 {
     AdditionalSearchTerms = 'convert contact, new customer';
@@ -109,4 +110,5 @@ page 5156 "Customer Template List"
         }
     }
 }
+#endif
 

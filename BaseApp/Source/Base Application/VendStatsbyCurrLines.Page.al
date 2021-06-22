@@ -88,7 +88,7 @@ page 487 "Vend. Stats. by Curr. Lines"
             repeat
                 Rec := Currency;
                 Insert;
-            until Currency.Next = 0;
+            until Currency.Next() = 0;
 
         SetRange("Vendor Ledg. Entries in Filter", true);
     end;

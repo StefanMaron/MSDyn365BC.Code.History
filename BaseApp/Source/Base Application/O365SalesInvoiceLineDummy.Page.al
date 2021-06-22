@@ -96,7 +96,7 @@ page 2183 "O365 Sales Invoice Line Dummy"
                         exit;
                     Delete(true);
                     if not EnvInfoProxy.IsInvoicing then
-                        CurrPage.Update;
+                        CurrPage.Update();
                 end;
             }
             action(Open)

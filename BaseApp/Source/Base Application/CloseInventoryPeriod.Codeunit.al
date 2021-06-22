@@ -63,7 +63,7 @@ codeunit 5820 "Close Inventory Period"
         AvgCostAdjmtEntryPoint.SetCurrentKey("Item No.", "Cost Is Adjusted", "Valuation Date");
         AvgCostAdjmtEntryPoint.SetRange("Cost Is Adjusted", false);
         AvgCostAdjmtEntryPoint.SetRange("Valuation Date", 0D, EndingDate);
-        if not AvgCostAdjmtEntryPoint.IsEmpty then
+        if not AvgCostAdjmtEntryPoint.IsEmpty() then
             Error(Text000);
 
         InvtAdjmtEntryOrder.SetCurrentKey("Cost is Adjusted");
@@ -78,9 +78,9 @@ codeunit 5820 "Close Inventory Period"
                 ValueEntry.SetFilter("Item Ledger Entry Type", '%1|%2',
                   ValueEntry."Item Ledger Entry Type"::Output, ValueEntry."Item Ledger Entry Type"::"Assembly Output");
                 ValueEntry.SetRange("Valuation Date", 0D, EndingDate);
-                if not ValueEntry.IsEmpty then
+                if not ValueEntry.IsEmpty() then
                     Error(Text010, InvtAdjmtEntryOrder."Order Type");
-            until InvtAdjmtEntryOrder.Next = 0;
+            until InvtAdjmtEntryOrder.Next() = 0;
     end;
 
     local procedure CheckOpenOutboundEntryExist(EndingDate: Date)
@@ -91,7 +91,7 @@ codeunit 5820 "Close Inventory Period"
         ItemLedgEntry.SetRange(Open, true);
         ItemLedgEntry.SetRange(Positive, false);
         ItemLedgEntry.SetRange("Posting Date", 0D, EndingDate);
-        if not ItemLedgEntry.IsEmpty then
+        if not ItemLedgEntry.IsEmpty() then
             Error(Text001);
     end;
 
@@ -122,7 +122,7 @@ codeunit 5820 "Close Inventory Period"
                     InvtPeriod3.Closed := not ReOpen;
                     InvtPeriod3.Modify();
                     CreateInvtPeriodEntry(InvtPeriod3);
-                until InvtPeriod2.Next = 0;
+                until InvtPeriod2.Next() = 0;
 
             Closed := not ReOpen;
             Modify;

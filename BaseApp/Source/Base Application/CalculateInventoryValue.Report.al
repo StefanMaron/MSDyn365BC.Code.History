@@ -1,4 +1,4 @@
-﻿report 5899 "Calculate Inventory Value"
+report 5899 "Calculate Inventory Value"
 {
     Caption = 'Calculate Inventory Value';
     ProcessingOnly = true;
@@ -57,7 +57,7 @@
                                         IncludeExpectedCost and not ItemLedgEntry."Completely Invoiced", PostingDate));
                             end;
                         end;
-                    until ItemLedgEntry.Next = 0;
+                    until ItemLedgEntry.Next() = 0;
 
                 if CalculatePer = CalculatePer::Item then
                     if (GetFilter("Location Filter") <> '') or ByLocation then begin
@@ -77,12 +77,12 @@
                                         repeat
                                             ValJnlBuffer.SetRange("Variant Code", ItemVariant.Code);
                                             Calculate(Item, ItemVariant.Code, Location.Code);
-                                        until ItemVariant.Next = 0;
+                                        until ItemVariant.Next() = 0;
                                     ValJnlBuffer.SetRange("Variant Code", '');
                                     Calculate(Item, '', Location.Code);
                                 end else
                                     Calculate(Item, '', Location.Code);
-                            until Location.Next = 0;
+                            until Location.Next() = 0;
                         end;
                         ValJnlBuffer.SetRange("Location Code", '');
                         if ByVariant then begin
@@ -92,7 +92,7 @@
                                 repeat
                                     ValJnlBuffer.SetRange("Variant Code", ItemVariant.Code);
                                     Calculate(Item, ItemVariant.Code, '');
-                                until ItemVariant.Next = 0;
+                                until ItemVariant.Next() = 0;
                             ValJnlBuffer.SetRange("Variant Code", '');
                             Calculate(Item, '', '');
                         end else
@@ -109,7 +109,7 @@
                                 repeat
                                     ValJnlBuffer.SetRange("Variant Code", ItemVariant.Code);
                                     Calculate(Item, ItemVariant.Code, '');
-                                until ItemVariant.Next = 0;
+                                until ItemVariant.Next() = 0;
                             end;
                             ValJnlBuffer.SetRange("Location Code");
                             ValJnlBuffer.SetRange("Variant Code", '');
@@ -148,8 +148,8 @@
                                     SKU.Validate("Standard Cost", NewStdCostItem."Standard Cost");
                                     SKU.Modify();
                                 end;
-                            until SKU.Next = 0;
-                    until NewStdCostItem.Next = 0;
+                            until SKU.Next() = 0;
+                    until NewStdCostItem.Next() = 0;
             end;
 
             trigger OnPreDataItem()
@@ -475,7 +475,7 @@
                             NotComplInvQty := NotComplInvQty + RemQty;
                             NotComplInvValue := NotComplInvValue + RemInvValue;
                         end;
-                    until Next = 0;
+                    until Next() = 0;
             end;
     end;
 

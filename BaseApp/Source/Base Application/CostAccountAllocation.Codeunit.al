@@ -52,9 +52,9 @@ codeunit 1104 "Cost Account Allocation"
                         Window.Update(3, Format(CostAllocationTarget."Line No."));
                         CalcLineShare(CostAllocationTarget);
                         NoCalculated := NoCalculated + 1;
-                    until CostAllocationTarget.Next = 0;
+                    until CostAllocationTarget.Next() = 0;
                 CostAllocationTarget.Validate(Share);
-            until CostAllocationSource.Next = 0;
+            until CostAllocationSource.Next() = 0;
         Window.Close;
 
         exit(NoCalculated);
@@ -70,7 +70,7 @@ codeunit 1104 "Cost Account Allocation"
         if CostAllocationTarget.FindSet then
             repeat
                 CalcLineShare(CostAllocationTarget);
-            until CostAllocationTarget.Next = 0;
+            until CostAllocationTarget.Next() = 0;
 
         CostAllocationTarget.Validate(Share);
     end;
@@ -274,7 +274,7 @@ codeunit 1104 "Cost Account Allocation"
         StartDate := 0D;
         EndDate := DMY2Date(31, 12, 9999);
 
-        if AccPeriod.IsEmpty then
+        if AccPeriod.IsEmpty() then
             exit;
 
         if CostAllocationTarget."Date Filter Code" = 0 then

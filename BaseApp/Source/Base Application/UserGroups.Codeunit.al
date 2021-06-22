@@ -15,6 +15,6 @@ Codeunit 9019 "User Groups"
         repeat
             UserGroupMember.SetRange("User Group Code", UserGroupPlan."User Group Code");
             UserGroupMember.DeleteAll(true);
-        until UserGroupPlan.NEXT = 0;
+        until UserGroupPlan.Next() = 0;
     end;
 }

@@ -1,4 +1,4 @@
-﻿codeunit 730 "Copy Item"
+codeunit 730 "Copy Item"
 {
     TableNo = Item;
 
@@ -128,7 +128,9 @@
         CopyPurchasePrices(SourceItem."No.", TargetItem."No.");
         CopyPurchaseLineDiscounts(SourceItem."No.", TargetItem."No.");
         CopyItemAttributes(SourceItem."No.", TargetItem."No.");
+#if not CLEAN16
         CopyItemCrossReferences(SourceItem."No.", TargetItem."No.");
+#endif
         CopyItemReferences(SourceItem."No.", TargetItem."No.");
 
         OnAfterCopyItem(CopyItemBuffer, SourceItem, TargetItem);
@@ -458,6 +460,7 @@
         CopyItemRelatedTableFromRecRef(RecRef, ItemAttributeValueMapping.FieldNo("No."), FromItemNo, ToItemNo);
     end;
 
+#if not CLEAN16
     local procedure CopyItemCrossReferences(FromItemNo: Code[20]; ToItemNo: Code[20])
     var
         ItemCrossReference: Record "Item Cross Reference";
@@ -467,6 +470,7 @@
 
         CopyItemRelatedTable(DATABASE::"Item Cross Reference", ItemCrossReference.FieldNo("Item No."), FromItemNo, ToItemNo);
     end;
+#endif
 
     local procedure CopyItemReferences(FromItemNo: Code[20]; ToItemNo: Code[20])
     var

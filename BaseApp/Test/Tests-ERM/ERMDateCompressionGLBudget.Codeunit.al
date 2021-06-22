@@ -101,8 +101,8 @@ codeunit 134037 "ERM Date Compression GL Budget"
         DimensionSelectionBuffer: Record "Dimension Selection Buffer";
     begin
         DimensionSelectionBuffer.DeleteAll();
-        DimensionTranslation.FindSet;
-        if DimensionSelectionBuffer.IsEmpty then
+        DimensionTranslation.FindSet();
+        if DimensionSelectionBuffer.IsEmpty() then
             repeat
                 if not DimensionSelectionBuffer.Get(DimensionTranslation.Code) then begin
                     DimensionSelectionBuffer.Validate(Code, DimensionTranslation.Code);

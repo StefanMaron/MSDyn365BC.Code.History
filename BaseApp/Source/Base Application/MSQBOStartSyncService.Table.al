@@ -2,8 +2,8 @@ table 7826 "MS-QBO Start Sync. Service"
 {
     Caption = 'MS-QBO Start Sync. Service';
     ObsoleteReason = 'replacing burntIn Extension tables with V2 Extension';
-    ObsoleteState = Pending;
-    ObsoleteTag = '15.0';
+    ObsoleteState = Removed;
+    ObsoleteTag = '18.0';
 
     fields
     {

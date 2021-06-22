@@ -82,9 +82,9 @@ table 8614 "Config. Package Record"
                     FieldRef.SetFilter(ConfigPackageFilter."Field Filter");
                 end else
                     exit(false);
-            until ConfigPackageFilter.Next = 0;
+            until ConfigPackageFilter.Next() = 0;
             RecRefTemp.Insert();
-            if RecRefTemp.IsEmpty then
+            if RecRefTemp.IsEmpty() then
                 exit(false);
         end;
         exit(true);

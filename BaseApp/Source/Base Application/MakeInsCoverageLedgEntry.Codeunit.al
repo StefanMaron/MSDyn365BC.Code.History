@@ -64,7 +64,7 @@ codeunit 5657 "Make Ins. Coverage Ledg. Entry"
         FADeprBook: Record "FA Depreciation Book";
     begin
         with InsCoverageLedgEntry do begin
-            if IsEmpty then
+            if IsEmpty() then
                 exit;
 
             SetRange("Disposed FA", true);
@@ -77,7 +77,7 @@ codeunit 5657 "Make Ins. Coverage Ledg. Entry"
                     repeat
                         SetRange("FA No.", FADeprBook."FA No.");
                         ModifyAll("Disposed FA", true)
-                    until FADeprBook.Next = 0;
+                    until FADeprBook.Next() = 0;
             end;
         end;
     end;

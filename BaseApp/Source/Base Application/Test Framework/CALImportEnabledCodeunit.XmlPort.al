@@ -28,7 +28,7 @@ xmlport 130402 "CAL Import Enabled Codeunit"
                     if not CALTestMgt.DoesTestCodeunitExist("CAL Test Enabled Codeunit"."Test Codeunit ID") or
                        CodeunitIsEnabled("CAL Test Enabled Codeunit"."Test Codeunit ID")
                     then
-                        currXMLport.Skip;
+                        currXMLport.Skip();
                 end;
             }
         }

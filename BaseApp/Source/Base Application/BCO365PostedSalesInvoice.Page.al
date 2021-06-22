@@ -502,9 +502,6 @@ page 2313 "BC O365 Posted Sales Invoice"
         WorkDescription: Text;
         NoOfAttachmentsValueTxt: Text;
         CustomerEmail: Text;
-        InvoiceCancelled: Boolean;
-        IsFullyPaid: Boolean;
-        IsUsingVAT: Boolean;
         CurrencyFormat: Text;
         InvoiceDiscountAmount: Decimal;
         AddAttachmentTxt: Label 'Add attachment';
@@ -514,9 +511,14 @@ page 2313 "BC O365 Posted Sales Invoice"
         Status: Text;
         OutStandingStatusStyle: Text[30];
         ViewContactDetailsLbl: Label 'Open contact details';
-        IsCustomerBlocked: Boolean;
         IsDevice: Boolean;
         FullAddress: Text;
+
+    protected var
+        InvoiceCancelled: Boolean;
+        IsCustomerBlocked: Boolean;
+        IsFullyPaid: Boolean;
+        IsUsingVAT: Boolean;
 
     local procedure CalcInvoiceDiscount()
     var

@@ -1,4 +1,4 @@
-﻿codeunit 1639 "Office Line Generation"
+codeunit 1639 "Office Line Generation"
 {
     // This codeunit contains algorithms for finding item references within text.
 
@@ -13,7 +13,7 @@
         TelemetryClosedPageTxt: Label 'Suggested line items closed via %2 action.%1  Items Suggested: %3%1  Items selected: %4', Locked = true;
         TelemetryAlgorithmPerformanceTxt: Label 'Item generation algorithm finished in %2ms.%1  Length of mail body: %3%1  Total items found:   %4%1  Single item matches: %5%1  Total matched items: %6', Locked = true;
 
-    [EventSubscriber(ObjectType::Codeunit, 1637, 'OnGenerateLinesFromText', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Office Document Handler", 'OnGenerateLinesFromText', '', false, false)]
     local procedure CreateLinesBasedOnQuantityReferences(var HeaderRecRef: RecordRef; var TempOfficeSuggestedLineItem: Record "Office Suggested Line Item" temporary; EmailBody: Text)
     var
         OfficeMgt: Codeunit "Office Management";
@@ -92,7 +92,7 @@
             TotalMatches), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', OfficeMgt.GetOfficeAddinTelemetryCategory());
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1637, 'OnGenerateLinesFromText', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Office Document Handler", 'OnGenerateLinesFromText', '', false, false)]
     local procedure CreateLinesBasedOnItemReferences(var HeaderRecRef: RecordRef; var TempOfficeSuggestedLineItem: Record "Office Suggested Line Item" temporary; EmailBody: Text)
     var
         OfficeMgt: Codeunit "Office Management";
@@ -109,8 +109,14 @@
         BestStrength: Decimal;
         SingleMatches: Integer;
         TotalMatches: Integer;
+        IsHandled: Boolean;
     begin
-        if not TempOfficeSuggestedLineItem.IsEmpty then
+        IsHandled := false;
+        OnBeforeCreateLinesBasedOnItemReferences(HeaderRecRef, TempOfficeSuggestedLineItem, EmailBody, IsHandled);
+        if IsHandled then
+            exit;
+
+        if not TempOfficeSuggestedLineItem.IsEmpty() then
             exit;
 
         Stopwatch := Stopwatch.StartNew;
@@ -140,7 +146,7 @@
             TotalMatches), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', OfficeMgt.GetOfficeAddinTelemetryCategory());
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1637, 'OnCloseSuggestedLineItemsPage', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Office Document Handler", 'OnCloseSuggestedLineItemsPage', '', false, false)]
     local procedure CreateLineItemsOnCloseSuggestedLineItems(var TempOfficeSuggestedLineItem: Record "Office Suggested Line Item" temporary; var HeaderRecRef: RecordRef; PageCloseAction: Action)
     var
         OfficeMgt: Codeunit "Office Management";
@@ -154,7 +160,7 @@
                         InsertLineItem(LastLineNo, HeaderRecRef, TempOfficeSuggestedLineItem."Item No.", TempOfficeSuggestedLineItem.Quantity);
                         AddedCount += 1;
                     end;
-                until TempOfficeSuggestedLineItem.Next = 0;
+                until TempOfficeSuggestedLineItem.Next() = 0;
 
         Session.LogMessage('00001KJ', StrSubstNo(TelemetryClosedPageTxt, NewLine,
             PageCloseAction,
@@ -258,7 +264,7 @@
         // (4) Look for items that include the description
 
         Item.SetRange("No.", CopyStr(Description, 1, 20));
-        if not Item.IsEmpty then begin
+        if not Item.IsEmpty() then begin
             FoundCount := Item.Count();
             Item.FindFirst;
             ItemNo := Item."No.";
@@ -268,7 +274,7 @@
 
         SearchText := '''@' + Description + '''';
         Item.SetFilter(Description, Description);
-        if not Item.IsEmpty then begin
+        if not Item.IsEmpty() then begin
             FoundCount := Item.Count();
             Item.FindFirst;
             ItemNo := Item."No.";
@@ -277,7 +283,7 @@
 
         SearchText := '''@' + Description + '*''';
         Item.SetFilter(Description, SearchText);
-        if not Item.IsEmpty then begin
+        if not Item.IsEmpty() then begin
             FoundCount := Item.Count();
             Item.FindFirst;
             ItemNo := Item."No.";
@@ -286,7 +292,7 @@
 
         SearchText := '''@* ' + Description + '*''';
         Item.SetFilter(Description, SearchText);
-        if not Item.IsEmpty then begin
+        if not Item.IsEmpty() then begin
             FoundCount := Item.Count();
             Item.FindFirst;
             ItemNo := Item."No.";
@@ -303,7 +309,7 @@
         if TempOfficeSuggestedLineItem.FindSet then
             repeat
                 TotalMatches += TempOfficeSuggestedLineItem.Matches;
-            until TempOfficeSuggestedLineItem.Next = 0;
+            until TempOfficeSuggestedLineItem.Next() = 0;
     end;
 
     local procedure ItemAlreadyFound(var TempOfficeSuggestedLineItem: Record "Office Suggested Line Item" temporary; ItemNo: Text) Found: Boolean
@@ -320,7 +326,7 @@
         if (Matches = 0) or (SearchKeyword = '') then
             exit;
 
-        if not TempOfficeSuggestedLineItem.IsEmpty then
+        if not TempOfficeSuggestedLineItem.IsEmpty() then
             TempOfficeSuggestedLineItem.FindLast;
 
         LastLineNo := TempOfficeSuggestedLineItem."Line No.";
@@ -570,6 +576,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateLinesBasedOnQuantityReferences(var HeaderRecRef: RecordRef; var TempOfficeSuggestedLineItem: Record "Office Suggested Line Item" temporary; EmailBody: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateLinesBasedOnItemReferences(var HeaderRecRef: RecordRef; var TempOfficeSuggestedLineItem: Record "Office Suggested Line Item" temporary; EmailBody: Text; var IsHandled: Boolean)
     begin
     end;
 }

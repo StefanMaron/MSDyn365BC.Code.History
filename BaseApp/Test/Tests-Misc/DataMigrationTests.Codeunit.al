@@ -314,7 +314,7 @@ codeunit 135020 "Data Migration Tests"
         DataMigItemStagingTable.Insert();
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1798, 'OnBeforeStartMigration', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Data Migration Mgt.", 'OnBeforeStartMigration', '', false, false)]
     local procedure OnBeforeStartMigration(var StartNewSession: Boolean; var CheckExistingData: Boolean)
     begin
         StartNewSession := false;
@@ -322,7 +322,7 @@ codeunit 135020 "Data Migration Tests"
         LibraryVariableStorage.Enqueue(StartNewSession);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6113, 'OnMigrateItem', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Data Migration Facade", 'OnMigrateItem', '', false, false)]
     local procedure OnMigrateItem(var Sender: Codeunit "Item Data Migration Facade"; RecordIdToMigrate: RecordID)
     var
         DataMigItemStagingTable: Record "Data Mig. Item Staging Table";
@@ -579,9 +579,8 @@ codeunit 135020 "Data Migration Tests"
         Assert.AreEqual(DataMigrationStatus.Status::Pending, DataMigrationStatus.Status, 'Status is changed');
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6100, 'OnSelectRowFromDashboard', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnSelectRowFromDashboardSubscriber(var DataMigrationStatus: Record "Data Migration Status")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Data Migration Facade", 'OnSelectRowFromDashboard', '', false, false)]
+    local procedure OnSelectRowFromDashboardSubscriber(var DataMigrationStatus: Record "Data Migration Status")
     begin
         Error(FakeErrorErr);
     end;
@@ -680,15 +679,13 @@ codeunit 135020 "Data Migration Tests"
         Assert.ExpectedMessage(MigrationStartedMsg, Message);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6100, 'OnFillStagingTables', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnFillStagingTablesSubscriber()
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Data Migration Facade", 'OnFillStagingTables', '', false, false)]
+    local procedure OnFillStagingTablesSubscriber()
     begin
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 453, 'OnBeforeJobQueueScheduleTask', '', true, true)]
-    [Scope('OnPrem')]
-    procedure OnBeforeScheduleTask(var JobQueueEntry: Record "Job Queue Entry"; var DoNotScheduleTask: Boolean)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Job Queue - Enqueue", 'OnBeforeJobQueueScheduleTask', '', true, true)]
+    local procedure OnBeforeScheduleTask(var JobQueueEntry: Record "Job Queue Entry"; var DoNotScheduleTask: Boolean)
     begin
         DoNotScheduleTask := true;
     end;

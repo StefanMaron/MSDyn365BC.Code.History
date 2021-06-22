@@ -444,11 +444,13 @@ report 492 "Copy Purchase Document"
         RecalculateLines := NewRecalcLines;
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by SetParameters().', '17.0')]
     procedure InitializeRequest(NewDocType: Option; NewDocNo: Code[20]; NewIncludeHeader: Boolean; NewRecalcLines: Boolean)
     begin
         SetParameters("Purchase Document Type From".FromInteger(NewDocType), NewDocNo, NewIncludeHeader, NewRecalcLines);
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterOpenPage()

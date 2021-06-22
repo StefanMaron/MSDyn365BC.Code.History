@@ -157,7 +157,7 @@ report 1102 "Resource Journal - Test"
                                 Continue := true;
                                 exit;
                             end;
-                        until (DimSetEntry.Next = 0);
+                        until (DimSetEntry.Next() = 0);
                     end;
 
                     trigger OnPreDataItem()

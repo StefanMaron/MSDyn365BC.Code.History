@@ -202,7 +202,7 @@ table 8616 "Config. Package Field"
                                 ConfigPackageMgt.FieldError(ConfigPackageData, StrSubstNo(Text001, FieldRef.Caption, ConfigPackageData.Value), 0);
                         end;
                     end;
-                until ConfigPackageData.Next = 0;
+                until ConfigPackageData.Next() = 0;
                 ConfigProgressBar.Close;
             end;
         end;
@@ -227,7 +227,7 @@ table 8616 "Config. Package Field"
         if TableRelationsMetadata.FindSet then
             repeat
                 Result += Format(TableRelationsMetadata."Related Table ID") + '|';
-            until TableRelationsMetadata.Next = 0;
+            until TableRelationsMetadata.Next() = 0;
         exit(DelChr(Result, '>', '|'));
     end;
 

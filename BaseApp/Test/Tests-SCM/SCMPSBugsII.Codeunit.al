@@ -192,7 +192,7 @@ codeunit 137036 "SCM PS Bugs - II"
         ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
         ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
         ProdOrderComponent.SetRange("Prod. Order Line No.", ProdOrderLine."Line No.");
-        ProdOrderComponent.FindSet;
+        ProdOrderComponent.FindSet();
         repeat
             Assert.AreEqual(
               ProductionOrder."Dimension Set ID", ProdOrderComponent."Dimension Set ID", 'Wrong dimension in Prod. Order Component');
@@ -878,7 +878,7 @@ codeunit 137036 "SCM PS Bugs - II"
         DimensionManagement: Codeunit DimensionManagement;
     begin
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrderNo);
-        ProdOrderLine.FindSet;
+        ProdOrderLine.FindSet();
         repeat
             DimensionSetID := DimensionManagement.GetDeltaDimSetID(ProdOrderLine."Dimension Set ID", DimensionSetID, OldDimSetID);
             if ProdOrderLine."Dimension Set ID" <> DimensionSetID then begin
@@ -973,7 +973,7 @@ codeunit 137036 "SCM PS Bugs - II"
         DimensionCode := DimensionSetEntry."Dimension Code";
         ExpectedDimValueCode := DimensionSetEntry."Dimension Value Code";
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrderNo);
-        ProdOrderLine.FindSet;
+        ProdOrderLine.FindSet();
         repeat
             DimensionSetEntry.SetRange("Dimension Set ID", ProdOrderLine."Dimension Set ID");
             DimensionSetEntry.SetRange("Dimension Code", DimensionCode);
@@ -999,7 +999,7 @@ codeunit 137036 "SCM PS Bugs - II"
     begin
         ProdOrderComponent.SetRange(Status, ProdOrderStatus);
         ProdOrderComponent.SetRange("Prod. Order No.", ProdOrderNo);
-        ProdOrderComponent.FindSet;
+        ProdOrderComponent.FindSet();
         repeat
             ProdOrderComponent.TestField("Qty. Picked", ExpectedQty);
         until ProdOrderComponent.Next = 0;

@@ -54,7 +54,7 @@ codeunit 5643 "FA Reclass. Transfer Batch"
                 LineCounter := LineCounter + 1;
                 Window.Update(2, LineCounter);
                 FAReclassCheckLine.Run(FAReclassJnlLine);
-                if Next = 0 then
+                if Next() = 0 then
                     Find('-');
             until "Line No." = StartLineNo;
             NoOfRecords := LineCounter;
@@ -68,7 +68,7 @@ codeunit 5643 "FA Reclass. Transfer Batch"
                 Window.Update(3, LineCounter);
                 Window.Update(4, Round(LineCounter / NoOfRecords * 10000, 1));
                 FAReclassTransferLine.FAReclassLine(FAReclassJnlLine, OneFAReclassDone);
-            until Next = 0;
+            until Next() = 0;
 
             Init;
             if OneFAReclassDone then

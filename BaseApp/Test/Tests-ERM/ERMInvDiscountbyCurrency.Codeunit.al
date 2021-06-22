@@ -516,7 +516,7 @@ codeunit 134079 "ERM Inv Discount by Currency"
     begin
         SalesLine.SetRange("Document Type", SalesLine."Document Type");
         SalesLine.SetRange("Sell-to Customer No.", SalesLine."Sell-to Customer No.");
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         repeat
             TotalInvDiscAmount += SalesLine."Inv. Discount Amount";
         until SalesLine.Next = 0;
@@ -526,7 +526,7 @@ codeunit 134079 "ERM Inv Discount by Currency"
     begin
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type");
         PurchaseLine.SetRange("Buy-from Vendor No.", PurchaseLine."Buy-from Vendor No.");
-        PurchaseLine.FindSet;
+        PurchaseLine.FindSet();
         repeat
             TotalInvDiscAmount += PurchaseLine."Inv. Discount Amount";
         until PurchaseLine.Next = 0;

@@ -76,25 +76,22 @@ codeunit 132529 "Test Library Initialize"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Test Library Initialize");
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 132250, 'OnTestInitialize', '', false, false)]
-    [Scope('OnPrem')]
-    procedure TestInitializeSubscriber(CallerCodeunitID: Integer)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Library - Test Initialize", 'OnTestInitialize', '', false, false)]
+    local procedure TestInitializeSubscriber(CallerCodeunitID: Integer)
     begin
         if CallerCodeunitID = CODEUNIT::"Test Library Initialize" then
             InsertNameValue(TestInitializedTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 132250, 'OnBeforeTestSuiteInitialize', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnBeforeTestSuiteInitializeSubscriber(CallerCodeunitID: Integer)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Library - Test Initialize", 'OnBeforeTestSuiteInitialize', '', false, false)]
+    local procedure OnBeforeTestSuiteInitializeSubscriber(CallerCodeunitID: Integer)
     begin
         if CallerCodeunitID = CODEUNIT::"Test Library Initialize" then
             InsertNameValue(OnBeforeTestSuiteTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 132250, 'OnAfterTestSuiteInitialize', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterTestSuiteInitializeEventSubscriber(var Sender: Codeunit "Library - Test Initialize"; CallerCodeunitID: Integer)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Library - Test Initialize", 'OnAfterTestSuiteInitialize', '', false, false)]
+    local procedure OnAfterTestSuiteInitializeEventSubscriber(var Sender: Codeunit "Library - Test Initialize"; CallerCodeunitID: Integer)
     begin
         if CallerCodeunitID = CODEUNIT::"Test Library Initialize" then
             InsertNameValue(OnAfterTestSuiteTxt);

@@ -1,3 +1,4 @@
+#if not CLEAN16
 page 5724 "Cross Reference List"
 {
     Caption = 'Cross Reference List';
@@ -81,4 +82,4 @@ page 5724 "Cross Reference List"
     {
     }
 }
-
+#endif

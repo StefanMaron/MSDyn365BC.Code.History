@@ -687,7 +687,7 @@ codeunit 139312 "Excel Data Migration Test"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1806, 'OnUploadFile', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Excel Data Migrator", 'OnUploadFile', '', false, false)]
     local procedure SetExcelFile(var ServerFileName: Text)
     var
         Attachment: Record Attachment;
@@ -696,7 +696,7 @@ codeunit 139312 "Excel Data Migration Test"
         ServerFileName := LibraryUtility.GetInetRoot + Attachment."Storage Pointer";
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1806, 'OnDownloadTemplate', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Excel Data Migrator", 'OnDownloadTemplate', '', false, false)]
     local procedure HideDialog(var HideDialog: Boolean)
     begin
         HideDialog := true;

@@ -275,6 +275,28 @@ page 182 "Posted General Journal"
                         Navigate.Run();
                     end;
                 }
+
+                action(ChangeDimensions)
+                {
+                    ApplicationArea = All;
+                    Image = ChangeDimensions;
+                    Caption = 'Correct Dimensions';
+                    ToolTip = 'Correct dimensions for the related general ledger entries.';
+
+                    trigger OnAction()
+                    var
+                        GLEntry: Record "G/L Entry";
+                        DimensionCorrection: Record "Dimension Correction";
+                        DimensionCorrectionMgt: Codeunit "Dimension Correction Mgt";
+                    begin
+                        Rec.TestField("Document No.");
+                        Rec.TestField("Posting Date");
+                        GLEntry.SetRange("Document No.", Rec."Document No.");
+                        GLEntry.SetRange("Posting Date", Rec."Posting Date");
+                        DimensionCorrectionMgt.CreateCorrectionFromFilter(GLEntry, DimensionCorrection);
+                        Page.Run(PAGE::"Dimension Correction Draft", DimensionCorrection);
+                    end;
+                }
             }
         }
     }

@@ -354,8 +354,8 @@ codeunit 134556 "ERM CF GL Budget"
         CashFlowForecastEntry2: Record "Cash Flow Forecast Entry";
     begin
         CashFlowForecastEntry2.SetRange("Cash Flow Forecast No.", CashFlowForecast."No.");
-        CashFlowForecastEntry2.FindSet;
-        CashFlowForecastEntry.FindSet;
+        CashFlowForecastEntry2.FindSet();
+        CashFlowForecastEntry.FindSet();
         Assert.AreEqual(CashFlowForecastEntry.Count, CashFlowForecastEntry2.Count, 'Unexpected number of cash flow ledger entries');
 
         with CashFlowForecastEntry2 do

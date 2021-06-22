@@ -12,7 +12,7 @@ codeunit 9001 "Permission Pages Mgt."
         CannotManagePermissionsErr: Label 'Only users with the SUPER or the SECURITY permission set can create or edit permission sets.';
         MSPermSetChangedTxt: Label 'Original System permission set changed';
         MSPermSetChangedDescTxt: Label 'Show a notification if one or more original System permission sets that you have copied to create your own set changes.';
-        MSPermSetChangedMsg: Label 'One or more System permission sets that you have copied to create your own have changed. //You may want to review the changed permission set in case the changes are relevant for your user-defined permission sets.';
+        MSPermSetChangedMsg: Label 'One or more System permission sets that you have copied to create your own have changed. You may want to review the changed permission set in case the changes are relevant for your user-defined permission sets.';
         MSPermSetChangedShowDetailsTxt: Label 'Show more';
         MSPermSetChangedNeverShowAgainTxt: Label 'Don''t show again';
         CannotEditPermissionSetMsg: Label 'Permission sets of type System and Extension cannot be changed. Only permission sets of type User-Defined can be changed.';
@@ -249,7 +249,7 @@ codeunit 9001 "Permission Pages Mgt."
         MyNotifications.Disable(GetAppDbPermissionSetChangedNotificationId);
     end;
 
-    [EventSubscriber(ObjectType::Page, 1518, 'OnInitializingNotificationWithDefaultState', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"My Notifications", 'OnInitializingNotificationWithDefaultState', '', false, false)]
     local procedure OnInitializingNotificationWithDefaultState()
     var
         MyNotifications: Record "My Notifications";

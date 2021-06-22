@@ -53,7 +53,7 @@ page 1880 "VAT Assisted Setup Template"
         ResetVisibility;
         VATBusPostingVisible := true;
         SetRange("Table ID", DATABASE::Customer);
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     procedure ShowVendorTemplate()
@@ -61,7 +61,7 @@ page 1880 "VAT Assisted Setup Template"
         ResetVisibility;
         VATBusPostingVisible := true;
         SetRange("Table ID", DATABASE::Vendor);
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     procedure ShowItemTemplate()
@@ -69,7 +69,7 @@ page 1880 "VAT Assisted Setup Template"
         ResetVisibility;
         VATProdPostingVisible := true;
         SetRange("Table ID", DATABASE::Item);
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure ResetVisibility()

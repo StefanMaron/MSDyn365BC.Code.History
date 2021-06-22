@@ -177,7 +177,7 @@ page 5734 "Item Category Attributes"
                                     Modify;
                                 end;
                         end
-                    until ItemAttributeValueMapping.Next = 0;
+                    until ItemAttributeValueMapping.Next() = 0;
                 CurrentCategoryCode := ItemCategory."Parent Category";
             end else
                 CurrentCategoryCode := '';
@@ -305,7 +305,7 @@ page 5734 "Item Category Attributes"
                 ItemAttributeValueMapping.FindFirst;
                 ItemAttributeValueMapping.Validate("Item Attribute Value ID", TempItemAttributeValueToInsert.ID);
                 ItemAttributeValueMapping.Modify();
-            until TempRecentlyItemAttributeValueMapping.Next = 0;
+            until TempRecentlyItemAttributeValueMapping.Next() = 0;
     end;
 
     local procedure DeleteRecentlyItemAttributeValueMapping(AttributeID: Integer)

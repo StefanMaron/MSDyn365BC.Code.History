@@ -1,4 +1,4 @@
-﻿table 7334 "Whse. Internal Pick Line"
+table 7334 "Whse. Internal Pick Line"
 {
     Caption = 'Whse. Internal Pick Line';
     LookupPageID = "Whse. Internal Pick Lines";

@@ -66,8 +66,7 @@ codeunit 137006 "SCM PAC Output Consumption"
         Initialize;
         LibraryManufacturing.CreateWorkCenterGroup(WorkCenterGroup);
         LibraryManufacturing.CreateCapacityUnitOfMeasure(CapacityUnitOfMeasure, "Capacity Unit of Measure"::Minutes);
-        LibraryERM.SetUseLegacyGLEntryLocking(true);
-        UpdateInventorySetup;
+        UpdateInventorySetup();
 
         LibraryManufacturing.UpdateManufacturingSetup(ManufacturingSetup, '', '', true, true, true);
         ShopCalendarCode := LibraryManufacturing.UpdateShopCalendarWorkingDays;
@@ -180,8 +179,7 @@ codeunit 137006 "SCM PAC Output Consumption"
         Initialize;
         LibraryManufacturing.CreateWorkCenterGroup(WorkCenterGroup);
         LibraryManufacturing.CreateCapacityUnitOfMeasure(CapacityUnitOfMeasure, "Capacity Unit of Measure"::Minutes);
-        LibraryERM.SetUseLegacyGLEntryLocking(true);
-        UpdateInventorySetup;
+        UpdateInventorySetup();
 
         LibraryManufacturing.UpdateManufacturingSetup(ManufacturingSetup, '', '', true, true, true);
         ShopCalendarCode := LibraryManufacturing.UpdateShopCalendarWorkingDays;
@@ -289,8 +287,7 @@ codeunit 137006 "SCM PAC Output Consumption"
         Initialize;
         LibraryManufacturing.CreateWorkCenterGroup(WorkCenterGroup);
         LibraryManufacturing.CreateCapacityUnitOfMeasure(CapacityUnitOfMeasure, "Capacity Unit of Measure"::Minutes);
-        LibraryERM.SetUseLegacyGLEntryLocking(true);
-        UpdateInventorySetup;
+        UpdateInventorySetup();
 
         LibraryManufacturing.UpdateManufacturingSetup(ManufacturingSetup, '', '', true, true, true);
         ShopCalendarCode := LibraryManufacturing.UpdateShopCalendarWorkingDays;
@@ -392,8 +389,7 @@ codeunit 137006 "SCM PAC Output Consumption"
         Initialize;
         LibraryManufacturing.CreateWorkCenterGroup(WorkCenterGroup);
         LibraryManufacturing.CreateCapacityUnitOfMeasure(CapacityUnitOfMeasure, "Capacity Unit of Measure"::Minutes);
-        LibraryERM.SetUseLegacyGLEntryLocking(true);
-        UpdateInventorySetup;
+        UpdateInventorySetup();
 
         LibraryManufacturing.UpdateManufacturingSetup(ManufacturingSetup, '', '', true, true, true);
         ShopCalendarCode := LibraryManufacturing.UpdateShopCalendarWorkingDays;
@@ -495,8 +491,7 @@ codeunit 137006 "SCM PAC Output Consumption"
         Initialize;
         LibraryManufacturing.CreateWorkCenterGroup(WorkCenterGroup);
         LibraryManufacturing.CreateCapacityUnitOfMeasure(CapacityUnitOfMeasure, Type::Minutes);
-        LibraryERM.SetUseLegacyGLEntryLocking(true);
-        UpdateInventorySetup;
+        UpdateInventorySetup();
 
         LibraryManufacturing.UpdateManufacturingSetup(ManufacturingSetup, '', '', true, true, true);
         ShopCalendarCode := LibraryManufacturing.UpdateShopCalendarWorkingDays;
@@ -590,8 +585,7 @@ codeunit 137006 "SCM PAC Output Consumption"
         Initialize;
         LibraryManufacturing.CreateWorkCenterGroup(WorkCenterGroup);
         LibraryManufacturing.CreateCapacityUnitOfMeasure(CapacityUnitOfMeasure, "Capacity Unit of Measure"::Minutes);
-        LibraryERM.SetUseLegacyGLEntryLocking(true);
-        UpdateInventorySetup;
+        UpdateInventorySetup();
 
         LibraryManufacturing.UpdateManufacturingSetup(ManufacturingSetup, '', '', true, true, true);
         ShopCalendarCode := LibraryManufacturing.UpdateShopCalendarWorkingDays;
@@ -683,8 +677,7 @@ codeunit 137006 "SCM PAC Output Consumption"
         Initialize;
         LibraryManufacturing.CreateWorkCenterGroup(WorkCenterGroup);
         LibraryManufacturing.CreateCapacityUnitOfMeasure(CapacityUnitOfMeasure, "Capacity Unit of Measure"::Minutes);
-        LibraryERM.SetUseLegacyGLEntryLocking(true);
-        UpdateInventorySetup;
+        UpdateInventorySetup();
 
         LibraryManufacturing.UpdateManufacturingSetup(ManufacturingSetup, '', '', true, true, true);
         ShopCalendarCode := LibraryManufacturing.UpdateShopCalendarWorkingDays;
@@ -1021,7 +1014,7 @@ codeunit 137006 "SCM PAC Output Consumption"
     begin
         ProdOrderRoutingLine.SetRange(Status, ProdOrderRoutingLine.Status::Planned);
         ProdOrderRoutingLine.SetRange("Prod. Order No.", ProductionOrderNo);
-        ProdOrderRoutingLine.FindSet;
+        ProdOrderRoutingLine.FindSet();
         repeat
             ProdOrderRoutingLine.Validate("Next Operation No.", '');
             ProdOrderRoutingLine.Validate("Previous Operation No.", '');
@@ -1074,7 +1067,7 @@ codeunit 137006 "SCM PAC Output Consumption"
         ProductionOrder.Get(ProductionOrder.Status::Released, ProductionOrderNo);
         ItemJournalLine.SetRange("Order Type", ItemJournalLine."Order Type"::Production);
         ItemJournalLine.SetRange("Order No.", ProductionOrderNo);
-        ItemJournalLine.FindSet;
+        ItemJournalLine.FindSet();
         repeat
             ItemJournalLine.Validate("Output Quantity", ProductionOrder.Quantity - 1);
             ItemJournalLine.Modify(true);
@@ -1116,7 +1109,7 @@ codeunit 137006 "SCM PAC Output Consumption"
         ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrderNo);
         if RoutingLinkCodeExist then
             ProdOrderComponent.SetRange("Routing Link Code", RoutingLinkCode);
-        ProdOrderComponent.FindSet;
+        ProdOrderComponent.FindSet();
         repeat
             ProdOrderComponent.CalcFields("Act. Consumption (Qty)");
             ActualProdOrderQuantity += ProdOrderComponent."Act. Consumption (Qty)";
@@ -1134,7 +1127,7 @@ codeunit 137006 "SCM PAC Output Consumption"
         ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Consumption);
         if RoutingLinkCodeExists then
             ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        ItemLedgerEntry.FindSet;
+        ItemLedgerEntry.FindSet();
         repeat
             Quantity += ItemLedgerEntry.Quantity;
         until ItemLedgerEntry.Next = 0;
@@ -1150,7 +1143,7 @@ codeunit 137006 "SCM PAC Output Consumption"
         ItemLedgerEntry.SetRange("Document No.", ProductionOrderNo);
         ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Output);
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        ItemLedgerEntry.FindSet;
+        ItemLedgerEntry.FindSet();
         repeat
             Quantity += ItemLedgerEntry.Quantity;
         until ItemLedgerEntry.Next = 0;

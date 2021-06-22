@@ -1,4 +1,4 @@
-﻿table 472 "Job Queue Entry"
+table 472 "Job Queue Entry"
 {
     Caption = 'Job Queue Entry';
     DataCaptionFields = "Object Type to Run", "Object ID to Run", "Object Caption to Run";
@@ -458,8 +458,8 @@
         {
             Caption = 'On Hold Due to Inactivity';
             ObsoleteReason = 'Functionality moved into new job queue status';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '18.0';
         }
         field(52; "Inactivity Timeout Period"; Integer)
         {
@@ -472,6 +472,11 @@
             Caption = 'Error Message Register Id';
             DataClassification = SystemMetadata;
             TableRelation = "Error Message Register".ID;
+        }
+        field(54; "Job Timeout"; Duration)
+        {
+            Caption = 'Job Timeout';
+            DataClassification = SystemMetadata;
         }
     }
 
@@ -766,6 +771,7 @@
     var
         TaskGUID: Guid;
         IsHandled: Boolean;
+        JobTimeout: Duration;
     begin
         CheckRequiredPermissions();
         if "User ID" <> UserId() then begin
@@ -778,11 +784,21 @@
             if not IsNullGuid(TaskGUID) then
                 exit(TaskGUID);
 
+        if Rec."Job Timeout" <> 0 then
+            JobTimeout := Rec."Job Timeout"
+        else
+            JobTimeout := DefaultJobTimeout();
+
         exit(
           TASKSCHEDULER.CreateTask(
             CODEUNIT::"Job Queue Dispatcher",
             CODEUNIT::"Job Queue Error Handler",
-            true, CurrentCompany(), "Earliest Start Date/Time", RecordId()));
+            true, CurrentCompany(), "Earliest Start Date/Time", RecordId(), JobTimeout));
+    end;
+
+    procedure DefaultJobTimeout(): Duration
+    begin
+        exit(12 * 60 * 60 * 1000); // 12 hours
     end;
 
     local procedure Reschedule()
@@ -1087,7 +1103,7 @@
         OldParams := GetReportParameters();
         Params := REPORT.RunRequestPage("Object ID to Run", OldParams);
 
-        if(Params <> '') and (Params <> OldParams) then begin
+        if (Params <> '') and (Params <> OldParams) then begin
             "User ID" := UserId();
             SetReportParameters(Params);
         end;

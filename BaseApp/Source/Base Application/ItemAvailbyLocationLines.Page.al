@@ -1,4 +1,4 @@
-﻿page 515 "Item Avail. by Location Lines"
+page 515 "Item Avail. by Location Lines"
 {
     Caption = 'Lines';
     DeleteAllowed = false;
@@ -250,11 +250,10 @@
                         ItemAvailFormsMgt.ShowSchedReceipt(Item);
                     end;
                 }
-                field("Item.""Scheduled Need (Qty.)"""; Item."Scheduled Need (Qty.)")
+                field("Item.""Scheduled Need (Qty.)"""; Item."Qty. on Component Lines")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Scheduled Issue (Qty.)';
-                    DecimalPlaces = 0 : 5;
+                    Caption = 'Qty. on Component Lines';
                     ToolTip = 'Specifies the sum of items from planned production orders.';
                     Visible = false;
 

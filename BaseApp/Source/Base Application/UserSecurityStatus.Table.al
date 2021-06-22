@@ -111,7 +111,7 @@ table 9062 "User Security Status"
         repeat
             if UserSecurityStatus.Get(User."User Security ID") then
                 UserSecurityStatus.Delete();
-        until User.Next = 0;
+        until User.Next() = 0;
     end;
 
     procedure LoadUsers()
@@ -140,7 +140,7 @@ table 9062 "User Security Status"
                 UserSecurityStatus.Reviewed := false;
                 UserSecurityStatus.Insert();
             end;
-        until User.Next = 0;
+        until User.Next() = 0;
     end;
 
     procedure LogUserReviewActivity()

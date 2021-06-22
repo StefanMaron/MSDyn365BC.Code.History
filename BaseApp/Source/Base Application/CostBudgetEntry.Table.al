@@ -220,7 +220,7 @@ table 1109 "Cost Budget Entry"
                     Window.Update(3, NoCompressed);
                 end;
 
-            until CostBudgetEntrySource.Next = 0;
+            until CostBudgetEntrySource.Next() = 0;
 
         if CostBudgetEntryTarget.Amount <> 0 then
             CostBudgetEntryTarget.Modify();

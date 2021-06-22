@@ -202,7 +202,7 @@ codeunit 5301 "Outlook Synch. NAV Mgt"
 
             CollectEntityChanges(SynchronizeAll, SynchStartTime);
             CollectEntityElementChanges(SynchronizeAll, SynchStartTime);
-        until SortedEntitiesBuffer.Next = 0;
+        until SortedEntitiesBuffer.Next() = 0;
     end;
 
     local procedure CollectEntityChanges(SynchronizeAll: Boolean; SynchStartTime: DateTime)
@@ -247,7 +247,7 @@ codeunit 5301 "Outlook Synch. NAV Mgt"
                         TempRecRef1.Close;
                     end;
                 end;
-            until TempRecRef.Next = 0;
+            until TempRecRef.Next() = 0;
 
         if not SynchronizeAll then
             if TempDeletedChangeLogEntry.Find('-') then
@@ -286,7 +286,7 @@ codeunit 5301 "Outlook Synch. NAV Mgt"
 
                 TempRecRef.Close;
                 TempDeletedChangeLogEntry.DeleteAll();
-            until OSynchSetupDetail.Next = 0;
+            until OSynchSetupDetail.Next() = 0;
     end;
 
     local procedure ProcessEntityRecords(var EntityRecRefIn: RecordRef; SynchEntityCode: Code[10])
@@ -312,7 +312,7 @@ codeunit 5301 "Outlook Synch. NAV Mgt"
         EntityRecRef.Open(RecID.TableNo, true);
         repeat
             CopyRecordReference(EntityRecRefIn, EntityRecRef, false);
-        until EntityRecRefIn.Next = 0;
+        until EntityRecRefIn.Next() = 0;
 
         OSynchEntity1.Get(SynchEntityCode);
         OSynchFilter1.Reset();
@@ -325,7 +325,7 @@ codeunit 5301 "Outlook Synch. NAV Mgt"
         OSynchField1.SetRange("Synch. Entity Code", SynchEntityCode);
         OSynchField1.SetFilter("Read-Only Status", '<>%1', OSynchField1."Read-Only Status"::"Read-Only in Outlook");
         OSynchField1.SetFilter("Outlook Property", '<>%1', '');
-        if OSynchField1.IsEmpty then
+        if OSynchField1.IsEmpty() then
             exit;
 
         OSynchUserSetup1.Get(OSynchUserSetup."User ID", SynchEntityCode);
@@ -380,12 +380,12 @@ codeunit 5301 "Outlook Synch. NAV Mgt"
                                                         EntityRecRefDependent.Close;
                                                     end;
                                                     CollectionRecRef1.Close;
-                                                until OSynchDependency1.Next = 0;
+                                                until OSynchDependency1.Next() = 0;
                                         end;
-                                    until CollectionRecRef.Next = 0;
+                                    until CollectionRecRef.Next() = 0;
                                 CollectionRecRef.Close;
                             end;
-                        until OSynchSetupDetail1.Next = 0;
+                        until OSynchSetupDetail1.Next() = 0;
                 end;
 
                 InsertEntity(EntityRecRef, SynchEntityCode);
@@ -394,7 +394,7 @@ codeunit 5301 "Outlook Synch. NAV Mgt"
             end else
                 if GlobalRecordIDBuffer."User ID" <> SynchEntityCode then
                     Error(Text005, GlobalRecordIDBuffer."User ID", SynchEntityCode);
-        until EntityRecRef.Next = 0;
+        until EntityRecRef.Next() = 0;
         EntityRecRef.Close;
     end;
 
@@ -437,7 +437,7 @@ codeunit 5301 "Outlook Synch. NAV Mgt"
                     if GlobalRecordIDBuffer."User ID" <> OSynchEntity.Code then
                         Error(Text005, GlobalRecordIDBuffer."User ID", OSynchEntity.Code);
             end;
-        until TempDeletedChangeLogEntry.Next = 0;
+        until TempDeletedChangeLogEntry.Next() = 0;
     end;
 
     local procedure ProcessEntityElements(var ChangedCollectionRecRef: RecordRef; SynchStartTime: DateTime)
@@ -481,7 +481,7 @@ codeunit 5301 "Outlook Synch. NAV Mgt"
                         TempEntityRecRef.Open(OSynchEntity."Table No.", true);
                         repeat
                             CopyRecordReference(EntityRecRef, TempEntityRecRef, false);
-                        until EntityRecRef.Next = 0;
+                        until EntityRecRef.Next() = 0;
 
                         OSynchUserSetup1.Get(OSynchUserSetup."User ID", OSynchEntityElement."Synch. Entity Code");
                         OSynchFilter1.Reset();
@@ -499,14 +499,14 @@ codeunit 5301 "Outlook Synch. NAV Mgt"
                                     ProcessEntityRecords(TempEntityRecRef1, OSynchEntityElement."Synch. Entity Code");
                                     TempEntityRecRef1.Close;
                                 end;
-                            until TempEntityRecRef.Next = 0;
+                            until TempEntityRecRef.Next() = 0;
 
                         TempEntityRecRef.Close;
                     end;
                 end;
             end;
             ChangedCollectionRecRef1.Close;
-        until ChangedCollectionRecRef.Next = 0;
+        until ChangedCollectionRecRef.Next() = 0;
         EntityRecRef.Close;
     end;
 
@@ -556,7 +556,7 @@ codeunit 5301 "Outlook Synch. NAV Mgt"
                               OSynchFilter1."Master Table Field No.",
                               TempOSynchFilter.Type::CONST,
                               ChangeLogEntry."Old Value");
-                    until OSynchFilter1.Next = 0;
+                    until OSynchFilter1.Next() = 0;
 
                 EntityRecRef.SetView(OSynchSetupMgt.ComposeTableFilter(TempOSynchFilter, NullRecRef));
                 if EntityRecRef.Find('-') then
@@ -572,9 +572,9 @@ codeunit 5301 "Outlook Synch. NAV Mgt"
                                     ProcessEntityRecords(TempEntityRecRef, OSynchEntityElement."Synch. Entity Code");
                             TempEntityRecRef.Close;
                         end;
-                    until EntityRecRef.Next = 0;
+                    until EntityRecRef.Next() = 0;
             end;
-        until TempDeletedChangeLogEntry.Next = 0;
+        until TempDeletedChangeLogEntry.Next() = 0;
         EntityRecRef.Close;
     end;
 
@@ -595,7 +595,7 @@ codeunit 5301 "Outlook Synch. NAV Mgt"
                 DeletedChangeLogEntry.Init();
                 DeletedChangeLogEntry := InsModChangeLogEntry;
                 DeletedChangeLogEntry.Insert();
-            until InsModChangeLogEntry.Next = 0;
+            until InsModChangeLogEntry.Next() = 0;
 
         InsModChangeLogEntry.DeleteAll();
         InsModChangeLogEntry.Reset();
@@ -619,7 +619,7 @@ codeunit 5301 "Outlook Synch. NAV Mgt"
                       I,
                       TempOSynchEntityUnsorted,
                       TempOSynchLookupName);
-            until OSynchDependency.Next = 0;
+            until OSynchDependency.Next() = 0;
 
         if TempOSynchEntityUnsorted.Get(OSynchEntityCode) then
             if not TempOSynchEntityUnsorted.Mark then begin
@@ -679,7 +679,7 @@ codeunit 5301 "Outlook Synch. NAV Mgt"
                     TempChangeLogEntry.Init();
                     TempChangeLogEntry := ChangeLogEntry;
                     TempChangeLogEntry.Insert();
-                until ChangeLogEntry.Next = 0;
+                until ChangeLogEntry.Next() = 0;
 
                 RemoveChangeLogDuplicates(TempChangeLogEntry, TempChangeLogEntry1);
 
@@ -712,9 +712,9 @@ codeunit 5301 "Outlook Synch. NAV Mgt"
 
                                 TempMasterRecRef.Close;
                             end;
-                    until TempChangeLogEntry1.Next = 0;
+                    until TempChangeLogEntry1.Next() = 0;
             end;
-        until SortedEntitiesBuffer.Next = 0;
+        until SortedEntitiesBuffer.Next() = 0;
 
         if IsRenamed then
             Commit();
@@ -738,7 +738,7 @@ codeunit 5301 "Outlook Synch. NAV Mgt"
             ChangeLogEntry.SetRange("Table No.", OSynchEntity."Table No.");
             ChangeLogEntry.SetFilter("Date and Time", '>=%1', OSynchUserSetup."Last Synch. Time");
             ChangeLogEntry.SetRange("Type of Change", ChangeLogEntry."Type of Change"::Deletion);
-            if not ChangeLogEntry.IsEmpty then begin
+            if not ChangeLogEntry.IsEmpty() then begin
                 TempChangeLogEntry.Reset();
                 TempChangeLogEntry.DeleteAll();
 
@@ -749,9 +749,9 @@ codeunit 5301 "Outlook Synch. NAV Mgt"
                         ObtainRecordID(TempChangeLogEntry, RecID);
                         if OSynchLink.Get(OSynchUserSetup."User ID", RecID) then
                             OSynchLink.Delete();
-                    until TempChangeLogEntry.Next = 0;
+                    until TempChangeLogEntry.Next() = 0;
             end;
-        until SortedEntitiesBuffer.Next = 0;
+        until SortedEntitiesBuffer.Next() = 0;
 
         OSynchLink.Reset();
         OSynchLink.SetRange("User ID", OSynchUserSetup."User ID");
@@ -848,10 +848,10 @@ codeunit 5301 "Outlook Synch. NAV Mgt"
 
                             XMLWriter.WriteEndElement;
                         end;
-                    until MasterRecRef.Next = 0;
+                    until MasterRecRef.Next() = 0;
                 XMLWriter.WriteEndElement;
                 MasterRecRef.Close;
-            until OSynchSetupDetail.Next = 0;
+            until OSynchSetupDetail.Next() = 0;
     end;
 
     local procedure InsertFields(SynchRecRef: RecordRef; SearchFields: Boolean)
@@ -887,7 +887,7 @@ codeunit 5301 "Outlook Synch. NAV Mgt"
                 TempOSynchField := OSynchField;
                 TempOSynchField.Insert();
             end;
-        until OSynchField.Next = 0;
+        until OSynchField.Next() = 0;
 
         TempOSynchField.Reset();
         if TempOSynchField.Find('-') then
@@ -928,7 +928,7 @@ codeunit 5301 "Outlook Synch. NAV Mgt"
                                             if (DateTimeFieldRef.Type = FieldType::Date) and (Format(DateTimeFieldRef.Value) <> '') then
                                                 if Evaluate(TempDate, Format(DateTimeFieldRef.Value)) then;
                                             DateTimeRecRef.Close;
-                                        until OSynchField1.Next = 0;
+                                        until OSynchField1.Next() = 0;
 
                                     if OSynchTypeConversion.RunningUTC then
                                         TempDateTime := OSynchTypeConversion.LocalDT2UTC(CreateDateTime(TempDate, TempTime))
@@ -954,7 +954,7 @@ codeunit 5301 "Outlook Synch. NAV Mgt"
                                             if (DateTimeFieldRef.Type = FieldType::Time) and (Format(DateTimeFieldRef.Value) <> '') then
                                                 if Evaluate(TempTime, Format(DateTimeFieldRef.Value)) then;
                                             DateTimeRecRef.Close;
-                                        until OSynchField1.Next = 0;
+                                        until OSynchField1.Next() = 0;
 
                                     if OSynchTypeConversion.RunningUTC then
                                         TempDateTime := OSynchTypeConversion.LocalDT2UTC(CreateDateTime(TempDate, TempTime))
@@ -1000,7 +1000,7 @@ codeunit 5301 "Outlook Synch. NAV Mgt"
                     XMLWriter.WriteEndElement;
                     RelatedRecRef.Close;
                 end;
-            until TempOSynchField.Next = 0;
+            until TempOSynchField.Next() = 0;
     end;
 
     local procedure FindDependentRecord(OSynchEntityElement1: Record "Outlook Synch. Entity Element"; CollectionElementRecRef: RecordRef; var MasterRecID: RecordID): Boolean
@@ -1051,7 +1051,7 @@ codeunit 5301 "Outlook Synch. NAV Mgt"
                         EntityRecRef.Close;
                     end;
                 end;
-            until OSynchDependency.Next = 0;
+            until OSynchDependency.Next() = 0;
         TempCollectionElementRecRef.Close;
     end;
 
@@ -1109,7 +1109,7 @@ codeunit 5301 "Outlook Synch. NAV Mgt"
                      false)
                 then
                     Error(Text010, OSynchEntity.Code, PRODUCTNAME.Full);
-            until ChangeLogEntry.Next = 0;
+            until ChangeLogEntry.Next() = 0;
 
         TempRecRef.Insert();
 
@@ -1171,14 +1171,14 @@ codeunit 5301 "Outlook Synch. NAV Mgt"
 
         if TempOSynchEntityUnsorted.Find('-') then begin
             OSynchDependency.Reset();
-            if not OSynchDependency.IsEmpty then
+            if not OSynchDependency.IsEmpty() then
                 repeat
                     ProcessDependentEntity(
                       TempOSynchEntityUnsorted.Code,
                       LastIndex,
                       TempOSynchEntityUnsorted,
                       TempOSynchLookupName);
-                until TempOSynchEntityUnsorted.Next = 0;
+                until TempOSynchEntityUnsorted.Next() = 0;
 
             if TempOSynchEntityUnsorted.Find('-') then
                 repeat
@@ -1189,7 +1189,7 @@ codeunit 5301 "Outlook Synch. NAV Mgt"
                         TempOSynchLookupName.Insert();
                         LastIndex := LastIndex + 1;
                     end;
-                until TempOSynchEntityUnsorted.Next = 0;
+                until TempOSynchEntityUnsorted.Next() = 0;
         end;
     end;
 
@@ -1224,7 +1224,7 @@ codeunit 5301 "Outlook Synch. NAV Mgt"
                             Error(Text001);
                     end;
             end;
-        until ChangeLogEntry.Next = 0;
+        until ChangeLogEntry.Next() = 0;
         TempRecRef.Insert();
         Evaluate(RecID, Format(TempRecRef.RecordId));
         TempRecRef.Close;
@@ -1325,7 +1325,7 @@ codeunit 5301 "Outlook Synch. NAV Mgt"
             ObtainRecordID(InsModChangeLogEntry, RecID);
             if MasterTableRef.Get(RecID) then
                 CopyRecordReference(MasterTableRef, TempRecRef, false);
-        until InsModChangeLogEntry.Next = 0;
+        until InsModChangeLogEntry.Next() = 0;
 
         MasterTableRef.Close;
     end;
@@ -1379,7 +1379,7 @@ codeunit 5301 "Outlook Synch. NAV Mgt"
             TempOSynchEntityUnsorted.Init();
             TempOSynchEntityUnsorted := OSynchEntity;
             TempOSynchEntityUnsorted.Insert();
-        until OSynchUserSetup.Next = 0;
+        until OSynchUserSetup.Next() = 0;
 
         SortEntitiesForXMLOutput(TempOSynchEntityUnsorted, EntitiesBuffer);
     end;

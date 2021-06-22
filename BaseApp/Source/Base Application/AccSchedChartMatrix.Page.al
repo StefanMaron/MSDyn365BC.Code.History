@@ -266,7 +266,7 @@ page 764 "Acc. Sched. Chart Matrix"
                     ColumnCaptions[ColumnNo] := ColumnLayout."Column Header";
                     ColumnLineNos[ColumnNo] := ColumnLayout."Line No.";
                 end;
-            until ColumnLayout.Next = 0;
+            until ColumnLayout.Next() = 0;
         MaxColumns := ColumnNo;
         // Set unused columns to blank to prevent RTC to display control ID as caption
         for i := MaxColumns + 1 to ArrayLen(ColumnCaptions) do
@@ -285,7 +285,7 @@ page 764 "Acc. Sched. Chart Matrix"
             AccountSchedulesChartSetup."Base X-Axis on"::Period:
                 for i := 1 to MaxColumns do begin
                     if AccSchedChartSetupLine.Get("User ID", Name, "Account Schedule Line No.", ColumnLineNos[i]) then
-                        ChartType[i] := AccSchedChartSetupLine."Chart Type";
+                        ChartType[i] := AccSchedChartSetupLine."Chart Type".AsInteger();
                 end;
             AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Line":
                 begin
@@ -293,11 +293,11 @@ page 764 "Acc. Sched. Chart Matrix"
                     if AccSchedChartSetupLine."Chart Type" <> AccSchedChartSetupLine."Chart Type"::" " then
                         for i := 1 to MaxColumns do begin
                             if AccSchedChartSetupLine2.Get("User ID", Name, 0, ColumnLineNos[i]) then
-                                ChartType[i] := AccSchedChartSetupLine2."Chart Type"
+                                ChartType[i] := AccSchedChartSetupLine2."Chart Type".AsInteger()
                         end
                     else
                         for i := 1 to MaxColumns do
-                            ChartType[i] := AccSchedChartSetupLine2."Chart Type"::" ";
+                            ChartType[i] := AccSchedChartSetupLine2."Chart Type"::" ".AsInteger();
                 end;
             AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Column":
                 begin
@@ -305,14 +305,14 @@ page 764 "Acc. Sched. Chart Matrix"
                     for i := 1 to MaxColumns do begin
                         AccSchedChartSetupLine2.Get("User ID", Name, 0, ColumnLineNos[i]);
                         if AccSchedChartSetupLine2."Chart Type" <> AccSchedChartSetupLine2."Chart Type"::" " then
-                            ChartType[i] := AccSchedChartSetupLine."Chart Type"
+                            ChartType[i] := AccSchedChartSetupLine."Chart Type".AsInteger()
                         else
-                            ChartType[i] := AccSchedChartSetupLine."Chart Type"::" ";
+                            ChartType[i] := AccSchedChartSetupLine."Chart Type"::" ".AsInteger();
                     end;
                 end;
         end;
         for i := MaxColumns + 1 to ArrayLen(ColumnCaptions) do
-            ChartType[i] := AccSchedChartSetupLine."Chart Type"::" ";
+            ChartType[i] := AccSchedChartSetupLine."Chart Type"::" ".AsInteger();
     end;
 
     local procedure SetChartType(ColumnNo: Integer)
@@ -334,7 +334,7 @@ page 764 "Acc. Sched. Chart Matrix"
         end;
         AccSchedChartSetupLine.Validate("Chart Type", ChartType[ColumnNo]);
         AccSchedChartSetupLine.Modify;
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

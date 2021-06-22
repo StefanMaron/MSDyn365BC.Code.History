@@ -46,7 +46,7 @@ page 6302 "Azure AD Access Dialog"
                     if error = 'access_denied' then
                         OnOAuthAccessDenied(description, ResourceFriendlyName)
                     else begin
-                        if not AzureAdAppSetup.IsEmpty then begin
+                        if not AzureAdAppSetup.IsEmpty() then begin
                             AzureAdAppSetup.FindFirst;
                             ActivityLog.LogActivityForUser(
                               AzureAdAppSetup.RecordId, ActivityLog.Status::Failed, 'Azure Authorization', description, error, UserId);
@@ -97,7 +97,7 @@ page 6302 "Azure AD Access Dialog"
     begin
         ResourceUrl := Resource;
         ResourceFriendlyName := ResourceName;
-        CurrPage.Update;
+        CurrPage.Update();
         if not AzureAdMgt.IsAzureADAppSetupDone then begin
             PAGE.RunModal(PAGE::"Azure AD App Setup Wizard");
             if not AzureAdMgt.IsAzureADAppSetupDone then

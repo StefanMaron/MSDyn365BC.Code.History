@@ -110,7 +110,7 @@ table 175 "Standard Vendor Purchase Code"
                 if StdVendPurchCode.FindSet then
                     repeat
                         ApplyStdCodesToPurchaseLines(PurchHeader, StdVendPurchCode);
-                    until StdVendPurchCode.Next = 0;
+                    until StdVendPurchCode.Next() = 0;
             end;
         end;
     end;
@@ -183,7 +183,7 @@ table 175 "Standard Vendor Purchase Code"
                     PurchLine.Insert(true);
                     InsertExtendedText(PurchLine, PurchHeader);
                 end;
-            until StdPurchLine.Next = 0;
+            until StdPurchLine.Next() = 0;
     end;
 
     local procedure CombineDimensions(var PurchaseLine: Record "Purchase Line"; StdPurchaseLine: Record "Standard Purchase Line")

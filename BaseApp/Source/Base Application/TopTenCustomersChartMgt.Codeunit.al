@@ -18,7 +18,7 @@ codeunit 1316 "Top Ten Customers Chart Mgt."
     begin
         with BusChartBuf do begin
             Initialize;
-            AddMeasure(SalesLCYYCaptionTxt, 1, "Data Type"::Decimal, "Chart Type"::StackedColumn);
+            AddDecimalMeasure(SalesLCYYCaptionTxt, 1, "Chart Type"::StackedColumn);
             SetXAxis(CustomerXCaptionTxt, "Data Type"::String);
             CalcTopTenSalesCustomers(CustomerName, SalesLCY);
             for ColumnIndex := 1 to 11 do begin
@@ -50,14 +50,14 @@ codeunit 1316 "Top Ten Customers Chart Mgt."
         TopCustomersBySalesJob: Codeunit "Top Customers By Sales Job";
         ChartManagement: Codeunit "Chart Management";
     begin
-        if TopCustomersBySalesBuffer.IsEmpty then
+        if TopCustomersBySalesBuffer.IsEmpty() then
             TopCustomersBySalesJob.UpdateCustomerTopList;
 
         if TopCustomersBySalesBuffer.FindSet then begin
             repeat
                 CustomerName[TopCustomersBySalesBuffer.Ranking] := TopCustomersBySalesBuffer.CustomerName;
                 SalesLCY[TopCustomersBySalesBuffer.Ranking] := TopCustomersBySalesBuffer.SalesLCY;
-            until TopCustomersBySalesBuffer.Next = 0;
+            until TopCustomersBySalesBuffer.Next() = 0;
             ChartManagement.ScheduleTopCustomerListRefreshTask
         end;
     end;
@@ -95,7 +95,7 @@ codeunit 1316 "Top Ten Customers Chart Mgt."
                 else
                     FilterToExcludeTopTenCustomers += StrSubstNo('&<>%1', TopCustomersBySalesBuffer.CustomerNo);
                 CustomerCounter += 1;
-            until (TopCustomersBySalesBuffer.Next = 0) or (CustomerCounter = 11);
+            until (TopCustomersBySalesBuffer.Next() = 0) or (CustomerCounter = 11);
         exit(FilterToExcludeTopTenCustomers);
     end;
 }

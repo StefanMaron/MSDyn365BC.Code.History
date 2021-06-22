@@ -1,4 +1,4 @@
-﻿codeunit 99000809 "Planning Line Management"
+codeunit 99000809 "Planning Line Management"
 {
     Permissions = TableData "Manufacturing Setup" = rm,
                   TableData "Routing Header" = r,
@@ -69,7 +69,7 @@
                 PlanningRoutingLine.TestField(Recalculate, false);
                 CheckRoutingLine(RoutingHeader, RoutingLine);
                 TransferRoutingLine(PlanningRoutingLine, ReqLine, RoutingLine);
-            until RoutingLine.Next = 0;
+            until RoutingLine.Next() = 0;
 
         OnAfterTransferRouting(ReqLine);
     end;
@@ -200,7 +200,7 @@
                             end;
                     end;
                 end;
-            until ProdBOMLine[Level].Next = 0;
+            until ProdBOMLine[Level].Next() = 0;
     end;
 
     local procedure TransferAsmBOM(ParentItemNo: Code[20]; Level: Integer; Quantity: Decimal)
@@ -302,7 +302,7 @@
                                 TempPlanningComponent.Modify();
                         end;
                 end;
-            until AsmBOMComp[Level].Next = 0;
+            until AsmBOMComp[Level].Next() = 0;
     end;
 
     local procedure CalculateComponents()
@@ -321,7 +321,7 @@
                 PlanningComponent.Modify();
                 with PlanningComponent do
                     PlanningAssignment.ChkAssignOne("Item No.", "Variant Code", "Location Code", "Due Date");
-            until PlanningComponent.Next = 0;
+            until PlanningComponent.Next() = 0;
     end;
 
     procedure CalculateRoutingFromActual(PlanningRtngLine: Record "Planning Routing Line"; Direction: Option Forward,Backward; CalcStartEndDate: Boolean)
@@ -378,7 +378,7 @@
                   ReqLine."Worksheet Template Name", ReqLine."Journal Batch Name", ReqLine."No.");
             CalcPlanningRtngLine.CalculateRouteLine(PlanningRtngLine, Direction, CalcStartEndDate, ReqLine);
             CalcStartEndDate := true;
-        until PlanningRtngLine.Next = 0;
+        until PlanningRtngLine.Next() = 0;
     end;
 
     local procedure CalculateRouting(Direction: Option Forward,Backward)
@@ -503,7 +503,7 @@
                 repeat
                     PlanningComponent.BlockDynamicTracking(Blocked);
                     PlanningComponent.Delete(true);
-                until PlanningComponent.Next = 0;
+                until PlanningComponent.Next() = 0;
             if ReqLine."Planning Level" = 0 then
                 ReqLine.DeleteMultiLevel;
             if (ReqLine."Replenishment System" = ReqLine."Replenishment System"::Assembly) or
@@ -761,7 +761,7 @@
                 ReqLine3.Modify();
                 Calculate(ReqLine3, 1, CalcRouting, CalcComponents, PlanningLevel + 1);
                 ReqLine3.Modify();
-            until PlanningComp.Next = 0;
+            until PlanningComp.Next() = 0;
     end;
 
     local procedure InsertPlanningLine(var ReqLine: Record "Requisition Line")
@@ -821,7 +821,7 @@
                 if not PlanningCompList.Insert() then
                     PlanningCompList.Modify();
                 TempPlanningComponent.Delete();
-            until TempPlanningComponent.Next = 0;
+            until TempPlanningComponent.Next() = 0;
     end;
 
     local procedure IsPlannedComp(var PlanningComp: Record "Planning Component"; ReqLine: Record "Requisition Line"; ProdBOMLine: Record "Production BOM Line"): Boolean
@@ -841,7 +841,7 @@
                 repeat
                     if IsPlannedCompFound(PlanningComp, ProdBOMLine) then
                         exit(true);
-                until Next = 0;
+                until Next() = 0;
 
             PlanningComp := PlanningComp2;
             exit(false);
@@ -886,7 +886,7 @@
                 repeat
                     if IsPlannedAsmCompFound(PlanningComp, AsmBOMComp) then
                         exit(true);
-                until Next = 0;
+                until Next() = 0;
 
             PlanningComp := PlanningComp2;
             exit(false);

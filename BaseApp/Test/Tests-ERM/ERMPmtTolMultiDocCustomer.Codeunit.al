@@ -534,7 +534,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         UpdateMaxPaymentToleranceOnCustLedgerEntry(CustomerNo, DocumentType::Invoice, MaxTolAmounts);
 
         // [GIVEN] Payment with Amount = (<sum of Invoices Amounts> - <half of sum of Max Payment Tolerance Amounts>), i.e. 400 - 5 = 395.
-        // [GIVEN] Posting Date of Payment is larger than Due Date of posted Sales Invoices to avoid discounts caused by Payment Terms.
+        // [GIVEN] Posting Date of Payment is larger that Due Date of posted Sales Invoices to avoid discounts caused by Payment Terms.
         CreateDocumentLine(
             GenJournalLine, DocumentType::Payment, CustomerNo, '', -TotalInvAmount + TotalTolAmount / 2,
             LibraryRandom.RandDateFromInRange(GenJournalLine."Due Date", 10, 20), 1);
@@ -583,7 +583,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         UpdateMaxPaymentToleranceOnCustLedgerEntry(CustomerNo, DocumentType::Invoice, MaxTolAmounts);
 
         // [GIVEN] Payment with Amount = (<sum of Invoices Amounts> + <half of sum of Max Payment Tolerance Amounts>), i.e. 400 + 5 = 405.
-        // [GIVEN] Posting Date of Payment is larger than Due Date of posted Sales Invoices to avoid discounts caused by Payment Terms.
+        // [GIVEN] Posting Date of Payment is larger that Due Date of posted Sales Invoices to avoid discounts caused by Payment Terms.
         CreateDocumentLine(
             GenJournalLine, DocumentType::Payment, CustomerNo, '', -TotalInvAmount - TotalTolAmount / 2,
             LibraryRandom.RandDateFromInRange(GenJournalLine."Due Date", 10, 20), 1);
@@ -632,7 +632,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         UpdateMaxPaymentToleranceOnCustLedgerEntry(CustomerNo, DocumentType::"Credit Memo", MaxTolAmounts);
 
         // [GIVEN] Refund with Amount = (<sum of Credit Memos Amounts> - <half of sum of Max Payment Tolerance Amounts>), i.e. 400 - 5 = 395.
-        // [GIVEN] Posting Date of Refund is larger than Due Date of posted Sales Credit Memos to avoid discounts caused by Payment Terms.
+        // [GIVEN] Posting Date of Refund is larger that Due Date of posted Sales Credit Memos to avoid discounts caused by Payment Terms.
         CreateDocumentLine(
             GenJournalLine, DocumentType::Refund, CustomerNo, '', -TotalCrMemoAmount + TotalTolAmount / 2,
             LibraryRandom.RandDateFromInRange(GenJournalLine."Due Date", 10, 20), 1);
@@ -681,7 +681,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         UpdateMaxPaymentToleranceOnCustLedgerEntry(CustomerNo, DocumentType::Invoice, MaxTolAmounts);
 
         // [GIVEN] Payment with Amount = (<sum of Invoices Amounts> - <half of sum of Max Payment Tolerance Amounts>), i.e. 400 - 5 = 395.
-        // [GIVEN] Posting Date of Payment is larger than Due Date of posted Sales Invoices to avoid discounts caused by Payment Terms.
+        // [GIVEN] Posting Date of Payment is larger that Due Date of posted Sales Invoices to avoid discounts caused by Payment Terms.
         CreateDocumentLine(
             GenJournalLine, DocumentType::Payment, CustomerNo, '', -TotalInvAmount + TotalTolAmount / 2,
             LibraryRandom.RandDateFromInRange(GenJournalLine."Due Date", 10, 20), 1);
@@ -733,7 +733,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         UpdateMaxPaymentToleranceOnCustLedgerEntry(CustomerNo, DocumentType::Invoice, MaxTolAmounts);
 
         // [GIVEN] Payment with Amount = (<sum of Invoices Amounts> - <half of sum of Max Payment Tolerance Amounts>), i.e. 10300 - 5.5 = 10294.5.
-        // [GIVEN] Posting Date of Payment is larger than Due Date of posted Sales Invoices to avoid discounts caused by Payment Terms.
+        // [GIVEN] Posting Date of Payment is larger that Due Date of posted Sales Invoices to avoid discounts caused by Payment Terms.
         CreateDocumentLine(
             GenJournalLine, DocumentType::Payment, CustomerNo, '', -TotalInvAmount + TotalTolAmount / 2,
             LibraryRandom.RandDateFromInRange(GenJournalLine."Due Date", 10, 20), 1);
@@ -787,7 +787,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         UpdateMaxPaymentToleranceOnCustLedgerEntry(CustomerNo, DocumentType::Invoice, MaxTolAmounts);
 
         // [GIVEN] Payment with Amount = (<sum of Invoices Amounts> + <half of sum of Max Payment Tolerance Amounts>), i.e. 10300 + 5.5 = 10305.5.
-        // [GIVEN] Posting Date of Payment is larger than Due Date of posted Sales Invoices to avoid discounts caused by Payment Terms.
+        // [GIVEN] Posting Date of Payment is larger that Due Date of posted Sales Invoices to avoid discounts caused by Payment Terms.
         CreateDocumentLine(
             GenJournalLine, DocumentType::Payment, CustomerNo, '', -TotalInvAmount - TotalTolAmount / 2,
             LibraryRandom.RandDateFromInRange(GenJournalLine."Due Date", 10, 20), 1);
@@ -972,7 +972,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
     begin
         GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
-        GenJournalLine.FindSet;
+        GenJournalLine.FindSet();
         repeat
             TempGenJournalLine := GenJournalLine;
             TempGenJournalLine.Insert();
@@ -1017,7 +1017,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         CustomerPostingGroup.Get(PostingGroupCode);
         GLAccount.SetRange("Account Type", GLAccount."Account Type"::Posting);
         GLAccount.SetRange(Blocked, false);
-        GLAccount.FindSet;
+        GLAccount.FindSet();
         CustomerPostingGroup.Validate("Payment Disc. Debit Acc.", GLAccount."No.");
         CustomerPostingGroup.Validate("Payment Disc. Credit Acc.", GLAccount."No.");
         GLAccount.Next;
@@ -1066,7 +1066,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         GLRegister.FindLast;
         CustLedgerEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
         CustLedgerEntry.SetRange("Document Type", DocumentType);
-        CustLedgerEntry.FindSet;
+        CustLedgerEntry.FindSet();
         repeat
             CustEntrySetApplID.SetApplId(CustLedgerEntry, CustLedgerEntry, GenJournalLine."Document No.");
             ApplyCustomerEntries.CalcApplnAmount;
@@ -1152,7 +1152,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
     begin
         // Verify Payment Discount Amount in Customer Ledger Entry.
         GeneralLedgerSetup.Get();
-        TempGenJournalLine.FindSet;
+        TempGenJournalLine.FindSet();
         repeat
             CustLedgerEntry.SetRange("Document No.", TempGenJournalLine."Document No.");
             CustLedgerEntry.FindFirst;
@@ -1163,7 +1163,7 @@ codeunit 134023 "ERM Pmt Tol Multi Doc Customer"
         until TempGenJournalLine.Next = 0;
     end;
 
-    local procedure VerifyDetldCustomerLedgerEntry(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; EntryType: Option; AmountLCY: Decimal)
+    local procedure VerifyDetldCustomerLedgerEntry(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; EntryType: Enum "Detailed CV Ledger Entry Type"; AmountLCY: Decimal)
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         GeneralLedgerSetup: Record "General Ledger Setup";

@@ -21,7 +21,7 @@ codeunit 5674 FADimensionManagement
             repeat
                 TempSelectedDim."Dimension Code" := SelectedDim."Dimension Code";
                 TempSelectedDim.Insert();
-            until SelectedDim.Next = 0;
+            until SelectedDim.Next() = 0;
     end;
 
     procedure GetDimensions(var DimBuf: Record "Dimension Buffer")
@@ -31,7 +31,7 @@ codeunit 5674 FADimensionManagement
                 DimBuf."Dimension Code" := TempSelectedDim2."Dimension Code";
                 DimBuf."Dimension Value Code" := TempSelectedDim2."New Dimension Value Code";
                 DimBuf.Insert();
-            until TempSelectedDim2.Next = 0;
+            until TempSelectedDim2.Next() = 0;
     end;
 
     procedure CheckFAAllocDim(var FAAlloc: Record "FA Allocation"; DimSetID: Integer)
@@ -93,7 +93,7 @@ codeunit 5674 FADimensionManagement
                             TempSelectedDim3.Insert();
                         end;
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -109,7 +109,7 @@ codeunit 5674 FADimensionManagement
                     exit(false);
                 if TempSelectedDim2."New Dimension Value Code" <> TempSelectedDim3."New Dimension Value Code" then
                     exit(false);
-            until TempSelectedDim2.Next = 0;
+            until TempSelectedDim2.Next() = 0;
         exit(true);
     end;
 

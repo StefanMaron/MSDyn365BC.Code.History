@@ -7,6 +7,9 @@ page 5492 "Item Categories Entity"
     ODataKeyFields = SystemId;
     PageType = API;
     SourceTable = "Item Category";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'API version beta will be deprecated.';
+    ObsoleteTag = '18.0';
 
     layout
     {
@@ -60,7 +63,7 @@ page 5492 "Item Categories Entity"
         RecRef: RecordRef;
     begin
         ItemCategory.SetRange(Code, Code);
-        if not ItemCategory.IsEmpty then
+        if not ItemCategory.IsEmpty() then
             Insert;
 
         Insert(true);

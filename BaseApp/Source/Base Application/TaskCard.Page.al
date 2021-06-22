@@ -52,7 +52,7 @@ page 5098 "Task Card"
                         Commit();
                         PAGE.RunModal(PAGE::"Attendee Scheduling", Rec);
                         Get("No.");
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Attendees Accepted No."; "Attendees Accepted No.")
@@ -67,7 +67,7 @@ page 5098 "Task Card"
                         Commit();
                         PAGE.RunModal(PAGE::"Attendee Scheduling", Rec);
                         Get("No.");
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Contact No."; "Contact No.")
@@ -88,7 +88,7 @@ page 5098 "Task Card"
                             if Cont.Get("Contact No.") then;
                             if PAGE.RunModal(0, Cont) = ACTION::LookupOK then begin
                                 Validate("Contact No.", Cont."No.");
-                                CurrPage.Update;
+                                CurrPage.Update();
                             end;
                         end;
                     end;

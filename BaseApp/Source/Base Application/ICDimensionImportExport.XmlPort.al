@@ -109,13 +109,13 @@ xmlport 11 "IC Dimension Import/Export"
                     Deleted[2] := Deleted[2] + 1;
                     OrgICDimVal.Get(TempICDimVal."Dimension Code", TempICDimVal.Code);
                     OrgICDimVal.Delete();
-                until TempICDimVal.Next = 0;
+                until TempICDimVal.Next() = 0;
             if TempICDim.Find('-') then
                 repeat
                     Deleted[1] := Deleted[1] + 1;
                     OrgICDim.Get(TempICDim.Code);
                     OrgICDim.Delete();
-                until TempICDim.Next = 0;
+                until TempICDim.Next() = 0;
 
             Inserted[1] := Inserted[1] + Inserted[2];
             Modified[1] := Modified[1] + Modified[2];
@@ -164,13 +164,13 @@ xmlport 11 "IC Dimension Import/Export"
             repeat
                 TempICDim := ICDim2;
                 TempICDim.Insert();
-            until ICDim2.Next = 0;
+            until ICDim2.Next() = 0;
 
         if ICDimVal2.Find('-') then
             repeat
                 TempICDimVal := ICDimVal2;
                 TempICDimVal.Insert();
-            until ICDimVal2.Next = 0;
+            until ICDimVal2.Next() = 0;
     end;
 
     var

@@ -168,7 +168,7 @@ codeunit 9180 "Generic Chart Mgt"
                         CaptionCode := OptionalMeasure1Code
                     else
                         CaptionCode := IncStr(CaptionCode)
-                until Next = 0
+                until Next() = 0
             end;
 
         // Filters:
@@ -184,7 +184,7 @@ codeunit 9180 "Generic Chart Mgt"
                             TempGenericChartSetup."Source Type"::Query:
                                 chartBuilder.AddQueryFilter("Filter Field ID", "Filter Field Name", "Filter Value");
                         end;
-                until Next = 0;
+                until Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -490,12 +490,12 @@ codeunit 9180 "Generic Chart Mgt"
                 repeat
                     ValidateFieldColumn(
                       TempGenericChartSetup, DummyInt, TempGenericChartYAxis."Y-Axis Measure Field Name", DummyCaption, 2, false, DummyAggregation);
-                until TempGenericChartYAxis.Next = 0;
+                until TempGenericChartYAxis.Next() = 0;
             if TempGenericChartFilter.FindSet then
                 repeat
                     ValidateFieldColumn(
                       TempGenericChartSetup, DummyInt, TempGenericChartFilter."Filter Field Name", DummyCaption, 0, true, DummyAggregation);
-                until TempGenericChartFilter.Next = 0;
+                until TempGenericChartFilter.Next() = 0;
             ValidateFieldColumn(TempGenericChartSetup, DummyInt, "X-Axis Field Name", "X-Axis Title", 0, false, DummyAggregation);
             ValidateFieldColumn(TempGenericChartSetup, DummyInt, "Z-Axis Field Name", "Z-Axis Title", 0, false, DummyAggregation);
         end;
@@ -646,7 +646,7 @@ codeunit 9180 "Generic Chart Mgt"
                                     Found := true;
                                     FieldColNo := "No.";
                                 end;
-                            until (Next = 0) or Found;
+                            until (Next() = 0) or Found;
                     end;
             SourceType::Query:
                 begin
@@ -664,7 +664,7 @@ codeunit 9180 "Generic Chart Mgt"
                                         Found := true;
                                         FieldColNo := "Query Column No.";
                                     end;
-                                until (Next = 0) or Found;
+                                until (Next() = 0) or Found;
                         end;
                 end;
         end;
@@ -851,7 +851,7 @@ codeunit 9180 "Generic Chart Mgt"
                 LanguageId := Language.GetLanguageId(TempGenericChartCaptionsBuf."Language Code");
                 if LanguageId <> 0 then
                     MultilanguageText.SetText(LanguageId, TempGenericChartCaptionsBuf.Caption);
-            until TempGenericChartCaptionsBuf.Next = 0;
+            until TempGenericChartCaptionsBuf.Next() = 0;
         TempGenericChartCaptionsBuf.SetRange(Code)
     end;
 
@@ -887,7 +887,7 @@ codeunit 9180 "Generic Chart Mgt"
                 Language.GetLanguageId(TempGenericChartMemoBuf."Language Code");
                 if LanguageId <> 0 then
                     MultilanguageText.SetText(LanguageId, TempGenericChartMemoBuf.GetMemoText);
-            until TempGenericChartMemoBuf.Next = 0;
+            until TempGenericChartMemoBuf.Next() = 0;
         TempGenericChartMemoBuf.SetRange(Code)
     end;
 
@@ -978,7 +978,7 @@ codeunit 9180 "Generic Chart Mgt"
         exit(Optional5Tok)
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 2000000006, 'CustomizeChart', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Action Triggers", 'CustomizeChart', '', false, false)]
     local procedure CustomizeChart(var TempChart: Record Chart temporary; var LookupOK: Boolean)
     var
         GenericChartMgt: Codeunit "Generic Chart Mgt";

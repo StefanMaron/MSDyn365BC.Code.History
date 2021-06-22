@@ -38,7 +38,7 @@ page 2158 "O365 Brand Colors"
     var
         O365BrandColor: Record "O365 Brand Color";
     begin
-        if O365BrandColor.IsEmpty then
+        if O365BrandColor.IsEmpty() then
             O365BrandColor.CreateDefaultBrandColors;
     end;
 }

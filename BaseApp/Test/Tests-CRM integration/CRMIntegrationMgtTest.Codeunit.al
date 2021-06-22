@@ -562,12 +562,12 @@ codeunit 139162 "CRM Integration Mgt Test"
         ResetDefaultCRMSetupConfiguration;
         // [WHEN] Find Integration Table Mapping for "Opportunity"
         // [THEN] Mapped to "CRM Opportunity", Direction is "Bidirectional",
-        // [THEN] no "Table Filter", no "Integration Table Filter", "Synch. Only Coupled Records" is No
+        // [THEN] "Table Filter" is correct, "Integration Table Filter" is correct, "Synch. Only Coupled Records" is No
         CDSIntegrationMgt.GetCDSCompany(CDSCompany);
         ExpectedIntTableFilter := StrSubstNo('VERSION(1) SORTING(Field1) WHERE(Field111=1(%1|{00000000-0000-0000-0000-000000000000}))', Format(CDSCompany.CompanyId));
         VerifyTableMapping(
           DATABASE::Opportunity, DATABASE::"CRM Opportunity", IntegrationTableMapping.Direction::Bidirectional,
-          '', ExpectedIntTableFilter, false);
+          'VERSION(1) SORTING(Field1) WHERE(Field10=1(0|1))', ExpectedIntTableFilter, false);
     end;
 
     [Test]
@@ -623,64 +623,6 @@ codeunit 139162 "CRM Integration Mgt Test"
         Contact.Insert();
         LibraryCRMIntegration.CreateIntegrationRecord(CreateGuid, DATABASE::Contact, Contact.RecordId);
         RunHyperlinkTest(Contact.RecordId, DATABASE::Contact);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure DefaultDynamicsNAVODataURL()
-    var
-        CRMNAVConnection: Record "CRM NAV Connection";
-        CRMIntegrationManagement: Codeunit "CRM Integration Management";
-    begin
-        // [FEATURE] [Default CRM Setup Configuration]
-        // [SCENARIO] "CRM NAV Connection"."Dynamics NAV OData URL" is set on reset CRM setup configuration.
-        Initialize;
-
-        // [GIVEN] CRM integration enabled
-        // [WHEN] Reset CRM integration setup to default
-        ResetDefaultCRMSetupConfiguration;
-
-        // [THEN] CRM NAV Connection exists with "Dynamics NAV OData URL" equal to OData URL for current company
-        CRMNAVConnection.FindFirst;
-        CRMNAVConnection.TestField("Dynamics NAV URL", GetUrl(CLIENTTYPE::Web));
-        CRMNAVConnection.TestField("Dynamics NAV OData URL", '');
-
-        // [WHEN] Item Availability service is running and Reset CRM integration setup to default
-        CRMIntegrationManagement.SetupItemAvailabilityService;
-        ResetDefaultCRMSetupConfiguration;
-
-        // [THEN] "Dynamics NAV OData URL" contains updated link to Item Availability Service
-        CRMNAVConnection.FindFirst;
-        Assert.ExpectedMessage('/ProductItemAvailability', CRMNAVConnection."Dynamics NAV OData URL");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure DynamicsNAVODataCredentials()
-    var
-        CRMNAVConnection: Record "CRM NAV Connection";
-        User: Record User;
-        CRMConnectionSetupPage: TestPage "CRM Connection Setup";
-        AccessKey: Text[80];
-    begin
-        // [FEATURE] [CRM NAV Connection]
-        // [SCENARIO] For CRM Connection Setup after "Dynamics NAV OData Username" is set, "CRM NAV Connection"."Dynamics NAV OData Accesskey" is updated automatically.
-        Initialize;
-
-        // [GIVEN] CRM integration enabled, CRM integration setup reset to default
-        ResetDefaultCRMSetupConfiguration;
-
-        // [GIVEN] User with OData Accesskey
-        AccessKey := CreateUserWithAccessKey(User);
-
-        // [WHEN] Open "CRM Connection Setup" page, set "Dynamics NAV OData Username" to User."User Name".
-        CRMConnectionSetupPage.OpenEdit;
-        CRMConnectionSetupPage.NAVODataUsername.SetValue(User."User Name");
-        CRMConnectionSetupPage.Close;
-
-        // [THEN] CRM NAV Connection exists with "Dynamics NAV OData Accesskey" equal to OData accesskey of the User.
-        CRMNAVConnection.FindFirst;
-        CRMNAVConnection.TestField("Dynamics NAV OData Accesskey", AccessKey);
     end;
 
     [Test]
@@ -1208,6 +1150,7 @@ codeunit 139162 "CRM Integration Mgt Test"
     end;
 
     [Test]
+    //Reenabled in https://dev.azure.com/dynamicssmb2/Dynamics%20SMB/_workitems/edit/368425
     [Scope('OnPrem')]
     procedure ActivatingProductUnblocksResource()
     var
@@ -1486,7 +1429,7 @@ codeunit 139162 "CRM Integration Mgt Test"
         // [THEN] Notification: '2 of 2 records are scheduled'
         // handled by MultipleSyncStartedNotificationHandler
         // Executing the Sync Jobs
-        SalesInvHeader.FindSet;
+        SalesInvHeader.FindSet();
         repeat
             FilteredSalesInvHeader.SetRange("No.", SalesInvHeader."No.");
             JobQueueEntryID :=
@@ -1869,9 +1812,8 @@ codeunit 139162 "CRM Integration Mgt Test"
         CRMTransactioncurrency: Record "CRM Transactioncurrency";
         Customer: Record Customer;
         Currency: Record Currency;
-        IntegrationRecord: Record "Integration Record";
     begin
-        LibraryCRMIntegration.CreateCurrencyAndEnsureIntegrationRecord(Currency, IntegrationRecord);
+        LibraryCRMIntegration.CreateCurrency(Currency);
         LibraryERM.CreateExchangeRate(Currency.Code, WorkDate, 1, LibraryRandom.RandDec(100, 2));
         LibraryCRMIntegration.CreateCRMTransactionCurrency(
           CRMTransactioncurrency,

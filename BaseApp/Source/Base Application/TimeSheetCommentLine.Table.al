@@ -49,7 +49,7 @@ table 953 "Time Sheet Comment Line"
         TimeSheetCommentLine.SetRange("No.", "No.");
         TimeSheetCommentLine.SetRange("Time Sheet Line No.", "Time Sheet Line No.");
         TimeSheetCommentLine.SetRange(Date, WorkDate);
-        if TimeSheetCommentLine.IsEmpty then
+        if TimeSheetCommentLine.IsEmpty() then
             Date := WorkDate;
 
         OnAfterSetUpNewLine(Rec, TimeSheetCommentLine);

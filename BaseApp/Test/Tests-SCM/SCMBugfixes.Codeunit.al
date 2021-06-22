@@ -1023,7 +1023,7 @@ codeunit 137045 "SCM Bugfixes"
         OrderPromisingLine.FindFirst;
         AvailabilityMgt.UpdateSource(OrderPromisingLine);
         RequisitionLine.SetRange("Order Promising ID", SalesHeader."No.");
-        RequisitionLine.FindSet;
+        RequisitionLine.FindSet();
         repeat
             RequisitionLine.Validate("Accept Action Message", true);
             RequisitionLine.Modify(true);
@@ -1071,7 +1071,7 @@ codeunit 137045 "SCM Bugfixes"
     begin
         RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
         RequisitionLine.SetRange("No.", ItemNo);
-        RequisitionLine.FindSet;
+        RequisitionLine.FindSet();
         repeat
             RequisitionLine.Validate("Accept Action Message", true);
             RequisitionLine.Modify(true);

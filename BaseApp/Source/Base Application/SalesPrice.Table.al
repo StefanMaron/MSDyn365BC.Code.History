@@ -241,7 +241,7 @@ table 7002 "Sales Price"
                 NewSalesPrice."Sales Code" := CustNo;
                 OnBeforeNewSalesPriceInsert(NewSalesPrice, SalesPrice);
                 if NewSalesPrice.Insert() then;
-            until SalesPrice.Next = 0;
+            until SalesPrice.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

@@ -36,7 +36,7 @@ codeunit 197 "Update Acc. Sched. KPI Data"
         // Exit quickly to avoid lock
         if AccSchedKPIWebSrvSetup.Get() then
             if AccSchedKPIWebSrvSetup."Data Time To Live (hours)" >= 1 then
-                if not AccSchedKPIBuffer.IsEmpty then
+                if not AccSchedKPIBuffer.IsEmpty() then
                     if AccSchedKPIWebSrvSetup."Data Last Updated" >
                        CurrentDateTime - AccSchedKPIWebSrvSetup."Data Time To Live (hours)" * 3600000
                     then
@@ -76,8 +76,8 @@ codeunit 197 "Update Acc. Sched. KPI Data"
                     TempAccScheduleLine := AccScheduleLine;
                     TempAccScheduleLine."Line No." := NoOfActiveAccSchedLines;
                     TempAccScheduleLine.Insert();
-                until AccScheduleLine.Next = 0;
-        until AccSchedKPIWebSrvLine.Next = 0;
+                until AccScheduleLine.Next() = 0;
+        until AccSchedKPIWebSrvLine.Next() = 0;
 
         OnInitSetupDataAnAfterTempAccScheduleLineInsert(TempAccScheduleLine, NoOfActiveAccSchedLines);
 
@@ -118,7 +118,7 @@ codeunit 197 "Update Acc. Sched. KPI Data"
         Window.Close;
     end;
 
-    local procedure InsertTempColumn(ColumnType: Option; EntryType: Option; LastYear: Boolean)
+    local procedure InsertTempColumn(ColumnType: Enum "Column Layout Type"; EntryType: Enum "Column Layout Entry Type"; LastYear: Boolean)
     begin
         with TempColumnLayout do begin
             if FindLast then;
@@ -142,7 +142,7 @@ codeunit 197 "Update Acc. Sched. KPI Data"
         Date := AccSchedKPIWebSrvSetup.CalcNextStartDate(StartDate, Number div NoOfActiveAccSchedLines);
 
         ToDate := AccSchedKPIWebSrvSetup.CalcNextStartDate(Date, 1) - 1;
-        TempAccScheduleLine.FindSet;
+        TempAccScheduleLine.FindSet();
         if Number mod NoOfActiveAccSchedLines > 0 then
             TempAccScheduleLine.Next(Number mod NoOfActiveAccSchedLines);
         TempAccScheduleLine.SetRange("Date Filter", Date, ToDate);
@@ -159,7 +159,7 @@ codeunit 197 "Update Acc. Sched. KPI Data"
         AccSchedKPIBuffer."KPI Name" := CopyStr(TempAccScheduleLine.Description, 1, MaxStrLen(AccSchedKPIBuffer."KPI Name"));
 
         ColNo := 0;
-        TempColumnLayout.FindSet;
+        TempColumnLayout.FindSet();
         repeat
             CalculatedValue := AccSchedManagement.CalcCell(TempAccScheduleLine, TempColumnLayout, false);
             OnCalcValuesOnAfterCalculateValue(TempAccScheduleLine, TempColumnLayout, CalculatedValue);
@@ -187,7 +187,7 @@ codeunit 197 "Update Acc. Sched. KPI Data"
                 10:
                     AccSchedKPIBuffer."Balance at Date Forecast" := CalculatedValue;
             end;
-        until TempColumnLayout.Next = 0;
+        until TempColumnLayout.Next() = 0;
 
         // Forecasted values
         with AccSchedKPIWebSrvSetup do

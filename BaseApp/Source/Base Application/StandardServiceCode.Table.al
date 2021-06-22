@@ -47,7 +47,7 @@ table 5996 "Standard Service Code"
                             StdServiceLine."Amount Excl. VAT" :=
                               Round(StdServiceLine."Amount Excl. VAT", Currency."Amount Rounding Precision");
                             StdServiceLine.Modify();
-                        until StdServiceLine.Next = 0;
+                        until StdServiceLine.Next() = 0;
                     end;
                 end;
                 Modify;
@@ -169,7 +169,7 @@ table 5996 "Standard Service Code"
                         ServLine.Insert(true);
                         InsertExtendedText(ServLine);
                     end;
-                until StdServLine.Next = 0;
+                until StdServLine.Next() = 0;
         end;
     end;
 

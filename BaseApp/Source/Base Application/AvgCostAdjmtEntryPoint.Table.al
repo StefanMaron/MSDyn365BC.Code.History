@@ -210,7 +210,7 @@ table 5804 "Avg. Cost Adjmt. Entry Point"
     var
         AccountingPeriodMgt: Codeunit "Accounting Period Mgt.";
     begin
-        if FiscalYearAccPeriod.IsEmpty then begin
+        if FiscalYearAccPeriod.IsEmpty() then begin
             AccountingPeriodMgt.InitStartYearAccountingPeriod(FiscalYearAccPeriod, ValuationDate);
             exit;
         end;

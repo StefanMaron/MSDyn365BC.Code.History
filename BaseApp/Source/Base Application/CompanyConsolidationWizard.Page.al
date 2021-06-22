@@ -396,10 +396,10 @@ page 1826 "Company Consolidation Wizard"
 
                 trigger OnAction()
                 var
-                    AssistedSetup: Codeunit "Assisted Setup";
+                    GuidedExperience: Codeunit "Guided Experience";
                 begin
                     CreateAction;
-                    AssistedSetup.Complete(PAGE::"Company Consolidation Wizard");
+                    GuidedExperience.CompleteAssistedSetup(ObjectType::Page, PAGE::"Company Consolidation Wizard");
                     if SelectCompanyOption = SelectCompanyOption::"Create a new company" then
                         Message(AfterCreateCompanyMsg);
                     CurrPage.Close;
@@ -848,7 +848,7 @@ page 1826 "Company Consolidation Wizard"
                     BusinessUnit."Minority Exch. Rate Losses Acc" := "Minority Exch. Rate Losses Acc";
 
                     BusinessUnit.Insert();
-                until Next = 0;
+                until Next() = 0;
             end;
         end;
 

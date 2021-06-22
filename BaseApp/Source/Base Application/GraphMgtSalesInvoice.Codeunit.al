@@ -83,6 +83,7 @@ codeunit 5475 "Graph Mgt - Sales Invoice"
               "Ship-to City", "Ship-to County", "Ship-to Country/Region Code", "Ship-to Post Code", JSON);
     end;
 
+    [Obsolete('Integration Records will be replaced by SystemID and SystemModifiedAt ', '18.0')]
     procedure UpdateIntegrationRecordIds(OnlyRecordsWithoutID: Boolean)
     var
         DummySalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate";
@@ -105,7 +106,7 @@ codeunit 5475 "Graph Mgt - Sales Invoice"
           SalesInvoiceHeaderRecordRef, DummySalesInvoiceEntityAggregate.FieldNo(Id), OnlyRecordsWithoutID);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5465, 'ApiSetup', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Mgt - General Tools", 'ApiSetup', '', false, false)]
     [Scope('OnPrem')]
     procedure HandleApiSetup()
     var

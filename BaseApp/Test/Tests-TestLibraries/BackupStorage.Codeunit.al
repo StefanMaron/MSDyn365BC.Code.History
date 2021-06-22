@@ -216,7 +216,7 @@ codeunit 130012 "Backup Storage"
                 exit;
 
         // delete records inserted in the current table since backup-time
-        RecordRef.FindSet;
+        RecordRef.FindSet();
         repeat
             if not BackupRecordRef.Get(RecordRef.RecordId) then
                 RecordRef.Delete();

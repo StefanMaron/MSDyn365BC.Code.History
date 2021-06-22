@@ -60,7 +60,7 @@ page 2130 "O365 Business Info Settings"
                                 Validate("Brand Color Code", O365BrandColor.Code);
                             end;
 
-                            CurrPage.Update;
+                            CurrPage.Update();
                         end;
                     }
                     field(FullAddress; FullAddress)

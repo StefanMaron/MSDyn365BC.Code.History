@@ -275,7 +275,7 @@ report 5848 "Cost Shares Breakdown"
                         if not CostShareBuf.Find('-') then
                             CurrReport.Break();
                     end else
-                        if CostShareBuf.Next = 0 then
+                        if CostShareBuf.Next() = 0 then
                             CurrReport.Break();
 
                     if CostShareBuf."Posting Date" > EndDate then
@@ -299,7 +299,7 @@ report 5848 "Cost Shares Breakdown"
                                     TempItem := Item;
                                     TempItem.Insert();
                                     TempItem.CopyFilters(Item);
-                                    if TempItem.IsEmpty then
+                                    if TempItem.IsEmpty() then
                                         CurrReport.Skip();
                                 end;
 
@@ -378,14 +378,14 @@ report 5848 "Cost Shares Breakdown"
                             if not ItemPrint.Find('-') then
                                 CurrReport.Break();
                         end else
-                            if ItemPrint.Next = 0 then
+                            if ItemPrint.Next() = 0 then
                                 CurrReport.Break();
                     CostSharePrint::"WIP Inventory":
                         if Number = 1 then begin
                             if not ProdOrderPrint.Find('-') then
                                 CurrReport.Break();
                         end else
-                            if ProdOrderPrint.Next = 0 then
+                            if ProdOrderPrint.Next() = 0 then
                                 CurrReport.Break();
                 end;
 
@@ -621,7 +621,7 @@ report 5848 "Cost Shares Breakdown"
                     end;
                 end;
             end;
-        until ItemApplnEntry.Next = 0;
+        until ItemApplnEntry.Next() = 0;
 
         if ToItemLedgEntry."Entry Type" = ToItemLedgEntry."Entry Type"::Transfer then
             if not ToItemLedgEntry.Positive then begin
@@ -717,7 +717,7 @@ report 5848 "Cost Shares Breakdown"
                     TotalCost := TotalCost + ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)";
                     if ValueEntry."Entry Type" = ValueEntry."Entry Type"::"Direct Cost" then
                         TotalDirectCost := TotalDirectCost + ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)";
-                until ValueEntry.Next = 0;
+                until ValueEntry.Next() = 0;
 
             if ItemLedgEntry."Entry Type" in [ItemLedgEntry."Entry Type"::Output,
                                               ItemLedgEntry."Entry Type"::"Assembly Output"]
@@ -814,7 +814,7 @@ report 5848 "Cost Shares Breakdown"
                     if IsInCostingPeriod(ValueEntry."Posting Date") then
                         CostInPeriod := CostInPeriod + ValueEntry."Cost Amount (Actual)";
                     TotalCost := TotalCost + ValueEntry."Cost Amount (Actual)";
-                until ValueEntry.Next = 0;
+                until ValueEntry.Next() = 0;
 
             if TotalCost <> 0 then
                 "Share of Cost in Period" := CostInPeriod / TotalCost;

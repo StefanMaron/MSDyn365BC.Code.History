@@ -210,7 +210,7 @@ codeunit 138034 "O365 Correct Sales Dim."
         InitGLAccountsDefDimCandatoryScenario(
           TempDefaultDim, CustPostingGroup."Receivables Account", InvtPostingSetup."Inventory Account");
 
-        TempDefaultDim.FindSet;
+        TempDefaultDim.FindSet();
         repeat
             DefaultDim := TempDefaultDim;
             DefaultDim.Insert(true);

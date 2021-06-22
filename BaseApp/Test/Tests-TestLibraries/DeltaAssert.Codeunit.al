@@ -113,7 +113,7 @@ codeunit 130001 "Delta Assert"
 
         // Check all watches
         Watches.Reset();
-        Watches.FindSet;
+        Watches.FindSet();
         repeat
             AssertWatch(Watches);
         until Watches.Next = 0;

@@ -15,9 +15,11 @@ codeunit 5706 "TransferOrder-Post (Yes/No)"
 
     local procedure "Code"()
     var
+        InvtSetup: Record "Inventory Setup";
         TransLine: Record "Transfer Line";
         TransferPostShipment: Codeunit "TransferOrder-Post Shipment";
         TransferPostReceipt: Codeunit "TransferOrder-Post Receipt";
+        TransferOrderPostTransfer: Codeunit "TransferOrder-Post Transfer";
         DefaultNumber: Integer;
         Selection: Option " ",Shipment,Receipt;
         IsHandled: Boolean;
@@ -26,40 +28,47 @@ codeunit 5706 "TransferOrder-Post (Yes/No)"
         if IsHandled then
             exit;
 
-        with TransHeader do begin
-            TransLine.SetRange("Document No.", "No.");
-            if TransLine.Find('-') then
-                repeat
-                    if (TransLine."Quantity Shipped" < TransLine.Quantity) and
-                       (DefaultNumber = 0)
-                    then
-                        DefaultNumber := 1;
-                    if (TransLine."Quantity Received" < TransLine.Quantity) and
-                       (DefaultNumber = 0)
-                    then
-                        DefaultNumber := 2;
-                until (TransLine.Next = 0) or (DefaultNumber > 0);
+        InvtSetup.Get();
 
-            IsHandled := false;
-            OnCodeOnBeforePostTransferOrder(TransHeader, DefaultNumber, Selection, IsHandled);
-            if not IsHandled then
-                if "Direct Transfer" then begin
-                    TransferPostShipment.Run(TransHeader);
-                    TransferPostReceipt.Run(TransHeader);
-                end else begin
-                    if DefaultNumber = 0 then
-                        DefaultNumber := 1;
-                    Selection := StrMenu(Text000, DefaultNumber);
-                    case Selection of
-                        0:
-                            exit;
-                        Selection::Shipment:
+        TransLine.SetRange("Document No.", TransHeader."No.");
+        if TransLine.Find('-') then
+            repeat
+                if (TransLine."Quantity Shipped" < TransLine.Quantity) and
+                    (DefaultNumber = 0)
+                then
+                    DefaultNumber := 1;
+                if (TransLine."Quantity Received" < TransLine.Quantity) and
+                    (DefaultNumber = 0)
+                then
+                    DefaultNumber := 2;
+            until (TransLine.Next() = 0) or (DefaultNumber > 0);
+        
+        IsHandled := false;
+        OnCodeOnBeforePostTransferOrder(TransHeader, DefaultNumber, Selection, IsHandled);
+        if not IsHandled then
+            if TransHeader."Direct Transfer" then
+                case InvtSetup."Direct Transfer Posting" of
+                    InvtSetup."Direct Transfer Posting"::"Receipt and Shipment":
+                        begin
                             TransferPostShipment.Run(TransHeader);
-                        Selection::Receipt:
                             TransferPostReceipt.Run(TransHeader);
-                    end;
+                        end;
+                    InvtSetup."Direct Transfer Posting"::"Direct Transfer":
+                        TransferOrderPostTransfer.Run(TransHeader);
+                end
+            else begin
+                if DefaultNumber = 0 then
+                    DefaultNumber := 1;
+                Selection := StrMenu(Text000, DefaultNumber);
+                case Selection of
+                    0:
+                        exit;
+                    Selection::Shipment:
+                        TransferPostShipment.Run(TransHeader);
+                    Selection::Receipt:
+                        TransferPostReceipt.Run(TransHeader);
                 end;
-        end;
+            end;
 
         OnAfterPost(TransHeader, Selection);
     end;

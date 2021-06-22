@@ -36,7 +36,7 @@ report 99001026 "Replan Production Order"
                             repeat
                                 if PlanLevel < ProdOrderLine."Planning Level Code" then
                                     PlanLevel := ProdOrderLine."Planning Level Code";
-                            until (ProdOrderLine.Next = 0) or (PlanLevel > "Prod. Order Line"."Planning Level Code");
+                            until (ProdOrderLine.Next() = 0) or (PlanLevel > "Prod. Order Line"."Planning Level Code");
 
                         ProdOrderLine.Reset();
 
@@ -171,7 +171,7 @@ report 99001026 "Replan Production Order"
                                 repeat
                                     CalcProdOrder.BlockDynamicTracking(true);
                                     CalcProdOrder.Recalculate(ProdOrderLine, 1, true);
-                                until ProdOrderLine.Next = 0;
+                                until ProdOrderLine.Next() = 0;
 
                             Modify;
                         end;
@@ -329,7 +329,7 @@ report 99001026 "Replan Production Order"
                         DeleteProdOrders(ProdOrder, LowLevelCode + 1, AllLevels);
                     ProdOrder.Delete(true);
                 end;
-            until ProdOrderComponent.Next = 0;
+            until ProdOrderComponent.Next() = 0;
     end;
 
     local procedure DeleteUnreservedLowLevelProdOrderLines(ProdOrder: Record "Production Order")
@@ -360,7 +360,7 @@ report 99001026 "Replan Production Order"
                                 Delete(true);
                         end;
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -368,23 +368,22 @@ report 99001026 "Replan Production Order"
     var
         ReservEntry: Record "Reservation Entry";
         ReservEntryFrom: Record "Reservation Entry";
-        ProdOrderLineReserve: Codeunit "Prod. Order Line-Reserve";
     begin
         ReservedQtyBase := 0;
 
         with ReservEntry do begin
             SetCurrentKey("Source ID", "Source Ref. No.", "Source Type", "Source Subtype", "Source Batch Name");
             SetRange("Reservation Status", "Reservation Status"::Reservation);
-            ProdOrderLineReserve.FilterReservFor(ReservEntry, ProdOrderLine);
+            ProdOrderLine.SetReservationFilters(ReservEntry);
 
-            if FindSet then
+            if FindSet() then
                 repeat
                     ReservEntryFrom.Get("Entry No.", not Positive);
                     if (ReservEntryFrom."Source Type" <> SourceType) or (ReservEntryFrom."Source ID" <> ProdOrderLine."Prod. Order No.") or
                        (ReservEntryFrom."Source Subtype" <> ProdOrderLine.Status.AsInteger())
                     then
                         ReservedQtyBase += "Quantity (Base)";
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

@@ -56,6 +56,7 @@ codeunit 99000840 "Plng. Component-Reserve"
         FromTrackingSpecification."Source Type" := 0;
     end;
 
+#if not CLEAN16
     [Obsolete('Replaced by CreateReservation(PlanningComponent, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry)', '16.0')]
     procedure CreateReservation(PlanningComponent: Record "Planning Component"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForSerialNo: Code[50]; ForLotNo: Code[50])
     var
@@ -65,6 +66,7 @@ codeunit 99000840 "Plng. Component-Reserve"
         ForReservEntry."Lot No." := ForLotNo;
         CreateReservation(PlanningComponent, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry);
     end;
+#endif
 
     local procedure CreateBindingReservation(PlanningComponent: Record "Planning Component"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal)
     var
@@ -83,11 +85,13 @@ codeunit 99000840 "Plng. Component-Reserve"
         CreateReservEntry.SetBinding(Binding);
     end;
 
+#if not CLEAN16
     [Obsolete('Replaced by PlanningComponent.SetReservationFilters(FilterReservEntry)', '16.0')]
     procedure FilterReservFor(var FilterReservEntry: Record "Reservation Entry"; PlanningComponent: Record "Planning Component")
     begin
         PlanningComponent.SetReservationFilters(FilterReservEntry);
     end;
+#endif
 
     procedure Caption(PlanningComponent: Record "Planning Component") CaptionText: Text
     var
@@ -252,7 +256,7 @@ codeunit 99000840 "Plng. Component-Reserve"
         OldReservEntry.Lock;
 
         if TransferAll then begin
-            OldReservEntry.FindSet;
+            OldReservEntry.FindSet();
             OldReservEntry.TestField("Qty. per Unit of Measure", QtyPerUOM);
 
             repeat
@@ -262,7 +266,7 @@ codeunit 99000840 "Plng. Component-Reserve"
                 NewReservEntry := OldReservEntry;
                 NewReservEntry.SetSource(SrcType, SrcSubtype, SrcID, SrcRefNo, SrcBatchName, SrcProdOrderLine);
                 NewReservEntry.Modify();
-            until OldReservEntry.Next = 0;
+            until OldReservEntry.Next() = 0;
         end else
             for ReservStatus := ReservStatus::Reservation to ReservStatus::Prospect do begin
                 if TransferQty = 0 then
@@ -277,7 +281,7 @@ codeunit 99000840 "Plng. Component-Reserve"
                         TransferQty :=
                           CreateReservEntry.TransferReservEntry(
                             SrcType, SrcSubtype, SrcID, SrcBatchName, SrcProdOrderLine, SrcRefNo, QtyPerUOM, OldReservEntry, TransferQty);
-                    until (OldReservEntry.Next = 0) or (TransferQty = 0);
+                    until (OldReservEntry.Next() = 0) or (TransferQty = 0);
             end;
     end;
 
@@ -328,7 +332,7 @@ codeunit 99000840 "Plng. Component-Reserve"
                     end;
                     ActionMessageEntry.SetRange("Reservation Entry", "Entry No.");
                     ActionMessageEntry.DeleteAll();
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

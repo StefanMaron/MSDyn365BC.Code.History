@@ -8,9 +8,8 @@ codeunit 351 "Intrastat Document Completion"
     var
         IntrastatSetup: Record "Intrastat Setup";
 
-    [EventSubscriber(ObjectType::Table, 36, 'OnBeforeInsertEvent', '', false, false)]
-    [Scope('OnPrem')]
-    procedure DefaultSalesDocuments(var Rec: Record "Sales Header"; RunTrigger: Boolean)
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnBeforeInsertEvent', '', false, false)]
+    local procedure DefaultSalesDocuments(var Rec: Record "Sales Header"; RunTrigger: Boolean)
     begin
         if not RunTrigger then
             exit;
@@ -35,9 +34,8 @@ codeunit 351 "Intrastat Document Completion"
             Rec."Transaction Type" := IntrastatSetup."Default Trans. - Purchase";
     end;
 
-    [EventSubscriber(ObjectType::Table, 38, 'OnBeforeInsertEvent', '', false, false)]
-    [Scope('OnPrem')]
-    procedure DefaultPurchaseDcouments(var Rec: Record "Purchase Header"; RunTrigger: Boolean)
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnBeforeInsertEvent', '', false, false)]
+    local procedure DefaultPurchaseDcouments(var Rec: Record "Purchase Header"; RunTrigger: Boolean)
     begin
         if not RunTrigger then
             exit;
@@ -62,9 +60,8 @@ codeunit 351 "Intrastat Document Completion"
             Rec."Transaction Type" := IntrastatSetup."Default Trans. - Purchase";
     end;
 
-    [EventSubscriber(ObjectType::Table, 5900, 'OnBeforeInsertEvent', '', false, false)]
-    [Scope('OnPrem')]
-    procedure DefaultServiceDocuments(var Rec: Record "Service Header"; RunTrigger: Boolean)
+    [EventSubscriber(ObjectType::Table, Database::"Service Header", 'OnBeforeInsertEvent', '', false, false)]
+    local procedure DefaultServiceDocuments(var Rec: Record "Service Header"; RunTrigger: Boolean)
     begin
         if not RunTrigger then
             exit;

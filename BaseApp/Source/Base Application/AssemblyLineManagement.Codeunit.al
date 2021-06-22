@@ -1,4 +1,4 @@
-﻿codeunit 905 "Assembly Line Management"
+codeunit 905 "Assembly Line Management"
 {
     Permissions = TableData "Assembly Line" = rimd;
 
@@ -380,7 +380,7 @@
                         if "Location Code" <> OldAsmHeader."Location Code" then begin
                             TempAssemblyLine.SetRange(Type, TempAssemblyLine.Type::Item);
                             TempAssemblyLine.SetFilter("Location Code", '<>%1', "Location Code");
-                            if not TempAssemblyLine.IsEmpty then
+                            if not TempAssemblyLine.IsEmpty() then
                                 if GuiAllowed then
                                     if Confirm(StrSubstNo(Text001, TempAssemblyLine.FieldCaption("Location Code")), false) then
                                         UpdateLocation := true;

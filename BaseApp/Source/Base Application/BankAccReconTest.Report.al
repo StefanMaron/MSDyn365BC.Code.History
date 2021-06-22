@@ -280,7 +280,7 @@ report 1408 "Bank Acc. Recon. - Test"
                                             repeat
                                                 AppliedAmount := AppliedAmount + BankAccLedgEntry.Amount;
                                                 VerifyCheckLedgerEntry(BankAccLedgEntry);
-                                            until BankAccLedgEntry.Next = 0;
+                                            until BankAccLedgEntry.Next() = 0;
                                     end else
                                         AppliedAmount := GetPaymentReconciliationAppliedAmount("Bank Acc. Reconciliation Line");
                                 end;
@@ -323,7 +323,7 @@ report 1408 "Bank Acc. Recon. - Test"
                                                         TableValueWrongErr,
                                                         BankAccLedgEntry.FieldCaption("Statement Line No."), 0,
                                                         BankAccLedgEntry.TableCaption, BankAccLedgEntry."Entry No."));
-                                            until CheckLedgEntry.Next = 0;
+                                            until CheckLedgEntry.Next() = 0;
                                     end else
                                         AppliedAmount := GetPaymentReconciliationAppliedAmount("Bank Acc. Reconciliation Line");
                                 end;
@@ -648,7 +648,7 @@ report 1408 "Bank Acc. Recon. - Test"
                           OutstandingBankTransaction.Type::"Bank Account Ledger Entry",
                           "Bank Acc. Reconciliation"."Statement Type", "Bank Acc. Reconciliation"."Statement No.", RemainingAmt)
                 end;
-            until BankAccountLedgerEntry.Next = 0;
+            until BankAccountLedgerEntry.Next() = 0;
     end;
 
     local procedure GetPaymentReconciliationAppliedAmount(BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"): Decimal
@@ -727,7 +727,7 @@ report 1408 "Bank Acc. Recon. - Test"
                                         AppliedPaymentEntry."Applies-to Entry No."))
                             end;
                     end;
-            until AppliedPaymentEntry.Next = 0;
+            until AppliedPaymentEntry.Next() = 0;
         exit(AppliedAmountTemp);
     end;
 
@@ -764,7 +764,7 @@ report 1408 "Bank Acc. Recon. - Test"
                         TableValueWrongErr,
                         CheckLedgEntry.FieldCaption("Statement Line No."), 0,
                         CheckLedgEntry.TableCaption, CheckLedgEntry."Entry No."));
-            until CheckLedgEntry.Next = 0;
+            until CheckLedgEntry.Next() = 0;
     end;
 
     local procedure SetupRecord()

@@ -2,7 +2,6 @@ codeunit 7018 "Price UX Management"
 {
     var
         MissingAlternateImplementationErr: Label 'You cannot setup exceptions because there is no alternate implementation.';
-        EmptyPriceSourceErr: Label 'Price source information is missing.';
 
     procedure GetFirstSourceFromFilter(var PriceListHeader: Record "Price List Header"; var PriceSource: Record "Price Source"; DefaultSourceType: Enum "Price Source Type")
     var
@@ -351,6 +350,23 @@ codeunit 7018 "Price UX Management"
         PriceListLineReview.Run();
     end;
 
+    procedure ShowPriceListLines(PriceSource: Record "Price Source"; AmountType: Enum "Price Amount Type")
+    var
+        DummyPriceAsset: Record "Price Asset";
+        PriceSourceList: Codeunit "Price Source List";
+        PriceListLineReview: Page "Price List Line Review";
+        IsHandled: Boolean;
+    begin
+        OnBeforeShowPriceListLines(PriceSource, DummyPriceAsset, PriceSource."Price Type", AmountType, IsHandled);
+        if IsHandled then
+            exit;
+        PriceSourceList.Init();
+        PriceSourceList.Add(PriceSource);
+        PriceSourceList.AddChildren(PriceSource);
+        PriceListLineReview.Set(PriceSourceList, AmountType);
+        PriceListLineReview.Run();
+    end;
+
     procedure ShowPriceLists(PriceSourceList: Codeunit "Price Source List"; AmountType: Enum "Price Amount Type")
     var
         PurchasePriceLists: Page "Purchase Price Lists";
@@ -441,104 +457,33 @@ codeunit 7018 "Price UX Management"
     end;
 
     procedure SetPriceListsFilters(var PriceListHeader: Record "Price List Header"; PriceSourceList: Codeunit "Price Source List"; AmountType: Enum "Price Amount Type")
+    var
+        PriceListManagement: Codeunit "Price List Management";
     begin
-        PriceListHeader.FilterGroup(2);
-        if AmountType <> AmountType::Any then
-            PriceListHeader.SetFilter("Amount Type", '%1|%2', AmountType, AmountType::Any);
-        SetSourceFilters(PriceSourceList, PriceListHeader);
-        PriceListHeader.FilterGroup(0);
+        PriceListManagement.SetPriceListsFilters(PriceListHeader, PriceSourceList, AmountType);
+    end;
+
+    procedure SetPriceListLineFilters(var PriceListLine: Record "Price List Line"; PriceSourceList: Codeunit "Price Source List"; AmountType: Enum "Price Amount Type")
+    var
+        PriceListManagement: Codeunit "Price List Management";
+    begin
+        PriceListManagement.SetPriceListLineFilters(PriceListLine, PriceSourceList, AmountType);
     end;
 
     procedure SetPriceListLineFilters(var PriceListLine: Record "Price List Line"; PriceAssetList: Codeunit "Price Asset List"; PriceType: Enum "Price Type"; AmountType: Enum "Price Amount Type")
     var
         PriceSource: Record "Price Source";
+        PriceListManagement: Codeunit "Price List Management";
     begin
         PriceSource."Price Type" := PriceType;
-        SetPriceListLineFilters(PriceListLine, PriceSource, PriceAssetList, AmountType);
+        PriceListManagement.SetPriceListLineFilters(PriceListLine, PriceSource, PriceAssetList, AmountType);
     end;
 
     procedure SetPriceListLineFilters(var PriceListLine: Record "Price List Line"; PriceSource: Record "Price Source"; PriceAssetList: Codeunit "Price Asset List"; AmountType: Enum "Price Amount Type")
-    begin
-        PriceListLine.FilterGroup(2);
-        PriceListLine.SetRange("Price Type", PriceSource."Price Type");
-        if AmountType = AmountType::Any then
-            PriceListLine.SetRange("Amount Type")
-        else
-            PriceListLine.SetFilter("Amount Type", '%1|%2', AmountType, AmountType::Any);
-
-        if PriceSource."Source Type" <> PriceSource."Source Type"::All then begin
-            PriceListLine.SetRange("Source Type", PriceSource."Source Type");
-            PriceListLine.SetRange("Source No.", PriceSource."Source No.");
-        end;
-        BuildAssetFilters(PriceListLine, PriceAssetList);
-        PriceListLine.MarkedOnly(true);
-        PriceListLine.FilterGroup(0);
-    end;
-
-    local procedure BuildAssetFilters(var PriceListLine: Record "Price List Line"; PriceAssetList: Codeunit "Price Asset List")
     var
-        PriceAsset: Record "Price Asset";
+        PriceListManagement: Codeunit "Price List Management";
     begin
-        if PriceAssetList.First(PriceAsset, 0) then
-            repeat
-                PriceListLine.SetRange("Asset Type", PriceAsset."Asset Type");
-                PriceListLine.SetRange("Asset No.", PriceAsset."Asset No.");
-                if PriceAsset."Variant Code" <> '' then
-                    PriceListLine.SetRange("Variant Code", PriceAsset."Variant Code")
-                else
-                    PriceListLine.SetRange("Variant Code");
-                if PriceListLine.FindSet() then
-                    repeat
-                        PriceListLine.Mark(true);
-                    until PriceListLine.Next() = 0;
-            until not PriceAssetList.Next(PriceAsset);
-
-        PriceListLine.SetRange("Asset Type");
-        PriceListLine.SetRange("Asset No.");
-        PriceListLine.SetRange("Variant Code");
-    end;
-
-    local procedure SetSourceFilters(PriceSourceList: Codeunit "Price Source List"; var PriceListHeader: Record "Price List Header")
-    var
-        PriceSource: Record "Price Source";
-        SourceFilter: array[3] of Text;
-    begin
-        PriceSourceList.GetList(PriceSource);
-        if not PriceSource.FindSet() then
-            Error(EmptyPriceSourceErr);
-
-        PriceListHeader.SetRange("Price Type", PriceSource."Price Type");
-        PriceListHeader.SetRange("Source Group", PriceSource."Source Group");
-
-        BuildSourceFilters(PriceSource, SourceFilter);
-        if SourceFilter[3] <> '' then
-            PriceListHeader.SetFilter("Filter Source No.", SourceFilter[3])
-        else begin
-            PriceListHeader.SetFilter("Source Type", SourceFilter[1]);
-            PriceListHeader.SetFilter("Source No.", SourceFilter[2]);
-        end;
-    end;
-
-    local procedure BuildSourceFilters(var PriceSource: Record "Price Source"; var SourceFilter: array[3] of Text)
-    var
-        OrSeparator: Text[1];
-    begin
-        repeat
-            if PriceSource."Source Group" = PriceSource."Source Group"::Job then
-                SourceFilter[3] += OrSeparator + GetFilterText(PriceSource."Filter Source No.")
-            else begin
-                SourceFilter[1] += OrSeparator + Format(PriceSource."Source Type");
-                SourceFilter[2] += OrSeparator + GetFilterText(PriceSource."Source No.");
-            end;
-            OrSeparator := '|';
-        until PriceSource.Next() = 0;
-    end;
-
-    local procedure GetFilterText(SourceNo: Code[20]): Text;
-    begin
-        if SourceNo = '' then
-            exit('''''');
-        exit(SourceNo);
+        PriceListManagement.SetPriceListLineFilters(PriceListLine, PriceSource, PriceAssetList, AmountType);
     end;
 
     procedure GetFirstAlternateSetupCode(CurrPriceCalculationSetup: Record "Price Calculation Setup"): Code[100];

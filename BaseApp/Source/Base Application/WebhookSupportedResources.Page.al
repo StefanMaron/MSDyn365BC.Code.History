@@ -64,7 +64,7 @@ page 5460 "Webhook Supported Resources"
                     "Value Long" := CopyStr(GetResourceUri(ApiWebhookEntity), 1, MaxStrLen("Value Long"));
                     Insert;
                 end;
-        until ApiWebhookEntity.Next = 0;
+        until ApiWebhookEntity.Next() = 0;
 
         SetView(View);
         FindFirst;

@@ -25,7 +25,7 @@ codeunit 904 "Whse.-Assembly Release"
 
                     First := false;
                     OldLocationCode := AssemblyLine."Location Code";
-                until AssemblyLine.Next = 0;
+                until AssemblyLine.Next() = 0;
             end;
 
             WhseRqst.Reset();
@@ -53,13 +53,13 @@ codeunit 904 "Whse.-Assembly Release"
             WhseRqst.SetRange("Source No.", "No.");
             WhseRqst.SetRange("Document Status", Status::Released);
             WhseRqst.LockTable();
-            if not WhseRqst.IsEmpty then
+            if not WhseRqst.IsEmpty() then
                 WhseRqst.ModifyAll("Document Status", WhseRqst."Document Status"::Open);
 
             WhsePickRqst.SetRange("Document Type", WhsePickRqst."Document Type"::Assembly);
             WhsePickRqst.SetRange("Document No.", "No.");
             WhsePickRqst.SetRange(Status, Status::Released);
-            if not WhsePickRqst.IsEmpty then
+            if not WhsePickRqst.IsEmpty() then
                 WhsePickRqst.ModifyAll(Status, WhsePickRqst.Status::Open);
         end;
     end;
@@ -164,7 +164,7 @@ codeunit 904 "Whse.-Assembly Release"
                        (not (Location."Require Pick" and Location."Require Shipment"))
                     then
                         KeepWhseRqst := true; // if lines are incompletely picked.
-                until (AssemblyLine2.Next = 0) or KeepWhseRqst;
+                until (AssemblyLine2.Next() = 0) or KeepWhseRqst;
 
             OnDeleteLineOnBeforeDeleteWhseRqst(AssemblyLine2, KeepWhseRqst);
 
@@ -186,7 +186,7 @@ codeunit 904 "Whse.-Assembly Release"
                 WhsePickRqst.SetRange("Document Subtype", "Document Type");
                 WhsePickRqst.SetRange("Location Code", "Location Code");
             end;
-            if not WhsePickRqst.IsEmpty then
+            if not WhsePickRqst.IsEmpty() then
                 WhsePickRqst.DeleteAll(true);
         end;
     end;
@@ -211,7 +211,7 @@ codeunit 904 "Whse.-Assembly Release"
                 WhseRqst.SetRange("Source Subtype", "Document Type");
                 WhseRqst.SetRange("Location Code", "Location Code");
             end;
-            if not WhseRqst.IsEmpty then
+            if not WhseRqst.IsEmpty() then
                 WhseRqst.DeleteAll(true);
         end;
     end;

@@ -1,4 +1,4 @@
-﻿report 6036 "Create Contract Service Orders"
+report 6036 "Create Contract Service Orders"
 {
     ApplicationArea = Service;
     Caption = 'Create Contract Service Orders';

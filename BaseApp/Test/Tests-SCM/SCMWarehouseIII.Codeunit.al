@@ -539,14 +539,14 @@ codeunit 137051 "SCM Warehouse - III"
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
         ProdOrderLine: Record "Prod. Order Line";
         WarehouseActivityLine: Record "Warehouse Activity Line";
-        OrderType: Option ItemOrder,ProjectOrder;
     begin
         // Update Location Setup, create Manufacturing Setup. Create Sales Order and post Whse Shipment.
         // Create production Order from sales Order, update Bin on Production Order Line, explode routing and Post Output Journal.
         UpdateLocationSetup(true);  // Always Create Pick Line as TRUE.
         CreateManufacturingSetup(RoutingHeader, Item);
         CreateAndPostWarehouseShipmentFromSO(SalesHeader, WarehouseShipmentHeader, Item."No.", Quantity, LocationWhite.Code);  // Value required for the test.
-        LibraryManufacturing.CreateProductionOrderFromSalesOrder(SalesHeader, ProdOrderLine.Status::Released, OrderType::ItemOrder);
+        LibraryManufacturing.CreateProductionOrderFromSalesOrder(
+            SalesHeader, ProdOrderLine.Status::Released, "Create Production Order Type"::ItemOrder);
         UpdateProductionOrderLine(ProdOrderLine, Item."No.");
         ExplodeRoutingAndPostOutputJournal(ProdOrderLine, Quantity);
 
@@ -583,7 +583,6 @@ codeunit 137051 "SCM Warehouse - III"
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
         ProdOrderLine: Record "Prod. Order Line";
         WarehouseActivityLine: Record "Warehouse Activity Line";
-        OrderType: Option ItemOrder,ProjectOrder;
         Quantity: Decimal;
     begin
         // Setup: Update Location Setup, create Manufacturing Setup. Create Sales Order and post Whse Shipment.
@@ -595,7 +594,8 @@ codeunit 137051 "SCM Warehouse - III"
         UpdateInventoryUsingWhseJournal(LocationWhite, Item, 2 * Quantity);  // Value required for the test.
         CreateAndReleaseSalesOrderWithReservation(SalesHeader, Item."No.", Quantity, LocationWhite.Code);
         CreateAndReleaseWhseShipment(SalesHeader, WarehouseShipmentHeader);
-        LibraryManufacturing.CreateProductionOrderFromSalesOrder(SalesHeader, ProdOrderLine.Status::Released, OrderType::ItemOrder);
+        LibraryManufacturing.CreateProductionOrderFromSalesOrder(
+            SalesHeader, ProdOrderLine.Status::Released, "Create Production Order Type"::ItemOrder);
         UpdateProductionOrderLine(ProdOrderLine, Item."No.");
         ExplodeRoutingAndPostOutputJournal(ProdOrderLine, Quantity);
 
@@ -647,7 +647,6 @@ codeunit 137051 "SCM Warehouse - III"
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
         ProdOrderLine: Record "Prod. Order Line";
         WarehouseActivityLine: Record "Warehouse Activity Line";
-        OrderType: Option ItemOrder,ProjectOrder;
         Quantity: Decimal;
     begin
         // Setup: Update Location Setup, create Manufacturing Setup. Create Sales Order and post Whse Shipment.
@@ -656,7 +655,8 @@ codeunit 137051 "SCM Warehouse - III"
         CreateManufacturingSetup(RoutingHeader, Item);
         Quantity := LibraryRandom.RandDec(100, 2);
         CreateAndPostWarehouseShipmentFromSO(SalesHeader, WarehouseShipmentHeader, Item."No.", Quantity, LocationWhite.Code);  // Value required for the test.
-        LibraryManufacturing.CreateProductionOrderFromSalesOrder(SalesHeader, ProdOrderLine.Status::Released, OrderType::ItemOrder);
+        LibraryManufacturing.CreateProductionOrderFromSalesOrder(
+            SalesHeader, ProdOrderLine.Status::Released, "Create Production Order Type"::ItemOrder);
         UpdateProductionOrderLine(ProdOrderLine, Item."No.");
         if OutputJournal then
             ExplodeRoutingAndPostOutputJournal(ProdOrderLine, Quantity / 2);  // Reduce the Output Quantity on Output Journal.
@@ -839,7 +839,6 @@ codeunit 137051 "SCM Warehouse - III"
         SalesHeader: Record "Sales Header";
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
         ProdOrderLine: Record "Prod. Order Line";
-        OrderType: Option ItemOrder,ProjectOrder;
         Quantity: Decimal;
     begin
         // Setup: Update Location Setup, create Manufacturing Setup. Create Sales Order and post Whse Shipment.
@@ -849,7 +848,8 @@ codeunit 137051 "SCM Warehouse - III"
         Quantity := LibraryRandom.RandDec(100, 2);
         CreateManufacturingSetup(RoutingHeader, Item);
         CreateAndPostWarehouseShipmentFromSO(SalesHeader, WarehouseShipmentHeader, Item."No.", Quantity, LocationWhite.Code);  // Value required for the test.
-        LibraryManufacturing.CreateProductionOrderFromSalesOrder(SalesHeader, ProdOrderLine.Status::Released, OrderType::ItemOrder);
+        LibraryManufacturing.CreateProductionOrderFromSalesOrder(
+            SalesHeader, ProdOrderLine.Status::Released, "Create Production Order Type"::ItemOrder);
         UpdateProductionOrderLine(ProdOrderLine, Item."No.");
         ExplodeRoutingAndPostOutputJournal(ProdOrderLine, Quantity);
         LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
@@ -5338,7 +5338,7 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityHeader.Type);
         WarehouseActivityLine.SetRange("No.", WarehouseActivityHeader."No.");
-        WarehouseActivityLine.FindSet;
+        WarehouseActivityLine.FindSet();
         repeat
             WarehouseActivityLine.Validate("Qty. to Handle", WarehouseActivityLine.Quantity * PartialQtyMultiplier);
             WarehouseActivityLine.Modify(true);
@@ -5388,7 +5388,7 @@ codeunit 137051 "SCM Warehouse - III"
         WarehouseActivityLine.SetRange("Location Code", LocationCode);
         WarehouseActivityLine.SetRange("No.", WarehouseActivityLine."No.");
         WarehouseActivityLine.SetRange("Action Type", ActionType);
-        WarehouseActivityLine.FindSet;
+        WarehouseActivityLine.FindSet();
     end;
 
     local procedure FindWarehouseActivityNo(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; ActivityType: Option)
@@ -5502,7 +5502,7 @@ codeunit 137051 "SCM Warehouse - III"
         WarehouseActivityHeader.FindFirst;
         WarehouseActivityLine.SetRange("No.", WarehouseActivityHeader."No.");
         WarehouseActivityLine.SetRange("Item No.", ItemNo);
-        WarehouseActivityLine.FindSet;
+        WarehouseActivityLine.FindSet();
         repeat
             WarehouseActivityLineQuantity += WarehouseActivityLine.Quantity;
         until WarehouseActivityLine.Next = 0;
@@ -5616,7 +5616,7 @@ codeunit 137051 "SCM Warehouse - III"
         ReservationEntry.SetRange("Item No.", ItemNo);
         ReservationEntry.SetRange("Location Code", LocationCode);
         ReservationEntry.SetFilter("Expiration Date", '<>%1', ExpirationDate);
-        ReservationEntry.FindSet;
+        ReservationEntry.FindSet();
         repeat
             ReservationEntry.Validate("Expiration Date", WorkDate);
             ReservationEntry.Modify(true);
@@ -6150,7 +6150,7 @@ codeunit 137051 "SCM Warehouse - III"
             SetRange("Source Type", DATABASE::"Sales Line");
             SetRange("Source Subtype", DocumentType);
             SetRange("Source No.", DocumentNo);
-            FindSet;
+            FindSet();
             repeat
                 Assert.AreNotEqual('', "Lot No.", StrSubstNo(FieldMustNotBeEmptyErr, FieldCaption("Lot No."), TableCaption));
                 Assert.AreNotEqual(0D, "Expiration Date", StrSubstNo(FieldMustNotBeEmptyErr, FieldCaption("Expiration Date"), TableCaption))

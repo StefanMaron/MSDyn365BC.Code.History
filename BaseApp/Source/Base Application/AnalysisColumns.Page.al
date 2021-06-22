@@ -18,19 +18,23 @@ page 7114 "Analysis Columns"
                 ToolTip = 'Specifies the name of the record.';
 
                 trigger OnLookup(var Text: Text): Boolean
+                var
+                    AnalysisAreaType: Enum "Analysis Area Type";
                 begin
-                    CurrPage.SaveRecord;
-                    if AnalysisRepMgmt.LookupColumnName(
-                         GetRangeMax("Analysis Area"), CurrentColumnName)
-                    then begin
+                    CurrPage.SaveRecord();
+                    AnalysisAreaType := Rec.GetRangeMax("Analysis Area");
+                    if AnalysisRepMgmt.LookupAnalysisColumnName(AnalysisAreaType, CurrentColumnName) then begin
                         Text := CurrentColumnName;
                         exit(true);
                     end;
                 end;
 
                 trigger OnValidate()
+                var
+                    AnalysisAreaType: Enum "Analysis Area Type";
                 begin
-                    AnalysisRepMgmt.GetColumnTemplate(GetRangeMax("Analysis Area"), CurrentColumnName);
+                    AnalysisAreaType := Rec.GetRangeMax("Analysis Area");
+                    AnalysisRepMgmt.GetColumnTemplate(AnalysisAreaType.AsInteger(), CurrentColumnName);
                     CurrentColumnNameOnAfterValida;
                 end;
             }
@@ -156,9 +160,12 @@ page 7114 "Analysis Columns"
     end;
 
     local procedure CurrentColumnNameOnAfterValida()
+    var
+        AnalysisAreaType: Enum "Analysis Area Type";
     begin
-        CurrPage.SaveRecord;
-        AnalysisRepMgmt.SetColumnName(GetRangeMax("Analysis Area"), CurrentColumnName, Rec);
+        CurrPage.SaveRecord();
+        AnalysisAreaType := Rec.GetRangeMax("Analysis Area");
+        AnalysisRepMgmt.SetColumnName(AnalysisAreaType.AsInteger(), CurrentColumnName, Rec);
         CurrPage.Update(false);
     end;
 

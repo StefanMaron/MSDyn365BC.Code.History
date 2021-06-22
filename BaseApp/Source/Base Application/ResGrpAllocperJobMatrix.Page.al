@@ -573,7 +573,7 @@ page 9213 "ResGrp. Alloc. per Job Matrix"
             if MatrixRec.Find('-') then
                 repeat
                     MatrixCellQuantity += Round(MatrixRec.Quantity * MatrixRec."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision)
-                until MatrixRec.Next = 0;
+                until MatrixRec.Next() = 0;
 
             if MatrixCellQuantity <> 0 then
                 MatrixCellData[I] := Format(MatrixCellQuantity)

@@ -1944,7 +1944,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
 
         ItemJournalLine.SetRange("Order Type", ItemJournalLine."Order Type"::Production);
         ItemJournalLine.SetRange("Order No.", ProdOrderNo);
-        ItemJournalLine.FindSet;
+        ItemJournalLine.FindSet();
     end;
 
     local procedure CalculateWhseInventory(var WarehouseJournalLine: Record "Warehouse Journal Line"; ItemNo: Code[20]; LocationCode: Code[10])
@@ -2512,7 +2512,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
             SetRange("Source Type", SourceType);
             SetRange("Source Subtype", SourceSubtype);
             SetRange("Source No.", SourceNo);
-            FindSet;
+            FindSet();
         end;
     end;
 

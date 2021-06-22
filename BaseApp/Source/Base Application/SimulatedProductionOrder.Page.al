@@ -24,7 +24,7 @@ page 99000912 "Simulated Production Order"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field(Description; Description)
@@ -53,6 +53,12 @@ page 99000912 "Simulated Production Order"
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of the source document that the entry originates from.';
+                }
+                field("Variant Code"; "Variant Code")
+                {
+                    ApplicationArea = Manufacturing;
+                    ToolTip = 'Specifies the number of the source document that the entry originates from.';
+                    Visible = false;
                 }
                 field("Search Description"; "Search Description")
                 {
@@ -364,7 +370,7 @@ page 99000912 "Simulated Production Order"
 
                     trigger OnAction()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                         CODEUNIT.Run(CODEUNIT::"Prod. Order Status Management", Rec);
                     end;
                 }

@@ -73,7 +73,7 @@ page 5191 "Create Rating Subform"
                 Rec := ProfileLineAnswer;
                 "Profile Questionnaire Code" := ProfileLineQuestion."Profile Questionnaire Code";
                 Insert;
-            until ProfileLineAnswer.Next = 0;
+            until ProfileLineAnswer.Next() = 0;
     end;
 
     procedure UpdateForm()

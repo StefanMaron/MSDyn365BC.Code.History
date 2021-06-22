@@ -1328,7 +1328,7 @@ codeunit 136135 "Service Order Management"
         Assert.AreEqual(NoOfLines, ItemLedgerEntry.Count, StrSubstNo(NoOfLinesError, NoOfLines, ItemLedgerEntry.TableCaption));
 
         // 1 is used as Quantity per Serial No. is 1.
-        ItemLedgerEntry.FindSet;
+        ItemLedgerEntry.FindSet();
         repeat
             ItemLedgerEntry.TestField("Entry Type", ItemLedgerEntry."Entry Type"::Purchase);
             ItemLedgerEntry.TestField(Quantity, 1);

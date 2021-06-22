@@ -9,10 +9,9 @@ codeunit 139350 "Bank Statement Provider Mock"
     var
         BankStatementProviderExist: Boolean;
 
-    [EventSubscriber(ObjectType::Table, 270, 'OnGetStatementProvidersEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Bank Account", 'OnGetStatementProvidersEvent', '', false, false)]
     [Normal]
-    [Scope('OnPrem')]
-    procedure OnOnlineBankStatementExist(var TempNameValueBuffer: Record "Name/Value Buffer" temporary)
+    local procedure OnOnlineBankStatementExist(var TempNameValueBuffer: Record "Name/Value Buffer" temporary)
     begin
         TempNameValueBuffer.DeleteAll();
         if BankStatementProviderExist then begin
@@ -23,10 +22,9 @@ codeunit 139350 "Bank Statement Provider Mock"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Table, 270, 'OnSimpleLinkStatementProviderEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Bank Account", 'OnSimpleLinkStatementProviderEvent', '', false, false)]
     [Normal]
-    [Scope('OnPrem')]
-    procedure OnSimpleLinkOnlineProvider(var OnlineBankAccLink: Record "Online Bank Acc. Link"; var StatementProvider: Text)
+    local procedure OnSimpleLinkOnlineProvider(var OnlineBankAccLink: Record "Online Bank Acc. Link"; var StatementProvider: Text)
     begin
         OnlineBankAccLink.DeleteAll();
         if BankStatementProviderExist then begin

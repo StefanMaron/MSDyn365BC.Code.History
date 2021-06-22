@@ -1,11 +1,15 @@
 codeunit 883 "OCR Master Data Mgt."
 {
 
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This codeunit will be removed. The Integration Record is replaced by systemId and systemLastModifiedDateTime.';
+    ObsoleteTag = '18.0';
+
     trigger OnRun()
     begin
     end;
 
-    [Obsolete('Integration Records will be replaced by SystemID and SystemLastDateTimeModified', '17.0')]
+    [Obsolete('Integration Records will be replaced by SystemID and SystemModifiedAt ', '17.0')]
     procedure UpdateIntegrationRecords(OnlyRecordsWithoutID: Boolean)
     var
         IntegrationRecord: Record "Integration Record";
@@ -33,7 +37,7 @@ codeunit 883 "OCR Master Data Mgt."
                     end;
                     Vendor.Modify(false);
                 end;
-            until Vendor.Next = 0;
+            until Vendor.Next() = 0;
     end;
 }
 

@@ -58,7 +58,6 @@ codeunit 137295 "SCM Inventory Misc. III"
     var
         SalesLine: Record "Sales Line";
         ProductionOrder: Record "Production Order";
-        OrderType: Option ItemOrder,ProjectOrder;
     begin
         // Verify Quantity and Reserved Quantity on Planned Production Order Created from Sales Order.
 
@@ -66,7 +65,7 @@ codeunit 137295 "SCM Inventory Misc. III"
         Initialize;
 
         // Exercise: Create Sales Order, Planned Production order from Sales Order.
-        CreateProdOrderFromSalesOrder(SalesLine, ProductionOrder.Status::Planned, OrderType::ItemOrder);
+        CreateProdOrderFromSalesOrder(SalesLine, ProductionOrder.Status::Planned, "Create Production Order Type"::ItemOrder);
 
         // Verify: Verify Quantity and Reserved Quantity on Production Order.
         VerifyQuantityOnProdOrderLine(SalesLine."No.", SalesLine.Quantity, SalesLine.Quantity);
@@ -79,13 +78,12 @@ codeunit 137295 "SCM Inventory Misc. III"
     var
         SalesLine: Record "Sales Line";
         ProductionOrder: Record "Production Order";
-        OrderType: Option ItemOrder,ProjectOrder;
     begin
         // Verify error while Refresh Planned Production Order created from Sales Order.
 
         // Setup: Create Sales Order, Planned Production order from Sales Order.
         Initialize;
-        CreateProdOrderFromSalesOrder(SalesLine, ProductionOrder.Status::Planned, OrderType::ItemOrder);
+        CreateProdOrderFromSalesOrder(SalesLine, ProductionOrder.Status::Planned, "Create Production Order Type"::ItemOrder);
         FindProductionOrder(ProductionOrder, ProductionOrder.Status::Planned, SalesLine."No.");
 
         // Exercise: Refresh Production Order.
@@ -102,13 +100,12 @@ codeunit 137295 "SCM Inventory Misc. III"
     var
         SalesLine: Record "Sales Line";
         ProductionOrder: Record "Production Order";
-        OrderType: Option ItemOrder,ProjectOrder;
     begin
         // Verify Quantity and Reserved Quantity on Production Order created from Sales Order and after changing the Production Order status from Planned to Firm Planned.
 
         // Setup: Create Sales Order, Planned Production order from Sales Order.
         Initialize;
-        CreateProdOrderFromSalesOrder(SalesLine, ProductionOrder.Status::Planned, OrderType::ItemOrder);
+        CreateProdOrderFromSalesOrder(SalesLine, ProductionOrder.Status::Planned, "Create Production Order Type"::ItemOrder);
         FindProductionOrder(ProductionOrder, ProductionOrder.Status::Planned, SalesLine."No.");
 
         // Exercise: Change Status on Production Order.
@@ -125,13 +122,12 @@ codeunit 137295 "SCM Inventory Misc. III"
     var
         SalesLine: Record "Sales Line";
         ProductionOrder: Record "Production Order";
-        OrderType: Option ItemOrder,ProjectOrder;
     begin
         // Verify error while Refresh Planned Production Order created from Sales Order and after changing the Production Order status from Planned to Firm Planned.
 
         // Setup: Create Sales Order, Planned Production order from Sales Order.
         Initialize;
-        CreateProdOrderFromSalesOrder(SalesLine, ProductionOrder.Status::Planned, OrderType::ItemOrder);
+        CreateProdOrderFromSalesOrder(SalesLine, ProductionOrder.Status::Planned, "Create Production Order Type"::ItemOrder);
         FindProductionOrder(ProductionOrder, ProductionOrder.Status::Planned, SalesLine."No.");
 
         // Change Status on Production Order.
@@ -152,13 +148,12 @@ codeunit 137295 "SCM Inventory Misc. III"
     var
         SalesLine: Record "Sales Line";
         ProductionOrder: Record "Production Order";
-        OrderType: Option ItemOrder,ProjectOrder;
     begin
         // Verify Reserved Quantity on Production Order created from Sales Order after cancellation of reservation.
 
         // Setup: Create Sales Order, Firm Planned Production order from Sales Order.
         Initialize;
-        CreateProdOrderFromSalesOrder(SalesLine, ProductionOrder.Status::"Firm Planned", OrderType::ItemOrder);
+        CreateProdOrderFromSalesOrder(SalesLine, ProductionOrder.Status::"Firm Planned", "Create Production Order Type"::ItemOrder);
 
         // Exercise: Cancel reservation on Production Order.
         CancelReservationOnProductionOrder(SalesLine."No.");
@@ -176,13 +171,12 @@ codeunit 137295 "SCM Inventory Misc. III"
         ProdOrderLine: Record "Prod. Order Line";
         ProductionOrder: Record "Production Order";
         ReservOption: Option AutoReserve,CancelReserv;
-        OrderType: Option ItemOrder,ProjectOrder;
     begin
         // Verify Reserved Quantity on Production Order created from Sales Order after Auto Reservation.
 
         // Setup: Create Sales Order, Planned Production order from Sales Order and cancel reservation on Production Order.
         Initialize;
-        CreateProdOrderFromSalesOrder(SalesLine, ProductionOrder.Status::"Firm Planned", OrderType::ItemOrder);
+        CreateProdOrderFromSalesOrder(SalesLine, ProductionOrder.Status::"Firm Planned", "Create Production Order Type"::ItemOrder);
         CancelReservationOnProductionOrder(SalesLine."No.");
         FindProdOrderLine(ProdOrderLine, SalesLine."No.");
         LibraryVariableStorage.Enqueue(ReservOption::AutoReserve);  // Enqueue for ReservationPageHandler.
@@ -201,14 +195,13 @@ codeunit 137295 "SCM Inventory Misc. III"
     var
         SalesLine: Record "Sales Line";
         ProductionOrder: Record "Production Order";
-        OrderType: Option ItemOrder,ProjectOrder;
         Quantity: Decimal;
     begin
         // Verify Quantity on Production Order Line after creating Production Order from Sales Order and updating Quantity on Sales Line.
 
         // Setup: Create production Order from Sales Order, update Quantity on Sales Line.
         Initialize;
-        CreateProdOrderFromSalesOrder(SalesLine, ProductionOrder.Status::Released, OrderType::ProjectOrder);
+        CreateProdOrderFromSalesOrder(SalesLine, ProductionOrder.Status::Released, "Create Production Order Type"::ProjectOrder);
         Quantity := UpdateQuantityOnSalesLine(SalesLine);
         FindProductionOrder(ProductionOrder, ProductionOrder.Status::Released, SalesLine."Document No.");
         LibraryVariableStorage.Enqueue(StrSubstNo(FinishProductionOrder, ProductionOrder."No."));  // Enqueue fo MessageHandler.
@@ -2137,14 +2130,12 @@ codeunit 137295 "SCM Inventory Misc. III"
     end;
 
     local procedure CreateReleasedProductionOrderFromSalesOrder(var ProductionOrder: Record "Production Order"; SalesHeader: Record "Sales Header")
-    var
-        OrderType: Option ItemOrder,ProjectOrder;
     begin
         LibraryVariableStorage.Enqueue(ProductionOrderCreatedMsg);  // Enqueue variable for created Production Order message in MessageHandler.
-        LibraryManufacturing.CreateProductionOrderFromSalesOrder(SalesHeader, ProductionOrder.Status::Released, OrderType::ItemOrder);
+        LibraryManufacturing.CreateProductionOrderFromSalesOrder(SalesHeader, ProductionOrder.Status::Released, "Create Production Order Type"::ItemOrder);
     end;
 
-    local procedure CreateProdOrderFromSalesOrder(var SalesLine: Record "Sales Line"; Status: Enum "Production Order Status"; OrderType: Option)
+    local procedure CreateProdOrderFromSalesOrder(var SalesLine: Record "Sales Line"; Status: Enum "Production Order Status"; OrderType: Enum "Create Production Order Type")
     var
         Item: Record Item;
         SalesHeader: Record "Sales Header";
@@ -2709,7 +2700,7 @@ codeunit 137295 "SCM Inventory Misc. III"
         PurchaseLine.SetFilter("No.", '<>''''');
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::"Return Order");
         PurchaseLine.SetRange("Document No.", DocumentNo);
-        PurchaseLine.FindSet;
+        PurchaseLine.FindSet();
         repeat
             PurchaseLine.Validate("Appl.-to Item Entry", 0);
             PurchaseLine.Modify(true);
@@ -2910,7 +2901,7 @@ codeunit 137295 "SCM Inventory Misc. III"
         ValueEntry.SetRange("Item No.", ItemNo);
         ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Purchase Credit Memo");
         ValueEntry.SetRange(Adjustment, false);
-        ValueEntry.FindSet;
+        ValueEntry.FindSet();
         repeat
             ValueEntry.TestField("Applies-to Entry", 0);
         until ValueEntry.Next = 0;

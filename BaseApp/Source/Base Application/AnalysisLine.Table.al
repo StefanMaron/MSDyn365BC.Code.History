@@ -6,11 +6,9 @@ table 7114 "Analysis Line"
 
     fields
     {
-        field(1; "Analysis Area"; Option)
+        field(1; "Analysis Area"; Enum "Analysis Area Type")
         {
             Caption = 'Analysis Area';
-            OptionCaption = 'Sales,Purchase,Inventory';
-            OptionMembers = Sales,Purchase,Inventory;
         }
         field(2; "Analysis Line Template Name"; Code[10])
         {
@@ -140,12 +138,10 @@ table 7114 "Analysis Line"
         {
             Caption = 'Show Opposite Sign';
         }
-        field(14; "Source Type Filter"; Option)
+        field(14; "Source Type Filter"; Enum "Analysis Source Type")
         {
             Caption = 'Source Type Filter';
             FieldClass = FlowFilter;
-            OptionCaption = ' ,Customer,Vendor,Item';
-            OptionMembers = " ",Customer,Vendor,Item;
         }
         field(15; "Date Filter"; Date)
         {
@@ -366,7 +362,7 @@ table 7114 "Analysis Line"
                     FormulaAnalysisLine.Range := NewRange;
                     FormulaAnalysisLine.Modify();
                 end;
-        until FormulaAnalysisLine.Next = 0;
+        until FormulaAnalysisLine.Next() = 0;
     end;
 
     procedure LookupTotalingRange(var Text: Text): Boolean

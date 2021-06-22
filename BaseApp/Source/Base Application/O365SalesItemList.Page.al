@@ -53,7 +53,7 @@ page 2104 "O365 Sales Item List"
                     if not Confirm(DeleteQst) then
                         exit;
                     Delete(true);
-                    CurrPage.Update;
+                    CurrPage.Update();
                 end;
             }
         }

@@ -80,7 +80,7 @@ codeunit 869 "Cash Flow Chart Mgt."
         ToDate: Date;
         Accumulate: Boolean;
     begin
-        if not CashFlowSetup.Get or CashFlowForecast.IsEmpty then
+        if not CashFlowSetup.Get or CashFlowForecast.IsEmpty() then
             exit(false);
         if CashFlowSetup."CF No. on Chart in Role Center" = '' then begin
             Message(Text001);
@@ -166,7 +166,7 @@ codeunit 869 "Cash Flow Chart Mgt."
     begin
         case Show of
             CashFlowChartSetup.Show::"Accumulated Cash":
-                BusChartBuf.AddMeasure(TextTotal, '', BusChartBuf."Data Type"::Decimal, BusChartBuf."Chart Type"::StepLine);
+                BusChartBuf.AddDecimalMeasure(TextTotal, '', BusChartBuf."Chart Type"::StepLine);
             CashFlowChartSetup.Show::"Change in Cash":
                 case CashFlowChartSetup."Group By" of
                     CashFlowChartSetup."Group By"::"Positive/Negative":
@@ -205,14 +205,12 @@ codeunit 869 "Cash Flow Chart Mgt."
         CFForecastEntry.SetRange("Cash Flow Date", FromDate, ToDate);
         for SourceType := 1 to CashFlowWorksheetLine.GetNumberOfSourceTypes do begin
             CFForecastEntry.SetRange("Source Type", SourceType);
-            if not CFForecastEntry.IsEmpty then begin
+            if not CFForecastEntry.IsEmpty() then begin
                 CashFlowForecast."Source Type Filter" := "Cash Flow Source Type".FromInteger(SourceType);
                 Index += 1;
-                BusChartBuf.AddMeasure(
+                BusChartBuf.AddDecimalMeasure(
                   Format(CashFlowForecast."Source Type Filter"),
-                  CashFlowForecast."Source Type Filter",
-                  BusChartBuf."Data Type"::Decimal,
-                  BusChartBuf."Chart Type"::StackedColumn);
+                  CashFlowForecast."Source Type Filter", BusChartBuf."Chart Type"::StackedColumn);
             end;
         end;
         exit(Index);
@@ -237,15 +235,12 @@ codeunit 869 "Cash Flow Chart Mgt."
         if CFAccount.FindSet then
             repeat
                 CFForecastEntry.SetRange("Cash Flow Account No.", CFAccount."No.");
-                if not CFForecastEntry.IsEmpty then begin
+                if not CFForecastEntry.IsEmpty() then begin
                     Index += 1;
-                    BusChartBuf.AddMeasure(
-                      CFAccount."No.",
-                      CFAccount."No.",
-                      BusChartBuf."Data Type"::Decimal,
-                      BusChartBuf."Chart Type"::StackedColumn);
+                    BusChartBuf.AddDecimalMeasure(
+                      CFAccount."No.", CFAccount."No.", BusChartBuf."Chart Type"::StackedColumn);
                 end;
-            until CFAccount.Next = 0;
+            until CFAccount.Next() = 0;
         exit(Index);
     end;
 
@@ -268,13 +263,9 @@ codeunit 869 "Cash Flow Chart Mgt."
         Caption := TextNegative;
         for Positive := false to true do begin
             CFForecastEntry.SetRange(Positive, Positive);
-            if not CFForecastEntry.IsEmpty then begin
+            if not CFForecastEntry.IsEmpty() then begin
                 Index += 1;
-                BusChartBuf.AddMeasure(
-                  Caption,
-                  Positive,
-                  BusChartBuf."Data Type"::Decimal,
-                  BusChartBuf."Chart Type"::StackedColumn);
+                BusChartBuf.AddDecimalMeasure(Caption, Positive, BusChartBuf."Chart Type"::StackedColumn);
             end;
             Caption := TextPositive;
         end;

@@ -38,7 +38,7 @@ report 8613 "Create Item Journal Lines"
 
                             if not ItemJnlLine.Insert(true) then
                                 ItemJnlLine.Modify(true);
-                        until StdItemJnlLine.Next = 0;
+                        until StdItemJnlLine.Next() = 0;
                 end else begin
                     ItemJnlLine.Validate("Journal Template Name", ItemJnlLine.GetFilter("Journal Template Name"));
                     ItemJnlLine.Validate("Journal Batch Name", BatchName);

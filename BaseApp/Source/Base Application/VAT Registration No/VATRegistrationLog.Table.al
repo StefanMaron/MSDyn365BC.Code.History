@@ -1,6 +1,7 @@
-﻿table 249 "VAT Registration Log"
+table 249 "VAT Registration Log"
 {
     Caption = 'VAT Registration Log';
+    ReplicateData = true;
 
     fields
     {

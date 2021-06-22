@@ -55,7 +55,7 @@ codeunit 1431 "Forward Link Mgt."
         exit(SalesLineDropShipmentTok);
     end;
 
-    [EventSubscriber(ObjectType::Table, 1431, 'OnLoad', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Named Forward Link", 'OnLoad', '', false, false)]
     local procedure OnLoadHelpArticleCodes()
     begin
         AddLink(

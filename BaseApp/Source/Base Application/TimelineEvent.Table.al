@@ -91,7 +91,7 @@ table 5540 "Timeline Event"
                 transactionRow.OriginalQuantity := TimelineEvent."Original Quantity";
                 transactionRow.NewQuantity := TimelineEvent."New Quantity";
                 transactionTable.Rows.Add(transactionRow);
-            until (TimelineEvent.Next = 0);
+            until (TimelineEvent.Next() = 0);
     end;
 
     procedure DefaultTime(): Time

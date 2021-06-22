@@ -50,7 +50,17 @@ table 6702 "Booking Sync"
         field(10; "Customer Template Code"; Code[10])
         {
             Caption = 'Customer Template Code';
+#if not CLEAN18
             TableRelation = "Customer Template".Code;
+#endif
+            ObsoleteReason = 'Will be removed with other functionality related to "old" templates. replaced by "Customer Templ. Code".';
+#if not CLEAN18
+            ObsoleteState = Pending;
+            ObsoleteTag = '18.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '21.0';
+#endif
         }
         field(12; "Sync Services"; Boolean)
         {
@@ -64,6 +74,11 @@ table 6702 "Booking Sync"
         {
             Caption = 'Item Template Code';
             TableRelation = "Config. Template Header".Code WHERE("Table ID" = FILTER(27));
+        }
+        field(15; "Customer Templ. Code"; Code[20])
+        {
+            Caption = 'Customer Template Code';
+            TableRelation = "Customer Templ.";
         }
     }
 

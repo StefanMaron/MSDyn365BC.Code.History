@@ -609,6 +609,42 @@ codeunit 139018 "Job Queue Entry Tests"
         JobQueueEntry.TestField("User ID", UserId);
     end;
 
+
+    [Test]
+    [HandlerFunctions('ConfirmationHandlerYes,NeutralMessageHandler')]
+    [Scope('OnPrem')]
+    procedure RunOnceInForeground()
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+        JobQueueLogEntry: Record "Job Queue Log Entry";
+        JobQueueEntries: TestPage "Job queue entries";
+    begin
+        // [SCENARIO] The delegated admin wants to try out a job queue entry before handing it over to the end-user to activate it
+
+        // [GIVEN] An existing job queue entry
+        JobQueueEntry.Init();
+        JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Report;
+        JobQueueEntry."Object ID to Run" := Report::"Customer - Top 10 List";
+        JobQueueEntry.Status := JobQueueEntry.Status::"On Hold";
+        JobQueueEntry.Description := copystr(format(CreateGuid()), 1, MaxStrLen(JobQueueEntry.Description)); // so we can find the correct log entry afterwards
+        JobQueueEntry.Insert(true);
+
+        // [WHEN] The delegated admin clicks Run in foreground
+        JobQueueEntries.OpenView();
+        JobQueueEntries.GoToRecord(JobQueueEntry);
+        JobQueueEntries.RunInForeground.Invoke(); // Displays a confirmation dialog (Y/N)
+        JobQueueEntries.Close();
+
+        // [THEN] The task has been copied and executed and a log entry exists. The original task is untouched.
+        JobQueueEntry.Find(); // to make sure it still exists
+        JobQueueLogEntry.SetRange(Description, JobQueueEntry.Description);
+        JobQueueLogEntry.FindFirst();
+        Assert.AreEqual(JobQueueEntry.Status::"On Hold", JobQueueEntry.Status, 'Status has changed.');
+        Assert.AreEqual(JobQueueEntry."Object Type to Run", JobQueueLogEntry."Object Type to Run", 'Wrong object type to run');
+        Assert.AreEqual(JobQueueEntry."Object ID to Run", JobQueueLogEntry."Object ID to Run", 'Wrong object type to run');
+    end;
+
+
     local procedure CreateJobQueueEntry(var JobQueueEntry: Record "Job Queue Entry"; InitialStatus: Option)
     begin
         JobQueueEntry.Init();
@@ -647,6 +683,20 @@ codeunit 139018 "Job Queue Entry Tests"
     begin
         Assert.ExpectedMessage(LibraryVariableStorage.DequeueText, Message);
     end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure NeutralMessageHandler(Message: Text)
+    begin
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmationHandlerYes(Question: Text[1024]; var Answer: Boolean);
+    begin
+        Answer := true;
+    end;
+
 
     [SendNotificationHandler]
     [Scope('OnPrem')]

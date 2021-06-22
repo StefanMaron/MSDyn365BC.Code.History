@@ -65,12 +65,12 @@ codeunit 1319 "Sales by Cust. Grp. Chart Mgt."
         AddSalesMeasure(BusChartBuf, TotalSalesLCYTxt, '', BusChartBuf."Chart Type"::Line);
 
         Cust.SetCurrentKey("Customer Posting Group");
-        if Cust.IsEmpty then begin
+        if Cust.IsEmpty() then begin
             BusChartBuf.SetXAxis('Empty', BusChartBuf."Data Type"::String);
             exit;
         end;
 
-        Cust.FindSet;
+        Cust.FindSet();
         repeat
             if not (PreviousCust."Customer Posting Group" in ['', Cust."Customer Posting Group"]) then begin
                 AddSalesMeasure(
@@ -84,7 +84,7 @@ codeunit 1319 "Sales by Cust. Grp. Chart Mgt."
             AddCustSales(BusChartBuf, Cust, SalesValue, TotalSalesValue, NoOfPeriods);
 
             PreviousCust := Cust;
-        until Cust.Next = 0;
+        until Cust.Next() = 0;
 
         AddSalesMeasure(
           BusChartBuf,
@@ -120,9 +120,9 @@ codeunit 1319 "Sales by Cust. Grp. Chart Mgt."
         end;
     end;
 
-    local procedure AddSalesMeasure(var BusChartBuf: Record "Business Chart Buffer"; Measure: Text; MeasureValue: Text; ChartType: Integer)
+    local procedure AddSalesMeasure(var BusChartBuf: Record "Business Chart Buffer"; Measure: Text; MeasureValue: Text; ChartType: Enum "Business Chart Type")
     begin
-        BusChartBuf.AddMeasure(Measure, MeasureValue, BusChartBuf."Data Type"::Decimal, ChartType);
+        BusChartBuf.AddDecimalMeasure(Measure, MeasureValue, ChartType);
     end;
 
     local procedure AddSalesValues(var BusChartBuf: Record "Business Chart Buffer"; Measure: Text; var SalesValues: array[100] of Decimal; NoOfPeriods: Integer)

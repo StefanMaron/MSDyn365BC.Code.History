@@ -56,7 +56,7 @@ page 6702 "Booking Sync. Setup"
                             Clear("Last Customer Sync");
                             Clear("Last Service Sync");
                             Modify;
-                            CurrPage.Update;
+                            CurrPage.Update();
                         end;
 
                         Session.LogMessage('0000ACL', SetupTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', O365SyncManagement.TraceCategory());
@@ -86,12 +86,24 @@ page 6702 "Booking Sync. Setup"
                     ToolTip = 'Specifies whether to synchronize Bookings customers.';
                     Visible = NOT GraphSyncEnabled;
                 }
+#if not CLEAN18
                 field("Customer Template Code"; "Customer Template Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Default Customer Template';
                     ToolTip = 'Specifies the customer template to use when creating new Customers from the Bookings company.';
-                    Visible = NOT GraphSyncEnabled;
+                    Visible = OldCustTemplateCodeVisible;
+                    ObsoleteReason = 'Will be removed with other functionality related to "old" templates. replaced by "Customer Templ. Code".';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '18.0';
+                }
+#endif
+                field("Customer Templ. Code"; "Customer Templ. Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Default Customer Template';
+                    ToolTip = 'Specifies the customer template to use when creating new Customers from the Bookings company.';
+                    Visible = NewCustTemplateCodeVisible;
                 }
                 field("Sync Services"; "Sync Services")
                 {
@@ -247,6 +259,7 @@ page 6702 "Booking Sync. Setup"
         GetExchangeAccount;
         IsSyncUser := "User ID" = UserId;
         IsSaaS := EnvironmentInfo.IsSaaS;
+        SetCustTemplateCodesVisibility();
     end;
 
     var
@@ -263,6 +276,10 @@ page 6702 "Booking Sync. Setup"
         IsSyncUser: Boolean;
         GraphSyncEnabled: Boolean;
         IsSaaS: Boolean;
+        NewCustTemplateCodeVisible: Boolean;
+#if not CLEAN18
+        OldCustTemplateCodeVisible: Boolean;
+#endif
 
     local procedure CheckExistingSetup()
     begin
@@ -292,6 +309,16 @@ page 6702 "Booking Sync. Setup"
         User.SetRange("User Name", UserId);
         if User.FindFirst then
             ExchangeAccountUserName := User."Authentication Email";
+    end;
+
+    local procedure SetCustTemplateCodesVisibility()
+    var
+        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
+    begin
+        NewCustTemplateCodeVisible := not GraphSyncEnabled and CustomerTemplMgt.IsEnabled();
+#if not CLEAN18
+        OldCustTemplateCodeVisible := not GraphSyncEnabled and not CustomerTemplMgt.IsEnabled();
+#endif
     end;
 }
 

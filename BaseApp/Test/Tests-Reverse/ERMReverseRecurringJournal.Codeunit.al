@@ -498,7 +498,7 @@ codeunit 134146 "ERM Reverse Recurring Journal"
     begin
         GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
         GenJournalLine.SetRange("Account No.", GenJournalLine."Account No.");
-        GenJournalLine.FindSet;
+        GenJournalLine.FindSet();
         repeat
             TempGenJournalLine.Init();
             TempGenJournalLine := GenJournalLine;

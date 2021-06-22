@@ -789,7 +789,7 @@ codeunit 10 "Type Helper"
                     if TargetFieldRef.Value <> SourceFieldRef.Value then
                         TargetFieldRef.Validate(SourceFieldRef.Value);
             end;
-        until TempFieldBuffer.Next = 0;
+        until TempFieldBuffer.Next() = 0;
     end;
 
     procedure CalculateLog(Number: Decimal): Decimal

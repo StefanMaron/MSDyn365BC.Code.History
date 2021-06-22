@@ -37,7 +37,7 @@ page 6321 "Power BI Deployments"
                             Users.GetRecord(User);
                             SelectedUser := User."User Name";
                             SelectedUserSecurityId := User."User Security ID";
-                            LoadReports;
+                            LoadReports();
                         end;
                     end;
 
@@ -48,13 +48,13 @@ page 6321 "Power BI Deployments"
                         // Handles typing a value into the user field.
                         User.Reset();
                         User.SetFilter("User Name", SelectedUser);
-                        if User.FindFirst then begin
+                        if User.FindFirst() then begin
                             SelectedUser := User."User Name";
                             SelectedUserSecurityId := User."User Security ID";
                         end else
                             Clear(SelectedUserSecurityId);
 
-                        LoadReports;
+                        LoadReports();
                     end;
                 }
             }
@@ -111,7 +111,7 @@ page 6321 "Power BI Deployments"
                             end;
                         until PowerBICustomerReports.Next() = 0;
 
-                    PowerBIServiceMgt.DeleteDefaultReportsInBackground;
+                    PowerBIServiceMgt.SynchronizeReportsInBackground();
                     LoadReports();
                 end;
             }
@@ -125,14 +125,14 @@ page 6321 "Power BI Deployments"
 
     trigger OnOpenPage()
     begin
-        SelectedUser := UserId;
-        SelectedUserSecurityId := UserSecurityId;
-        LoadReports;
+        SelectedUser := CopyStr(UserId(), 1, MaxStrLen(SelectedUser));
+        SelectedUserSecurityId := UserSecurityId();
+        LoadReports();
     end;
 
     var
-        DeleteQst: Label 'Would you like to delete the selection from the table?';
         PowerBIServiceMgt: Codeunit "Power BI Service Mgt.";
+        DeleteQst: Label 'Would you like to delete the selection from the table?';
         SelectedUserSecurityId: Guid;
         SelectedUser: Code[50];
         IsUserPBIAdmin: Boolean;
@@ -156,7 +156,7 @@ page 6321 "Power BI Deployments"
             repeat
                 if PowerBICustomerReports.Get(PowerBIReportUploads."PBIX BLOB ID") then begin
                     Copy(PowerBICustomerReports);
-                    Insert;
+                    Insert();
                 end;
             until PowerBIReportUploads.Next() = 0;
 

@@ -1218,7 +1218,7 @@ codeunit 134814 "ERM CA Budget"
         if Dimension.FindSet then
             repeat
                 DimensionValue.SetRange("Dimension Code", Dimension.Code);
-                if not DimensionValue.IsEmpty then
+                if not DimensionValue.IsEmpty() then
                     exit(Dimension.Code);
             until Dimension.Next = 0;
 
@@ -1250,7 +1250,7 @@ codeunit 134814 "ERM CA Budget"
         then
             exit(GLBudgetEntry.Count);
 
-        GLBudgetEntry.FindSet;
+        GLBudgetEntry.FindSet();
         repeat
             if not GLAccExistsAndHasCostTypeLink(GLBudgetEntry."G/L Account No.") then
                 NoSkipped := NoSkipped + 1
@@ -1579,7 +1579,7 @@ codeunit 134814 "ERM CA Budget"
         if FieldNo <> -1 then begin
             RecordRef.GetTable(GLBudgetEntry);
             RecordRef.SetView(GLBudgetEntry.GetView);
-            RecordRef.FindSet;
+            RecordRef.FindSet();
             if Format(RecordRef.Field(FieldNo)) = DimensionValueCode then
                 exit(true);
         end;
@@ -1598,7 +1598,7 @@ codeunit 134814 "ERM CA Budget"
         CostBudgetEntry.SetRange("Budget Name", BudgetName);
         Assert.AreEqual(ExpectedEntries, CostBudgetEntry.Count, CostBudgetEntriesCountError);
 
-        CostBudgetEntry.FindSet;
+        CostBudgetEntry.FindSet();
         repeat
             TotalAmount := TotalAmount + CostBudgetEntry.Amount;
         until CostBudgetEntry.Next = 0;
@@ -1682,7 +1682,7 @@ codeunit 134814 "ERM CA Budget"
           CostBudgetRegister."To Cost Budget Entry No.");
 
         ExpectedDate := StartingDate;
-        CostBudgetEntry.FindSet;
+        CostBudgetEntry.FindSet();
         repeat
             ExpectedDate := CalcDate(StrSubstNo(DateFilter, DateFormula), ExpectedDate);
             Assert.AreEqual(ExpectedDate, CostBudgetEntry.Date, CostBudgetEntryDateErr);

@@ -1,4 +1,4 @@
-﻿page 300 "Ship-to Address"
+page 300 "Ship-to Address"
 {
     Caption = 'Ship-to Address';
     DataCaptionExpression = Caption;

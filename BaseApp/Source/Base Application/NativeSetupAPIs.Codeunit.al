@@ -17,7 +17,7 @@ codeunit 2800 "Native - Setup APIs"
     var
         ApiPrefixTxt: Label 'nativeInvoicing', Locked = true;
 
-    [EventSubscriber(ObjectType::Codeunit, 5465, 'ApiSetup', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Mgt - General Tools", 'ApiSetup', '', false, false)]
     [Scope('OnPrem')]
     procedure SetupApis()
     var

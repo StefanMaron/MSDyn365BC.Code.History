@@ -72,7 +72,7 @@ table 8632 "Config. Record For Processing"
                     FieldRef.SetFilter(FieldValue)
                 else
                     FieldRef.SetFilter('%1', '');
-            until ConfigPackageField.Next = 0;
+            until ConfigPackageField.Next() = 0;
         if RecRef.HasFilter then
             exit(RecRef.FindFirst);
         exit(false);

@@ -1,4 +1,4 @@
-﻿codeunit 137046 "SCM Order Planning - I"
+codeunit 137046 "SCM Order Planning - I"
 {
     Subtype = Test;
     TestPermissions = Disabled;

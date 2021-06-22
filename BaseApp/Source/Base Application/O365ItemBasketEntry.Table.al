@@ -101,7 +101,7 @@ table 2101 "O365 Item Basket Entry"
             SalesLine.Validate("No.", "Item No.");
             SalesLine.Validate(Quantity, Quantity);
             SalesLine.Insert();
-        until Next = 0;
+        until Next() = 0;
         DeleteAll(true);
     end;
 }

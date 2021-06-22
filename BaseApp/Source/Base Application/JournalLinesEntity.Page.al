@@ -7,6 +7,9 @@ page 5478 "Journal Lines Entity"
     ODataKeyFields = SystemId;
     PageType = API;
     SourceTable = "Gen. Journal Line";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'API version beta will be deprecated.';
+    ObsoleteTag = '18.0';
 
     layout
     {

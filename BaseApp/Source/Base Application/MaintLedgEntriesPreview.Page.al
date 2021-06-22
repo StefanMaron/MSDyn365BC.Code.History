@@ -1,4 +1,4 @@
-﻿page 5671 "Maint. Ledg. Entries Preview"
+page 5671 "Maint. Ledg. Entries Preview"
 {
     Caption = 'Maint. Ledg. Entries Preview';
     DataCaptionFields = "FA No.", "Depreciation Book Code";

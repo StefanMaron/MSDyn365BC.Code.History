@@ -42,7 +42,7 @@ table 251 "Gen. Product Posting Group"
                                 GLAcc2 := GLAcc;
                                 GLAcc2."VAT Prod. Posting Group" := "Def. VAT Prod. Posting Group";
                                 GLAcc2.Modify();
-                            until GLAcc.Next = 0;
+                            until GLAcc.Next() = 0;
 
                     Item.SetCurrentKey("Gen. Prod. Posting Group");
                     Item.SetRange("Gen. Prod. Posting Group", Code);
@@ -58,7 +58,7 @@ table 251 "Gen. Product Posting Group"
                                 Item2 := Item;
                                 Item2."VAT Prod. Posting Group" := "Def. VAT Prod. Posting Group";
                                 Item2.Modify();
-                            until Item.Next = 0;
+                            until Item.Next() = 0;
 
                     Res.SetCurrentKey("Gen. Prod. Posting Group");
                     Res.SetRange("Gen. Prod. Posting Group", Code);
@@ -74,7 +74,7 @@ table 251 "Gen. Product Posting Group"
                                 Res2 := Res;
                                 Res2."VAT Prod. Posting Group" := "Def. VAT Prod. Posting Group";
                                 Res2.Modify();
-                            until Res.Next = 0;
+                            until Res.Next() = 0;
 
                     ItemCharge.SetCurrentKey("Gen. Prod. Posting Group");
                     ItemCharge.SetRange("Gen. Prod. Posting Group", Code);
@@ -90,7 +90,7 @@ table 251 "Gen. Product Posting Group"
                                 ItemCharge2 := ItemCharge;
                                 ItemCharge2."VAT Prod. Posting Group" := "Def. VAT Prod. Posting Group";
                                 ItemCharge2.Modify();
-                            until ItemCharge.Next = 0;
+                            until ItemCharge.Next() = 0;
                 end;
             end;
         }

@@ -13,7 +13,6 @@ page 9166 "Support Contact Info. Entity"
     Permissions = TableData "Support Contact Information" = rim;
     SaveValues = true;
     SourceTable = "Support Contact Information";
-    UsageCategory = Administration;
 
     layout
     {
@@ -61,7 +60,7 @@ page 9166 "Support Contact Info. Entity"
     var
         SupportContactInformation: Record "Support Contact Information";
     begin
-        if SupportContactInformation.IsEmpty then begin
+        if SupportContactInformation.IsEmpty() then begin
             SupportContactInformation.Init();
             SupportContactInformation.Insert(true);
         end;

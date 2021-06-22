@@ -1136,7 +1136,7 @@ page 9257 "Opportunities Matrix"
                 Opp.Get(OppEntry."Opportunity No.");
                 TempOpp := Opp;
                 TempOpp.Insert();
-            until OppEntry.Next = 0;
+            until OppEntry.Next() = 0;
 
         PAGE.Run(PAGE::"Active Opportunity List", TempOpp);
     end;

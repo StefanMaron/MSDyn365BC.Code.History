@@ -3193,7 +3193,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         FilterGLEntry(GLEntry, DocNo, AccNo, GLEntry."Gen. Posting Type"::" ");
         LibraryERM.GetCombinedPostedDeferralLines(TempPostedDeferralLine, DocNo);
-        TempPostedDeferralLine.FindSet;
+        TempPostedDeferralLine.FindSet();
         repeat
             GLEntry.SetFilter(Amount, '<%1', 0);
             GLEntry.SetRange("Posting Date", TempPostedDeferralLine."Posting Date");
@@ -3223,7 +3223,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
 
         DeferralLine.SetRange("Document Type", PurchaseLine."Document Type");
         DeferralLine.SetRange("Document No.", PurchaseLine."Document No.");
-        DeferralLine.FindSet;
+        DeferralLine.FindSet();
         for i := 1 to DeferralHeader."No. of Periods" do begin
             PeriodAmt := Round((CalcDate('<CM>', DeferralLine."Posting Date") - DeferralLine."Posting Date" + 1) * CostOfDay);
             DeferralLine.TestField(Amount, PeriodAmt);

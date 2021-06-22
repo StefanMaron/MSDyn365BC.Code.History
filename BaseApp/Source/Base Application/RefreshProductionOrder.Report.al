@@ -46,7 +46,7 @@ report 99001025 "Refresh Production Order"
                 if CalcLines then begin
                     OnBeforeCalcProdOrderLines("Production Order", Direction, CalcLines, CalcRoutings, CalcComponents, IsHandled, ErrorOccured);
                     if not IsHandled then
-                        if not CreateProdOrderLines.Copy("Production Order", Direction, '', false) then
+                        if not CreateProdOrderLines.Copy("Production Order", Direction, "Production Order"."Variant Code", false) then
                             ErrorOccured := true;
                 end else begin
                     ProdOrderLine.SetRange(Status, Status);
@@ -66,7 +66,7 @@ report 99001025 "Refresh Production Order"
                                             repeat
                                                 ProdOrderRtngLine.SetSkipUpdateOfCompBinCodes(true);
                                                 ProdOrderRtngLine.Delete(true);
-                                            until ProdOrderRtngLine.Next = 0;
+                                            until ProdOrderRtngLine.Next() = 0;
                                     end;
                                     if CalcComponents then begin
                                         ProdOrderComp.SetRange(Status, Status);
@@ -74,7 +74,7 @@ report 99001025 "Refresh Production Order"
                                         ProdOrderComp.SetRange("Prod. Order Line No.", ProdOrderLine."Line No.");
                                         ProdOrderComp.DeleteAll(true);
                                     end;
-                                until ProdOrderLine.Next = 0;
+                                until ProdOrderLine.Next() = 0;
                             if ProdOrderLine.Find('-') then
                                 repeat
                                     if CalcComponents then
@@ -87,7 +87,7 @@ report 99001025 "Refresh Production Order"
                                     if not IsHandled then
                                         if not CalcProdOrder.Calculate(ProdOrderLine, Direction, CalcRoutings, CalcComponents, false, false) then
                                             ErrorOccured := true;
-                                until ProdOrderLine.Next = 0;
+                                until ProdOrderLine.Next() = 0;
                         end;
                 end;
                 if (Direction = Direction::Backward) and ("Source Type" = "Source Type"::Family) then begin
@@ -270,10 +270,10 @@ report 99001025 "Refresh Production Order"
                                      ProdOrderComp2."Prod. Order Line No.", DATABASE::"Prod. Order Line")
                                 then
                                     ProdOrderComp2.TestField("Reserved Qty. (Base)", 0);
-                        until ProdOrderComp2.Next = 0;
+                        until ProdOrderComp2.Next() = 0;
                     end;
                 end;
-            until ProdOrderLine2.Next = 0;
+            until ProdOrderLine2.Next() = 0;
     end;
 
     local procedure ShouldCheckReservedQty(ProdOrderNo: Code[20]; LineNo: Integer; SourceType: Integer; Status: Enum "Production Order Status"; ProdOrderLineNo: Integer; SourceType2: Integer): Boolean
@@ -367,13 +367,20 @@ report 99001025 "Refresh Production Order"
     local procedure GetRoutingNo(ProdOrder: Record "Production Order") RoutingNo: Code[20]
     var
         Item: Record Item;
+        StockkeepingUnit: Record "Stockkeeping Unit";
         Family: Record Family;
     begin
         RoutingNo := ProdOrder."Routing No.";
         case ProdOrder."Source Type" of
             ProdOrder."Source Type"::Item:
-                if Item.Get(ProdOrder."Source No.") then
-                    RoutingNo := Item."Routing No.";
+                begin
+                    if Item.Get(ProdOrder."Source No.") then
+                        RoutingNo := Item."Routing No.";
+                    if StockkeepingUnit.Get(ProdOrder."Location Code", ProdOrder."Source No.", ProdOrder."Variant Code") and
+                        (StockkeepingUnit."Routing No." <> '')
+                    then
+                        RoutingNo := StockkeepingUnit."Routing No.";
+                end;
             ProdOrder."Source Type"::Family:
                 if Family.Get(ProdOrder."Source No.") then
                     RoutingNo := Family."Routing No.";

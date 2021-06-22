@@ -74,4 +74,5 @@ codeunit 5152 "API - Update Referenced Fields"
     begin
         Rec.UpdateReferencedIds();
     end;
+
 }

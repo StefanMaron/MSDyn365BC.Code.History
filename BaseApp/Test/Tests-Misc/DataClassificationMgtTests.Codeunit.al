@@ -52,7 +52,7 @@ codeunit 135158 "Data Classification Mgt. Test"
           'User table should have been registered as Master Table');
         // Added by the test
         Assert.IsTrue(
-          DataPrivacyEntities.Get(DATABASE::"Payment Terms"), 
+          DataPrivacyEntities.Get(DATABASE::"Payment Terms"),
           'Payment Terms table should have been registered as Master Table');
 
         UnbindSubscription(DataClassificationMgtTest);
@@ -101,9 +101,8 @@ codeunit 135158 "Data Classification Mgt. Test"
         DataSensitivity.Insert();
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1750, 'OnGetDataPrivacyEntities', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnGetDataPrivacyEntitiesSubscriber(var DataPrivacyEntities: Record "Data Privacy Entities")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Data Classification Mgt.", 'OnGetDataPrivacyEntities', '', false, false)]
+    local procedure OnGetDataPrivacyEntitiesSubscriber(var DataPrivacyEntities: Record "Data Privacy Entities")
     begin
         DataClassificationMgt.InsertDataPrivacyEntity(DataPrivacyEntities, 3, 7, 1, '', 0);
     end;

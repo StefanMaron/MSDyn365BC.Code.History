@@ -108,7 +108,7 @@ table 5310 "Outlook Synch. Setup Detail"
             repeat
                 if OSynchDependency."Table Relation" = '' then
                     Error(Text001, OSynchDependency."Depend. Synch. Entity Code");
-            until OSynchDependency.Next = 0;
+            until OSynchDependency.Next() = 0;
     end;
 
     procedure SetTableNo()

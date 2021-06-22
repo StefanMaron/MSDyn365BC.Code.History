@@ -7,18 +7,18 @@ codeunit 6112 "Customer Data Migration Facade"
         DataMigrationStatusFacade: Codeunit "Data Migration Status Facade";
         ChartOfAccountsMigrated: Boolean;
     begin
-        FindSet;
         ChartOfAccountsMigrated := DataMigrationStatusFacade.HasMigratedChartOfAccounts(Rec);
-        repeat
-            OnMigrateCustomer("Staging Table RecId To Process");
-            OnMigrateCustomerDimensions("Staging Table RecId To Process");
+        if FindSet() then
+            repeat
+                OnMigrateCustomer("Staging Table RecId To Process");
+                OnMigrateCustomerDimensions("Staging Table RecId To Process");
 
-            // migrate transactions for this customer
-            OnMigrateCustomerPostingGroups("Staging Table RecId To Process", ChartOfAccountsMigrated);
-            OnMigrateCustomerTransactions("Staging Table RecId To Process", ChartOfAccountsMigrated);
-            GenJournalLineIsSet := false;
-            CustomerIsSet := false;
-        until Next = 0;
+                // migrate transactions for this customer
+                OnMigrateCustomerPostingGroups("Staging Table RecId To Process", ChartOfAccountsMigrated);
+                OnMigrateCustomerTransactions("Staging Table RecId To Process", ChartOfAccountsMigrated);
+                GenJournalLineIsSet := false;
+                CustomerIsSet := false;
+            until Next() = 0;
     end;
 
     var

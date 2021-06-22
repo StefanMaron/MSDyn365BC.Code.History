@@ -94,7 +94,7 @@ table 5906 "Service Comment Line"
         SetRange("Table Name", TableName);
         SetRange("Table Subtype", TableType);
         SetRange("No.", DocNo);
-        if not IsEmpty then
+        if not IsEmpty() then
             DeleteAll();
     end;
 

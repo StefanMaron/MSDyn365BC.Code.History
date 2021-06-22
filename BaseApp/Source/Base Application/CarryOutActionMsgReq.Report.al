@@ -1,4 +1,4 @@
-﻿report 493 "Carry Out Action Msg. - Req."
+report 493 "Carry Out Action Msg. - Req."
 {
     Caption = 'Carry Out Action Msg. - Req.';
     ProcessingOnly = true;

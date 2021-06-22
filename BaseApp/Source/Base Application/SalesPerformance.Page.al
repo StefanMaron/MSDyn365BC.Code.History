@@ -166,7 +166,7 @@ page 770 "Sales Performance"
     local procedure UpdateChart(Period: Option ,Next,Previous)
     begin
         AnalysisReportChartMgt.UpdateChart(
-          Period, AnalysisReportChartSetup, AnalysisReportChartSetup."Analysis Area"::Sales, Rec, StatusText);
+          Period, AnalysisReportChartSetup, AnalysisReportChartSetup."Analysis Area"::Sales.AsInteger(), Rec, StatusText);
         Update(CurrPage.BusinessChart);
     end;
 }

@@ -837,7 +837,7 @@ codeunit 134276 "Currency Exch. Rate Unit Tests"
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
         TempExpectedCurrencyExchangeRate.Reset();
-        TempExpectedCurrencyExchangeRate.FindSet;
+        TempExpectedCurrencyExchangeRate.FindSet();
 
         repeat
             Assert.IsTrue(

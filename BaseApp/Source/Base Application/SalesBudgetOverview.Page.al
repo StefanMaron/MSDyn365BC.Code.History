@@ -38,7 +38,7 @@ page 7139 "Sales Budget Overview"
 
                     trigger OnValidate()
                     begin
-                        ItemBudgetManagement.CheckBudgetName(CurrentAnalysisArea, CurrentBudgetName, ItemBudgetName);
+                        ItemBudgetManagement.CheckBudgetName(CurrentAnalysisArea.AsInteger(), CurrentBudgetName, ItemBudgetName);
                         UpdateMatrixSubForm;
                         CurrentBudgetNameOnAfterValida;
                     end;
@@ -378,9 +378,9 @@ page 7139 "Sales Budget Overview"
                     trigger OnAction()
                     begin
                         ItemBudgetManagement.DeleteBudget(
-                          CurrentAnalysisArea, CurrentBudgetName,
+                          CurrentAnalysisArea.AsInteger(), CurrentBudgetName,
                           ItemFilter, DateFilter,
-                          SourceTypeFilter, SourceNoFilter,
+                          SourceTypeFilter.AsInteger(), SourceNoFilter,
                           GlobalDim1Filter, GlobalDim2Filter,
                           BudgetDim1Filter, BudgetDim2Filter, BudgetDim3Filter);
                     end;
@@ -405,13 +405,13 @@ page 7139 "Sales Budget Overview"
                         ExportItemBudgetToExcel: Report "Export Item Budget to Excel";
                     begin
                         ExportItemBudgetToExcel.SetOptions(
-                          CurrentAnalysisArea,
+                          CurrentAnalysisArea.AsInteger(),
                           CurrentBudgetName,
                           ValueType,
                           GlobalDim1Filter, GlobalDim2Filter,
                           BudgetDim1Filter, BudgetDim2Filter, BudgetDim3Filter,
                           DateFilter,
-                          SourceTypeFilter, SourceNoFilter,
+                          SourceTypeFilter.AsInteger(), SourceNoFilter,
                           ItemFilter,
                           InternalDateFilter, PeriodInitialized, PeriodType,
                           LineDimOption, ColumnDimOption, LineDimCode, ColumnDimCode, RoundingFactor);
@@ -430,13 +430,13 @@ page 7139 "Sales Budget Overview"
                         ExportItemBudgetToExcel: Report "Export Item Budget to Excel";
                     begin
                         ExportItemBudgetToExcel.SetOptions(
-                          CurrentAnalysisArea,
+                          CurrentAnalysisArea.AsInteger(),
                           CurrentBudgetName,
                           ValueType,
                           GlobalDim1Filter, GlobalDim2Filter,
                           BudgetDim1Filter, BudgetDim2Filter, BudgetDim3Filter,
                           DateFilter,
-                          SourceTypeFilter, SourceNoFilter,
+                          SourceTypeFilter.AsInteger(), SourceNoFilter,
                           ItemFilter,
                           InternalDateFilter, PeriodInitialized, PeriodType,
                           LineDimOption, ColumnDimOption, LineDimCode, ColumnDimCode, RoundingFactor);
@@ -457,7 +457,7 @@ page 7139 "Sales Budget Overview"
                 var
                     ImportItemBudgetFromExcel: Report "Import Item Budget from Excel";
                 begin
-                    ImportItemBudgetFromExcel.SetParameters(CurrentBudgetName, CurrentAnalysisArea, ValueType);
+                    ImportItemBudgetFromExcel.SetParameters(CurrentBudgetName, CurrentAnalysisArea.AsInteger(), ValueType);
                     ImportItemBudgetFromExcel.RunModal;
                     Clear(ImportItemBudgetFromExcel);
                 end;
@@ -477,7 +477,7 @@ page 7139 "Sales Budget Overview"
                     if (LineDimOption = LineDimOption::Period) or (ColumnDimOption = ColumnDimOption::Period) then
                         exit;
                     FindPeriod('>');
-                    CurrPage.Update;
+                    CurrPage.Update();
                     UpdateMatrixSubForm;
                 end;
             }
@@ -496,7 +496,7 @@ page 7139 "Sales Budget Overview"
                     if (LineDimOption = LineDimOption::Period) or (ColumnDimOption = ColumnDimOption::Period) then
                         exit;
                     FindPeriod('<');
-                    CurrPage.Update;
+                    CurrPage.Update();
                     UpdateMatrixSubForm;
                 end;
             }
@@ -588,12 +588,12 @@ page 7139 "Sales Budget Overview"
             ValueType := ValueType::"Sales Amount";
         CurrentAnalysisArea := CurrentAnalysisArea::Sales;
         ItemBudgetManagement.BudgetNameSelection(
-          CurrentAnalysisArea, CurrentBudgetName, ItemBudgetName, ItemStatisticsBuffer,
+          CurrentAnalysisArea.AsInteger(), CurrentBudgetName, ItemBudgetName, ItemStatisticsBuffer,
           BudgetDim1Filter, BudgetDim2Filter, BudgetDim3Filter);
 
         if (NewBudgetName <> '') and (CurrentBudgetName <> NewBudgetName) then begin
             CurrentBudgetName := NewBudgetName;
-            ItemBudgetManagement.CheckBudgetName(CurrentAnalysisArea, CurrentBudgetName, ItemBudgetName);
+            ItemBudgetManagement.CheckBudgetName(CurrentAnalysisArea.AsInteger(), CurrentBudgetName, ItemBudgetName);
             ItemBudgetManagement.SetItemBudgetName(
               CurrentBudgetName, ItemBudgetName, ItemStatisticsBuffer,
               BudgetDim1Filter, BudgetDim2Filter, BudgetDim3Filter);
@@ -624,9 +624,9 @@ page 7139 "Sales Budget Overview"
         LastColumn: Text;
         MATRIX_PrimKeyFirstCaptionInCu: Text;
         MATRIX_CurrentNoOfColumns: Integer;
-        CurrentAnalysisArea: Option Sales,Purchase,Inventory;
+        CurrentAnalysisArea: Enum "Analysis Area Type";
         CurrentBudgetName: Code[10];
-        SourceTypeFilter: Option " ",Customer,Vendor,Item;
+        SourceTypeFilter: Enum "Analysis Source Type";
         SourceNoFilter: Text;
         ItemFilter: Text;
         ValueType: Option "Sales Amount","Cost Amount",Quantity;

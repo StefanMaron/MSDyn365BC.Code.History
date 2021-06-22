@@ -86,7 +86,7 @@ codeunit 1710 "Exp. User Feedback Pos. Pay"
                 PositivePayEntry."Number of Uploads" += 1;
                 PositivePayEntryDetail.Insert();
 
-            until PositivePayDetail.Next = 0;
+            until PositivePayDetail.Next() = 0;
         end;
     end;
 }

@@ -58,6 +58,23 @@ codeunit 7036 "Price Source - Job" implements "Price Source"
 
     local procedure FillAdditionalFields(var PriceSource: Record "Price Source")
     begin
+        PriceSource.Description := Job.Description;
         PriceSource."Currency Code" := Job."Currency Code";
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Price Source List", 'OnBeforeAddChildren', '', false, false)]
+    local procedure AddChildren(var Sender: Codeunit "Price Source List"; PriceSource: Record "Price Source"; var TempChildPriceSource: Record "Price Source" temporary);
+    var
+        JobTask: Record "Job Task";
+    begin
+        if PriceSource."Source Type" = "Price Source Type"::Job then begin
+            JobTask.SetRange("Job No.", PriceSource."Source No.");
+            if JobTask.FindSet() then
+                repeat
+                    JobTask.ToPriceSource(TempChildPriceSource, PriceSource."Price Type");
+                    TempChildPriceSource."Entry No." += 1;
+                    TempChildPriceSource.Insert();
+                until JobTask.Next() = 0;
+        end;
     end;
 }

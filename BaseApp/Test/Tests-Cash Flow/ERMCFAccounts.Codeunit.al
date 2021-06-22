@@ -293,7 +293,7 @@ codeunit 134555 "ERM CF Accounts"
     var
         CashFlowAccount2: Record "Cash Flow Account";
     begin
-        CashFlowAccount.FindSet;
+        CashFlowAccount.FindSet();
         repeat
             CashFlowAccount2.Get(CashFlowAccount."No.");
             CashFlowAccount2.TestField(Indentation, CashFlowAccount.Indentation);
@@ -306,7 +306,7 @@ codeunit 134555 "ERM CF Accounts"
         CashFlowForecastEntry: Record "Cash Flow Forecast Entry";
     begin
         CashFlowForecastEntry.SetRange("Cash Flow Forecast No.", CashFlowForecast."No.");
-        CashFlowForecastEntry.FindSet;
+        CashFlowForecastEntry.FindSet();
 
         repeat
             CashFlowForecastEntry.TestField("Cash Flow Account No.", CashFlowAccount."No.");

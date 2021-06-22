@@ -52,11 +52,11 @@ page 1797 "Data Migration Error"
                     if not Confirm(SkipSelectionConfirmQst, false) then
                         exit;
                     CurrPage.SetSelectionFilter(DataMigrationError);
-                    DataMigrationError.FindSet;
+                    DataMigrationError.FindSet();
                     repeat
                         DataMigrationError.Ignore;
-                    until DataMigrationError.Next = 0;
-                    CurrPage.Update;
+                    until DataMigrationError.Next() = 0;
+                    CurrPage.Update();
                 end;
             }
             action(Edit)

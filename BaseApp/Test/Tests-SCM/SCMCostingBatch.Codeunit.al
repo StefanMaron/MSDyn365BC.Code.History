@@ -967,7 +967,7 @@ codeunit 137402 "SCM Costing Batch"
 
         ItemJournalLine.SetRange("Order Type", ItemJournalLine."Order Type"::Production);
         ItemJournalLine.SetRange("Order No.", ProductionOrder."No.");
-        ItemJournalLine.FindSet;
+        ItemJournalLine.FindSet();
         repeat
             ItemJournalLine.Validate("Run Time", 1);
             ItemJournalLine.Validate("Output Quantity", 0);

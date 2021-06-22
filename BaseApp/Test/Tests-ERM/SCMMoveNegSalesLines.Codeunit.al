@@ -178,8 +178,8 @@ codeunit 137206 "SCM Move Neg. Sales Lines"
         SalesHeader.Get(NewDocumentType, NewSalesHeaderNo);
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindSet;
-        TempSalesLine.FindSet;
+        SalesLine.FindSet();
+        TempSalesLine.FindSet();
 
         // Verify migrated lines.
         repeat

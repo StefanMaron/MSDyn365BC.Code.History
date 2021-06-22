@@ -443,7 +443,7 @@ table 5304 "Outlook Synch. Field"
                            (Field.Class = Field.Class::FlowField)
                         then
                             IsReadOnlyNavision := true;
-                    until OSynchFilter.Next = 0;
+                    until OSynchFilter.Next() = 0;
             end;
 
             if IsReadOnlyOutlook then begin
@@ -517,7 +517,7 @@ table 5304 "Outlook Synch. Field"
         OSynchField.SetRange("Outlook Property", "Outlook Property");
         OSynchField.SetRange("Table No.", "Table No.");
         OSynchField.SetRange("Field No.", "Field No.");
-        if not OSynchField.IsEmpty then
+        if not OSynchField.IsEmpty() then
             Error(Text014);
     end;
 

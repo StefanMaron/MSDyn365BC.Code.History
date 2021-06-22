@@ -666,7 +666,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
     var
         ProdBOMHeader: Record "Production BOM Header";
     begin
-        TempItem.FindSet;
+        TempItem.FindSet();
         TempItem.SetFilter("Production BOM No.", '<>%1', '');
 
         TempItem.Next(TempItem.Count);
@@ -682,7 +682,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
     var
         RoutingHeader: Record "Routing Header";
     begin
-        TempItem.FindSet;
+        TempItem.FindSet();
         TempItem.SetFilter("Routing No.", '<>%1', '');
         TempItem.Next(TempItem.Count);
         RoutingHeader.Get(TempItem."Routing No.");
@@ -700,7 +700,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
         case ChangeType of
             GLBChangeType::"Purchase With Assembly BOM":
                 begin
-                    TempItem.FindSet;
+                    TempItem.FindSet();
                     TempItem.SetRange("Replenishment System", TempItem."Replenishment System"::Assembly);
                     TempItem.Next(LibraryRandom.RandInt(TempItem.Count));
                     WarningItem.Get(TempItem."No.");
@@ -708,7 +708,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
                 end;
             GLBChangeType::"Purchase with Prod. BOM":
                 begin
-                    TempItem.FindSet;
+                    TempItem.FindSet();
                     TempItem.SetRange("Replenishment System", TempItem."Replenishment System"::"Prod. Order");
                     TempItem.Next(LibraryRandom.RandInt(TempItem.Count));
                     WarningItem.Get(TempItem."No.");
@@ -716,7 +716,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
                 end;
             GLBChangeType::"Prod. without Prod. BOM":
                 begin
-                    TempItem.FindSet;
+                    TempItem.FindSet();
                     TempItem.SetRange("Replenishment System", TempItem."Replenishment System"::"Prod. Order");
                     TempItem.Next(LibraryRandom.RandInt(TempItem.Count));
                     WarningItem.Get(TempItem."No.");
@@ -724,7 +724,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
                 end;
             GLBChangeType::"Assembly without BOM":
                 begin
-                    TempItem.FindSet;
+                    TempItem.FindSet();
                     TempItem.SetRange("Replenishment System", TempItem."Replenishment System"::Assembly);
                     TempItem.Next(LibraryRandom.RandInt(TempItem.Count));
                     WarningItem.Get(TempItem."No.");
@@ -789,7 +789,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
             repeat
                 BOMBuf.SetRange(Type, BOMBuf.Type::Item);
                 BOMBuf.SetRange("No.", TempItem."No.");
-                BOMBuf.FindSet;
+                BOMBuf.FindSet();
                 repeat
                     if TempItem."No." = Item."No." then begin
                         RoundingFactor := 100 * LibraryERM.GetUnitAmountRoundingPrecision;
@@ -824,21 +824,21 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
             repeat
                 BOMBuf.SetRange(Type, BOMBuf.Type::Resource);
                 BOMBuf.SetRange("No.", TempResource."No.");
-                BOMBuf.FindSet;
+                BOMBuf.FindSet();
             until TempResource.Next = 0;
 
         if TempMachineCenter.FindSet then
             repeat
                 BOMBuf.SetRange(Type, BOMBuf.Type::"Machine Center");
                 BOMBuf.SetRange("No.", TempMachineCenter."No.");
-                BOMBuf.FindSet;
+                BOMBuf.FindSet();
             until TempMachineCenter.Next = 0;
 
         if TempWorkCenter.FindSet then
             repeat
                 BOMBuf.SetRange(Type, BOMBuf.Type::"Work Center");
                 BOMBuf.SetRange("No.", TempWorkCenter."No.");
-                BOMBuf.FindSet;
+                BOMBuf.FindSet();
             until TempWorkCenter.Next = 0;
     end;
 

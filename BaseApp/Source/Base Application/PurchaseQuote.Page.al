@@ -24,7 +24,7 @@ page 49 "Purchase Quote"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Buy-from Vendor No."; "Buy-from Vendor No.")
@@ -38,7 +38,7 @@ page 49 "Purchase Quote"
                     trigger OnValidate()
                     begin
                         OnAfterValidateBuyFromVendorNo(Rec, xRec);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Buy-from Vendor Name"; "Buy-from Vendor Name")
@@ -52,7 +52,7 @@ page 49 "Purchase Quote"
                     trigger OnValidate()
                     begin
                         OnAfterValidateBuyFromVendorNo(Rec, xRec);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
 
                     trigger OnLookup(var Text: Text): Boolean
@@ -540,7 +540,7 @@ page 49 "Purchase Quote"
                                     if "Pay-to Vendor No." <> xRec."Pay-to Vendor No." then
                                         SetRange("Pay-to Vendor No.");
 
-                                CurrPage.Update;
+                                CurrPage.Update();
                             end;
                         }
                         field("Pay-to Address"; "Pay-to Address")
@@ -1378,17 +1378,17 @@ page 49 "Purchase Quote"
 
     local procedure ShortcutDimension1CodeOnAfterV()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure ShortcutDimension2CodeOnAfterV()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure PricesIncludingVATOnAfterValid()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure SetDocNoVisible()

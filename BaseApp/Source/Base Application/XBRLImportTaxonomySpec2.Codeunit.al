@@ -194,7 +194,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
                                 TempXBRLGLMapLine := XBRLGLMapLine;
                                 TempXBRLGLMapLine."XBRL Taxonomy Line No." := TempXBRLLine."Line No.";
                                 TempXBRLGLMapLine.Insert();
-                            until XBRLGLMapLine.Next = 0;
+                            until XBRLGLMapLine.Next() = 0;
 
                         XBRLCommentLine.SetRange("XBRL Taxonomy Name", TempXBRLLine."XBRL Taxonomy Name");
                         XBRLCommentLine.SetRange("XBRL Taxonomy Line No.", TempXBRLLine."Line No.");
@@ -204,11 +204,11 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
                                 TempXBRLCommentLine := XBRLCommentLine;
                                 TempXBRLCommentLine."XBRL Taxonomy Line No." := TempXBRLLine."Line No.";
                                 TempXBRLCommentLine.Insert();
-                            until XBRLCommentLine.Next = 0;
+                            until XBRLCommentLine.Next() = 0;
                     end;
                 end;
                 XBRLLine.Delete(true);
-            until XBRLLine.Next = 0;
+            until XBRLLine.Next() = 0;
         TempXBRLLine.Reset();
 
         // Write back to database
@@ -218,17 +218,17 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
             repeat
                 XBRLLine := TempXBRLLine;
                 XBRLLine.Insert();
-            until TempXBRLLine.Next = 0;
+            until TempXBRLLine.Next() = 0;
         if TempXBRLCommentLine.Find('-') then
             repeat
                 XBRLCommentLine := TempXBRLCommentLine;
                 XBRLCommentLine.Insert();
-            until TempXBRLCommentLine.Next = 0;
+            until TempXBRLCommentLine.Next() = 0;
         if TempXBRLGLMapLine.Find('-') then
             repeat
                 XBRLGLMapLine := TempXBRLGLMapLine;
                 XBRLGLMapLine.Insert();
-            until TempXBRLGLMapLine.Next = 0;
+            until TempXBRLGLMapLine.Next() = 0;
         Message(StrSubstNo(InsertedSchemeMsg, TempXBRLLine.Count()));
     end;
 
@@ -488,7 +488,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
                         end
                     end;
                 end;
-            until XBRLTaxonomyLine.Next = 0;
+            until XBRLTaxonomyLine.Next() = 0;
         Window.Close;
         Message(StrSubstNo(InsertedLabelsMsg, Counter));
     end;
@@ -645,7 +645,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
                                 end;
                                 UpdateParentPresentationLineNo := false;
                                 TempXBRLLine.SetRange("Presentation Linkbase Line No.", 0);
-                                if TempXBRLLine.IsEmpty then
+                                if TempXBRLLine.IsEmpty() then
                                     TempXBRLLine.SetRange("Presentation Linkbase Line No.");
                                 if TempXBRLLine.Find('-') then begin
                                     TempXBRLLine."Parent Line No." := XBRLTaxonomyLine2."Line No.";
@@ -665,7 +665,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
                         end;
                     end;
                 end;
-            until TempXBRLLine.Next = 0;
+            until TempXBRLLine.Next() = 0;
 
         SortPresentationOrder(0, 0, '');
         SaveTaxonomyLines(TempXBRLLine);
@@ -821,7 +821,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
                         end;
                     end;
                 end;
-            until XBRLTaxonomyLine.Next = 0;
+            until XBRLTaxonomyLine.Next() = 0;
         Window.Close;
         Message(StrSubstNo(InsertedCalculationsMsg, Counter));
     end;
@@ -939,7 +939,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
                         end;
                     end;
                 end;
-            until XBRLTaxonomyLine.Next = 0;
+            until XBRLTaxonomyLine.Next() = 0;
         Window.Close;
         Message(StrSubstNo(InsertedReferencesMsg, Counter));
     end;
@@ -1003,7 +1003,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
                 TempXBRLLine0.SetCurrentKey("XBRL Taxonomy Name", "Presentation Order");
                 TempXBRLLine0.SetRange("XBRL Taxonomy Name", TempXBRLLine."XBRL Taxonomy Name");
                 TempXBRLLine0.SetRange("Presentation Order", TempXBRLLine."Presentation Order");
-                if not TempXBRLLine0.IsEmpty then begin
+                if not TempXBRLLine0.IsEmpty() then begin
                     TempXBRLLine0.SetRange("Presentation Order");
                     TempXBRLLine0.SetRange("Parent Line No.", ParentLineNo);
                     TempXBRLLine0.FindLast;
@@ -1013,14 +1013,14 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
             TempXBRLLine.Modify();
             TempXBRLLine0 := TempXBRLLine;
             TempXBRLLine0.Insert();
-        until TempXBRLLine.Next = 0;
+        until TempXBRLLine.Next() = 0;
         TempXBRLLine.SetRange("Parent Line No.");
 
         TempXBRLLine0.Reset();
         if TempXBRLLine0.Find('-') then
             repeat
                 SortPresentationOrder(TempXBRLLine0."Line No.", TempXBRLLine0.Level, TempXBRLLine0."Presentation Order");
-            until TempXBRLLine0.Next = 0;
+            until TempXBRLLine0.Next() = 0;
         TempXBRLLine.Reset();
     end;
 
@@ -1275,7 +1275,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
                 NewLineNoFieldRef := ToRecRef.Field(2);
                 NewLineNoFieldRef.Value := ToTaxonomyLineNo;
                 ToRecRef.Insert();
-            until FromRecRef.Next = 0;
+            until FromRecRef.Next() = 0;
     end;
 
     local procedure LoadLinkbaseDocument(var XBRLLinkbase: Record "XBRL Linkbase"; var LinkbaseDocument: DotNet XmlDocument)
@@ -1309,12 +1309,12 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
                     XBRLTaxonomyLine := TempXBRLTaxonomyLine;
                     SetRange("XBRL Taxonomy Name", "XBRL Taxonomy Name");
                     SetRange("Line No.", "Line No.");
-                    if IsEmpty then
+                    if IsEmpty() then
                         Insert
                     else
                         Modify;
                 end;
-            until TempXBRLTaxonomyLine.Next = 0;
+            until TempXBRLTaxonomyLine.Next() = 0;
     end;
 
     local procedure InitTaxonomyLinesBuf(var XBRLTaxonomyLine: Record "XBRL Taxonomy Line"; var TempXBRLTaxonomyLine: Record "XBRL Taxonomy Line" temporary)
@@ -1325,7 +1325,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
             repeat
                 TempXBRLTaxonomyLine := XBRLTaxonomyLine;
                 TempXBRLTaxonomyLine.Insert();
-            until XBRLTaxonomyLine.Next = 0;
+            until XBRLTaxonomyLine.Next() = 0;
     end;
 
     local procedure UpdateSchemaLocation(var TempXBRLSchema: Record "XBRL Schema" temporary; var XBRLSchema: Record "XBRL Schema"; XBRLLinkbase: Record "XBRL Linkbase"; SchemaLocation: Text; var FromSchemalocation: Text)
@@ -1357,7 +1357,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
                 end;
                 TempXBRLSchema := XBRLSchema;
                 TempXBRLSchema.Insert();
-            until XBRLSchema.Next = 0;
+            until XBRLSchema.Next() = 0;
     end;
 }
 

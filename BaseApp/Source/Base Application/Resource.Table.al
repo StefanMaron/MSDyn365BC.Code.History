@@ -1,4 +1,4 @@
-﻿table 156 Resource
+table 156 Resource
 {
     Caption = 'Resource';
     DataCaptionFields = "No.", Name;
@@ -430,9 +430,9 @@
         {
             Caption = 'Picture';
             ObsoleteReason = 'Replaced by Image field';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             SubType = Bitmap;
-            ObsoleteTag = '15.0';
+            ObsoleteTag = '18.0';
         }
         field(53; "Post Code"; Code[20])
         {
@@ -834,7 +834,7 @@
             if ResourceUnitOfMeasure.FindSet then begin
                 repeat
                     Filter := Filter + GetQuotedCode(ResourceUnitOfMeasure.Code) + '|';
-                until ResourceUnitOfMeasure.Next = 0;
+                until ResourceUnitOfMeasure.Next() = 0;
                 Filter := DelStr(Filter, StrLen(Filter));
             end;
         end else
@@ -852,9 +852,9 @@
             repeat
                 TimeSheetLine.SetRange("Time Sheet No.", TimeSheetHeader."No.");
                 TimeSheetLine.SetRange(Posted, false);
-                if not TimeSheetLine.IsEmpty then
+                if not TimeSheetLine.IsEmpty() then
                     exit(true);
-            until TimeSheetHeader.Next = 0;
+            until TimeSheetHeader.Next() = 0;
 
         exit(false);
     end;
@@ -879,7 +879,7 @@
         ResLedgEntry: Record "Res. Ledger Entry";
     begin
         ResLedgEntry.SetRange("Resource No.", "No.");
-        if not ResLedgEntry.IsEmpty then
+        if not ResLedgEntry.IsEmpty() then
             Error(Text002, CurrentFieldName);
     end;
 
@@ -890,7 +890,7 @@
         JobPlanningLine.SetCurrentKey(Type, "No.");
         JobPlanningLine.SetRange(Type, JobPlanningLine.Type::Resource);
         JobPlanningLine.SetRange("No.", "No.");
-        if not JobPlanningLine.IsEmpty then
+        if not JobPlanningLine.IsEmpty() then
             Error(CannotDeleteResourceErr, "No.");
     end;
 

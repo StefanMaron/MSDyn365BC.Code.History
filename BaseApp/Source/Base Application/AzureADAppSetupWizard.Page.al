@@ -181,12 +181,12 @@ page 6300 "Azure AD App Setup Wizard"
 
                 trigger OnAction()
                 var
-                    AssistedSetup: Codeunit "Assisted Setup";
+                    GuidedExperience: Codeunit "Guided Experience";
                 begin
                     CurrPage.AzureAdSetup.PAGE.Save;
 
                     // notify Assisted Setup that this setup has been completed
-                    AssistedSetup.Complete(PAGE::"Azure AD App Setup Wizard");
+                    GuidedExperience.CompleteAssistedSetup(ObjectType::Page, PAGE::"Azure AD App Setup Wizard");
                     CurrPage.Update(false);
                     CurrPage.Close;
                 end;

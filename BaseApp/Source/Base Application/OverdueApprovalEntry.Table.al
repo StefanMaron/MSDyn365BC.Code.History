@@ -8,11 +8,9 @@ table 458 "Overdue Approval Entry"
         {
             Caption = 'Table ID';
         }
-        field(2; "Document Type"; Option)
+        field(2; "Document Type"; Enum "Approval Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = 'Quote,Order,Invoice,Credit Memo,Blanket Order,Return Order, ';
-            OptionMembers = Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order"," ";
         }
         field(3; "Document No."; Code[20])
         {
@@ -70,17 +68,13 @@ table 458 "Overdue Approval Entry"
         {
             Caption = 'Approval Code';
         }
-        field(13; "Approval Type"; Option)
+        field(13; "Approval Type"; Enum "Workflow Approval Type")
         {
             Caption = 'Approval Type';
-            OptionCaption = 'Workflow User Group,Sales Pers./Purchaser,Approver';
-            OptionMembers = "Workflow User Group","Sales Pers./Purchaser",Approver;
         }
-        field(14; "Limit Type"; Option)
+        field(14; "Limit Type"; Enum "Workflow Approval Limit Type")
         {
             Caption = 'Limit Type';
-            OptionCaption = 'Approval Limits,Credit Limits,Request Limits,No Limits';
-            OptionMembers = "Approval Limits","Credit Limits","Request Limits","No Limits";
         }
         field(15; "Record ID to Approve"; RecordID)
         {

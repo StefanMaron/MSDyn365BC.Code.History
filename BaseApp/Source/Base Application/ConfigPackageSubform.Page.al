@@ -95,7 +95,7 @@ page 8625 "Config. Package Subform"
                     trigger OnDrillDown()
                     begin
                         ShowPackageRecords(Show::All, "Dimensions as Columns");
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("No. of Fields Available"; "No. of Fields Available")
@@ -130,7 +130,7 @@ page 8625 "Config. Package Subform"
                     trigger OnDrillDown()
                     begin
                         ShowPackageRecords(Show::Errors, "Dimensions as Columns");
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field(NoOfDatabaseRecords; GetNoOfDatabaseRecords)
@@ -437,7 +437,7 @@ page 8625 "Config. Package Subform"
                     FieldsWithMultiRelations := true;
                     FilterMultiRelationFields += Format(Field."No.") + '|';
                 end;
-            until Field.Next = 0;
+            until Field.Next() = 0;
         if FieldsWithMultiRelations then
             if Confirm(MultiRelationQst) then
                 ShowFilteredPackageFields(DelChr(FilterMultiRelationFields, '>', '|'));

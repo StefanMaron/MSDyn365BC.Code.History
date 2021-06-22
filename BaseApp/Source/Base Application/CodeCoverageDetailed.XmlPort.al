@@ -30,7 +30,7 @@ xmlport 9991 "Code Coverage Detailed"
                 begin
                     "Code Coverage"."Line Type" := "Code Coverage"."Line Type"::Code;
                     if not AllObj.Get("Code Coverage"."Object Type", "Code Coverage"."Object ID") then
-                        currXMLport.Skip;
+                        currXMLport.Skip();
                 end;
             }
         }

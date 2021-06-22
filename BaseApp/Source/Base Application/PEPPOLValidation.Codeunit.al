@@ -92,7 +92,7 @@ codeunit 1620 "PEPPOL Validation"
             if FindSet then
                 repeat
                     CheckSalesDocumentLine(SalesLine)
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -138,7 +138,7 @@ codeunit 1620 "PEPPOL Validation"
                 SalesLine.TransferFields(SalesInvoiceLine);
                 SalesLine."Document Type" := SalesLine."Document Type"::Invoice;
                 CheckSalesDocumentLine(SalesLine);
-            until SalesInvoiceLine.Next = 0;
+            until SalesInvoiceLine.Next() = 0;
     end;
 
     procedure CheckSalesCreditMemo(SalesCrMemoHeader: Record "Sales Cr.Memo Header")
@@ -156,7 +156,7 @@ codeunit 1620 "PEPPOL Validation"
                 SalesLine.TransferFields(SalesCrMemoLine);
                 SalesLine."Document Type" := SalesLine."Document Type"::"Credit Memo";
                 CheckSalesDocumentLine(SalesLine);
-            until SalesCrMemoLine.Next = 0;
+            until SalesCrMemoLine.Next() = 0;
     end;
 
     procedure CheckServiceHeader(ServiceHeader: Record "Service Header")
@@ -173,7 +173,7 @@ codeunit 1620 "PEPPOL Validation"
             repeat
                 PEPPOLManagement.TransferLineToSalesLine(ServiceLine, SalesLine);
                 CheckSalesDocumentLine(SalesLine);
-            until ServiceLine.Next = 0;
+            until ServiceLine.Next() = 0;
     end;
 
     procedure CheckServiceInvoice(ServiceInvoiceHeader: Record "Service Invoice Header")
@@ -192,7 +192,7 @@ codeunit 1620 "PEPPOL Validation"
                 PEPPOLManagement.TransferLineToSalesLine(ServiceInvoiceLine, SalesLine);
                 SalesLine."Document Type" := SalesLine."Document Type"::Invoice;
                 CheckSalesDocumentLine(SalesLine);
-            until ServiceInvoiceLine.Next = 0;
+            until ServiceInvoiceLine.Next() = 0;
     end;
 
     procedure CheckServiceCreditMemo(ServiceCrMemoHeader: Record "Service Cr.Memo Header")
@@ -211,7 +211,7 @@ codeunit 1620 "PEPPOL Validation"
                 PEPPOLManagement.TransferLineToSalesLine(ServiceCrMemoLine, SalesLine);
                 SalesLine."Document Type" := SalesLine."Document Type"::"Credit Memo";
                 CheckSalesDocumentLine(SalesLine);
-            until ServiceCrMemoLine.Next = 0;
+            until ServiceCrMemoLine.Next() = 0;
     end;
 
     local procedure CheckCurrencyCode(CurrencyCode: Code[10])

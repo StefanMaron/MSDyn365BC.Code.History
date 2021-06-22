@@ -218,7 +218,7 @@ codeunit 136126 "Service Resource Skill"
     begin
         ResourceSkill.SetRange(Type, ResourceSkill.Type::"Service Item Group");
         ResourceSkill.SetRange("No.", ServiceItemGroup);
-        ResourceSkill.FindSet;
+        ResourceSkill.FindSet();
     end;
 
     [Normal]
@@ -226,7 +226,7 @@ codeunit 136126 "Service Resource Skill"
     begin
         ResourceSkill.SetRange(Type, Type);
         ResourceSkill.SetRange("No.", No);
-        ResourceSkill.FindSet;
+        ResourceSkill.FindSet();
     end;
 
     [Normal]

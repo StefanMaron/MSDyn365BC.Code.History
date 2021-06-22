@@ -84,7 +84,7 @@ page 2135 "O365 Email Account Settings"
                         else
                             Message(SettingsDidNotWorkMsg);
 
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }

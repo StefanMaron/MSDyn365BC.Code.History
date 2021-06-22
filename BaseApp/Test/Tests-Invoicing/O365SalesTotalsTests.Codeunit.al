@@ -389,7 +389,7 @@ codeunit 138904 "O365 Sales Totals Tests"
         O365SalesStatistics.GenerateWeeklyOverview(TempNameValueBuffer, Date2DMY(WorkDate, 2));
 
         // Verify
-        TempNameValueBuffer.FindSet;
+        TempNameValueBuffer.FindSet();
 
         // The first week should have data, the remaining should be empty
         Assert.AreNotEqual(StrSubstNo('%1 %2', GLSetup.GetCurrencySymbol, TotalThisWeek), TempNameValueBuffer.Value, '');

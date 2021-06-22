@@ -51,6 +51,10 @@ table 6509 "Whse. Item Entry Relation"
         {
             Caption = 'Order Line No.';
         }
+        field(6515; "Package No."; Code[50])
+        {
+            Caption = 'Package No.';
+        }
     }
 
     keys

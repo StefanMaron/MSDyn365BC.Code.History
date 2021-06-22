@@ -57,22 +57,22 @@ table 1511 "Notification Entry"
         {
             Caption = 'Error Message 2';
             ObsoleteReason = 'Error Message field size has been increased ';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '18.0';
         }
         field(16; "Error Message 3"; Text[250])
         {
             Caption = 'Error Message 3';
             ObsoleteReason = 'Error Message field size has been increased ';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '18.0';
         }
         field(17; "Error Message 4"; Text[250])
         {
             Caption = 'Error Message 4';
             ObsoleteReason = 'Error Message field size has been increased ';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '18.0';
         }
         field(18; "Sender User ID"; Code[50])
         {
@@ -106,6 +106,7 @@ table 1511 "Notification Entry"
     var
         DataTypeManagement: Codeunit "Data Type Management";
 
+#if not CLEAN17
     [Obsolete('Replaced by CreateNoficicationEntry().', '17.0')]
     procedure CreateNew(NewType: Option "New Record",Approval,Overdue; NewUserID: Code[50]; NewRecord: Variant; NewLinkTargetPage: Integer; NewCustomLink: Text[250])
     begin
@@ -119,6 +120,7 @@ table 1511 "Notification Entry"
         CreateNotificationEntry(
             "Notification Entry Type".FromInteger(NewType), RecipientUserID, NewRecord, NewLinkTargetPage, NewCustomLink, NewSenderUserID);
     end;
+#endif
 
     procedure CreateNotificationEntry(NewType: Enum "Notification Entry Type"; RecipientUserID: Code[50]; NewRecord: Variant; NewLinkTargetPage: Integer; NewCustomLink: Text[250]; NewSenderUserID: Code[50])
     var

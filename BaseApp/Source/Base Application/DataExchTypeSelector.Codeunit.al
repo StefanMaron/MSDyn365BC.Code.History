@@ -49,7 +49,7 @@ codeunit 1215 "Data Exch. Type Selector"
                     end;
                     DataExch.Delete(true); // cleanup
                 end;
-            until DataExchangeType.Next = 0;
+            until DataExchangeType.Next() = 0;
 
         exit(BestDataExchCode);
     end;

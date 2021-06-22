@@ -138,6 +138,16 @@ page 6501 "Item Tracking Entries"
                                   "Lot No." = FIELD("Lot No.");
                     ToolTip = 'View or edit detailed information about the lot number.';
                 }
+                action("Package No. Information Card")
+                {
+                    Caption = 'Package No. Information Card';
+                    Image = SNInfo;
+                    RunObject = Page "Package No. Information List";
+                    RunPageLink = "Item No." = FIELD("Item No."),
+                                  "Variant Code" = FIELD("Variant Code"),
+                                  "Package No." = FIELD("Package No.");
+                    ToolTip = 'View or edit detailed information about the package number.';
+                }
             }
         }
         area(processing)

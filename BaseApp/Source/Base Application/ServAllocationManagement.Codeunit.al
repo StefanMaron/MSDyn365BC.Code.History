@@ -172,7 +172,7 @@ codeunit 5930 ServAllocationManagement
                         ServOrderAllocTemp := ServOrderAlloc;
                         ServOrderAllocTemp.Insert();
                     end;
-            until ServOrderAlloc.Next = 0;
+            until ServOrderAlloc.Next() = 0;
 
             NoOfRecords := ServOrderAllocTemp.Count + 1;
             if NoOfRecords <> 1 then begin
@@ -189,7 +189,7 @@ codeunit 5930 ServAllocationManagement
                     end;
                     Validate("Allocated Hours", SplitAllocHours);
                     Modify(true);
-                until ServOrderAllocTemp.Next = 0;
+                until ServOrderAllocTemp.Next() = 0;
             end else
                 Error(Text003,
                   ServOrderAlloc.TableCaption, FieldCaption("Allocated Hours"));
@@ -220,7 +220,7 @@ codeunit 5930 ServAllocationManagement
                      ResourceSkill."Skill Code")
                 then
                     exit(false);
-            until ResourceSkill.Next = 0;
+            until ResourceSkill.Next() = 0;
 
         exit(true);
     end;
@@ -288,7 +288,7 @@ codeunit 5930 ServAllocationManagement
                 if ServOrderAlloc2.Status = ServOrderAlloc2.Status::Active then
                     ServOrderAlloc2.Status := ServOrderAlloc2.Status::Finished;
                 ServOrderAlloc2.Modify();
-            until ServOrderAlloc.Next = 0;
+            until ServOrderAlloc.Next() = 0;
     end;
 
     procedure SetServLineAllocStatus(var ServLine: Record "Service Line")
@@ -308,7 +308,7 @@ codeunit 5930 ServAllocationManagement
                 ServOrderAlloc2 := ServOrderAlloc;
                 ServOrderAlloc2.Posted := true;
                 ServOrderAlloc2.Modify();
-            until ServOrderAlloc.Next = 0;
+            until ServOrderAlloc.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

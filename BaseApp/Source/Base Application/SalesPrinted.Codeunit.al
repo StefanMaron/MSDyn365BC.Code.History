@@ -1,5 +1,6 @@
 codeunit 313 "Sales-Printed"
 {
+    Permissions = TableData "Sales Header" = rm;
     TableNo = "Sales Header";
 
     trigger OnRun()

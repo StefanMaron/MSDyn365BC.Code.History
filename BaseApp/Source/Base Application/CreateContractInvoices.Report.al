@@ -1,4 +1,4 @@
-﻿report 6030 "Create Contract Invoices"
+report 6030 "Create Contract Invoices"
 {
     ApplicationArea = Service;
     Caption = 'Create Service Contract Invoices';

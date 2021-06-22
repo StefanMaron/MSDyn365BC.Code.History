@@ -305,7 +305,7 @@ page 9838 "User by User Group"
                 end else
                     if MemberOfAllGroups then
                         MemberOfAllGroups := UserGroup.IsUserMember(Rec, SelectedCompany);
-            until (UserGroup.Next = 0) or (PermissionPagesMgt.IsPastColumnRange(i) and not MemberOfAllGroups);
+            until (UserGroup.Next() = 0) or (PermissionPagesMgt.IsPastColumnRange(i) and not MemberOfAllGroups);
     end;
 
     local procedure SetColumnPermission(ColumnNo: Integer; NewUserGroupMembership: Boolean)
@@ -320,7 +320,7 @@ page 9838 "User by User Group"
             if UserGroup.FindSet then
                 repeat
                     UserGroup.SetUserGroupMembership(Rec, NewUserGroupMembership, SelectedCompany);
-                until UserGroup.Next = 0;
+                until UserGroup.Next() = 0;
     end;
 
     local procedure HideExternalUsers()

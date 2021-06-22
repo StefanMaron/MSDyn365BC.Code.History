@@ -188,7 +188,7 @@ codeunit 9200 "Matrix Management"
                     CaptionSet[i] := DimensionValue.Name
                 else
                     CaptionSet[i] := DimensionValue.Code
-            until (i = ArrayLen(CaptionSet)) or (DimensionValue.Next = 0);
+            until (i = ArrayLen(CaptionSet)) or (DimensionValue.Next() = 0);
 
         NumberOfColumns := i;
 
@@ -213,7 +213,7 @@ codeunit 9200 "Matrix Management"
         CaptionRange := '';
         CurrSetLength := 0;
 
-        if RecRef.IsEmpty then begin
+        if RecRef.IsEmpty() then begin
             RecordPosition := '';
             exit;
         end;

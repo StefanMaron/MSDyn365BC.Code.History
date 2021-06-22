@@ -62,7 +62,7 @@ codeunit 99000753 "Routing Line-Copy Lines"
                 RoutingLine."Version Code" := ToVersionCode;
                 RoutingLine.Insert();
                 OnCopyRountingOnAfterRoutingLineInsert(RoutingLine, RoutingLine2);
-            until RoutingLine2.Next = 0;
+            until RoutingLine2.Next() = 0;
 
         FromRoutingTool.SetRange("Routing No.", FromRoutingHeaderNo);
         FromRoutingTool.SetRange("Version Code", FromVersionCode);
@@ -72,7 +72,7 @@ codeunit 99000753 "Routing Line-Copy Lines"
                 RoutingTool."Routing No." := RoutingHeader."No.";
                 RoutingTool."Version Code" := ToVersionCode;
                 RoutingTool.Insert();
-            until FromRoutingTool.Next = 0;
+            until FromRoutingTool.Next() = 0;
 
         FromRoutingPersonnel.SetRange("Routing No.", FromRoutingHeaderNo);
         FromRoutingPersonnel.SetRange("Version Code", FromVersionCode);
@@ -82,7 +82,7 @@ codeunit 99000753 "Routing Line-Copy Lines"
                 RoutingPersonnel."Routing No." := RoutingHeader."No.";
                 RoutingPersonnel."Version Code" := ToVersionCode;
                 RoutingPersonnel.Insert();
-            until FromRoutingPersonnel.Next = 0;
+            until FromRoutingPersonnel.Next() = 0;
 
         FromRoutingQualityMeasure.SetRange("Routing No.", FromRoutingHeaderNo);
         FromRoutingQualityMeasure.SetRange("Version Code", FromVersionCode);
@@ -92,7 +92,7 @@ codeunit 99000753 "Routing Line-Copy Lines"
                 RoutingQualityMeasure."Routing No." := RoutingHeader."No.";
                 RoutingQualityMeasure."Version Code" := ToVersionCode;
                 RoutingQualityMeasure.Insert();
-            until FromRoutingQualityMeasure.Next = 0;
+            until FromRoutingQualityMeasure.Next() = 0;
 
         FromRoutingCommentLine.SetRange("Routing No.", FromRoutingHeaderNo);
         FromRoutingCommentLine.SetRange("Version Code", FromVersionCode);
@@ -102,7 +102,7 @@ codeunit 99000753 "Routing Line-Copy Lines"
                 RoutingCommentLine."Routing No." := RoutingHeader."No.";
                 RoutingCommentLine."Version Code" := ToVersionCode;
                 RoutingCommentLine.Insert();
-            until FromRoutingCommentLine.Next = 0;
+            until FromRoutingCommentLine.Next() = 0;
 
         OnAfterCopyRouting(RoutingHeader, FromRoutingHeaderNo, FromVersionCode, ToVersionCode);
     end;

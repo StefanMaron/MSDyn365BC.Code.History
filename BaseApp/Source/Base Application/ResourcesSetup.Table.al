@@ -28,7 +28,7 @@ table 314 "Resources Setup"
             begin
                 if "Time Sheet First Weekday" <> xRec."Time Sheet First Weekday" then begin
                     TimeSheetHeader.Reset();
-                    if not TimeSheetHeader.IsEmpty then
+                    if not TimeSheetHeader.IsEmpty() then
                         Error(Text002, FieldCaption("Time Sheet First Weekday"));
                 end;
             end;
@@ -45,7 +45,7 @@ table 314 "Resources Setup"
                     TimeSheetLine.Reset();
                     TimeSheetLine.SetRange(Type, TimeSheetLine.Type::Job);
                     TimeSheetLine.SetRange(Status, TimeSheetLine.Status::Submitted);
-                    if not TimeSheetLine.IsEmpty then
+                    if not TimeSheetLine.IsEmpty() then
                         Error(Text001, FieldCaption("Time Sheet by Job Approval"));
                 end;
             end;

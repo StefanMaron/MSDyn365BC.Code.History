@@ -27,7 +27,7 @@ codeunit 7130 "Item Budget Management"
             ItemBudgetName.FilterGroup := 0;
             if not ItemBudgetName.Find('-') then begin
                 ItemBudgetName.Init();
-                ItemBudgetName."Analysis Area" := CurrentAnalysisArea;
+                ItemBudgetName."Analysis Area" := "Analysis Area Type".FromInteger(CurrentAnalysisArea);
                 ItemBudgetName.Name := Text001;
                 ItemBudgetName.Description := Text002;
                 ItemBudgetName.Insert(true);
@@ -79,7 +79,7 @@ codeunit 7130 "Item Budget Management"
               BudgetDim1Filter, BudgetDim2Filter, BudgetDim3Filter);
         end else
             BudgetNameSelection(
-              ItemBudgetName."Analysis Area", CurrentItemBudgetName, ItemBudgetName, ItemStatisticsBuf,
+              ItemBudgetName."Analysis Area".AsInteger(), CurrentItemBudgetName, ItemBudgetName, ItemStatisticsBuf,
               BudgetDim1Filter, BudgetDim2Filter, BudgetDim3Filter);
     end;
 

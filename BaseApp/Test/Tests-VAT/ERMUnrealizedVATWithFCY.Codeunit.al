@@ -1015,14 +1015,14 @@ codeunit 134021 "ERM Unrealized VAT With FCY"
     begin
         PurchLine.SetRange("Document Type", PurchHeader."Document Type");
         PurchLine.SetFilter("Document No.", PurchHeader."No.");
-        PurchLine.FindSet;
+        PurchLine.FindSet();
     end;
 
     local procedure GetSalesLines(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
     begin
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetFilter("Document No.", SalesHeader."No.");
-        SalesLine.FindSet;
+        SalesLine.FindSet();
     end;
 
     local procedure ModifySign(ApplyToDocumentType: Option; Amount: Decimal; Document: Option) AmountWithSign: Decimal

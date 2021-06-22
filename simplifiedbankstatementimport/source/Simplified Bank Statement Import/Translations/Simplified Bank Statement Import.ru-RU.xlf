@@ -1,0 +1,593 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en-US" target-language="ru-RU" original="Simplified Bank Statement Import">
+    <body>
+      <group id="body">
+        <trans-unit id="Table 3726475704 - Field 636392376 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Amount</source>
+          <target state="translated">Сумма</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Bank Statement Import Preview - Field Amount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3726475704 - Field 3465196513 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Amount Format</source>
+          <target state="translated">Формат суммы</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Bank Statement Import Preview - Field Amount Format - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3726475704 - Field 3192175264 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Date</source>
+          <target state="translated">Дата</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Bank Statement Import Preview - Field Date - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3726475704 - Field 902669161 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Date Format</source>
+          <target state="translated">Формат даты</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Bank Statement Import Preview - Field Date Format - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3726475704 - Field 3461834954 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Description</source>
+          <target state="translated">Описание</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Bank Statement Import Preview - Field Description - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3726475704 - Field 1663593181 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Primary Key</source>
+          <target state="translated">Первичный ключ</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Bank Statement Import Preview - Field Primary Key - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1261045762 - NamedType 4123649463" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Set up a bank statement file import format.</source>
+          <target state="translated">Настройка формата файлов банковских выписок.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Bank Statement File Wizard - NamedType BankFileWizardDescriptionTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1261045762 - NamedType 1254056685" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Set up a bank statement file import format</source>
+          <target state="translated">Настройка формата файлов банковских выписок.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Bank Statement File Wizard - NamedType BankFileWizardTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Bank Statement File Setup</source>
+          <target state="translated">Настройка файла банковской выписки</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - NamedType 1245862610" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Amount</source>
+          <target state="translated">Сумма</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - NamedType AmountLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - NamedType 117133418" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Bank Import Setup</source>
+          <target state="translated">Настройка импорта банковских выписок</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - NamedType BankImportSetupLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - NamedType 1979522020" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Bank Payment Field Mapping</source>
+          <target state="translated">Сопоставление полей банковского платежа</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - NamedType BankPaymentFieldMappingLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - NamedType 926033131" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Column number for %1 cannot be greater than column count.</source>
+          <target state="translated">Номер столбца "%1" не может быть больше числа столбцов.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = Name of the column</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - NamedType CannotBeGreaterThanColumCountErr</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - NamedType 3679842891" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Bank Statement Import Format %1 is already defined for the Bank Account %2. Do you want to overwrite it with the new format?</source>
+          <target state="translated">Для банковского счета %2 уже задан формат импорта банковских выписок %1. Переписать его новым форматом?</target>
+          <note from="Developer" annotates="general" priority="2">%1 = Bank Statement Import Format, %2 = Bank Account</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - NamedType ChangeBankStatementImportFormatLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - NamedType 1215989694" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Data Exchange Definition with the code %1 already exists.</source>
+          <target state="translated">Определение обмена данными с кодом %1 уже существует.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = Data Exchange Definition Code</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - NamedType DataExchDefAlreadyExistsErr</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - NamedType 1662316861" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Data Exchange Definition</source>
+          <target state="translated">Определение обмена данными</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - NamedType DataExchDefLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - NamedType 1542941690" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Date</source>
+          <target state="translated">Дата</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - NamedType DateLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - NamedType 3569966352" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Description</source>
+          <target state="translated">Описание</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - NamedType DescriptionLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - NamedType 3342129989" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Detail</source>
+          <target state="translated">Сведения</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - NamedType DetailLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - NamedType 1612662348" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Download a sample bank statement file</source>
+          <target state="translated">Загрузить пример файла банковской выписки</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - NamedType DownloadSampleLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - NamedType 3189848945" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Bank statement file successfully uploaded</source>
+          <target state="translated">Файл банковской выписки успешно отправлен в систему</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - NamedType FileSuccessfullyUploadedLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - NamedType 2421718085" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Line Definition</source>
+          <target state="translated">Определение строки</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - NamedType LineDefLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - NamedType 984350027" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The setup is not complete.\\Are you sure you want to exit?</source>
+          <target state="translated">Настройка не завершена.\\Вы уверены, что хотите выйти?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - NamedType SetupNotCompletedQst</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - NamedType 997420393" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The preview will show the first 10 lines from the file, and any problems will be colored red. It's a good idea to verify that the decimal separator is correct. Using the wrong separator will result in incorrect amounts.</source>
+          <target state="translated">В области предварительного просмотра будут показаны первые 10 строк из файла; обнаруженные проблемы будут выделены красным цветом. Не забудьте проверить, правильно ли указан десятичный разделитель. Использование неверного разделителя приведет к некорректным суммам.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - NamedType Step7InstructionLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - NamedType 1790941001" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Test the bank statement file format</source>
+          <target state="translated">Протестировать форма файла банковской выписки</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - NamedType TestFormatLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - NamedType 3225951371" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Upload</source>
+          <target state="translated">Отправить</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - NamedType UploadDialogTitleLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - NamedType 3391927513" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Upload a bank statement file</source>
+          <target state="translated">Отправить файл банковской выписки</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - NamedType UploadFileLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - NamedType 1707396675" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>CSV Files|%1</source>
+          <target state="translated">Файлы CSV|%1</target>
+          <note from="Developer" annotates="general" priority="2">%1 = File format, CSV should not be translated.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - NamedType UploadFilterLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 2667510389 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You're all set. Do you want to attach this format to a bank account now, so you can import bank transactions right away?</source>
+          <target state="translated">Все настроено! Назначить этот формат банковскому счету, чтобы вы могли сразу же импортировать банковские транзакции?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control Finish - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 2667510389 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>One last thing</source>
+          <target state="translated">И последнее...</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control Finish - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 480237546 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the name of the setup that will be used as the code for data exchange definitions and bank statement imports.</source>
+          <target state="translated">Определяет имя настройки, которое будет использоваться в качестве кода для определений обмена данными и импорта банковских выписок.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control DataExchangeCode - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 480237546 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Format Code</source>
+          <target state="translated">Код формата</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control DataExchangeCode - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 3395982809 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the bank account that this setup is assigned to. You can assign the account at any time.</source>
+          <target state="translated">Определяет банковский счет, которому назначена эта настройка. Счет можно назначить в любое время.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control SelectBankAccount - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 3395982809 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Bank Account</source>
+          <target state="translated">Банковский счет</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control SelectBankAccount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 300852202 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source></source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control FinishedBanner - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 1121962313 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source></source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control StandardBanner - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 2557384806 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Download Sample</source>
+          <target state="translated">Загрузить пример</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control DownloadSample - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 3647570164 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Choose Next to upload your bank statement file. If you upload a file, we'll detect it's format and apply it for you. You can also skip this step and define the format yourself.</source>
+          <target state="translated">Нажмите кнопку "Далее", чтобы отправить в систему файл банковской выписки. После отправки файла система определит его формат и применит этот формат автоматически. Вы можете пропустить этот шаг и задать формат самостоятельно.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control Let's go! - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 3647570164 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Let's go!</source>
+          <target state="translated">Приступим!</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control Let's go! - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 2926822725 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You can import bank statement files for use in bank account and payment reconciliations. Use this guide to define formats for the files.</source>
+          <target state="translated">Вы можете импортировать файлы банковских выписок для использования в выверках банковских счетов и платежей. Этот мастер поможет вам определить формат таких файлов.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control Welcome to Bank Statement File Setup - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 2926822725 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Welcome to Bank Statement File Setup</source>
+          <target state="translated">Вас приветствует мастер настройки файла банковской выписки</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control Welcome to Bank Statement File Setup - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 2279239964 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Upload a bank statement file so that we can detect the format and match the column definitions.</source>
+          <target state="translated">Отправьте файл банковской выписки, чтобы система автоматически определила формат и подобрала определения столбцов.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control Step2 - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 2279239964 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source></source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control Step2 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 2187849051 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>By continuing without uploading a file, we will not be able to automatically determine formats, and you must specify file definitions yourself.</source>
+          <target state="translated">Если продолжить без отправки файла, система не сможет автоматически определить форматы, и вам нужно будет задать определения файла самостоятельно.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control Skip Step2 - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 2187849051 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Define the bank statement file layout yourself</source>
+          <target state="translated">Определить макет файла банковской выписки самостоятельно</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control Skip Step2 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 2663336091 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Continue without uploading</source>
+          <target state="translated">Продолжить без отправки</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control SkipStep2 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 1139572727 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Upload file</source>
+          <target state="translated">Отправить файл</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control UploadFile - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 1641543347 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specify the number of header lines in your bank statement file. Header lines contain information, such as the name of the bank and the column names, that is not relevant for reconciliations and should be skipped. Header lines are highlighted in the File Preview section and they will be skipped when importing bank statement file.</source>
+          <target state="translated">Укажите число строк заголовка в файле банковской выписки. Строки заголовка содержат сведения (например, название банка и имена столбцов), которые не имеет отношения к выверкам и потому должны быть пропущены. Строки заголовка выделяются в разделе "Предварительный просмотр файла" и будут пропускаться при импорте файла банковской выписки.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control Step3 - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 1641543347 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source></source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control Step3 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 1233906720 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>File Preview</source>
+          <target state="translated">Предварительный просмотр файла</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control File Preview - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 3398488374 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the number of header lines to skip in the bank statement file.</source>
+          <target state="translated">Определяет число строк заголовка, пропускаемых в файле банковской выписки.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control HeaderLines - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 3398488374 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Header Lines to Skip</source>
+          <target state="translated">Пропускаемые строки заголовка</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control HeaderLines - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 1003846730 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specify the column separator and column count for your bank statement file.</source>
+          <target state="translated">Укажите разделитель столбцов и число столбцов в файле банковской выписки.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control Step4 - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 1003846730 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source></source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control Step4 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 1398062215 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the number of columns in the bank statement file.</source>
+          <target state="translated">Определяет число столбцов в файле банковской выписки.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control ColumnCount - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 1398062215 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Column Count</source>
+          <target state="translated">Число столбцов</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control ColumnCount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 1532031853 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the character that separates each column in the bank statement file.</source>
+          <target state="translated">Определяет символ, которым разделяются столбцы в файле банковской выписки.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control ColumnSeparator - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 1532031853 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Column Seperator</source>
+          <target state="translated">Разделитель столбцов</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control ColumnSeparator - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 1532031853 - Property 62802879" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source> ,Comma,Semicolon</source>
+          <target state="translated"> ,Запятая,Точка с запятой</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control ColumnSeparator - Property OptionCaption</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 2851203976 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>File Preview</source>
+          <target state="translated">Предварительный просмотр файла</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control File Preview Data - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 366150113 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Review and define the column definitions of your bank statement file. When you enter or change a value, the File Preview section will update accordingly.</source>
+          <target state="translated">Проверьте и задайте определения столбцов в файле банковской выписки. При вводе или изменении значения раздел "Предварительный просмотр файла" соответствующим образом обновляется.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control Step5 - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 366150113 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source></source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control Step5 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 3461834954 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the number of the column that contains the description in the bank statement file.</source>
+          <target state="translated">Определяет номер столбца, который содержит описание в файле банковской выписки.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control Description - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 3461834954 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Description Column No.</source>
+          <target state="translated">Номер столбца описания</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control Description - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 3914460203 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>File Preview</source>
+          <target state="translated">Предварительный просмотр файла</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control File Preview Columns - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 2717213718 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Amount</source>
+          <target state="translated">Сумма</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control Amount Column - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 4169365438 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Date</source>
+          <target state="translated">Дата</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control Date Column - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 2495062196 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Description</source>
+          <target state="translated">Описание</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control Description Column - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 3029417624 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>File Preview</source>
+          <target state="translated">Предварительный просмотр файла</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control File Preview Data Rest - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 2364353460 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the number of the column that contains the transaction amount in the bank statement file.</source>
+          <target state="translated">Определяет номер столбца, который содержит сумму транзакции в файле банковской выписки.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control TransactionAmount - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 2364353460 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Amount Column No.</source>
+          <target state="translated">Номер столбца суммы</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control TransactionAmount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 1117537388 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the position of the Date column in the order of columns. For example, if the Date column is first in the order, the number should be 1.</source>
+          <target state="translated">Определяет положение столбца "Дата" в последовательности столбцов. Например, если столбец "Дата" первый в последовательности, его номер должен быть 1.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control TransactionDate - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 1117537388 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Date Column No.</source>
+          <target state="translated">Номер столбца даты</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control TransactionDate - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 4023420792 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Review and define the local formats that are used in your bank statement file.</source>
+          <target state="translated">Проверьте и задайте региональные форматы, используемые в файле банковской выписки.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control Step6 - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 4023420792 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source></source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control Step6 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 521147009 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the format used for dates in the bank statement file. Note that the Microsoft standard date and time format requires capitalization for the month, for example, dd/MM/yyyy or d-M-y.</source>
+          <target state="translated">Определяет формат, используемый для дат в файле банковской выписки. Обратите внимание, что для использования стандартного формата даты и времени Майкрософт месяц должен быть обозначен заглавной буквой, например дд/ММ/гггг или д-М-г.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control DateFormat - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 521147009 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Date Format</source>
+          <target state="translated">Формат даты</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control DateFormat - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 436820374 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the decimal separator for amounts in the bank statement file. Separators can be a comma (123,45) or a dot (123.45).</source>
+          <target state="translated">Определяет десятичный разделитель для сумм в файле банковской выписки. В качестве разделителя может использоваться запятая (123,45) или точка (123.45).</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control DecimalSeperator - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 436820374 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Decimal Separator</source>
+          <target state="translated">Десятичный разделитель</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control DecimalSeperator - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 436820374 - Property 62802879" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source> ,Dot,Comma</source>
+          <target state="translated"> ,Точка,Запятая</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control DecimalSeperator - Property OptionCaption</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 812546281 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>File Preview</source>
+          <target state="translated">Предварительный просмотр файла</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control File Preview Format - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 1507199763 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Amount</source>
+          <target state="translated">Сумма</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control Amount Format Column - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 2927510395 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Date</source>
+          <target state="translated">Дата</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control Date Format Column - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 3385724175 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Test that your new format is correct. If you have already uploaded a bank statement file, just choose the link. If you are defining a format yourself, you will be asked to upload a file.</source>
+          <target state="translated">Протестируйте новый формат, чтобы убедиться в его правильности. Если вы уже отправили в систему файл банковской выписки, просто нажмите ссылку. Если вы задаете формат самостоятельно, вам будет предложено отправить файл.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control Step7 - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 3385724175 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Try it out</source>
+          <target state="translated">Попробовать</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control Step7 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Control 1086849319 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Upload file</source>
+          <target state="translated">Отправить файл</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control TestFormat - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Action 2438272767 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Back</source>
+          <target state="translated">Назад</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Action ActionBack - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Action 3259912055 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Finish</source>
+          <target state="translated">Готово</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Action ActionFinish - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1261045762 - Action 914282563 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Next</source>
+          <target state="translated">Далее</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Action ActionNext - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3726475704 - Control 636392376 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Transaction amount.</source>
+          <target state="translated">Сумма транзакции.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement Import Preview - Control Amount - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3726475704 - Control 636392376 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Transaction Amount</source>
+          <target state="translated">Сумма транзакции</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement Import Preview - Control Amount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3726475704 - Control 3192175264 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Transaction date.</source>
+          <target state="translated">Дата транзакции.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement Import Preview - Control Date - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3726475704 - Control 3192175264 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Date</source>
+          <target state="translated">Дата</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement Import Preview - Control Date - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3726475704 - Control 3461834954 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Transaction description.</source>
+          <target state="translated">Описание транзакции.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement Import Preview - Control Description - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3726475704 - Control 3461834954 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Description</source>
+          <target state="translated">Описание</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement Import Preview - Control Description - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 4184426718 - NamedType 4267259091" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>A Bank Statement Import Format is not specified for the bank account. You can select an existing format, or create one.</source>
+          <target state="translated">Для банковского счета не указан формат импорта банковских выписок. Можно выбрать существующий формат или создать новый.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">PageExtension 4184426718</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 4184426718 - NamedType 207204715" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Set up Bank Statement File Import Format</source>
+          <target state="translated">Настройка импорта файла банковских выписок</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">PageExtension 4184426718</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 674905867 - Action 1918701063 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Start the Bank Statement File Setup wizard to set up a bank statement file import format.</source>
+          <target state="translated">Запустите мастер настройки файла банковской выписки, чтобы настройить формат импорта для файла банковской выписки.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 4286163337</note>
+        </trans-unit>
+      </group>
+    </body>
+  </file>
+</xliff>

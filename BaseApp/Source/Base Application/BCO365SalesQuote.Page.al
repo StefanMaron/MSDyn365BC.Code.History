@@ -326,7 +326,7 @@ page 2341 "BC O365 Sales Quote"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field(TaxAreaDescription; TaxAreaDescription)
@@ -347,7 +347,7 @@ page 2341 "BC O365 Sales Quote"
                         if PAGE.RunModal(PAGE::"O365 Tax Area List", TaxArea) = ACTION::LookupOK then begin
                             Validate("Tax Area Code", TaxArea.Code);
                             TaxAreaDescription := TaxArea.GetDescriptionInCurrentLanguage;
-                            CurrPage.Update;
+                            CurrPage.Update();
                         end;
                     end;
                 }
@@ -410,7 +410,7 @@ page 2341 "BC O365 Sales Quote"
                         trigger OnDrillDown()
                         begin
                             if PAGE.RunModal(PAGE::"O365 Sales Invoice Discount", Rec) = ACTION::LookupOK then
-                                CurrPage.Update;
+                                CurrPage.Update();
                         end;
                     }
                 }
@@ -445,7 +445,7 @@ page 2341 "BC O365 Sales Quote"
                         trigger OnDrillDown()
                         begin
                             if PAGE.RunModal(PAGE::"O365 Sales Invoice Discount", Rec) = ACTION::LookupOK then
-                                CurrPage.Update;
+                                CurrPage.Update();
                         end;
                     }
                     field(Amount2; Amount)
@@ -574,7 +574,7 @@ page 2341 "BC O365 Sales Quote"
                         exit;
 
                     Find;
-                    CurrPage.Update;
+                    CurrPage.Update();
                     ForceExit := true;
                     CurrPage.Close;
                 end;

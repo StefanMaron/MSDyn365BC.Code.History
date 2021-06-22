@@ -61,7 +61,7 @@ page 5075 "Interaction Templates"
                             InteractTmplLanguage.Description := Description;
                             InteractTmplLanguage.CreateAttachment;
                         end;
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Ignore Contact Corres. Type"; "Ignore Contact Corres. Type")
@@ -206,7 +206,7 @@ page 5075 "Interaction Templates"
                             InteractTemplLanguage.Description := Description;
                         end;
                         InteractTemplLanguage.CreateAttachment;
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 action("Copy &from")
@@ -230,7 +230,7 @@ page 5075 "Interaction Templates"
                             Commit();
                         end;
                         InteractTemplLanguage.CopyFromAttachment;
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 action(Import)
@@ -253,7 +253,7 @@ page 5075 "Interaction Templates"
                             InteractTemplLanguage.Insert();
                         end;
                         InteractTemplLanguage.ImportAttachment;
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 action("E&xport")

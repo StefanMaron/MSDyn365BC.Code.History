@@ -362,7 +362,7 @@ page 8632 "Config. Worksheet"
                                 AllObj.SetRange("Object ID", ConfigLine."Table ID");
                                 ConfigMgt.GetConfigTables(AllObj, false, true, false, false, false);
                                 Commit();
-                            until ConfigLine.Next = 0;
+                            until ConfigLine.Next() = 0;
                     end;
                 }
                 action(DeleteDuplicateLines)
@@ -696,7 +696,7 @@ page 8632 "Config. Worksheet"
                     end else
                         if "Package Code" = '' then
                             Error(Text001);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

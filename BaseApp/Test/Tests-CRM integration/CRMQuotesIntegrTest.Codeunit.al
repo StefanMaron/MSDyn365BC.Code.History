@@ -144,7 +144,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
             SalesReceivablesSetup.TableCaption));
     end;
 
-    [Test]
+    [Test] //this
     [Scope('OnPrem')]
     procedure NotDefinedWriteInProductNo()
     var
@@ -761,7 +761,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
     begin
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         repeat
             SalesLine.Next;
             VerifySalesLineDescriptionAndTrancateProdDescription(SalesLine, ProductDescription);
@@ -774,7 +774,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
     begin
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         VerifySalesLineDescriptionAndTrancateProdDescription(SalesLine, ProductDescription);
         repeat
             SalesLine.Next;
@@ -799,7 +799,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
     begin
         RecordLink.SetAutoCalcFields(Note);
         RecordLink.SetRange("Record ID", SalesHeader.RecordId);
-        RecordLink.FindSet;
+        RecordLink.FindSet();
         repeat
             ActualText := RecordLinkManagement.ReadNote(RecordLink);
             if ActualText = AnnotationText then

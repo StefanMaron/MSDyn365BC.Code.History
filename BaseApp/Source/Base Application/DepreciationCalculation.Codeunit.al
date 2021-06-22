@@ -137,7 +137,7 @@ codeunit 5616 "Depreciation Calculation"
                             if "Part of Book Value" or "Part of Depreciable Basis" then
                                 if "FA Posting Date" > EntryDates[i] then
                                     EntryDates[i] := CheckEntryDate(FALedgEntry, "FA Ledger Entry FA Posting Type".FromInteger(i - 1));
-                        until Next = 0;
+                        until Next() = 0;
                 end;
             end;
         end;
@@ -418,7 +418,7 @@ codeunit 5616 "Depreciation Calculation"
                         if EndingDate < StartingDate then
                             EndingDate := 0D;
                     end;
-                until (Next = 0) or (EndingDate > 0D);
+                until (Next() = 0) or (EndingDate > 0D);
         end;
         if EndingDate = 0D then
             EndingDate := UntilDate;

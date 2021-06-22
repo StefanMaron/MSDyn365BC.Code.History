@@ -44,7 +44,7 @@ codeunit 5377 "Webhook Management"
             repeat
                 if WebhookSubscription.Endpoint = SubscriptionEndpoint then
                     exit(true);
-            until WebhookSubscription.Next = 0;
+            until WebhookSubscription.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -55,7 +55,7 @@ codeunit 5377 "Webhook Management"
             repeat
                 if EndpointRegex.IsMatch(WebhookSubscription.Endpoint) then
                     exit(true);
-            until WebhookSubscription.Next = 0;
+            until WebhookSubscription.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -82,7 +82,7 @@ codeunit 5377 "Webhook Management"
 
                 if IsSameEndpoint and (CompanyName = WebhookSubscription."Company Name") then
                     exit(true);
-            until WebhookSubscription.Next = 0;
+            until WebhookSubscription.Next() = 0;
     end;
 
     procedure FindWebhookSubscriptionMatchingEndPointUri(var WebhookSubscription: Record "Webhook Subscription"; EndpointUriTxt: Text; StartIndex: Integer; PathLength: Integer): Boolean
@@ -110,7 +110,7 @@ codeunit 5377 "Webhook Management"
 
                 if IsSameEndpoint and (CompanyName = WebhookSubscription."Company Name") then
                     exit(true);
-            until WebhookSubscription.Next = 0;
+            until WebhookSubscription.Next() = 0;
     end;
 
     procedure IsValidNotificationRunAsUser(UserSecurityId: Guid): Boolean

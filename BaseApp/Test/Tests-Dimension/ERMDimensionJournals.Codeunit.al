@@ -1,4 +1,4 @@
-﻿codeunit 134382 "ERM Dimension Journals"
+codeunit 134382 "ERM Dimension Journals"
 {
     Permissions = TableData "Cust. Ledger Entry" = rimd,
                   TableData "Vendor Ledger Entry" = rimd;
@@ -25,6 +25,7 @@
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         GenJnlManagement: Codeunit GenJnlManagement;
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         isInitialized: Boolean;
         DimensionCode: Code[20];
         VendorNo: Code[20];
@@ -693,7 +694,7 @@
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Verify: Verify all GLEntries are created with Dimension which are used at the time of posting.
-        TempGenJournalLine.FindSet;
+        TempGenJournalLine.FindSet();
         repeat
             GLEntry.SetRange("Document No.", TempGenJournalLine."Document No.");
             GLEntry.SetRange("G/L Account No.", TempGenJournalLine."Account No.");
@@ -1258,6 +1259,8 @@
 
         // [THEN] Recurring method = "BD Balance by Dimension"
         Assert.AreEqual(GenJournalLine."Recurring Method"::"BD Balance by Dimension", GenJournalLine."Recurring Method", 'Wrong recurring method');
+
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -1278,11 +1281,13 @@
 
         // [THEN] Recurring method = "RBD Reversing Balance by Dimension"
         Assert.AreEqual(GenJournalLine."Recurring Method"::"RBD Reversing Balance by Dimension", GenJournalLine."Recurring Method", 'Wrong recurring method');
+
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
     [Scope('OnPrem')]
-    [HandlerFunctions('ConfirmHandlerTrue,GenJnlDimFiltersHandler')]
+    [HandlerFunctions('SetDimFiltersNotificationHandler,GenJnlDimFiltersHandler')]
     procedure SetDimensionFilterWhenValidateRecurringMethodBDBalancebyDimension()
     var
         GenJournalLine: Record "Gen. Journal Line";
@@ -1298,11 +1303,13 @@
 
         // [THEN] Dimension filters are stored in the "Gen. Jnl. Dim. Filter" table
         VerifyGenJnlDimFilters(GenJournalLine);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
     [Scope('OnPrem')]
-    [HandlerFunctions('ConfirmHandlerTrue,GenJnlDimFiltersHandler')]
+    [HandlerFunctions('SetDimFiltersNotificationHandler,GenJnlDimFiltersHandler')]
     procedure SetDimensionFilterWhenValidateRecurringMethodRBDReversingBalancebyDimension()
     var
         GenJournalLine: Record "Gen. Journal Line";
@@ -1318,11 +1325,13 @@
 
         // [THEN] Dimension filters are stored in the "Gen. Jnl. Dim. Filter" table
         VerifyGenJnlDimFilters(GenJournalLine);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
     [Scope('OnPrem')]
-    [HandlerFunctions('ConfirmHandlerFalse,GenJnlDimFiltersHandler')]
+    [HandlerFunctions('GenJnlDimFiltersHandler')]
     procedure SetDimensionFilterFromRecurringGeneralJournal()
     var
         GenJournalLine: Record "Gen. Journal Line";
@@ -1341,11 +1350,12 @@
 
         // [THEN] Dimension filters are stored in the "Gen. Jnl. Dim. Filter" table
         VerifyGenJnlDimFilters(GenJournalLine);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
     [Scope('OnPrem')]
-    //[HandlerFunctions('ConfirmHandlerFalse,GenJnlDimFiltersHandler')]
     procedure ChangeRecurringMethodToBDBalanceByDimension()
     var
         GenJournalLine: Record "Gen. Journal Line";
@@ -1376,7 +1386,7 @@
 
     [Test]
     [Scope('OnPrem')]
-    [HandlerFunctions('ConfirmHandlerTrue,GenJnlDimFiltersHandler')]
+    [HandlerFunctions('SetDimFiltersNotificationHandler,GenJnlDimFiltersHandler')]
     procedure ChangeRecurringMethodFromBDBalanceByDimension()
     var
         GenJournalLine: Record "Gen. Journal Line";
@@ -1392,6 +1402,79 @@
 
         // [THEN] Error that recurring method cannot be assigned if dimension filter exists
         Assert.ExpectedError(RecurringMethodsDimFilterErr);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('SetDimFiltersNotificationDontShowAgainHandler')]
+    procedure SetDontShowAgainOnSetDimensionFilterNotification()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        MyNotifications: Record "My Notifications";
+        GenJnlDimFilterMgt: Codeunit "Gen. Jnl. Dim. Filter Mgt.";
+    begin
+        // [SCENARIO 388950] User invoke "Don't show again" on the dimension filters notification for "BD Balance by Dimension" recurring method in the recurring journal line
+        Initialize();
+
+        // [GIVEN] Recurring gen. jnl. line
+        CreateRecurringGenJnlLine(GenJournalLine, GenJournalLine."Recurring Method"::"B  Balance");
+
+        // [WHEN] User assign recurring method "BD Balance by Dimension"
+        GenJournalLine.Validate("Recurring Method", GenJournalLine."Recurring Method"::"RBD Reversing Balance by Dimension");
+
+        // [THEN] Notification disabled
+        Assert.IsFalse(GenJnlDimFilterMgt.IsNotificationEnabled(), 'Notification should be disabled.');
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+        MyNotifications.SetStatus('e0f9167c-f9bd-4ab1-952b-874c8036cf93', true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SetDimensionFilterControlEnabledForDimBalanceLine()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        RecurringGeneralJournal: TestPage "Recurring General Journal";
+    begin
+        // [SCENARIO 334592] "Set Dimension Filter" control enabled for "BD Balance by Dimension" recurring journal line
+        Initialize();
+
+        // [GIVEN] Recurring gen. jnl. line
+        CreateRecurringGenJnlLine(GenJournalLine, GenJournalLine."Recurring Method"::"BD Balance by Dimension");
+
+        // [WHEN] Invoke "Set Dimension Filter" action
+        RecurringGeneralJournal.Trap();
+        Page.Run(Page::"Recurring General Journal", GenJournalLine);
+
+        // [THEN] "Set Dimension Filter" control is enabled
+        Assert.IsTrue(RecurringGeneralJournal.SetDimFilters.Enabled(), 'Control should be enabled.');
+        Assert.IsFalse(RecurringGeneralJournal.Dimensions.Enabled(), 'Control should be disabled.');
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SetDimensionFilterControlDisabledForNonDimBalanceLine()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        RecurringGeneralJournal: TestPage "Recurring General Journal";
+    begin
+        // [SCENARIO 334592] "Set Dimension Filter" control disabled for non "BD Balance by Dimension" recurring journal line
+        Initialize();
+
+        // [GIVEN] Recurring gen. jnl. line
+        CreateRecurringGenJnlLine(GenJournalLine, GenJournalLine."Recurring Method"::"B  Balance");
+
+        // [WHEN] Invoke "Set Dimension Filter" action
+        RecurringGeneralJournal.Trap();
+        Page.Run(Page::"Recurring General Journal", GenJournalLine);
+
+        // [THEN] "Set Dimension Filter" control is enabled
+        Assert.IsFalse(RecurringGeneralJournal.SetDimFilters.Enabled(), 'Control should be disabled.');
+        Assert.IsTrue(RecurringGeneralJournal.Dimensions.Enabled(), 'Control should be enabled.');
     end;
 
     local procedure Initialize()
@@ -1709,7 +1792,7 @@
         DimensionSetEntry: Record "Dimension Set Entry";
     begin
         // Compare dimension set on the "Customer" / "G/L Account" to that on the journal line
-        DefaultDimension.FindSet;
+        DefaultDimension.FindSet();
         repeat
             DimensionSetEntry.SetRange("Dimension Set ID", DimensionSetID);
             DimensionSetEntry.SetRange("Dimension Code", DefaultDimension."Dimension Code");
@@ -1735,7 +1818,7 @@
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", AccountNo);
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         Assert.IsTrue(GLEntry.Count > 0, 'No entries were posted');
 
         repeat
@@ -1748,7 +1831,7 @@
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
-        CustLedgerEntry.FindSet;
+        CustLedgerEntry.FindSet();
         Assert.IsTrue(CustLedgerEntry.Count > 0, 'No ledger entries were posted');
 
         repeat
@@ -1761,7 +1844,7 @@
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
         ItemLedgerEntry.SetRange("Document No.", DocumentNo);
-        ItemLedgerEntry.FindSet;
+        ItemLedgerEntry.FindSet();
         Assert.IsTrue(ItemLedgerEntry.Count > 0, 'No ledger entries were posted');
 
         repeat
@@ -1776,7 +1859,7 @@
         NewFound: Boolean;
     begin
         ItemLedgerEntry.SetRange("Document No.", DocumentNo);
-        ItemLedgerEntry.FindSet;
+        ItemLedgerEntry.FindSet();
         Assert.IsTrue(ItemLedgerEntry.Count > 0, 'No ledger entries were posted');
 
         repeat
@@ -1797,7 +1880,7 @@
         ResLedgerEntry: Record "Res. Ledger Entry";
     begin
         ResLedgerEntry.SetRange("Document No.", DocumentNo);
-        ResLedgerEntry.FindSet;
+        ResLedgerEntry.FindSet();
         Assert.IsTrue(ResLedgerEntry.Count > 0, 'No ledger entries were posted');
 
         repeat
@@ -1810,7 +1893,7 @@
         JobLedgerEntry: Record "Job Ledger Entry";
     begin
         JobLedgerEntry.SetRange("Document No.", DocumentNo);
-        JobLedgerEntry.FindSet;
+        JobLedgerEntry.FindSet();
         Assert.IsTrue(JobLedgerEntry.Count > 0, 'No ledger entries were posted');
 
         repeat
@@ -1823,7 +1906,7 @@
         FALedgerEntry: Record "FA Ledger Entry";
     begin
         FALedgerEntry.SetRange("Document No.", DocumentNo);
-        FALedgerEntry.FindSet;
+        FALedgerEntry.FindSet();
         Assert.IsTrue(FALedgerEntry.Count > 0, 'No ledger entries were posted');
 
         repeat
@@ -1836,7 +1919,7 @@
         InsCoverageLedgerEntry: Record "Ins. Coverage Ledger Entry";
     begin
         InsCoverageLedgerEntry.SetRange("Document No.", DocumentNo);
-        InsCoverageLedgerEntry.FindSet;
+        InsCoverageLedgerEntry.FindSet();
         Assert.IsTrue(InsCoverageLedgerEntry.Count > 0, 'No ledger entries were posted');
 
         repeat
@@ -2033,7 +2116,7 @@
 
         DefaultDimension.SetRange("Table ID", TableID);
         DefaultDimension.SetRange("No.", No);
-        DefaultDimension.FindSet;
+        DefaultDimension.FindSet();
     end;
 
     local procedure ClearDimensionPriority()
@@ -2934,11 +3017,20 @@
         GenJnlDimFilters.New();
     end;
 
-    [ConfirmHandler]
-    [Scope('OnPrem')]
-    procedure ConfirmHandlerFalse(Question: Text[1024]; var Reply: Boolean)
+    [SendNotificationHandler]
+    procedure SetDimFiltersNotificationHandler(var SetDimFiltersNotification: Notification): Boolean
+    var
+        GenJnlDimFilterMgt: Codeunit "Gen. Jnl. Dim. Filter Mgt.";
     begin
-        Reply := false;
+        GenJnlDimFilterMgt.SetGenJnlDimFilters(SetDimFiltersNotification);
+    end;
+
+    [SendNotificationHandler]
+    procedure SetDimFiltersNotificationDontShowAgainHandler(var SetDimFiltersNotification: Notification): Boolean
+    var
+        GenJnlDimFilterMgt: Codeunit "Gen. Jnl. Dim. Filter Mgt.";
+    begin
+        GenJnlDimFilterMgt.HideNotification(SetDimFiltersNotification);
     end;
 }
 

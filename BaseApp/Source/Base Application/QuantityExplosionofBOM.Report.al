@@ -2,7 +2,6 @@ report 99000753 "Quantity Explosion of BOM"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './QuantityExplosionofBOM.rdlc';
-    AccessByPermission = TableData "Production Order" = R;
     ApplicationArea = Manufacturing;
     Caption = 'Quantity Explosion of BOM';
     UsageCategory = ReportsAndAnalysis;
@@ -101,7 +100,7 @@ report 99000753 "Quantity Explosion of BOM"
                 var
                     BomItem: Record Item;
                 begin
-                    while BomComponent[Level].Next = 0 do begin
+                    while BomComponent[Level].Next() = 0 do begin
                         Level := Level - 1;
                         if Level < 1 then
                             CurrReport.Break();

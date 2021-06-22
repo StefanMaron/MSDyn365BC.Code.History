@@ -63,7 +63,7 @@ report 1142 "Export Cost Budget to Excel"
                     repeat
                         ColNo := ColNo + 1;
                         EnterCell(HeaderRowNo, ColNo, Format(TempPeriod."Period Start"), false, true, '', TempExcelBuffer."Cell Type"::Date);
-                    until TempPeriod.Next = 0;
+                    until TempPeriod.Next() = 0;
 
                 CopyFilter("Cost Type No.", CostType."No.");
                 if CostType.Find('-') then
@@ -94,7 +94,7 @@ report 1142 "Export Cost Budget to Excel"
                                           CostType.Type <> CostType.Type::"Cost Type",
                                           false, '', TempExcelBuffer."Cell Type"::Number);
                                         TempPeriod.Next;
-                                    until TempCostBudgetBuf2.Next = 0;
+                                    until TempCostBudgetBuf2.Next() = 0;
                             end else
                                 Clear(TempCostBudgetBuf2);
                         end else
@@ -104,9 +104,9 @@ report 1142 "Export Cost Budget to Excel"
                                       RowNo, 4 + TempPeriod."Period No.",
                                       CostType.Totaling,
                                       CostType.Type <> CostType.Type::"Cost Type", false);
-                                until TempPeriod.Next = 0;
+                                until TempPeriod.Next() = 0;
                             end;
-                    until CostType.Next = 0;
+                    until CostType.Next() = 0;
                 if IncludeTotalingFormulas then
                     HasFormulaError := TempExcelBuffer.ExportBudgetFilterToFormula(TempExcelBuffer);
                 Window.Close;
@@ -131,7 +131,7 @@ report 1142 "Export Cost Budget to Excel"
                         TempExcelBuffer.SetCurrent(LastBudgetRowNo, 4 + TempPeriod."Period No.");
                         TempExcelBuffer.EndRange;
                         TempExcelBuffer.CreateRange(TempExcelBuffer.GetExcelReference(9) + '_' + Format(TempPeriod."Period No."));
-                    until TempPeriod.Next = 0;
+                    until TempPeriod.Next() = 0;
                 end;
 
                 TempExcelBuffer.WriteSheet(PadStr(CostBudgetName.Name, 30), CompanyName, UserId);

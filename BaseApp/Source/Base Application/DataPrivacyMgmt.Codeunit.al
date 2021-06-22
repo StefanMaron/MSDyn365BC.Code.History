@@ -271,7 +271,7 @@ codeunit 1180 "Data Privacy Mgmt"
             repeat
                 ProcessingOrder += 1;
                 CreatePackageField(PackageCode, DataSensitivity."Table No", DataSensitivity."Field No", ProcessingOrder);
-            until DataSensitivity.Next = 0;
+            until DataSensitivity.Next() = 0;
         end;
     end;
 
@@ -316,7 +316,7 @@ codeunit 1180 "Data Privacy Mgmt"
                         ConfigPackage.Code, TableRelationsMetadata."Table ID", TableRelationsMetadata."Field No.", ProcessingOrder);
                 end;
             end;
-        until TableRelationsMetadata.Next = 0;
+        until TableRelationsMetadata.Next() = 0;
     end;
 
     [Scope('OnPrem')]

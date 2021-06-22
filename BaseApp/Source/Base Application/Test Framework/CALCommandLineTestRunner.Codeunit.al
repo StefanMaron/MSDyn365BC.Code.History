@@ -22,7 +22,7 @@ codeunit 130402 "CAL Command Line Test Runner"
                     CodeCoverageMgt.Stop;
                     CALTestMgt.ExtendTestCoverage(CALTestEnabledCodeunit."Test Codeunit ID");
                 end;
-            until CALTestEnabledCodeunit.Next = 0
+            until CALTestEnabledCodeunit.Next() = 0
     end;
 
     var

@@ -95,7 +95,7 @@ codeunit 1756 "Data Class. Notification Mgt."
 
         DataSensitivity.SetRange("Company Name", CompanyName);
 
-        if not DataSensitivity.IsEmpty then
+        if not DataSensitivity.IsEmpty() then
             FireNotificationForNonEmptyDataSensitivityTable(DataSensitivity)
         else
             if CompanyInformationMgt.IsEUCompany(CompanyInformation) and DataClassificationMgt.DataPrivacyEntitiesExist then
@@ -225,7 +225,7 @@ codeunit 1756 "Data Class. Notification Mgt."
         if RecRef.FindSet then begin
             repeat
                 FilterText := StrSubstNo('%1|%2', FilterText, RecRef.Field(FieldNo));
-            until RecRef.Next = 0;
+            until RecRef.Next() = 0;
 
             // remove the first vertical bar from the filter text
             FilterText := DelChr(FilterText, '<', '|');
@@ -294,7 +294,7 @@ codeunit 1756 "Data Class. Notification Mgt."
         FireUnclassifiedFieldsNotification;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1750, 'OnShowSyncFieldsNotification', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Data Classification Mgt.", 'OnShowSyncFieldsNotification', '', false, false)]
     local procedure OnShowSyncFieldsNotificationSubscriber()
     begin
         ShowSyncFieldsNotificationIfThereAreUnsynchedFields;

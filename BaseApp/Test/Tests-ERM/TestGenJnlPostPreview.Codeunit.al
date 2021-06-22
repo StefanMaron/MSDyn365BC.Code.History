@@ -818,8 +818,7 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
         Reply := true;
     end;
 
-    [EventSubscriber(ObjectType::Table, 81, 'OnBeforeDeleteEvent', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnBeforeDeleteEvent', '', false, false)]
     procedure OnDeletePmtJournalLine(var Rec: Record "Gen. Journal Line"; RunTrigger: Boolean)
     begin
         Error(UnexpectedDeleteErr);

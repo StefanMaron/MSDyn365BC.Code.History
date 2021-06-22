@@ -812,7 +812,7 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
         ItemLedgerEntry.SetRange("Lot No.", LotNo);
         ItemLedgerEntry.CalcSums(Quantity);
         ItemLedgerEntry.TestField(Quantity, PstdPhysInvtRecordLine.Quantity);
-        ItemLedgerEntry.FindSet;
+        ItemLedgerEntry.FindSet();
         repeat
             ItemLedgerEntry.TestField("Expiration Date", ExpirationDate);
         until ItemLedgerEntry.Next = 0;

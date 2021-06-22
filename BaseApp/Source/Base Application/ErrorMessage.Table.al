@@ -1,4 +1,4 @@
-﻿table 700 "Error Message"
+table 700 "Error Message"
 {
     Caption = 'Error Message';
     DrillDownPageID = "Error Messages Part";
@@ -530,7 +530,7 @@
 
         ClearFilters;
         SetRange(Context, false);
-        if IsEmpty then
+        if IsEmpty() then
             Error(GetLastErrorText);
 
         SetRange(Context, false);
@@ -555,7 +555,7 @@
         ClearFilters;
         SetContextFilter;
         SetRange(Context, false);
-        if IsEmpty then
+        if IsEmpty() then
             exit;
 
         if GuiAllowed then begin
@@ -587,7 +587,7 @@
                 if ErrorString <> '' then
                     ErrorString += '\';
                 ErrorString += Format("Message Type") + ': ' + Description;
-            until Next = 0;
+            until Next() = 0;
         ClearFilters;
         exit(ErrorString);
     end;
@@ -666,7 +666,7 @@
                 TempErrorMessage.ID := TempID;
                 TempErrorMessage.Insert();
             end;
-        until Next = 0;
+        until Next() = 0;
         TempErrorMessage.Reset();
     end;
 
@@ -681,7 +681,7 @@
             ErrorMessage := TempErrorMessage;
             ErrorMessage.ID := 0;
             ErrorMessage.Insert(true);
-        until TempErrorMessage.Next = 0;
+        until TempErrorMessage.Next() = 0;
     end;
 
     procedure CopyFromContext(ContextRecordVariant: Variant)

@@ -801,7 +801,7 @@ codeunit 133784 "Test Booking Invoicing"
         IsInvoiced: Boolean;
         i: Integer;
     begin
-        Customer.FindSet;
+        Customer.FindSet();
         for i := 1 to Count do begin
             IsInvoiced := LibraryRandom.RandInt(2) = 1;
             CreateBookingItemFromCustomer(BookingItem, Customer, IsInvoiced, true);
@@ -934,7 +934,7 @@ codeunit 133784 "Test Booking Invoicing"
 
     local procedure CopyBookingItemsToTemp(var BookingItem: Record "Booking Item"; var TempBookingItem: Record "Booking Item" temporary)
     begin
-        BookingItem.FindSet;
+        BookingItem.FindSet();
         repeat
             TempBookingItem.Init();
             BookingItem.CalcFields("Start Date", "End Date");

@@ -46,7 +46,7 @@ page 9100 "Purchase Line FactBox"
                 trigger OnDrillDown()
                 begin
                     PickPrice();
-                    CurrPage.Update;
+                    CurrPage.Update();
                 end;
             }
             field(PurchaseLineDiscounts; StrSubstNo('%1', PurchInfoPaneMgt.CalcNoOfPurchLineDisc(Rec)))
@@ -60,7 +60,7 @@ page 9100 "Purchase Line FactBox"
                 trigger OnDrillDown()
                 begin
                     PickDiscount();
-                    CurrPage.Update;
+                    CurrPage.Update();
                 end;
             }
             group(Attachments)

@@ -1,6 +1,6 @@
 page 810 "Web Services"
 {
-    AdditionalSearchTerms = 'flow,odata,soap';
+    AdditionalSearchTerms = 'odata,soap';
     ApplicationArea = Basic, Suite;
     Caption = 'Web Services';
     DelayedInsert = true;
@@ -49,6 +49,18 @@ page 810 "Web Services"
                     Enabled = IsWebServiceWriteable;
                     ToolTip = 'Specifies that the service is available to all tenants.';
                 }
+                field(ExcludeFieldsOutsideRepeater; ExcludeFieldsOutsideRepeater)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Visible = false;
+                    ToolTip = 'Specifies whether fields outside the repeater on the page are included in the eTag calculation.';
+                }
+                field(ExcludeNonEditableFlowFields; ExcludeNonEditableFlowFields)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Visible = false;
+                    ToolTip = 'Specifies whether non-editable FlowFields on the page are included in the eTag calculation. Note that FlowFields can interfere with publishing changes.';
+                }
                 field(Published; Published)
                 {
                     ApplicationArea = Basic, Suite;
@@ -62,14 +74,20 @@ page 810 "Web Services"
                     ExtendedDatatype = URL;
                     ToolTip = 'Specifies the URL that is generated for the web service. You can test the web service immediately by choosing the link in the field.';
                 }
+#if not CLEAN18
                 field(ODataUrl; WebServiceManagement.GetWebServiceUrl(Rec, ClientType::ODataV3))
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'OData URL';
                     Editable = false;
+                    Visible = false;
                     ExtendedDatatype = URL;
                     ToolTip = 'Specifies the URL that is generated for the web service. You can test the web service immediately by choosing the link in the field.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'ODataV3 deprecation.';
+                    ObsoleteTag = '18.0';
                 }
+#endif
                 field(SOAPUrl; WebServiceManagement.GetWebServiceUrl(Rec, ClientType::SOAP))
                 {
                     ApplicationArea = Basic, Suite;
@@ -120,22 +138,17 @@ page 810 "Web Services"
     trigger OnOpenPage()
     var
         WebService: Record "Web Service";
-        MyNotification: Record "My Notifications";
-        WebServiceHelper: Codeunit "Web Service Helper";
     begin
         if WebService.WritePermission() then
             IsWebServiceWriteable := true;
         WebServiceManagement.LoadRecords(Rec);
 
-        WebServiceHelper.ODataV3DeprecationNotificationDefault(true);
-        if MyNotification.IsEnabled(WebServiceHelper.ODataV3DeprecationNotificationId()) then
-            WebServiceHelper.ODataV3DepricationNotificationShow(ODataV3DepricationNotification);
     end;
 
     var
         WebServiceManagement: Codeunit "Web Service Management";
-        ODataV3DepricationNotification: Notification;
         ClientType: Enum "Client Type";
         IsWebServiceWriteable: Boolean;
+
 }
 

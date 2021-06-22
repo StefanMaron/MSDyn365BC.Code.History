@@ -7,7 +7,7 @@ codeunit 5985 "Serv-Item Tracking Rsrv. Mgt."
     end;
 
     var
-        ReserveServLine: Codeunit "Service Line-Reserve";
+        ServiceLineReserve: Codeunit "Service Line-Reserve";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         Text001: Label 'The %1 does not match the quantity defined in item tracking.';
 
@@ -58,7 +58,7 @@ codeunit 5985 "Serv-Item Tracking Rsrv. Mgt."
                     Inbound := (ServLineToCheck.Quantity * SignFactor) > 0;
                     ItemTrackingCode.Code := Item."Item Tracking Code";
                     ItemTrackingMgt.GetItemTrackingSetup(
-                        ItemTrackingCode, ItemJnlLine."Entry Type"::Sale.AsInteger(), Inbound, ItemTrackingSetup);
+                        ItemTrackingCode, ItemJnlLine."Entry Type"::Sale, Inbound, ItemTrackingSetup);
                     CheckServLine := not ItemTrackingSetup.TrackingRequired();
                     if CheckServLine then
                         CheckServLine := CheckTrackingExists(ServLineToCheck);
@@ -79,7 +79,7 @@ codeunit 5985 "Serv-Item Tracking Rsrv. Mgt."
                     then
                         Error(Text001, ErrorFieldCaption);
                 end;
-            until ServLineToCheck.Next = 0;
+            until ServLineToCheck.Next() = 0;
         end;
     end;
 
@@ -87,6 +87,7 @@ codeunit 5985 "Serv-Item Tracking Rsrv. Mgt."
     var
         TrackingSpecification: Record "Tracking Specification";
         ReservEntry: Record "Reservation Entry";
+        IsHandled: Boolean;
     begin
         TrackingSpecification.SetSourceFilter(
           DATABASE::"Service Line", ServLine."Document Type".AsInteger(), ServLine."Document No.", ServLine."Line No.", true);
@@ -96,14 +97,20 @@ codeunit 5985 "Serv-Item Tracking Rsrv. Mgt."
         ReservEntry.SetSourceFilter('', 0);
 
         TrackingSpecification.SetRange(Correction, false);
-        if not TrackingSpecification.IsEmpty then
+        if not TrackingSpecification.IsEmpty() then
             exit(true);
         ReservEntry.SetFilter("Serial No.", '<>%1', '');
-        if not ReservEntry.IsEmpty then
+        if not ReservEntry.IsEmpty() then
             exit(true);
         ReservEntry.SetRange("Serial No.");
         ReservEntry.SetFilter("Lot No.", '<>%1', '');
-        if not ReservEntry.IsEmpty then
+        if not ReservEntry.IsEmpty() then
+            exit(true);
+        ReservEntry.SetRange("Lot No.");
+
+        IsHandled := false;
+        OnAfterCheckTrackingExists(ReservEntry, IsHandled);
+        if IsHandled then
             exit(true);
     end;
 
@@ -125,7 +132,7 @@ codeunit 5985 "Serv-Item Tracking Rsrv. Mgt."
             repeat
                 if ReservEntry.TrackingExists then
                     TrackingQtyToHandle := TrackingQtyToHandle + ReservEntry."Qty. to Handle (Base)";
-            until ReservEntry.Next = 0;
+            until ReservEntry.Next() = 0;
     end;
 
     procedure SaveInvoiceSpecification(var TempInvoicingSpecification: Record "Tracking Specification" temporary; var TempTrackingSpecification: Record "Tracking Specification")
@@ -137,7 +144,7 @@ codeunit 5985 "Serv-Item Tracking Rsrv. Mgt."
                 TempTrackingSpecification := TempInvoicingSpecification;
                 TempTrackingSpecification."Buffer Status" := TempTrackingSpecification."Buffer Status"::MODIFY;
                 TempTrackingSpecification.Insert();
-            until TempInvoicingSpecification.Next = 0;
+            until TempInvoicingSpecification.Next() = 0;
             TempInvoicingSpecification.DeleteAll();
         end;
     end;
@@ -158,11 +165,11 @@ codeunit 5985 "Serv-Item Tracking Rsrv. Mgt."
                     TrackingSpecification.Modify
                 else
                     TrackingSpecification.Insert();
-            until TempTrackingSpecification.Next = 0;
+            until TempTrackingSpecification.Next() = 0;
             TempTrackingSpecification.DeleteAll();
         end;
 
-        ReserveServLine.UpdateItemTrackingAfterPosting(ServHeader);
+        ServiceLineReserve.UpdateItemTrackingAfterPosting(ServHeader);
     end;
 
     procedure InsertTempHandlngSpecification(SrcType: Integer; var ServLine: Record "Service Line"; var TempHandlingSpecification: Record "Tracking Specification"; var TempTrackingSpecification: Record "Tracking Specification"; var TempTrackingSpecificationInv: Record "Tracking Specification"; QtyToInvoiceNonZero: Boolean)
@@ -182,18 +189,18 @@ codeunit 5985 "Serv-Item Tracking Rsrv. Mgt."
                         TempTrackingSpecificationInv := TempTrackingSpecification;
                         if TempTrackingSpecificationInv.Insert() then;
                     end;
-                until TempHandlingSpecification.Next = 0;
+                until TempHandlingSpecification.Next() = 0;
         end;
     end;
 
     procedure RetrieveInvoiceSpecification(var ServLine: Record "Service Line"; var TempInvoicingSpecification: Record "Tracking Specification"; Consume: Boolean) Ok: Boolean
     begin
-        Ok := ReserveServLine.RetrieveInvoiceSpecification(ServLine, TempInvoicingSpecification, Consume);
+        Ok := ServiceLineReserve.RetrieveInvoiceSpecification(ServLine, TempInvoicingSpecification, Consume);
     end;
 
     procedure DeleteInvoiceSpecFromHeader(var ServHeader: Record "Service Header")
     begin
-        ReserveServLine.DeleteInvoiceSpecFromHeader(ServHeader);
+        ServiceLineReserve.DeleteInvoiceSpecFromHeader(ServHeader);
     end;
 
     procedure InsertShptEntryRelation(var ServiceShptLine: Record "Service Shipment Line"; var TempHandlingSpecification: Record "Tracking Specification"; var TempTrackingSpecificationInv: Record "Tracking Specification"; ItemLedgShptEntryNo: Integer): Integer
@@ -205,7 +212,7 @@ codeunit 5985 "Serv-Item Tracking Rsrv. Mgt."
             repeat
                 TempHandlingSpecification := TempTrackingSpecificationInv;
                 if TempHandlingSpecification.Insert() then;
-            until TempTrackingSpecificationInv.Next = 0;
+            until TempTrackingSpecificationInv.Next() = 0;
             TempTrackingSpecificationInv.DeleteAll();
         end;
 
@@ -215,7 +222,7 @@ codeunit 5985 "Serv-Item Tracking Rsrv. Mgt."
                 ItemEntryRelation.InitFromTrackingSpec(TempHandlingSpecification);
                 ItemEntryRelation.TransferFieldsServShptLine(ServiceShptLine);
                 ItemEntryRelation.Insert();
-            until TempHandlingSpecification.Next = 0;
+            until TempHandlingSpecification.Next() = 0;
             TempHandlingSpecification.DeleteAll();
             exit(0);
         end;
@@ -231,14 +238,14 @@ codeunit 5985 "Serv-Item Tracking Rsrv. Mgt."
             repeat
                 ValueEntryRelation := TempValueEntryRelation;
                 ValueEntryRelation.Insert();
-            until TempValueEntryRelation.Next = 0;
+            until TempValueEntryRelation.Next() = 0;
             TempValueEntryRelation.DeleteAll();
         end;
     end;
 
     procedure TransServLineToItemJnlLine(var ServiceLine: Record "Service Line"; var ItemJnlLine: Record "Item Journal Line"; QtyToBeShippedBase: Decimal; var CheckApplFromItemEntry: Boolean)
     begin
-        ReserveServLine.TransServLineToItemJnlLine(ServiceLine, ItemJnlLine, QtyToBeShippedBase, CheckApplFromItemEntry);
+        ServiceLineReserve.TransServLineToItemJnlLine(ServiceLine, ItemJnlLine, QtyToBeShippedBase, CheckApplFromItemEntry);
     end;
 
     procedure TransferReservToItemJnlLine(var ServiceLine: Record "Service Line"; var ItemJnlLine: Record "Item Journal Line"; QtyToBeShippedBase: Decimal; var CheckApplFromItemEntry: Boolean)
@@ -252,8 +259,8 @@ codeunit 5985 "Serv-Item Tracking Rsrv. Mgt."
 
         if QtyToBeShippedBase = 0 then
             exit;
-        Clear(ReserveServLine);
-        ReserveServLine.TransServLineToItemJnlLine(
+        Clear(ServiceLineReserve);
+        ServiceLineReserve.TransServLineToItemJnlLine(
           ServiceLine, ItemJnlLine, QtyToBeShippedBase, CheckApplFromItemEntry)
     end;
 
@@ -267,6 +274,11 @@ codeunit 5985 "Serv-Item Tracking Rsrv. Mgt."
         ItemTrackingMgt.AdjustQuantityRounding(
           RemQtyToBeInvoiced, QtyToBeInvoiced,
           RemQtyToBeInvoicedBase, QtyToBeInvoicedBase);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckTrackingExists(var ReservEntry: Record "Reservation Entry"; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

@@ -118,7 +118,7 @@ codeunit 1305 "Sales-Quote to Invoice"
                         SalesInvoiceLine.Insert();
                         OnAfterInsertSalesInvoiceLine(SalesQuoteLine, SalesQuoteHeader, SalesInvoiceLine, SalesInvoiceHeader);
                     end;
-                until SalesQuoteLine.Next = 0;
+                until SalesQuoteLine.Next() = 0;
 
             MoveLineCommentsToSalesInvoice(SalesInvoiceHeader, SalesQuoteHeader);
 
@@ -155,7 +155,7 @@ codeunit 1305 "Sales-Quote to Invoice"
             repeat
                 O365CouponClaimDocLink.Rename(
                   O365CouponClaimDocLink."Claim ID", O365CouponClaimDocLink."Graph Contact ID", SalesHeader."Document Type", SalesHeader."No.");
-            until O365CouponClaimDocLink.Next = 0;
+            until O365CouponClaimDocLink.Next() = 0;
     end;
 
     local procedure CheckForAssembleToOrderLines(QuoteSalesHeader: Record "Sales Header")

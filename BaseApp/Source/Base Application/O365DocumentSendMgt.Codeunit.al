@@ -273,7 +273,7 @@ codeunit 2158 "O365 Document Send Mgt"
         if LocalNotification.Recall then;
     end;
 
-    [EventSubscriber(ObjectType::Table, 472, 'OnAfterFinalizeRun', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Job Queue Entry", 'OnAfterFinalizeRun', '', false, false)]
     local procedure UpdateDocumentSentHistory(JobQueueEntry: Record "Job Queue Entry")
     var
         O365DocumentSentHistory: Record "O365 Document Sent History";

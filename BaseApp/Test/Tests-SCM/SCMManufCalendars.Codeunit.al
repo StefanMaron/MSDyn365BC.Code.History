@@ -629,6 +629,7 @@ codeunit 137076 "SCM Manuf Calendars"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Manuf Calendars");
 
         LibraryERMCountryData.UpdateGeneralPostingSetup;
+        CalendarMgt.ClearInternals(); // clear single instance codeunit vars to avoid influence of other test codeunits
         Commit();
 
         Initialized := true;
@@ -779,7 +780,7 @@ codeunit 137076 "SCM Manuf Calendars"
         CalendarManagement: Codeunit "Shop Calendar Management";
     begin
         WorkCenter.SetRange("Work Center Group Code", WorkCenterGroupCode);
-        WorkCenter.FindSet;
+        WorkCenter.FindSet();
         repeat
             DateFilterOnWorkCenter(WorkCenter, MatrixRecords);
             CapacityEffective +=
@@ -934,7 +935,7 @@ codeunit 137076 "SCM Manuf Calendars"
             SetRange("Prod. Order No.", ProductionOrder."No.");
             Assert.AreEqual(3, Count, StrSubstNo(WrongNoOfLinesErr, TableName));
 
-            FindSet;
+            FindSet();
             // Total time required for machine center setup is 60 minutes * 100 / 75 = 80 min. (as MC efficiency is 75%)
             VerifyCapacityLine(090700T, 102700T, "Time Type"::"Setup Time", 60, ProdOrderCapacityNeed);
             Next;

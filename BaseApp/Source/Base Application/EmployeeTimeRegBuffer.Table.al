@@ -337,11 +337,11 @@ table 5510 "Employee Time Reg Buffer"
                             end;
 
                             Insert(true);
-                        until TimeSheetDetail.Next = 0;
+                        until TimeSheetDetail.Next() = 0;
                     end;
-                until TimeSheetLine.Next = 0;
+                until TimeSheetLine.Next() = 0;
             end;
-        until TimeSheetHeader.Next = 0;
+        until TimeSheetHeader.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -403,7 +403,7 @@ table 5510 "Employee Time Reg Buffer"
                     end;
                 end;
             end;
-        until TimeSheetDetail.Next = 0;
+        until TimeSheetDetail.Next() = 0;
     end;
 
     local procedure MaxDateFilterRange(): Integer

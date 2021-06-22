@@ -148,7 +148,7 @@ page 617 "Handled IC Inbox Transactions"
                         InboxOutboxMgt: Codeunit ICInboxOutboxMgt;
                     begin
                         InboxOutboxMgt.RecreateInboxTransaction(Rec);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }

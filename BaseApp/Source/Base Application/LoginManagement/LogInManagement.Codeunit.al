@@ -76,7 +76,7 @@ codeunit 40 LogInManagement
         GlobalLanguage := Language."Language ID";
 
         // Check if the logged in user must change login before allowing access.
-        if not User.IsEmpty then begin
+        if not User.IsEmpty() then begin
             if IdentityManagement.IsUserNamePasswordAuthentication then begin
                 User.SetRange("User Security ID", UserSecurityId);
                 User.FindFirst;
@@ -189,7 +189,7 @@ codeunit 40 LogInManagement
         exit(WorkDate);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 2000000004, 'GetSystemIndicator', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"UI Helper Triggers", 'GetSystemIndicator', '', false, false)]
     local procedure GetSystemIndicator(var Text: Text[250]; var Style: Option Standard,Accent1,Accent2,Accent3,Accent4,Accent5,Accent6,Accent7,Accent8,Accent9)
     var
         CompanyInformation: Record "Company Information";
@@ -214,7 +214,7 @@ codeunit 40 LogInManagement
             AllObjWithCaption.SetRange("Object Type", AllObjWithCaption."Object Type"::Page);
             AllObjWithCaption.SetRange("Object Subtype", 'RoleCenter');
             AllObjWithCaption.SetRange("Object ID", AllProfile."Role Center ID");
-            if AllObjWithCaption.IsEmpty then begin
+            if AllObjWithCaption.IsEmpty() then begin
                 Clear(UserPersonalization."Profile ID");
                 Clear(UserPersonalization."App ID");
                 Clear(UserPersonalization.Scope);
@@ -226,7 +226,7 @@ codeunit 40 LogInManagement
                 AllProfile.Reset();
                 PermissionManager.GetDefaultProfileID(UserSecurityId, AllProfile);
 
-                if not AllProfile.IsEmpty then begin
+                if not AllProfile.IsEmpty() then begin
                     UserPersonalization."Profile ID" := AllProfile."Profile ID";
                     UserPersonalization.Scope := AllProfile.Scope;
                     UserPersonalization."App ID" := AllProfile."App ID";
@@ -240,13 +240,13 @@ codeunit 40 LogInManagement
             end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 150, 'OnAfterInitialization', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Initialization", 'OnAfterInitialization', '', false, false)]
     local procedure OnCompanyOpen()
     begin
         CompanyOpen;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 2000000003, 'OnCompanyClose', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Company Triggers", 'OnCompanyClose', '', false, false)]
     local procedure OnCompanyClose()
     begin
         CompanyClose;

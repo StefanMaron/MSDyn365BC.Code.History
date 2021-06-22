@@ -207,7 +207,7 @@ report 5877 "Phys. Invt. Order - Test"
                                     Continue := true;
                                     exit;
                                 end;
-                            until (DimSetEntry.Next = 0);
+                            until (DimSetEntry.Next() = 0);
                         end;
 
                         trigger OnPreDataItem()

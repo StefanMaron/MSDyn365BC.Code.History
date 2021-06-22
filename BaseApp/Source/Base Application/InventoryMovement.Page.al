@@ -23,7 +23,7 @@ page 7382 "Inventory Movement"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Location Code"; "Location Code")
@@ -52,7 +52,7 @@ page 7382 "Inventory Movement"
 
                         CreateInvtPickMovement.SetInvtMovement(true);
                         CreateInvtPickMovement.Run(Rec);
-                        CurrPage.Update;
+                        CurrPage.Update();
                         CurrPage.WhseActivityLines.PAGE.UpdateForm;
                     end;
 
@@ -306,7 +306,7 @@ page 7382 "Inventory Movement"
 
     trigger OnDeleteRecord(): Boolean
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -346,13 +346,13 @@ page 7382 "Inventory Movement"
 
     local procedure SourceNoOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
         CurrPage.WhseActivityLines.PAGE.UpdateForm;
     end;
 
     local procedure SortingMethodOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

@@ -13,7 +13,7 @@ codeunit 1274 "Exp. Mapping Gen. Jnl."
         LineNo: Integer;
     begin
         PaymentExportData.SetRange("Data Exch Entry No.", "Entry No.");
-        PaymentExportData.FindSet;
+        PaymentExportData.FindSet();
 
         Window.Open(ProgressMsg);
 
@@ -28,7 +28,7 @@ codeunit 1274 "Exp. Mapping Gen. Jnl."
             PaymentExportDataRecRef.GetTable(PaymentExportData);
             PaymentExportMgt.ProcessColumnMapping(DataExch, PaymentExportDataRecRef,
               PaymentExportData."Line No.", PaymentExportData."Data Exch. Line Def Code", PaymentExportDataRecRef.Number);
-        until PaymentExportData.Next = 0;
+        until PaymentExportData.Next() = 0;
 
         Window.Close;
     end;

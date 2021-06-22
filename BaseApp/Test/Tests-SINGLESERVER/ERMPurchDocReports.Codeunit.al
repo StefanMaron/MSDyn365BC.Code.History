@@ -2469,7 +2469,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
           VendorNo, VendLedgEntryNo, DetailedVendorLedgEntry."Entry Type"::Application, EntryAmount, UnappliedEntry, PostingDate);
     end;
 
-    local procedure MockDtldVLE(var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; VendorNo: Code[20]; VendLedgEntryNo: Integer; EntryType: Option; EntryAmount: Decimal; UnappliedEntry: Boolean; PostingDate: Date)
+    local procedure MockDtldVLE(var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; VendorNo: Code[20]; VendLedgEntryNo: Integer; EntryType: Enum "Detailed CV Ledger Entry Type"; EntryAmount: Decimal; UnappliedEntry: Boolean; PostingDate: Date)
     begin
         with DetailedVendorLedgEntry do begin
             Init;

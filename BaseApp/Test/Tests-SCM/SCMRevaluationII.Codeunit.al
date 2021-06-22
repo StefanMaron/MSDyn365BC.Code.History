@@ -1714,7 +1714,7 @@ codeunit 137011 "SCM Revaluation-II"
             SetRange("Order Type", "Order Type"::Production);
             SetRange("Order No.", ProdOrderNo);
             SetRange("Item Ledger Entry Type", "Item Ledger Entry Type"::Output);
-            FindSet;
+            FindSet();
             repeat
                 TestField("Cost Posted to G/L", "Cost Amount (Actual)");
             until Next = 0;
@@ -1864,7 +1864,7 @@ codeunit 137011 "SCM Revaluation-II"
         ValueEntry.SetRange("Item No.", ItemNo);
         if PositiveEntry then
             ValueEntry.SetFilter("Cost Posted to G/L", '>0');
-        ValueEntry.FindSet;
+        ValueEntry.FindSet();
         repeat
             CostPostedGL += ValueEntry."Cost Posted to G/L";
         until ValueEntry.Next = 0;
@@ -1917,7 +1917,7 @@ codeunit 137011 "SCM Revaluation-II"
     begin
         ItemJournalLine.SetRange("Order Type", ItemJournalLine."Order Type"::Production);
         ItemJournalLine.SetRange("Order No.", ProductionOrderNo);
-        ItemJournalLine.FindSet;
+        ItemJournalLine.FindSet();
         repeat
             CODEUNIT.Run(CODEUNIT::"Item Jnl.-Post Batch", ItemJournalLine);
         until ItemJournalLine.Next = 0;

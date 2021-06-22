@@ -83,10 +83,13 @@ codeunit 2103 "O365 Sales Cancel Invoice"
     var
         ReportSelections: Record "Report Selections";
         DocumentMailing: Codeunit "Document-Mailing";
+        TempBlob: Codeunit "Temp Blob";
+        SourceReference: RecordRef;
         RecordVariant: Variant;
         CustomerAddress: Text[250];
         ServerEmailBodyFilePath: Text[250];
         EmailBodyTxt: Text;
+        AttachmentStream: InStream;
     begin
         if not IsInvoiceCanceled(SalesInvoiceHeader) then
             exit;
@@ -97,9 +100,12 @@ codeunit 2103 "O365 Sales Cancel Invoice"
         ReportSelections.GetEmailBodyTextForCust(
           ServerEmailBodyFilePath, "Report Selection Usage"::"S.Invoice", RecordVariant, SalesInvoiceHeader."Bill-to Customer No.",
           CustomerAddress, EmailBodyTxt);
+
+        TempBlob.CreateInStream(AttachmentStream);
+        SourceReference := RecordVariant;
         DocumentMailing.EmailFileWithSubjectAndReportUsage(
-          '', '', ServerEmailBodyFilePath, EmailSubjectTxt, SalesInvoiceHeader."No.", CustomerAddress,
-          SalesInvoiceHeader.GetDocTypeTxt, true, 2);
+          AttachmentStream, '', ServerEmailBodyFilePath, EmailSubjectTxt, SalesInvoiceHeader."No.", CustomerAddress,
+          SalesInvoiceHeader.GetDocTypeTxt, true, 2, SourceReference);
     end;
 
     local procedure SendInvoiceCancelationEmailFromJobQueue(JobQueueEntry: Record "Job Queue Entry")

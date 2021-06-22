@@ -55,13 +55,13 @@ xmlport 9000 "Export/Import User Groups"
                              "User Group Permission Set"."User Group Code",
                              "User Group Permission Set"."Role ID", "User Group Permission Set".Scope, "User Group Permission Set"."App ID")
                         then
-                            currXMLport.Skip;
+                            currXMLport.Skip();
                         if not AggregatePermissionSet.Get(
                              "User Group Permission Set".Scope,
                              "User Group Permission Set"."App ID",
                              "User Group Permission Set"."Role ID")
                         then
-                            currXMLport.Skip;
+                            currXMLport.Skip();
                     end;
                 }
 
@@ -76,7 +76,7 @@ xmlport 9000 "Export/Import User Groups"
                 begin
                     IsImport := true;
                     if UserGroup.Get("User Group".Code) then
-                        currXMLport.Skip;
+                        currXMLport.Skip();
                 end;
             }
         }

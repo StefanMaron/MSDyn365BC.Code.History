@@ -70,7 +70,7 @@ codeunit 5653 "Insurance Jnl.-Post Batch"
                 LineCount := LineCount + 1;
                 Window.Update(2, LineCount);
                 InsuranceJnlCheckLine.RunCheck(InsuranceJnlLine);
-                if Next = 0 then
+                if Next() = 0 then
                     Find('-');
             until "Line No." = StartLineNo;
             NoOfRecords := LineCount;
@@ -123,7 +123,7 @@ codeunit 5653 "Insurance Jnl.-Post Batch"
                             LastPostedDocNo := "Document No.";
                         end;
                 InsuranceJnlPostLine.RunWithOutCheck(InsuranceJnlLine);
-            until Next = 0;
+            until Next() = 0;
 
             if InsuranceReg.FindLast then;
             if InsuranceReg."No." <> InsuranceRegNo then
@@ -170,7 +170,7 @@ codeunit 5653 "Insurance Jnl.-Post Batch"
                 repeat
                     Evaluate(PostingNoSeriesNo, NoSeries.Description);
                     NoSeriesMgt2[PostingNoSeriesNo].SaveNoSeries;
-                until NoSeries.Next = 0;
+                until NoSeries.Next() = 0;
 
             Commit();
             Clear(InsuranceJnlCheckLine);

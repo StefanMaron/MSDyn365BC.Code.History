@@ -34,7 +34,7 @@ table 99000851 "Production Forecast Name"
         ProdForecastEntry: Record "Production Forecast Entry";
     begin
         ProdForecastEntry.SetRange("Production Forecast Name", Name);
-        if not ProdForecastEntry.IsEmpty then begin
+        if not ProdForecastEntry.IsEmpty() then begin
             if GuiAllowed then
                 if not Confirm(Confirm001Qst, true, Name) then
                     Error('');

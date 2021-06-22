@@ -105,7 +105,7 @@ page 1060 "Payment Services"
 
     trigger OnDeleteRecord(): Boolean
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     trigger OnOpenPage()
@@ -114,7 +114,7 @@ page 1060 "Payment Services"
     begin
         OnRegisterPaymentServices(Rec);
         OnRegisterPaymentServiceProviders(TempPaymentServiceSetupProviders);
-        if TempPaymentServiceSetupProviders.IsEmpty then
+        if TempPaymentServiceSetupProviders.IsEmpty() then
             Error(NoServicesInstalledErr);
     end;
 

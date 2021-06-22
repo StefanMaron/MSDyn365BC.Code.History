@@ -39,13 +39,13 @@ codeunit 1380 "Batch Processing Mgt."
         OnBeforeBatchProcess(RecRef);
 
         with RecRef do begin
-            if IsEmpty then
+            if IsEmpty() then
                 exit;
 
             FillBatchProcessingMap(RecRef);
             Commit();
 
-            FindSet;
+            FindSet();
 
             if GuiAllowed then begin
                 Window.Open(PostingTemplateMsg);
@@ -64,7 +64,7 @@ codeunit 1380 "Batch Processing Mgt."
                     if CanProcessRecord(RecRef) then
                         if ProcessRecord(RecRef, BatchConfirm) then
                             CounterPosted += 1;
-                until Next = 0;
+                until Next() = 0;
 
             ResetBatchID;
 
@@ -103,11 +103,11 @@ codeunit 1380 "Batch Processing Mgt."
     local procedure FillBatchProcessingMap(var RecRef: RecordRef)
     begin
         with RecRef do begin
-            FindSet;
+            FindSet();
             repeat
                 DeleteLostParameters(RecordId);
                 InsertBatchProcessingSessionMapEntry(RecRef);
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -235,9 +235,9 @@ codeunit 1380 "Batch Processing Mgt."
         if BatchProcessingSessionMap.FindSet then begin
             repeat
                 BatchProcessingParameter.SetRange("Batch ID", BatchProcessingSessionMap."Batch ID");
-                if not BatchProcessingParameter.IsEmpty then
+                if not BatchProcessingParameter.IsEmpty() then
                     BatchProcessingParameter.DeleteAll();
-            until BatchProcessingSessionMap.Next = 0;
+            until BatchProcessingSessionMap.Next() = 0;
             BatchProcessingSessionMap.DeleteAll();
         end;
     end;

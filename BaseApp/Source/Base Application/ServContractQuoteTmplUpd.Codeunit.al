@@ -78,7 +78,7 @@ codeunit 5942 "ServContractQuote-Tmpl. Upd."
                     ContractServiceDiscount."Contract Type" := "Contract Type";
                     ContractServiceDiscount."Contract No." := "Contract No.";
                     ContractServiceDiscount.Insert();
-                until TemplateContractServiceDiscount.Next = 0;
+                until TemplateContractServiceDiscount.Next() = 0;
         end;
         OnAfterApplyTemplate(ServiceContractHeader, ServiceContractTemplate);
     end;

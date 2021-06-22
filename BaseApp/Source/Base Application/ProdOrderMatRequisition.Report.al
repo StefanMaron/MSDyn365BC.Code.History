@@ -105,7 +105,7 @@ report 99000765 "Prod. Order - Mat. Requisition"
                                        (ReservationEntry2."Source ID" = "Prod. Order Component"."Prod. Order No.")
                                     then
                                         RemainingQtyReserved += ReservationEntry2."Quantity (Base)";
-                            until Next = 0;
+                            until Next() = 0;
                             if "Prod. Order Component"."Remaining Qty. (Base)" = RemainingQtyReserved then
                                 CurrReport.Skip();
                         end;

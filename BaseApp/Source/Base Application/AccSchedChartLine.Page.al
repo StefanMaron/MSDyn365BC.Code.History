@@ -59,9 +59,9 @@ page 765 "Acc. Sched. Chart Line"
                     trigger OnValidate()
                     begin
                         if Show then
-                            "Chart Type" := GetDefaultChartType
+                            Rec."Chart Type" := Rec.GetDefaultAccSchedChartType()
                         else
-                            "Chart Type" := "Chart Type"::" ";
+                            Rec."Chart Type" := Rec."Chart Type"::" ";
                     end;
                 }
             }

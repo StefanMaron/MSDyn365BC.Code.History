@@ -84,7 +84,7 @@ page 703 "Merge Duplicate Subform"
                     trigger OnValidate()
                     begin
                         SetStyle;
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Duplicate Value"; "Duplicate Value")
@@ -100,7 +100,7 @@ page 703 "Merge Duplicate Subform"
                     trigger OnValidate()
                     begin
                         SetStyle;
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Duplicate Count"; "Duplicate Count")

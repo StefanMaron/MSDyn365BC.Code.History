@@ -489,7 +489,7 @@ codeunit 135401 "Fixed Assets Plan-based E2E"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         GenJournalLine.SetRange("Journal Template Name", FAJournalTemplateNameTok);
-        if not GenJournalLine.IsEmpty then
+        if not GenJournalLine.IsEmpty() then
             GenJournalLine.DeleteAll();
     end;
 

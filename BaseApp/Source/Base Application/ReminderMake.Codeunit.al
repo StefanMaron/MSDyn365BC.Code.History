@@ -1,4 +1,4 @@
-﻿codeunit 392 "Reminder-Make"
+codeunit 392 "Reminder-Make"
 {
 
     trigger OnRun()
@@ -59,7 +59,7 @@
                         Currency.Code := CustLedgEntry."Currency Code";
                         if Currency.Insert() then;
                     end;
-                until CustLedgEntry.Next = 0;
+                until CustLedgEntry.Next() = 0;
             CustLedgEntry.CopyFilters(CustLedgEntry2);
             RetVal := true;
             OnCodeOnBeforeCurrencyLoop(CustLedgEntry, ReminderHeaderReq, ReminderTerms, OverdueEntriesOnly, IncludeEntriesOnHold, HeaderExists, CustLedgEntryLastIssuedReminderLevelFilter);
@@ -67,7 +67,7 @@
                 repeat
                     if not MakeReminder(Currency.Code) then
                         RetVal := false;
-                until Currency.Next = 0;
+                until Currency.Next() = 0;
         end;
 
         OnAfterCode(RetVal);
@@ -195,7 +195,7 @@
 
                                 AddLineFeeForCustLedgEntry(CustLedgEntry, ReminderLevel, NextLineNo);
                             end;
-                        until CustLedgEntry.Next = 0;
+                        until CustLedgEntry.Next() = 0;
                     end
                 until ReminderLevel.Next(-1) = 0;
                 ReminderHeader."Reminder Level" := MaxReminderLevel;
@@ -211,7 +211,7 @@
                 if CustLedgEntry.FindSet then
                     repeat
                         AddRemiderLinesFromCustLedgEntryWithNoReminderLevelFilter(ReminderLine, ReminderLevel, LineLevel, ReminderDueDate, NextLineNo, OpenEntriesNotDueTranslated)
-                    until CustLedgEntry.Next = 0;
+                    until CustLedgEntry.Next() = 0;
 
                 if IncludeEntriesOnHold then
                     if CustLedgEntryOnHoldTEMP.FindSet then begin
@@ -226,7 +226,7 @@
                             ReminderLine.Validate("Entry No.", CustLedgEntryOnHoldTEMP."Entry No.");
                             ReminderLine."No. of Reminders" := 0;
                             ReminderLine.Insert();
-                        until CustLedgEntryOnHoldTEMP.Next = 0;
+                        until CustLedgEntryOnHoldTEMP.Next() = 0;
                     end;
                 ReminderHeader.Modify();
             end;
@@ -305,7 +305,7 @@
                             CustLedgEntryOnHoldTEMP := CustLedgEntry;
                             CustLedgEntryOnHoldTEMP.Insert();
                         end;
-                until CustLedgEntry.Next = 0;
+                until CustLedgEntry.Next() = 0;
         until ReminderLevel.Next(-1) = 0;
     end;
 
@@ -395,7 +395,7 @@
         end;
         ReminderLevel3 := ReminderLevel2;
         ReminderLevel3.CopyFilters(ReminderLevel2);
-        if ReminderLevel3.Next = 0 then
+        if ReminderLevel3.Next() = 0 then
             LastLevel := true
         else
             LastLevel := false;
@@ -422,13 +422,13 @@
             exit(false);
 
         Integer.SetFilter(Number, CustLedgEntryLastIssuedReminderLevelFilter);
-        Integer.FindSet;
+        Integer.FindSet();
         if Integer.Number > ReminderLevelNo - 1 then
             exit(true);
         repeat
             if Integer.Number = ReminderLevelNo - 1 then
                 exit(false)
-        until Integer.Next = 0;
+        until Integer.Next() = 0;
         exit(true);
     end;
 
@@ -489,7 +489,7 @@
         IssuedReminderLine.SetRange("Applies-To Document No.", CustLedgEntry."Document No.");
         IssuedReminderLine.SetRange("No. of Reminders", ReminderLevel."No.");
         IssuedReminderLine.SetRange(Canceled, false);
-        if not IssuedReminderLine.IsEmpty then
+        if not IssuedReminderLine.IsEmpty() then
             exit;
 
         CustPostingGr.Get(ReminderHeader."Customer Posting Group");

@@ -1,4 +1,4 @@
-﻿codeunit 5790 "Available to Promise"
+codeunit 5790 "Available to Promise"
 {
     Permissions = TableData "Prod. Order Line" = r,
                   TableData "Prod. Order Component" = r;
@@ -75,7 +75,7 @@
 
         with Item do begin
             GrossRequirement :=
-              "Scheduled Need (Qty.)" +
+              "Qty. on Component Lines" +
               "Planning Issues (Qty.)" +
               "Planning Transfer Ship. (Qty)." +
               "Qty. on Sales Order" +
@@ -200,7 +200,7 @@
                         PeriodStart := AvailabilityAtDate."Period Start";
                     ScheduledReceipt += AvailabilityAtDate."Scheduled Receipt";
                     GrossRequirement += AvailabilityAtDate."Gross Requirement";
-                until AvailabilityAtDate.Next = 0;
+                until AvailabilityAtDate.Next() = 0;
             AvailableQty := Item.Inventory - Item."Reserved Qty. on Inventory" + ScheduledReceipt - GrossRequirement;
             if AvailableQty >= NeededQty then begin
                 QtyIsAvailable := true;
@@ -281,7 +281,7 @@
         if AvailabilityAtDate.FindSet then
             repeat
                 LookaheadQty += AvailabilityAtDate."Gross Requirement" - AvailabilityAtDate."Scheduled Receipt";
-            until AvailabilityAtDate.Next = 0;
+            until AvailabilityAtDate.Next() = 0;
 
         AvailabilityAtDate.SetRange("Period Start", StartDate, EndDate);
         if AvailabilityAtDate.FindSet then
@@ -291,7 +291,7 @@
                 else
                     if AvailabilityAtDate."Gross Requirement" < AvailabilityAtDate."Scheduled Receipt" then
                         Stop := true;
-            until (AvailabilityAtDate.Next = 0) or Stop;
+            until (AvailabilityAtDate.Next() = 0) or Stop;
 
         if LookaheadQty < 0 then
             LookaheadQty := 0;
@@ -395,12 +395,12 @@
                         AvailabilityInPeriod."Scheduled Receipt" += AvailabilityAtDate."Scheduled Receipt";
                         AvailabilityInPeriod."Gross Requirement" += AvailabilityAtDate."Gross Requirement";
                         AvailabilityAtDate.Delete();
-                    until AvailabilityAtDate.Next = 0;
+                    until AvailabilityAtDate.Next() = 0;
                     AvailabilityAtDate.SetRange("Period Start");
                     AvailabilityAtDate := AvailabilityInPeriod;
                     AvailabilityAtDate.Insert();
                 end;
-            until AvailabilityAtDate.Next = 0;
+            until AvailabilityAtDate.Next() = 0;
     end;
 
     procedure GetLookAheadPeriodEndDate(LookaheadDateFormula: DateFormula; PeriodType: Option; StartDate: Date): Date
@@ -467,7 +467,7 @@
 
         Item.CalcFields(
           Inventory, "Reserved Qty. on Inventory",
-          "Scheduled Need (Qty.)",
+          "Qty. on Component Lines",
           "Planning Issues (Qty.)",
           "Planning Transfer Ship. (Qty).",
           "Qty. on Sales Order",
@@ -517,7 +517,7 @@
                 repeat
                     CalcFields("Reserved Qty. (Base)");
                     UpdateScheduledReceipt(AvailabilityAtDate, "Due Date", "Remaining Qty. (Base)" - "Reserved Qty. (Base)");
-                until Next = 0;
+                until Next() = 0;
     end;
 
     local procedure UpdatePurchReqRcptAvail(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item)
@@ -529,7 +529,7 @@
                 repeat
                     CalcFields("Reserved Qty. (Base)");
                     UpdateScheduledReceipt(AvailabilityAtDate, "Due Date", "Quantity (Base)" - "Reserved Qty. (Base)");
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -542,13 +542,13 @@
                 repeat
                     CalcFields("Reserved Qty. (Base)");
                     UpdateScheduledReceipt(AvailabilityAtDate, "Expected Receipt Date", "Outstanding Qty. (Base)" - "Reserved Qty. (Base)");
-                until Next = 0;
+                until Next() = 0;
 
             if FindLinesWithItemToPlan(Item, "Document Type"::"Return Order") then
                 repeat
                     CalcFields("Reserved Qty. (Base)");
                     UpdateGrossRequirement(AvailabilityAtDate, "Expected Receipt Date", "Outstanding Qty. (Base)" - "Reserved Qty. (Base)")
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -562,7 +562,7 @@
                     CalcFields("Reserved Qty. Inbnd. (Base)");
                     UpdateScheduledReceipt(AvailabilityAtDate, "Receipt Date",
                       "Outstanding Qty. (Base)" + "Qty. Shipped (Base)" - "Qty. Received (Base)" - "Reserved Qty. Inbnd. (Base)");
-                until Next = 0;
+                until Next() = 0;
     end;
 
     local procedure UpdateSchedNeedAvail(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item)
@@ -574,7 +574,7 @@
                 repeat
                     CalcFields("Reserved Qty. (Base)");
                     UpdateGrossRequirement(AvailabilityAtDate, "Due Date", "Remaining Qty. (Base)" - "Reserved Qty. (Base)");
-                until Next = 0;
+                until Next() = 0;
     end;
 
     local procedure UpdatePlanningIssuesAvail(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item)
@@ -586,7 +586,7 @@
                 repeat
                     CalcFields("Reserved Qty. (Base)");
                     UpdateGrossRequirement(AvailabilityAtDate, "Due Date", "Expected Quantity (Base)" - "Reserved Qty. (Base)");
-                until Next = 0;
+                until Next() = 0;
     end;
 
     local procedure UpdateSalesOrderAvail(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item)
@@ -600,13 +600,13 @@
                         CalcFields("Reserved Qty. (Base)");
                         UpdateGrossRequirement(AvailabilityAtDate, "Shipment Date", "Outstanding Qty. (Base)" - "Reserved Qty. (Base)")
                     end
-                until Next = 0;
+                until Next() = 0;
 
             if FindLinesWithItemToPlan(Item, "Document Type"::"Return Order") then
                 repeat
                     CalcFields("Reserved Qty. (Base)");
                     UpdateScheduledReceipt(AvailabilityAtDate, "Shipment Date", "Outstanding Qty. (Base)" - "Reserved Qty. (Base)")
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -619,7 +619,7 @@
                 repeat
                     CalcFields("Reserved Qty. (Base)");
                     UpdateGrossRequirement(AvailabilityAtDate, "Needed by Date", "Outstanding Qty. (Base)" - "Reserved Qty. (Base)");
-                until Next = 0;
+                until Next() = 0;
     end;
 
     local procedure UpdateJobOrderAvail(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item)
@@ -631,7 +631,7 @@
                 repeat
                     CalcFields("Reserved Qty. (Base)");
                     UpdateGrossRequirement(AvailabilityAtDate, "Planning Date", "Remaining Qty. (Base)" - "Reserved Qty. (Base)");
-                until Next = 0;
+                until Next() = 0;
     end;
 
     local procedure UpdateTransOrderShptAvail(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item)
@@ -643,7 +643,7 @@
                 repeat
                     CalcFields("Reserved Qty. Outbnd. (Base)");
                     UpdateGrossRequirement(AvailabilityAtDate, "Shipment Date", "Outstanding Qty. (Base)" - "Reserved Qty. Outbnd. (Base)");
-                until Next = 0;
+                until Next() = 0;
     end;
 
     local procedure UpdateAsmOrderAvail(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item)
@@ -655,7 +655,7 @@
                 repeat
                     CalcFields("Reserved Qty. (Base)");
                     UpdateScheduledReceipt(AvailabilityAtDate, "Due Date", "Remaining Quantity (Base)" - "Reserved Qty. (Base)");
-                until Next = 0;
+                until Next() = 0;
     end;
 
     local procedure UpdateAsmCompAvail(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item)
@@ -669,7 +669,7 @@
                         CalcFields("Reserved Qty. (Base)");
                         UpdateGrossRequirement(AvailabilityAtDate, "Due Date", "Remaining Quantity (Base)" - "Reserved Qty. (Base)");
                     end;
-                until Next = 0;
+                until Next() = 0;
     end;
 
     local procedure IncludeSalesLineToAvailCalc(SalesLine: Record "Sales Line"): Boolean

@@ -179,7 +179,7 @@ codeunit 762 "Acc. Sched. Chart Management"
                                     SetValue(
                                       AccSchedChartSetupLine."Measure Name", PeriodCounter - 1,
                                       RoundAmount(AccSchedManagement.CalcCell(AccScheduleLine, ColumnLayout, false)));
-                                until AccSchedChartSetupLine.Next = 0;
+                                until AccSchedChartSetupLine.Next() = 0;
                         end;
                     end;
                 AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Line":
@@ -206,9 +206,9 @@ codeunit 762 "Acc. Sched. Chart Management"
                                         SetValue(
                                           AccSchedChartSetupLine2."Measure Name", XCounter,
                                           RoundAmount(AccSchedManagement.CalcCell(AccScheduleLine, ColumnLayout, false)));
-                                    until AccSchedChartSetupLine2.Next = 0;
+                                    until AccSchedChartSetupLine2.Next() = 0;
                                 XCounter += 1;
-                            until AccSchedChartSetupLine.Next = 0;
+                            until AccSchedChartSetupLine.Next() = 0;
                     end;
                 AccountSchedulesChartSetup."Base X-Axis on"::"Acc. Sched. Column":
                     begin
@@ -232,9 +232,9 @@ codeunit 762 "Acc. Sched. Chart Management"
                                         SetValue(
                                           AccSchedChartSetupLine2."Measure Name", XCounter,
                                           RoundAmount(AccSchedManagement.CalcCell(AccScheduleLine, ColumnLayout, false)));
-                                    until AccSchedChartSetupLine2.Next = 0;
+                                    until AccSchedChartSetupLine2.Next() = 0;
                                 XCounter += 1;
-                            until AccSchedChartSetupLine.Next = 0;
+                            until AccSchedChartSetupLine.Next() = 0;
                     end;
             end;
         end;
@@ -243,7 +243,7 @@ codeunit 762 "Acc. Sched. Chart Management"
     local procedure AddMeasures(var BusChartBuf: Record "Business Chart Buffer"; AccountSchedulesChartSetup: Record "Account Schedules Chart Setup")
     var
         AccSchedChartSetupLine: Record "Acc. Sched. Chart Setup Line";
-        BusChartType: Option;
+        BusChartType: Enum "Business Chart Type";
     begin
         with AccSchedChartSetupLine do begin
             AccountSchedulesChartSetup.SetLinkToMeasureLines(AccSchedChartSetupLine);
@@ -260,8 +260,8 @@ codeunit 762 "Acc. Sched. Chart Management"
                         "Chart Type"::StackedColumn:
                             BusChartType := BusChartBuf."Chart Type"::StackedColumn;
                     end;
-                    BusChartBuf.AddMeasure("Measure Name", "Measure Value", BusChartBuf."Data Type"::Decimal, BusChartType);
-                until Next = 0;
+                    BusChartBuf.AddDecimalMeasure("Measure Name", "Measure Value", BusChartType);
+                until Next() = 0;
         end;
     end;
 

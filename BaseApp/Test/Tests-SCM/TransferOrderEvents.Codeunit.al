@@ -37,38 +37,32 @@ codeunit 139490 "Transfer Order Events"
         Assert.IsTrue(EventSubscription.Active, StrSubstNo('%1 is not active', Subscriber));
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5704, 'OnBeforeTransferOrderPostShipment', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"TransferOrder-Post Shipment", 'OnBeforeTransferOrderPostShipment', '', false, false)]
     procedure OnBeforeTransferOrderPostShipment(var TransferHeader: Record "Transfer Header")
     begin
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5704, 'OnAfterTransferOrderPostShipment', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"TransferOrder-Post Shipment", 'OnAfterTransferOrderPostShipment', '', false, false)]
     procedure OnAfterTransferOrderPostShipment(var TransferHeader: Record "Transfer Header")
     begin
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5705, 'OnBeforeTransferOrderPostReceipt', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"TransferOrder-Post Receipt", 'OnBeforeTransferOrderPostReceipt', '', false, false)]
     procedure OnBeforeTransferOrderPostReceipt(var TransferHeader: Record "Transfer Header"; CommitIsSuppressed: Boolean)
     begin
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5705, 'OnAfterTransferOrderPostReceipt', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"TransferOrder-Post Receipt", 'OnAfterTransferOrderPostReceipt', '', false, false)]
     procedure OnAfterTransferOrderPostReceipt(var TransferHeader: Record "Transfer Header"; CommitIsSuppressed: Boolean; var TransferReceiptHeader: Record "Transfer Receipt Header")
     begin
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5708, 'OnBeforeReleaseTransferDoc', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Release Transfer Document", 'OnBeforeReleaseTransferDoc', '', false, false)]
     procedure OnBeforeReleaseTransferDoc(var TransferHeader: Record "Transfer Header")
     begin
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5708, 'OnAfterReleaseTransferDoc', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Release Transfer Document", 'OnAfterReleaseTransferDoc', '', false, false)]
     procedure OnAfterReleaseTransferDoc(var TransferHeader: Record "Transfer Header")
     begin
     end;

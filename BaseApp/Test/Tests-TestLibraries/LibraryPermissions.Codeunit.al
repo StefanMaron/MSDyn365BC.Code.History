@@ -16,18 +16,22 @@ codeunit 132214 "Library - Permissions"
         PlanPermissionSet.Insert(true);
     end;
 
-    procedure AddPermissionSetToUserGroup(PermissionSetRoleID: Code[20]; UserGroupCode: Code[20])
+    procedure AddPermissionSetToUserGroup(AggregatePermissionSet: Record "Aggregate Permission Set"; UserGroupCode: Code[20])
     var
         UserGroupPermissionSet: Record "User Group Permission Set";
     begin
-        UserGroupPermissionSet.SetRange("Role ID", PermissionSetRoleID);
+        UserGroupPermissionSet.SetRange("Role ID", AggregatePermissionSet."Role ID");
+        UserGroupPermissionSet.SetRange(Scope, AggregatePermissionSet.Scope);
+        UserGroupPermissionSet.SetRange("App ID", AggregatePermissionSet."App ID");
         UserGroupPermissionSet.SetRange("User Group Code", UserGroupCode);
         if UserGroupPermissionSet.FindFirst then
             exit;
         UserGroupPermissionSet.Init();
         UserGroupPermissionSet."User Group Code" := UserGroupCode;
         UserGroupPermissionSet."User Group Name" := UserGroupCode;
-        UserGroupPermissionSet."Role ID" := PermissionSetRoleID;
+        UserGroupPermissionSet."Role ID" := AggregatePermissionSet."Role ID";
+        UserGroupPermissionSet.Scope := AggregatePermissionSet.Scope;
+        UserGroupPermissionSet."App ID" := AggregatePermissionSet."App ID";
         UserGroupPermissionSet.Insert(true);
     end;
 
@@ -316,7 +320,7 @@ codeunit 132214 "Library - Permissions"
     var
         User: Record User;
         UserGroup: Record "User Group";
-        PermissionSet: Record "Permission Set";
+        TenantPermissionSet: Record "Tenant Permission Set";
         i: Integer;
         NewCode: Text[20];
     begin
@@ -324,18 +328,19 @@ codeunit 132214 "Library - Permissions"
         UserGroup.SetFilter(Code, 'TEST*');
         UserGroup.DeleteAll(true);
         UserGroup.SetRange(Code);
-        PermissionSet.SetFilter("Role ID", 'TEST*');
-        PermissionSet.DeleteAll(true);
+        TenantPermissionSet.SetFilter("Role ID", 'TEST*');
+        TenantPermissionSet.DeleteAll(true);
         Initialize;
         for i := 1 to 15 do begin
             NewCode := StrSubstNo('TEST%1', i);
             User.SetRange("User Name", NewCode);
-            if User.IsEmpty then
+            if User.IsEmpty() then
                 CreateUser(User, NewCode, false);
             if not UserGroup.Get(NewCode) then
                 CreateUserGroup(UserGroup, NewCode);
-            if not PermissionSet.Get(NewCode) then
-                CreatePermissionSet(PermissionSet, NewCode);
+            TenantPermissionSet."App ID" := CreateGuid();
+            if not TenantPermissionSet.Get(TenantPermissionSet."App ID", NewCode) then
+                CreateTenantPermissionSet(TenantPermissionSet, NewCode, TenantPermissionSet."App ID");
         end;
     end;
 
@@ -423,13 +428,5 @@ codeunit 132214 "Library - Permissions"
     begin
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(EnableSoftwareAsAServiceForTest);
     end;
-
-    procedure UpdateHashOnPermissionSet(PermissionSetId: Code[20])
-    var
-        PermissionManager: Codeunit "Permission Manager";
-    begin
-        PermissionManager.UpdateHashForPermissionSet(PermissionSetId);
-    end;
-
 }
 

@@ -1,4 +1,4 @@
-﻿codeunit 5813 "Undo Purchase Receipt Line"
+codeunit 5813 "Undo Purchase Receipt Line"
 {
     Permissions = TableData "Purchase Line" = imd,
                   TableData "Purch. Rcpt. Line" = imd,
@@ -21,7 +21,7 @@
                 exit;
 
         PurchRcptLine.Copy(Rec);
-        Code;
+        Code();
         Rec := PurchRcptLine;
     end;
 
@@ -69,10 +69,10 @@
             Find('-');
             repeat
                 TempGlobalItemLedgEntry.Reset();
-                if not TempGlobalItemLedgEntry.IsEmpty then
+                if not TempGlobalItemLedgEntry.IsEmpty() then
                     TempGlobalItemLedgEntry.DeleteAll();
                 TempGlobalItemEntryRelation.Reset();
-                if not TempGlobalItemEntryRelation.IsEmpty then
+                if not TempGlobalItemEntryRelation.IsEmpty() then
                     TempGlobalItemEntryRelation.DeleteAll();
 
                 if not HideDialog then
@@ -117,7 +117,7 @@
 
                 if not JobItem then
                     JobItem := (Type = Type::Item) and ("Job No." <> '');
-            until Next = 0;
+            until Next() = 0;
 
             InvtSetup.Get();
             if InvtSetup."Automatic Cost Adjustment" <>
@@ -230,7 +230,8 @@
             exit(ItemLedgEntryNo);
 
         with PurchRcptLine do begin
-            DocLineNo := GetCorrectionLineNo(PurchRcptLine);
+            if NewDocLineNo = 0 then
+                DocLineNo := GetCorrectionLineNo(PurchRcptLine);
 
             SourceCodeSetup.Get();
             PurchRcptHeader.Get("Document No.");
@@ -342,7 +343,7 @@
         if TempApplyToEntryList.FindSet then
             repeat
                 UndoPostingMgt.ReapplyJobConsumption(TempApplyToEntryList."Entry No.");
-            until TempApplyToEntryList.Next = 0;
+            until TempApplyToEntryList.Next() = 0;
     end;
 
     local procedure InsertNewReceiptLine(OldPurchRcptLine: Record "Purch. Rcpt. Line"; ItemRcptEntryNo: Integer; DocLineNo: Integer)
@@ -418,7 +419,7 @@
                 ItemEntryRelation := TempItemEntryRelation;
                 ItemEntryRelation.TransferFieldsPurchRcptLine(NewPurchRcptLine);
                 ItemEntryRelation.Insert();
-            until TempItemEntryRelation.Next = 0;
+            until TempItemEntryRelation.Next() = 0;
     end;
 
     local procedure HasInvoicedNotReturnedQuantity(PurchRcptLine: Record "Purch. Rcpt. Line"): Boolean

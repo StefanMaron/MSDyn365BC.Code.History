@@ -28,16 +28,16 @@ codeunit 130030 "License Mgt. Limited User"
         Item: Record Item;
         SalespersonPurchaser: Record "Salesperson/Purchaser";
     begin
-        if SalespersonPurchaser.IsEmpty then
+        if SalespersonPurchaser.IsEmpty() then
             LibrarySales.CreateSalesperson(SalespersonPurchaser);
 
-        if CustomerPriceGroup.IsEmpty then
+        if CustomerPriceGroup.IsEmpty() then
             LibrarySales.CreateCustomerPriceGroup(CustomerPriceGroup);
 
-        if CustomerDiscountGroup.IsEmpty then
+        if CustomerDiscountGroup.IsEmpty() then
             LibraryERM.CreateCustomerDiscountGroup(CustomerDiscountGroup);
 
-        if Item.IsEmpty then
+        if Item.IsEmpty() then
             LibraryInventory.CreateItem(Item);
 
         Message(SetupDataCreatedSuccessfullyMsg);

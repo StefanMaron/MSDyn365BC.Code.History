@@ -109,7 +109,7 @@ codeunit 136360 "UT T Service Line Usage Link"
         // Verify that "Line Type" is set to the correct value when a "Job Planning Line No." is set.
         ServiceLine.Validate("Job Line Type", 0);
         ServiceLine.Validate("Job Planning Line No.", JobPlanningLine."Line No.");
-        Assert.AreEqual(JobPlanningLine."Line Type", ServiceLine."Job Line Type" - 1,
+        Assert.AreEqual(JobPlanningLine."Line Type", ServiceLine."Job Line Type".AsInteger() - 1,
           'Line type is not set correctly when Job Planning Line No. is defined.');
 
         // Verify that "Line Type" can't be changed if a "Job Planning Line No." is defined.

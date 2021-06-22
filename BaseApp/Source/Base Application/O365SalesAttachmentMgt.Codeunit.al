@@ -34,7 +34,7 @@ codeunit 2112 "O365 Sales Attachment Mgt"
             repeat
                 if IncomingDocumentAttachment.Content.HasValue then
                     TotalSize += IncomingDocumentAttachment.Content.Length;
-            until IncomingDocumentAttachment.Next = 0;
+            until IncomingDocumentAttachment.Next() = 0;
     end;
 
     procedure GetAttachments(RecordVariant: Variant; var IncomingDocumentAttachment: Record "Incoming Document Attachment"): Boolean

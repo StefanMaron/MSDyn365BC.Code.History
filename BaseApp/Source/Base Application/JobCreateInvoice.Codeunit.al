@@ -1,4 +1,4 @@
-﻿codeunit 1002 "Job Create-Invoice"
+codeunit 1002 "Job Create-Invoice"
 {
 
     trigger OnRun()
@@ -140,7 +140,7 @@
                     else
                         TestExchangeRate(JobPlanningLine, SalesHeader."Posting Date");
                 end;
-            until JobPlanningLine.Next = 0;
+            until JobPlanningLine.Next() = 0;
 
         if LineCounter = 0 then
             Error(Text002,
@@ -175,7 +175,7 @@
                     OnCreateSalesInvoiceLinesOnBeforeJobPlanningLineModify(JobPlanningLine);
                     JobPlanningLine.Modify();
                 end;
-            until JobPlanningLine.Next = 0;
+            until JobPlanningLine.Next() = 0;
 
         JobPlanningLineSource.FindFirst;
         JobPlanningLineSource.CalcFields("Qty. Transferred to Invoice");
@@ -272,7 +272,7 @@
 
                     JobPlanningLine.UpdateQtyToTransfer;
                     JobPlanningLine.Modify();
-                until TempJobPlanningLine.Next = 0;
+                until TempJobPlanningLine.Next() = 0;
             TempJobPlanningLine.DeleteAll();
         end;
 
@@ -295,7 +295,7 @@
                     TempJobPlanningLine := JobPlanningLine;
                     TempJobPlanningLine.Insert();
                 end;
-            until JobPlanningLine.Next = 0;
+            until JobPlanningLine.Next() = 0;
     end;
 
     local procedure CreateNewInvoice(var JobTask: Record "Job Task"; InvoicePerTask: Boolean; var OldJobNo: Code[20]; var OldJobTaskNo: Code[20]; LastJobTask: Boolean): Boolean
@@ -591,7 +591,7 @@
                     JobPlanningLine.UpdateQtyToTransfer;
                     OnDeleteSalesLineOnBeforeJobPlanningLineModify(JobPlanningLine);
                     JobPlanningLine.Modify();
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -680,7 +680,7 @@
                     OnFindInvoicesOnBeforeTempJobPlanningLineInvoiceInsert(TempJobPlanningLineInvoice, JobPlanningLineInvoice);
                     TempJobPlanningLineInvoice.Insert();
                 end;
-            until JobPlanningLineInvoice.Next = 0;
+            until JobPlanningLineInvoice.Next() = 0;
         end;
     end;
 

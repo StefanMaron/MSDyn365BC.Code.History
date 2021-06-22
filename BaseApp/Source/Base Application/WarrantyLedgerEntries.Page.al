@@ -1,4 +1,4 @@
-﻿page 5913 "Warranty Ledger Entries"
+page 5913 "Warranty Ledger Entries"
 {
     ApplicationArea = Service;
     Caption = 'Warranty Ledger Entries';

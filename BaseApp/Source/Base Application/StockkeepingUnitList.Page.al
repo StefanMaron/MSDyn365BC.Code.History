@@ -254,6 +254,17 @@ page 5701 "Stockkeeping Unit List"
                                       "Variant Filter" = FIELD("Variant Code");
                         ToolTip = 'View the projected quantity of the item over time according to time periods, such as day, week, or month.';
                     }
+                    action(Lot)
+                    {
+                        ApplicationArea = ItemTracking;
+                        Caption = 'Lot';
+                        Image = LotInfo;
+                        RunObject = Page "Item Availability by Lot No.";
+                        RunPageLink = "No." = field("Item No."),
+                            "Location Filter" = field("Location Code"),
+                            "Variant Filter" = field("Variant Code");
+                        ToolTip = 'View the current and projected quantity of the item in each lot.';
+                    }
                     action("Bill of Material")
                     {
                         ApplicationArea = Planning;

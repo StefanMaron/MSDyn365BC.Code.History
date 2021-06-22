@@ -161,6 +161,8 @@ page 7342 "Whse. Receipt Lines"
                     Caption = 'Show &Whse. Document';
                     Image = ViewOrder;
                     ShortCutKey = 'Shift+F7';
+                    Promoted = true;
+                    PromotedCategory = Process;
                     ToolTip = 'View the related warehouse document.';
 
                     trigger OnAction()

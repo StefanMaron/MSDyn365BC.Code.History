@@ -34,7 +34,7 @@ codeunit 1705 "Exp. Mapping Det Pos. Pay"
                         LineNo := LineNo + 1;
                     end;
                 end;
-            until PositivePayDetail.Next = 0;
+            until PositivePayDetail.Next() = 0;
         Window.Close;
     end;
 

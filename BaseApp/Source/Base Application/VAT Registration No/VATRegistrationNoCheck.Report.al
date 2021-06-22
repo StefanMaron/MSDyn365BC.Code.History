@@ -1,4 +1,4 @@
-﻿report 32 "VAT Registration No. Check"
+report 32 "VAT Registration No. Check"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './VAT Registration No/VATRegistrationNoCheck.rdlc';
@@ -421,7 +421,7 @@
             repeat
                 if VATRegNoFormat.Compare(VATRegNo, VATRegNoFormat.Format) = true then
                     CurrReport.Skip();
-            until Check or (VATRegNoFormat.Next = 0);
+            until Check or (VATRegNoFormat.Next() = 0);
         end else
             CurrReport.Skip();
     end;

@@ -272,11 +272,11 @@ page 1805 "Email Setup Wizard"
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
         Info: ModuleInfo;
     begin
         if CloseAction = ACTION::OK then
-            if AssistedSetup.ExistsAndIsNotComplete(PAGE::"Email Setup Wizard") then
+            if GuidedExperience.AssistedSetupExistsAndIsNotComplete(ObjectType::Page, PAGE::"Email Setup Wizard") then
                 if not Confirm(NAVNotSetUpQst, false) then
                     Error('');
     end;
@@ -345,10 +345,10 @@ page 1805 "Email Setup Wizard"
 
     local procedure FinishAction()
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
     begin
         StoreSMTPSetup;
-        AssistedSetup.Complete(PAGE::"Email Setup Wizard");
+        GuidedExperience.CompleteAssistedSetup(ObjectType::Page, PAGE::"Email Setup Wizard");
         CurrPage.Close;
     end;
 

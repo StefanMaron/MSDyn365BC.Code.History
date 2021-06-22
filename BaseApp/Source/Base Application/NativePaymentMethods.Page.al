@@ -95,7 +95,7 @@ page 2862 "Native - Payment Methods"
         RecRef: RecordRef;
     begin
         PaymentMethod.SetRange(Code, Code);
-        if not PaymentMethod.IsEmpty then
+        if not PaymentMethod.IsEmpty() then
             Insert;
 
         Insert(true);

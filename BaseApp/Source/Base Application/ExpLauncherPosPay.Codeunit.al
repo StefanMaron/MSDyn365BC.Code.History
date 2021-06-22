@@ -129,7 +129,7 @@ codeunit 1700 "Exp. Launcher Pos. Pay"
                 DataExchDef.Get(DataExchDefCode);
                 if DataExchDef."Reading/Writing Codeunit" = CODEUNIT::"Exp. Writing Pos. Pay" then
                     PositivePayExportMgt.ExportDataExchToFlatFile(DataExch."Entry No.", Filename, DataExchLineDef."Line Type", HdrCount);
-            until DataExchLineDef.Next = 0;
+            until DataExchLineDef.Next() = 0;
         end;
     end;
 
@@ -185,7 +185,7 @@ codeunit 1700 "Exp. Launcher Pos. Pay"
                     else
                         CODEUNIT.Run(DataExchDef."Reading/Writing Codeunit", DataExch);
 
-            until DataExchLineDef.Next = 0;
+            until DataExchLineDef.Next() = 0;
             // When we are done, we need to set the Check Ledger record(s) Entry No back to the original.
             if DataExchEntryCodeDetail > 0 then
                 UpdateCheckLedger(CheckLedgerEntry, DataExchEntryCodeDetail);
@@ -235,7 +235,7 @@ codeunit 1700 "Exp. Launcher Pos. Pay"
                 if DataExchDef."Reading/Writing Codeunit" = CODEUNIT::"Exp. Writing Pos. Pay" then
                     PositivePayExportMgt.ExportDataExchToFlatFile(DataExch."Entry No.", Filename, DataExchLineDef."Line Type", 0);
                 DataExchEntryCodeFooter := DataExch."Entry No.";
-            until DataExchLineDef.Next = 0;
+            until DataExchLineDef.Next() = 0;
         end;
     end;
 }

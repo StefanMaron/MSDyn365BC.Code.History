@@ -530,7 +530,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
             AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
             AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
             AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
-            AssemblyLine.FindSet;
+            AssemblyLine.FindSet();
 
             repeat
                 VerifyBinContent(

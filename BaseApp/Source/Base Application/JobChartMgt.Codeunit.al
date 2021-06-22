@@ -24,6 +24,11 @@ codeunit 759 "Job Chart Mgt"
     [Scope('OnPrem')]
     procedure CreateJobChart(var BusChartBuf: Record "Business Chart Buffer"; var TempJob: Record Job temporary; ChartType: Option Point,,Bubble,Line,,StepLine,,,,,Column,StackedColumn,StackedColumn100,"Area",,StackedArea,StackedArea100,Pie,Doughnut,,,Range,,,,Radar,,,,,,,,Funnel; JobChartType: Option Profitability,"Actual to Budget Cost","Actual to Budget Price")
     begin
+        CreateChart(BusChartBuf, TempJob, "Business Chart Type".FromInteger(ChartType), "Job Chart Type".FromInteger(JobChartType));
+    end;
+
+    procedure CreateChart(var BusChartBuf: Record "Business Chart Buffer"; var TempJob: Record Job temporary; ChartType: Enum "Business Chart Type"; JobChartType: Enum "Job Chart Type")
+    begin
         InitializeBusinessChart(BusChartBuf);
         SetJobRangeByMyJob(TempJob);
         if NothingToShow(TempJob) then
@@ -49,7 +54,7 @@ codeunit 759 "Job Chart Mgt"
                         TempRangeJob := Job;
                         TempRangeJob.Insert();
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -64,7 +69,7 @@ codeunit 759 "Job Chart Mgt"
     local procedure FindCurrentJob(var BusChartBuf: Record "Business Chart Buffer"; var RangeJob: Record Job)
     begin
         with RangeJob do begin
-            FindSet;
+            FindSet();
             Next(BusChartBuf."Drill-Down X Index");
         end;
     end;
@@ -86,27 +91,27 @@ codeunit 759 "Job Chart Mgt"
             Initialize;
     end;
 
-    local procedure AddMeasures(var BusChartBuf: Record "Business Chart Buffer"; ChartType: Option Point,,Bubble,Line,,StepLine,,,,,Column,StackedColumn,StackedColumn100,"Area",,StackedArea,StackedArea100,Pie,Doughnut,,,Range,,,,Radar,,,,,,,,Funnel; JobChartType: Option Profitability,"Actual to Budget Cost","Actual to Budget Price")
+    local procedure AddMeasures(var BusChartBuf: Record "Business Chart Buffer"; ChartType: Enum "Business Chart Type"; JobChartType: Enum "Job Chart Type")
     begin
         with BusChartBuf do
             case JobChartType of
                 JobChartType::Profitability:
                     begin
-                        AddMeasure(TotalRevenueTxt, 1, "Data Type"::Decimal, ChartType);
-                        AddMeasure(TotalCostTxt, 2, "Data Type"::Decimal, ChartType);
-                        AddMeasure(ProfitMarginTxt, 3, "Data Type"::Decimal, ChartType);
+                        AddDecimalMeasure(TotalRevenueTxt, 1, ChartType);
+                        AddDecimalMeasure(TotalCostTxt, 2, ChartType);
+                        AddDecimalMeasure(ProfitMarginTxt, 3, ChartType);
                     end;
                 JobChartType::"Actual to Budget Cost":
                     begin
-                        AddMeasure(ActualTotalCostTxt, 1, "Data Type"::Decimal, ChartType);
-                        AddMeasure(BudgetTotalCostTxt, 2, "Data Type"::Decimal, ChartType);
-                        AddMeasure(CostVarianceTxt, 3, "Data Type"::Decimal, ChartType);
+                        AddDecimalMeasure(ActualTotalCostTxt, 1, ChartType);
+                        AddDecimalMeasure(BudgetTotalCostTxt, 2, ChartType);
+                        AddDecimalMeasure(CostVarianceTxt, 3, ChartType);
                     end;
                 JobChartType::"Actual to Budget Price":
                     begin
-                        AddMeasure(ActualTotalPriceTxt, 1, "Data Type"::Decimal, ChartType);
-                        AddMeasure(BudgetTotalPriceTxt, 2, "Data Type"::Decimal, ChartType);
-                        AddMeasure(PriceVarianceTxt, 3, "Data Type"::Decimal, ChartType);
+                        AddDecimalMeasure(ActualTotalPriceTxt, 1, ChartType);
+                        AddDecimalMeasure(BudgetTotalPriceTxt, 2, ChartType);
+                        AddDecimalMeasure(PriceVarianceTxt, 3, ChartType);
                     end;
             end;
     end;
@@ -117,7 +122,7 @@ codeunit 759 "Job Chart Mgt"
             SetXAxis(XAxisStringTxt, "Data Type"::String);
     end;
 
-    local procedure SetJobChartValues(var BusChartBuf: Record "Business Chart Buffer"; var RangeJob: Record Job; JobChartType: Option Profitability,"Actual to Budget Cost","Actual to Budget Price")
+    local procedure SetJobChartValues(var BusChartBuf: Record "Business Chart Buffer"; var RangeJob: Record Job; JobChartType: Enum "Job Chart Type")
     var
         Index: Integer;
         JobRevenue: Decimal;
@@ -147,10 +152,10 @@ codeunit 759 "Job Chart Mgt"
                                 SetJobChartValue(BusChartBuf, RangeJob, Index, ActualPrice, BudgetPrice, JobChartType);
                             end;
                     end;
-                until Next = 0;
+                until Next() = 0;
     end;
 
-    local procedure SetJobChartValue(var BusChartBuf: Record "Business Chart Buffer"; var RangeJob: Record Job; var Index: Integer; Value1: Decimal; Value2: Decimal; JobChartType: Option Profitability,"Actual to Budget Cost","Actual to Budget Price")
+    local procedure SetJobChartValue(var BusChartBuf: Record "Business Chart Buffer"; var RangeJob: Record Job; var Index: Integer; Value1: Decimal; Value2: Decimal; JobChartType: Enum "Job Chart Type")
     begin
         with BusChartBuf do begin
             AddColumn(RangeJob."No.");

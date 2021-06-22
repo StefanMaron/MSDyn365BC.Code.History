@@ -371,7 +371,7 @@ page 7374 "Bin Contents"
                 repeat
                     if WMSMgt.LocationIsAllowed(Location.Code) then
                         Location.Mark(true);
-                until Location.Next = 0;
+                until Location.Next() = 0;
             Location.MarkedOnly(true);
             LocFilter := SelectionFilterManagement.GetSelectionFilterForLocation(Location);
             SetFilter("Location Code", LocFilter);

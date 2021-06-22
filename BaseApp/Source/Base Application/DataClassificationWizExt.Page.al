@@ -106,7 +106,7 @@ pageextension 1758 "Data Classification Wiz. Ext." extends "Data Classification 
         end;
         if IsExpertModeSelected() then begin
             DataSensitivity.SetRange("Company Name", CompanyName);
-            if DataSensitivity.IsEmpty then
+            if DataSensitivity.IsEmpty() then
                 DataClassificationMgt.PopulateDataSensitivityTable();
 
             NextStep(false);

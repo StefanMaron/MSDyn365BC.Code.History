@@ -113,13 +113,13 @@ codeunit 130000 Assert
 
     local procedure RecRefIsEmpty(var RecRef: RecordRef)
     begin
-        if not RecRef.IsEmpty then
+        if not RecRef.IsEmpty() then
             Error(TableIsEmptyErr, RecRef.Caption, RecRef.GetFilters);
     end;
 
     local procedure RecRefIsNotEmpty(var RecRef: RecordRef)
     begin
-        if RecRef.IsEmpty then
+        if RecRef.IsEmpty() then
             Error(TableIsNotEmptyErr, RecRef.Caption, RecRef.GetFilters);
     end;
 

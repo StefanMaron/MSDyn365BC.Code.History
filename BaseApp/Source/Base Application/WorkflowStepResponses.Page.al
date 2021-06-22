@@ -136,7 +136,7 @@ page 1515 "Workflow Step Responses"
         SetCurrentKey(Order);
         Ascending(true);
 
-        if IsEmpty then
+        if IsEmpty() then
             PopulateTableFromEvent(GetRangeMax("Workflow Code"), GetRangeMax("Parent Event Step ID"));
 
         exit(Find(Which));

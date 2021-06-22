@@ -60,6 +60,7 @@ page 6320 "Upload Power BI Report"
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Upload Report';
+                Image = Import;
                 InFooterBar = true;
                 Visible = true;
 
@@ -83,14 +84,14 @@ page 6320 "Upload Power BI Report"
                         Error(TableLimitMsg);
 
                     with PowerBICustomerReports do begin
-                        Init;
+                        Init();
                         Id := CreateGuid();
                         Name := ReportName;
                         RecordRef.GetTable(PowerBICustomerReports);
                         TempBlob.ToRecordRef(RecordRef, FieldNo("Blob File"));
                         RecordRef.SetTable(PowerBICustomerReports);
                         Version := 1;
-                        Insert;
+                        Insert();
                     end;
 
                     Commit();
@@ -116,27 +117,28 @@ page 6320 "Upload Power BI Report"
         if not PowerBIServiceMgt.IsUserAdminForPowerBI(UserSecurityId()) then
             Error(PermissionErr);
 
-        if not PowerBIServiceMgt.IsUserReadyForPowerBI then
+        if not PowerBIServiceMgt.IsUserReadyForPowerBI() then
             Error(NotReadyErr);
     end;
 
     var
-        ReportNameErr: Label 'You must enter a report name.';
-        FileNameErr: Label 'You must enter a file name.';
-        NotReadyErr: Label 'The Power BI Service is currently unavailable.';
         TempBlob: Codeunit "Temp Blob";
         PowerBIServiceMgt: Codeunit "Power BI Service Mgt.";
         FileManagement: Codeunit "File Management";
-        FileDialogTxt: Label 'Select a PBIX report file.';
-        FileFilterTxt: Label 'Power BI Files(*.pbix)|*.pbix';
-        ExtFilterTxt: Label 'pbix';
-        FileName: Text;
-        ReportName: Text[200];
-        PermissionErr: Label 'User does not have permissions to operate this page.';
-        IsFileLoaded: Boolean;
-        MaxReportLimit: Integer;
+        ReportNameErr: Label 'You must enter a report name.';
+        FileNameErr: Label 'You must enter a file name.';
+        NotReadyErr: Label 'The Power BI Service is currently unavailable.';
         TableLimitMsg: Label 'The Customer Report table is full. Remove a report and try again.';
         BlobNameErr: Label 'A blob with this name already exists.';
         UploadMsg: Label 'The report has been added for deployment. Once deployed, it will appear in the select reports list.';
+        PermissionErr: Label 'User does not have permissions to operate this page.';
+        FileDialogTxt: Label 'Select a PBIX report file.';
+        FileFilterTxt: Label 'Power BI Files(*.pbix)|*.pbix';
+        ExtFilterTxt: Label 'pbix', Locked = true;
+        FileName: Text;
+        ReportName: Text[200];
+        IsFileLoaded: Boolean;
+        MaxReportLimit: Integer;
+
 }
 

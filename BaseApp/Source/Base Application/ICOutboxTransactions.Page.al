@@ -212,7 +212,7 @@ page 611 "IC Outbox Transactions"
                                 repeat
                                     ICOutboxTransaction."Line Action" := ICOutboxTransaction."Line Action"::"No Action";
                                     ICOutboxTransaction.Modify();
-                                until ICOutboxTransaction.Next = 0;
+                                until ICOutboxTransaction.Next() = 0;
                         end;
                     }
                     action(SendToICPartner)
@@ -234,7 +234,7 @@ page 611 "IC Outbox Transactions"
                                 repeat
                                     ICOutboxTransaction.Validate("Line Action", ICOutboxTransaction."Line Action"::"Send to IC Partner");
                                     ICOutboxTransaction.Modify();
-                                until ICOutboxTransaction.Next = 0;
+                                until ICOutboxTransaction.Next() = 0;
                             ICOutboxExport.RunOutboxTransactions(ICOutboxTransaction);
                         end;
                     }
@@ -258,7 +258,7 @@ page 611 "IC Outbox Transactions"
                                     TestField("Transaction Source", ICOutboxTransaction."Transaction Source"::"Rejected by Current Company");
                                     ICOutboxTransaction."Line Action" := ICOutboxTransaction."Line Action"::"Return to Inbox";
                                     ICOutboxTransaction.Modify();
-                                until ICOutboxTransaction.Next = 0;
+                                until ICOutboxTransaction.Next() = 0;
                             ICOutboxExport.RunOutboxTransactions(ICOutboxTransaction);
                         end;
                     }
@@ -281,7 +281,7 @@ page 611 "IC Outbox Transactions"
                                 repeat
                                     ICOutboxTransaction."Line Action" := ICOutboxTransaction."Line Action"::Cancel;
                                     ICOutboxTransaction.Modify();
-                                until ICOutboxTransaction.Next = 0;
+                                until ICOutboxTransaction.Next() = 0;
                             ICOutboxExport.RunOutboxTransactions(ICOutboxTransaction);
                         end;
                     }

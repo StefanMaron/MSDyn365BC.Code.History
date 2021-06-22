@@ -534,7 +534,7 @@ codeunit 134210 "Charts - Test AL Charts"
         BusChartBuf.Initialize;
         BusChartBuf.SetXAxis('Column_No.', BusChartBuf."Data Type"::String);
         for i := 1 to MeasuresCount do
-            BusChartBuf.AddMeasure(GetMeasureName(i), i, BusChartBuf."Data Type"::Integer, BusChartBuf."Chart Type"::Point);
+            BusChartBuf.AddIntegerMeasure(GetMeasureName(i), i, BusChartBuf."Chart Type"::Point);
         for j := 1 to ColumnsCount do begin
             BusChartBuf.AddColumn(GetColumnName(j));
             for i := 1 to MeasuresCount do

@@ -31,7 +31,7 @@ page 7202 "CDS Admin Credentials"
             label(InvalidUserMessage)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'The user must exist within Dataverse with the security roles System Administrator and Solution Customizer.';
+                Caption = 'The user must exist in Dataverse and be assigned the System Administrator and Solution Customizer security roles.';
             }
         }
     }
@@ -56,7 +56,7 @@ page 7202 "CDS Admin Credentials"
             TempCDSConnectionSetup."User Name" := Email;
             TempCDSConnectionSetup.SetPassword(Password);
             CDSIntegrationImpl.UpdateConnectionString(TempCDSConnectionSetup);
-            CDSIntegrationImpl.CheckAdminUserPrerequisites(TempCDSConnectionSetup, Email, Password, '');
+            CDSIntegrationImpl.CheckAdminUserPrerequisites(TempCDSConnectionSetup, Email, Password, '', '');
         end;
     end;
 }

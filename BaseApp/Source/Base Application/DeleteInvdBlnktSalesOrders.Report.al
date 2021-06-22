@@ -44,7 +44,7 @@ report 291 "Delete Invd Blnkt Sales Orders"
                                     if SalesLine.FindSet then
                                         repeat
                                             ATOLink.DeleteAsmFromSalesLine(SalesLine);
-                                        until SalesLine.Next = 0;
+                                        until SalesLine.Next() = 0;
                                     SalesLine.SetRange("Qty. to Assemble to Order");
                                     OnBeforeDeleteSalesLines(SalesLine);
                                     SalesLine.DeleteAll();

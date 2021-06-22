@@ -135,7 +135,7 @@ page 2861 "Native - Payment Terms"
         RecRef: RecordRef;
     begin
         PaymentTerms.SetRange(Code, Code);
-        if not PaymentTerms.IsEmpty then
+        if not PaymentTerms.IsEmpty() then
             Insert;
 
         Insert(true);

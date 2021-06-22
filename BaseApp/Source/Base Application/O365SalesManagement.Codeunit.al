@@ -154,9 +154,8 @@ codeunit 2107 "O365 Sales Management"
         exit(O365CountryRegion.Code);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 9170, 'OnBeforeOpenSettings', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OpenFullInvoicingSettingsPage(var Handled: Boolean)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Conf./Personalization Mgt.", 'OnBeforeOpenSettings', '', false, false)]
+    local procedure OpenFullInvoicingSettingsPage(var Handled: Boolean)
     var
         EnvInfoProxy: Codeunit "Env. Info Proxy";
     begin

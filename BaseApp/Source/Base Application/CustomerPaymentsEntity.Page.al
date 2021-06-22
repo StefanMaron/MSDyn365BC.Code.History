@@ -7,6 +7,9 @@ page 5479 "Customer Payments Entity"
     EntityName = 'customerPayment';
     EntitySetName = 'customerPayments';
     SourceTable = "Gen. Journal Line";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'API version beta will be deprecated.';
+    ObsoleteTag = '18.0';
 
     layout
     {

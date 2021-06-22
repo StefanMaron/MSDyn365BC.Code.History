@@ -67,7 +67,7 @@ page 130400 "CAL Test Suites"
                                 CALTestLine.SetRange("Test Suite", CALTestSuite.Name);
                                 if CALTestLine.FindFirst then
                                     CODEUNIT.Run(CODEUNIT::"CAL Test Runner", CALTestLine);
-                            until CALTestSuite.Next = 0;
+                            until CALTestSuite.Next() = 0;
                         Commit();
                     end;
                 }

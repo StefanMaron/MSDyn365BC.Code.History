@@ -738,7 +738,7 @@ codeunit 136140 "Service Order Release"
           WarehouseShipmentHeader.Get(WarehouseShipmentHeader."No."), 'Displayed warehouse shipment can be located');
         GetAllServiceLinesOfTypeItem(ServiceLine, ServiceHeader);
         ServiceLine.SetFilter("Line No.", Format(ServiceLineNo));
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         FindWarehouseShipmentLinesByServiceOrder(WarehouseShipmentLine, ServiceHeader, WarehouseShipmentHeader);
         Assert.AreEqual(ServiceLine.Count, WarehouseShipmentLine.Count, 'Count of Lines in Whse shipment and service lines match');
         VerifyWarehouseShipmentLines(WarehouseShipmentLine, ServiceLine);
@@ -748,7 +748,7 @@ codeunit 136140 "Service Order Release"
         GetWarehouseShipmentLinesByShipmentHeader(WarehouseShipmentLine, WarehouseShipmentHeader);
         Assert.AreEqual(1, WarehouseShipmentLine.Count, 'Count of Lines in Whse shipment and service lines match for the first shipment');
         ServiceLine.SetFilter("Line No.", '<>%1', ServiceLineNo);
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         FindWarehouseShipmentLinesByServiceOrder(WarehouseShipmentLine, ServiceHeader, WarehouseShipmentHeader);
         VerifyWarehouseShipmentLines(WarehouseShipmentLine, ServiceLine);
     end;
@@ -891,7 +891,7 @@ codeunit 136140 "Service Order Release"
         WarehouseShipmentHeader.Get(WarehouseShipmentHeader."No.");
         GetAllServiceLinesOfTypeItem(ServiceLine, ServiceHeader);
         ServiceLine.SetFilter("Line No.", Format(ServiceLineNo));
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         FindWarehouseShipmentLinesByServiceOrder(WarehouseShipmentLine, ServiceHeader, WarehouseShipmentHeader);
         Assert.AreEqual(ServiceLine.Count, WarehouseShipmentLine.Count, 'Count of Lines in Whse shipment and service lines match');
         VerifyWarehouseShipmentLines(WarehouseShipmentLine, ServiceLine);
@@ -934,7 +934,7 @@ codeunit 136140 "Service Order Release"
         WarehouseShipmentHeader.Get(WarehouseShipmentHeader."No.");
         GetAllServiceLinesOfTypeItem(ServiceLine, ServiceHeader);
         ServiceLine.SetFilter("Line No.", Format(ServiceLineNo));
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         FindWarehouseShipmentLinesByServiceOrder(WarehouseShipmentLine, ServiceHeader, WarehouseShipmentHeader);
         Assert.AreEqual(ServiceLine.Count, WarehouseShipmentLine.Count, 'Count of Lines in Whse shipment and service lines match');
         VerifyWarehouseShipmentLines(WarehouseShipmentLine, ServiceLine);
@@ -1031,7 +1031,7 @@ codeunit 136140 "Service Order Release"
         // VERIFY: The last Service line is only partially fulfilled.
         GetAllServiceLinesOfTypeItem(ServiceLine, ServiceHeader);
         ServiceLine.SetFilter("No.", '<>%1', Item."No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
 
         with ServiceLine do begin
             Assert.AreEqual(5, Count, 'The right number of rows are returned by the filter');
@@ -1046,7 +1046,7 @@ codeunit 136140 "Service Order Release"
             until Next = 0;
 
             SetFilter("No.", Item."No.");
-            FindSet;
+            FindSet();
             Assert.AreEqual(Quantity - Delta, "Quantity Shipped", 'Service Line 6: ' + FieldCaption("Quantity Shipped"));
             Assert.AreEqual(Quantity - Delta, "Qty. Shipped Not Invoiced", 'Service Line 6: ' + FieldCaption("Qty. Shipped Not Invoiced"));
             GetAndVerifyWarehouseEntry(ServiceLine, WarehouseEntry, WarehouseEntry."Entry Type"::"Negative Adjmt.", -"Quantity Shipped");
@@ -2378,7 +2378,7 @@ codeunit 136140 "Service Order Release"
         // VERIFY: The last Service line is only partially fulfilled.
         GetAllServiceLinesOfTypeItem(ServiceLine, ServiceHeader);
         ServiceLine.SetFilter("No.", '<>%1', Item."No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
 
         with ServiceLine do begin
             Assert.AreEqual(5, Count, 'The right number of rows are returned by the filter');
@@ -2389,7 +2389,7 @@ codeunit 136140 "Service Order Release"
             until Next = 0;
 
             SetFilter("No.", Item."No.");
-            FindSet;
+            FindSet();
             VerifyServiceLineAfterOnlyShip(ServiceLine, Delta);
         end
     end;
@@ -3541,7 +3541,7 @@ codeunit 136140 "Service Order Release"
     begin
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
     end;
 
     local procedure FindWarehouseActivityNo(SourceNo: Code[20]; ActivityType: Option): Code[20]
@@ -3571,7 +3571,7 @@ codeunit 136140 "Service Order Release"
         WarehouseShipmentLine.SetRange("Source Type", DATABASE::"Service Line");
         WarehouseShipmentLine.SetRange("Source Subtype", 1);
         WarehouseShipmentLine.SetRange("Source No.", ServiceHeader."No.");
-        WarehouseShipmentLine.FindSet;
+        WarehouseShipmentLine.FindSet();
     end;
 
     local procedure FindServiceCreditMemoHeader(var ServiceCrMemoHeader: Record "Service Cr.Memo Header"; PreAssignedNo: Code[20])
@@ -3622,7 +3622,7 @@ codeunit 136140 "Service Order Release"
     begin
         Clear(WarehouseShipmentLine);
         WarehouseShipmentLine.SetRange("No.", WarehouseShipmentHeader."No.");
-        WarehouseShipmentLine.FindSet;
+        WarehouseShipmentLine.FindSet();
     end;
 
     local procedure GetSalesLinesOfTypeItem(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
@@ -3630,14 +3630,14 @@ codeunit 136140 "Service Order Release"
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange(Type, SalesLine.Type::Item);
-        SalesLine.FindSet;
+        SalesLine.FindSet();
     end;
 
     local procedure GetAllServiceLinesOfTypeItem(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header")
     begin
         FindServiceLinesByHeaderNo(ServiceLine, ServiceHeader);
         ServiceLine.SetRange(Type, ServiceLine.Type::Item);
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
     end;
 
     local procedure GetWarehouseEntries(var ServiceLine: Record "Service Line"; var WarehouseEntry: Record "Warehouse Entry"; EntryType: Option)
@@ -3646,7 +3646,7 @@ codeunit 136140 "Service Order Release"
         WarehouseEntry.SetRange("Source No.", ServiceLine."Document No.");
         WarehouseEntry.SetRange("Source Line No.", ServiceLine."Line No.");
         WarehouseEntry.SetRange("Entry Type", EntryType);
-        WarehouseEntry.FindSet;
+        WarehouseEntry.FindSet();
     end;
 
     local procedure GetWhiteLocation(): Code[10]
@@ -3692,7 +3692,7 @@ codeunit 136140 "Service Order Release"
         FirstBin: Record Bin;
     begin
         FirstZone.SetRange("Location Code", WarehouseActivityHeader."Location Code");
-        if FirstZone.IsEmpty then
+        if FirstZone.IsEmpty() then
             exit;
         FirstZone.SetRange("Location Code");
         FindPickableNonPickableZone(FirstZone, WarehouseActivityHeader."Location Code", false, false); // We find a non-pickable zone
@@ -3769,7 +3769,7 @@ codeunit 136140 "Service Order Release"
     begin
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type");
         ServiceLine.SetRange("Document No.", ServiceLine."Document No.");
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         repeat
             TempServiceLine := ServiceLine;
             TempServiceLine.Insert();
@@ -4019,7 +4019,7 @@ codeunit 136140 "Service Order Release"
     begin
         repeat
             WarehouseShipmentLine.SetRange("Source Line No.", ServiceLine."Line No.");
-            WarehouseShipmentLine.FindSet;
+            WarehouseShipmentLine.FindSet();
             Assert.AreEqual(1, WarehouseShipmentLine.Count, 'Only one warehouse shipment line per service line is present');
             Assert.AreEqual(ServiceLine.Quantity, WarehouseShipmentLine.Quantity, 'Whse shpmt Quantity matches service line');
             Assert.AreEqual(
@@ -4041,7 +4041,7 @@ codeunit 136140 "Service Order Release"
     begin
         // Verify that the value of the field Quantity Shipped of the new Service Line is equal to the value of the field
         // Qty. to Ship of the relevant old Service Line.
-        TempServiceLineBeforePosting.FindSet;
+        TempServiceLineBeforePosting.FindSet();
         repeat
             ServiceLine.Get(
               TempServiceLineBeforePosting."Document Type", TempServiceLineBeforePosting."Document No.",
@@ -4057,7 +4057,7 @@ codeunit 136140 "Service Order Release"
     begin
         // Verify that the values of the fields Qty. Shipped Not Invoiced and Quantity of Service Shipment Line are equal to the value of
         // the field Qty. to Ship of the relevant Service Line.
-        TempServiceLineBeforePosting.FindSet;
+        TempServiceLineBeforePosting.FindSet();
         ServiceShipmentLine.SetRange("Order No.", TempServiceLineBeforePosting."Document No.");
         repeat
             ServiceShipmentLine.SetRange("Order Line No.", TempServiceLineBeforePosting."Line No.");
@@ -4073,7 +4073,7 @@ codeunit 136140 "Service Order Release"
     begin
         // Verify that the value of the field Quantity of the Item Ledger Entry is equal to the value of the field Qty. to Ship of the
         // relevant Service Line.
-        TempServiceLineBeforePosting.FindSet;
+        TempServiceLineBeforePosting.FindSet();
         if TempServiceLineBeforePosting."Document Type"::"Credit Memo" = TempServiceLineBeforePosting."Document Type" then
             ItemLedgerEntry.SetRange("Document Type", ItemLedgerEntry."Document Type"::"Service Credit Memo")
         else
@@ -4095,7 +4095,7 @@ codeunit 136140 "Service Order Release"
     begin
         // Verify that the value ofthe field Valued Quantity of the Value Entry is equal to the value of the field Qty. to Ship of
         // the relevant Service Line.
-        TempServiceLineBeforePosting.FindSet;
+        TempServiceLineBeforePosting.FindSet();
         ServiceShipmentHeader.SetRange("Order No.", TempServiceLineBeforePosting."Document No.");
         ServiceShipmentHeader.FindLast;  // Find the second shipment.
         ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Service Shipment");
@@ -4114,7 +4114,7 @@ codeunit 136140 "Service Order Release"
     begin
         // Verify that the Service Ledger Entry created corresponds with the relevant Service Line by matching the fields No., Posting Date
         // and Bill-to Customer No.
-        TempServiceLineBeforePosting.FindSet;
+        TempServiceLineBeforePosting.FindSet();
         ServiceShipmentHeader.SetRange("Order No.", TempServiceLineBeforePosting."Document No.");
         ServiceShipmentHeader.FindLast;  // Find the second shipment.
         ServiceLedgerEntry.SetRange("Document Type", ServiceLedgerEntry."Document Type"::Shipment);
@@ -4213,7 +4213,7 @@ codeunit 136140 "Service Order Release"
     begin
         // Verify that the values of the fields Qty. Shipped Not Invoiced and Quantity of Service Shipment Line are equal to the value of
         // the field Qty. to Ship of the relevant Service Line.
-        ServiceLine.FindSet;
+        ServiceLine.FindSet();
         ServiceShipmentLine.SetRange("Order No.", ServiceLine."Document No.");
         ServiceShipmentLine.SetRange("Order Line No.", ServiceLine."Line No.");
         ServiceShipmentLine.FindLast;  // Find the Shipment Line for the second shipment.

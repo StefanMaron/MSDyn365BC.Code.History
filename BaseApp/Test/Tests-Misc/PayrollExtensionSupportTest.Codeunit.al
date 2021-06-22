@@ -680,7 +680,7 @@ codeunit 134165 "Payroll Extension Support Test"
         CreateRealGenJournalLine(GenJournalLine, GenJournalBatch);
         GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
-        GenJournalLine.FindSet;
+        GenJournalLine.FindSet();
         Assert.AreEqual(1, GenJournalLine.Count, WrongCountOfJournalLinesErr);
         CreateMockGenJournalLine(TempGenJournalLine, GenJournalBatch);
         PayrollServiceExtensionMock.SetAvailableServiceConnections(TempSetupServiceConnection);

@@ -76,7 +76,7 @@ table 5964 "Service Contract Line"
                         ServContractLine.SetRange("Contract Type", "Contract Type");
                         ServContractLine.SetRange("Service Item No.", "Service Item No.");
                         ServContractLine.SetFilter("Line No.", '<>%1', "Line No.");
-                        if not ServContractLine.IsEmpty then
+                        if not ServContractLine.IsEmpty() then
                             Error(Text003);
                     end;
 
@@ -87,7 +87,7 @@ table 5964 "Service Contract Line"
                         ServContractLine.SetFilter("Contract Status", '<>%1', ServContractLine."Contract Status"::Cancelled);
                         ServContractLine.SetRange("Contract Type", ServContractLine."Contract Type"::Contract);
                         ServContractLine.SetFilter("Contract No.", '<>%1', "Contract No.");
-                        if not ServContractLine.IsEmpty then begin
+                        if not ServContractLine.IsEmpty() then begin
                             if not ConfirmManagement.GetResponseOrDefault(
                                  StrSubstNo(Text019, "Service Item No."), true)
                             then begin
@@ -100,7 +100,7 @@ table 5964 "Service Contract Line"
                             ServContractLine.SetRange("Service Item No.", "Service Item No.");
                             ServContractLine.SetRange("Contract Type", ServContractLine."Contract Type"::Quote);
                             ServContractLine.SetFilter("Contract No.", '<>%1', "Contract No.");
-                            if not ServContractLine.IsEmpty then
+                            if not ServContractLine.IsEmpty() then
                                 if not ConfirmManagement.GetResponseOrDefault(
                                      StrSubstNo(Text019, "Service Item No."), true)
                                 then begin

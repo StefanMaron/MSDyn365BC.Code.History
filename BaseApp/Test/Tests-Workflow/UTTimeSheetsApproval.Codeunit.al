@@ -399,7 +399,7 @@ codeunit 136501 "UT Time Sheets Approval"
         TimeSheetApprovalMgt: Codeunit "Time Sheet Approval Management";
     begin
         TimeSheetLine.SetRange("Time Sheet No.", TimeSheetNo);
-        TimeSheetLine.FindSet;
+        TimeSheetLine.FindSet();
         repeat
             TimeSheetApprovalMgt.Submit(TimeSheetLine);
         until TimeSheetLine.Next = 0;
@@ -520,8 +520,8 @@ codeunit 136501 "UT Time Sheets Approval"
     begin
         TimeSheetLine.SetRange("Time Sheet No.", TimeSheetNo);
         Assert.AreEqual(TimeSheetLine.Count, TimeSheetLineBuffer.Count, 'Invalid number of time sheet lines buffer records');
-        TimeSheetLineBuffer.FindSet;
-        TimeSheetLine.FindSet;
+        TimeSheetLineBuffer.FindSet();
+        TimeSheetLine.FindSet();
         repeat
             TimeSheetLineBuffer.TestField(Description, TimeSheetLine.Description);
             TimeSheetLineBuffer.Next;

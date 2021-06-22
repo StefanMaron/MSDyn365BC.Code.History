@@ -22,6 +22,7 @@ codeunit 139016 "File Mgt. Tests"
         ServerFileErr: Label 'You must specify a source file name.';
         ClientFileErr: Label 'You must specify a target file name.';
         BLOBExportTxt: Label 'This is the text string that we want to store in a BLOB field.';
+        NotAllowedPathErr: Label 'Files outside of the current user''s folder cannot be accessed. Access is denied to file %1.', Locked = true;
         ServerDirectoryHelper: DotNet Directory;
         [RunOnClient]
         ClientDirectoryHelper: DotNet Directory;
@@ -729,6 +730,7 @@ codeunit 139016 "File Mgt. Tests"
         DirectoryName: Text;
         FileName: Text;
         DirectoryExist: Boolean;
+        EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
     begin
         Initialize;
 
@@ -738,14 +740,18 @@ codeunit 139016 "File Mgt. Tests"
         DirectoryExist := FileMgt.ClientDirectoryExists(DirectoryName);
         Assert.IsTrue(DirectoryExist, 'The directory does not exist');
 
+        DirectoryName += 'DummySuffix';
+        DirectoryExist := FileMgt.ServerDirectoryExists(DirectoryName);
+        Assert.IsFalse(DirectoryExist, 'The directory does exist');
+
         DirectoryName := '';
         DirectoryExist := FileMgt.ServerDirectoryExists(DirectoryName);
         Assert.IsFalse(DirectoryExist, 'The directory does exist');
 
+        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
         DirectoryName := 'c:\doesnotexistsdirectory';
-
-        DirectoryExist := FileMgt.ServerDirectoryExists(DirectoryName);
-        Assert.IsFalse(DirectoryExist, 'The directory does exist');
+        asserterror DirectoryExist := FileMgt.ServerDirectoryExists(DirectoryName);
+        Assert.ExpectedError(StrSubstNo(NotAllowedPathErr, DirectoryName));
     end;
 
     [Test]
@@ -1194,7 +1200,7 @@ codeunit 139016 "File Mgt. Tests"
         // [THEN] 5 files are found
         Assert.RecordCount(TempNameValueBuffer, 5);
 
-        TempNameValueBuffer.FindSet;
+        TempNameValueBuffer.FindSet();
         for Index := 1 to 5 do begin
             Assert.AreEqual(TempNameValueBuffer.Name, Names[Index], 'name was different');
             TempNameValueBuffer.Next;

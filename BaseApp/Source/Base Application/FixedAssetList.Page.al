@@ -281,7 +281,7 @@ page 5601 "Fixed Asset List"
                 PromotedCategory = Process;
                 PromotedIsBig = true;
                 RunObject = Page "Fixed Asset G/L Journal";
-                ToolTip = 'Post fixed asset transactions with a depreciation book that is integrated with the general ledger, for financial reporting. Both fixed asset ledger entries are general ledger entries are created. ';
+                ToolTip = 'Post fixed asset transactions with a depreciation book that is integrated with the general ledger for financial reporting. Both fixed asset ledger entries and general ledger entries are created. ';
             }
             action("Fixed Asset Reclassification Journal")
             {

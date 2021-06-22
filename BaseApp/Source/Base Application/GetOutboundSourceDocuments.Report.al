@@ -48,7 +48,7 @@ report 7304 "Get Outbound Source Documents"
                                 if ATOAsmLine.FindSet then
                                     repeat
                                         ProcessAsmLineFromWhseShpt(ATOAsmLine, "Warehouse Shipment Line");
-                                    until ATOAsmLine.Next = 0;
+                                    until ATOAsmLine.Next() = 0;
                             end;
                     end;
 

@@ -101,7 +101,7 @@ codeunit 9990 "Code Coverage Mgt."
         if CodeCoverage.FindSet then
             repeat
                 NoOFLines += CodeCoverage."No. of Hits";
-            until CodeCoverage.Next = 0;
+            until CodeCoverage.Next() = 0;
 
         // Subtract baseline to produce delta
         NoOFLines -= ApplicationBaseline;
@@ -121,7 +121,7 @@ codeunit 9990 "Code Coverage Mgt."
             if FindSet then
                 repeat
                     NoOfHits += "No. of Hits";
-                until Next = 0;
+                until Next() = 0;
             exit(NoOfHits);
         end;
     end;
@@ -151,7 +151,7 @@ codeunit 9990 "Code Coverage Mgt."
                 if CodeCoverage2."No. of Hits" > 0 then
                     NoCodeLinesHit += 1;
             end
-        until (CodeCoverage2.Next = 0) or
+        until (CodeCoverage2.Next() = 0) or
                 (CodeCoverage2."Line Type" = CodeCoverage2."Line Type"::Object);
 
         exit(CoveragePercent(NoCodeLines, NoCodeLinesHit))
@@ -170,7 +170,7 @@ codeunit 9990 "Code Coverage Mgt."
             NoCodeLines += 1;
             if CodeCoverage2."No. of Hits" > 0 then
                 NoCodeLinesHit += 1;
-        until CodeCoverage2.Next = 0;
+        until CodeCoverage2.Next() = 0;
 
         exit(CoveragePercent(NoCodeLines, NoCodeLinesHit))
     end;
@@ -192,7 +192,7 @@ codeunit 9990 "Code Coverage Mgt."
                 if CodeCoverage2."No. of Hits" > 0 then
                     NoCodeLinesHit += 1;
             end
-        until (CodeCoverage2.Next = 0) or
+        until (CodeCoverage2.Next() = 0) or
                 (CodeCoverage2."Line Type" = CodeCoverage2."Line Type"::Object) or
                 (CodeCoverage2."Line Type" = CodeCoverage2."Line Type"::"Trigger/Function");
 

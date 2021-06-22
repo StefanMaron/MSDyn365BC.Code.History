@@ -97,15 +97,11 @@ page 9176 "My Settings"
                         WorkDate := NewWorkdate;
                     end;
                 }
-                field(Locale2; GetLocale)
+                field(Locale; GetLocale)
                 {
                     ApplicationArea = All;
                     Caption = 'Region';
                     ToolTip = 'Specifies the regional settings, such as date and numeric format, on all devices. You must sign out and then sign in again for the change to take effect.';
-                    Visible = RunningOnSaaS;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Use field Locale instead';
-                    ObsoleteTag = '15.2';
 
                     trigger OnAssistEdit()
                     var
@@ -114,17 +110,13 @@ page 9176 "My Settings"
                         Language.LookupWindowsLanguageId(LocaleID);
                     end;
                 }
-                field(Language2; GetLanguage)
+                field(Language; GetLanguage)
                 {
                     ApplicationArea = All;
                     Caption = 'Language';
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies the display language, on all devices. You must sign out and then sign in again for the change to take effect.';
-                    Visible = RunningOnSaaS;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Use field Language instead';
-                    ObsoleteTag = '15.2';
 
                     trigger OnAssistEdit()
                     var
@@ -132,45 +124,6 @@ page 9176 "My Settings"
                     begin
                         Language.LookupApplicationLanguageId(LanguageID);
                     end;
-                }
-                group("Region & Language")
-                {
-                    Caption = 'Region & Language';
-                    Visible = not RunningOnSaaS;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Group will be removed. NB: Only group, not fields in group!';
-                    ObsoleteTag = '15.2';
-
-                    field(Locale; GetLocale)
-                    {
-                        ApplicationArea = All;
-                        Caption = 'Region';
-                        ToolTip = 'Specifies the regional settings, such as date and numeric format, on all devices. You must sign out and then sign in again for the change to take effect.';
-                        Visible = not RunningOnSaaS;
-
-                        trigger OnAssistEdit()
-                        var
-                            Language: Codeunit Language;
-                        begin
-                            Language.LookupWindowsLanguageId(LocaleID);
-                        end;
-                    }
-                    field(Language; GetLanguage)
-                    {
-                        ApplicationArea = All;
-                        Caption = 'Language';
-                        Editable = false;
-                        Importance = Promoted;
-                        ToolTip = 'Specifies the display language, on all devices. You must sign out and then sign in again for the change to take effect.';
-                        Visible = not RunningOnSaaS;
-
-                        trigger OnAssistEdit()
-                        var
-                            Language: Codeunit Language;
-                        begin
-                            Language.LookupApplicationLanguageId(LanguageID);
-                        end;
-                    }
                 }
                 field(TimeZone; GetTimeZone)
                 {
@@ -211,6 +164,17 @@ page 9176 "My Settings"
                         PAGE.RunModal(PAGE::"My Notifications");
                     end;
                 }
+                field(CalloutsEnabled; CalloutsEnabled)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Teaching Tips';
+                    ToolTip = 'Specifies whether to display short messages that inform, remind, or teach you about important fields and actions when you open a page.';
+
+                    trigger OnValidate()
+                    begin
+                        UserCallouts.SwitchCalloutsEnabledValue(UserSecurityId());
+                    end;
+                }
                 field(LastLoginInfo; GetLastLoginInfo)
                 {
                     ApplicationArea = All;
@@ -227,10 +191,7 @@ page 9176 "My Settings"
     }
 
     trigger OnInit()
-    var
-        EnvironmentInfo: Codeunit "Environment Information";
     begin
-        RunningOnSaaS := EnvironmentInfo.IsSaaS;
         IsNotOnMobile := ClientTypeManagement.GetCurrentClientType <> CLIENTTYPE::Phone;
         ShowRoleCenterOverviewEnabledField := false;
     end;
@@ -265,6 +226,8 @@ page 9176 "My Settings"
             Commit();
         end;
         RoleCenterOverviewEnabled := RolecenterSelectorMgt.GetShowStateFromUserPreference(UserId);
+
+        CalloutsEnabled := UserCallouts.AreCalloutsEnabled(UserSecurityId());
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -330,6 +293,7 @@ page 9176 "My Settings"
     end;
 
     var
+        UserCallouts: Record "User Callouts";
         ClientTypeManagement: Codeunit "Client Type Management";
         LanguageID: Integer;
         LocaleID: Integer;
@@ -337,7 +301,6 @@ page 9176 "My Settings"
         VarCompany: Text;
         NewWorkdate: Date;
         ProfileID: Code[30];
-        RunningOnSaaS: Boolean;
         MyNotificationsLbl: Label 'Change when I receive notifications.';
         IsNotOnMobile: Boolean;
         CompanyDisplayName: Text[250];
@@ -346,6 +309,7 @@ page 9176 "My Settings"
         CompanySetUpInProgressMsg: Label 'Company %1 was just created, and we are still setting it up for you.\This may take up to 10 minutes, so take a short break before you begin to use %2.', Comment = '%1 - a company name,%2 - our product name';
         TrialStartMsg: Label 'We''re glad you''ve chosen to explore %1!\\Your session will restart to activate the new settings.', Comment = '%1 - our product name';
         IsCompanyChanged: Boolean;
+        CalloutsEnabled: Boolean;
         [InDataSet]
         RoleCenterOverviewEnabled: Boolean;
         ShowRoleCenterOverviewEnabledField: Boolean;

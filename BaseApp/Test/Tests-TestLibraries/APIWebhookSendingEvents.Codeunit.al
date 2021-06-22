@@ -24,7 +24,7 @@ codeunit 135090 "API Webhook Sending Events"
         UseCustomSendingNotificationTimeout: Boolean;
         JobQueueCategoryCodeLbl: Label 'APIWEBHOOK', Locked = true;
 
-    [EventSubscriber(ObjectType::Codeunit, 5465, 'OnGetIsAPIEnabled', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Mgt - General Tools", 'OnGetIsAPIEnabled', '', false, false)]
     local procedure HandleOnGetIsAPIEnabled(var Handled: Boolean; var IsAPIEnabled: Boolean)
     begin
         if not UseCustomIsAPIEnabled then
@@ -34,7 +34,7 @@ codeunit 135090 "API Webhook Sending Events"
         IsAPIEnabled := CustomIsAPIEnabled;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5465, 'OnGetAPISubscriptionsEnabled', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Mgt - General Tools", 'OnGetAPISubscriptionsEnabled', '', false, false)]
     local procedure HandleOnGetAPISubscriptionsEnabled(var Handled: Boolean; var APISubscriptionsEnabled: Boolean)
     begin
         if not UseCustomAPISubscriptionsEnabled then
@@ -44,7 +44,7 @@ codeunit 135090 "API Webhook Sending Events"
         APISubscriptionsEnabled := CustomAPISubscriptionsEnabled;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6153, 'OnGetDelayTime', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"API Webhook Notification Mgt.", 'OnGetDelayTime', '', false, false)]
     local procedure HandleOnGetDelayTime(var Handled: Boolean; var Value: Integer)
     begin
         if not UseCustomDelayTime then
@@ -54,7 +54,7 @@ codeunit 135090 "API Webhook Sending Events"
         Value := CustomDelayTime;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6154, 'OnGetMaxNumberOfNotifications', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"API Webhook Notification Send", 'OnGetMaxNumberOfNotifications', '', false, false)]
     local procedure HandleOnGetMaxNumberOfNotifications(var Handled: Boolean; var Value: Integer)
     begin
         if not UseCustomMaxNumberOfNotifications then
@@ -64,7 +64,7 @@ codeunit 135090 "API Webhook Sending Events"
         Value := CustomMaxNumberOfNotifications;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6154, 'OnGetMaxNumberOfAttempts', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"API Webhook Notification Send", 'OnGetMaxNumberOfAttempts', '', false, false)]
     local procedure HandleOnGetMaxNumberOfAttempts(var Handled: Boolean; var Value: Integer)
     begin
         if not UseCustomMaxNumberOfAttempts then
@@ -74,7 +74,7 @@ codeunit 135090 "API Webhook Sending Events"
         Value := CustomMaxNumberOfAttempts;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6154, 'OnGetSendingNotificationTimeout', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"API Webhook Notification Send", 'OnGetSendingNotificationTimeout', '', false, false)]
     local procedure HandleOnGetSendingNotificationTimeout(var Handled: Boolean; var Value: Integer)
     begin
         if not UseCustomSendingNotificationTimeout then
@@ -84,25 +84,25 @@ codeunit 135090 "API Webhook Sending Events"
         Value := CustomSendingNotificationTimeout;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6154, 'OnBeforeProcessNotifications', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"API Webhook Notification Send", 'OnBeforeProcessNotifications', '', false, false)]
     local procedure HandleOnBeforeProcessNotifications()
     begin
         ProcessingStatus := 'Started';
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6154, 'OnAfterProcessNotifications', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"API Webhook Notification Send", 'OnAfterProcessNotifications', '', false, false)]
     local procedure HandleOnAfterProcessNotifications()
     begin
         ProcessingStatus := 'Finished';
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6154, 'OnBeforeDeleteInactiveJobs', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"API Webhook Notification Send", 'OnBeforeDeleteInactiveJobs', '', false, false)]
     local procedure HandleOnBeforeDeleteInactiveJobs()
     begin
         MarkOnHoldJobsAsReady;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6154, 'OnBeforeSendNotification', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"API Webhook Notification Send", 'OnBeforeSendNotification', '', false, false)]
     local procedure HandleOnBeforeSendNotification(NotificationUrl: Text; Payload: Text)
     var
         JSONManagement: Codeunit "JSON Management";
@@ -147,7 +147,7 @@ codeunit 135090 "API Webhook Sending Events"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6154, 'OnAfterSendNotification', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"API Webhook Notification Send", 'OnAfterSendNotification', '', false, false)]
     local procedure HandleOnAfterSendNotification(ErrorMessage: Text; ErrorDetails: Text; var HttpStatusCode: DotNet HttpStatusCode)
     var
         ExpectedStatusCode: Integer;

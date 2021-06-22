@@ -47,7 +47,7 @@ page 6416 "Flow User Env. Selection"
     trigger OnOpenPage()
     begin
         Reset;
-        if IsEmpty then
+        if IsEmpty() then
             Error(FlowServiceManagement.GetGenericError);
 
         SortByEnvironmentNameAscending;
@@ -67,7 +67,7 @@ page 6416 "Flow User Env. Selection"
         Enabled := true;
 
         SortByEnvironmentNameAscending;
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     procedure SetFlowEnvironmentBuffer(var TempFlowUserEnvironmentBuffer: Record "Flow User Environment Buffer" temporary)

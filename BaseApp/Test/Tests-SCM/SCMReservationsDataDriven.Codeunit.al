@@ -69,7 +69,7 @@ codeunit 137017 "SCM Reservations Data Driven"
         ErrorCount := 0;
         SetupTestData(IsDirected, RequireShipment, RequirePick, BinMandatory, NoOfPurchaseDocs);
 
-        TempItem.FindSet;
+        TempItem.FindSet();
         repeat
             AvailableQty := GetExpectedAvailableQty(DocumentType, SourceDocNo, WhseDocNo, TempItem."No.");
             // Action
@@ -492,7 +492,7 @@ codeunit 137017 "SCM Reservations Data Driven"
         WhseActivityLine.SetRange("Source No.", SourceNo);
         WhseActivityLine.SetRange("Whse. Document Type", WhseDocType);
         WhseActivityLine.SetRange("Whse. Document No.", WhseDocNo);
-        WhseActivityLine.FindSet;
+        WhseActivityLine.FindSet();
 
         repeat
             WhseActivityLine.Validate("Qty. to Handle", QtyToHandle);
@@ -599,7 +599,7 @@ codeunit 137017 "SCM Reservations Data Driven"
         // Calculate supply based on received Purchase Orders.
         SupplyQty := 0;
         PurchaseLine.SetRange("No.", ItemNo);
-        PurchaseLine.FindSet;
+        PurchaseLine.FindSet();
         repeat
             Location.Get(PurchaseLine."Location Code");
             SupplyQty += PurchaseLine."Quantity Received";

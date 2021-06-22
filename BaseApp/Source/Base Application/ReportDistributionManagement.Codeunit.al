@@ -58,7 +58,7 @@ codeunit 452 "Report Distribution Management"
                     RecordExportBuffer."Document Sending Profile" := TempDocumentSendingProfile.Code;
                     CODEUNIT.Run(ElectronicDocumentFormat."Delivery Codeunit ID", RecordExportBuffer);
                 end;
-            until RecordRef.Next = 0;
+            until RecordRef.Next() = 0;
     end;
 
     procedure DownloadPdfOnClient(ServerPdfFilePath: Text): Text
@@ -307,19 +307,32 @@ codeunit 452 "Report Distribution Management"
           ClientFileName);
     end;
 
-    local procedure SendAttachment(PostedDocumentNo: Code[20]; SendEmailAddress: Text[250]; AttachmentFilePath: Text[250]; AttachmentFileName: Text[250]; DocumentType: Text[50]; SendTo: Option; ServerEmailBodyFilePath: Text[250]; ReportUsage: Enum "Report Selection Usage")
+    local procedure SendAttachment(PostedDocumentNo: Code[20]; SendEmailAddress: Text[250]; AttachmentFilePath: Text[250]; AttachmentFileName: Text[250]; DocumentVariant: Variant; SendTo: Option; ServerEmailBodyFilePath: Text[250]; ReportUsage: Enum "Report Selection Usage")
     var
         DocumentSendingProfile: Record "Document Sending Profile";
         DocumentMailing: Codeunit "Document-Mailing";
+        TempBlob: Codeunit "Temp Blob";
+        FileManagement: Codeunit "File Management";
+        SourceReference: RecordRef;
+        DocumentType: Text[50];
+        AttachmentStream: Instream;
     begin
+        DocumentType := GetFullDocumentTypeText(DocumentVariant);
+
         if SendTo = DocumentSendingProfile."Send To"::Disk then begin
             SaveFileOnClient(AttachmentFilePath, AttachmentFileName);
             exit;
         end;
 
+        if AttachmentFilePath <> '' then begin
+            FileManagement.BLOBImportFromServerFile(TempBlob, AttachmentFilePath);
+            TempBlob.CreateInStream(AttachmentStream);
+        end;
+        SourceReference.GetTable(DocumentVariant);
+
         DocumentMailing.EmailFile(
-          AttachmentFilePath, AttachmentFileName, ServerEmailBodyFilePath, PostedDocumentNo,
-          SendEmailAddress, DocumentType, HideDialog, ReportUsage.AsInteger());
+          AttachmentStream, AttachmentFileName, ServerEmailBodyFilePath, PostedDocumentNo,
+          SendEmailAddress, DocumentType, HideDialog, ReportUsage.AsInteger(), SourceReference);
     end;
 
     [Scope('OnPrem')]
@@ -350,7 +363,7 @@ codeunit 452 "Report Distribution Management"
           SendToEmailAddress,
           XMLPath,
           ClientFileName,
-          GetFullDocumentTypeText(DocumentVariant),
+          DocumentVariant,
           DocumentSendingProfile."Send To"::"Electronic Document",
           ServerEmailBodyFilePath, ReportUsage);
     end;
@@ -384,7 +397,7 @@ codeunit 452 "Report Distribution Management"
           SendToEmailAddress,
           XMLPath,
           ClientFileName,
-          GetFullDocumentTypeText(DocumentVariant),
+          DocumentVariant,
           DocumentSendingProfile."Send To"::"Electronic Document",
           ServerEmailBodyFilePath, ReportUsage);
     end;

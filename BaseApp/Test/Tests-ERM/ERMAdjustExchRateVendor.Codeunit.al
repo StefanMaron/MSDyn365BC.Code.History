@@ -43,7 +43,7 @@ codeunit 134081 "ERM Adjust Exch. Rate Vendor"
         AdjustExchRateForVendor(-LibraryRandom.RandInt(50), DetailedVendorLedgEntry."Entry Type"::"Unrealized Gain");
     end;
 
-    local procedure AdjustExchRateForVendor(ExchRateAmount: Decimal; EntryType: Option)
+    local procedure AdjustExchRateForVendor(ExchRateAmount: Decimal; EntryType: Enum "Detailed CV Ledger Entry Type")
     var
         GenJournalLine: Record "Gen. Journal Line";
         CurrencyExchangeRate: Record "Currency Exchange Rate";
@@ -307,7 +307,7 @@ codeunit 134081 "ERM Adjust Exch. Rate Vendor"
         exit(Vendor."No.");
     end;
 
-    local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; DocumentNo: Code[20]; GLAccountNo: Code[20]; DocumentType: Option)
+    local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; DocumentNo: Code[20]; GLAccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     begin
         GLEntry.SetRange("Document Type", DocumentType);
         GLEntry.SetRange("Document No.", DocumentNo);
@@ -343,7 +343,7 @@ codeunit 134081 "ERM Adjust Exch. Rate Vendor"
         CurrencyExchangeRate.Modify(true);
     end;
 
-    local procedure VerifyDetailedVendorEntry(DocumentNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal; EntryType: Option)
+    local procedure VerifyDetailedVendorEntry(DocumentNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal; EntryType: Enum "Detailed CV Ledger Entry Type")
     var
         Currency: Record Currency;
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";

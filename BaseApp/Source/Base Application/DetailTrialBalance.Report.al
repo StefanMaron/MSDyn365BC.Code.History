@@ -1,4 +1,4 @@
-﻿report 4 "Detail Trial Balance"
+report 4 "Detail Trial Balance"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './DetailTrialBalance.rdlc';

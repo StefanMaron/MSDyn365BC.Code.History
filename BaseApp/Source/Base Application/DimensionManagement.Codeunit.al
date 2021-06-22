@@ -1,4 +1,4 @@
-﻿codeunit 408 DimensionManagement
+codeunit 408 DimensionManagement
 {
     Permissions = TableData "Gen. Journal Template" = imd,
                   TableData "Gen. Journal Batch" = imd;
@@ -28,6 +28,9 @@
         DimValueMustNotBeErr: Label 'Dimension Value Type for %1 %2 - %3 must not be %4.', Comment = '%1 = Dimension Value table caption, %2 = Dim Code, %3 = Dim Value, %4 = Dimension Value Type value';
         DimValueMissingErr: Label '%1 for %2 is missing.', Comment = '%1 = Dimension Value table caption, %2 = Dim Code';
         Text019: Label 'You have changed a dimension.\\Do you want to update the lines?';
+        DimValueNotAllowedForAccountErr: Label 'Dimension value %1, %2 is not allowed for %3, %4.', Comment = '%1 = Dim Code, %2 = Dim Value, %3 - table caption, %4 - account number.';
+        DimValueNotAllowedForAccountTypeErr: Label 'Dimension value %1 %2 is not allowed for account type %3.', Comment = '%1 = Dim Code, %2 = Dim Value, %3 - table caption.';
+        NoAllowedValuesSelectedErr: Label 'There are no allowed dimension values selected.';
         LastErrorMessage: Record "Error Message";
         TempJobTaskDimBuffer: Record "Job Task Dimension" temporary;
         TempDimSetEntryBuffer: Record "Dimension Set Entry" temporary;
@@ -117,7 +120,7 @@
                 repeat
                     TempDimSetEntry := DimSetEntry;
                     TempDimSetEntry.Insert();
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -232,7 +235,7 @@
                             GlobalDimVal1 := TempDimSetEntry."Dimension Value Code";
                         if GLSetupShortcutDimCode[2] = TempDimSetEntry."Dimension Code" then
                             GlobalDimVal2 := TempDimSetEntry."Dimension Value Code";
-                    until DimSetEntry.Next = 0;
+                    until DimSetEntry.Next() = 0;
             end;
         exit(GetDimensionSetID(TempDimSetEntry));
     end;
@@ -262,13 +265,13 @@
                         TempDimSetEntryNew.Delete();
                     TempDimSetEntryDeleted.Delete();
                 end;
-            until TempDimSetEntryDeleted.Next = 0;
+            until TempDimSetEntryDeleted.Next() = 0;
 
         if TempDimSetEntryDeleted.FindSet then
             repeat
                 if TempDimSetEntry.Get(DimSetID, TempDimSetEntryDeleted."Dimension Code") then
                     TempDimSetEntry.Delete();
-            until TempDimSetEntryDeleted.Next = 0;
+            until TempDimSetEntryDeleted.Next() = 0;
 
         if TempDimSetEntryNew.FindSet then
             repeat
@@ -283,7 +286,7 @@
                     TempDimSetEntry."Dimension Set ID" := DimSetID;
                     TempDimSetEntry.Insert();
                 end;
-            until TempDimSetEntryNew.Next = 0;
+            until TempDimSetEntryNew.Next() = 0;
 
         OnBeforeGetDimensionSetID(TempDimSetEntry);
         exit(GetDimensionSetID(TempDimSetEntry));
@@ -336,7 +339,7 @@
                 TempDimBuf."Dimension Code" := DimSetEntry."Dimension Code";
                 TempDimBuf."Dimension Value Code" := DimSetEntry."Dimension Value Code";
                 TempDimBuf.Insert();
-            until DimSetEntry.Next = 0;
+            until DimSetEntry.Next() = 0;
     end;
 
     procedure CheckDimIDComb(DimSetID: Integer): Boolean
@@ -351,6 +354,7 @@
     var
         DimSetEntry: Record "Dimension Set Entry";
         TempDefaultDim: Record "Default Dimension" temporary;
+        DimValuePerAccount: Record "Dim. Value per Account";
         IsHandled: Boolean;
         IsChecked: Boolean;
         LastErrorID: Integer;
@@ -376,7 +380,7 @@
                     DimSetEntry.SetRange("Dimension Code", "Dimension Code");
                     IsHandled := false;
                     OnCheckDimValuePostingOnBeforeLogErrors(TempDefaultDim, DimSetEntry, LastErrorMessage, ErrorMessageMgt, isHandled);
-                    if not IsHandled then
+                    if not IsHandled then begin
                         case "Value Posting" of
                             "Value Posting"::"Code Mandatory":
                                 if not DimSetEntry.FindFirst or (DimSetEntry."Dimension Value Code" = '') then
@@ -394,11 +398,19 @@
                                 if DimSetEntry.FindFirst then
                                     LogError(RecordId, FieldNo("Value Posting"), GetNoCodeFilledDimErr(TempDefaultDim), '');
                         end;
+                        if DimValuePerAccount.Get("Table ID", "No.", "Dimension Code", DimSetEntry."Dimension Value Code") then
+                            if not DimValuePerAccount.Allowed then
+                                LogError(RecordId, FieldNo("Allowed Values Filter"), GetNotAllowedDimValuePerAccount(TempDefaultDim, DimSetEntry."Dimension Value Code"), '');
+                    end;
                     if not IsCollectErrorsMode then
                         if LastErrorID <> GetLastDimErrorID then
                             exit(false);
-                until Next = 0;
+                until Next() = 0;
         end;
+        OnCheckDimValuePostingOnBeforeExit(TableID, No, DimSetID, LastErrorMessage, ErrorMessageMgt, IsChecked, IsHandled);
+        if IsHandled then
+            exit(IsChecked);
+
         exit(GetLastDimErrorID = LastErrorID);
     end;
 
@@ -417,7 +429,7 @@
                 TempDimBuf."Dimension Value Code" := DimBuffer."Dimension Value Code";
                 TempDimBuf.Insert();
                 i := i + 1;
-            until DimBuffer.Next = 0;
+            until DimBuffer.Next() = 0;
         end;
         exit(CheckDimComb(TempDimBuf));
     end;
@@ -433,7 +445,7 @@
     begin
         if not TempDimCombInitialized then begin
             TempDimCombInitialized := true;
-            if DimComb.IsEmpty then
+            if DimComb.IsEmpty() then
                 TempDimCombEmpty := true;
         end;
 
@@ -446,7 +458,7 @@
         repeat
             DimFilter += Separator + TempDimBuf."Dimension Code";
             Separator := '|';
-        until TempDimBuf.Next = 0;
+        until TempDimBuf.Next() = 0;
 
         LastErrorID := GetLastDimErrorID;
         DimComb.SetFilter("Dimension 1 Code", DimFilter);
@@ -474,7 +486,7 @@
                 if not IsCollectErrorsMode then
                     if LastErrorID <> GetLastDimErrorID then
                         exit(false);
-            until DimComb.Next = 0;
+            until DimComb.Next() = 0;
         exit(GetLastDimErrorID = LastErrorID);
     end;
 
@@ -522,7 +534,7 @@
                                     if TempDefaultDim.Insert() then;
                                 end;
                             end;
-                        until DefaultDim.Next = 0;
+                        until DefaultDim.Next() = 0;
                 end;
             end;
         OnAfterCheckDimValuePosting(TableID, No, TempDefaultDim);
@@ -618,6 +630,27 @@
             DefaultDim."No."));
     end;
 
+    procedure GetNotAllowedDimValuePerAccount(DefaultDim: Record "Default Dimension"; DimValueCode: Code[20]): Text
+    var
+        ObjectTranslation: Record "Object Translation";
+    begin
+        if DefaultDim."No." = '' then
+            exit(
+                StrSubstNo(
+                    DimValueNotAllowedForAccountTypeErr,
+                    DefaultDim."Dimension Code",
+                    DimValueCode,
+                    ObjectTranslation.TranslateTable(DefaultDim."Table ID")));
+
+        exit(
+          StrSubstNo(
+            DimValueNotAllowedForAccountErr,
+            DefaultDim."Dimension Code",
+            DimValueCode,
+            ObjectTranslation.TranslateTable(DefaultDim."Table ID"),
+            DefaultDim."No."));
+    end;
+
     procedure GetDimCombErr() ErrorMessage: Text[250]
     begin
         FindLastErrorMessage(ErrorMessage);
@@ -672,7 +705,7 @@
                 TempDimBuf."Dimension Code" := TempDimSetEntry0."Dimension Code";
                 TempDimBuf."Dimension Value Code" := TempDimSetEntry0."Dimension Value Code";
                 TempDimBuf.Insert();
-            until TempDimSetEntry0.Next = 0;
+            until TempDimSetEntry0.Next() = 0;
 
         NoFilter[2] := '';
         for i := 1 to ArrayLen(TableID) do
@@ -718,7 +751,7 @@
                                     if GLSetupShortcutDimCode[2] = TempDimBuf."Dimension Code" then
                                         GlobalDim2Code := TempDimBuf."Dimension Value Code";
                                 end;
-                            until DefaultDim.Next = 0;
+                            until DefaultDim.Next() = 0;
                     end;
                 end;
             end;
@@ -734,7 +767,7 @@
                 TempDimSetEntry."Dimension Value ID" := DimVal."Dimension Value ID";
                 OnGetDefaultDimIDOnBeforeTempDimSetEntryInsert(TempDimSetEntry, TempDimBuf, SourceCode);
                 TempDimSetEntry.Insert();
-            until TempDimBuf.Next = 0;
+            until TempDimBuf.Next() = 0;
             NewDimSetID := GetDimensionSetID(TempDimSetEntry);
         end;
         exit(NewDimSetID);
@@ -878,7 +911,7 @@
     begin
         DefaultDim.SetRange("Table ID", TableID);
         DefaultDim.SetRange("No.", No);
-        if not DefaultDim.IsEmpty then
+        if not DefaultDim.IsEmpty() then
             DefaultDim.DeleteAll();
     end;
 
@@ -893,7 +926,7 @@
             repeat
                 DefaultDimToRename := DefaultDim;
                 DefaultDimToRename.Rename(DefaultDim."Table ID", NewNo, DefaultDim."Dimension Code");
-            until DefaultDim.Next = 0;
+            until DefaultDim.Next() = 0;
     end;
 
     procedure LookupDimValueCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
@@ -1035,7 +1068,7 @@
                 TempDimBuf."Dimension Value Code" := DimBuffer."Dimension Value Code";
                 TempDimBuf.Insert();
                 i := i + 1;
-            until DimBuffer.Next = 0;
+            until DimBuffer.Next() = 0;
         end;
         exit(CheckValuePosting(TableID, No, TempDimBuf));
     end;
@@ -1095,11 +1128,15 @@
                                         exit(false);
                                     end;
                             end;
-                        until DefaultDim.Next = 0;
+                        until DefaultDim.Next() = 0;
                         TempDimBuf.Reset();
                     end;
                 end;
             end;
+        OnCheckValuePostingOnBeforeExit(TableID, No, TempDimBuf, LastErrorMessage, ErrorMessageMgt, IsChecked, IsHandled);
+        if IsHandled then
+            exit(IsChecked);
+
         exit(true);
     end;
 
@@ -1133,9 +1170,9 @@
         if TempDimField.FindSet then
             repeat
                 TempDimSetIDField.SetRange(TableNo, TempDimField.TableNo);
-                if TempDimSetIDField.IsEmpty then
+                if TempDimSetIDField.IsEmpty() then
                     DefaultDimInsertTempObject(TempAllObjWithCaption, TempDimField.TableNo);
-            until TempDimField.Next = 0;
+            until TempDimField.Next() = 0;
         OnAfterSetupObjectNoList(TempAllObjWithCaption);
     end;
 
@@ -1195,11 +1232,11 @@
         if TempDimSetIDField.FindSet then
             repeat
                 TempDimField.SetRange(TableNo, TempDimSetIDField.TableNo);
-                if not TempDimField.IsEmpty then begin
+                if not TempDimField.IsEmpty() then begin
                     InsertObject(TempAllObjWithCaption, TempDimSetIDField.TableNo);
                     TempDimField.DeleteAll();
                 end;
-            until TempDimSetIDField.Next = 0;
+            until TempDimSetIDField.Next() = 0;
 
         TempDimField.Reset();
         TempDimField.SetFilter(ObsoleteState, '<>%1', TempDimField.ObsoleteState::Removed);
@@ -1211,11 +1248,11 @@
                     // Field No. 2 must relate to a table with Dim Set ID
                     if Field.Get(TempDimField.TableNo, 2) then begin
                         TempDimSetIDField.SetRange(TableNo, Field.RelationTableNo);
-                        if not TempDimSetIDField.IsEmpty then
+                        if not TempDimSetIDField.IsEmpty() then
                             InsertObject(TempAllObjWithCaption, TempDimField.TableNo);
                     end;
                 end;
-            until TempDimField.Next = 0;
+            until TempDimField.Next() = 0;
     end;
 
     procedure JobTaskDimObjectNoList(var TempAllObjWithCaption: Record AllObjWithCaption temporary)
@@ -1252,7 +1289,7 @@
                     TempField := Field;
                     TempField.Insert();
                 end;
-            until Field.Next = 0;
+            until Field.Next() = 0;
     end;
 
     procedure GetDocDimConsistencyErr() ErrorMessage: Text[250]
@@ -1351,7 +1388,7 @@
                 then
                     if not IsCollectErrorsMode then
                         exit(false);
-            until DimSetEntry.Next = 0;
+            until DimSetEntry.Next() = 0;
         exit(GetLastDimErrorID = LastErrorID);
     end;
 
@@ -1414,7 +1451,7 @@
                     InOutBoxJnlLineDim."Dimension Value Code" := ICDimValue;
                     InOutBoxJnlLineDim.Insert();
                 end;
-            until DimSetEntry.Next = 0;
+            until DimSetEntry.Next() = 0;
     end;
 
     procedure DefaultDimOnInsert(DefaultDimension: Record "Default Dimension")
@@ -1453,7 +1490,7 @@
             repeat
                 ToInOutBoxlineDim := FromInOutBoxLineDim;
                 ToInOutBoxlineDim.Insert();
-            until FromInOutBoxLineDim.Next = 0;
+            until FromInOutBoxLineDim.Next() = 0;
     end;
 
     procedure CopyDocDimtoICDocDim(TableID: Integer; TransactionNo: Integer; PartnerCode: Code[20]; TransactionSource: Option; LineNo: Integer; DimSetEntryID: Integer)
@@ -1479,7 +1516,7 @@
                     InOutBoxDocDim."Dimension Value Code" := ICDimValue;
                     InOutBoxDocDim.Insert();
                 end;
-            until DimSetEntry.Next = 0;
+            until DimSetEntry.Next() = 0;
     end;
 
     procedure CopyICDocDimtoICDocDim(FromSourceICDocDim: Record "IC Document Dimension"; var ToSourceICDocDim: Record "IC Document Dimension"; ToTableID: Integer; ToTransactionSource: Integer)
@@ -1492,7 +1529,7 @@
                     ToSourceICDocDim."Table ID" := ToTableID;
                     ToSourceICDocDim."Transaction Source" := ToTransactionSource;
                     ToSourceICDocDim.Insert();
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -1507,7 +1544,7 @@
                     ToSourceICDocDim."Transaction Source" := ToTransactionSource;
                     ToSourceICDocDim.Insert();
                     Delete;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -1526,7 +1563,7 @@
         ICDocDim: Record "IC Document Dimension";
     begin
         SetICDocDimFilters(ICDocDim, TableID, ICTransactionNo, ICPartnerCode, TransactionSource, LineNo);
-        if not ICDocDim.IsEmpty then
+        if not ICDocDim.IsEmpty() then
             ICDocDim.DeleteAll();
     end;
 
@@ -1539,7 +1576,7 @@
         ICJnlDim.SetRange("IC Partner Code", ICPartnerCode);
         ICJnlDim.SetRange("Transaction Source", TransactionSource);
         ICJnlDim.SetRange("Line No.", LineNo);
-        if not ICJnlDim.IsEmpty then
+        if not ICJnlDim.IsEmpty() then
             ICJnlDim.DeleteAll();
     end;
 
@@ -1723,7 +1760,7 @@
                     if JobTaskDim."Dimension Code" = GLSetupShortcutDimCode[2] then
                         GlobalDim2Code := JobTaskDim."Dimension Value Code";
                 end;
-            until DefaultDim.Next = 0;
+            until DefaultDim.Next() = 0;
 
         TempJobTaskDimBuffer.Reset();
         if TempJobTaskDimBuffer.FindSet then
@@ -1740,7 +1777,7 @@
                     if JobTaskDim."Dimension Code" = GLSetupShortcutDimCode[2] then
                         GlobalDim2Code := JobTaskDim."Dimension Value Code";
                 end;
-            until TempJobTaskDimBuffer.Next = 0;
+            until TempJobTaskDimBuffer.Next() = 0;
         TempJobTaskDimBuffer.DeleteAll();
     end;
 
@@ -1812,7 +1849,7 @@
                     JobTaskDimension2."Dimension Value Code" := JobTaskDimension."Dimension Value Code";
                     JobTaskDimension2.Modify(true);
                 end;
-            until JobTaskDimension.Next = 0;
+            until JobTaskDimension.Next() = 0;
 
         JobTaskDimension2.Reset();
         JobTaskDimension2.SetRange("Job No.", NewJobNo);
@@ -1821,7 +1858,7 @@
             repeat
                 if not JobTaskDimension.Get(JobNo, JobTaskNo, JobTaskDimension2."Dimension Code") then
                     JobTaskDimension2.Delete(true);
-            until JobTaskDimension2.Next = 0;
+            until JobTaskDimension2.Next() = 0;
     end;
 
     procedure CheckDimIDConsistency(var DimSetEntry: Record "Dimension Set Entry"; var PostedDimSetEntry: Record "Dimension Set Entry"; DocTableID: Integer; PostedDocTableID: Integer): Boolean
@@ -1871,7 +1908,7 @@
                         exit(false);
                     end;
             end;
-        until (DimSetEntry.Next = 0) and (PostedDimSetEntry.Next = 0);
+        until (DimSetEntry.Next() = 0) and (PostedDimSetEntry.Next() = 0);
         exit(true);
     end;
 
@@ -1894,7 +1931,7 @@
                   ConvertICDimtoDim(ICDocDim."Dimension Code"),
                   ConvertICDimValuetoDimValue(ICDocDim."Dimension Code", ICDocDim."Dimension Value Code"));
                 CreateDimSetEntryFromDimValue(DimValue, TempDimSetEntry);
-            until ICDocDim.Next = 0;
+            until ICDocDim.Next() = 0;
         exit(GetDimensionSetID(TempDimSetEntry));
     end;
 
@@ -1910,7 +1947,7 @@
                   ConvertICDimValuetoDimValue(
                     ICInboxOutboxJnlLineDim."Dimension Code", ICInboxOutboxJnlLineDim."Dimension Value Code"));
                 CreateDimSetEntryFromDimValue(DimValue, TempDimSetEntry);
-            until ICInboxOutboxJnlLineDim.Next = 0;
+            until ICInboxOutboxJnlLineDim.Next() = 0;
         exit(GetDimensionSetID(TempDimSetEntry));
     end;
 
@@ -1926,7 +1963,7 @@
                     DimSetEntry."Dimension Value Code" := "Dimension Value Code";
                     DimSetEntry."Dimension Value ID" := DimValue."Dimension Value ID";
                     DimSetEntry.Insert();
-                until Next = 0;
+                until Next() = 0;
     end;
 
     procedure CreateDimSetIDFromDimBuf(var DimBuf: Record "Dimension Buffer"): Integer
@@ -1938,7 +1975,7 @@
             repeat
                 DimValue.Get(DimBuf."Dimension Code", DimBuf."Dimension Value Code");
                 CreateDimSetEntryFromDimValue(DimValue, TempDimSetEntry);
-            until DimBuf.Next = 0;
+            until DimBuf.Next() = 0;
         exit(GetDimensionSetID(TempDimSetEntry));
     end;
 
@@ -2049,7 +2086,7 @@
         if DimSetEntry.FindSet then
             repeat
                 AddDimSetIDtoTempEntry(TempDimSetEntryBuffer, DimSetEntry."Dimension Set ID");
-            until DimSetEntry.Next = 0;
+            until DimSetEntry.Next() = 0;
         if FilterIncludesBlank(DimCode, DimValueFilter) then
             GetDimSetIDsForBlank(DimCode);
         DimSetFilterCtr += 1;
@@ -2073,14 +2110,14 @@
                         AddDimSetIDtoTempEntry(TempDimSetEntry, DimSetEntry."Dimension Set ID");
                         PrevDimSetID := DimSetEntry."Dimension Set ID";
                     end;
-                until DimSetEntry.Next = 0;
+                until DimSetEntry.Next() = 0;
             end;
         end;
         TempDimSetEntry.SetFilter("Dimension Value ID", '%1', 1);
         if TempDimSetEntry.FindSet then
             repeat
                 AddDimSetIDtoTempEntry(TempDimSetEntryBuffer, TempDimSetEntry."Dimension Set ID");
-            until TempDimSetEntry.Next = 0;
+            until TempDimSetEntry.Next() = 0;
     end;
 
     procedure GetDimSetFilter() DimSetFilter: Text
@@ -2091,7 +2128,7 @@
             if TempDimSetEntryBuffer.Next <> 0 then
                 repeat
                     DimSetFilter += '|' + Format(TempDimSetEntryBuffer."Dimension Set ID");
-                until TempDimSetEntryBuffer.Next = 0;
+                until TempDimSetEntryBuffer.Next() = 0;
         end;
     end;
 
@@ -2162,7 +2199,7 @@
                     TempDimSetEntry."Dimension Value Code" := "Dimension Value Code";
                     TempDimSetEntry."Dimension Value ID" := DimValue."Dimension Value ID";
                     TempDimSetEntry.Insert(true);
-                until Next = 0;
+                until Next() = 0;
                 NewDimSetID := GetDimensionSetID(TempDimSetEntry);
                 UpdateGlobalDimFromDimSetID(NewDimSetID, GlobalDimVal1, GlobalDimVal2);
             end;
@@ -2230,7 +2267,7 @@
         if Dimension.FindSet then
             repeat
                 ConsolidatedDimFilter += '|' + Dimension.Code;
-            until Dimension.Next = 0;
+            until Dimension.Next() = 0;
     end;
 
     procedure ResolveDimValueFilter(var DimValueFilter: Text; DimensionCode: Code[20])
@@ -2302,7 +2339,7 @@
         DimensionValue.SetRange("Dimension Code", DimensionCode);
         DimensionValue.SetFilter(Code, DimValueFilter);
         DimensionValue.SetFilter(Totaling, '<>%1', '');
-        if DimensionValue.IsEmpty then
+        if DimensionValue.IsEmpty() then
             exit(DimValueFilter);
 
         AddTempDimValueFromTotaling(TempDimensionValue, CheckStr, DimensionCode, DimValueFilter);
@@ -2310,7 +2347,7 @@
         if TempDimensionValue.FindSet then
             repeat
                 ResultTxt += TempDimensionValue.Code + '|'
-            until TempDimensionValue.Next = 0;
+            until TempDimensionValue.Next() = 0;
         if ResultTxt <> '' then
             ResultTxt := '(' + CopyStr(ResultTxt, 1, StrLen(ResultTxt) - 1) + ')';
     end;
@@ -2332,7 +2369,7 @@
                     TempDimensionValue := DimensionValue;
                     if TempDimensionValue.Insert() then;
                 end;
-            until DimensionValue.Next = 0;
+            until DimensionValue.Next() = 0;
     end;
 
     procedure UseShortcutDims(var DimVisible1: Boolean; var DimVisible2: Boolean; var DimVisible3: Boolean; var DimVisible4: Boolean; var DimVisible5: Boolean; var DimVisible6: Boolean; var DimVisible7: Boolean; var DimVisible8: Boolean)
@@ -2348,6 +2385,152 @@
         DimVisible6 := GLSetup."Shortcut Dimension 6 Code" <> '';
         DimVisible7 := GLSetup."Shortcut Dimension 7 Code" <> '';
         DimVisible8 := GLSetup."Shortcut Dimension 8 Code" <> '';
+    end;
+
+    procedure OpenAllowedDimValuesPerAccount(var DefaultDimension: Record "Default Dimension")
+    var
+        DimValuePerAccount: Record "Dim. Value per Account";
+        TempDimValuePerAccount: Record "Dim. Value per Account" temporary;
+        DimAllowedValuesPerAcc: Page "Dim. Allowed Values per Acc.";
+    begin
+        SyncDimValuePerAccountWithDimValues(DefaultDimension);
+        Commit();
+        FillDimValuePerAccountBuffer(DefaultDimension, TempDimValuePerAccount);
+        DimAllowedValuesPerAcc.SetBufferData(TempDimValuePerAccount);
+        DimAllowedValuesPerAcc.LookupMode(true);
+        if DimAllowedValuesPerAcc.RunModal() = Action::LookupOK then begin
+            DimAllowedValuesPerAcc.GetBufferData(TempDimValuePerAccount);
+            UpdateDefaultDimensionAllowedValuesFromBuffer(DimValuePerAccount, TempDimValuePerAccount);
+            DefaultDimension.UpdateDefaultDimensionAllowedValuesFilter();
+        end;
+    end;
+
+    local procedure UpdateDefaultDimensionAllowedValuesFromBuffer(var DimValuePerAccount: Record "Dim. Value per Account"; var TempDimValuePerAccount: Record "Dim. Value per Account" temporary)
+    begin
+        if TempDimValuePerAccount.FindSet() then
+            repeat
+                if DimValuePerAccount.Get(TempDimValuePerAccount."Table ID", TempDimValuePerAccount."No.", TempDimValuePerAccount."Dimension Code", TempDimValuePerAccount."Dimension Value Code") then begin
+                    DimValuePerAccount.Allowed := TempDimValuePerAccount.Allowed;
+                    DimValuePerAccount.Modify();
+                end;
+            until TempDimValuePerAccount.Next() = 0;
+    end;
+
+    procedure FillDimValuePerAccountBuffer(var DefaultDimension: Record "Default Dimension"; var TempDimValuePerAccount: Record "Dim. Value per Account" temporary)
+    var
+        DimValuePerAccount: Record "Dim. Value per Account";
+        DimValue: Record "Dimension Value";
+    begin
+        DimValuePerAccount.SetRange("Table ID", DefaultDimension."Table ID");
+        DimValuePerAccount.SetRange("No.", DefaultDimension."No.");
+        DimValuePerAccount.SetRange("Dimension Code", DefaultDimension."Dimension Code");
+        if DimValuePerAccount.FindSet() then
+            repeat
+                TempDimValuePerAccount := DimValuePerAccount;
+                TempDimValuePerAccount.Insert();
+            until DimValuePerAccount.Next() = 0
+        else begin
+            DimValue.SetRange("Dimension Code", DefaultDimension."Dimension Code");
+            if DimValue.FindSet() then
+                repeat
+                    TempDimValuePerAccount.Init();
+                    TempDimValuePerAccount."Dimension Code" := DimValue."Dimension Code";
+                    TempDimValuePerAccount."Dimension Value Code" := DimValue.Code;
+                    TempDimValuePerAccount."Table ID" := DefaultDimension."Table ID";
+                    TempDimValuePerAccount."No." := DefaultDimension."No.";
+                    TempDimValuePerAccount.Insert();
+                until DimValue.Next() = 0;
+        end;
+    end;
+
+    procedure SyncDimValuePerAccountWithDimValues(var DefaultDimension: Record "Default Dimension")
+    var
+        DimValuePerAccount: Record "Dim. Value per Account";
+        DimValue: Record "Dimension Value";
+    begin
+        DimValue.SetRange("Dimension Code", DefaultDimension."Dimension Code");
+        if DimValue.FindSet() then
+            repeat
+                if not DimValuePerAccount.Get(DefaultDimension."Table ID", DefaultDimension."No.", DefaultDimension."Dimension Code", DimValue.Code) then begin
+                    DimValuePerAccount.Init();
+                    DimValuePerAccount."Dimension Code" := DimValue."Dimension Code";
+                    DimValuePerAccount."Dimension Value Code" := DimValue.Code;
+                    DimValuePerAccount."Table ID" := DefaultDimension."Table ID";
+                    DimValuePerAccount."No." := DefaultDimension."No.";
+                    DimValuePerAccount.Insert();
+                end;
+            until DimValue.Next() = 0;
+    end;
+
+    procedure SyncTempDimValuePerAccountWithDimValues(var DefaultDimension: Record "Default Dimension"; var TempDimValuePerAccount: Record "Dim. Value per Account" temporary)
+    var
+        DimValue: Record "Dimension Value";
+    begin
+        DimValue.SetRange("Dimension Code", DefaultDimension."Dimension Code");
+        if DimValue.FindSet() then
+            repeat
+                if not TempDimValuePerAccount.Get(DefaultDimension."Table ID", DefaultDimension."No.", DefaultDimension."Dimension Code", DimValue.Code) then begin
+                    TempDimValuePerAccount.Init();
+                    TempDimValuePerAccount."Dimension Code" := DimValue."Dimension Code";
+                    TempDimValuePerAccount."Dimension Value Code" := DimValue.Code;
+                    TempDimValuePerAccount."Table ID" := DefaultDimension."Table ID";
+                    TempDimValuePerAccount."No." := DefaultDimension."No.";
+                    TempDimValuePerAccount.Insert();
+                end;
+            until DimValue.Next() = 0;
+    end;
+
+    procedure OpenAllowedDimValuesPerAccountDimMultiple(var DefaultDimension: Record "Default Dimension"; var TempDimValuePerAccount: Record "Dim. Value per Account" temporary)
+    var
+        DimAllowedValuesPerAcc: Page "Dim. Allowed Values per Acc.";
+    begin
+        SyncTempDimValuePerAccountWithDimValues(DefaultDimension, TempDimValuePerAccount);
+
+        TempDimValuePerAccount.Reset();
+        TempDimValuePerAccount.SetRange("Table ID", DefaultDimension."Table ID");
+        TempDimValuePerAccount.SetRange("No.", DefaultDimension."No.");
+        TempDimValuePerAccount.SetRange("Dimension Code", DefaultDimension."Dimension Code");
+
+        DimAllowedValuesPerAcc.SetBufferData(TempDimValuePerAccount);
+        DimAllowedValuesPerAcc.LookupMode(true);
+        if DimAllowedValuesPerAcc.RunModal() = Action::LookupOK then begin
+            DimAllowedValuesPerAcc.GetBufferData(TempDimValuePerAccount);
+            DefaultDimension.UpdateDefaultDimensionAllowedValuesFilter();
+        end;
+    end;
+
+    procedure AddDefaultDimensionAllowedDimensionValue(DimensionValue: Record "Dimension Value")
+    var
+        DefaultDimension: Record "Default Dimension";
+    begin
+        DefaultDimension.SetRange("Dimension Code", DimensionValue."Dimension Code");
+        DefaultDimension.SetRange("Value Posting", DefaultDimension."Value Posting"::"Code Mandatory");
+        DefaultDimension.SetFilter("Allowed Values Filter", '<>%1', '');
+        if DefaultDimension.FindSet(true) then
+            repeat
+                DefaultDimension.CreateDimValuePerAccountFromDimValue(DimensionValue);
+                DefaultDimension.UpdateDefaultDimensionAllowedValuesFilter();
+            until DefaultDimension.Next() = 0;
+    end;
+
+    procedure UpdateDefaultDimensionAllowedDimensionValues(DimensionValue: Record "Dimension Value")
+    var
+        DefaultDimension: Record "Default Dimension";
+    begin
+        DefaultDimension.SetRange("Dimension Code", DimensionValue."Dimension Code");
+        DefaultDimension.SetRange("Value Posting", DefaultDimension."Value Posting"::"Code Mandatory");
+        DefaultDimension.SetFilter("Allowed Values Filter", '<>%1', '');
+        if DefaultDimension.FindSet(true) then
+            repeat
+                DefaultDimension.UpdateDefaultDimensionAllowedValuesFilter();
+            until DefaultDimension.Next() = 0;
+    end;
+
+    procedure CheckIfNoAllowedValuesSelected(var DimValuePerAccount: Record "Dim. Value per Account")
+    begin
+        DimValuePerAccount.SetRange(Allowed, true);
+        if DimValuePerAccount.IsEmpty() then
+            Error(NoAllowedValuesSelectedErr);
     end;
 
     [IntegrationEvent(false, false)]
@@ -2572,6 +2755,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckDimValuePostingOnBeforeLogErrors(TempDefaultDim: Record "Default Dimension" temporary; DimSetEntry: Record "Dimension Set Entry"; var LastErrorMessage: Record "Error Message"; var ErrorMessageMgt: Codeunit "Error Message Management"; var isHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckValuePostingOnBeforeExit(TableID: array[10] of Integer; No: array[10] of Code[20]; var TempDimensionBuffer: Record "Dimension Buffer" temporary; var LastErrorMessage: Record "Error Message"; var ErrorMessageManagement: Codeunit "Error Message Management"; var IsChecked: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckDimValuePostingOnBeforeExit(TableID: array[10] of Integer; No: array[10] of Code[20]; DimSetID: Integer; var LastErrorMessage: Record "Error Message"; var ErrorMessageManagement: Codeunit "Error Message Management"; var IsChecked: Boolean; var IsHandled: Boolean)
     begin
     end;
 

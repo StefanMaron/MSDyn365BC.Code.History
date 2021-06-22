@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en-US" target-language="en-US" original="OnPrem Permissions Test">
+    <body>
+      <group id="body">
+        <trans-unit id="Codeunit 657044549 - NamedType 3484674928" size-unit="char" translate="yes" xml:space="preserve">
+          <source>P&amp;P-Q/O/I/R/C</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit P. &amp; P. Permissions Tests - NamedType PAndPqoircPermissionSetTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2192099596 - NamedType 3048912552" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Number of Invt. Pick activities created</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Warehouse Permissions Tests - NamedType InvtPickCreatedTxt</note>
+        </trans-unit>
+      </group>
+    </body>
+  </file>
+</xliff>

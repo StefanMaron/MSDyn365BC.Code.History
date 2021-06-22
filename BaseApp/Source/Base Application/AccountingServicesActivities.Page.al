@@ -48,7 +48,7 @@ page 9070 "Accounting Services Activities"
                                 exit;
 
                             IncomingDocument.CreateIncomingDocument(InStr, PictureName);
-                            CurrPage.Update;
+                            CurrPage.Update();
                         end;
                     }
                 }

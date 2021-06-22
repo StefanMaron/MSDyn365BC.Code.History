@@ -123,7 +123,7 @@ page 2103 "O365 Sales Document List"
 
                     // go to "most late" document
                     FindPostedDocument('-');
-                    CurrPage.Update;
+                    CurrPage.Update();
                 end;
             }
             action(ShowDraft)

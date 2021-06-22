@@ -997,7 +997,7 @@ codeunit 137617 "Production & Assembly Costing"
             SetRange("Item No.", ItemNo);
             SetRange("Entry Type", EntryType);
             SetAutoCalcFields("Cost Amount (Actual)");
-            FindSet;
+            FindSet();
             repeat
                 TestField("Cost Amount (Actual)", ActualCost);
             until Next = 0;
@@ -1010,7 +1010,7 @@ codeunit 137617 "Production & Assembly Costing"
     begin
         with ItemLedgEntry do begin
             SetRange("Item No.", ItemNo);
-            FindSet;
+            FindSet();
             repeat
                 CalcFields("Cost Amount (Expected)", "Cost Amount (Actual)");
                 TestField("Cost Amount (Expected)", 0);

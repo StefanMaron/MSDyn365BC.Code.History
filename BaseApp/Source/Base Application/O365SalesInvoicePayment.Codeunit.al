@@ -186,7 +186,7 @@ codeunit 2105 "O365 Sales Invoice Payment"
             repeat
                 SalesHeader.SetDefaultPaymentServices;
                 SalesHeader.Modify(true);
-            until SalesHeader.Next = 0;
+            until SalesHeader.Next() = 0;
     end;
 
     procedure OnPayPalEmailSetToEmpty()

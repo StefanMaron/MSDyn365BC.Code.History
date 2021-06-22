@@ -255,7 +255,7 @@ codeunit 1630 "Office Management"
         TempExchangeObject.SetRange(Type, TempExchangeObject.Type::Attachment);
         TempExchangeObject.SetFilter("Content Type", 'application/pdf|image/*');
         TempExchangeObject.SetRange(IsInline, false);
-        if not TempExchangeObject.IsEmpty then begin
+        if not TempExchangeObject.IsEmpty() then begin
             IncomingDocumentAttachment.Init();
             IncomingDocumentAttachment."Incoming Document Entry No." := PurchaseHeader."Incoming Document Entry No.";
             IncomingDocumentAttachment."Document Table No. Filter" := DATABASE::"Purchase Header";
@@ -277,7 +277,7 @@ codeunit 1630 "Office Management"
         TempExchangeObject.SetRange(Type, TempExchangeObject.Type::Attachment);
         TempExchangeObject.SetFilter("Content Type", 'application/pdf|image/*');
         TempExchangeObject.SetRange(IsInline, false);
-        if not TempExchangeObject.IsEmpty then
+        if not TempExchangeObject.IsEmpty() then
             Page.Run(Page::"Office OCR Incoming Documents", TempExchangeObject);
     end;
 
@@ -291,7 +291,7 @@ codeunit 1630 "Office Management"
         TempExchangeObject.SetRange(Type, TempExchangeObject.Type::Attachment);
         TempExchangeObject.SetFilter("Content Type", 'application/pdf|image/*');
         TempExchangeObject.SetRange(IsInline, false);
-        if not TempExchangeObject.IsEmpty then
+        if not TempExchangeObject.IsEmpty() then
             Page.Run(Page::"Office OCR Incoming Documents", TempExchangeObject);
     end;
 
@@ -493,7 +493,7 @@ codeunit 1630 "Office Management"
         OfficeHostManagement.InvokeExtension(FunctionName, Parameter1, Parameter2, Parameter3, Parameter4);
     end;
 
-    [EventSubscriber(ObjectType::Table, 5050, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Contact", 'OnAfterDeleteEvent', '', false, false)]
     local procedure OnDeleteContact(var Rec: Record Contact; RunTrigger: Boolean)
     var
         TempOfficeAddinContext: Record "Office Add-in Context" temporary;
@@ -511,7 +511,7 @@ codeunit 1630 "Office Management"
     begin
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 2000000006, 'ChangeCompany', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Action Triggers", 'ChangeCompany', '', false, false)]
     local procedure OnChangeCompany(var NewCompanyName: Text)
     begin
         if not IsAvailable() then

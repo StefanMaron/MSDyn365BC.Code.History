@@ -10,7 +10,7 @@ codeunit 343 "Dimension CaptionClass Mgmt"
         GLSetup: Record "General Ledger Setup";
         GLSetupRead: Boolean;
 
-    [EventSubscriber(ObjectType::Codeunit, 42, 'OnResolveCaptionClass', '', true, true)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Caption Class", 'OnResolveCaptionClass', '', true, true)]
     local procedure ResolveCaptionClass(CaptionArea: Text; CaptionExpr: Text; Language: Integer; var Caption: Text; var Resolved: Boolean)
     begin
         if CaptionArea = '1' then begin

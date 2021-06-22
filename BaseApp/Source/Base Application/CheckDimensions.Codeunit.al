@@ -72,7 +72,7 @@ codeunit 481 "Check Dimensions"
                         CheckPurchDimValuePostingLine(TempPurchLine);
                         OnCheckPurchDimLinesOnAfterCheckPurchDimValuePostingLine(TempPurchLine);
                     end
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -149,7 +149,7 @@ codeunit 481 "Check Dimensions"
                 repeat
                     CheckPurchDimCombLine(PurchLine);
                     CheckPurchDimValuePostingLine(PurchLine);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -211,7 +211,7 @@ codeunit 481 "Check Dimensions"
                         CheckSalesDimCombLine(TempSalesLine);
                         CheckSalesDimValuePostingLine(TempSalesLine);
                     end
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -286,7 +286,7 @@ codeunit 481 "Check Dimensions"
                 repeat
                     CheckSalesDimCombLine(SalesLine);
                     CheckSalesDimValuePostingLine(SalesLine);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -393,7 +393,7 @@ codeunit 481 "Check Dimensions"
         exit(true);
     end;
 
-    [EventSubscriber(ObjectType::Page, 700, 'OnDrillDownSource', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Error Messages", 'OnDrillDownSource', '', false, false)]
     local procedure OnErrorMessageDrillDown(ErrorMessage: Record "Error Message"; SourceFieldNo: Integer; var IsHandled: Boolean)
     begin
         if not IsHandled then
@@ -424,7 +424,7 @@ codeunit 481 "Check Dimensions"
     begin
     end;
 
-    [EventSubscriber(ObjectType::Page, 700, 'OnOpenRelatedRecord', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Error Messages", 'OnOpenRelatedRecord', '', false, false)]
     local procedure OnOpenRelatedRecord(ErrorMessage: Record "Error Message"; var IsHandled: Boolean)
     var
         PageManagement: Codeunit "Page Management";

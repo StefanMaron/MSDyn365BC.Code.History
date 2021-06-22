@@ -725,6 +725,17 @@ page 5905 "Service Lines"
                             CurrPage.Update(true);
                         end;
                     }
+                    action(Lot)
+                    {
+                        ApplicationArea = ItemTracking;
+                        Caption = 'Lot';
+                        Image = LotInfo;
+                        RunObject = Page "Item Availability by Lot No.";
+                        RunPageLink = "No." = field("No."),
+                            "Location Filter" = field("Location Code"),
+                            "Variant Filter" = field("Variant Code");
+                        ToolTip = 'View the current and projected quantity of the item in each lot.';
+                    }
                     action("BOM Level")
                     {
                         ApplicationArea = Planning;
@@ -1050,7 +1061,7 @@ page 5905 "Service Lines"
                                 TempServLine.Init();
                                 TempServLine := ServLine;
                                 TempServLine.Insert();
-                            until ServLine.Next = 0
+                            until ServLine.Next() = 0
                         else
                             exit;
 
@@ -1089,7 +1100,7 @@ page 5905 "Service Lines"
                                 TempServLine.Init();
                                 TempServLine := ServLine;
                                 if TempServLine.Insert() then;
-                            until Next = 0
+                            until Next() = 0
                         else
                             exit;
 
@@ -1108,13 +1119,13 @@ page 5905 "Service Lines"
 
     trigger OnDeleteRecord(): Boolean
     var
-        ReserveServLine: Codeunit "Service Line-Reserve";
+        ServiceLineReserve: Codeunit "Service Line-Reserve";
     begin
         if (Quantity <> 0) and ItemExists("No.") then begin
             Commit();
-            if not ReserveServLine.DeleteLineConfirm(Rec) then
+            if not ServiceLineReserve.DeleteLineConfirm(Rec) then
                 exit(false);
-            ReserveServLine.DeleteLine(Rec);
+            ServiceLineReserve.DeleteLine(Rec);
         end;
     end;
 

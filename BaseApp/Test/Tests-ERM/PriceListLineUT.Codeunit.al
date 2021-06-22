@@ -2,7 +2,6 @@ codeunit 134123 "Price List Line UT"
 {
     Subtype = Test;
     TestPermissions = Disabled;
-    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     begin
@@ -39,6 +38,8 @@ codeunit 134123 "Price List Line UT"
         ItemDiscGroupMustNotBePurchaseErr: Label 'Product Type must not be Item Discount Group';
         LineSourceTypeErr: Label 'cannot be set to %1 if the header''s source type is %2.', Comment = '%1 and %2 - the source type value.';
         SourceTypeMustBeErr: Label 'Applies-to Type must be equal to ''%1''', Comment = '%1 - source type value';
+        SourceNoMustBeFilledErr: Label 'Applies-to No. must have a value';
+        SourceNoMustBeBlankErr: Label 'Applies-to No. must be equal to ''''';
         CannotDeleteActivePriceListLineErr: Label 'You cannot delete the active price list line %1 %2.', Comment = '%1 - the price list code, %2 - line no';
         IsInitialized: Boolean;
 
@@ -279,41 +280,6 @@ codeunit 134123 "Price List Line UT"
         PriceListLine.TestField("Allow Line Disc.", PriceListHeader."Allow Line Disc.");
         PriceListLine.TestField("Price Includes VAT", PriceListHeader."Price Includes VAT");
         PriceListLine.TestField("VAT Bus. Posting Gr. (Price)", PriceListHeader."VAT Bus. Posting Gr. (Price)");
-    end;
-
-    [Test]
-    procedure T009_CannotDeleteActiveLine()
-    var
-        PriceListLine: Record "Price List Line";
-    begin
-        Initialize();
-        // [GIVEN] Price line, where Status is Draft
-        PriceListLine."Price List Code" := LibraryUtility.GenerateGUID();
-        PriceListLine.Status := PriceListLine.Status::Draft;
-        PriceListLine."Line No." := 0;
-        PriceListLine.Insert();
-
-        // [WHEN] Delete line with status Draft
-        // [THEN] line is deleted
-        Assert.IsTrue(PriceListLine.Delete(true), 'Draft line not deleted');
-
-        // [GIVEN] Price line, where Status is Inactive
-        PriceListLine.Status := PriceListLine.Status::Inactive;
-        PriceListLine."Line No." := 0;
-        PriceListLine.Insert();
-        // [WHEN] Delete line with status Inactive
-        // [THEN] line is deleted
-        Assert.IsTrue(PriceListLine.Delete(true), 'Draft line not deleted');
-
-        // [GIVEN] Price line, where Status is Active
-        PriceListLine.Status := PriceListLine.Status::Active;
-        PriceListLine."Line No." := 0;
-        PriceListLine.Insert();
-
-        // [WHEN] Delete line with status Active
-        asserterror PriceListLine.Delete(true);
-        // [THEN] Error message: 'Caanot delete active line...'
-        Assert.ExpectedError(StrSubstNo(CannotDeleteActivePriceListLineErr, PriceListLine."Price List Code", PriceListLine."Line No."));
     end;
 
     [Test]
@@ -951,7 +917,7 @@ codeunit 134123 "Price List Line UT"
     var
         PriceListLine: Record "Price List Line";
     begin
-        // [SCENARIO] Price List should be editable only if Status is Draft.
+        // [SCENARIO] Price List line should be editable only if Status is 'Draft'.
         Initialize();
 
         PriceListLine.Status := PriceListLine.Status::Draft;
@@ -965,6 +931,85 @@ codeunit 134123 "Price List Line UT"
     end;
 
     [Test]
+    procedure T051_ActiveIsEditableIfEditingAllowed()
+    var
+        PriceListLine: Record "Price List Line";
+    begin
+        // [FEATURE] [Allow Editing Active Price]
+        // [SCENARIO] Price List line should be editable only if Status is 'Draft' or 'Active' and "Allow Editing Active Price" is on.
+        Initialize();
+        // [GIVEN] Allow Editing Active Purchase Price
+        LibraryPriceCalculation.AllowEditingActivePurchPrice();
+
+        PriceListLine."Price Type" := "Price Type"::Purchase;
+        PriceListLine.Status := PriceListLine.Status::Draft;
+        Assert.IsTrue(PriceListLine.IsEditable(), 'Draft');
+
+        PriceListLine.Status := PriceListLine.Status::Active;
+        Assert.IsTrue(PriceListLine.IsEditable(), 'Active');
+
+        PriceListLine.Status := PriceListLine.Status::Inactive;
+        Assert.IsFalse(PriceListLine.IsEditable(), 'Inactive')
+    end;
+
+    [Test]
+    procedure T055_CannotDeleteActiveLine()
+    var
+        PriceListLine: Record "Price List Line";
+    begin
+        Initialize();
+        // [GIVEN] Price line, where Status is Draft
+        PriceListLine."Price List Code" := LibraryUtility.GenerateGUID();
+        PriceListLine.Status := PriceListLine.Status::Draft;
+        PriceListLine."Line No." := 0;
+        PriceListLine.Insert();
+
+        // [WHEN] Delete line with status Draft
+        // [THEN] line is deleted
+        Assert.IsTrue(PriceListLine.Delete(true), 'Draft line not deleted');
+
+        // [GIVEN] Price line, where Status is Inactive
+        PriceListLine.Status := PriceListLine.Status::Inactive;
+        PriceListLine."Line No." := 0;
+        PriceListLine.Insert();
+        // [WHEN] Delete line with status Inactive
+        // [THEN] line is deleted
+        Assert.IsTrue(PriceListLine.Delete(true), 'Draft line not deleted');
+
+        // [GIVEN] Price line, where Status is Active
+        PriceListLine.Status := PriceListLine.Status::Active;
+        PriceListLine."Line No." := 0;
+        PriceListLine.Insert();
+
+        // [WHEN] Delete line with status Active
+        asserterror PriceListLine.Delete(true);
+        // [THEN] Error message: 'Caanot delete active line...'
+        Assert.ExpectedError(StrSubstNo(CannotDeleteActivePriceListLineErr, PriceListLine."Price List Code", PriceListLine."Line No."));
+    end;
+
+    [Test]
+    procedure T056_CanDeleteActiveLineIfEditingAllowed()
+    var
+        PriceListLine: Record "Price List Line";
+    begin
+        // [FEATURE] [Allow Editing Active Price]
+        Initialize();
+        // [GIVEN] Allow Editing Active Sales Price
+        LibraryPriceCalculation.AllowEditingActiveSalesPrice();
+        // [GIVEN] Price line, where Status is Active
+        PriceListLine."Price List Code" := LibraryUtility.GenerateGUID();
+        PriceListLine."Price Type" := "Price Type"::Sale;
+        PriceListLine.Status := PriceListLine.Status::Active;
+        PriceListLine."Line No." := 0;
+        PriceListLine.Insert();
+
+        // [WHEN] Delete line with status Active
+        PriceListLine.Delete(true);
+        // [THEN] Line is deleted
+        Assert.IsFalse(PriceListLine.Find(), 'must be deleted');
+    end;
+
+    [Test]
     procedure T060_CopyCustomerHeaderToAllCustomersLine()
     var
         PriceListHeader: Record "Price List Header";
@@ -972,9 +1017,11 @@ codeunit 134123 "Price List Line UT"
     begin
         Initialize();
 
-        // [GIVEN] Header, where "Price Source Type" is "Customer" 'X'
+        // [GIVEN] Header, where "Price Source Type" is "Customer" 'X', Status 'Active'
         LibraryPriceCalculation.CreatePriceHeader(
             PriceListHeader, "Price Type"::Sale, "Price Source Type"::Customer, LibrarySales.CreateCustomerNo());
+        PriceListHeader.Status := "Price Status"::Active;
+        PriceListHeader.Modify();
 
         // [GIVEN] Line, where "Price Source Type" is "All Customers"
         LibraryPriceCalculation.CreateSalesPriceLine(
@@ -983,9 +1030,10 @@ codeunit 134123 "Price List Line UT"
         // [WHEN] Copy Header to Line
         PriceListLine.CopyFrom(PriceListHeader);
 
-        // [THEN] Line, where "Price Source Type" is "Customer" 'X'
+        // [THEN] Line, where "Price Source Type" is "Customer" 'X', Status is 'Draft'
         PriceListLine.TestField("Source Type", PriceListHeader."Source Type");
         PriceListLine.TestField("Source No.", PriceListHeader."Source No.");
+        PriceListLine.TestField(Status, "Price Status"::Draft);
     end;
 
     [Test]
@@ -1098,6 +1146,44 @@ codeunit 134123 "Price List Line UT"
         PriceListLine.TestField("Price Type", PriceListHeader."Price Type");
         PriceListLine.TestField("Amount Type", PriceListHeader."Amount Type");
         PriceListLine.TestField("Unit Price", 0);
+    end;
+
+    [Test]
+    procedure T070_VerifySourceForSourceAllLocationsSourceFilled()
+    var
+        PriceListLine: Record "Price List Line";
+    begin
+        // [FEATURE] [Price Source Type] [Extended]
+        // [SCENARIO] Verify sournce in the line fails on inconsistent source: Applies-to No. is filled.
+        Initialize();
+        // [GIVEN] New price list line, where "Source Type"::"All Locations", "Source No." is 'X'
+        PriceListLine."Source Type" := "Price Source Type"::"All Locations";
+        PriceListLine."Source No." := 'X';
+
+        // [WHEN] Set "Status" as 'Active' and answer 'Yes'
+        asserterror PriceListLine.VerifySource();
+
+        // [THEN] Error: "Applies-to No. must be equal to ''''"
+        Assert.ExpectedError(SourceNoMustBeBlankErr);
+    end;
+
+    [Test]
+    procedure T071_VerifySourceForSourceLocationSourceBlank()
+    var
+        PriceListLine: Record "Price List Line";
+    begin
+        // [FEATURE] [Price Source Type] [Extended]
+        // [SCENARIO] Verify sournce in the line fails on inconsistent source: Applies-to No. is blank.
+        Initialize();
+        // [GIVEN] New price list line, where "Source Type"::"Location", "Source No." is <blank>
+        PriceListLine."Source Type" := "Price Source Type"::Location;
+        PriceListLine."Source No." := '';
+
+        // [WHEN] Verify source
+        asserterror PriceListLine.VerifySource();
+
+        // [THEN] Error: "Applies-to No. must have a value"
+        Assert.ExpectedError(SourceNoMustBeFilledErr);
     end;
 
     [Test]
@@ -2178,12 +2264,10 @@ codeunit 134123 "Price List Line UT"
         JobTask: Record "Job Task";
         PriceListHeader: Record "Price List Header";
         PriceListLine: Record "Price List Line";
-        PriceListLineUT: Codeunit "Price List Line UT";
         SalesPriceList: TestPage "Sales Price List";
     begin
         // [FEATURE] [Source] [Job Task] [Allow Updating Defaults]
         Initialize(true);
-        BindSubscription(PriceListLineUT); // to subscribe to OnAfterSetSubFormLinkFilter
         PriceListHeader.DeleteAll();
         PriceListLine.DeleteAll();
         // [GIVEN] Job Task 'JT', where Job is 'J'
@@ -2220,12 +2304,10 @@ codeunit 134123 "Price List Line UT"
         JobTask: Record "Job Task";
         PriceListHeader: Record "Price List Header";
         PriceListLine: Record "Price List Line";
-        PriceListLineUT: Codeunit "Price List Line UT";
         SalesPriceList: TestPage "Sales Price List";
     begin
         // [FEATURE] [Source] [Job Task] [Allow Updating Defaults]
         Initialize(true);
-        BindSubscription(PriceListLineUT); // to subscribe to OnAfterSetSubFormLinkFilter
         PriceListHeader.DeleteAll();
         PriceListLine.DeleteAll();
         // [GIVEN] Job Task 'JT', where Job is 'J'
@@ -2260,12 +2342,10 @@ codeunit 134123 "Price List Line UT"
         JobTask: Record "Job Task";
         PriceListHeader: Record "Price List Header";
         PriceListLine: Record "Price List Line";
-        PriceListLineUT: Codeunit "Price List Line UT";
         SalesPriceList: TestPage "Sales Price List";
     begin
         // [FEATURE] [Source] [Job Task] [Allow Updating Defaults]
         Initialize(true);
-        BindSubscription(PriceListLineUT); // to subscribe to OnAfterSetSubFormLinkFilter
         PriceListHeader.DeleteAll();
         PriceListLine.DeleteAll();
         // [GIVEN] Job Task 'JT', where Job is 'J1' (added to have two tasks with the same "Job Task No.", but diff "Job No.")
@@ -2306,12 +2386,10 @@ codeunit 134123 "Price List Line UT"
         JobTask: Record "Job Task";
         PriceListHeader: Record "Price List Header";
         PriceListLine: Record "Price List Line";
-        PriceListLineUT: Codeunit "Price List Line UT";
         SalesPriceList: TestPage "Sales Price List";
     begin
         // [FEATURE] [Source] [Job Task] [Allow Updating Defaults]
         Initialize(true);
-        BindSubscription(PriceListLineUT); // to subscribe to OnAfterSetSubFormLinkFilter
         PriceListHeader.DeleteAll();
         PriceListLine.DeleteAll();
         // [GIVEN] Job Task 'JT', where Job is 'J'
@@ -2350,12 +2428,10 @@ codeunit 134123 "Price List Line UT"
         JobTask: Record "Job Task";
         PriceListHeader: Record "Price List Header";
         PriceListLine: Record "Price List Line";
-        PriceListLineUT: Codeunit "Price List Line UT";
         SalesPriceList: TestPage "Sales Price List";
     begin
         // [FEATURE] [Source] [Job Task] [Allow Updating Defaults]
         Initialize(true);
-        BindSubscription(PriceListLineUT); // to subscribe to OnAfterSetSubFormLinkFilter
         PriceListHeader.DeleteAll();
         PriceListLine.DeleteAll();
         // [GIVEN] Job Task 'JT', where Job is 'J'
@@ -2388,12 +2464,10 @@ codeunit 134123 "Price List Line UT"
         JobTask: Record "Job Task";
         PriceListHeader: Record "Price List Header";
         PriceListLine: Record "Price List Line";
-        PriceListLineUT: Codeunit "Price List Line UT";
         SalesPriceList: TestPage "Sales Price List";
     begin
         // [FEATURE] [Source] [Job Task] [Allow Updating Defaults]
         Initialize(true);
-        BindSubscription(PriceListLineUT); // to subscribe to OnAfterSetSubFormLinkFilter
         PriceListHeader.DeleteAll();
         PriceListLine.DeleteAll();
         // [GIVEN] Job Task 'JT', where Job is 'J'
@@ -2673,17 +2747,5 @@ codeunit 134123 "Price List Line UT"
     begin
         JobTaskList.Filter.SetFilter("Job Task No.", LibraryVariableStorage.DequeueText());
         JobTaskList.OK().Invoke();
-    end;
-
-    [EventSubscriber(ObjectType::Page, Page::"Price List Lines", 'OnAfterSetSubFormLinkFilter', '', false, false)]
-    local procedure OnAfterSetSalesSubFormLinkFilter(var Sender: Page "Price List Lines"; var SkipActivate: Boolean);
-    begin
-        SkipActivate := true;
-    end;
-
-    [EventSubscriber(ObjectType::Page, Page::"Purchase Price List Lines", 'OnAfterSetSubFormLinkFilter', '', false, false)]
-    local procedure OnAfterSetPurchSubFormLinkFilter(var Sender: Page "Purchase Price List Lines"; var SkipActivate: Boolean);
-    begin
-        SkipActivate := true;
     end;
 }

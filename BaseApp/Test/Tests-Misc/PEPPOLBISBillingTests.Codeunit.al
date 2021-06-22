@@ -18,7 +18,6 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         Assert: Codeunit Assert;
-        UsageRef: Option "Sales Invoice","Sales Credit Memo","Sales Validation","Service Invoice","Service Credit Memo","Service Validation","Job Quote";
         IsInitialized: Boolean;
 
     [Test]
@@ -1139,7 +1138,7 @@ codeunit 139145 "PEPPOL BIS BillingTests"
         exit(Currency.Code);
     end;
 
-    local procedure CreateElectronicDocumentFormatSetup(NewCode: Code[20]; NewUsage: Option; NewCodeunitID: Integer): Code[20]
+    local procedure CreateElectronicDocumentFormatSetup(NewCode: Code[20]; NewUsage: Enum "Electronic Document Format Usage"; NewCodeunitID: Integer): Code[20]
     var
         ElectronicDocumentFormat: Record "Electronic Document Format";
     begin
@@ -1157,28 +1156,28 @@ codeunit 139145 "PEPPOL BIS BillingTests"
     begin
         exit(
           CreateElectronicDocumentFormatSetup(
-            LibraryUtility.GenerateGUID, UsageRef::"Sales Invoice", CODEUNIT::"Exp. Sales Inv. PEPPOL BIS3.0"));
+            LibraryUtility.GenerateGUID, "Electronic Document Format Usage"::"Sales Invoice", CODEUNIT::"Exp. Sales Inv. PEPPOL BIS3.0"));
     end;
 
     local procedure CreateBISElectronicDocumentFormatSalesCrMemo(): Code[20]
     begin
         exit(
           CreateElectronicDocumentFormatSetup(
-            LibraryUtility.GenerateGUID, UsageRef::"Sales Credit Memo", CODEUNIT::"Exp. Sales CrM. PEPPOL BIS3.0"));
+            LibraryUtility.GenerateGUID, "Electronic Document Format Usage"::"Sales Credit Memo", CODEUNIT::"Exp. Sales CrM. PEPPOL BIS3.0"));
     end;
 
     local procedure CreateBISElectronicDocumentFormatServiceInvoice(): Code[20]
     begin
         exit(
           CreateElectronicDocumentFormatSetup(
-            LibraryUtility.GenerateGUID, UsageRef::"Service Invoice", CODEUNIT::"Exp. Serv.Inv. PEPPOL BIS3.0"));
+            LibraryUtility.GenerateGUID, "Electronic Document Format Usage"::"Service Invoice", CODEUNIT::"Exp. Serv.Inv. PEPPOL BIS3.0"));
     end;
 
     local procedure CreateBISElectronicDocumentFormatServiceCrMemo(): Code[20]
     begin
         exit(
           CreateElectronicDocumentFormatSetup(
-            LibraryUtility.GenerateGUID, UsageRef::"Service Credit Memo", CODEUNIT::"Exp. Serv.CrM. PEPPOL BIS3.0"));
+            LibraryUtility.GenerateGUID, "Electronic Document Format Usage"::"Service Credit Memo", CODEUNIT::"Exp. Serv.CrM. PEPPOL BIS3.0"));
     end;
 
     local procedure ConfigureVATPostingSetup()

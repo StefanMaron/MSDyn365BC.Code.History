@@ -213,13 +213,13 @@ codeunit 5506 "Graph Mgt - Sales Quote Buffer"
         if SalesHeader.FindSet then
             repeat
                 InsertOrModifyFromSalesHeader(SalesHeader);
-            until SalesHeader.Next = 0;
+            until SalesHeader.Next() = 0;
 
         if SalesQuoteEntityBuffer.FindSet(true, false) then
             repeat
                 if not SalesHeader.Get(SalesHeader."Document Type"::Quote, SalesQuoteEntityBuffer."No.") then
                     SalesQuoteEntityBuffer.Delete(true);
-            until SalesQuoteEntityBuffer.Next = 0;
+            until SalesQuoteEntityBuffer.Next() = 0;
     end;
 
     local procedure InsertOrModifyFromSalesHeader(var SalesHeader: Record "Sales Header")
@@ -444,7 +444,7 @@ codeunit 5506 "Graph Mgt - Sales Quote Buffer"
             repeat
                 TransferFromSalesLine(SalesInvoiceLineAggregate, SalesQuoteEntityBuffer, SalesLine);
                 SalesInvoiceLineAggregate.Insert(true);
-            until SalesLine.Next = 0;
+            until SalesLine.Next() = 0;
     end;
 
     local procedure TransferFromSalesLine(var SalesInvoiceLineAggregate: Record "Sales Invoice Line Aggregate"; var SalesQuoteEntityBuffer: Record "Sales Quote Entity Buffer"; var SalesLine: Record "Sales Line")
@@ -566,7 +566,7 @@ codeunit 5506 "Graph Mgt - Sales Quote Buffer"
             repeat
                 if not TempNewSalesInvoiceLineAggregate.Get(SalesQuoteEntityBuffer.Id, TempCurrentSalesInvoiceLineAggregate."Line No.") then
                     PropagateDeleteLine(TempCurrentSalesInvoiceLineAggregate);
-            until TempCurrentSalesInvoiceLineAggregate.Next = 0;
+            until TempCurrentSalesInvoiceLineAggregate.Next() = 0;
 
         // Update Lines
         TempNewSalesInvoiceLineAggregate.FindFirst;
@@ -578,7 +578,7 @@ codeunit 5506 "Graph Mgt - Sales Quote Buffer"
                 PropagateInsertLine(TempNewSalesInvoiceLineAggregate, TempAllFieldBuffer)
             else
                 PropagateModifyLine(TempNewSalesInvoiceLineAggregate, TempAllFieldBuffer);
-        until TempNewSalesInvoiceLineAggregate.Next = 0;
+        until TempNewSalesInvoiceLineAggregate.Next() = 0;
 
         SalesQuoteEntityBuffer.Get(SalesQuoteEntityBuffer."No.");
     end;

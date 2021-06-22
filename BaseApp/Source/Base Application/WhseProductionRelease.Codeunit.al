@@ -44,7 +44,7 @@ codeunit 5774 "Whse.-Production Release"
                     CreateWhseRqst(ProdOrderComp, ProdOrder);
                 LocationCode2 := ProdOrderComp."Location Code";
                 OldSignFactor := CurrentSignFactor;
-            until ProdOrderComp.Next = 0;
+            until ProdOrderComp.Next() = 0;
         end;
 
         OnAfterRelease(ProdOrder);
@@ -195,7 +195,7 @@ codeunit 5774 "Whse.-Production Release"
                         (not (Location."Require Pick" and Location."Require Shipment")))
                     then
                         KeepWhseRqst := true;
-                until (ProdOrderComp2.Next = 0) or KeepWhseRqst;
+                until (ProdOrderComp2.Next() = 0) or KeepWhseRqst;
 
             if not KeepWhseRqst then begin
                 if Location."Require Shipment" then
@@ -219,7 +219,7 @@ codeunit 5774 "Whse.-Production Release"
                 WhsePickRqst.SetRange("Document Subtype", Status);
                 WhsePickRqst.SetRange("Location Code", "Location Code");
             end;
-            if not WhsePickRqst.IsEmpty then
+            if not WhsePickRqst.IsEmpty() then
                 WhsePickRqst.DeleteAll(true);
         end;
     end;
@@ -244,7 +244,7 @@ codeunit 5774 "Whse.-Production Release"
                 WhseRqst.SetRange("Source Subtype", Status);
                 WhseRqst.SetRange("Location Code", "Location Code");
             end;
-            if not WhseRqst.IsEmpty then
+            if not WhseRqst.IsEmpty() then
                 WhseRqst.DeleteAll(true);
         end;
     end;

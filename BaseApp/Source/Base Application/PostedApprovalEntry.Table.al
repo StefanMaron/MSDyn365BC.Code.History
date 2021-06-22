@@ -1,6 +1,8 @@
 table 456 "Posted Approval Entry"
 {
     Caption = 'Posted Approval Entry';
+    DrillDownPageId = "Posted Approval Entries";
+    LookupPageId = "Posted Approval Entries";
 
     fields
     {
@@ -62,7 +64,7 @@ table 456 "Posted Approval Entry"
         }
         field(13; Comment; Boolean)
         {
-            CalcFormula = Exist ("Posted Approval Comment Line" WHERE("Table ID" = FIELD("Table ID"),
+            CalcFormula = Exist("Posted Approval Comment Line" WHERE("Table ID" = FIELD("Table ID"),
                                                                       "Document No." = FIELD("Document No.")));
             Caption = 'Comment';
             Editable = false;
@@ -88,17 +90,13 @@ table 456 "Posted Approval Entry"
             Caption = 'Currency Code';
             TableRelation = Currency;
         }
-        field(18; "Approval Type"; Option)
+        field(18; "Approval Type"; Enum "Workflow Approval Type")
         {
             Caption = 'Approval Type';
-            OptionCaption = 'Workflow User Group,Sales Pers./Purchaser,Approver';
-            OptionMembers = "Workflow User Group","Sales Pers./Purchaser",Approver;
         }
-        field(19; "Limit Type"; Option)
+        field(19; "Limit Type"; Enum "Workflow Approval Limit Type")
         {
             Caption = 'Limit Type';
-            OptionCaption = 'Approval Limits,Credit Limits,Request Limits,No Limits';
-            OptionMembers = "Approval Limits","Credit Limits","Request Limits","No Limits";
         }
         field(20; "Available Credit Limit (LCY)"; Decimal)
         {

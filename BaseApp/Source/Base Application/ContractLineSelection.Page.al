@@ -139,7 +139,7 @@ page 6057 "Contract Line Selection"
             if Find('-') then
                 repeat
                     CheckServContractLine;
-                until Next = 0;
+                until Next() = 0;
             CreateServContractLines;
             Commit();
         end;
@@ -245,7 +245,7 @@ page 6057 "Contract Line Selection"
                 ServContractLine.Validate("Line Discount %", TempServItem."Default Contract Discount %");
                 ServContractLine.Insert(true);
                 LineNo := LineNo + 10000;
-            until TempServItem.Next = 0
+            until TempServItem.Next() = 0
     end;
 
     procedure SetSelectionFilter()
@@ -261,7 +261,7 @@ page 6057 "Contract Line Selection"
 
     local procedure SelectionFilterOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
         SetSelectionFilter;
     end;
 

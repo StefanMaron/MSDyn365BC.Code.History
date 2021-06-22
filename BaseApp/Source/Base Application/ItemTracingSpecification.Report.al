@@ -90,7 +90,7 @@ report 6520 "Item Tracing Specification"
 
             trigger OnAfterGetRecord()
             begin
-                if TempTrackEntry.Next = 0 then
+                if TempTrackEntry.Next() = 0 then
                     CurrReport.Skip();
 
                 TransactionDescription := PadStr('', TempTrackEntry.Level, '*') + Format(TempTrackEntry.Description);
@@ -394,7 +394,7 @@ report 6520 "Item Tracing Specification"
             repeat
                 TempTrackEntry := ItemTrackingEntry;
                 TempTrackEntry.Insert();
-            until ItemTrackingEntry.Next = 0;
+            until ItemTrackingEntry.Next() = 0;
     end;
 
     local procedure LookupField(FieldNumber: Integer)

@@ -126,7 +126,7 @@ report 1700 "Deferral Summary - G/L"
                             AmtRecognized := AmtRecognized + PostedDeferralLine."Amount (LCY)"
                         else
                             RemainingAmtDeferred := RemainingAmtDeferred + PostedDeferralLine."Amount (LCY)";
-                    until (PostedDeferralLine.Next = 0);
+                    until (PostedDeferralLine.Next() = 0);
 
                 if GLEntry.Get("Entry No.") then begin
                     GLDocType := GLEntry."Document Type";

@@ -345,16 +345,11 @@ page 30067 "APIV2 - Purchase Order Lines"
     var
         GraphMgtPurchOrderBuffer: Codeunit "Graph Mgt - Purch Order Buffer";
         GraphMgtPurchInvLines: Codeunit "Graph Mgt - Purch. Inv. Lines";
-        UpgradeTag: Codeunit "Upgrade Tag";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
         SysId: Guid;
         DocumentIdFilter: Text;
         IdFilter: Text;
         FilterView: Text;
     begin
-        if not UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetNewPurchaseOrderEntityBufferUpgradeTag()) then
-            Error(SetupNotCompletedErr);
-
         if not LinesLoaded then begin
             FilterView := GetView();
             IdFilter := GetFilter(SystemId);
@@ -408,8 +403,6 @@ page 30067 "APIV2 - Purchase Order Lines"
         ItemDoesNotExistErr: Label 'Item does not exist.';
         AccountDoesNotExistErr: Label 'Account does not exist.';
         CannotChangeLineObjectNoErr: Label 'The value for "lineObjectNumber" cannot be modified.', Comment = 'lineObjectNumber is a field name and should not be translated.';
-        SetupNotCompletedErr: Label 'Data required by the API was not set up. To set up the data, invoke the action from the API Setup page.';
-
 
     local procedure RegisterFieldSet(FieldNo: Integer)
     var

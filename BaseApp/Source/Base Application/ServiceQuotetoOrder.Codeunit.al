@@ -1,4 +1,4 @@
-﻿codeunit 5923 "Service-Quote to Order"
+codeunit 5923 "Service-Quote to Order"
 {
     Permissions = TableData "Loaner Entry" = m,
                   TableData "Service Order Allocation" = rimd;
@@ -55,7 +55,7 @@
         ServCommentLine2: Record "Service Comment Line";
         NoSeriesMgt: Codeunit NoSeriesManagement;
         ServLogMgt: Codeunit ServLogManagement;
-        ReserveServiceLine: Codeunit "Service Line-Reserve";
+        ServiceLineReserve: Codeunit "Service Line-Reserve";
 
     local procedure TestNoSeries()
     begin
@@ -123,7 +123,7 @@
                     ServCommentLine2."No." := "No.";
                     OnBeforeServCommentLineInsert(ServCommentLine2, ServiceHeader, ServOrderHeader);
                     ServCommentLine2.Insert();
-                until ServCommentLine.Next = 0;
+                until ServCommentLine.Next() = 0;
 
             ServOrderAlloc.Reset();
             ServOrderAlloc.SetCurrentKey("Document Type", "Document No.", Status);
@@ -158,7 +158,7 @@
                     OnBeforeServiceItemLineInsert(ServItemLine2, ServItemLine, ServOrderHeader);
                     ServItemLine2.Insert(true);
                     OnAfterInsertServiceLine(ServItemLine2, ServItemLine);
-                until ServItemLine.Next = 0;
+                until ServItemLine.Next() = 0;
 
             UpdateResponseDateTime;
 
@@ -183,7 +183,7 @@
                     ServCommentLine2."Table Subtype" := "Document Type".AsInteger();
                     ServCommentLine2."No." := "No.";
                     ServCommentLine2.Insert();
-                until ServCommentLine.Next = 0;
+                until ServCommentLine.Next() = 0;
 
             ServOrderLine.Reset();
             ServOrderLine.SetRange("Document Type", ServiceHeader."Document Type");
@@ -197,8 +197,8 @@
                     OnBeforeServOrderLineInsert(ServOrderLine2, ServOrderLine, ServOrderHeader);
                     ServOrderLine2.Insert();
                     OnAfterServOrderLineInsert(ServOrderLine2, ServOrderLine);
-                    ReserveServiceLine.TransServLineToServLine(ServOrderLine, ServOrderLine2, ServOrderLine.Quantity);
-                until ServOrderLine.Next = 0;
+                    ServiceLineReserve.TransServLineToServLine(ServOrderLine, ServOrderLine2, ServOrderLine.Quantity);
+                until ServOrderLine.Next() = 0;
 
             ServLogMgt.ServOrderQuoteChanged(ServOrderHeader, ServiceHeader);
             ApprovalsMgmt.CopyApprovalEntryQuoteToOrder(ServiceHeader.RecordId, "No.", RecordId);
@@ -234,7 +234,7 @@
                         if ItemCheckAvail.ServiceInvLineCheck(ServiceOrderLine) then
                             ItemCheckAvail.RaiseUpdateInterruptedError;
                 end;
-            until ServiceQuoteLine.Next = 0;
+            until ServiceQuoteLine.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

@@ -390,7 +390,7 @@ page 9816 "Permission Set by User"
                 end else
                     if AllUsersHavePermission then
                         AllUsersHavePermission := UserHasPermission(Rec, User);
-            until (User.Next = 0) or (PermissionPagesMgt.IsPastColumnRange(i) and not AllUsersHavePermission);
+            until (User.Next() = 0) or (PermissionPagesMgt.IsPastColumnRange(i) and not AllUsersHavePermission);
     end;
 
     local procedure UserHasPermission(var AggregatePermissionSet: Record "Aggregate Permission Set"; var User: Record User): Boolean
@@ -417,7 +417,7 @@ page 9816 "Permission Set by User"
             if User.FindSet then
                 repeat
                     SetUserPermission(User."User Security ID", UserHasPermission);
-                until User.Next = 0;
+                until User.Next() = 0;
         end;
     end;
 

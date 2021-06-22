@@ -569,7 +569,7 @@ codeunit 139183 "CRM Integration Mapping"
 
         VerifyMapping(
           IntegrationTableMapping, DATABASE::Opportunity, DATABASE::"CRM Opportunity", CRMOpportunity.FieldNo(OpportunityId),
-          6, IntegrationTableMapping.Direction::Bidirectional);
+          7, IntegrationTableMapping.Direction::Bidirectional);
         VerifyFieldMapping(IntegrationTableMapping, Opportunity.FieldNo("Salesperson Code"), CRMOpportunity.FieldNo(OwnerId), true);
         VerifyJobQueueEntry(IntegrationTableMapping, 0);
     end;
@@ -868,7 +868,7 @@ codeunit 139183 "CRM Integration Mapping"
         Assert.AreEqual(
           IntegrationTableMapping.Count, TempNameValueBuffer.Count, 'Expected all mappings to be in the prioritized mapping');
         TempNameValueBuffer.Ascending(true);
-        TempNameValueBuffer.FindSet;
+        TempNameValueBuffer.FindSet();
         // [THEN] The prioritized list has salespeople as the first item
         Assert.AreEqual('1', TempNameValueBuffer.Name, 'Expected the first priority to be 1');
         Assert.AreEqual('SALESPEOPLE', TempNameValueBuffer.Value, 'Expected the first priority to be the SALESPEOPLE mapping');
@@ -1810,6 +1810,7 @@ codeunit 139183 "CRM Integration Mapping"
 
     [Test]
     [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmYesHandler,HandleJobQueueuEntriesPage')]
     procedure ResetIntegrationTableMappingConfiguration()
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
@@ -1898,7 +1899,7 @@ codeunit 139183 "CRM Integration Mapping"
 
         VerifyMapping(
                   IntegrationTableMapping, DATABASE::Opportunity, DATABASE::"CRM Opportunity", CRMOpportunity.FieldNo(OpportunityId),
-                  6, IntegrationTableMapping.Direction::Bidirectional);
+                  7, IntegrationTableMapping.Direction::Bidirectional);
         VerifyJobQueueEntry(IntegrationTableMapping, 0);
 
         VerifyMapping(
@@ -1944,6 +1945,7 @@ codeunit 139183 "CRM Integration Mapping"
 
     [Test]
     [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmNoHandler')]
     procedure ResetIntegrationTableMappingConfigurationExtendedPrice()
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
@@ -2032,7 +2034,7 @@ codeunit 139183 "CRM Integration Mapping"
 
         VerifyMapping(
                   IntegrationTableMapping, DATABASE::Opportunity, DATABASE::"CRM Opportunity", CRMOpportunity.FieldNo(OpportunityId),
-                  6, IntegrationTableMapping.Direction::Bidirectional);
+                  7, IntegrationTableMapping.Direction::Bidirectional);
         VerifyJobQueueEntry(IntegrationTableMapping, 0);
 
         VerifyMapping(
@@ -2443,5 +2445,27 @@ codeunit 139183 "CRM Integration Mapping"
     procedure RecallNotificationHandler(var Notification: Notification): Boolean
     begin
     end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmYesHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmNoHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := false;
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure HandleJobQueueuEntriesPage(var JobQueueEntries: TestPage "Job Queue Entries")
+    begin
+        JobQueueEntries.Close();
+    end;
+
 }
 

@@ -166,7 +166,7 @@ page 772 "Inventory Performance"
     local procedure UpdateChart(Period: Option ,Next,Previous)
     begin
         AnalysisReportChartMgt.UpdateChart(
-          Period, AnalysisReportChartSetup, AnalysisReportChartSetup."Analysis Area"::Inventory, Rec, StatusText);
+          Period, AnalysisReportChartSetup, AnalysisReportChartSetup."Analysis Area"::Inventory.AsInteger(), Rec, StatusText);
         Update(CurrPage.BusinessChart);
     end;
 }

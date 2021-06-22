@@ -272,7 +272,7 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
     begin
         RoutingHeader.Get(RoutingNo);
         RoutingLine.SetRange("Routing No.", RoutingHeader."No.");
-        RoutingLine.FindSet;
+        RoutingLine.FindSet();
         repeat
             case RoutingLine.Type of
                 RoutingLine.Type::"Machine Center":

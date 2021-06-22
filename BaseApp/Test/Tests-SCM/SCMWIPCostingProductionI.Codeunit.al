@@ -2243,7 +2243,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         with ProdBOMLine do begin
             SetRange("Production BOM No.", Item."Production BOM No.");
             SetRange(Type, Type::Item);
-            FindSet;
+            FindSet();
             repeat
                 Item.Get("No.");
                 MaterialCost += Item."Single-Level Material Cost";
@@ -2257,7 +2257,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
     begin
         ItemJournalLine.SetRange("Order Type", ItemJournalLine."Order Type"::Production);
         ItemJournalLine.SetRange("Order No.", ProductionOrderNo);
-        ItemJournalLine.FindSet;
+        ItemJournalLine.FindSet();
         repeat
             ItemJournalLine.Validate(Quantity, ItemJournalLine.Quantity + 1);
             ItemJournalLine.Modify(true);
@@ -2272,7 +2272,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         ProductionOrder.Get(ProductionOrder.Status::Released, ProductionOrderNo);
         ItemJournalLine.SetRange("Order Type", ItemJournalLine."Order Type"::Production);
         ItemJournalLine.SetRange("Order No.", ProductionOrderNo);
-        ItemJournalLine.FindSet;
+        ItemJournalLine.FindSet();
         repeat
             ItemJournalLine.Validate("Output Quantity", ProductionOrder.Quantity - 1);
             ItemJournalLine.Modify(true);
@@ -2418,7 +2418,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
     begin
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindSet;
+        PurchaseLine.FindSet();
         repeat
             TempPurchaseLine := PurchaseLine;
             TempPurchaseLine.Insert();
@@ -2478,7 +2478,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         // Select set of G/L Entries for the specified Account.
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", PostingSetupAccount);
-        GLEntry.FindSet;
+        GLEntry.FindSet();
     end;
 
     local procedure CalculateGLEntryTotalAmount(var GLEntry: Record "G/L Entry"; AddnlCurrency: Boolean): Decimal
@@ -2504,13 +2504,13 @@ codeunit 137003 "SCM WIP Costing Production-I"
         // Calculate the sum for required G/L Entries.
         if Positive then begin
             GLEntry.SetFilter(Amount, '>0');
-            GLEntry.FindSet;
+            GLEntry.FindSet();
             // Total amount for positive WIP entries.
             repeat
                 TotalAmount += GLEntry.Amount;
             until GLEntry.Next = 0;
         end else begin
-            GLEntry.FindSet;
+            GLEntry.FindSet();
             // Total amount for WIP Entries except the last G/L entry to exclude the Balancing amount.
             for GLCount := 1 to GLEntry.Count - 1 do begin
                 TotalAmount += GLEntry.Amount;
@@ -2564,7 +2564,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
             ProductionOrder.Get(ProductionOrder.Status::Released, ProductionOrder."No.");
         ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
         ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderComponent.FindSet;
+        ProdOrderComponent.FindSet();
     end;
 
     local procedure ConsumptionValue(ProductionOrderQty: Decimal; ProductionBOMLineQtyPer: Decimal; ItemNo: Code[20]): Decimal
@@ -2745,7 +2745,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         with ProdOrderLine do begin
             SetRange(Status, Status::Finished);
             SetRange("Prod. Order No.", ProductionOrderNo);
-            FindSet;
+            FindSet();
             repeat
                 CostCalculationMgt.CalcProdOrderLineStdCost(
                   ProdOrderLine, 1, LibraryERM.GetUnitAmountRoundingPrecision,
@@ -2759,7 +2759,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
 
     local procedure ItemTotalCostValue(var TempPurchaseLine: Record "Purchase Line" temporary) ItemCost: Decimal
     begin
-        TempPurchaseLine.FindSet;
+        TempPurchaseLine.FindSet();
         repeat
             ItemCost += (TempPurchaseLine."Direct Unit Cost" * TempPurchaseLine."Quantity Received");
         until TempPurchaseLine.Next = 0;
@@ -2770,7 +2770,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
     var
         Item: Record Item;
     begin
-        TempPurchaseLine.FindSet;
+        TempPurchaseLine.FindSet();
         repeat
             Item.Get(TempPurchaseLine."No.");
             if Item."Costing Method" = Item."Costing Method"::Standard then
@@ -2892,7 +2892,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         Item.Get(ItemNo);
         CalculatedAmount := ProductionOrder.Quantity * Item."Last Direct Cost";
         GLEntry.SetFilter(Amount, '<>%1', -Round(CalculatedAmount, 0.01));  // Excluding the balancing cost.
-        GLEntry.FindSet;
+        GLEntry.FindSet();
 
         // Total amount for required WIP entries.
         repeat
@@ -2952,13 +2952,13 @@ codeunit 137003 "SCM WIP Costing Production-I"
         // Calculate the sum for required G/L Entries.
         if Positive then begin
             GLEntry.SetFilter("Additional-Currency Amount", '>0');
-            GLEntry.FindSet;
+            GLEntry.FindSet();
             // Total Additional Currency amount for positive WIP entries.
             repeat
                 ActualAddnlCurrencyAmount += GLEntry."Additional-Currency Amount";
             until GLEntry.Next = 0;
         end else begin
-            GLEntry.FindSet;
+            GLEntry.FindSet();
             // Total Additional currency amount for WIP Entries except the last G/L entry to exclude the Balancing amount.
             for GLCount := 1 to GLEntry.Count - 1 do begin
                 ActualAddnlCurrencyAmount += GLEntry."Additional-Currency Amount";
@@ -3025,7 +3025,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
     begin
         ItemJournalLine.SetRange("Order Type", ItemJournalLine."Order Type"::Production);
         ItemJournalLine.SetRange("Order No.", LibraryVariableStorage.DequeueText);
-        ItemJournalLine.FindSet;
+        ItemJournalLine.FindSet();
         repeat
             CODEUNIT.Run(CODEUNIT::"Item Jnl.-Post Batch", ItemJournalLine);
         until ItemJournalLine.Next = 0;

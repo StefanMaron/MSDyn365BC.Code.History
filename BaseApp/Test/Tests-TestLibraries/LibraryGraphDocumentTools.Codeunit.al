@@ -721,7 +721,7 @@ codeunit 130619 "Library - Graph Document Tools"
           JSONManagement.GetStringPropertyValueFromJObjectByName(JObject, LineTypeFieldNameTxt, objectTypeTxt),
           'Could not find ' + LineTypeFieldNameTxt);
 
-        SalesInvoiceLineAggregate."API Type" := SalesLine.Type.AsInteger();
+        SalesInvoiceLineAggregate."API Type" := SalesLine.Type;
         Assert.AreEqual(xmlConvert.DecodeName(objectTypeTxt), Format(SalesInvoiceLineAggregate."API Type"), 'Wrong value for the API Type');
         Assert.AreEqual(sequenceTxt, Format(SalesLine."Line No."), 'Wrong value for Line No.');
     end;

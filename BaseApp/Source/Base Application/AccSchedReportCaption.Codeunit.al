@@ -5,7 +5,7 @@ codeunit 583 "Acc. Sched. Report Caption"
     begin
     end;
 
-    [EventSubscriber(ObjectType::Page, 682, 'OnGetReportDescription', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Schedule a Report", 'OnGetReportDescription', '', false, false)]
     local procedure OnGetReportDescription(var ReportDescription: Text[250]; RequestPageXml: Text; ReportId: Integer; var IsHandled: Boolean)
     var
         AccScheduleName: Record "Acc. Schedule Name";

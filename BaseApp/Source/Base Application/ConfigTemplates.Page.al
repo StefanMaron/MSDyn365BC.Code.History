@@ -35,6 +35,7 @@ page 1340 "Config Templates"
     {
         area(creation)
         {
+#if not CLEAN18
             action(NewCustomerTemplate)
             {
                 ApplicationArea = All;
@@ -44,6 +45,9 @@ page 1340 "Config Templates"
                 RunPageMode = Create;
                 ToolTip = 'Create a new template for a customer card.';
                 Visible = CreateCustomerActionVisible;
+                ObsoleteReason = 'Action will be removed with other functionality related to "old" templates. Use "Customer Templ. List" page instead.';
+                ObsoleteState = Pending;
+                ObsoleteTag = '18.0';
             }
             action(NewVendorTemplate)
             {
@@ -54,6 +58,9 @@ page 1340 "Config Templates"
                 RunPageMode = Create;
                 ToolTip = 'Create a new template for a vendor card.';
                 Visible = CreateVendorActionVisible;
+                ObsoleteReason = 'Action will be removed with other functionality related to "old" templates. Use "Vendor Templ. List" page instead.';
+                ObsoleteState = Pending;
+                ObsoleteTag = '18.0';
             }
             action(NewItemTemplate)
             {
@@ -64,7 +71,11 @@ page 1340 "Config Templates"
                 RunPageMode = Create;
                 ToolTip = 'Create a new template for an item card.';
                 Visible = CreateItemActionVisible;
+                ObsoleteReason = 'Action will be removed with other functionality related to "old" templates. Use "Item Templ. List" page instead.';
+                ObsoleteState = Pending;
+                ObsoleteTag = '18.0';
             }
+#endif
             action(NewConfigTemplate)
             {
                 ApplicationArea = All;
@@ -91,30 +102,13 @@ page 1340 "Config Templates"
                 ObsoleteTag = '16.0';
 
                 trigger OnAction()
-                var
-                    TempMiniCustomerTemplate: Record "Mini Customer Template" temporary;
-                    TempItemTemplate: Record "Item Template" temporary;
-                    TempMiniVendorTemplate: Record "Mini Vendor Template" temporary;
                 begin
-                    case "Table ID" of
-                        DATABASE::Customer:
-                            begin
-                                TempMiniCustomerTemplate.InitializeTempRecordFromConfigTemplate(TempMiniCustomerTemplate, Rec);
-                                PAGE.Run(PAGE::"Cust. Template Card", TempMiniCustomerTemplate);
-                            end;
-                        DATABASE::Item:
-                            begin
-                                TempItemTemplate.InitializeTempRecordFromConfigTemplate(TempItemTemplate, Rec);
-                                PAGE.Run(PAGE::"Item Template Card", TempItemTemplate);
-                            end;
-                        DATABASE::Vendor:
-                            begin
-                                TempMiniVendorTemplate.InitializeTempRecordFromConfigTemplate(TempMiniVendorTemplate, Rec);
-                                PAGE.Run(PAGE::"Vendor Template Card", TempMiniVendorTemplate);
-                            end;
-                        else
-                            PAGE.Run(PAGE::"Config. Template Header", Rec);
-                    end;
+#if not CLEAN18
+                    if "Table ID" in [Database::Customer, Database::Vendor, Database::Item] then
+                        ShowOldTemplates()
+                    else
+#endif
+                    Page.Run(Page::"Config. Template Header", Rec);
                 end;
             }
             action(Delete)
@@ -184,7 +178,7 @@ page 1340 "Config Templates"
         CreateVendorActionVisible: Boolean;
         CreateItemActionVisible: Boolean;
 
-        local procedure UpdateActionsVisibility()
+    local procedure UpdateActionsVisibility()
     begin
         CreateCustomerActionVisible := false;
         CreateItemActionVisible := false;
@@ -271,5 +265,32 @@ page 1340 "Config Templates"
     begin
         NewMode := true;
     end;
+
+#if not CLEAN18
+    local procedure ShowOldTemplates()
+    var
+        TempMiniCustomerTemplate: Record "Mini Customer Template" temporary;
+        TempItemTemplate: Record "Item Template" temporary;
+        TempMiniVendorTemplate: Record "Mini Vendor Template" temporary;
+    begin
+        case "Table ID" of
+            DATABASE::Customer:
+                begin
+                    TempMiniCustomerTemplate.InitializeTempRecordFromConfigTemplate(TempMiniCustomerTemplate, Rec);
+                    PAGE.Run(PAGE::"Cust. Template Card", TempMiniCustomerTemplate);
+                end;
+            DATABASE::Item:
+                begin
+                    TempItemTemplate.InitializeTempRecordFromConfigTemplate(TempItemTemplate, Rec);
+                    PAGE.Run(PAGE::"Item Template Card", TempItemTemplate);
+                end;
+            DATABASE::Vendor:
+                begin
+                    TempMiniVendorTemplate.InitializeTempRecordFromConfigTemplate(TempMiniVendorTemplate, Rec);
+                    PAGE.Run(PAGE::"Vendor Template Card", TempMiniVendorTemplate);
+                end;
+        end;
+    end;
+#endif
 }
 

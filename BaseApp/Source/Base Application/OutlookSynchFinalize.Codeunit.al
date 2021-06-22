@@ -46,7 +46,7 @@ codeunit 5311 "Outlook Synch. Finalize"
             repeat
                 OSynchUserSetup."Last Synch. Time" := StartSynchTime;
                 OSynchUserSetup.Modify();
-            until OSynchUserSetup.Next = 0;
+            until OSynchUserSetup.Next() = 0;
     end;
 }
 

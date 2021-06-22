@@ -127,7 +127,7 @@ table 482 "Reclas. Dimension Set Buffer"
                 TempDimSetEntry."Dimension Value ID" := ReclasDimSetBuf."Dimension Value ID";
             end;
             TempDimSetEntry.Insert();
-        until ReclasDimSetBuf.Next = 0;
+        until ReclasDimSetBuf.Next() = 0;
         exit(DimMgt.GetDimensionSetID(TempDimSetEntry));
     end;
 

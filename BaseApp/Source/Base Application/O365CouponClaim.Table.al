@@ -187,7 +187,7 @@ table 2115 "O365 Coupon Claim"
         if Next <> 0 then
             repeat
                 CouponCodes += StrSubstNo(', %1', GetCouponPseudoCode);
-            until Next = 0;
+            until Next() = 0;
     end;
 
     procedure GetOffer(): Text

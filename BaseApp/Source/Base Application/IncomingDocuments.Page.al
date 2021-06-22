@@ -100,7 +100,7 @@ page 190 "Incoming Documents"
                         OCRServiceSetup: Record "OCR Service Setup";
                         OCRServiceMgt: Codeunit "OCR Service Mgt.";
                     begin
-                        if not OCRServiceSetup.IsEmpty then
+                        if not OCRServiceSetup.IsEmpty() then
                             HyperLink(OCRServiceMgt.GetStatusHyperLink(Rec));
                     end;
                 }
@@ -283,7 +283,7 @@ page 190 "Incoming Documents"
                     trigger OnAction()
                     begin
                         PAGE.RunModal(PAGE::"OCR Service Setup");
-                        CurrPage.Update;
+                        CurrPage.Update();
                         if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Web then
                             if OCRIsEnabled then begin
                                 OnCloseIncomingDocumentsFromActions(Rec);
@@ -324,7 +324,7 @@ page 190 "Incoming Documents"
                     trigger OnAction()
                     begin
                         IncomingDocumentMultiSelectAction(MultiSelectAction::CreateDocument);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 action(CreateGenJnlLine)
@@ -338,7 +338,7 @@ page 190 "Incoming Documents"
                     trigger OnAction()
                     begin
                         IncomingDocumentMultiSelectAction(MultiSelectAction::CreateGenJnlLineWithDataExchange);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 action(CreateManually)
@@ -830,7 +830,7 @@ page 190 "Incoming Documents"
                     MultiSelectAction::SendToOcr:
                         IncomingDocument.SendToOCR(false);
                 end;
-            until IncomingDocument.Next = 0;
+            until IncomingDocument.Next() = 0;
     end;
 
     local procedure AskUserPermission(ActionName: Option): Boolean
@@ -849,7 +849,7 @@ page 190 "Incoming Documents"
             exit(true);
 
         IncomingDocument.SetFilter("Data Exchange Type", '<>%1', '');
-        if IncomingDocument.IsEmpty then
+        if IncomingDocument.IsEmpty() then
             exit(true);
 
         exit(Confirm(AutomaticProcessingQst));

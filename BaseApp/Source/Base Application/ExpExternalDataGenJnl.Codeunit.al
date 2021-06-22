@@ -1,4 +1,4 @@
-﻿codeunit 1277 "Exp. External Data Gen. Jnl."
+codeunit 1277 "Exp. External Data Gen. Jnl."
 {
     Permissions = TableData "Data Exch." = rimd;
     TableNo = "Data Exch.";

@@ -1,4 +1,4 @@
-﻿codeunit 5406 "Output Jnl.-Expl. Route"
+codeunit 5406 "Output Jnl.-Expl. Route"
 {
     Permissions = TableData "Item Journal Line" = imd,
                   TableData "Prod. Order Line" = r,

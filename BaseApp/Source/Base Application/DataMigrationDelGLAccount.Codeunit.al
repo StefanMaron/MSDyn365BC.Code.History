@@ -40,7 +40,7 @@ codeunit 1812 "Data Migration Del G/L Account"
                 CustomerPostingGroup.Init();
                 CustomerPostingGroup.Code := CustomerCode;
                 CustomerPostingGroup.Insert();
-            until CustomerPostingGroup.Next = 0;
+            until CustomerPostingGroup.Next() = 0;
         Commit();
     end;
 
@@ -57,7 +57,7 @@ codeunit 1812 "Data Migration Del G/L Account"
                 VendorPostingGroup.Init();
                 VendorPostingGroup.Code := VendorCode;
                 VendorPostingGroup.Insert();
-            until VendorPostingGroup.Next = 0;
+            until VendorPostingGroup.Next() = 0;
         Commit();
     end;
 
@@ -74,7 +74,7 @@ codeunit 1812 "Data Migration Del G/L Account"
                 BankAccountPostingGroup.Init();
                 BankAccountPostingGroup.Code := BankAccountCode;
                 BankAccountPostingGroup.Insert();
-            until BankAccountPostingGroup.Next = 0;
+            until BankAccountPostingGroup.Next() = 0;
         Commit();
     end;
 
@@ -87,7 +87,7 @@ codeunit 1812 "Data Migration Del G/L Account"
             repeat
                 GenJournalBatch."Bal. Account No." := '';
                 GenJournalBatch.Modify();
-            until GenJournalBatch.Next = 0;
+            until GenJournalBatch.Next() = 0;
         Commit();
     end;
 
@@ -107,7 +107,7 @@ codeunit 1812 "Data Migration Del G/L Account"
                 GenPostingSetup."Gen. Bus. Posting Group" := GenBusPostingGroup;
                 GenPostingSetup."Gen. Prod. Posting Group" := GenProdPostingGroup;
                 GenPostingSetup.Insert();
-            until GenPostingSetup.Next = 0;
+            until GenPostingSetup.Next() = 0;
         Commit();
     end;
 
@@ -120,7 +120,7 @@ codeunit 1812 "Data Migration Del G/L Account"
             repeat
                 PaymentMethod."Bal. Account No." := '';
                 PaymentMethod.Modify();
-            until PaymentMethod.Next = 0;
+            until PaymentMethod.Next() = 0;
         Commit();
     end;
 
@@ -140,7 +140,7 @@ codeunit 1812 "Data Migration Del G/L Account"
                 InventoryPostingSetup."Location Code" := LocationCode;
                 InventoryPostingSetup."Invt. Posting Group Code" := InvPostingGroupCode;
                 InventoryPostingSetup.Insert();
-            until InventoryPostingSetup.Next = 0;
+            until InventoryPostingSetup.Next() = 0;
         Commit();
     end;
 
@@ -158,7 +158,7 @@ codeunit 1812 "Data Migration Del G/L Account"
                 TaxSetup."Reverse Charge (Purchases)" := '';
                 TaxSetup."Unreal. Rev. Charge (Purch.)" := '';
                 TaxSetup.Modify();
-            until TaxSetup.Next = 0;
+            until TaxSetup.Next() = 0;
         Commit();
     end;
 
@@ -174,7 +174,7 @@ codeunit 1812 "Data Migration Del G/L Account"
                     AccScheduleLine.Modify();
                 end
                   ;
-            until AccScheduleLine.Next = 0;
+            until AccScheduleLine.Next() = 0;
         Commit();
     end;
 
@@ -196,7 +196,7 @@ codeunit 1812 "Data Migration Del G/L Account"
                 Currency."Conv. LCY Rndg. Credit Acc." := '';
                 Currency."Conv. LCY Rndg. Debit Acc." := '';
                 Currency.Modify();
-            until Currency.Next = 0;
+            until Currency.Next() = 0;
         Commit();
     end;
 

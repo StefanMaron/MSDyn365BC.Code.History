@@ -370,10 +370,9 @@ codeunit 139165 "Integration Table Synch. Test"
         IntegrationTableSynch.Synchronize(SourceRecordRef, DestinationRecordRef, false, false);
 
         // [THEN] 0 record is skipped in a sync job
-        IntegrationSynchJob.FindFirst;
         Assert.AreEqual(0, IntegrationSynchJob.Skipped, 'Expected 0 record to skip');
 
-        // [WHEN] Running the Table Sync another time
+        // [WHEN] We run the Table Sync another time
         IntegrationTableSynch.Synchronize(SourceRecordRef, DestinationRecordRef, false, false);
 
         // [THEN] 1 record is skipped in the sync job
@@ -381,11 +380,82 @@ codeunit 139165 "Integration Table Synch. Test"
         Assert.AreEqual(1, IntegrationSynchJob.Skipped, 'Expected 1 record to skip');
 
         IntTableSynchSubscriber.VerifyCallbackCounters(0, 0, 0, 0, 0, 0);
+
     end;
 
     [Test]
     [Scope('OnPrem')]
-    procedure AutoResolveDeletedRecordRemoveCoupling()
+    procedure AutoResolveDeletedRecordRemoveCouplingBidirectionalOnlyCoupled()
+    var
+        TempIntegrationTableMapping: Record "Integration Table Mapping" temporary;
+    begin
+        AutoResolveDeletedRecordRemoveCoupling(true, TempIntegrationTableMapping.Direction::Bidirectional);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AutoResolveDeletedRecordRemoveCouplingBidirectionalAll()
+    var
+        TempIntegrationTableMapping: Record "Integration Table Mapping" temporary;
+    begin
+        AutoResolveDeletedRecordRemoveCoupling(false, TempIntegrationTableMapping.Direction::Bidirectional);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AutoResolveDeletedRecordRemoveCouplingUnidirectionalOnlyCoupled()
+    var
+        TempIntegrationTableMapping: Record "Integration Table Mapping" temporary;
+    begin
+        AutoResolveDeletedRecordRemoveCoupling(true, TempIntegrationTableMapping.Direction::FromIntegrationTable);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AutoResolveDeletedRecordRemoveCouplingUnidirectionalAll()
+    var
+        TempIntegrationTableMapping: Record "Integration Table Mapping" temporary;
+    begin
+        AutoResolveDeletedRecordRemoveCoupling(false, TempIntegrationTableMapping.Direction::FromIntegrationTable);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AutoResolveDeletedRecordRestoreRecordsBidirectionalOnlyCoupled()
+    var
+        TempIntegrationTableMapping: Record "Integration Table Mapping" temporary;
+    begin
+        AutoResolveDeletedRecordRestoreRecords(true, TempIntegrationTableMapping.Direction::Bidirectional);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AutoResolveDeletedRecordRestoreRecordsBidirectionalAll()
+    var
+        TempIntegrationTableMapping: Record "Integration Table Mapping" temporary;
+    begin
+        AutoResolveDeletedRecordRestoreRecords(false, TempIntegrationTableMapping.Direction::Bidirectional);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AutoResolveDeletedRecordRestoreRecordsUnidirectionalOnlyCoupled()
+    var
+        TempIntegrationTableMapping: Record "Integration Table Mapping" temporary;
+    begin
+        AutoResolveDeletedRecordRestoreRecords(true, TempIntegrationTableMapping.Direction::FromIntegrationTable);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AutoResolveDeletedRecordRestoreRecordsUnidirectionalAll()
+    var
+        TempIntegrationTableMapping: Record "Integration Table Mapping" temporary;
+    begin
+        AutoResolveDeletedRecordRestoreRecords(false, TempIntegrationTableMapping.Direction::FromIntegrationTable);
+    end;
+
+    local procedure AutoResolveDeletedRecordRemoveCoupling(OnlyCoupled: Boolean; Direction: Option)
     var
         CRMAccount: Record "CRM Account";
         CRMIntegrationRecord: Record "CRM Integration Record";
@@ -419,6 +489,8 @@ codeunit 139165 "Integration Table Synch. Test"
 
         // [WHEN] Remove Coupling startegy is set for deleted coupled records
         IntegrationTableMapping."Deletion-Conflict Resolution" := IntegrationTableMapping."Deletion-Conflict Resolution"::"Remove Coupling";
+        IntegrationTableMapping."Synch. Only Coupled Records" := OnlyCoupled;
+        IntegrationTableMapping.Direction := Direction;
         IntegrationTableMapping.Modify();
 
         // [WHEN] Running the Table Sync
@@ -434,9 +506,7 @@ codeunit 139165 "Integration Table Synch. Test"
         Assert.IsFalse(CRMIntegrationRecord.FindByCRMID(CRMAccount.AccountId), 'The coupling should be deleted by the deletion-conflict resolution strategy.')
     end;
 
-    [Test]
-    [Scope('OnPrem')]
-    procedure AutoResolveDeletedRecordRestoreRecords()
+    local procedure AutoResolveDeletedRecordRestoreRecords(OnlyCoupled: Boolean; Direction: Option)
     var
         CRMAccount: Record "CRM Account";
         CRMIntegrationRecord: Record "CRM Integration Record";
@@ -469,6 +539,8 @@ codeunit 139165 "Integration Table Synch. Test"
 
         // [WHEN] Remove Coupling startegy is set for deleted coupled records
         IntegrationTableMapping."Deletion-Conflict Resolution" := IntegrationTableMapping."Deletion-Conflict Resolution"::"Restore Records";
+        IntegrationTableMapping."Synch. Only Coupled Records" := OnlyCoupled;
+        IntegrationTableMapping.Direction := Direction;
         IntegrationTableMapping.Modify();
 
         // [WHEN] Running the Table Sync
@@ -816,6 +888,7 @@ codeunit 139165 "Integration Table Synch. Test"
     end;
 
     [Test]
+    //Reenabled in https://dynamicssmb2.visualstudio.com/Dynamics%20SMB/_workitems/edit/368425
     [Scope('OnPrem')]
     procedure OneWaySynchIgnoresDestinationChanges()
     var
@@ -934,6 +1007,7 @@ codeunit 139165 "Integration Table Synch. Test"
     end;
 
     [Test]
+    //Reenabled in https://dynamicssmb2.visualstudio.com/Dynamics%20SMB/_workitems/edit/368425
     [Scope('OnPrem')]
     procedure SynchCoupledIntegrationTableRecord()
     var
@@ -1009,6 +1083,7 @@ codeunit 139165 "Integration Table Synch. Test"
     end;
 
     [Test]
+    //Reenabled in https://dynamicssmb2.visualstudio.com/Dynamics%20SMB/_workitems/edit/368425
     [Scope('OnPrem')]
     procedure ForceSynchCoupledIntegrationTableRecord()
     var
@@ -1110,6 +1185,7 @@ codeunit 139165 "Integration Table Synch. Test"
 
     [Test]
     [HandlerFunctions('HandleConfirmYes,HandleMessageOk')]
+    //Reenabled in https://dynamicssmb2.visualstudio.com/Dynamics%20SMB/_workitems/edit/368425
     [Scope('OnPrem')]
     procedure MappingPageInvokeSynchonizeAllClearsModifiedOnDateTimes()
     var
@@ -1119,6 +1195,7 @@ codeunit 139165 "Integration Table Synch. Test"
         IntegrationTableMappingList: TestPage "Integration Table Mapping List";
         LatestModifiedOnBefore: DateTime;
         LatestModifiedOnAfter: DateTime;
+        CustLastModified: DateTime;
     begin
         // [FEATURE] [Modified On] [UI]
         // [SCENARIO] From the mapping table list page select a mapping and choose "Synchronize All"
@@ -1133,7 +1210,8 @@ codeunit 139165 "Integration Table Synch. Test"
         CRMAccount.Modify();
 
         Sleep(1000);
-        Customer."Last Modified Date Time" := CurrentDateTime();
+        CustLastModified := CurrentDateTime();
+        Customer."Last Modified Date Time" := CustLastModified;
         Customer.Modify();
 
         // [GIVEN] Table mapping Synch. Modified On filter is set to a date next year.
@@ -1157,7 +1235,7 @@ codeunit 139165 "Integration Table Synch. Test"
           LatestModifiedOnAfter - 120000, IntegrationTableMapping."Synch. Modified On Filter",
           'Expected the synch. modified on filter to be updated');
         Assert.AreEqual(
-          LatestModifiedOnAfter + 1000, IntegrationTableMapping."Synch. Int. Tbl. Mod. On Fltr.",
+          CustLastModified, IntegrationTableMapping."Synch. Int. Tbl. Mod. On Fltr.",
           'Expected the int. tbl. synch. modified on filter to be updated');
     end;
 
@@ -1212,7 +1290,7 @@ codeunit 139165 "Integration Table Synch. Test"
         // [THEN] Nothing gets inserted or modified;
         IntegrationSynchJob.Reset();
         IntegrationSynchJob.SetCurrentKey("Start Date/Time");
-        IntegrationSynchJob.FindSet;
+        IntegrationSynchJob.FindSet();
         VerifySyncJobTotals(IntegrationSynchJob, 0, 0, 0, 2);
 
         // [WHEN] Running the synchronization a third time
@@ -1223,7 +1301,7 @@ codeunit 139165 "Integration Table Synch. Test"
 
         // [THEN] Nothing gets inserted or modified;
         IntegrationSynchJob.Reset();
-        IntegrationSynchJob.FindSet;
+        IntegrationSynchJob.FindSet();
         VerifySyncJobTotals(IntegrationSynchJob, 0, 0, 0, 1);
     end;
 
@@ -1270,6 +1348,7 @@ codeunit 139165 "Integration Table Synch. Test"
 
     [Test]
     [HandlerFunctions('SelectDirection2,SyncStartedNotificationHandler,RecallNotificationHandler')]
+    //Reenabled in https://dynamicssmb2.visualstudio.com/Dynamics%20SMB/_workitems/edit/368425
     [Scope('OnPrem')]
     procedure TestSynchronizeContactAfterSyncCustomer()
     var
@@ -1942,6 +2021,7 @@ codeunit 139165 "Integration Table Synch. Test"
     end;
 
     [Test]
+    //Reenabled in https://dynamicssmb2.visualstudio.com/Dynamics%20SMB/_workitems/edit/368425
     [Scope('OnPrem')]
     procedure AutomaticConflictResolutionToIntegrationTableAfterBidirectionalFieldChange()
     var
@@ -2004,6 +2084,7 @@ codeunit 139165 "Integration Table Synch. Test"
 
         // [THEN] the synchronization job is scheduled and executed
         Customer.SetRecFilter();
+        //LibraryCRMIntegration.RunJobQueueEntry(DATABASE::Customer, Customer.GetView, IntegrationTableMapping);
 
         // [THEN] Fax number is correct on both sides
         Customer.Find();
@@ -2013,6 +2094,7 @@ codeunit 139165 "Integration Table Synch. Test"
     end;
 
     [Test]
+    //Reenabled in https://dynamicssmb2.visualstudio.com/Dynamics%20SMB/_workitems/edit/368425
     [Scope('OnPrem')]
     procedure AutomaticConflictResolutionFromIntegrationTableAfterBidirectionalFieldChange()
     var
@@ -2075,6 +2157,7 @@ codeunit 139165 "Integration Table Synch. Test"
 
         // [THEN] the synchronization job is scheduled and executed
         CRMAccount.SetRecFilter();
+        //LibraryCRMIntegration.RunJobQueueEntry(DATABASE::"CRM Account", CRMAccount.GetView, IntegrationTableMapping);
 
         // [THEN] Fax number is correct on both sides
         Customer.Find();

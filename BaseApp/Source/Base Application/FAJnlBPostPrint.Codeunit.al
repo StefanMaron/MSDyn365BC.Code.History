@@ -54,7 +54,7 @@ codeunit 5671 "FA. Jnl.-B.Post+Print"
                     Mark(true);
                     JournalWithErrors := true;
                 end;
-            until Next = 0;
+            until Next() = 0;
 
             if not JournalWithErrors then
                 Message(Text001)

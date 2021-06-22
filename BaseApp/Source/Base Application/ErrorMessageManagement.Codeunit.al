@@ -100,12 +100,20 @@ codeunit 28 "Error Message Management"
     [Scope('OnPrem')]
     procedure ShowErrors(Notification: Notification)
     var
-        ErrorMessage: Record "Error Message";
-        TempErrorMessage: Record "Error Message" temporary;
         RegisterID: Guid;
     begin
         if not Evaluate(RegisterID, Notification.GetData('RegisterID')) then
             Clear(RegisterID);
+
+        ShowErrors(RegisterID);
+    end;
+
+    [Scope('OnPrem')]
+    procedure ShowErrors(RegisterID: Guid)
+    var
+        ErrorMessage: Record "Error Message";
+        TempErrorMessage: Record "Error Message" temporary;
+    begin
         ErrorMessage.FilterGroup(2);
         ErrorMessage.SetRange("Register ID", RegisterID);
         ErrorMessage.FilterGroup(0);
@@ -113,7 +121,7 @@ codeunit 28 "Error Message Management"
             repeat
                 TempErrorMessage := ErrorMessage;
                 TempErrorMessage.Insert();
-            until ErrorMessage.Next = 0;
+            until ErrorMessage.Next() = 0;
             TempErrorMessage.ShowErrors;
         end;
     end;

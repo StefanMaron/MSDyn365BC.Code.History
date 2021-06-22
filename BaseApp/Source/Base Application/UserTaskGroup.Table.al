@@ -38,7 +38,7 @@ table 1175 "User Task Group"
     begin
         Message(GroupDeleteActionMsg, Code);
         UserTaskGroupMember.SetRange("User Task Group Code", Code);
-        if not UserTaskGroupMember.IsEmpty then
+        if not UserTaskGroupMember.IsEmpty() then
             UserTaskGroupMember.DeleteAll(true);
     end;
 

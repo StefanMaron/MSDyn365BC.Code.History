@@ -78,7 +78,7 @@ table 5092 Opportunity
                                     Task.Validate("Salesperson Code", "Salesperson Code");
                                     Task.Modify(true);
                                 end;
-                            until Task.Next = 0;
+                            until Task.Next() = 0;
                             Window.Close;
                         end;
 
@@ -90,7 +90,7 @@ table 5092 Opportunity
                         repeat
                             OppEntry."Salesperson Code" := "Salesperson Code";
                             OppEntry.Modify();
-                        until OppEntry.Next = 0;
+                        until OppEntry.Next() = 0;
 
                     Modify;
                 end;
@@ -126,7 +126,7 @@ table 5092 Opportunity
                             repeat
                                 Task."Campaign No." := "Campaign No.";
                                 Task.Modify();
-                            until Task.Next = 0;
+                            until Task.Next() = 0;
 
                     OppEntry.Reset();
                     OppEntry.SetCurrentKey(Active, "Opportunity No.");
@@ -136,7 +136,7 @@ table 5092 Opportunity
                         repeat
                             OppEntry."Campaign No." := "Campaign No.";
                             OppEntry.Modify();
-                        until OppEntry.Next = 0;
+                        until OppEntry.Next() = 0;
 
                     Modify;
                 end;
@@ -223,7 +223,7 @@ table 5092 Opportunity
                                     Task.Validate("Contact No.", "Contact No.");
                                     Task.Modify(true);
                                 end;
-                            until Task.Next = 0;
+                            until Task.Next() = 0;
                             Window.Close;
                         end;
 
@@ -235,7 +235,7 @@ table 5092 Opportunity
                         repeat
                             OppEntry.Validate("Contact No.", "Contact No.");
                             OppEntry.Modify();
-                        until OppEntry.Next = 0;
+                        until OppEntry.Next() = 0;
 
                     Modify;
                 end;
@@ -344,7 +344,7 @@ table 5092 Opportunity
         }
         field(16; Comment; Boolean)
         {
-            CalcFormula = Exist ("Rlshp. Mgt. Comment Line" WHERE("Table Name" = CONST(Opportunity),
+            CalcFormula = Exist("Rlshp. Mgt. Comment Line" WHERE("Table Name" = CONST(Opportunity),
                                                                   "No." = FIELD("No.")));
             Caption = 'Comment';
             Editable = false;
@@ -353,7 +353,7 @@ table 5092 Opportunity
         field(17; "Current Sales Cycle Stage"; Integer)
         {
             BlankZero = true;
-            CalcFormula = Lookup ("Opportunity Entry"."Sales Cycle Stage" WHERE("Opportunity No." = FIELD("No."),
+            CalcFormula = Lookup("Opportunity Entry"."Sales Cycle Stage" WHERE("Opportunity No." = FIELD("No."),
                                                                                 Active = CONST(true)));
             Caption = 'Current Sales Cycle Stage';
             Editable = false;
@@ -362,7 +362,7 @@ table 5092 Opportunity
         field(18; "Estimated Value (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Opportunity Entry"."Estimated Value (LCY)" WHERE("Opportunity No." = FIELD("No."),
+            CalcFormula = Sum("Opportunity Entry"."Estimated Value (LCY)" WHERE("Opportunity No." = FIELD("No."),
                                                                                  Active = CONST(true)));
             Caption = 'Estimated Value (LCY)';
             Editable = false;
@@ -370,7 +370,7 @@ table 5092 Opportunity
         }
         field(19; "Probability %"; Decimal)
         {
-            CalcFormula = Lookup ("Opportunity Entry"."Probability %" WHERE("Opportunity No." = FIELD("No."),
+            CalcFormula = Lookup("Opportunity Entry"."Probability %" WHERE("Opportunity No." = FIELD("No."),
                                                                             Active = CONST(true)));
             Caption = 'Probability %';
             DecimalPlaces = 1 : 1;
@@ -380,7 +380,7 @@ table 5092 Opportunity
         field(20; "Calcd. Current Value (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Opportunity Entry"."Calcd. Current Value (LCY)" WHERE("Opportunity No." = FIELD("No."),
+            CalcFormula = Sum("Opportunity Entry"."Calcd. Current Value (LCY)" WHERE("Opportunity No." = FIELD("No."),
                                                                                       Active = CONST(true)));
             Caption = 'Calcd. Current Value (LCY)';
             Editable = false;
@@ -388,7 +388,7 @@ table 5092 Opportunity
         }
         field(21; "Chances of Success %"; Decimal)
         {
-            CalcFormula = Lookup ("Opportunity Entry"."Chances of Success %" WHERE("Opportunity No." = FIELD("No."),
+            CalcFormula = Lookup("Opportunity Entry"."Chances of Success %" WHERE("Opportunity No." = FIELD("No."),
                                                                                    Active = CONST(true)));
             Caption = 'Chances of Success %';
             DecimalPlaces = 0 : 0;
@@ -397,7 +397,7 @@ table 5092 Opportunity
         }
         field(22; "Completed %"; Decimal)
         {
-            CalcFormula = Lookup ("Opportunity Entry"."Completed %" WHERE("Opportunity No." = FIELD("No."),
+            CalcFormula = Lookup("Opportunity Entry"."Completed %" WHERE("Opportunity No." = FIELD("No."),
                                                                           Active = CONST(true)));
             Caption = 'Completed %';
             DecimalPlaces = 0 : 0;
@@ -406,28 +406,28 @@ table 5092 Opportunity
         }
         field(23; "Contact Name"; Text[100])
         {
-            CalcFormula = Lookup (Contact.Name WHERE("No." = FIELD("Contact No.")));
+            CalcFormula = Lookup(Contact.Name WHERE("No." = FIELD("Contact No.")));
             Caption = 'Contact Name';
             Editable = false;
             FieldClass = FlowField;
         }
         field(24; "Contact Company Name"; Text[100])
         {
-            CalcFormula = Lookup (Contact.Name WHERE("No." = FIELD("Contact Company No.")));
+            CalcFormula = Lookup(Contact.Name WHERE("No." = FIELD("Contact Company No.")));
             Caption = 'Contact Company Name';
             Editable = false;
             FieldClass = FlowField;
         }
         field(25; "Salesperson Name"; Text[50])
         {
-            CalcFormula = Lookup ("Salesperson/Purchaser".Name WHERE(Code = FIELD("Salesperson Code")));
+            CalcFormula = Lookup("Salesperson/Purchaser".Name WHERE(Code = FIELD("Salesperson Code")));
             Caption = 'Salesperson Name';
             Editable = false;
             FieldClass = FlowField;
         }
         field(26; "Campaign Description"; Text[100])
         {
-            CalcFormula = Lookup (Campaign.Description WHERE("No." = FIELD("Campaign No.")));
+            CalcFormula = Lookup(Campaign.Description WHERE("No." = FIELD("Campaign No.")));
             Caption = 'Campaign Description';
             Editable = false;
             FieldClass = FlowField;
@@ -457,7 +457,7 @@ table 5092 Opportunity
         }
         field(28; "Estimated Closing Date"; Date)
         {
-            CalcFormula = Lookup ("Opportunity Entry"."Estimated Close Date" WHERE("Opportunity No." = FIELD("No."),
+            CalcFormula = Lookup("Opportunity Entry"."Estimated Close Date" WHERE("Opportunity No." = FIELD("No."),
                                                                                    Active = CONST(true)));
             Caption = 'Estimated Closing Date';
             Editable = false;
@@ -479,7 +479,7 @@ table 5092 Opportunity
         }
         field(30; "No. of Interactions"; Integer)
         {
-            CalcFormula = Count ("Interaction Log Entry" WHERE("Opportunity No." = FIELD(FILTER("No.")),
+            CalcFormula = Count("Interaction Log Entry" WHERE("Opportunity No." = FIELD(FILTER("No.")),
                                                                Canceled = CONST(false),
                                                                Postponed = CONST(false)));
             Caption = 'No. of Interactions';
@@ -729,7 +729,7 @@ table 5092 Opportunity
                             OppEntry.InsertEntry(OppEntry, false, true);
                             OppEntry.UpdateEstimates;
                         end;
-                    until SegLine.Next = 0;
+                    until SegLine.Next() = 0;
             end;
         end else begin
             Opp.Insert(true);
@@ -767,8 +767,11 @@ table 5092 Opportunity
         Cont: Record Contact;
         ContactBusinessRelation: Record "Contact Business Relation";
         SalesHeader: Record "Sales Header";
-        CustTemplate: Record "Customer Template";
+#if not CLEAN18
+        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
         CustTemplateCode: Code[10];
+#endif
+        NewCustTemplateCode: Code[20];
     begin
         Cont.Get("Contact No.");
 
@@ -786,16 +789,13 @@ table 5092 Opportunity
         if Cont.Type = Cont.Type::Company then begin
             ContactBusinessRelation.SetRange("Contact No.", Cont."No.");
             ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
-            if ContactBusinessRelation.IsEmpty then
-                if GuiAllowed then begin
-                    CustTemplateCode := Cont.ChooseCustomerTemplate;
-                    if CustTemplateCode <> '' then
-                        Cont.CreateCustomer(CustTemplateCode)
-                    else
-                        if Confirm(UpdateSalesQuoteWithCustTemplateQst) then
-                            if PAGE.RunModal(0, CustTemplate) = ACTION::LookupOK then
-                                CustTemplateCode := CustTemplate.Code;
-                end;
+            if ContactBusinessRelation.IsEmpty() then
+#if not CLEAN18
+                if not CustomerTemplMgt.IsEnabled() then
+                    CustTemplateCode := GetOldCustomerTemplateCode(Cont)
+                else
+#endif
+                    NewCustTemplateCode := GetNewCustomerTemplateCode(Cont);
         end;
 
         TestField(Status, Status::"In Progress");
@@ -810,8 +810,14 @@ table 5092 Opportunity
         SalesHeader."Opportunity No." := "No.";
         SalesHeader."Order Date" := GetEstimatedClosingDate;
         SalesHeader."Shipment Date" := SalesHeader."Order Date";
-        if CustTemplateCode <> '' then
-            SalesHeader.Validate("Sell-to Customer Template Code", CustTemplateCode);
+#if not CLEAN18
+        if not CustomerTemplMgt.IsEnabled() then begin
+            if CustTemplateCode <> '' then
+                SalesHeader.Validate("Sell-to Customer Template Code", CustTemplateCode);
+        end else
+#endif
+            if NewCustTemplateCode <> '' then
+                SalesHeader.Validate("Sell-to Customer Templ. Code", NewCustTemplateCode);
         SalesHeader.Modify();
         "Sales Document Type" := "Sales Document Type"::Quote;
         "Sales Document No." := SalesHeader."No.";
@@ -820,6 +826,39 @@ table 5092 Opportunity
         OnCreateQuoteOnBeforePageRun(SalesHeader, Rec);
 
         PAGE.Run(PAGE::"Sales Quote", SalesHeader);
+    end;
+
+#if not CLEAN18
+    local procedure GetOldCustomerTemplateCode(Cont: Record Contact) CustTemplateCode: Code[10]
+    var
+        CustTemplate: Record "Customer Template";
+    begin
+        if GuiAllowed then begin
+            CustTemplateCode := Cont.ChooseCustomerTemplate();
+            if CustTemplateCode <> '' then
+                Cont.CreateCustomer(CustTemplateCode)
+            else
+                if Confirm(UpdateSalesQuoteWithCustTemplateQst) then
+                    if PAGE.RunModal(0, CustTemplate) = ACTION::LookupOK then
+                        CustTemplateCode := CustTemplate.Code;
+        end;
+    end;
+#endif
+
+    local procedure GetNewCustomerTemplateCode(Cont: Record Contact) CustTemplateCode: Code[20]
+    var
+        CustTemplate: Record "Customer Templ.";
+        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
+    begin
+        if GuiAllowed then begin
+            CustTemplateCode := Cont.ChooseNewCustomerTemplate();
+            if CustTemplateCode <> '' then
+                Cont.CreateCustomerFromTemplate(CustTemplateCode)
+            else
+                if Confirm(UpdateSalesQuoteWithCustTemplateQst) then
+                    if CustomerTemplMgt.SelectCustomerTemplate(CustTemplate) then
+                        CustTemplateCode := CustTemplate.Code;
+        end;
     end;
 
     local procedure GetEstimatedClosingDate(): Date
@@ -849,7 +888,7 @@ table 5092 Opportunity
                 RMCommentLine := RMCommentLineTmp;
                 RMCommentLine."No." := OppNo;
                 RMCommentLine.Insert();
-            until RMCommentLineTmp.Next = 0;
+            until RMCommentLineTmp.Next() = 0;
     end;
 
     local procedure CopyCommentLinesFromIntLogEntry(InteractionLogEntry: Record "Interaction Log Entry")
@@ -869,7 +908,7 @@ table 5092 Opportunity
                 RlshpMgtCommentLine.Comment := InterLogEntryCommentLine.Comment;
                 RlshpMgtCommentLine."Last Date Modified" := InterLogEntryCommentLine."Last Date Modified";
                 RlshpMgtCommentLine.Insert();
-            until InterLogEntryCommentLine.Next = 0;
+            until InterLogEntryCommentLine.Next() = 0;
     end;
 
     local procedure StartWizard()
@@ -922,7 +961,7 @@ table 5092 Opportunity
         end;
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
+    [Scope('OnPrem')]
     procedure FinishWizard()
     var
         ActivateFirstStage: Boolean;
@@ -960,7 +999,7 @@ table 5092 Opportunity
             repeat
                 RMCommentLineTmp := RMCommentLine;
                 RMCommentLineTmp.Insert();
-            until RMCommentLine.Next = 0;
+            until RMCommentLine.Next() = 0;
     end;
 
     procedure ShowSalesQuoteWithCheck()
@@ -1022,13 +1061,13 @@ table 5092 Opportunity
                 exit(GetRangeMax("Contact Company No."));
     end;
 
-    [Scope('OnPrem')]
     procedure StartActivateFirstStage()
     var
         SalesCycleStage: Record "Sales Cycle Stage";
         OpportunityEntry: Record "Opportunity Entry";
+        ConfirmManagement: Codeunit "Confirm Management";
     begin
-        if Confirm(ActivateFirstStageQst) then begin
+        if ConfirmManagement.GetResponse(ActivateFirstStageQst, true) then begin
             TestField("Sales Cycle Code");
             TestField(Status, Status::"Not Started");
             SalesCycleStage.SetRange("Sales Cycle Code", "Sales Cycle Code");
@@ -1038,7 +1077,7 @@ table 5092 Opportunity
                 OpportunityEntry."Sales Cycle Stage Description" := SalesCycleStage.Description;
                 OpportunityEntry.InitOpportunityEntry(Rec);
                 OpportunityEntry.InsertEntry(OpportunityEntry, false, true);
-                OpportunityEntry.UpdateEstimates;
+                OpportunityEntry.UpdateEstimates();
             end else
                 Error(SalesCycleNotFoundErr);
         end;

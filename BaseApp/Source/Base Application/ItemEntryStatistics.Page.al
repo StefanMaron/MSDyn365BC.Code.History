@@ -517,7 +517,7 @@ page 304 "Item Entry Statistics"
                 CopyFilter("Variant Filter", PurchLine2."Variant Code");
                 CopyFilter("Location Filter", PurchLine2."Location Code");
                 CopyFilter("Drop Shipment Filter", PurchLine2."Drop Shipment");
-            until PurchLine2.Next = 0;
+            until PurchLine2.Next() = 0;
         end;
 
         SalesLine2.SetCurrentKey(
@@ -553,7 +553,7 @@ page 304 "Item Entry Statistics"
                 CopyFilter("Variant Filter", SalesLine2."Variant Code");
                 CopyFilter("Location Filter", SalesLine2."Location Code");
                 CopyFilter("Drop Shipment Filter", SalesLine2."Drop Shipment");
-            until SalesLine2.Next = 0;
+            until SalesLine2.Next() = 0;
         end;
     end;
 
@@ -588,7 +588,7 @@ page 304 "Item Entry Statistics"
                     Rec.CopyFilter("Variant Filter", ItemLedgEntry2."Variant Code");
                     Rec.CopyFilter("Drop Shipment Filter", ItemLedgEntry2."Drop Shipment");
                     Rec.CopyFilter("Location Filter", ItemLedgEntry2."Location Code");
-                until ItemLedgEntry2.Next = 0;
+                until ItemLedgEntry2.Next() = 0;
         end;
     end;
 
@@ -620,7 +620,7 @@ page 304 "Item Entry Statistics"
                     Rec.CopyFilter("Variant Filter", ValueEntry2."Variant Code");
                     Rec.CopyFilter("Drop Shipment Filter", ValueEntry2."Drop Shipment");
                     Rec.CopyFilter("Location Filter", ValueEntry2."Location Code");
-                until ValueEntry2.Next = 0;
+                until ValueEntry2.Next() = 0;
         end;
     end;
 }

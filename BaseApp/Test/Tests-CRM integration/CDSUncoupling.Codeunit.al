@@ -1255,7 +1255,7 @@ codeunit 139198 "CDS Uncoupling"
         VerifyIntegrationSynchJob(IntegrationSynchJob);
     end;
 
-    //[Test]
+    [Test]
     [Scope('OnPrem')]
     procedure ContactListUncoupleSingle()
     var
@@ -1307,7 +1307,7 @@ codeunit 139198 "CDS Uncoupling"
         VerifyIntegrationSynchJob(IntegrationSynchJob);
     end;
 
-    //[Test]
+    [Test]
     [Scope('OnPrem')]
     procedure ContactCardUncouple()
     var

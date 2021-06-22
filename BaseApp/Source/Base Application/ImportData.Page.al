@@ -45,12 +45,12 @@ page 9900 "Import Data"
                             exit;
 
                         DeleteAll();
-                        ContainsCompanies := Companies.FindSet;
+                        ContainsCompanies := Companies.FindSet();
                         if ContainsCompanies then
                             repeat
                                 Rec := Companies;
                                 Insert;
-                            until Companies.Next = 0;
+                            until Companies.Next() = 0;
 
                         IncludeApplicationData := false;
                         IncludeGlobalData := false;
@@ -77,12 +77,12 @@ page 9900 "Import Data"
                             exit;
 
                         DeleteAll();
-                        ContainsCompanies := Companies.FindSet;
+                        ContainsCompanies := Companies.FindSet();
                         if ContainsCompanies then
                             repeat
                                 Rec := Companies;
                                 Insert;
-                            until Companies.Next = 0;
+                            until Companies.Next() = 0;
 
                         IncludeApplicationData := false;
                         IncludeGlobalData := false;
@@ -244,7 +244,7 @@ page 9900 "Import Data"
                 repeat
                     SelectedCompany := Rec;
                     SelectedCompany.Insert();
-                until Next = 0;
+                until Next() = 0;
 
         CurrPage.Update(false);
     end;

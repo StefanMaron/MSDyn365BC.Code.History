@@ -7,6 +7,9 @@ codeunit 2503 "Extension Operation Impl"
 {
     Access = Internal;
     SingleInstance = false;
+    Permissions = tabledata "NAV App Setting" = rm,
+                  tabledata "NAV App Tenant Operation" = r,
+                  tabledata "Published Application" = r;
 
     var
         DotNetALNavAppOperationInvoker: DotNet ALNavAppOperationInvoker;

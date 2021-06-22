@@ -1979,637 +1979,547 @@ codeunit 134299 "Test Partner Integration Event"
         VerifyDataTypeBuffer(OnBeforeGetAttachmentFileNameTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 11, 'OnAfterCheckGenJnlLine', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterCheckGenJnlLine(var GenJournalLine: Record "Gen. Journal Line")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Check Line", 'OnAfterCheckGenJnlLine', '', false, false)]
+    local procedure OnAfterCheckGenJnlLine(var GenJournalLine: Record "Gen. Journal Line")
     begin
         InsertDataTypeBuffer(OnAfterCheckGenJnlLineTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 12, 'OnBeforePostGenJnlLine', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnBeforePostGenJnlLine(var GenJournalLine: Record "Gen. Journal Line")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Line", 'OnBeforePostGenJnlLine', '', false, false)]
+    local procedure OnBeforePostGenJnlLine(var GenJournalLine: Record "Gen. Journal Line")
     begin
         InsertDataTypeBuffer(OnBeforePostGenJnlLineTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 81, 'OnAfterAccountNoOnValidateGetGLAccount', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterAccountNoOnValidateGetGLAccount(var GenJournalLine: Record "Gen. Journal Line"; var GLAccount: Record "G/L Account")
+    [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterAccountNoOnValidateGetGLAccount', '', false, false)]
+    local procedure OnAfterAccountNoOnValidateGetGLAccount(var GenJournalLine: Record "Gen. Journal Line"; var GLAccount: Record "G/L Account")
     begin
         InsertDataTypeBuffer(OnAfterAccountNoOnValidateGetGLAccountTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 81, 'OnAfterAccountNoOnValidateGetGLBalAccount', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterAccountNoOnValidateGetGLBalAccount(var GenJournalLine: Record "Gen. Journal Line"; var GLAccount: Record "G/L Account")
+    [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterAccountNoOnValidateGetGLBalAccount', '', false, false)]
+    local procedure OnAfterAccountNoOnValidateGetGLBalAccount(var GenJournalLine: Record "Gen. Journal Line"; var GLAccount: Record "G/L Account")
     begin
         InsertDataTypeBuffer(OnAfterAccountNoOnValidateGetGLBalAccountTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 81, 'OnAfterAccountNoOnValidateGetBankAccount', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterAccountNoOnValidateGetBankAccount(var GenJournalLine: Record "Gen. Journal Line"; var BankAccount: Record "Bank Account")
+    [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterAccountNoOnValidateGetBankAccount', '', false, false)]
+    local procedure OnAfterAccountNoOnValidateGetBankAccount(var GenJournalLine: Record "Gen. Journal Line"; var BankAccount: Record "Bank Account")
     begin
         InsertDataTypeBuffer(OnAfterAccountNoOnValidateGetBankAccountTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 81, 'OnAfterAccountNoOnValidateGetBankBalAccount', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterAccountNoOnValidateGetBankBalAccount(var GenJournalLine: Record "Gen. Journal Line"; var BankAccount: Record "Bank Account")
+    [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterAccountNoOnValidateGetBankBalAccount', '', false, false)]
+    local procedure OnAfterAccountNoOnValidateGetBankBalAccount(var GenJournalLine: Record "Gen. Journal Line"; var BankAccount: Record "Bank Account")
     begin
         InsertDataTypeBuffer(OnAfterAccountNoOnValidateGetBankBalAccountTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 81, 'OnAfterAccountNoOnValidateGetCustomerAccount', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterAccountNoOnValidateGetCustomerAccount(var GenJournalLine: Record "Gen. Journal Line"; var Customer: Record Customer)
+    [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterAccountNoOnValidateGetCustomerAccount', '', false, false)]
+    local procedure OnAfterAccountNoOnValidateGetCustomerAccount(var GenJournalLine: Record "Gen. Journal Line"; var Customer: Record Customer)
     begin
         InsertDataTypeBuffer(OnAfterAccountNoOnValidateGetCustomerAccountTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 81, 'OnAfterAccountNoOnValidateGetCustomerBalAccount', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterAccountNoOnValidateGetCustomerBalAccount(var GenJournalLine: Record "Gen. Journal Line"; var Customer: Record Customer)
+    [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterAccountNoOnValidateGetCustomerBalAccount', '', false, false)]
+    local procedure OnAfterAccountNoOnValidateGetCustomerBalAccount(var GenJournalLine: Record "Gen. Journal Line"; var Customer: Record Customer)
     begin
         InsertDataTypeBuffer(OnAfterAccountNoOnValidateGetCustomerBalAccountTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 81, 'OnAfterAccountNoOnValidateGetVendorAccount', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterAccountNoOnValidateGetVendorAccount(var GenJournalLine: Record "Gen. Journal Line"; var Vendor: Record Vendor)
+    [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterAccountNoOnValidateGetVendorAccount', '', false, false)]
+    local procedure OnAfterAccountNoOnValidateGetVendorAccount(var GenJournalLine: Record "Gen. Journal Line"; var Vendor: Record Vendor)
     begin
         InsertDataTypeBuffer(OnAfterAccountNoOnValidateGetVendorAccountTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 81, 'OnAfterAccountNoOnValidateGetVendorBalAccount', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterAccountNoOnValidateGetVendorBalAccount(var GenJournalLine: Record "Gen. Journal Line"; var Vendor: Record Vendor)
+    [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterAccountNoOnValidateGetVendorBalAccount', '', false, false)]
+    local procedure OnAfterAccountNoOnValidateGetVendorBalAccount(var GenJournalLine: Record "Gen. Journal Line"; var Vendor: Record Vendor)
     begin
         InsertDataTypeBuffer(OnAfterAccountNoOnValidateGetVendorBalAccountTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 81, 'OnAfterAccountNoOnValidateGetFAAccount', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterAccountNoOnValidateGetFAAccount(var GenJournalLine: Record "Gen. Journal Line"; var FixedAsset: Record "Fixed Asset")
+    [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterAccountNoOnValidateGetFAAccount', '', false, false)]
+    local procedure OnAfterAccountNoOnValidateGetFAAccount(var GenJournalLine: Record "Gen. Journal Line"; var FixedAsset: Record "Fixed Asset")
     begin
         InsertDataTypeBuffer(OnAfterAccountNoOnValidateGetFAAccountTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 81, 'OnAfterAccountNoOnValidateGetFABalAccount', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterAccountNoOnValidateGetFABalAccount(var GenJournalLine: Record "Gen. Journal Line"; var FixedAsset: Record "Fixed Asset")
+    [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterAccountNoOnValidateGetFABalAccount', '', false, false)]
+    local procedure OnAfterAccountNoOnValidateGetFABalAccount(var GenJournalLine: Record "Gen. Journal Line"; var FixedAsset: Record "Fixed Asset")
     begin
         InsertDataTypeBuffer(OnAfterAccountNoOnValidateGetFABalAccountTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 81, 'OnAfterCopyGenJnlLineFromInvPostBuffer', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterCopyGenJnlLineFromInvPostBuffer(InvoicePostBuffer: Record "Invoice Post. Buffer"; var GenJournalLine: Record "Gen. Journal Line")
+    [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterCopyGenJnlLineFromInvPostBuffer', '', false, false)]
+    local procedure OnAfterCopyGenJnlLineFromInvPostBuffer(InvoicePostBuffer: Record "Invoice Post. Buffer"; var GenJournalLine: Record "Gen. Journal Line")
     begin
         InsertDataTypeBuffer(OnAfterCopyGenJnlLineFromInvPostBufferTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 81, 'OnAfterCopyGenJnlLineFromPrepmtInvBuffer', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterCopyGenJnlLineFromPrepmtInvBuffer(PrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer"; var GenJournalLine: Record "Gen. Journal Line")
+    [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterCopyGenJnlLineFromPrepmtInvBuffer', '', false, false)]
+    local procedure OnAfterCopyGenJnlLineFromPrepmtInvBuffer(PrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer"; var GenJournalLine: Record "Gen. Journal Line")
     begin
         InsertDataTypeBuffer(OnAfterCopyGenJnlLineFromPrepmtInvBufferTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 81, 'OnAfterCopyGenJnlLineFromPurchHeader', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterCopyGenJnlLineFromPurchHeader(PurchaseHeader: Record "Purchase Header"; var GenJournalLine: Record "Gen. Journal Line")
+    [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterCopyGenJnlLineFromPurchHeader', '', false, false)]
+    local procedure OnAfterCopyGenJnlLineFromPurchHeader(PurchaseHeader: Record "Purchase Header"; var GenJournalLine: Record "Gen. Journal Line")
     begin
         InsertDataTypeBuffer(OnAfterCopyGenJnlLineFromPurchHeaderTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 81, 'OnAfterCopyGenJnlLineFromSalesHeader', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterCopyGenJnlLineFromSalesHeader(SalesHeader: Record "Sales Header"; var GenJournalLine: Record "Gen. Journal Line")
+    [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterCopyGenJnlLineFromSalesHeader', '', false, false)]
+    local procedure OnAfterCopyGenJnlLineFromSalesHeader(SalesHeader: Record "Sales Header"; var GenJournalLine: Record "Gen. Journal Line")
     begin
         InsertDataTypeBuffer(OnAfterCopyGenJnlLineFromSalesHeaderTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 12, 'OnAfterInitGLRegister', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterInitGLRegister(var GLRegister: Record "G/L Register"; var GenJournalLine: Record "Gen. Journal Line")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Line", 'OnAfterInitGLRegister', '', false, false)]
+    local procedure OnAfterInitGLRegister(var GLRegister: Record "G/L Register"; var GenJournalLine: Record "Gen. Journal Line")
     begin
         InsertDataTypeBuffer(OnAfterInitGLRegisterTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 12, 'OnAfterInsertGlobalGLEntry', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterInsertGlobalGLEntry(var GLEntry: Record "G/L Entry")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Line", 'OnAfterInsertGlobalGLEntry', '', false, false)]
+    local procedure OnAfterInsertGlobalGLEntry(var GLEntry: Record "G/L Entry")
     begin
         InsertDataTypeBuffer(OnAfterInsertGlobalGLEntryTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 12, 'OnBeforeInsertGLEntryBuffer', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnBeforeInsertGLEntryBuffer(var TempGLEntryBuf: Record "G/L Entry" temporary; var GenJournalLine: Record "Gen. Journal Line")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Line", 'OnBeforeInsertGLEntryBuffer', '', false, false)]
+    local procedure OnBeforeInsertGLEntryBuffer(var TempGLEntryBuf: Record "G/L Entry" temporary; var GenJournalLine: Record "Gen. Journal Line")
     begin
         InsertDataTypeBuffer(OnBeforeInsertGLEntryBufferTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 17, 'OnAfterCopyGLEntryFromGenJnlLine', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterCopyGLEntryFromGenJnlLine(var GLEntry: Record "G/L Entry"; var GenJournalLine: Record "Gen. Journal Line")
+    [EventSubscriber(ObjectType::Table, Database::"G/L Entry", 'OnAfterCopyGLEntryFromGenJnlLine', '', false, false)]
+    local procedure OnAfterCopyGLEntryFromGenJnlLine(var GLEntry: Record "G/L Entry"; var GenJournalLine: Record "Gen. Journal Line")
     begin
         InsertDataTypeBuffer(OnAfterCopyGLEntryFromGenJnlLineTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 21, 'OnAfterCopyCustLedgerEntryFromGenJnlLine', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterCopyCustLedgerEntryFromGenJnlLine(var CustLedgerEntry: Record "Cust. Ledger Entry"; GenJournalLine: Record "Gen. Journal Line")
+    [EventSubscriber(ObjectType::Table, Database::"Cust. Ledger Entry", 'OnAfterCopyCustLedgerEntryFromGenJnlLine', '', false, false)]
+    local procedure OnAfterCopyCustLedgerEntryFromGenJnlLine(var CustLedgerEntry: Record "Cust. Ledger Entry"; GenJournalLine: Record "Gen. Journal Line")
     begin
         InsertDataTypeBuffer(OnAfterCopyCustLedgerEntryFromGenJnlLineTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 25, 'OnAfterCopyVendLedgerEntryFromGenJnlLine', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterCopyVendLedgerEntryFromGenJnlLine(var VendorLedgerEntry: Record "Vendor Ledger Entry"; GenJournalLine: Record "Gen. Journal Line")
+    [EventSubscriber(ObjectType::Table, Database::"Vendor Ledger Entry", 'OnAfterCopyVendLedgerEntryFromGenJnlLine', '', false, false)]
+    local procedure OnAfterCopyVendLedgerEntryFromGenJnlLine(var VendorLedgerEntry: Record "Vendor Ledger Entry"; GenJournalLine: Record "Gen. Journal Line")
     begin
         InsertDataTypeBuffer(OnAfterCopyVendLedgerEntryFromGenJnlLineTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 21, 'OnAfterCheckItemJnlLine', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterCheckItemJnlLine(var ItemJnlLine: Record "Item Journal Line")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Check Line", 'OnAfterCheckItemJnlLine', '', false, false)]
+    local procedure OnAfterCheckItemJnlLine(var ItemJnlLine: Record "Item Journal Line")
     begin
         InsertDataTypeBuffer(OnAfterCheckItemJnlLineTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 414, 'OnBeforeManualReleaseSalesDoc', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnBeforeManualReleaseSalesDoc(var SalesHeader: Record "Sales Header")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Release Sales Document", 'OnBeforeManualReleaseSalesDoc', '', false, false)]
+    local procedure OnBeforeManualReleaseSalesDoc(var SalesHeader: Record "Sales Header")
     begin
         InsertDataTypeBuffer(OnBeforeManualReleaseSalesDocTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 414, 'OnBeforeReleaseSalesDoc', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnBeforeReleaseSalesDoc(var SalesHeader: Record "Sales Header")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Release Sales Document", 'OnBeforeReleaseSalesDoc', '', false, false)]
+    local procedure OnBeforeReleaseSalesDoc(var SalesHeader: Record "Sales Header")
     begin
         InsertDataTypeBuffer(OnBeforeReleaseSalesDocTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 414, 'OnAfterReleaseSalesDoc', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterReleaseSalesDoc(var SalesHeader: Record "Sales Header")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Release Sales Document", 'OnAfterReleaseSalesDoc', '', false, false)]
+    local procedure OnAfterReleaseSalesDoc(var SalesHeader: Record "Sales Header")
     begin
         InsertDataTypeBuffer(OnAfterReleaseSalesDocTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 414, 'OnAfterManualReleaseSalesDoc', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterManualReleaseSalesDoc(var SalesHeader: Record "Sales Header")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Release Sales Document", 'OnAfterManualReleaseSalesDoc', '', false, false)]
+    local procedure OnAfterManualReleaseSalesDoc(var SalesHeader: Record "Sales Header")
     begin
         InsertDataTypeBuffer(OnAfterManualReleaseSalesDocTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 414, 'OnBeforeManualReOpenSalesDoc', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnBeforeManualReopenSalesDoc(var SalesHeader: Record "Sales Header")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Release Sales Document", 'OnBeforeManualReOpenSalesDoc', '', false, false)]
+    local procedure OnBeforeManualReopenSalesDoc(var SalesHeader: Record "Sales Header")
     begin
         InsertDataTypeBuffer(OnBeforeManualReopenSalesDocTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 414, 'OnBeforeReopenSalesDoc', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnBeforeReopenSalesDoc(var SalesHeader: Record "Sales Header")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Release Sales Document", 'OnBeforeReopenSalesDoc', '', false, false)]
+    local procedure OnBeforeReopenSalesDoc(var SalesHeader: Record "Sales Header")
     begin
         InsertDataTypeBuffer(OnBeforeReopenSalesDocTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 414, 'OnAfterReopenSalesDoc', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterReopenSalesDoc(var SalesHeader: Record "Sales Header")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Release Sales Document", 'OnAfterReopenSalesDoc', '', false, false)]
+    local procedure OnAfterReopenSalesDoc(var SalesHeader: Record "Sales Header")
     begin
         InsertDataTypeBuffer(OnAfterReopenSalesDocTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 414, 'OnAfterManualReOpenSalesDoc', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterManualReopenSalesDoc(var SalesHeader: Record "Sales Header")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Release Sales Document", 'OnAfterManualReOpenSalesDoc', '', false, false)]
+    local procedure OnAfterManualReopenSalesDoc(var SalesHeader: Record "Sales Header")
     begin
         InsertDataTypeBuffer(OnAfterManualReopenSalesDocTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 415, 'OnBeforeManualReleasePurchaseDoc', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnBeforeManualReleasePurchaseDoc(var PurchaseHeader: Record "Purchase Header")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Release Purchase Document", 'OnBeforeManualReleasePurchaseDoc', '', false, false)]
+    local procedure OnBeforeManualReleasePurchaseDoc(var PurchaseHeader: Record "Purchase Header")
     begin
         InsertDataTypeBuffer(OnBeforeManualReleasePurchaseDocTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 415, 'OnBeforeReleasePurchaseDoc', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnBeforeReleasePurchaseDoc(var PurchaseHeader: Record "Purchase Header")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Release Purchase Document", 'OnBeforeReleasePurchaseDoc', '', false, false)]
+    local procedure OnBeforeReleasePurchaseDoc(var PurchaseHeader: Record "Purchase Header")
     begin
         InsertDataTypeBuffer(OnBeforeReleasePurchaseDocTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 415, 'OnAfterReleasePurchaseDoc', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterReleasePurchaseDoc(var PurchaseHeader: Record "Purchase Header")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Release Purchase Document", 'OnAfterReleasePurchaseDoc', '', false, false)]
+    local procedure OnAfterReleasePurchaseDoc(var PurchaseHeader: Record "Purchase Header")
     begin
         InsertDataTypeBuffer(OnAfterReleasePurchaseDocTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 415, 'OnAfterManualReleasePurchaseDoc', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterManualReleasePurchaseDoc(var PurchaseHeader: Record "Purchase Header")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Release Purchase Document", 'OnAfterManualReleasePurchaseDoc', '', false, false)]
+    local procedure OnAfterManualReleasePurchaseDoc(var PurchaseHeader: Record "Purchase Header")
     begin
         InsertDataTypeBuffer(OnAfterManualReleasePurchaseDocTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 415, 'OnBeforeManualReopenPurchaseDoc', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnBeforeManualReopenPurchaseDoc(var PurchaseHeader: Record "Purchase Header")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Release Purchase Document", 'OnBeforeManualReopenPurchaseDoc', '', false, false)]
+    local procedure OnBeforeManualReopenPurchaseDoc(var PurchaseHeader: Record "Purchase Header")
     begin
         InsertDataTypeBuffer(OnBeforeManualReopenPurchaseDocTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 415, 'OnBeforeReopenPurchaseDoc', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnBeforeReopenPurchaseDoc(var PurchaseHeader: Record "Purchase Header")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Release Purchase Document", 'OnBeforeReopenPurchaseDoc', '', false, false)]
+    local procedure OnBeforeReopenPurchaseDoc(var PurchaseHeader: Record "Purchase Header")
     begin
         InsertDataTypeBuffer(OnBeforeReopenPurchaseDocTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 415, 'OnAfterReopenPurchaseDoc', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterReopenPurchaseDoc(var PurchaseHeader: Record "Purchase Header")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Release Purchase Document", 'OnAfterReopenPurchaseDoc', '', false, false)]
+    local procedure OnAfterReopenPurchaseDoc(var PurchaseHeader: Record "Purchase Header")
     begin
         InsertDataTypeBuffer(OnAfterReopenPurchaseDocTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 415, 'OnAfterManualReopenPurchaseDoc', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterManualReopenPurchaseDoc(var PurchaseHeader: Record "Purchase Header")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Release Purchase Document", 'OnAfterManualReopenPurchaseDoc', '', false, false)]
+    local procedure OnAfterManualReopenPurchaseDoc(var PurchaseHeader: Record "Purchase Header")
     begin
         InsertDataTypeBuffer(OnAfterManualReopenPurchaseDocTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 80, 'OnBeforePostSalesDoc', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnBeforePostSalesDoc(var SalesHeader: Record "Sales Header")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnBeforePostSalesDoc', '', false, false)]
+    local procedure OnBeforePostSalesDoc(var SalesHeader: Record "Sales Header")
     begin
         InsertDataTypeBuffer(OnBeforePostSalesDocTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 80, 'OnBeforePostCommitSalesDoc', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnBeforePostCommitSalesDoc(var SalesHeader: Record "Sales Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; PreviewMode: Boolean; ModifyHeader: Boolean)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnBeforePostCommitSalesDoc', '', false, false)]
+    local procedure OnBeforePostCommitSalesDoc(var SalesHeader: Record "Sales Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; PreviewMode: Boolean; ModifyHeader: Boolean)
     begin
         InsertDataTypeBuffer(OnBeforePostCommitSalesDocTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 80, 'OnAfterPostSalesDoc', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterPostSalesDoc(var SalesHeader: Record "Sales Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; SalesShptHdrNo: Code[20]; RetRcpHdrNo: Code[20]; SalesInvHdrNo: Code[20]; SalesCrMemoHdrNo: Code[20])
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnAfterPostSalesDoc', '', false, false)]
+    local procedure OnAfterPostSalesDoc(var SalesHeader: Record "Sales Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; SalesShptHdrNo: Code[20]; RetRcpHdrNo: Code[20]; SalesInvHdrNo: Code[20]; SalesCrMemoHdrNo: Code[20])
     begin
         InsertDataTypeBuffer(OnAfterPostSalesDocTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 80, 'OnAfterCheckMandatoryFields', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterCheckMandatoryFieldsSalesDoc(var SalesHeader: Record "Sales Header")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnAfterCheckMandatoryFields', '', false, false)]
+    local procedure OnAfterCheckMandatoryFieldsSalesDoc(var SalesHeader: Record "Sales Header")
     begin
         InsertDataTypeBuffer(OnAfterCheckMandatoryFieldsTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 80, 'OnAfterSalesInvLineInsert', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterSalesInvLineInsert(var SalesInvLine: Record "Sales Invoice Line"; SalesInvHeader: Record "Sales Invoice Header"; SalesLine: Record "Sales Line")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnAfterSalesInvLineInsert', '', false, false)]
+    local procedure OnAfterSalesInvLineInsert(var SalesInvLine: Record "Sales Invoice Line"; SalesInvHeader: Record "Sales Invoice Header"; SalesLine: Record "Sales Line")
     begin
         InsertDataTypeBuffer(OnAfterSalesInvLineInsertTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 80, 'OnAfterSalesCrMemoLineInsert', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterSalesCrMemoLineInsert(var SalesCrMemoLine: Record "Sales Cr.Memo Line"; SalesCrMemoHeader: Record "Sales Cr.Memo Header"; SalesLine: Record "Sales Line")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnAfterSalesCrMemoLineInsert', '', false, false)]
+    local procedure OnAfterSalesCrMemoLineInsert(var SalesCrMemoLine: Record "Sales Cr.Memo Line"; SalesCrMemoHeader: Record "Sales Cr.Memo Header"; SalesLine: Record "Sales Line")
     begin
         InsertDataTypeBuffer(OnAfterSalesCrMemoLineInsertTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 80, 'OnAfterUpdatePostingNos', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterUpdatePostingNosSalesDoc(var SalesHeader: Record "Sales Header"; var NoSeriesMgt: Codeunit NoSeriesManagement)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnAfterUpdatePostingNos', '', false, false)]
+    local procedure OnAfterUpdatePostingNosSalesDoc(var SalesHeader: Record "Sales Header"; var NoSeriesMgt: Codeunit NoSeriesManagement)
     begin
         InsertDataTypeBuffer(OnAfterUpdatePostingNosTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 80, 'OnBeforePostBalancingEntry', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnBeforePostBalancingEntrySalesDoc(var GenJnlLine: Record "Gen. Journal Line"; SalesHeader: Record "Sales Header"; var TotalSalesLine: Record "Sales Line"; var TotalSalesLineLCY: Record "Sales Line")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnBeforePostBalancingEntry', '', false, false)]
+    local procedure OnBeforePostBalancingEntrySalesDoc(var GenJnlLine: Record "Gen. Journal Line"; SalesHeader: Record "Sales Header"; var TotalSalesLine: Record "Sales Line"; var TotalSalesLineLCY: Record "Sales Line")
     begin
         InsertDataTypeBuffer(OnBeforePostBalancingEntryTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 80, 'OnBeforePostCustomerEntry', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnBeforePostCustomerEntrySalesDoc(var GenJnlLine: Record "Gen. Journal Line"; var SalesHeader: Record "Sales Header"; var TotalSalesLine: Record "Sales Line"; var TotalSalesLineLCY: Record "Sales Line")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnBeforePostCustomerEntry', '', false, false)]
+    local procedure OnBeforePostCustomerEntrySalesDoc(var GenJnlLine: Record "Gen. Journal Line"; var SalesHeader: Record "Sales Header"; var TotalSalesLine: Record "Sales Line"; var TotalSalesLineLCY: Record "Sales Line")
     begin
         InsertDataTypeBuffer(OnBeforePostCustomerEntryTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 80, 'OnBeforePostInvPostBuffer', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnBeforePostInvPostBufferSalesDoc(var GenJnlLine: Record "Gen. Journal Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer"; SalesHeader: Record "Sales Header")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnBeforePostInvPostBuffer', '', false, false)]
+    local procedure OnBeforePostInvPostBufferSalesDoc(var GenJnlLine: Record "Gen. Journal Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer"; SalesHeader: Record "Sales Header")
     begin
         InsertDataTypeBuffer(OnBeforePostInvPostBufferTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 80, 'OnBeforeSalesShptHeaderInsert', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnBeforeSalesShptHeaderInsert(var SalesShptHeader: Record "Sales Shipment Header"; SalesHeader: Record "Sales Header")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnBeforeSalesShptHeaderInsert', '', false, false)]
+    local procedure OnBeforeSalesShptHeaderInsert(var SalesShptHeader: Record "Sales Shipment Header"; SalesHeader: Record "Sales Header")
     begin
         InsertDataTypeBuffer(OnBeforeSalesShptHeaderInsertTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 80, 'OnBeforeSalesShptLineInsert', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnBeforeSalesShptLineInsert(var SalesShptLine: Record "Sales Shipment Line"; SalesShptHeader: Record "Sales Shipment Header"; SalesLine: Record "Sales Line")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnBeforeSalesShptLineInsert', '', false, false)]
+    local procedure OnBeforeSalesShptLineInsert(var SalesShptLine: Record "Sales Shipment Line"; SalesShptHeader: Record "Sales Shipment Header"; SalesLine: Record "Sales Line")
     begin
         InsertDataTypeBuffer(OnBeforeSalesShptLineInsertTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 80, 'OnBeforeSalesInvHeaderInsert', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnBeforeSalesInvHeaderInsert(var SalesInvHeader: Record "Sales Invoice Header"; SalesHeader: Record "Sales Header")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnBeforeSalesInvHeaderInsert', '', false, false)]
+    local procedure OnBeforeSalesInvHeaderInsert(var SalesInvHeader: Record "Sales Invoice Header"; SalesHeader: Record "Sales Header")
     begin
         InsertDataTypeBuffer(OnBeforeSalesInvHeaderInsertTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 80, 'OnBeforeSalesInvLineInsert', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnBeforeSalesInvLineInsert(var SalesInvLine: Record "Sales Invoice Line"; SalesInvHeader: Record "Sales Invoice Header"; SalesLine: Record "Sales Line")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnBeforeSalesInvLineInsert', '', false, false)]
+    local procedure OnBeforeSalesInvLineInsert(var SalesInvLine: Record "Sales Invoice Line"; SalesInvHeader: Record "Sales Invoice Header"; SalesLine: Record "Sales Line")
     begin
         InsertDataTypeBuffer(OnBeforeSalesInvLineInsertTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 80, 'OnBeforeSalesCrMemoHeaderInsert', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnBeforeSalesCrMemoHeaderInsert(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; SalesHeader: Record "Sales Header")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnBeforeSalesCrMemoHeaderInsert', '', false, false)]
+    local procedure OnBeforeSalesCrMemoHeaderInsert(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; SalesHeader: Record "Sales Header")
     begin
         InsertDataTypeBuffer(OnBeforeSalesCrMemoHeaderInsertTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 80, 'OnBeforeSalesCrMemoLineInsert', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnBeforeSalesCrMemoLineInsert(var SalesCrMemoLine: Record "Sales Cr.Memo Line"; SalesCrMemoHeader: Record "Sales Cr.Memo Header"; SalesLine: Record "Sales Line")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnBeforeSalesCrMemoLineInsert', '', false, false)]
+    local procedure OnBeforeSalesCrMemoLineInsert(var SalesCrMemoLine: Record "Sales Cr.Memo Line"; SalesCrMemoHeader: Record "Sales Cr.Memo Header"; SalesLine: Record "Sales Line")
     begin
         InsertDataTypeBuffer(OnBeforeSalesCrMemoLineInsertTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 80, 'OnBeforeReturnRcptHeaderInsert', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnBeforeReturnRcptHeaderInsert(var ReturnRcptHeader: Record "Return Receipt Header"; SalesHeader: Record "Sales Header")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnBeforeReturnRcptHeaderInsert', '', false, false)]
+    local procedure OnBeforeReturnRcptHeaderInsert(var ReturnRcptHeader: Record "Return Receipt Header"; SalesHeader: Record "Sales Header")
     begin
         InsertDataTypeBuffer(OnBeforeReturnRcptHeaderInsertTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 80, 'OnBeforeReturnRcptLineInsert', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnBeforeReturnRcptLineInsert(var ReturnRcptLine: Record "Return Receipt Line"; ReturnRcptHeader: Record "Return Receipt Header"; SalesLine: Record "Sales Line")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnBeforeReturnRcptLineInsert', '', false, false)]
+    local procedure OnBeforeReturnRcptLineInsert(var ReturnRcptLine: Record "Return Receipt Line"; ReturnRcptHeader: Record "Return Receipt Header"; SalesLine: Record "Sales Line")
     begin
         InsertDataTypeBuffer(OnBeforeReturnRcptLineInsertTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 90, 'OnBeforePostPurchaseDoc', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnBeforePostPurchaseDoc(var PurchaseHeader: Record "Purchase Header")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnBeforePostPurchaseDoc', '', false, false)]
+    local procedure OnBeforePostPurchaseDoc(var PurchaseHeader: Record "Purchase Header")
     begin
         InsertDataTypeBuffer(OnBeforePostPurchaseDocTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 90, 'OnBeforePostCommitPurchaseDoc', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnBeforePostCommitPurchaseDoc(var PurchaseHeader: Record "Purchase Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; PreviewMode: Boolean; ModifyHeader: Boolean)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnBeforePostCommitPurchaseDoc', '', false, false)]
+    local procedure OnBeforePostCommitPurchaseDoc(var PurchaseHeader: Record "Purchase Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; PreviewMode: Boolean; ModifyHeader: Boolean)
     begin
         InsertDataTypeBuffer(OnBeforePostCommitPurchaseDocTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 90, 'OnAfterPostPurchaseDoc', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterPostPurchaseDoc(var PurchaseHeader: Record "Purchase Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; PurchRcpHdrNo: Code[20]; RetShptHdrNo: Code[20]; PurchInvHdrNo: Code[20]; PurchCrMemoHdrNo: Code[20])
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnAfterPostPurchaseDoc', '', false, false)]
+    local procedure OnAfterPostPurchaseDoc(var PurchaseHeader: Record "Purchase Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; PurchRcpHdrNo: Code[20]; RetShptHdrNo: Code[20]; PurchInvHdrNo: Code[20]; PurchCrMemoHdrNo: Code[20])
     begin
         InsertDataTypeBuffer(OnAfterPostPurchaseDocTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 90, 'OnAfterCheckMandatoryFields', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterCheckMandatoryFieldsPurchDoc(var PurchaseHeader: Record "Purchase Header")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnAfterCheckMandatoryFields', '', false, false)]
+    local procedure OnAfterCheckMandatoryFieldsPurchDoc(var PurchaseHeader: Record "Purchase Header")
     begin
         InsertDataTypeBuffer(OnAfterCheckMandatoryFieldsTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 90, 'OnAfterPurchInvLineInsert', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterPurchInvLineInsert(var PurchInvLine: Record "Purch. Inv. Line"; PurchInvHeader: Record "Purch. Inv. Header"; PurchLine: Record "Purchase Line")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnAfterPurchInvLineInsert', '', false, false)]
+    local procedure OnAfterPurchInvLineInsert(var PurchInvLine: Record "Purch. Inv. Line"; PurchInvHeader: Record "Purch. Inv. Header"; PurchLine: Record "Purchase Line")
     begin
         InsertDataTypeBuffer(OnAfterPurchInvLineInsertTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 90, 'OnAfterPurchCrMemoLineInsert', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterPurchCrMemoLineInsert(var PurchCrMemoLine: Record "Purch. Cr. Memo Line"; var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; var PurchLine: Record "Purchase Line")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnAfterPurchCrMemoLineInsert', '', false, false)]
+    local procedure OnAfterPurchCrMemoLineInsert(var PurchCrMemoLine: Record "Purch. Cr. Memo Line"; var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; var PurchLine: Record "Purchase Line")
     begin
         InsertDataTypeBuffer(OnAfterPurchCrMemoLineInsertTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 90, 'OnAfterUpdatePostingNos', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterUpdatePostingNosPurchDoc(var PurchaseHeader: Record "Purchase Header"; var NoSeriesMgt: Codeunit NoSeriesManagement)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnAfterUpdatePostingNos', '', false, false)]
+    local procedure OnAfterUpdatePostingNosPurchDoc(var PurchaseHeader: Record "Purchase Header"; var NoSeriesMgt: Codeunit NoSeriesManagement)
     begin
         InsertDataTypeBuffer(OnAfterUpdatePostingNosTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 90, 'OnBeforePostBalancingEntry', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnBeforePostBalancingEntryPurchDoc(var GenJnlLine: Record "Gen. Journal Line"; var PurchHeader: Record "Purchase Header"; var TotalPurchLine: Record "Purchase Line"; var TotalPurchLineLCY: Record "Purchase Line")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnBeforePostBalancingEntry', '', false, false)]
+    local procedure OnBeforePostBalancingEntryPurchDoc(var GenJnlLine: Record "Gen. Journal Line"; var PurchHeader: Record "Purchase Header"; var TotalPurchLine: Record "Purchase Line"; var TotalPurchLineLCY: Record "Purchase Line")
     begin
         InsertDataTypeBuffer(OnBeforePostBalancingEntryTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 90, 'OnBeforePostVendorEntry', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnBeforePostVendorEntryPurchDoc(var GenJnlLine: Record "Gen. Journal Line"; var PurchHeader: Record "Purchase Header"; var TotalPurchLine: Record "Purchase Line"; var TotalPurchLineLCY: Record "Purchase Line")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnBeforePostVendorEntry', '', false, false)]
+    local procedure OnBeforePostVendorEntryPurchDoc(var GenJnlLine: Record "Gen. Journal Line"; var PurchHeader: Record "Purchase Header"; var TotalPurchLine: Record "Purchase Line"; var TotalPurchLineLCY: Record "Purchase Line")
     begin
         InsertDataTypeBuffer(OnBeforePostVendorEntryTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 90, 'OnBeforePostInvPostBuffer', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnBeforePostInvPostBufferPurchDoc(var GenJnlLine: Record "Gen. Journal Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer"; var PurchHeader: Record "Purchase Header")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnBeforePostInvPostBuffer', '', false, false)]
+    local procedure OnBeforePostInvPostBufferPurchDoc(var GenJnlLine: Record "Gen. Journal Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer"; var PurchHeader: Record "Purchase Header")
     begin
         InsertDataTypeBuffer(OnBeforePostInvPostBufferTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 90, 'OnBeforePurchRcptHeaderInsert', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnBeforePurchRcptHeaderInsert(var PurchRcptHeader: Record "Purch. Rcpt. Header"; var PurchaseHeader: Record "Purchase Header")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnBeforePurchRcptHeaderInsert', '', false, false)]
+    local procedure OnBeforePurchRcptHeaderInsert(var PurchRcptHeader: Record "Purch. Rcpt. Header"; var PurchaseHeader: Record "Purchase Header")
     begin
         InsertDataTypeBuffer(OnBeforePurchRcptHeaderInsertTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 90, 'OnBeforePurchRcptLineInsert', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnBeforePurchRcptLineInsert(var PurchRcptLine: Record "Purch. Rcpt. Line"; var PurchRcptHeader: Record "Purch. Rcpt. Header"; var PurchLine: Record "Purchase Line")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnBeforePurchRcptLineInsert', '', false, false)]
+    local procedure OnBeforePurchRcptLineInsert(var PurchRcptLine: Record "Purch. Rcpt. Line"; var PurchRcptHeader: Record "Purch. Rcpt. Header"; var PurchLine: Record "Purchase Line")
     begin
         InsertDataTypeBuffer(OnBeforePurchRcptLineInsertTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 90, 'OnBeforePurchInvHeaderInsert', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnBeforePurchInvHeaderInsert(var PurchInvHeader: Record "Purch. Inv. Header"; var PurchHeader: Record "Purchase Header")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnBeforePurchInvHeaderInsert', '', false, false)]
+    local procedure OnBeforePurchInvHeaderInsert(var PurchInvHeader: Record "Purch. Inv. Header"; var PurchHeader: Record "Purchase Header")
     begin
         InsertDataTypeBuffer(OnBeforePurchInvHeaderInsertTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 90, 'OnBeforePurchInvLineInsert', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnBeforePurchInvLineInsert(var PurchInvLine: Record "Purch. Inv. Line"; var PurchInvHeader: Record "Purch. Inv. Header"; var PurchaseLine: Record "Purchase Line")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnBeforePurchInvLineInsert', '', false, false)]
+    local procedure OnBeforePurchInvLineInsert(var PurchInvLine: Record "Purch. Inv. Line"; var PurchInvHeader: Record "Purch. Inv. Header"; var PurchaseLine: Record "Purchase Line")
     begin
         InsertDataTypeBuffer(OnBeforePurchInvLineInsertTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 90, 'OnBeforePurchCrMemoHeaderInsert', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnBeforePurchCrMemoHeaderInsert(var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; var PurchHeader: Record "Purchase Header")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnBeforePurchCrMemoHeaderInsert', '', false, false)]
+    local procedure OnBeforePurchCrMemoHeaderInsert(var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; var PurchHeader: Record "Purchase Header")
     begin
         InsertDataTypeBuffer(OnBeforePurchCrMemoHeaderInsertTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 90, 'OnBeforePurchCrMemoLineInsert', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnBeforePurchCrMemoLineInsert(var PurchCrMemoLine: Record "Purch. Cr. Memo Line"; var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; var PurchLine: Record "Purchase Line")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnBeforePurchCrMemoLineInsert', '', false, false)]
+    local procedure OnBeforePurchCrMemoLineInsert(var PurchCrMemoLine: Record "Purch. Cr. Memo Line"; var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; var PurchLine: Record "Purchase Line")
     begin
         InsertDataTypeBuffer(OnBeforePurchCrMemoLineInsertTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 90, 'OnBeforeReturnShptHeaderInsert', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnBeforeReturnShptHeaderInsert(var ReturnShptHeader: Record "Return Shipment Header"; var PurchHeader: Record "Purchase Header")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnBeforeReturnShptHeaderInsert', '', false, false)]
+    local procedure OnBeforeReturnShptHeaderInsert(var ReturnShptHeader: Record "Return Shipment Header"; var PurchHeader: Record "Purchase Header")
     begin
         InsertDataTypeBuffer(OnBeforeReturnShptHeaderInsertTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 90, 'OnBeforeReturnShptLineInsert', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnBeforeReturnShptLineInsert(var ReturnShptLine: Record "Return Shipment Line"; var ReturnShptHeader: Record "Return Shipment Header"; var PurchLine: Record "Purchase Line")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnBeforeReturnShptLineInsert', '', false, false)]
+    local procedure OnBeforeReturnShptLineInsert(var ReturnShptLine: Record "Return Shipment Line"; var ReturnShptHeader: Record "Return Shipment Header"; var PurchLine: Record "Purchase Line")
     begin
         InsertDataTypeBuffer(OnBeforeReturnShptLineInsertTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 60, 'OnBeforeCalcSalesDiscount', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnBeforeCalcSalesDiscount(var SalesHeader: Record "Sales Header")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Calc. Discount", 'OnBeforeCalcSalesDiscount', '', false, false)]
+    local procedure OnBeforeCalcSalesDiscount(var SalesHeader: Record "Sales Header")
     begin
         InsertDataTypeBuffer(OnBeforeCalcSalesDiscountTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 60, 'OnAfterCalcSalesDiscount', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterCalcSalesDiscount(var SalesHeader: Record "Sales Header")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Calc. Discount", 'OnAfterCalcSalesDiscount', '', false, false)]
+    local procedure OnAfterCalcSalesDiscount(var SalesHeader: Record "Sales Header")
     begin
         InsertDataTypeBuffer(OnAfterCalcSalesDiscountTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 70, 'OnBeforeCalcPurchaseDiscount', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnBeforeCalcPurchaseDiscount(var PurchaseHeader: Record "Purchase Header")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Calc.Discount", 'OnBeforeCalcPurchaseDiscount', '', false, false)]
+    local procedure OnBeforeCalcPurchaseDiscount(var PurchaseHeader: Record "Purchase Header")
     begin
         InsertDataTypeBuffer(OnBeforeCalcPurchaseDiscountTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 70, 'OnAfterCalcPurchaseDiscount', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterCalcPurchaseDiscount(var PurchaseHeader: Record "Purchase Header")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Calc.Discount", 'OnAfterCalcPurchaseDiscount', '', false, false)]
+    local procedure OnAfterCalcPurchaseDiscount(var PurchaseHeader: Record "Purchase Header")
     begin
         InsertDataTypeBuffer(OnAfterCalcPurchaseDiscountTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 22, 'OnBeforePostItemJnlLine', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnBeforePostItemJnlLine(var ItemJournalLine: Record "Item Journal Line")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnBeforePostItemJnlLine', '', false, false)]
+    local procedure OnBeforePostItemJnlLine(var ItemJournalLine: Record "Item Journal Line")
     begin
         InsertDataTypeBuffer(OnBeforePostItemJnlLineTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 22, 'OnAfterPostItemJnlLine', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterPostItemJnlLine(var ItemJournalLine: Record "Item Journal Line")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnAfterPostItemJnlLine', '', false, false)]
+    local procedure OnAfterPostItemJnlLine(var ItemJournalLine: Record "Item Journal Line")
     begin
         InsertDataTypeBuffer(OnAfterPostItemJnlLineTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 22, 'OnBeforeInsertTransferEntry', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnBeforeInsertTransferEntry(var NewItemLedgerEntry: Record "Item Ledger Entry"; var OldItemLedgerEntry: Record "Item Ledger Entry"; var ItemJournalLine: Record "Item Journal Line")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnBeforeInsertTransferEntry', '', false, false)]
+    local procedure OnBeforeInsertTransferEntry(var NewItemLedgerEntry: Record "Item Ledger Entry"; var OldItemLedgerEntry: Record "Item Ledger Entry"; var ItemJournalLine: Record "Item Journal Line")
     begin
         InsertDataTypeBuffer(OnBeforeInsertTransferEntryTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 22, 'OnAfterInitItemLedgEntry', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterInitItemLedgEntry(var NewItemLedgEntry: Record "Item Ledger Entry"; ItemJournalLine: Record "Item Journal Line")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnAfterInitItemLedgEntry', '', false, false)]
+    local procedure OnAfterInitItemLedgEntry(var NewItemLedgEntry: Record "Item Ledger Entry"; ItemJournalLine: Record "Item Journal Line")
     begin
         InsertDataTypeBuffer(OnAfterInitItemLedgEntryTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 22, 'OnAfterInsertItemLedgEntry', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterInsertItemLedgEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemJournalLine: Record "Item Journal Line")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnAfterInsertItemLedgEntry', '', false, false)]
+    local procedure OnAfterInsertItemLedgEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemJournalLine: Record "Item Journal Line")
     begin
         InsertDataTypeBuffer(OnAfterInsertItemLedgEntryTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 22, 'OnBeforeInsertValueEntry', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnBeforeInsertValueEntry(var ValueEntry: Record "Value Entry"; ItemJournalLine: Record "Item Journal Line")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnBeforeInsertValueEntry', '', false, false)]
+    local procedure OnBeforeInsertValueEntry(var ValueEntry: Record "Value Entry"; ItemJournalLine: Record "Item Journal Line")
     begin
         InsertDataTypeBuffer(OnBeforeInsertValueEntryTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 22, 'OnAfterInsertValueEntry', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterInsertValueEntry(var ValueEntry: Record "Value Entry"; ItemJournalLine: Record "Item Journal Line")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnAfterInsertValueEntry', '', false, false)]
+    local procedure OnAfterInsertValueEntry(var ValueEntry: Record "Value Entry"; ItemJournalLine: Record "Item Journal Line")
     begin
         InsertDataTypeBuffer(OnAfterInsertValueEntryTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 22, 'OnBeforeInsertCorrItemLedgEntry', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnBeforeInsertCorrItemLedgEntry(var NewItemLedgerEntry: Record "Item Ledger Entry"; var OldItemLedgerEntry: Record "Item Ledger Entry"; var ItemJournalLine: Record "Item Journal Line")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnBeforeInsertCorrItemLedgEntry', '', false, false)]
+    local procedure OnBeforeInsertCorrItemLedgEntry(var NewItemLedgerEntry: Record "Item Ledger Entry"; var OldItemLedgerEntry: Record "Item Ledger Entry"; var ItemJournalLine: Record "Item Journal Line")
     begin
         InsertDataTypeBuffer(OnBeforeInsertCorrItemLedgEntryTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 22, 'OnAfterInsertCorrItemLedgEntry', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterInsertCorrItemLedgEntry(var NewItemLedgerEntry: Record "Item Ledger Entry"; var ItemJournalLine: Record "Item Journal Line")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnAfterInsertCorrItemLedgEntry', '', false, false)]
+    local procedure OnAfterInsertCorrItemLedgEntry(var NewItemLedgerEntry: Record "Item Ledger Entry"; var ItemJournalLine: Record "Item Journal Line")
     begin
         InsertDataTypeBuffer(OnAfterInsertCorrItemLedgEntryTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 22, 'OnBeforeInsertCorrValueEntry', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnBeforeInsertCorrValueEntry(var NewValueEntry: Record "Value Entry"; OldValueEntry: Record "Value Entry"; var ItemJournalLine: Record "Item Journal Line")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnBeforeInsertCorrValueEntry', '', false, false)]
+    local procedure OnBeforeInsertCorrValueEntry(var NewValueEntry: Record "Value Entry"; OldValueEntry: Record "Value Entry"; var ItemJournalLine: Record "Item Journal Line")
     begin
         InsertDataTypeBuffer(OnBeforeInsertCorrValueEntryTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 22, 'OnAfterInsertCorrValueEntry', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterInsertCorrValueEntry(var NewValueEntry: Record "Value Entry"; var ItemJournalLine: Record "Item Journal Line")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnAfterInsertCorrValueEntry', '', false, false)]
+    local procedure OnAfterInsertCorrValueEntry(var NewValueEntry: Record "Value Entry"; var ItemJournalLine: Record "Item Journal Line")
     begin
         InsertDataTypeBuffer(OnAfterInsertCorrValueEntryTxt);
     end;
 
-    [EventSubscriber(ObjectType::Page, 344, 'OnAfterNavigateFindRecords', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Navigate", 'OnAfterNavigateFindRecords', '', false, false)]
     local procedure OnAfterNavigateFindRecords(var DocumentEntry: Record "Document Entry"; DocNoFilter: Text; PostingDateFilter: Text)
     begin
         // Ensure there is one known entry so we can invoke Show and handle the page
@@ -2618,238 +2528,236 @@ codeunit 134299 "Test Partner Integration Event"
         InsertDataTypeBuffer(OnAfterNavigateFindRecordsTxt);
     end;
 
-    [EventSubscriber(ObjectType::Page, 344, 'OnAfterNavigateShowRecords', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Navigate", 'OnAfterNavigateShowRecords', '', false, false)]
     local procedure OnAfterNavigateShowRecords(TableID: Integer; DocNoFilter: Text; PostingDateFilter: Text; ItemTrackingSearch: Boolean)
     begin
         InsertDataTypeBuffer(OnAfterNavigateShowRecordsTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 36, 'OnAfterInitRecord', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterInitRecord', '', false, false)]
     local procedure OnAfterSalesHeaderInitRecord(var SalesHeader: Record "Sales Header")
     begin
         InsertDataTypeBuffer(OnAfterInitRecordTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 36, 'OnAfterInitNoSeries', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterInitNoSeries', '', false, false)]
     local procedure OnAfterSalesHeaderInitNoSeries(var SalesHeader: Record "Sales Header")
     begin
         InsertDataTypeBuffer(OnAfterInitNoSeriesTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 36, 'OnAfterTestNoSeries', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterTestNoSeries', '', false, false)]
     local procedure OnAfterSalesHeaderTestNoSeries(var SalesHeader: Record "Sales Header")
     begin
         InsertDataTypeBuffer(OnAfterTestNoSeriesTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 36, 'OnAfterUpdateShipToAddress', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterUpdateShipToAddress', '', false, false)]
     local procedure OnAfterSalesHeaderUpdateShipToAddress(var SalesHeader: Record "Sales Header")
     begin
         InsertDataTypeBuffer(OnAfterUpdateShipToAddressTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 37, 'OnAfterAssignHeaderValues', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Line", 'OnAfterAssignHeaderValues', '', false, false)]
     local procedure OnAfterSalesLineAssignHeaderValues(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
     begin
         InsertDataTypeBuffer(OnAfterAssignHeaderValuesTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 37, 'OnAfterAssignStdTxtValues', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Line", 'OnAfterAssignStdTxtValues', '', false, false)]
     local procedure OnAfterSalesLineAssignStdTxtValues(var SalesLine: Record "Sales Line"; StandardText: Record "Standard Text")
     begin
         InsertDataTypeBuffer(OnAfterAssignStdTxtValuesTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 37, 'OnAfterAssignGLAccountValues', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Line", 'OnAfterAssignGLAccountValues', '', false, false)]
     local procedure OnAfterSalesLineAssignGLAccountValues(var SalesLine: Record "Sales Line"; GLAccount: Record "G/L Account")
     begin
         InsertDataTypeBuffer(OnAfterAssignGLAccountValuesTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 37, 'OnAfterAssignItemValues', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Line", 'OnAfterAssignItemValues', '', false, false)]
     local procedure OnAfterSalesLineAssignItemValues(var SalesLine: Record "Sales Line"; Item: Record Item)
     begin
         InsertDataTypeBuffer(OnAfterAssignItemValuesTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 37, 'OnAfterAssignItemChargeValues', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Line", 'OnAfterAssignItemChargeValues', '', false, false)]
     local procedure OnAfterSalesLineAssignItemChargeValues(var SalesLine: Record "Sales Line"; ItemCharge: Record "Item Charge")
     begin
         InsertDataTypeBuffer(OnAfterAssignItemChargeValuesTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 37, 'OnAfterAssignFixedAssetValues', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Line", 'OnAfterAssignFixedAssetValues', '', false, false)]
     local procedure OnAfterSalesLineAssignFixedAssetValues(var SalesLine: Record "Sales Line"; FixedAsset: Record "Fixed Asset")
     begin
         InsertDataTypeBuffer(OnAfterAssignFixedAssetValuesTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 37, 'OnAfterAssignResourceValues', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Line", 'OnAfterAssignResourceValues', '', false, false)]
     local procedure OnAfterSalesLineAssignResourceValues(var SalesLine: Record "Sales Line"; Resource: Record Resource)
     begin
         InsertDataTypeBuffer(OnAfterAssignResourceValuesTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 37, 'OnAfterUpdateUnitPrice', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Line", 'OnAfterUpdateUnitPrice', '', false, false)]
     local procedure OnAfterSalesLineUpdateUnitPrice(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; CalledByFieldNo: Integer; CurrFieldNo: Integer)
     begin
         InsertDataTypeBuffer(OnAfterUpdateUnitPriceTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 37, 'OnBeforeUpdateUnitPrice', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Line", 'OnBeforeUpdateUnitPrice', '', false, false)]
     local procedure OnBeforeSalesLineUpdateUnitPrice(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; CalledByFieldNo: Integer; CurrFieldNo: Integer)
     begin
         InsertDataTypeBuffer(OnBeforeUpdateUnitPriceTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 37, 'OnAfterInitOutstandingAmount', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Line", 'OnAfterInitOutstandingAmount', '', false, false)]
     local procedure OnAfterSalesLineInitOutstandingAmount(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Currency: Record Currency)
     begin
         InsertDataTypeBuffer(OnAfterInitOutstandingAmountTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 37, 'OnAfterInitQtyToInvoice', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Line", 'OnAfterInitQtyToInvoice', '', false, false)]
     local procedure OnAfterSalesLineInitQtyToInvoice(var SalesLine: Record "Sales Line"; CurrFieldNo: Integer)
     begin
         InsertDataTypeBuffer(OnAfterInitQtyToInvoiceTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 37, 'OnAfterInitQtyToReceive', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Line", 'OnAfterInitQtyToReceive', '', false, false)]
     local procedure OnAfterSalesLineInitQtyToReceive(var SalesLine: Record "Sales Line"; CurrFieldNo: Integer)
     begin
         InsertDataTypeBuffer(OnAfterInitQtyToReceiveTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 37, 'OnAfterInitQtyToShip', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Line", 'OnAfterInitQtyToShip', '', false, false)]
     local procedure OnAfterSalesLineInitQtyToShip(var SalesLine: Record "Sales Line"; CurrFieldNo: Integer)
     begin
         InsertDataTypeBuffer(OnAfterInitQtyToShipTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 38, 'OnAfterInitRecord', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnAfterInitRecord', '', false, false)]
     local procedure OnAfterPurchHeaderInitRecord(var PurchHeader: Record "Purchase Header")
     begin
         InsertDataTypeBuffer(OnAfterInitRecordTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 38, 'OnAfterInitNoSeries', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnAfterInitNoSeries', '', false, false)]
     local procedure OnAfterPurchHeaderInitNoSeries(var PurchHeader: Record "Purchase Header")
     begin
         InsertDataTypeBuffer(OnAfterInitNoSeriesTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 38, 'OnAfterTestNoSeries', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnAfterTestNoSeries', '', false, false)]
     local procedure OnAfterPurchHeaderTestNoSeries(var PurchHeader: Record "Purchase Header")
     begin
         InsertDataTypeBuffer(OnAfterTestNoSeriesTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 38, 'OnAfterUpdateShipToAddress', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnAfterUpdateShipToAddress', '', false, false)]
     local procedure OnAfterPurchHeaderUpdateShipToAddress(var PurchHeader: Record "Purchase Header")
     begin
         InsertDataTypeBuffer(OnAfterUpdateShipToAddressTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 39, 'OnAfterAssignHeaderValues', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Line", 'OnAfterAssignHeaderValues', '', false, false)]
     local procedure OnAfterPurchLineAssignHeaderValues(var PurchLine: Record "Purchase Line"; PurchHeader: Record "Purchase Header")
     begin
         InsertDataTypeBuffer(OnAfterAssignHeaderValuesTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 39, 'OnAfterAssignStdTxtValues', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Line", 'OnAfterAssignStdTxtValues', '', false, false)]
     local procedure OnAfterPurchLineAssignStdTxtValues(var PurchLine: Record "Purchase Line"; StandardText: Record "Standard Text")
     begin
         InsertDataTypeBuffer(OnAfterAssignStdTxtValuesTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 39, 'OnAfterAssignGLAccountValues', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Line", 'OnAfterAssignGLAccountValues', '', false, false)]
     local procedure OnAfterPurchLineAssignGLAccountValues(var PurchLine: Record "Purchase Line"; GLAccount: Record "G/L Account")
     begin
         InsertDataTypeBuffer(OnAfterAssignGLAccountValuesTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 39, 'OnAfterAssignItemValues', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Line", 'OnAfterAssignItemValues', '', false, false)]
     local procedure OnAfterPurchLineAssignItemValues(var PurchLine: Record "Purchase Line"; Item: Record Item)
     begin
         InsertDataTypeBuffer(OnAfterAssignItemValuesTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 39, 'OnAfterAssignItemChargeValues', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Line", 'OnAfterAssignItemChargeValues', '', false, false)]
     local procedure OnAfterPurchLineAssignItemChargeValues(var PurchLine: Record "Purchase Line"; ItemCharge: Record "Item Charge")
     begin
         InsertDataTypeBuffer(OnAfterAssignItemChargeValuesTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 39, 'OnAfterAssignFixedAssetValues', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Line", 'OnAfterAssignFixedAssetValues', '', false, false)]
     local procedure OnAfterPurchLineAssignFixedAssetValues(var PurchLine: Record "Purchase Line"; FixedAsset: Record "Fixed Asset")
     begin
         InsertDataTypeBuffer(OnAfterAssignFixedAssetValuesTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 39, 'OnAfterUpdateDirectUnitCost', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Line", 'OnAfterUpdateDirectUnitCost', '', false, false)]
     local procedure OnAfterPurchLineUpdateDirectUnitCost(var PurchLine: Record "Purchase Line"; xPurchLine: Record "Purchase Line"; CalledByFieldNo: Integer; CurrFieldNo: Integer)
     begin
         InsertDataTypeBuffer(OnAfterUpdateDirectUnitCostTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 39, 'OnBeforeUpdateDirectUnitCost', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Line", 'OnBeforeUpdateDirectUnitCost', '', false, false)]
     local procedure OnBeforePurchLineUpdateDirectUnitCost(var PurchLine: Record "Purchase Line"; xPurchLine: Record "Purchase Line"; CalledByFieldNo: Integer; CurrFieldNo: Integer)
     begin
         InsertDataTypeBuffer(OnBeforeUpdateDirectUnitCostTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 39, 'OnAfterInitOutstandingAmount', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Line", 'OnAfterInitOutstandingAmount', '', false, false)]
     local procedure OnAfterPurchLineInitOutstandingAmount(var PurchLine: Record "Purchase Line"; PurchHeader: Record "Purchase Header"; Currency: Record Currency)
     begin
         InsertDataTypeBuffer(OnAfterInitOutstandingAmountTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 39, 'OnAfterInitQtyToInvoice', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Line", 'OnAfterInitQtyToInvoice', '', false, false)]
     local procedure OnAfterPurchLineInitQtyToInvoice(var PurchLine: Record "Purchase Line"; CurrFieldNo: Integer)
     begin
         InsertDataTypeBuffer(OnAfterInitQtyToInvoiceTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 39, 'OnAfterInitQtyToReceive', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Line", 'OnAfterInitQtyToReceive', '', false, false)]
     local procedure OnAfterPurchLineInitQtyToReceive(var PurchLine: Record "Purchase Line"; CurrFieldNo: Integer)
     begin
         InsertDataTypeBuffer(OnAfterInitQtyToReceiveTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 39, 'OnAfterInitQtyToShip', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Line", 'OnAfterInitQtyToShip', '', false, false)]
     local procedure OnAfterPurchLineInitQtyToShip(var PurchLine: Record "Purchase Line"; CurrFieldNo: Integer)
     begin
         InsertDataTypeBuffer(OnAfterInitQtyToShipTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 39, 'OnAfterUpdateUnitCost', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Line", 'OnAfterUpdateUnitCost', '', false, false)]
     local procedure OnAfterPurchLineUpdateUnitCost(var PurchLine: Record "Purchase Line"; xPurchLine: Record "Purchase Line"; PurchHeader: Record "Purchase Header"; Item: Record Item; StockkeepingUnit: Record "Stockkeeping Unit"; Currency: Record Currency; GLSetup: Record "General Ledger Setup")
     begin
         InsertDataTypeBuffer(OnAfterUpdateUnitCostTxt);
     end;
 
-    [EventSubscriber(ObjectType::Table, 39, 'OnAfterUpdateJobPrices', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Line", 'OnAfterUpdateJobPrices', '', false, false)]
     local procedure OnAfterPurchLineUpdateJobPrices(var PurchLine: Record "Purchase Line"; JobJnlLine: Record "Job Journal Line"; PurchRcptLine: Record "Purch. Rcpt. Line")
     begin
         InsertDataTypeBuffer(OnAfterUpdateJobPricesTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 22, 'OnCheckPostingCostToGL', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Jnl.-Post Line", 'OnCheckPostingCostToGL', '', false, false)]
     local procedure OnCheckPostingCostToGL(var PostCostToGL: Boolean)
     begin
         PostCostToGL := false;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6721, 'OnSetBookingItemInvoiced', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnSetBookingItemInvoiced(var InvoicedBookingItem: Record "Invoiced Booking Item")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Booking Manager", 'OnSetBookingItemInvoiced', '', false, false)]
+    local procedure OnSetBookingItemInvoiced(var InvoicedBookingItem: Record "Invoiced Booking Item")
     begin
         InsertDataTypeBuffer(OnSetBookingItemInvoicedTxt);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 260, 'OnBeforeGetAttachmentFileName', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnBeforeGetAttachmentFileName(var AttachmentFileName: Text[250]; PostedDocNo: Code[20]; EmailDocumentName: Text[250]; ReportUsage: Integer)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Document-Mailing", 'OnBeforeGetAttachmentFileName', '', false, false)]
+    local procedure OnBeforeGetAttachmentFileName(var AttachmentFileName: Text[250]; PostedDocNo: Code[20]; EmailDocumentName: Text[250]; ReportUsage: Integer)
     begin
         InsertDataTypeBuffer(OnBeforeGetAttachmentFileNameTxt);
     end;

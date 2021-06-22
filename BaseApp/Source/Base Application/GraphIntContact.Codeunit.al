@@ -16,7 +16,7 @@ codeunit 5461 "Graph Int. - Contact"
         NoBusinessCategoryErr: Label 'At least one business category must be set to True.', Locked = true;
         CannotGetGraphXrmIdErr: Label 'Cannot find the graph XrmId for graph record id %1.', Locked = true;
 
-    [EventSubscriber(ObjectType::Codeunit, 5345, 'OnAfterTransferRecordFields', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Rec. Synch. Invoke", 'OnAfterTransferRecordFields', '', false, false)]
     local procedure OnAfterTransferRecordFields(var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef; var AdditionalFieldsWereModified: Boolean)
     var
         Contact: Record Contact;
@@ -35,7 +35,7 @@ codeunit 5461 "Graph Int. - Contact"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5345, 'OnBeforeInsertRecord', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Rec. Synch. Invoke", 'OnBeforeInsertRecord', '', false, false)]
     local procedure OnBeforeInsertRecord(SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef)
     var
         Contact: Record Contact;
@@ -58,7 +58,7 @@ codeunit 5461 "Graph Int. - Contact"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5345, 'OnAfterInsertRecord', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Rec. Synch. Invoke", 'OnAfterInsertRecord', '', false, false)]
     local procedure OnAfterInsertRecord(var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef)
     var
         Contact: Record Contact;
@@ -79,7 +79,7 @@ codeunit 5461 "Graph Int. - Contact"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5345, 'OnBeforeModifyRecord', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Rec. Synch. Invoke", 'OnBeforeModifyRecord', '', false, false)]
     local procedure OnBeforeModifyRecord(IntegrationTableMapping: Record "Integration Table Mapping"; SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef)
     var
         GraphContact: Record "Graph Contact";
@@ -107,7 +107,7 @@ codeunit 5461 "Graph Int. - Contact"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5345, 'OnAfterModifyRecord', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Rec. Synch. Invoke", 'OnAfterModifyRecord', '', false, false)]
     local procedure OnAfterModifyRecord(var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef)
     var
         GraphContact: Record "Graph Contact";
@@ -128,7 +128,7 @@ codeunit 5461 "Graph Int. - Contact"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5347, 'OnBeforeDeleteRecord', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Rec. Delete Invoke", 'OnBeforeDeleteRecord', '', false, false)]
     local procedure OnBeforeDeleteRecord(IntegrationTableMapping: Record "Integration Table Mapping"; var DestinationRecordRef: RecordRef)
     var
         Contact: Record Contact;
@@ -165,7 +165,11 @@ codeunit 5461 "Graph Int. - Contact"
             exit(false);
 
         Contact.SetHideValidationDialog(true);
+#if not CLEAN18
         Contact.CreateCustomer(MarketingSetup.GetCustomerTemplate(Contact.Type.AsInteger()));
+#else
+        Contact.CreateCustomerFromTemplate(MarketingSetup.GetCustomerTemplate(Contact.Type.AsInteger()));
+#endif
 
         // This line triggers sync back to graph via Background session
         // We need to update IsCustomer flag back to Graph
@@ -394,7 +398,11 @@ codeunit 5461 "Graph Int. - Contact"
                 if GraphCollectionMgtContact.GetIsCustomer(GraphContact.GetIsCustomerString) and
                    not CheckIsCustomer(Contact)
                 then
+#if not CLEAN18
                     Contact.CreateCustomer(MarketingSetup.GetCustomerTemplate(Contact.Type.AsInteger()));
+#else
+                    Contact.CreateCustomerFromTemplate(MarketingSetup.GetCustomerTemplate(Contact.Type.AsInteger()));
+#endif
 
             if Contact.Type = Contact.Type::Company then begin
                 // IsVendor
@@ -686,7 +694,7 @@ codeunit 5461 "Graph Int. - Contact"
                 GraphIntegrationRecord.XRMId := XrmId;
                 GraphIntegrationRecord.Modify();
             end;
-        until GraphIntegrationRecord.Next = 0;
+        until GraphIntegrationRecord.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

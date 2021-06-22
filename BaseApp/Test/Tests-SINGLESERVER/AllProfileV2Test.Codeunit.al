@@ -14,6 +14,7 @@ codeunit 138698 "AllProfile V2 Test"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
         FileManagement: Codeunit "File Management";
+        DescriptionFilterTxt: Label 'Navigation menu only.';
 
     // Demotool tests
 
@@ -37,29 +38,6 @@ codeunit 138698 "AllProfile V2 Test"
 
         AllProfile.SetRange(Scope, AllProfile.Scope::System);
         Assert.RecordIsEmpty(AllProfile);
-
-        Cleanup();
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestCoherentPermissionsForProfileTables()
-    var
-        IntegerList: Record "Integer";
-        PermissionSet: Record "Permission Set";
-        ListOfTables: Array[4] of Integer;
-    begin
-        // All tables should have the same permission levels
-
-        ListOfTables[1] := Database::"Tenant Profile";
-        ListOfTables[2] := Database::"All Profile";
-        ListOfTables[3] := Database::"Tenant Profile Setting";
-        ListOfTables[4] := Database::Profile;
-
-        PermissionSet.FindSet();
-        repeat
-            CheckPermissionsForSelectedTablesAreTheSameInPermissionSet(ListOfTables, PermissionSet."Role ID");
-        until PermissionSet.Next() = 0;
 
         Cleanup();
     end;
@@ -100,19 +78,22 @@ codeunit 138698 "AllProfile V2 Test"
     procedure TestCanSetAnyProfileInMySettings()
     var
         AllProfile: Record "All Profile";
+        UserPersonalization: Record "User Personalization";
         MySettingsTestPage: TestPage "My Settings";
         ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
         PreviousAllProfileCaption: Text;
     begin
         // [GIVEN] The user has a profile assigned
+        EnsureUserPersonalization();
         ConfPersonalizationMgt.GetCurrentProfileNoError(AllProfile);
         PreviousAllProfileCaption := AllProfile.Caption;
 
         // [GIVEN] A list of builtin profiles is available
         Clear(AllProfile);
         AllProfile.SetRange(Enabled, true);
+        // We need here to repeat the hack in the AvailableRoles page
+        AllProfile.SetFilter(Description, '<> %1', DescriptionFilterTxt);
         AllProfile.FindSet();
-        EnsureUserPersonalization();
 
         repeat
             Assert.AreNotEqual(AllProfile."Profile ID", '', 'Empty profile ID!');
@@ -122,13 +103,21 @@ codeunit 138698 "AllProfile V2 Test"
             Clear(MySettingsTestPage);
 
             MySettingsTestPage.OpenEdit();
-            Assert.AreEqual(PreviousAllProfileCaption, MySettingsTestPage.UserRoleCenter.Value, 'Unexpected profile set for the user.');
+            Assert.AreEqual(PreviousAllProfileCaption, MySettingsTestPage.UserRoleCenter.Value, 'Unexpected profile set for the user when reopening MySettings.');
             LibraryVariableStorage.Enqueue(AllProfile."Profile ID");
             MySettingsTestPage.UserRoleCenter.AssistEdit();
             // Handler
+
             // [THEN] The description is updated on the my settings page
-            Assert.AreEqual(AllProfile.Caption, MySettingsTestPage.UserRoleCenter.Value, 'Unexpected profile set for the user after changing rolecenter.');
+            Assert.AreEqual(AllProfile.Caption, MySettingsTestPage.UserRoleCenter.Value, 'Unexpected profile caption after changing profile.');
             MySettingsTestPage.OK.Invoke();
+
+            // [THEN] The record is updated in the database
+            UserPersonalization.Get(UserSecurityId());
+            Assert.AreEqual(UserPersonalization."Profile ID", AllProfile."Profile ID", 'Unexpected profile ID set for the user after changing rolecenter.');
+            Assert.AreEqual(UserPersonalization."App ID", AllProfile."App ID", 'Unexpected profile app set for the user after changing rolecenter.');
+            Assert.AreEqual(UserPersonalization.Scope, AllProfile.Scope, 'Unexpected profile scope set for the user after changing rolecenter.');
+
             PreviousAllProfileCaption := AllProfile.Caption;
         until AllProfile.Next() = 0;
 
@@ -1149,25 +1138,6 @@ codeunit 138698 "AllProfile V2 Test"
         DestinationRecordRef.GetTable(DestinationAllProfile);
 
         Assert.RecordsAreEqualExceptCertainFields(SourceRecordRef, DestinationRecordRef, FieldTable, 'Copy profile populated the wrong fields');
-    end;
-
-    local procedure CheckPermissionsForSelectedTablesAreTheSameInPermissionSet(TableList: Array[4] of Integer; PermissionSetId: Code[20])
-    var
-        ReferencePermission: Record Permission;
-        PermissionToCompare: Record Permission;
-        Index: Integer;
-        PermissionFound: Boolean;
-    begin
-        PermissionFound := ReferencePermission.Get(PermissionSetId, ReferencePermission."Object Type"::"Table Data", TableList[1]);
-
-        for Index := 2 to ArrayLen(TableList) do begin
-            Assert.AreEqual(PermissionFound,
-                PermissionToCompare.Get(PermissionSetId, ReferencePermission."Object Type"::"Table Data", TableList[Index]),
-                Strsubstno('Permissions do not match for table %1 and permission set %2.', TableList[Index], PermissionSetId));
-
-            if PermissionFound then
-                ComparePermissions(ReferencePermission, PermissionToCompare);
-        end;
     end;
 
     local procedure ComparePermissions(Permission1: Record Permission; Permission2: Record Permission)

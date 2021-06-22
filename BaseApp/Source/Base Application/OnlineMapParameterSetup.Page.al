@@ -104,7 +104,7 @@ page 804 "Online Map Parameter Setup"
     var
         OnlineMapParameterSetup: Record "Online Map Parameter Setup";
     begin
-        if OnlineMapParameterSetup.IsEmpty then
+        if OnlineMapParameterSetup.IsEmpty() then
             OnlineMapParameterSetup.InsertDefaults;
     end;
 }

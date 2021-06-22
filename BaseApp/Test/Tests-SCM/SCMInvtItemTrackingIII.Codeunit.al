@@ -630,7 +630,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         SetupProdChainWithSN(CompItemLedgerEntry, SubItemLedgerEntry, TopItemLedgerEntry);
 
         // Check a random top item tracing entry.
-        TopItemLedgerEntry.FindSet;
+        TopItemLedgerEntry.FindSet();
         TopItemLedgerEntry.Next(LibraryRandom.RandInt(TopItemLedgerEntry.Count));
         OpenItemTracingPage(
           ItemTracing, TopItemLedgerEntry."Item No.", TopItemLedgerEntry."Serial No.", TopItemLedgerEntry."Lot No.", TraceMethod);
@@ -638,18 +638,18 @@ codeunit 137262 "SCM Invt Item Tracking III"
 
         // Check a random subassembly item tracing entry - consumption and output.
         SubItemLedgerEntry.SetRange("Entry Type", SubItemLedgerEntry."Entry Type"::Consumption);
-        SubItemLedgerEntry.FindSet;
+        SubItemLedgerEntry.FindSet();
         SubItemLedgerEntry.Next(LibraryRandom.RandInt(SubItemLedgerEntry.Count));
         VerifySingleItemTracingLine(ItemTracing, SubItemLedgerEntry, 1);
 
         SubItemLedgerEntry.SetRange("Entry Type", SubItemLedgerEntry."Entry Type"::Output);
-        SubItemLedgerEntry.FindSet;
+        SubItemLedgerEntry.FindSet();
         SubItemLedgerEntry.Next(LibraryRandom.RandInt(SubItemLedgerEntry.Count));
         VerifySingleItemTracingLine(ItemTracing, SubItemLedgerEntry, 1);
 
         // Check consumption entries for component item.
         CompItemLedgerEntry.SetRange("Entry Type", CompItemLedgerEntry."Entry Type"::Consumption);
-        CompItemLedgerEntry.FindSet;
+        CompItemLedgerEntry.FindSet();
         repeat
             VerifySingleItemTracingLine(ItemTracing, CompItemLedgerEntry, CompItemLedgerEntry.Count);
         until CompItemLedgerEntry.Next = 0;
@@ -657,7 +657,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         // Check purchase entries for component item - should only be traced once per serial/lot/item.
         CompItemLedgerEntry.SetRange("Entry Type", CompItemLedgerEntry."Entry Type"::Purchase);
         CompItemLedgerEntry.SetRange("Remaining Quantity", 0);
-        CompItemLedgerEntry.FindSet;
+        CompItemLedgerEntry.FindSet();
         repeat
             VerifySingleItemTracingLine(ItemTracing, CompItemLedgerEntry, 1);
         until CompItemLedgerEntry.Next = 0;
@@ -3741,10 +3741,9 @@ codeunit 137262 "SCM Invt Item Tracking III"
     var
         ProductionOrder: Record "Production Order";
         ReservationEntry: Record "Reservation Entry";
-        OrderType: Option ItemOrder,ProjectOrder;
         EntryNo: Integer;
     begin
-        LibraryManufacturing.CreateProductionOrderFromSalesOrder(SalesHeader, ProductionOrder.Status::Released, OrderType::ProjectOrder);
+        LibraryManufacturing.CreateProductionOrderFromSalesOrder(SalesHeader, ProductionOrder.Status::Released, "Create Production Order Type"::ProjectOrder);
         if ReservationEntry.FindLast then;
         EntryNo := ReservationEntry."Entry No." + 1;
         CreateReservationEntry(SalesLine, EntryNo, DATABASE::"Sales Line", false);
@@ -4696,7 +4695,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         with PurchRcptLine do begin
             SetRange(Type, Type::Item);
             SetRange("No.", ItemNo);
-            FindSet;
+            FindSet();
             repeat
                 Assert.AreEqual(Quantity, "Quantity Invoiced", StrSubstNo(WrongInvoicedQtyErr, TableCaption));
             until Next = 0;
@@ -4710,7 +4709,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         with SalesShipmentLine do begin
             SetRange(Type, Type::Item);
             SetRange("No.", ItemNo);
-            FindSet;
+            FindSet();
             repeat
                 Assert.AreEqual(Quantity, "Quantity Invoiced", StrSubstNo(WrongInvoicedQtyErr, TableCaption));
             until Next = 0;
@@ -4821,7 +4820,7 @@ codeunit 137262 "SCM Invt Item Tracking III"
         ReservEntry.SetRange("Source Type", DATABASE::"Purchase Line");
         ReservEntry.SetRange("Source Subtype", DocumentType);
         ReservEntry.SetRange("Source ID", DocumentNo);
-        ReservEntry.FindSet;
+        ReservEntry.FindSet();
         repeat
             Assert.AreEqual(
               ExpectedQtyPerUoM, ReservEntry."Qty. per Unit of Measure",

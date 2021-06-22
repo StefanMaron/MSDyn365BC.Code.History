@@ -68,14 +68,14 @@ table 5054 "Contact Business Relation"
         }
         field(5; "Business Relation Description"; Text[100])
         {
-            CalcFormula = Lookup ("Business Relation".Description WHERE(Code = FIELD("Business Relation Code")));
+            CalcFormula = Lookup("Business Relation".Description WHERE(Code = FIELD("Business Relation Code")));
             Caption = 'Business Relation Description';
             Editable = false;
             FieldClass = FlowField;
         }
         field(6; "Contact Name"; Text[100])
         {
-            CalcFormula = Lookup (Contact.Name WHERE("No." = FIELD("Contact No.")));
+            CalcFormula = Lookup(Contact.Name WHERE("No." = FIELD("Contact No.")));
             Caption = 'Contact Name';
             Editable = false;
             FieldClass = FlowField;
@@ -275,7 +275,7 @@ table 5054 "Contact Business Relation"
     begin
         if FindByRelation(LinkType, LinkNo) then begin
             Contact.SetRange("Company No.", "Contact No.");
-            if Contact.IsEmpty then begin
+            if Contact.IsEmpty() then begin
                 Contact.SetRange("Company No.");
                 Contact.SetRange("No.", "Contact No.");
             end;
@@ -284,8 +284,126 @@ table 5054 "Contact Business Relation"
         exit(false);
     end;
 
+    procedure GetName() Name: Text;
+    var
+        Cust: Record Customer;
+        Vend: Record Vendor;
+        BankAcc: Record "Bank Account";
+        Employee: Record Employee;
+    begin
+        if "No." = '' then
+            exit('');
+
+        case "Link to Table" of
+            "Link to Table"::Customer:
+                begin
+                    Cust.Get("No.");
+                    exit(Cust.Name);
+                end;
+            "Link to Table"::Vendor:
+                begin
+                    Vend.Get("No.");
+                    exit(Vend.Name);
+                end;
+            "Link to Table"::"Bank Account":
+                begin
+                    BankAcc.Get("No.");
+                    exit(BankAcc.Name);
+                end;
+            "Link to Table"::Employee:
+                begin
+                    Employee.Get("No.");
+                    exit(Employee.FullName());
+                end;
+            else
+                OnGetNameCaseElse(Rec, Name);
+        end;
+    end;
+
+    procedure ShowRelatedCardPage();
+    var
+#if not CLEAN18
+        Contact: Record Contact;
+#endif
+        Cust: Record Customer;
+        Vend: Record Vendor;
+        BankAcc: Record "Bank Account";
+        Employee: Record Employee;
+    begin
+        if "No." = '' then begin
+            PAGE.Run(PAGE::"Contact Business Relations", Rec);
+            exit;
+        end;
+
+        case "Link to Table" of
+            "Link to Table"::Customer:
+                begin
+                    Cust.Get("No.");
+                    Cust.SetRange("Date Filter", 0D, WorkDate());
+                    PAGE.Run(PAGE::"Customer Card", Cust);
+                end;
+            "Link to Table"::Vendor:
+                begin
+                    Vend.Get("No.");
+                    Vend.SetRange("Date Filter", 0D, WorkDate());
+                    PAGE.Run(PAGE::"Vendor Card", Vend);
+                end;
+            "Link to Table"::"Bank Account":
+                begin
+                    BankAcc.Get("No.");
+                    BankAcc.SetRange("Date Filter", 0D, WorkDate());
+                    PAGE.Run(PAGE::"Bank Account Card", BankAcc);
+                end;
+            "Link to Table"::Employee:
+                begin
+                    Employee.Get("No.");
+                    Page.Run(Page::"Employee Card", Employee);
+                end;
+#if CLEAN18
+            else
+                OnShowRelatedCardPageCaseElse(Rec);
+#else
+            else begin
+                    Contact.RunOnShowCustVendBankCaseElse(Rec);
+                    OnShowRelatedCardPageCaseElse(Rec);
+                end;
+#endif
+        end;
+    end;
+
+    procedure UpdateContactBusinessRelation()
+    var
+        Contact: Record Contact;
+    begin
+        if IsTemporary() then
+            exit;
+        if "Contact No." <> '' then
+            if Contact.Get("Contact No.") then begin
+                if Contact.UpdateBusinessRelation() then
+                    Contact.Modify();
+
+                Contact.SetFilter("No.", '<>%1', "Contact No.");
+                Contact.SetRange("Company No.", "Contact No.");
+                if Contact.FindSet(true) then
+                    repeat
+                        if Contact.UpdateBusinessRelation() then
+                            Contact.Modify();
+                    until Contact.Next() = 0;
+            end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnGetContactBusinessRelation(var ContactBusinessRelation: Record "Contact Business Relation"; var RecordRead: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetNameCaseElse(ContactBusinessRelation: Record "Contact Business Relation"; var Name: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowRelatedCardPageCaseElse(ContactBusinessRelation: Record "Contact Business Relation")
     begin
     end;
 }

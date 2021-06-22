@@ -530,9 +530,8 @@ codeunit 135155 "Data Privacy Tests"
         UNBINDSUBSCRIPTION(DataPrivacyTests);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1180, 'OnAfterGetPackageCode', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterGetPackageCodeSubscriber(EntityTypeTableNo: Integer; EntityNo: Code[50]; ActionType: Option "Export a data subject's data","Create a data privacy configuration package"; var PackageCodeTemp: Code[20]; var PackageCodeKeep: Code[20])
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Data Privacy Mgmt", 'OnAfterGetPackageCode', '', false, false)]
+    local procedure OnAfterGetPackageCodeSubscriber(EntityTypeTableNo: Integer; EntityNo: Code[50]; ActionType: Option "Export a data subject's data","Create a data privacy configuration package"; var PackageCodeTemp: Code[20]; var PackageCodeKeep: Code[20])
     var
         ConfigPackage: Record "Config. Package";
     begin

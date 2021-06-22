@@ -1281,39 +1281,6 @@ codeunit 134400 "ERM Incoming Documents"
 
     [Test]
     [Scope('OnPrem')]
-    procedure TestCreateIncomingDocumentFromServerFile()
-    var
-        IncomingDocument: Record "Incoming Document";
-        IncomingDocumentAttachment: Record "Incoming Document Attachment";
-        FileManagement: Codeunit "File Management";
-        File: File;
-        FileName: Text;
-    begin
-        // Init
-        FileName := FileManagement.ServerTempFileName('xml');
-        File.Create(FileName);
-        File.Write('<TEST>hello</TEST>');
-        File.Close;
-
-        // Execute
-        IncomingDocument.CreateIncomingDocumentFromServerFile('MyFile.xml', FileName);
-
-        // Verify
-        IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
-        Assert.AreEqual(1, IncomingDocumentAttachment.Count, '');
-        IncomingDocumentAttachment.FindFirst;
-        IncomingDocumentAttachment.CalcFields(Content);
-        Assert.IsTrue(IncomingDocumentAttachment.Content.HasValue, '');
-        Assert.AreEqual(IncomingDocumentAttachment.Type::XML, IncomingDocumentAttachment.Type, '');
-        Assert.AreEqual('xml', IncomingDocumentAttachment."File Extension", '');
-
-        // Clean-up + test delete
-        IncomingDocument.Delete(true);
-        Assert.AreEqual(0, IncomingDocumentAttachment.Count, '');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure TestDefaultAttachmentOnInsert()
     var
         IncomingDocument: Record "Incoming Document";
@@ -1356,7 +1323,7 @@ codeunit 134400 "ERM Incoming Documents"
         ImportAttachToIncomingDoc(IncomingDocumentAttachment, FileName);
 
         // Verify;
-        IncomingDocumentAttachment.FindSet;
+        IncomingDocumentAttachment.FindSet();
         Assert.IsTrue(IncomingDocumentAttachment.Default, '');
         while IncomingDocumentAttachment.Next <> 0 do
             Assert.IsFalse(IncomingDocumentAttachment.Default, '');

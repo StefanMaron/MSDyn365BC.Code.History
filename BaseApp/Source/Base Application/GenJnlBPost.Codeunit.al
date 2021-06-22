@@ -67,7 +67,7 @@ codeunit 233 "Gen. Jnl.-B.Post"
                         end;
                     end;
                 end;
-            until Next = 0;
+            until Next() = 0;
 
             if GenJnlsScheduled then
                 Message(JournalsScheduledMsg);

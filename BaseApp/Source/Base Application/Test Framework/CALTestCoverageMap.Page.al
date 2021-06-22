@@ -100,7 +100,7 @@ page 130408 "CAL Test Coverage Map"
                                 File.CreateInStream(InStream);
                                 XMLPORT.Import(XMLPORT::"CAL Test Coverage Map", InStream);
                                 File.Close;
-                            until TempNameValueBuffer.Next = 0;
+                            until TempNameValueBuffer.Next() = 0;
                     end;
                 end;
             }

@@ -126,6 +126,10 @@ page 5330 "CRM Connection Setup"
                 }
                 field(ItemAvailabilityWebServEnabled; WebServiceEnabled)
                 {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This functionality is replaced with new item availability job queue entry.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                     ApplicationArea = Suite;
                     Caption = 'Item Availability Web Service Enabled';
                     Editable = false;
@@ -145,12 +149,20 @@ page 5330 "CRM Connection Setup"
                 }
                 label(Control34)
                 {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This functionality is replaced with new item availability job queue entry.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                     ApplicationArea = Suite;
                     ShowCaption = false;
                     Caption = '';
                 }
                 field(NAVODataURL; "Dynamics NAV OData URL")
                 {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This functionality is replaced with new item availability job queue entry.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                     ApplicationArea = Suite;
                     Caption = 'Dynamics 365 Business Central OData Web Service URL';
                     Enabled = "Is CRM Solution Installed";
@@ -158,6 +170,10 @@ page 5330 "CRM Connection Setup"
                 }
                 field(NAVODataUsername; "Dynamics NAV OData Username")
                 {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This functionality is replaced with new item availability job queue entry.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                     ApplicationArea = Suite;
                     Caption = 'Dynamics 365 Business Central OData Web Service Username';
                     Enabled = "Is CRM Solution Installed";
@@ -167,6 +183,10 @@ page 5330 "CRM Connection Setup"
                 }
                 field(NAVODataAccesskey; "Dynamics NAV OData Accesskey")
                 {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This functionality is replaced with new item availability job queue entry.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                     ApplicationArea = Suite;
                     Caption = 'Dynamics 365 Business Central OData Web Service Accesskey';
                     Editable = false;
@@ -273,6 +293,12 @@ page 5330 "CRM Connection Setup"
                     Caption = 'Open Coupled Entities in Dynamics 365 Sales Hub';
                     ToolTip = 'Specifies that coupled Dynamics 365 Sales entities should open in Sales Hub.';
                 }
+                field("Item Availability Enabled"; "Item Availability Enabled")
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Automatically Synchronize Item Availability';
+                    ToolTip = 'Specifies that item availability job queue entry will be scheduled.';
+                }
                 label(Control30)
                 {
                     ApplicationArea = Suite;
@@ -331,12 +357,13 @@ page 5330 "CRM Connection Setup"
 
                 trigger OnAction()
                 var
-                    AssistedSetup: Codeunit "Assisted Setup";
+                    GuidedExperience: Codeunit "Guided Experience";
                     CRMIntegrationMgt: Codeunit "CRM Integration Management";
+                    GuidedExperienceType: Enum "Guided Experience Type";
                 begin
                     CRMIntegrationMgt.RegisterAssistedSetup();
                     Commit(); // Make sure all data is committed before we run the wizard
-                    AssistedSetup.Run(Page::"CRM Connection Setup Wizard");
+                    GuidedExperience.Run(GuidedExperienceType::"Assisted Setup", ObjectType::Page, Page::"CRM Connection Setup Wizard");
                     CurrPage.Update(false);
                 end;
             }
@@ -377,7 +404,7 @@ page 5330 "CRM Connection Setup"
                 Promoted = true;
                 PromotedCategory = Report;
                 Enabled = IsCdsIntegrationEnabled and (not "Is Enabled");
-                ToolTip = 'Redeploy and reconfigure the base integration solution.';
+                ToolTip = 'Redeploy and reconfigure the Microsoft Dynamics 365 Sales integration solution.';
 
                 trigger OnAction()
                 begin
@@ -565,12 +592,12 @@ page 5330 "CRM Connection Setup"
 
     trigger OnInit()
     var
-        EnvironmentInformation: Codeunit "Environment Information";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        EnvironmentInfo: Codeunit "Environment Information";
     begin
         ApplicationAreaMgmtFacade.CheckAppAreaOnlyBasic;
-        SoftwareAsAService := EnvironmentInformation.IsSaaSInfrastructure();
+        SoftwareAsAService := EnvironmentInfo.IsSaaSInfrastructure();
         CRMIntegrationManagement.RegisterAssistedSetup();
         SetVisibilityFlags();
     end;
@@ -661,8 +688,6 @@ page 5330 "CRM Connection Setup"
         SetAutoCreateSalesOrdersEditable;
         RefreshSynchJobsData;
         UpdateEnableFlags;
-        if not WebServiceEnabled then
-            Clear("Dynamics NAV OData URL");
         SetStyleExpr;
     end;
 
@@ -678,7 +703,6 @@ page 5330 "CRM Connection Setup"
         CRMSolutionInstalledStyleExpr := GetStyleExpr("Is CRM Solution Installed");
         CRMVersionStyleExpr := GetStyleExpr(IsVersionValid);
         UserMappedToCRMUserStyleExpr := GetStyleExpr("Is User Mapped To CRM User");
-        WebServiceEnabledStyleExpr := GetStyleExpr(WebServiceEnabled);
     end;
 
     local procedure SetAutoCreateSalesOrdersEditable()
@@ -704,12 +728,10 @@ page 5330 "CRM Connection Setup"
 
     local procedure UpdateEnableFlags()
     var
-        CRMIntegrationManagement: Codeunit "CRM Integration Management";
         CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
     begin
         IsEditable := not "Is Enabled" and not CDSIntegrationImpl.IsIntegrationEnabled();
         IsWebCliResetEnabled := "Is CRM Solution Installed" and "Is Enabled For User";
-        WebServiceEnabled := CRMIntegrationManagement.IsItemAvailabilityWebServiceEnabled;
     end;
 
     local procedure SetVisibilityFlags()

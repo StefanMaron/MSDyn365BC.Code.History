@@ -206,7 +206,7 @@ codeunit 130511 "Library - Resource"
         Resource.SetFilter("VAT Prod. Posting Group", '<>''''');
         Resource.SetRange(Blocked, false);
 
-        Resource.FindSet;
+        Resource.FindSet();
     end;
 
     procedure FindResJournalBatch(var ResJournalBatch: Record "Res. Journal Batch"; JournalTemplateName: Code[10])
@@ -222,7 +222,7 @@ codeunit 130511 "Library - Resource"
 
     procedure FindWorkType(var WorkType: Record "Work Type")
     begin
-        WorkType.FindSet;
+        WorkType.FindSet();
     end;
 
     [Normal]

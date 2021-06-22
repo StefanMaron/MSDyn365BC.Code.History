@@ -946,7 +946,7 @@ page 9203 "Budget Matrix"
         GLAccBudgetBuf.CalcFields("Budgeted Amount");
         GLAccBudgetBuf.Validate("Budgeted Amount", NewAmount);
         Amount := MatrixMgt.RoundValue(CalcAmount(false), RoundingFactor);
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure GLAccountBalanceBudget()

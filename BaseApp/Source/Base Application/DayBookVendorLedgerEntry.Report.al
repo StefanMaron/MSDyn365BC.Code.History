@@ -324,7 +324,7 @@ report 2502 "Day Book Vendor Ledger Entry"
                         repeat
                             VATAmount := VATAmount - VATEntry.Amount;
                             VATBase := VATBase - VATEntry.Base;
-                        until VATEntry.Next = 0;
+                        until VATEntry.Next() = 0;
 
                     PmtDiscRcd := 0;
                     VendLedgEntry.SetCurrentKey("Closed by Entry No.");
@@ -332,7 +332,7 @@ report 2502 "Day Book Vendor Ledger Entry"
                     if VendLedgEntry.Find('-') then
                         repeat
                             PmtDiscRcd := PmtDiscRcd - VendLedgEntry."Pmt. Disc. Rcd.(LCY)"
-                        until VendLedgEntry.Next = 0;
+                        until VendLedgEntry.Next() = 0;
 
                     ActualAmount := "Amount (LCY)" - PmtDiscRcd;
                 end;

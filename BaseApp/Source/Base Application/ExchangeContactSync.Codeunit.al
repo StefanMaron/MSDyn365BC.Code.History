@@ -9,7 +9,7 @@ codeunit 6703 "Exchange Contact Sync."
         if LocalExchangeSync.FindSet then
             repeat
                 O365SyncManagement.SyncExchangeContacts(LocalExchangeSync, false);
-            until LocalExchangeSync.Next = 0;
+            until LocalExchangeSync.Next() = 0;
     end;
 
     var
@@ -119,7 +119,7 @@ codeunit 6703 "Exchange Contact Sync."
                     Contact.Insert(true);
                     O365ContactSyncHelper.TransferExchangeContactToNavContact(LocalContact, Contact, ExchangeSync);
                 end;
-            until (LocalContact.Next = 0)
+            until (LocalContact.Next() = 0)
     end;
 
     local procedure ProcessNavContacts(var ExchangeSync: Record "Exchange Sync"; var TempContact: Record Contact temporary; SkipDateFilters: Boolean)

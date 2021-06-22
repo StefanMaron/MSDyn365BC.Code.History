@@ -459,7 +459,7 @@ page 9033 "Invite External Accountant"
         EmailBody := StrSubstNo(EmailBodyTxt, PRODUCTNAME.Marketing) + NewLineForTextControl + NewLineForTextControl;
         EmailClosing := EmailClosingTxt + NewLineForTextControl + User."User Name" + NewLineForTextControl + Company."Display Name";
         NewUserWelcomeEmail := EmailGreeting + EmailBody + EmailClosing;
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure DefineFullEmailBody(InitialEmailMessage: Text): Text

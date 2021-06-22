@@ -352,7 +352,7 @@ report 5876 "Posted Phys. Invt. Order Diff."
                                     Continue := true;
                                     exit;
                                 end;
-                            until (DimSetEntry.Next = 0);
+                            until (DimSetEntry.Next() = 0);
                         end;
 
                         trigger OnPreDataItem()
@@ -523,7 +523,7 @@ report 5876 "Posted Phys. Invt. Order Diff."
                     TempPhysInvtCountBuffer."Exp. Lot No." := PstdExpPhysInvtTrack."Lot No.";
                     TempPhysInvtCountBuffer."Exp. Qty. (Base)" := PstdExpPhysInvtTrack."Quantity (Base)";
                     TempPhysInvtCountBuffer.Modify();
-                until PstdExpPhysInvtTrack.Next = 0;
+                until PstdExpPhysInvtTrack.Next() = 0;
 
             NextLineNo := 1;
             PstdPhysInvtRecordLine.Reset();
@@ -539,7 +539,7 @@ report 5876 "Posted Phys. Invt. Order Diff."
                     TempPhysInvtCountBuffer."Rec. Lot No." := PstdPhysInvtRecordLine."Lot No.";
                     TempPhysInvtCountBuffer."Rec. Qty. (Base)" := PstdPhysInvtRecordLine."Quantity (Base)";
                     TempPhysInvtCountBuffer.Modify();
-                until PstdPhysInvtRecordLine.Next = 0;
+                until PstdPhysInvtRecordLine.Next() = 0;
         end;
 
         LastLineNo := NextLineNo - 1;
@@ -574,7 +574,7 @@ report 5876 "Posted Phys. Invt. Order Diff."
                       PhysInvtCountBuffer."Exp. Serial No.", PhysInvtCountBuffer."Exp. Lot No.",
                       0, -PhysInvtCountBuffer."Exp. Qty. (Base)", NextLineNo);
                 end;
-            until PhysInvtCountBuffer.Next = 0;
+            until PhysInvtCountBuffer.Next() = 0;
 
         TempPhysInvtCountBuffer.Reset();
         PhysInvtCountBuffer.SetFilter("Line No.", '%1..%2', 0, LastLineNo);
@@ -608,7 +608,7 @@ report 5876 "Posted Phys. Invt. Order Diff."
                       PhysInvtCountBuffer."Rec. Serial No.", PhysInvtCountBuffer."Rec. Lot No.",
                       PhysInvtCountBuffer."Rec. Qty. (Base)", 0, NextLineNo);
                 end;
-            until PhysInvtCountBuffer.Next = 0;
+            until PhysInvtCountBuffer.Next() = 0;
     end;
 
     procedure FindOrCreateDiffListBuffer(var NoOfBufferLines: Integer; var NextLineNo: Integer)

@@ -11,6 +11,9 @@ page 5502 "Trial Balance Entity"
     PageType = API;
     SourceTable = "Trial Balance Entity Buffer";
     SourceTableTemporary = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'API version beta will be deprecated.';
+    ObsoleteTag = '18.0';
 
     layout
     {

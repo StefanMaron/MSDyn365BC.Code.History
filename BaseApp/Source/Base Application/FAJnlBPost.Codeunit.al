@@ -41,7 +41,7 @@ codeunit 5637 "FA. Jnl.-B.Post"
                     Mark(true);
                     JournalWithErrors := true;
                 end;
-            until Next = 0;
+            until Next() = 0;
 
             if not JournalWithErrors then
                 Message(Text001)

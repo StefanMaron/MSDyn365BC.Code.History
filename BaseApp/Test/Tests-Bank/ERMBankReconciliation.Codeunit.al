@@ -30,11 +30,13 @@ codeunit 134141 "ERM Bank Reconciliation"
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryJournals: Codeunit "Library - Journals";
         LibraryApplicationArea: Codeunit "Library - Application Area";
+        LibraryHumanResource: Codeunit "Library - Human Resource";
         isInitialized: Boolean;
         StatementNoEditableErr: Label '%1 should not be editable.', Comment = '%1 - "Statement No." field caption';
         TransactionAmountReducedMsg: Label 'The value in the Transaction Amount field has been reduced';
         ICPartnerAccountTypeQst: Label 'The resulting entry will be of type IC Transaction, but no Intercompany Outbox transaction will be created. \\Do you want to use the IC Partner account type anyway?';
         StatementAlreadyExistsErr: Label 'A bank account reconciliation with statement number %1 already exists.', Comment = '%1 - statement number';
+        PaymentLineAppliedMsg: Label '%1 payment lines out of 1 are applied.\\', Comment = '%1 - number';
 
     [Test]
     [HandlerFunctions('GenJnlPageHandler')]
@@ -2032,7 +2034,356 @@ codeunit 134141 "ERM Bank Reconciliation"
         Assert.ExpectedError(StrSubstNo(StatementAlreadyExistsErr, BankAccReconciliation[1]."Statement No."));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostPaymentReconciliationJournalEmployee()
+    var
+        Employee: Record Employee;
+
+        GenJnlLine: Record "Gen. Journal Line";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        EntryNo: Integer;
+    begin
+        // [FEATURE] [Employee]
+        // [SCENARIO 325315] User is able to use Employee for payment reconciliation journal
+        Initialize();
+
+        // [GIVEN] Employee "E"
+        CreateEmployee(Employee);
+        // [GIVEN] Post general journal line with Employee "E" and Amount -100
+        EntryNo := CreateAndPostGenJournalLineEmployee(GenJnlLine, Employee."No.");
+
+        // [GIVEN] Create payment reconciliation "R" for employee "E"
+        CreateBankReconciliationWithEmployee(BankAccReconciliation, BankAccReconciliationLine, Employee."No.", GenJnlLine.Amount);
+        ApplyBankAccReconLineToEmployee(BankAccReconciliationLine, Employee."No.", EntryNo);
+
+        // [WHEN] Post payment reconciliation "R"
+        LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
+
+        // [THEN] Payment for employee "E" with Amount 100 created
+        VerifyEmployeeLedgerEntry(Employee."No.", BankAccReconciliation."Statement No.", -GenJnlLine.Amount, "Gen. Journal Document Type"::Payment);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('PaymentApplicationPageWithEmployeeApply,ConfirmHandler')]
+    procedure PaymentReconciliationJournalEmployeeApplyPostUI()
+    var
+        Employee: Record Employee;
+        GenJnlLine: Record "Gen. Journal Line";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        PaymentReconciliationJournal: TestPage "Payment Reconciliation Journal";
+    begin
+        // [FEATURE] [Employee] [UI]
+        // [SCENARIO 325315] UI scenario of apply and post payment reconciliation journal with employee
+        Initialize();
+
+        // [GIVEN] Employee "E"
+        CreateEmployee(Employee);
+        // [GIVEN] Post general journal line with Employee "E" and Amount -100
+        CreateAndPostGenJournalLineEmployee(GenJnlLine, Employee."No.");
+
+        // [GIVEN] Create payment reconciliation "R" for employee "E"
+        CreateBankReconciliationWithEmployee(BankAccReconciliation, BankAccReconciliationLine, Employee."No.", GenJnlLine.Amount);
+
+        // [WHEN] Run action Apply Manualy from Payment Reconciliation Journal
+        LibraryVariableStorage.Enqueue(Employee."No.");
+        LibraryVariableStorage.Enqueue(GenJnlLine.Amount);
+        PaymentReconciliationJournal.OpenEdit();
+        PaymentReconciliationJournal.GoToRecord(BankAccReconciliationLine);
+        PaymentReconciliationJournal.ApplyEntries.Invoke();
+        PaymentReconciliationJournal.PostPaymentsOnly.Invoke();
+
+        // [THEN] Payment for employee "E" with Amount 100 created
+        VerifyEmployeeLedgerEntry(Employee."No.", BankAccReconciliation."Statement No.", -GenJnlLine.Amount, "Gen. Journal Document Type"::Payment);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PaymentReconciliationJournalEmployeeUI()
+    var
+        Employee: Record Employee;
+        GenJnlLine: Record "Gen. Journal Line";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        PaymentReconciliationJournal: TestPage "Payment Reconciliation Journal";
+    begin
+        // [FEATURE] [Employee] [UI]
+        // [SCENARIO 325315] Employee ledger entry can be processed on Payment Application page
+        Initialize();
+
+        // [GIVEN] Employee "E"
+        CreateEmployee(Employee);
+        // [GIVEN] Post general journal line with Employee "E" and Amount -100
+        CreateAndPostGenJournalLineEmployee(GenJnlLine, Employee."No.");
+
+        // [GIVEN] Create payment reconciliation "R" for employee "E"
+        CreateBankReconciliationWithEmployee(BankAccReconciliation, BankAccReconciliationLine, Employee."No.", GenJnlLine.Amount);
+
+        // [WHEN] Open Payment Reconciliation Journal
+        PaymentReconciliationJournal.OpenEdit();
+        PaymentReconciliationJournal.GoToRecord(BankAccReconciliationLine);
+
+        // [THEN] Page Payment Reconciliation Journal has record with Account Type Employee, Account No. = "E", Account Name = "E"
+        Assert.AreEqual(Employee."No.", PaymentReconciliationJournal."Account No.".Value, 'Invalid Account No.');
+        Assert.AreEqual(Employee.FullName(), PaymentReconciliationJournal.AccountName.Value, 'Invalid Account Name');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('PaymentApplicationPageWithEmployee')]
+    procedure PaymentApplicationEmployeeApplyManually()
+    var
+        Employee: Record Employee;
+        GenJnlLine: Record "Gen. Journal Line";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        PaymentReconciliationJournal: TestPage "Payment Reconciliation Journal";
+    begin
+        // [FEATURE] [Employee] [UI]
+        // [SCENARIO 325315] Employee ledger entry can be processed on Payment Application page
+        Initialize();
+
+        // [GIVEN] Employee "E"
+        CreateEmployee(Employee);
+        // [GIVEN] Post general journal line with Employee "E" and Amount -100
+        CreateAndPostGenJournalLineEmployee(GenJnlLine, Employee."No.");
+
+        // [GIVEN] Create payment reconciliation "R" for employee "E"
+        CreateBankReconciliationWithEmployee(BankAccReconciliation, BankAccReconciliationLine, Employee."No.", GenJnlLine.Amount);
+
+        // [WHEN] Run action Apply Manualy from Payment Reconciliation Journal
+        LibraryVariableStorage.Enqueue(Employee."No.");
+        PaymentReconciliationJournal.OpenEdit();
+        PaymentReconciliationJournal.GoToRecord(BankAccReconciliationLine);
+        PaymentReconciliationJournal.ApplyEntries.Invoke();
+
+        // [THEN] Page Payment Application has record with Account Type Employee, Account No. = "E", Remaining Amount = -100
+        VerifyPaymentApplicationEmployee(Employee, GenJnlLine.Amount);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageWithVerificationHandler')]
+    [Scope('OnPrem')]
+    procedure PaymentApplicationEmployeeApplyAutomatically()
+    var
+        Employee: Record Employee;
+        GenJnlLine: Record "Gen. Journal Line";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        PaymentReconciliationJournal: TestPage "Payment Reconciliation Journal";
+    begin
+        // [FEATURE] [Employee] [UI]
+        // [SCENARIO 325315] Employee ledger entry can be applied automatically from Payment Reconciliation Journal
+        Initialize();
+
+        // [GIVEN] Employee "E"
+        CreateEmployee(Employee);
+        // [GIVEN] Post general journal line with Employee "E" and Amount -100
+        CreateAndPostGenJournalLineEmployee(GenJnlLine, Employee."No.");
+
+        // [GIVEN] Create payment reconciliation "R" for employee "E"
+        CreateBankReconciliationWithEmployee(BankAccReconciliation, BankAccReconciliationLine, '', GenJnlLine.Amount);
+
+        // [WHEN] Run action Apply Automatically from Payment Reconciliation Journal
+        PaymentReconciliationJournal.OpenEdit();
+        PaymentReconciliationJournal.GoToRecord(BankAccReconciliationLine);
+        LibraryVariableStorage.Enqueue(StrSubstNo(PaymentLineAppliedMsg, 1));
+        PaymentReconciliationJournal.ApplyAutomatically.Invoke();
+
+        // [THEN] Applied Amount = -100
+        PaymentReconciliationJournal."Applied Amount".AssertEquals(GenJnlLine.Amount);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageWithVerificationHandler')]
+    [Scope('OnPrem')]
+    procedure PaymentApplicationEmployeeApplyAutomaticallyMatchingDisabled()
+    var
+        Employee: Record Employee;
+        GenJnlLine: Record "Gen. Journal Line";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        BankPmtApplSettings: Record "Bank Pmt. Appl. Settings";
+        PaymentReconciliationJournal: TestPage "Payment Reconciliation Journal";
+    begin
+        // [FEATURE] [Employee] [UI]
+        // [SCENARIO 325315] Automatic application disabled when "Bank Pmt. Appl. Settings"."Empl. Ledger Entries Matching" = false
+        Initialize();
+
+        // [GIVEN] Employee "E"
+        CreateEmployee(Employee);
+        // [GIVEN] Post general journal line with Employee "E" and Amount -100
+        CreateAndPostGenJournalLineEmployee(GenJnlLine, Employee."No.");
+
+        // [GIVEN] Create payment reconciliation "R" for employee "E"
+        CreateBankReconciliationWithEmployee(BankAccReconciliation, BankAccReconciliationLine, '', GenJnlLine.Amount);
+
+        // [GIVEN] Set "Bank Pmt. Appl. Settings"."Empl. Ledger Entries Matching" = false
+        BankPmtApplSettings.GetOrInsert();
+        BankPmtApplSettings."Empl. Ledger Entries Matching" := false;
+        BankPmtApplSettings.Modify();
+
+        // [WHEN] Run action Apply Automatically from Payment Reconciliation Journal
+        PaymentReconciliationJournal.OpenEdit();
+        PaymentReconciliationJournal.GoToRecord(BankAccReconciliationLine);
+        LibraryVariableStorage.Enqueue(StrSubstNo(PaymentLineAppliedMsg, 0));
+        PaymentReconciliationJournal.ApplyAutomatically.Invoke();
+
+        // [THEN] Applied Amount = 0
+        PaymentReconciliationJournal."Applied Amount".AssertEquals(0);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageWithVerificationHandler')]
+    [Scope('OnPrem')]
+    procedure PaymentApplicationEmployeeApplyAutomaticallyEmployeeName()
+    var
+        Employee: array[3] of Record Employee;
+        GenJnlLine: Record "Gen. Journal Line";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        PaymentReconciliationJournal: TestPage "Payment Reconciliation Journal";
+        Amount: Decimal;
+        i: Integer;
+    begin
+        // [FEATURE] [Employee] [UI]
+        // [SCENARIO 325315] Apply Automatically from Payment Reconciliation Journal with employee name in the transaction text
+        Initialize();
+
+        // [GIVEN] Create and post general journal lines for Employee "E1", "E2" and "E3" with same amount -100
+        Amount := -LibraryRandom.RandDec(100, 2);
+        for i := 1 to 3 do begin
+            CreateEmployee(Employee[i]);
+            CreateAndPostGenJournalLineEmployee(GenJnlLine, Employee[i]."No.", Amount);
+        end;
+        // [GIVEN] Create payment reconciliation 
+        CreateBankReconciliationWithEmployee(BankAccReconciliation, BankAccReconciliationLine, '', Amount);
+        // [GIVEN] Set transaction text = name of employee "E2"
+        BankAccReconciliationLine."Transaction Text" := Employee[2].FullName();
+        BankAccReconciliationLine.Modify();
+
+        // [WHEN] Run action Apply Automatically from Payment Reconciliation Journal
+        PaymentReconciliationJournal.OpenEdit();
+        PaymentReconciliationJournal.GoToRecord(BankAccReconciliationLine);
+        LibraryVariableStorage.Enqueue(StrSubstNo(PaymentLineAppliedMsg, 1));
+        PaymentReconciliationJournal.ApplyAutomatically.Invoke();
+
+        // [THEN] Bank reconciliation line applied to entry with employee "E2"
+        PaymentReconciliationJournal."Account No.".AssertEquals(Employee[2]."No.");
+    end;
+
+    procedure PostPaymentReconciliationJournalEmployeePositiveAmount()
+    var
+        Employee: Record Employee;
+
+        GenJnlLine: Record "Gen. Journal Line";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        EntryNo: Integer;
+        Amount: Decimal;
+    begin
+        // [FEATURE] [Employee]
+        // [SCENARIO 325315] User is able to apply and post positive amount for Employee in payment reconciliation journal
+        Initialize();
+
+        // [GIVEN] Employee "E"
+        CreateEmployee(Employee);
+        // [GIVEN] Post general journal line with Employee "E" and Amount 100
+        Amount := LibraryRandom.RandDec(100, 2);
+        EntryNo := CreateAndPostGenJournalLineEmployee(GenJnlLine, Employee."No.", Amount);
+
+        // [GIVEN] Create payment reconciliation "R" for employee "E"
+        CreateBankReconciliationWithEmployee(BankAccReconciliation, BankAccReconciliationLine, Employee."No.", Amount);
+        ApplyBankAccReconLineToEmployee(BankAccReconciliationLine, Employee."No.", EntryNo);
+
+        // [WHEN] Post payment reconciliation "R"
+        LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
+
+        // [THEN] Empty type entry created for employee "E" with Amount -100 
+        VerifyEmployeeLedgerEntry(Employee."No.", BankAccReconciliation."Statement No.", -Amount, "Gen. Journal Document Type"::" ");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure InitReportSelectionPostedPaymentReconciliation()
+    var
+        ReportSelections: Record "Report Selections";
+        ReportSelectionMgt: Codeunit "Report Selection Mgt.";
+    begin
+        // [FEATURE] [Posted Payment Reconciliation] [UT]
+        // [SCENARIO 315205] Report "Posted Payment Reconciliation" defined for bank report selection with option "Posted Payment Reconciliation"
+        Initialize();
+
+        // [WHEN] Run InitReportSelectionBank
+        ReportSelections.DeleteAll();
+        ReportSelectionMgt.InitReportSelectionBank();
+
+        // [THEN] Record created for report "Posted Payment Reconciliation"
+        ReportSelections.Get("Report Selection Usage"::"Posted Payment Reconciliation", '1');
+        ReportSelections.TestField("Report ID", Report::"Posted Payment Reconciliation");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('PostedPaymentReconciliationReportRequestPageHandler')]
+    procedure PrintPostedPaymentReconciliation()
+    var
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        PostedPaymentReconHdr: Record "Posted Payment Recon. Hdr";
+        DocPrint: Codeunit "Document-Print";
+    begin
+        // [FEATURE] [Posted Payment Reconciliation] [UT]
+        // [SCENARIO 315205] Print report "Posted Payment Reconciliation" 
+        Initialize();
+        Clear(LibraryReportDataset);
+
+        // [GIVEN] Create and post payment reconciliation journal for "Bank Account" = "B", "Statement No."= "S", "G/L Account" = "A", Amount = 100
+        CreateBankReconciliationWithGLAccount(BankAccReconciliation, BankAccReconciliationLine, LibraryERM.CreateGLAccountNo());
+        LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
+        PostedPaymentReconHdr.Get(BankAccReconciliation."Bank Account No.", BankAccReconciliation."Statement No.");
+
+        // [WHEN] Report "Posted Payment Reconciliation" is being printed
+        DocPrint.PrintPostedPaymentReconciliation(PostedPaymentReconHdr);
+
+        // [THEN] Report printed with  "Bank Account" = "B", "Statement No."= "S", "Description" = "A", Amount = 100
+        VerifyPostedPaymentReconciliationReport(BankAccReconciliationLine);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('PostedPaymentReconciliationReportRequestPageHandler')]
+    procedure PrintPostedPaymentReconciliationFromCard()
+    var
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        PostedPaymentReconciliation: TestPage "Posted Payment Reconciliation";
+    begin
+        // [FEATURE] [Posted Payment Reconciliation] [UI]
+        // [SCENARIO 315205] Report "Posted Payment Reconciliation" can be printed from pate "Posted Payment Reconciliation"
+        Initialize();
+        Clear(LibraryReportDataset);
+
+        // [GIVEN] Create and post payment reconciliation journal for "Bank Account" = "B", "Statement No."= "S", "G/L Account" = "A", Amount = 100
+        CreateBankReconciliationWithGLAccount(BankAccReconciliation, BankAccReconciliationLine, LibraryERM.CreateGLAccountNo());
+        LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
+
+        // [WHEN] Report "Posted Payment Reconciliation" is being printed
+        PostedPaymentReconciliation.OpenView();
+        PostedPaymentReconciliation.Filter.SetFilter("Statement No.", BankAccReconciliation."Statement No.");
+        PostedPaymentReconciliation.Filter.SetFilter("Bank Account No.", BankAccReconciliation."Bank Account No.");
+        PostedPaymentReconciliation.Print.Invoke();
+
+        // [THEN] Report printed with  "Bank Account" = "B", "Statement No."= "S", "Description" = "A", Amount = 100
+        VerifyPostedPaymentReconciliationReport(BankAccReconciliationLine);
+    end;
+
     local procedure Initialize()
+    var
+        BankPmtApplSettings: Record "Bank Pmt. Appl. Settings";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Bank Reconciliation");
         LibrarySetupStorage.Restore;
@@ -2045,6 +2396,8 @@ codeunit 134141 "ERM Bank Reconciliation"
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Source Code Setup");
+        BankPmtApplSettings.GetOrInsert();
+        LibrarySetupStorage.Save(DATABASE::"Bank Pmt. Appl. Settings");
         isInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Bank Reconciliation");
     end;
@@ -2183,6 +2536,63 @@ codeunit 134141 "ERM Bank Reconciliation"
           GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo,
           GenJournalLine."Bal. Account Type"::"Bank Account", BankAccountNo, -LibraryRandom.RandDec(5, 2));
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
+    end;
+
+    local procedure CreateAndPostGenJournalLineEmployee(var GenJournalLine: Record "Gen. Journal Line"; EmployeeNo: Code[20]): Integer
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        EmployeeLedgerEntry: Record "Employee Ledger Entry";
+    begin
+        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+        GenJournalLine.DeleteAll(true);
+
+        // Use Random because value is not important.
+        LibraryERM.CreateGeneralJnlLineWithBalAcc(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, "Gen. Journal Document Type"::" ",
+          GenJournalLine."Account Type"::Employee, EmployeeNo,
+          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting(), -LibraryRandom.RandDec(100, 2));
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        EmployeeLedgerEntry.SetRange("Employee No.", EmployeeNo);
+        EmployeeLedgerEntry.FindLast();
+        exit(EmployeeLedgerEntry."Entry No.");
+    end;
+
+    local procedure CreateAndPostGenJournalLineEmployee(var GenJournalLine: Record "Gen. Journal Line"; EmployeeNo: Code[20]; Amount: Decimal): Integer
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        EmployeeLedgerEntry: Record "Employee Ledger Entry";
+    begin
+        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+        GenJournalLine.DeleteAll(true);
+
+        // Use Random because value is not important.
+        LibraryERM.CreateGeneralJnlLineWithBalAcc(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, "Gen. Journal Document Type"::" ",
+          GenJournalLine."Account Type"::Employee, EmployeeNo,
+          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting(), Amount);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        EmployeeLedgerEntry.SetRange("Employee No.", EmployeeNo);
+        EmployeeLedgerEntry.FindLast();
+        exit(EmployeeLedgerEntry."Entry No.");
+    end;
+
+    local procedure CreateEmployee(var Employee: Record Employee)
+    var
+        EmployeePostingGroup: Record "Employee Posting Group";
+    begin
+        LibraryHumanResource.CreateEmployee(Employee);
+        EmployeePostingGroup.Init();
+        EmployeePostingGroup.Validate(Code, LibraryUtility.GenerateGUID);
+        EmployeePostingGroup.Validate("Payables Account", LibraryERM.CreateGLAccountNoWithDirectPosting);
+        EmployeePostingGroup.Insert(true);
+        Employee.Validate("Employee Posting Group", EmployeePostingGroup.Code);
+        Employee.Validate("Application Method", Employee."Application Method"::Manual);
+        Employee.Validate("Last Name", Employee."First Name");
+        Employee.Modify(true);
     end;
 
     local procedure CreateAndPostSalesInvoice(var CustomerNo: Code[20]; var CustLedgerEntryNo: Integer; var RemainingAmount: Decimal)
@@ -2348,6 +2758,19 @@ codeunit 134141 "ERM Bank Reconciliation"
         ApplyBankAccReconLineToGLAccount(BankAccReconciliationLine, GLAccNo, BankAccReconciliationLine."Statement Amount");
     end;
 
+    local procedure CreateBankReconciliationWithEmployee(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; EmployeeNo: Code[20]; StatementAmount: Decimal)
+    begin
+        LibraryERM.CreateBankAccReconciliation(
+          BankAccReconciliation, CreateBankAccount, BankAccReconciliation."Statement Type"::"Payment Application");
+        LibraryERM.CreateBankAccReconciliationLn(BankAccReconciliationLine, BankAccReconciliation);
+        BankAccReconciliationLine.Validate("Account Type", "Gen. Journal Account Type"::Employee);
+        BankAccReconciliationLine.Validate("Account No.", EmployeeNo);
+        BankAccReconciliationLine.Validate("Statement Amount", StatementAmount);
+        BankAccReconciliationLine.Validate("Transaction Date", WorkDate);
+        BankAccReconciliationLine.Validate(Description, EmployeeNo);
+        BankAccReconciliationLine.Modify(true);
+    end;
+
     local procedure CreateBankAccReconciliationLine(BankAccReconciliation: Record "Bank Acc. Reconciliation"; var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; VendorNo: Code[20]; Amount: Decimal; Date: Date)
     begin
         LibraryERM.CreateBankAccReconciliationLn(BankAccReconciliationLine, BankAccReconciliation);
@@ -2367,7 +2790,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         BankAccReconciliationLine.Modify(true);
     end;
 
-    local procedure CreateApplyBankAccReconcilationLine(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; AccountType: Option; AccountNo: Code[20]; StatementAmount: Decimal; BankAccountNo: Code[20])
+    local procedure CreateApplyBankAccReconcilationLine(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; StatementAmount: Decimal; BankAccountNo: Code[20])
     begin
         LibraryERM.CreateBankAccReconciliation(
           BankAccReconciliation, BankAccountNo, BankAccReconciliation."Statement Type"::"Payment Application");
@@ -2494,6 +2917,20 @@ codeunit 134141 "ERM Bank Reconciliation"
         AppliedPaymentEntry.Validate("Account Type", AppliedPaymentEntry."Account Type"::"G/L Account");
         AppliedPaymentEntry.Validate("Account No.", AccountNo);
         AppliedPaymentEntry.Validate("Applied Amount", StatementAmount);
+        AppliedPaymentEntry.Validate("Match Confidence", AppliedPaymentEntry."Match Confidence"::Manual);
+        AppliedPaymentEntry.Insert(true);
+        BankAccReconLine.Find;
+    end;
+
+    local procedure ApplyBankAccReconLineToEmployee(var BankAccReconLine: Record "Bank Acc. Reconciliation Line"; AccountNo: Code[20]; LedgerEntryNo: Integer)
+    var
+        AppliedPaymentEntry: Record "Applied Payment Entry";
+    begin
+        AppliedPaymentEntry.Init();
+        AppliedPaymentEntry.TransferFromBankAccReconLine(BankAccReconLine);
+        AppliedPaymentEntry.Validate("Account Type", "Gen. Journal Account Type"::Employee);
+        AppliedPaymentEntry.Validate("Account No.", AccountNo);
+        AppliedPaymentEntry.Validate("Applies-to Entry No.", LedgerEntryNo);
         AppliedPaymentEntry.Validate("Match Confidence", AppliedPaymentEntry."Match Confidence"::Manual);
         AppliedPaymentEntry.Insert(true);
         BankAccReconLine.Find;
@@ -2807,6 +3244,38 @@ codeunit 134141 "ERM Bank Reconciliation"
         Assert.RecordIsNotEmpty(GLEntry);
     end;
 
+    local procedure VerifyEmployeeLedgerEntry(EmployeeNo: Code[20]; StatementNo: Code[20]; Amount: Decimal; DocumentType: Enum "Gen. Journal Document Type")
+    var
+        EmployeeLedgerEntry: Record "Employee Ledger Entry";
+    begin
+        EmployeeLedgerEntry.SetRange("Employee No.", EmployeeNo);
+        EmployeeLedgerEntry.SetRange("Document Type", DocumentType);
+        EmployeeLedgerEntry.SetRange("Document No.", StatementNo);
+        EmployeeLedgerEntry.FindFirst();
+        EmployeeLedgerEntry.CalcFields(Amount);
+        EmployeeLedgerEntry.TestField(Amount, Amount);
+        EmployeeLedgerEntry.TestField(Open, false);
+    end;
+
+    local procedure VerifyPaymentApplicationEmployee(Employee: Record Employee; ExpectedAmount: Decimal)
+    var
+        myInt: Integer;
+    begin
+        Assert.AreEqual(Employee.FullName(), LibraryVariableStorage.DequeueText(), 'Invalid Account Name');
+        Assert.AreEqual(Employee.FullName(), LibraryVariableStorage.DequeueText(), 'Invalid Description');
+        Assert.AreEqual(Format(ExpectedAmount), LibraryVariableStorage.DequeueText(), 'Invalid Remaining Amt. Incl. Discount');
+        Assert.AreEqual(Format(ExpectedAmount), LibraryVariableStorage.DequeueText(), 'Invalid Remaining Amount After Posting');
+    end;
+
+    local procedure VerifyPostedPaymentReconciliationReport(BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
+    begin
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.AssertElementWithValueExists('BankAccNo_PostedPaymentReconciliation', BankAccReconciliationLine."Bank Account No.");
+        LibraryReportDataset.AssertElementWithValueExists('StmtNo_PostedPaymentReconciliation', BankAccReconciliationLine."Statement No.");
+        LibraryReportDataset.AssertElementWithValueExists('Desc_PostedPaymentReconciliationLine', BankAccReconciliationLine.Description);
+        LibraryReportDataset.AssertElementWithValueExists('AppliedAmt1_PostedPaymentReconciliationLine', BankAccReconciliationLine."Applied Amount");
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
@@ -2911,5 +3380,37 @@ codeunit 134141 "ERM Bank Reconciliation"
     begin
         ChangeBankRecStatementNo.NewStatementNumber.SetValue(LibraryVariableStorage.DequeueText());
         ChangeBankRecStatementNo.OK().Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PaymentApplicationPageWithEmployee(var PaymentApplication: TestPage "Payment Application")
+    var
+        Employee: Record Employee;
+    begin
+        Employee.Get(LibraryVariableStorage.DequeueText());
+        PaymentApplication.Filter.SetFilter("Account No.", Employee."No.");
+        Assert.IsTrue(PaymentApplication.First(), 'Employee entry not found');
+        LibraryVariableStorage.Enqueue(PaymentApplication.AccountName.Value);
+        LibraryVariableStorage.Enqueue(PaymentApplication.Description.Value);
+        LibraryVariableStorage.Enqueue(PaymentApplication."Remaining Amt. Incl. Discount".Value);
+        LibraryVariableStorage.Enqueue(PaymentApplication.RemainingAmountAfterPosting.Value);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PaymentApplicationPageWithEmployeeApply(var PaymentApplication: TestPage "Payment Application")
+    begin
+        PaymentApplication.Filter.SetFilter("Account No.", LibraryVariableStorage.DequeueText());
+        Assert.IsTrue(PaymentApplication.First(), 'Employee entry not found');
+        PaymentApplication.AppliedAmount.SetValue(LibraryVariableStorage.DequeueDecimal());
+        PaymentApplication.OK().Invoke();
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure PostedPaymentReconciliationReportRequestPageHandler(var PostedPaymentReconciliation: TestRequestPage "Posted Payment Reconciliation")
+    begin
+        PostedPaymentReconciliation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName)
     end;
 }

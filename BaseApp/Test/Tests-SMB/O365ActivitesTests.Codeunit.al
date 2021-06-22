@@ -187,7 +187,7 @@ codeunit 139126 "O365 Activites Tests"
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
         CustLedgerEntry.SetFilter("Due Date", '<%1', WorkDate);
         CustLedgerEntry.SetRange(Open, true);
-        CustLedgerEntry.FindSet;
+        CustLedgerEntry.FindSet();
         CustomerLedgerEntries.Trap;
 
         // Execute
@@ -211,7 +211,7 @@ codeunit 139126 "O365 Activites Tests"
         VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice);
         VendorLedgerEntry.SetFilter("Due Date", '<%1', WorkDate);
         VendorLedgerEntry.SetFilter("Remaining Amt. (LCY)", '<>0');
-        VendorLedgerEntry.FindSet;
+        VendorLedgerEntry.FindSet();
         VendorLedgerEntries.Trap;
 
         // Execute
@@ -234,7 +234,7 @@ codeunit 139126 "O365 Activites Tests"
         Initialize;
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
         CustLedgerEntry.SetRange("Posting Date", CalcDate('<-CM>', WorkDate), WorkDate);
-        CustLedgerEntry.FindSet;
+        CustLedgerEntry.FindSet();
 
         CustomerLedgerEntries.Trap;
 

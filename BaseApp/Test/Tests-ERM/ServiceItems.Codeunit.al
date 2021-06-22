@@ -1737,7 +1737,7 @@ codeunit 136103 "Service Items"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", SalesLine."Sell-to Customer No.");
 
         // [WHEN] Get Posted Document Lines To Reverse.
-        SalesHeader.GetPstdDocLinesToRevere;
+        SalesHeader.GetPstdDocLinesToReverse();
 
         // [THEN] Verifying Line Discount and Line Amount on Sales Return Order Line.
         VerifySalesReturnOrderLine(SalesHeader, SalesLine."Line Amount", SalesLine."Line Discount %", SalesLine."Unit Price");
@@ -1760,7 +1760,7 @@ codeunit 136103 "Service Items"
           PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", PurchaseLine."Buy-from Vendor No.");
 
         // [WHEN] Get Posted Document Lines To Reverse.
-        PurchaseHeader.GetPstdDocLinesToRevere;
+        PurchaseHeader.GetPstdDocLinesToReverse();
 
         // [THEN] Verifying Line Discount and Line Amount on Purchase Return Order Line.
         VerifyPurchaseReturnOrderLine(
@@ -2877,7 +2877,7 @@ codeunit 136103 "Service Items"
         SalesHeader: Record "Sales Header";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", CustomerNo);
-        SalesHeader.GetPstdDocLinesToRevere;
+        SalesHeader.GetPstdDocLinesToReverse();
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
@@ -3090,7 +3090,7 @@ codeunit 136103 "Service Items"
         // Retrieve the first Service Item Component Line.
         ServiceItemComponent.SetRange(Active, true);
         ServiceItemComponent.SetRange("Parent Service Item No.", ServiceItemNo);
-        ServiceItemComponent.FindSet;
+        ServiceItemComponent.FindSet();
 
         // Verify: Verify that the Replaced Component list for the first Item selected as component is 1.
         VerifyNoOfReplacedComponents(ServiceItemComponent, 1);
@@ -3225,7 +3225,7 @@ codeunit 136103 "Service Items"
         FindServiceItem(ServiceItem, ServiceItemLine);
         BOMComponent.SetRange("Parent Item No.", ServiceItemLine."Item No.");
         BOMComponent.SetRange(Type, BOMComponent.Type::Item);
-        BOMComponent.FindSet;
+        BOMComponent.FindSet();
         repeat
             ServiceItemComponent.SetRange("Parent Service Item No.", ServiceItem."No.");
             ServiceItemComponent.SetRange(Type, ServiceItemComponent.Type::Item);

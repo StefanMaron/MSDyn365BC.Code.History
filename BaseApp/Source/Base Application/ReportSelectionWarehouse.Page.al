@@ -16,7 +16,6 @@ page 7401 "Report Selection - Warehouse"
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Usage';
-                OptionCaption = 'Put-away,Pick,Movement,Invt. Put-away,Invt. Pick,Invt. Movement,Receipt,Shipment,Posted Receipt,Posted Shipment';
                 ToolTip = 'Specifies which type of document the report is used for.';
 
                 trigger OnValidate()
@@ -27,18 +26,18 @@ page 7401 "Report Selection - Warehouse"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field(Sequence; Sequence)
+                field(Sequence; Rec.Sequence)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a number that indicates where this report is in the printing order.';
                 }
-                field("Report ID"; "Report ID")
+                field("Report ID"; Rec."Report ID")
                 {
                     ApplicationArea = Basic, Suite;
                     LookupPageID = Objects;
                     ToolTip = 'Specifies the object ID of the report.';
                 }
-                field("Report Caption"; "Report Caption")
+                field("Report Caption"; Rec."Report Caption")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = false;
@@ -68,7 +67,7 @@ page 7401 "Report Selection - Warehouse"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        NewRecord;
+        Rec.NewRecord();
     end;
 
     trigger OnOpenPage()
@@ -77,16 +76,16 @@ page 7401 "Report Selection - Warehouse"
     end;
 
     var
-        ReportUsage2: Option "Put-away",Pick,Movement,"Invt. Put-away","Invt. Pick","Invt. Movement",Receipt,Shipment,"Posted Receipt","Posted Shipment";
+        ReportUsage2: Enum "Report Selection Warehouse Usage";
 
     local procedure SetUsageFilter(ModifyRec: Boolean)
     begin
         if ModifyRec then
-            if Modify then;
-        FilterGroup(2);
-        SetRange(Usage, ReportUsage2);
-        FilterGroup(0);
-        CurrPage.Update;
+            if Rec.Modify() then;
+        Rec.FilterGroup(2);
+        Rec.SetRange(Usage, ReportUsage2);
+        Rec.FilterGroup(0);
+        CurrPage.Update();
     end;
 }
 

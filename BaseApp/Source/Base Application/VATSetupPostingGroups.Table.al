@@ -106,14 +106,14 @@ table 1877 "VAT Setup Posting Groups"
         SetRange(Default, true);
         if not FindSet then begin
             InitWithStandardValues;
-            FindSet;
+            FindSet();
         end;
 
         repeat
             VATSetupPostingGroups.TransferFields(Rec);
             VATSetupPostingGroups.Default := false;
             VATSetupPostingGroups.Insert();
-        until Next = 0;
+        until Next() = 0;
     end;
 
     procedure AddOrUpdateProdPostingGrp(ProdGrpCode: Code[20]; GrpDesc: Text[100]; VatRate: Decimal; SalesAccount: Code[20]; PurchAccount: Code[20]; IsService: Boolean; IsDefault: Boolean): Boolean
@@ -182,7 +182,7 @@ table 1877 "VAT Setup Posting Groups"
                 ErrorMessage := StrSubstNo(InvalidGLAccountsTxt, VATSetupPostingGroups."Purchase VAT Account");
                 exit(false);
             end;
-        until VATSetupPostingGroups.Next = 0;
+        until VATSetupPostingGroups.Next() = 0;
         ErrorMessage := '';
         exit(true);
     end;

@@ -1,4 +1,4 @@
-﻿table 167 Job
+table 167 Job
 {
     Caption = 'Job';
     DataCaptionFields = "No.", Description;
@@ -223,9 +223,9 @@
         {
             Caption = 'Picture';
             ObsoleteReason = 'Replaced by Image field';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             SubType = Bitmap;
-            ObsoleteTag = '15.0';
+            ObsoleteTag = '18.0';
         }
         field(58; "Bill-to Name"; Text[100])
         {
@@ -592,7 +592,7 @@
                     JobLedgerEntry.SetRange("Entry Type", JobLedgerEntry."Entry Type"::Usage);
                     if JobLedgerEntry.FindFirst() then begin
                         JobUsageLink.SetRange("Entry No.", JobLedgerEntry."Entry No.");
-                        if JobUsageLink.IsEmpty then
+                        if JobUsageLink.IsEmpty() then
                             Error(ApplyUsageLinkErr, TableCaption);
                     end;
 
@@ -605,7 +605,7 @@
                             if JobPlanningLine."Planning Date" = 0D then
                                 JobPlanningLine.Validate("Planning Date", WorkDate);
                             JobPlanningLine.Modify(true);
-                        until JobPlanningLine.Next = 0;
+                        until JobPlanningLine.Next() = 0;
                 end;
             end;
         }
@@ -631,12 +631,12 @@
                 if xRec."WIP Posting Method" = "WIP Posting Method"::"Per Job Ledger Entry" then begin
                     JobLedgerEntry.SetRange("Job No.", "No.");
                     JobLedgerEntry.SetFilter("Amt. Posted to G/L", '<>%1', 0);
-                    if not JobLedgerEntry.IsEmpty then
+                    if not JobLedgerEntry.IsEmpty() then
                         Error(WIPAlreadyPostedErr, FieldCaption("WIP Posting Method"), xRec."WIP Posting Method");
                 end;
 
                 JobWIPEntry.SetRange("Job No.", "No.");
-                if not JobWIPEntry.IsEmpty then
+                if not JobWIPEntry.IsEmpty() then
                     Error(WIPAlreadyAssociatedErr, FieldCaption("WIP Posting Method"));
 
                 if "WIP Posting Method" = "WIP Posting Method"::"Per Job Ledger Entry" then begin
@@ -1035,7 +1035,7 @@
         exit(not JobPlanningLine.IsEmpty());
     end;
 
-    local procedure UpdateBillToCust(ContactNo: Code[20])
+    procedure UpdateBillToCust(ContactNo: Code[20])
     var
         ContBusinessRelation: Record "Contact Business Relation";
         Cust: Record Customer;
@@ -1190,7 +1190,7 @@
                 JobPlanningLine.Validate("Currency Code", "Currency Code");
                 JobPlanningLine.Validate("Currency Date");
                 JobPlanningLine.Modify();
-            until JobPlanningLine.Next = 0;
+            until JobPlanningLine.Next() = 0;
     end;
 
     local procedure CurrencyUpdatePurchLines()
@@ -1204,7 +1204,7 @@
                 PurchLine.Validate("Job Currency Code", "Currency Code");
                 PurchLine.Validate("Job Task No.");
                 PurchLine.Modify();
-            until PurchLine.Next = 0;
+            until PurchLine.Next() = 0;
     end;
 
     local procedure ChangeJobCompletionStatus()
@@ -1324,7 +1324,7 @@
             repeat
                 DimMgt.DefaultDimOnDelete(JobDefaultDimension);
                 JobDefaultDimension.Delete();
-            until JobDefaultDimension.Next = 0;
+            until JobDefaultDimension.Next() = 0;
 
         CustDefaultDimension.SetRange("Table ID", DATABASE::Customer);
         CustDefaultDimension.SetRange("No.", "Bill-to Customer No.");
@@ -1336,7 +1336,7 @@
                 JobDefaultDimension."No." := "No.";
                 JobDefaultDimension.Insert();
                 DimMgt.DefaultDimOnInsert(JobDefaultDimension);
-            until CustDefaultDimension.Next = 0;
+            until CustDefaultDimension.Next() = 0;
 
         DimMgt.UpdateDefaultDim(DATABASE::Job, "No.", "Global Dimension 1 Code", "Global Dimension 2 Code");
     end;
@@ -1428,7 +1428,7 @@
         if AutoReservePossible then begin
             repeat
                 JobPlanningLineReserve.ReservQuantity(JobPlanningLine, QtyToReserve, QtyToReserveBase);
-                ReservationManagement.SetJobPlanningLine(JobPlanningLine);
+                ReservationManagement.SetReservSource(JobPlanningLine);
                 ReservationManagement.AutoReserve(FullAutoReservation, '', JobPlanningLine."Planning Date", QtyToReserve, QtyToReserveBase);
                 AutoReservePossible := AutoReservePossible and FullAutoReservation;
                 JobPlanningLine.UpdatePlanned();
@@ -1462,7 +1462,7 @@
                         JobTask.Validate("Global Dimension 2 Code", ShortcutDimCode);
                 end;
                 JobTask.Modify();
-            until JobTask.Next = 0;
+            until JobTask.Next() = 0;
     end;
 
     procedure UpdateOverBudgetValue(JobNo: Code[20]; Usage: Boolean; Cost: Decimal)
@@ -1540,7 +1540,15 @@
         if MyJob.FindSet then
             repeat
                 MyJob.Delete();
-            until MyJob.Next = 0;
+            until MyJob.Next() = 0;
+    end;
+
+    procedure ToPriceSource(var PriceSource: Record "Price Source"; PriceType: Enum "Price Type")
+    begin
+        PriceSource.Init();
+        PriceSource."Price Type" := PriceType;
+        PriceSource.Validate("Source Type", PriceSource."Source Type"::Job);
+        PriceSource.Validate("Source No.", "No.");
     end;
 
     [Scope('OnPrem')]
@@ -1650,13 +1658,13 @@
         TimeSheetLine.SetCurrentKey(Type, "Job No.");
         TimeSheetLine.SetRange(Type, TimeSheetLine.Type::Job);
         TimeSheetLine.SetRange("Job No.", "No.");
-        if not TimeSheetLine.IsEmpty then
+        if not TimeSheetLine.IsEmpty() then
             TimeSheetLine.ModifyAll("Job Id", SystemId);
 
         TimeSheetDetail.SetCurrentKey(Type, "Job No.");
         TimeSheetDetail.SetRange(Type, TimeSheetLine.Type::Job);
         TimeSheetDetail.SetRange("Job No.", "No.");
-        if not TimeSheetDetail.IsEmpty then
+        if not TimeSheetDetail.IsEmpty() then
             TimeSheetDetail.ModifyAll("Job Id", SystemId);
     end;
 

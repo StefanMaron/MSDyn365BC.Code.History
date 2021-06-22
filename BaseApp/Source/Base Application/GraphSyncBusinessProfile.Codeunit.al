@@ -93,7 +93,7 @@ codeunit 5441 "Graph Sync. - Business Profile"
         exit(false);
     end;
 
-    [EventSubscriber(ObjectType::Table, 5079, 'OnBeforeModifyEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Marketing Setup", 'OnBeforeModifyEvent', '', false, false)]
     local procedure EnableBusinessProfileSyncOnEnableGraphSync(var Rec: Record "Marketing Setup"; var xRec: Record "Marketing Setup"; RunTrigger: Boolean)
     var
         CompanyInformation: Record "Company Information";
@@ -118,7 +118,7 @@ codeunit 5441 "Graph Sync. - Business Profile"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5345, 'OnFindUncoupledDestinationRecord', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Rec. Synch. Invoke", 'OnFindUncoupledDestinationRecord', '', false, false)]
     local procedure GetCompanyInformationOnFindUncoupledDestinationRecord(IntegrationTableMapping: Record "Integration Table Mapping"; SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef; var DestinationIsDeleted: Boolean; var DestinationFound: Boolean)
     var
         CompanyInformation: Record "Company Information";
@@ -142,7 +142,7 @@ codeunit 5441 "Graph Sync. - Business Profile"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5455, 'OnAddIntegrationMapping', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Data Setup", 'OnAddIntegrationMapping', '', false, false)]
     local procedure OnAddBusinessProfileIntegrationMapping(MappingCode: Code[20])
     var
         CompanyInformation: Record "Company Information";
@@ -165,7 +165,7 @@ codeunit 5441 "Graph Sync. - Business Profile"
         MapField(CompanyInformation.FieldNo("Brand Color Value"), TempGraphBusinessProfile.FieldNo(BrandColor), true);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5452, 'OnCheckAuxiliarySyncEnabled', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Sync. Runner", 'OnCheckAuxiliarySyncEnabled', '', false, false)]
     local procedure OnCheckAuxiliarySyncEnabled(var AuxSyncEnabled: Boolean)
     begin
         if AuxSyncEnabled then
@@ -173,7 +173,7 @@ codeunit 5441 "Graph Sync. - Business Profile"
         AuxSyncEnabled := SyncEnabled;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5455, 'OnCreateIntegrationMappings', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Data Setup", 'OnCreateIntegrationMappings', '', false, false)]
     local procedure OnCreateBusinessProfileIntegrationMappings()
     var
         GraphIntegrationRecord: Record "Graph Integration Record";
@@ -186,7 +186,7 @@ codeunit 5441 "Graph Sync. - Business Profile"
             GraphIntBusinessProfile.UpdateCompanyBusinessProfileId(GraphIntegrationRecord."Graph ID");
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5446, 'OnFindWebhookSubscription', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Webhook Sync To NAV", 'OnFindWebhookSubscription', '', false, false)]
     local procedure OnFindWebhookSubscription(var WebhookSubscription: Record "Webhook Subscription"; SubscriptionID: Text[150]; var IntegrationMappingCode: Code[20])
     begin
         if IntegrationMappingCode = '' then
@@ -194,7 +194,7 @@ codeunit 5441 "Graph Sync. - Business Profile"
                 IntegrationMappingCode := IntegrationMappingCodeTxt;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5455, 'OnGetGraphRecord', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Data Setup", 'OnGetGraphRecord', '', false, false)]
     local procedure OnGetGraphRecord(var GraphRecordRef: RecordRef; DestinationGraphID: Text[250]; TableID: Integer; var Found: Boolean)
     var
         GraphBusinessProfile: Record "Graph Business Profile";
@@ -210,35 +210,35 @@ codeunit 5441 "Graph Sync. - Business Profile"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5456, 'OnGetInboundConnectionName', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Connection Setup", 'OnGetInboundConnectionName', '', false, false)]
     local procedure OnGetInboundConnectionName(TableID: Integer; var ConnectionName: Text)
     begin
         if TableID = GetEntityTableID then
             ConnectionName := InboundConnectionNameTxt;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5456, 'OnGetInboundConnectionString', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Connection Setup", 'OnGetInboundConnectionString', '', false, false)]
     local procedure OnGetInboundConnectionString(TableID: Integer; var ConnectionString: Text)
     begin
         if TableID = GetEntityTableID then
             ConnectionString := GetInboundConnectionString;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5455, 'OnGetInboundTableID', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Data Setup", 'OnGetInboundTableID', '', false, false)]
     local procedure OnGetInboundTableID(MappingCode: Code[20]; var TableID: Integer)
     begin
         if CanHandleMapping(MappingCode) then
             TableID := GetEntityTableID;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5455, 'OnGetMappingCodeForTable', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Data Setup", 'OnGetMappingCodeForTable', '', false, false)]
     local procedure OnGetMappingCode(TableID: Integer; var MappingCode: Code[20])
     begin
         if TableID = GetEntityTableID then
             MappingCode := IntegrationMappingCodeTxt;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5450, 'OnGetSourceRecordRef', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Subscription Management", 'OnGetSourceRecordRef', '', false, false)]
     local procedure OnGetSourceRecordRef(var GraphRecordRef: RecordRef; WebhookNotification: Record "Webhook Notification"; IntegrationTableID: Integer; var Retrieved: Boolean)
     var
         GraphBusinessProfile: Record "Graph Business Profile";
@@ -250,35 +250,35 @@ codeunit 5441 "Graph Sync. - Business Profile"
             end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5456, 'OnGetSubscriptionConnectionName', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Connection Setup", 'OnGetSubscriptionConnectionName', '', false, false)]
     local procedure OnGetSubscriptionConnectionName(TableID: Integer; var ConnectionName: Text)
     begin
         if TableID = GetEntityTableID then
             ConnectionName := SubscriptionConnectionNameTxt;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5456, 'OnGetSubscriptionConnectionString', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Connection Setup", 'OnGetSubscriptionConnectionString', '', false, false)]
     local procedure OnGetSubscriptionConnectionString(TableID: Integer; var ConnectionString: Text)
     begin
         if TableID = GetEntityTableID then
             ConnectionString := GetSubscriptionConnectionString;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5456, 'OnGetSynchronizeConnectionName', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Connection Setup", 'OnGetSynchronizeConnectionName', '', false, false)]
     local procedure OnGetSynchronizeConnectionName(TableID: Integer; var ConnectionName: Text)
     begin
         if TableID = GetEntityTableID then
             ConnectionName := SynchronizeConnectionNameTxt;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5456, 'OnGetSynchronizeConnectionString', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Connection Setup", 'OnGetSynchronizeConnectionString', '', false, false)]
     local procedure OnGetSynchronizeConnectionString(TableID: Integer; var ConnectionString: Text)
     begin
         if TableID = GetEntityTableID then
             ConnectionString := GetSynchronizeConnectionString;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5451, 'OnBeforeSynchronizationStart', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Integration Table Sync", 'OnBeforeSynchronizationStart', '', false, false)]
     local procedure OnIgnoreSyncBasedOnChangekey(IntegrationTableMapping: Record "Integration Table Mapping"; SourceRecordRef: RecordRef; var IgnoreRecord: Boolean)
     var
         CompanyInformation: Record "Company Information";
@@ -300,7 +300,7 @@ codeunit 5441 "Graph Sync. - Business Profile"
                 end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5456, 'OnRegisterConnections', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Connection Setup", 'OnRegisterConnections', '', false, false)]
     local procedure OnRegisterConnections()
     var
         GraphConnectionSetup: Codeunit "Graph Connection Setup";
@@ -311,7 +311,7 @@ codeunit 5441 "Graph Sync. - Business Profile"
           SynchronizeConnectionNameTxt, GetSynchronizeConnectionString);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5452, 'OnRunGraphDeltaSync', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Sync. Runner", 'OnRunGraphDeltaSync', '', false, false)]
     local procedure OnRunBusinessProfileDeltaSync()
     var
         GraphSyncRunner: Codeunit "Graph Sync. Runner";
@@ -322,7 +322,7 @@ codeunit 5441 "Graph Sync. - Business Profile"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5452, 'OnRunGraphFullSync', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Sync. Runner", 'OnRunGraphFullSync', '', false, false)]
     local procedure OnRunBusinessProfileFullSync()
     var
         GraphSyncRunner: Codeunit "Graph Sync. Runner";

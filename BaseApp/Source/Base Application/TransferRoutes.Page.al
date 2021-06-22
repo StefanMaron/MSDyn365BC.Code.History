@@ -157,7 +157,7 @@ page 5747 "Transfer Routes"
     begin
         CurrPage.MatrixForm.PAGE.Load(MATRIX_CaptionSet, MatrixRecords, MATRIX_CurrentNoOfColumns, Show);
         CurrPage.MatrixForm.PAGE.SetRecord(Rec);
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

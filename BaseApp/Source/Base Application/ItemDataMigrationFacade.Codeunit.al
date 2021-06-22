@@ -7,27 +7,27 @@ codeunit 6113 "Item Data Migration Facade"
         DataMigrationStatusFacade: Codeunit "Data Migration Status Facade";
         ChartOfAccountsMigrated: Boolean;
     begin
-        FindSet;
         ChartOfAccountsMigrated := DataMigrationStatusFacade.HasMigratedChartOfAccounts(Rec);
-        repeat
-            OnMigrateItem("Staging Table RecId To Process");
-            OnMigrateItemTrackingCode("Staging Table RecId To Process");
-            OnMigrateCostingMethod("Staging Table RecId To Process"); // needs to be set after item tracking code because of onvalidate trigger check
-            OnMigrateItemUnitOfMeasure("Staging Table RecId To Process");
-            OnMigrateItemDiscountGroup("Staging Table RecId To Process");
-            OnMigrateItemSalesLineDiscount("Staging Table RecId To Process");
-            OnMigrateItemPrice("Staging Table RecId To Process");
-            OnMigrateItemTariffNo("Staging Table RecId To Process");
-            OnMigrateItemDimensions("Staging Table RecId To Process");
+        if FindSet() then
+            repeat
+                OnMigrateItem("Staging Table RecId To Process");
+                OnMigrateItemTrackingCode("Staging Table RecId To Process");
+                OnMigrateCostingMethod("Staging Table RecId To Process"); // needs to be set after item tracking code because of onvalidate trigger check
+                OnMigrateItemUnitOfMeasure("Staging Table RecId To Process");
+                OnMigrateItemDiscountGroup("Staging Table RecId To Process");
+                OnMigrateItemSalesLineDiscount("Staging Table RecId To Process");
+                OnMigrateItemPrice("Staging Table RecId To Process");
+                OnMigrateItemTariffNo("Staging Table RecId To Process");
+                OnMigrateItemDimensions("Staging Table RecId To Process");
 
-            // migrate transactions for this item as long as it is an inventory item
-            if GlobalItem.Type = GlobalItem.Type::Inventory then begin
-                OnMigrateItemPostingGroups("Staging Table RecId To Process", ChartOfAccountsMigrated);
-                OnMigrateInventoryTransactions("Staging Table RecId To Process", ChartOfAccountsMigrated);
-                ItemJournalLineIsSet := false;
-            end;
-            ItemIsSet := false;
-        until Next = 0;
+                // migrate transactions for this item as long as it is an inventory item
+                if GlobalItem.Type = GlobalItem.Type::Inventory then begin
+                    OnMigrateItemPostingGroups("Staging Table RecId To Process", ChartOfAccountsMigrated);
+                    OnMigrateInventoryTransactions("Staging Table RecId To Process", ChartOfAccountsMigrated);
+                    ItemJournalLineIsSet := false;
+                end;
+                ItemIsSet := false;
+            until Next() = 0;
     end;
 
     var
@@ -474,6 +474,8 @@ codeunit 6113 "Item Data Migration Facade"
         ReservationEntry: Record "Reservation Entry";
         CreateReservEntry: Codeunit "Create Reserv. Entry";
     begin
+        ReservationEntry."Serial No." := SerialNo;
+        ReservationEntry."Lot No." := LotNo;
         CreateReservEntry.CreateReservEntryFor(
           DATABASE::"Item Journal Line",
           ItemJournalLine."Entry Type".AsInteger(),
@@ -484,16 +486,13 @@ codeunit 6113 "Item Data Migration Facade"
           ItemJournalLine."Qty. per Unit of Measure",
           Abs(ItemJournalLine.Quantity),
           Abs(ItemJournalLine."Quantity (Base)"),
-          SerialNo, LotNo);
+          ReservationEntry);
         CreateReservEntry.CreateEntry(
           ItemJournalLine."Item No.",
           ItemJournalLine."Variant Code",
           ItemJournalLine."Location Code",
-          '',
-          0D,
-          0D,
-          0,
-          ReservationEntry."Reservation Status"::Prospect);
+          '', 0D, 0D, 0,
+          "Reservation Status"::Prospect);
     end;
 
     procedure SetItemJournalLineDimension(DimensionCode: Code[20]; DimensionDescription: Text[50]; DimensionValueCode: Code[20]; DimensionValueName: Text[50])

@@ -319,7 +319,7 @@ page 569 "Chart of Accs. (Analysis View)"
                 TransferFields(GLAcc, true);
                 "Account Source" := "Account Source"::"G/L Account";
                 Insert;
-            until GLAcc.Next = 0;
+            until GLAcc.Next() = 0;
     end;
 
     procedure InsertTempCFAccountAnalysisVie(var CFAccount: Record "Cash Flow Account")
@@ -339,7 +339,7 @@ page 569 "Chart of Accs. (Analysis View)"
                 Comment := CFAccount.Comment;
                 "Account Source" := "Account Source"::"Cash Flow Account";
                 Insert;
-            until CFAccount.Next = 0;
+            until CFAccount.Next() = 0;
     end;
 
     local procedure FormatLine()

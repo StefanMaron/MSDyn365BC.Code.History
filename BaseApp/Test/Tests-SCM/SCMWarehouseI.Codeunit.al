@@ -1807,7 +1807,7 @@ codeunit 137047 "SCM Warehouse I"
 
         // [THEN] Lots "L3" and "L4" are now in a surplus for the purchase.
         PurchaseLine.SetRange("No.", Item."No.");
-        PurchaseLine.FindSet;
+        PurchaseLine.FindSet();
         for i := 3 to 4 do begin
             VerifyPurchaseSurplusReservEntry(PurchaseLine, LotNo[i]);
             PurchaseLine.Next;
@@ -2763,7 +2763,7 @@ codeunit 137047 "SCM Warehouse I"
             SetRange("Source Subtype", SourceSubtype);
             SetRange("Source No.", SourceNo);
             SetRange("Lot No.", LotNo);
-            FindSet;
+            FindSet();
             repeat
                 ;
                 Validate("Qty. to Handle", QtyToHandle);
@@ -2848,7 +2848,7 @@ codeunit 137047 "SCM Warehouse I"
             SetRange("Source Subtype", SourceSubtype);
             SetRange("Source No.", SourceNo);
             SetRange("Source Line No.", SourceLineNo);
-            FindSet;
+            FindSet();
         end;
     end;
 
@@ -3049,7 +3049,7 @@ codeunit 137047 "SCM Warehouse I"
               DocCount,
               Count,
               StrSubstNo(EmptyTableErr, DocCount, TableCaption, GetFilters));
-            FindSet;
+            FindSet();
             SortingSequenceNo := "Sorting Sequence No.";
             while Next <> 0 do begin
                 Assert.IsTrue("Sorting Sequence No." > SortingSequenceNo, StrSubstNo(SortingOrderErr, TableCaption));
@@ -3070,7 +3070,7 @@ codeunit 137047 "SCM Warehouse I"
               DocCount,
               Count,
               StrSubstNo(EmptyTableErr, DocCount, TableCaption, GetFilters));
-            FindSet;
+            FindSet();
             SortingSequenceNo := "Sorting Sequence No.";
             while Next <> 0 do begin
                 Assert.IsTrue("Sorting Sequence No." > SortingSequenceNo, StrSubstNo(SortingOrderErr, TableCaption));

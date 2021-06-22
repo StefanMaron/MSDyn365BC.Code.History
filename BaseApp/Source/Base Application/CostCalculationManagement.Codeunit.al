@@ -1,4 +1,4 @@
-﻿codeunit 5836 "Cost Calculation Management"
+codeunit 5836 "Cost Calculation Management"
 {
     Permissions = TableData "Item Ledger Entry" = r,
                   TableData "Prod. Order Capacity Need" = r,
@@ -161,7 +161,7 @@
             if ProdOrderComp.Find('-') then
                 repeat
                     ExpMatCost := ExpMatCost + ProdOrderComp."Cost Amount";
-                until ProdOrderComp.Next = 0;
+                until ProdOrderComp.Next() = 0;
 
             ProdOrderRtngLine.SetRange(Status, Status);
             ProdOrderRtngLine.SetRange("Prod. Order No.", "Prod. Order No.");
@@ -184,7 +184,7 @@
                     else
                         ExpCapDirCostRtng := ExpCapDirCostRtng + ExpOperCost;
                     ExpCapOvhdCostRtng := ExpCapOvhdCostRtng + ProdOrderRtngLine."Expected Capacity Ovhd. Cost";
-                until ProdOrderRtngLine.Next = 0;
+                until ProdOrderRtngLine.Next() = 0;
 
             ExpCapDirCost := ExpCapDirCost + Round(ExpCapDirCostRtng * ShareOfTotalCapCost);
             ExpSubDirCost := ExpSubDirCost + Round(ExpSubDirCostRtng * ShareOfTotalCapCost);
@@ -374,7 +374,7 @@
                     OutstandingBaseQty :=
                       OutstandingBaseQty +
                       UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code") * "Outstanding Quantity";
-                until Next = 0;
+                until Next() = 0;
             exit(OutstandingBaseQty);
         end;
     end;
@@ -404,7 +404,7 @@
         CapLedgEntry: Record "Capacity Ledger Entry";
     begin
         with CapLedgEntry do begin
-            if ProdOrderLine.Status < ProdOrderLine.Status::Released then
+            if ProdOrderLine.Status.AsInteger() < ProdOrderLine.Status::Released.AsInteger() then
                 exit(0);
 
             SetCurrentKey(
@@ -491,7 +491,7 @@
                     // Base Units
                     ActOutputQty += "Output Quantity";
                     ActScrapQty += "Scrap Quantity";
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -601,7 +601,7 @@
         RecFound := false;
         RoutingLine.SetRange("Routing No.", RoutingNo);
         RoutingLine.SetRange("Version Code", VersionMgt.GetRtngVersion(RoutingNo, CalculationDate, true));
-        if not RoutingLine.IsEmpty then begin
+        if not RoutingLine.IsEmpty() then begin
             if ProdBOMLine."Routing Link Code" <> '' then
                 RoutingLine.SetRange("Routing Link Code", ProdBOMLine."Routing Link Code");
             RecFound := RoutingLine.FindFirst;
@@ -752,7 +752,7 @@
                                 TotalAdjCostLCY := TotalAdjCostLCY + AdjCostLCY;
                             end;
                     end;
-                until (Next = 0) or (RemQtyToCalcBase = 0);
+                until (Next() = 0) or (RemQtyToCalcBase = 0);
         end;
     end;
 
@@ -813,7 +813,7 @@
                                 TotalAdjCostLCY := TotalAdjCostLCY + AdjCostLCY;
                             end;
                     end;
-                until (Next = 0) or (RemQtyToCalcBase = 0);
+                until (Next() = 0) or (RemQtyToCalcBase = 0);
         end;
     end;
 
@@ -827,7 +827,7 @@
 
             if Type = Type::Item then begin
                 FilterPstdDocLnItemLedgEntries(ItemLedgEntry);
-                if ItemLedgEntry.IsEmpty then
+                if ItemLedgEntry.IsEmpty() then
                     exit(0);
                 AdjCostLCY := CalcPostedDocLineCostLCY(ItemLedgEntry, QtyType);
             end else begin
@@ -849,7 +849,7 @@
 
             if Type = Type::Item then begin
                 FilterPstdDocLnItemLedgEntries(ItemLedgEntry);
-                if ItemLedgEntry.IsEmpty then
+                if ItemLedgEntry.IsEmpty() then
                     exit(0);
                 AdjCostLCY := CalcPostedDocLineCostLCY(ItemLedgEntry, QtyType);
             end else begin
@@ -866,7 +866,7 @@
         ValueEntry: Record "Value Entry";
     begin
         with ItemLedgEntry do begin
-            FindSet;
+            FindSet();
             repeat
                 if (QtyType = QtyType::Invoicing) or (QtyType = QtyType::Consuming) then begin
                     CalcFields("Cost Amount (Expected)");
@@ -881,9 +881,9 @@
                             then
                                 AdjCostLCY :=
                                   AdjCostLCY + ValueEntry."Cost Amount (Expected)" + ValueEntry."Cost Amount (Actual)";
-                        until ValueEntry.Next = 0;
+                        until ValueEntry.Next() = 0;
                 end;
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -1078,7 +1078,7 @@
             if FindSet then
                 repeat
                     CostAmt := CostAmt + "Cost Amount (Actual)";
-                until Next = 0;
+                until Next() = 0;
         exit(CostAmt);
     end;
 
@@ -1191,7 +1191,7 @@
                                 TotalAdjCostLCY := TotalAdjCostLCY + AdjCostLCY;
                             end;
                     end;
-                until (Next = 0) or (RemQtyToCalcBase = 0);
+                until (Next() = 0) or (RemQtyToCalcBase = 0);
         end;
     end;
 
@@ -1205,7 +1205,7 @@
 
             if Type = Type::Item then begin
                 FilterPstdDocLnItemLedgEntries(ItemLedgEntry);
-                if ItemLedgEntry.IsEmpty then
+                if ItemLedgEntry.IsEmpty() then
                     exit(0);
                 AdjCostLCY := CalcPostedDocLineCostLCY(ItemLedgEntry, QtyType);
             end else begin
@@ -1247,8 +1247,8 @@
                     repeat
                         ActMatCost += ValueEntry."Cost Amount (Actual)";
                         ActMatCostCostACY += ValueEntry."Cost Amount (Actual) (ACY)";
-                    until ValueEntry.Next = 0;
-            until ItemLedgEntry.Next = 0;
+                    until ValueEntry.Next() = 0;
+            until ItemLedgEntry.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

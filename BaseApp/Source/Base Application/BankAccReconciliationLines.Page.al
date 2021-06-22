@@ -263,7 +263,7 @@ page 380 "Bank Acc. Reconciliation Lines"
             repeat
                 TempBankAccReconciliationLine := BankAccReconciliationLine;
                 TempBankAccReconciliationLine.Insert();
-            until BankAccReconciliationLine.Next = 0;
+            until BankAccReconciliationLine.Next() = 0;
     end;
 
     local procedure SetUserInteractions()
@@ -278,7 +278,7 @@ page 380 "Bank Acc. Reconciliation Lines"
             SetFilter(Difference, '<>%1', 0)
         else
             Reset;
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

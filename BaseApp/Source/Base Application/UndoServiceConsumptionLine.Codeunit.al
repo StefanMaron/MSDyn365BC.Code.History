@@ -80,17 +80,17 @@ codeunit 5819 "Undo Service Consumption Line"
                 if not HideDialog then
                     Window.Open(Text003);
                 CheckServShptLine(ServShptLine);
-            until Next = 0;
+            until Next() = 0;
 
             ServLedgEntriesPost.InitServiceRegister(ServLedgEntryNo, WarrantyLedgEntryNo);
             Find('-');
             repeat
                 if Quantity <> "Qty. Shipped Not Invoiced" then begin
                     TempGlobalItemLedgEntry.Reset();
-                    if not TempGlobalItemLedgEntry.IsEmpty then
+                    if not TempGlobalItemLedgEntry.IsEmpty() then
                         TempGlobalItemLedgEntry.DeleteAll();
                     TempGlobalItemEntryRelation.Reset();
-                    if not TempGlobalItemEntryRelation.IsEmpty then
+                    if not TempGlobalItemEntryRelation.IsEmpty() then
                         TempGlobalItemEntryRelation.DeleteAll();
 
                     if not HideDialog then
@@ -114,7 +114,7 @@ codeunit 5819 "Undo Service Consumption Line"
                     UpdateOrderLine(ServShptLine);
                     UpdateServShptLine(ServShptLine);
                 end;
-            until Next = 0;
+            until Next() = 0;
             ServLedgEntriesPost.FinishServiceRegister(ServLedgEntryNo, WarrantyLedgEntryNo);
 
             InvtSetup.Get();
@@ -155,7 +155,7 @@ codeunit 5819 "Undo Service Consumption Line"
             ServiceLedgerEntry.SetRange("Document Line No.", "Line No.");
             ServiceLedgerEntry.SetRange("Service Order No.", "Order No.");
             ServiceLedgerEntry.SetRange("Job Posted", true);
-            if not ServiceLedgerEntry.IsEmpty then
+            if not ServiceLedgerEntry.IsEmpty() then
                 Error(Text004);
 
             if not ServLine.Get(ServLine."Document Type"::Order, "Order No.", "Order Line No.") then
@@ -229,7 +229,7 @@ codeunit 5819 "Undo Service Consumption Line"
                     repeat
                         TempTrkgItemLedgEntry2 := TempTrkgItemLedgEntry;
                         TempTrkgItemLedgEntry2.Insert();
-                    until TempTrkgItemLedgEntry.Next = 0;
+                    until TempTrkgItemLedgEntry.Next() = 0;
                 InsertNewReservationEntries(ServShptLine, EntryType, SignFactor);
                 PostItemJnlLineWithIT(ServShptLine, QtyToShip, QtyToShipBase, QtyToConsume, QtyToConsumeBase, SignFactor, EntryType);
             end;
@@ -356,7 +356,7 @@ codeunit 5819 "Undo Service Consumption Line"
                     ReservEntry.Insert();
                     TempReservEntry := ReservEntry;
                     TempReservEntry.Insert();
-                until Next = 0;
+                until Next() = 0;
             ReserveEngineMgt.UpdateOrderTracking(TempReservEntry);
         end;
     end;
@@ -382,7 +382,7 @@ codeunit 5819 "Undo Service Consumption Line"
                     if TempGlobalItemEntryRelation.Insert() then;
 
                     TempSSLItemLedgEntry.Next;
-                until TempTrkgItemLedgEntry.Next = 0;
+                until TempTrkgItemLedgEntry.Next() = 0;
         end;
     end;
 
@@ -500,7 +500,7 @@ codeunit 5819 "Undo Service Consumption Line"
                 ItemEntryRelation := TempItemEntryRelation;
                 ItemEntryRelation.TransferFieldsServShptLine(NewServShptLine);
                 ItemEntryRelation.Insert();
-            until TempItemEntryRelation.Next = 0;
+            until TempItemEntryRelation.Next() = 0;
         TempItemEntryRelation.DeleteAll();
     end;
 

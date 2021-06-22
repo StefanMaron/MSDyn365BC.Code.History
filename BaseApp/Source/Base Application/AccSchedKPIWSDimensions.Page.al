@@ -164,22 +164,22 @@ page 198 "Acc. Sched. KPI WS Dimensions"
         LineNo: Integer;
     begin
         AccSchedKPIWebSrvSetup.Get();
-        AccSchedKPIWebSrvLine.FindSet;
+        AccSchedKPIWebSrvLine.FindSet();
         AccScheduleLine.SetRange(Show, AccScheduleLine.Show::Yes);
         AccScheduleLine.SetFilter(Totaling, '<>%1', '');
         repeat
             AccScheduleLine.SetRange("Schedule Name", AccSchedKPIWebSrvLine."Acc. Schedule Name");
-            AccScheduleLine.FindSet;
+            AccScheduleLine.FindSet();
             repeat
                 LineNo += 1;
                 TempAccScheduleLine := AccScheduleLine;
                 TempAccScheduleLine."Line No." := LineNo;
                 TempAccScheduleLine.Insert();
-            until AccScheduleLine.Next = 0;
-        until AccSchedKPIWebSrvLine.Next = 0;
+            until AccScheduleLine.Next() = 0;
+        until AccSchedKPIWebSrvLine.Next() = 0;
     end;
 
-    local procedure InsertTempColumn(var TempColumnLayout: Record "Column Layout" temporary; ColumnType: Option; EntryType: Option; LastYear: Boolean)
+    local procedure InsertTempColumn(var TempColumnLayout: Record "Column Layout" temporary; ColumnType: Enum "Column Layout Type"; EntryType: Enum "Column Layout Entry Type"; LastYear: Boolean)
     begin
         with TempColumnLayout do begin
             if FindLast then;
@@ -228,7 +228,7 @@ page 198 "Acc. Sched. KPI WS Dimensions"
             end;
 
             with TempAccScheduleLine do begin
-                FindSet;
+                FindSet();
                 repeat
                     if TempAccSchedKPIBuffer."Account Schedule Name" <> "Schedule Name" then begin
                         InsertAccSchedulePeriod(TempAccSchedKPIBuffer, ForecastFromBudget);
@@ -240,7 +240,7 @@ page 198 "Acc. Sched. KPI WS Dimensions"
                     SetRange("Date Filter", FromDate, ToDate);
                     SetRange("G/L Budget Filter", AccSchedKPIWebSrvSetup."G/L Budget Name");
                     AccSchedKPIDimensions.GetCellDataWithDimensions(TempAccScheduleLine, TempColumnLayout, TempAccSchedKPIBuffer);
-                until Next = 0;
+                until Next() = 0;
             end;
             InsertAccSchedulePeriod(TempAccSchedKPIBuffer, ForecastFromBudget);
         end;
@@ -255,7 +255,7 @@ page 198 "Acc. Sched. KPI WS Dimensions"
             if FindSet then
                 repeat
                     InsertData(TempAccSchedKPIBuffer, ForecastFromBudget);
-                until Next = 0;
+                until Next() = 0;
             DeleteAll();
         end;
     end;

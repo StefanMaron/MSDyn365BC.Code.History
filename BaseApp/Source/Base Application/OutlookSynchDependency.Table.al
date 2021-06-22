@@ -141,7 +141,7 @@ table 5311 "Outlook Synch. Dependency"
                     Error(Text002);
 
                 LoopCheck(OSynchDependency."Depend. Synch. Entity Code", OSynchDependency."Synch. Entity Code");
-            until OSynchDependency.Next = 0;
+            until OSynchDependency.Next() = 0;
     end;
 
     procedure CheckUserSetup()
@@ -165,7 +165,7 @@ table 5311 "Outlook Synch. Dependency"
                       OSynchEntityElement."Outlook Collection",
                       OSynchEntityElement."Synch. Entity Code");
                 end;
-        until OSynchUserSetup.Next = 0;
+        until OSynchUserSetup.Next() = 0;
     end;
 }
 

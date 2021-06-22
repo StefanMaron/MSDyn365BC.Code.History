@@ -172,7 +172,7 @@ page 7385 "Reg. Invt. Movement Subform"
 
     local procedure BinCodeOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

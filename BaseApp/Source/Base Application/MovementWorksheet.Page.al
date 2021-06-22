@@ -504,29 +504,29 @@ page 7351 "Movement Worksheet"
     protected procedure ItemNoOnAfterValidate()
     begin
         if CurrentSortingMethod = CurrentSortingMethod::Item then
-            CurrPage.Update;
+            CurrPage.Update();
     end;
 
     protected procedure ToBinCodeOnAfterValidate()
     begin
         if CurrentSortingMethod = CurrentSortingMethod::"Shelf/Bin No." then
-            CurrPage.Update;
+            CurrPage.Update();
     end;
 
     protected procedure QuantityOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     protected procedure QtytoHandleOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     protected procedure DueDateOnAfterValidate()
     begin
         if CurrentSortingMethod = CurrentSortingMethod::"Due Date" then
-            CurrPage.Update;
+            CurrPage.Update();
     end;
 
     protected procedure CurrentWkshNameOnAfterValidate()

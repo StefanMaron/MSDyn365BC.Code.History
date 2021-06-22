@@ -655,7 +655,7 @@ xmlport 12 "IC Outbox Imp/Exp"
                     repeat
                         ICOutBoxJnlLine := NewICOutBoxJnlLine;
                         ICOutBoxJnlLine.Insert();
-                    until NewICOutBoxJnlLine.Next = 0;
+                    until NewICOutBoxJnlLine.Next() = 0;
 
                 NewICIOBoxJnlDim.SetRange("Table ID", DATABASE::"IC Outbox Jnl. Line");
                 NewICIOBoxJnlDim.SetRange("Transaction No.", NewICOutboxTrans."Transaction No.");
@@ -665,7 +665,7 @@ xmlport 12 "IC Outbox Imp/Exp"
                     repeat
                         ICIOBoxJnlDim := NewICIOBoxJnlDim;
                         ICIOBoxJnlDim.Insert();
-                    until NewICIOBoxJnlDim.Next = 0;
+                    until NewICIOBoxJnlDim.Next() = 0;
 
                 NewICOutBoxSalesHdr.SetRange("IC Transaction No.", NewICOutboxTrans."Transaction No.");
                 NewICOutBoxSalesHdr.SetRange("IC Partner Code", NewICOutboxTrans."IC Partner Code");
@@ -674,7 +674,7 @@ xmlport 12 "IC Outbox Imp/Exp"
                     repeat
                         ICOutBoxSalesHdr := NewICOutBoxSalesHdr;
                         ICOutBoxSalesHdr.Insert();
-                    until NewICOutBoxSalesHdr.Next = 0;
+                    until NewICOutBoxSalesHdr.Next() = 0;
 
                 NewICOutBoxSalesLine.SetRange("IC Transaction No.", NewICOutboxTrans."Transaction No.");
                 NewICOutBoxSalesLine.SetRange("IC Partner Code", NewICOutboxTrans."IC Partner Code");
@@ -683,7 +683,7 @@ xmlport 12 "IC Outbox Imp/Exp"
                     repeat
                         ICOutBoxSalesLine := NewICOutBoxSalesLine;
                         ICOutBoxSalesLine.Insert();
-                    until NewICOutBoxSalesLine.Next = 0;
+                    until NewICOutBoxSalesLine.Next() = 0;
 
                 NewICOutBoxPurchHdr.SetRange("IC Transaction No.", NewICOutboxTrans."Transaction No.");
                 NewICOutBoxPurchHdr.SetRange("IC Partner Code", NewICOutboxTrans."IC Partner Code");
@@ -692,7 +692,7 @@ xmlport 12 "IC Outbox Imp/Exp"
                     repeat
                         ICOutBoxPurchHdr := NewICOutBoxPurchHdr;
                         ICOutBoxPurchHdr.Insert();
-                    until NewICOutBoxPurchHdr.Next = 0;
+                    until NewICOutBoxPurchHdr.Next() = 0;
 
                 NewICOutBoxPurchLine.SetRange("IC Transaction No.", NewICOutboxTrans."Transaction No.");
                 NewICOutBoxPurchLine.SetRange("IC Partner Code", NewICOutboxTrans."IC Partner Code");
@@ -701,7 +701,7 @@ xmlport 12 "IC Outbox Imp/Exp"
                     repeat
                         ICOutBoxPurchLine := NewICOutBoxPurchLine;
                         ICOutBoxPurchLine.Insert();
-                    until NewICOutBoxPurchLine.Next = 0;
+                    until NewICOutBoxPurchLine.Next() = 0;
 
                 NewICDocDim.SetRange("Transaction No.", NewICOutboxTrans."Transaction No.");
                 NewICDocDim.SetRange("IC Partner Code", NewICOutboxTrans."IC Partner Code");
@@ -722,7 +722,7 @@ xmlport 12 "IC Outbox Imp/Exp"
                 NewICDocDim.SetRange("Table ID", DATABASE::"IC Outbox Purchase Line");
                 NewICDocDim.SetRange("Line No.");
                 SetICDocDim(NewICDocDim, ICPurDocLineDim);
-            until NewICOutboxTrans.Next = 0;
+            until NewICOutboxTrans.Next() = 0;
     end;
 
     local procedure SetICDocDim(var NewICDocDim: Record "IC Document Dimension"; var DestDocDim: Record "IC Document Dimension")
@@ -731,7 +731,7 @@ xmlport 12 "IC Outbox Imp/Exp"
             repeat
                 DestDocDim := NewICDocDim;
                 DestDocDim.Insert();
-            until NewICDocDim.Next = 0;
+            until NewICDocDim.Next() = 0;
     end;
 
     procedure GetICOutboxTrans(var NewICOutboxTrans: Record "IC Outbox Transaction")
@@ -741,7 +741,7 @@ xmlport 12 "IC Outbox Imp/Exp"
             repeat
                 NewICOutboxTrans := ICOutboxTrans;
                 NewICOutboxTrans.Insert();
-            until ICOutboxTrans.Next = 0;
+            until ICOutboxTrans.Next() = 0;
     end;
 
     procedure GetICOutBoxJnlLine(var NewICOutBoxJnlLine: Record "IC Outbox Jnl. Line")
@@ -751,7 +751,7 @@ xmlport 12 "IC Outbox Imp/Exp"
             repeat
                 NewICOutBoxJnlLine := ICOutBoxJnlLine;
                 NewICOutBoxJnlLine.Insert();
-            until ICOutBoxJnlLine.Next = 0;
+            until ICOutBoxJnlLine.Next() = 0;
     end;
 
     procedure GetICIOBoxJnlDim(var NewICIOBoxJnlDim: Record "IC Inbox/Outbox Jnl. Line Dim.")
@@ -761,7 +761,7 @@ xmlport 12 "IC Outbox Imp/Exp"
             repeat
                 NewICIOBoxJnlDim := ICIOBoxJnlDim;
                 NewICIOBoxJnlDim.Insert();
-            until ICIOBoxJnlDim.Next = 0;
+            until ICIOBoxJnlDim.Next() = 0;
     end;
 
     procedure GetICOutBoxSalesHdr(var NewICOutBoxSalesHdr: Record "IC Outbox Sales Header")
@@ -771,7 +771,7 @@ xmlport 12 "IC Outbox Imp/Exp"
             repeat
                 NewICOutBoxSalesHdr := ICOutBoxSalesHdr;
                 NewICOutBoxSalesHdr.Insert();
-            until ICOutBoxSalesHdr.Next = 0;
+            until ICOutBoxSalesHdr.Next() = 0;
     end;
 
     procedure GetICOutBoxSalesLine(var NewICOutBoxSalesLine: Record "IC Outbox Sales Line")
@@ -781,7 +781,7 @@ xmlport 12 "IC Outbox Imp/Exp"
             repeat
                 NewICOutBoxSalesLine := ICOutBoxSalesLine;
                 NewICOutBoxSalesLine.Insert();
-            until ICOutBoxSalesLine.Next = 0;
+            until ICOutBoxSalesLine.Next() = 0;
     end;
 
     procedure GetICOutBoxPurchHdr(var NewICOutBoxPurchHdr: Record "IC Outbox Purchase Header")
@@ -791,7 +791,7 @@ xmlport 12 "IC Outbox Imp/Exp"
             repeat
                 NewICOutBoxPurchHdr := ICOutBoxPurchHdr;
                 NewICOutBoxPurchHdr.Insert();
-            until ICOutBoxPurchHdr.Next = 0;
+            until ICOutBoxPurchHdr.Next() = 0;
     end;
 
     procedure GetICOutBoxPurchLine(var NewICOutBoxPurchLine: Record "IC Outbox Purchase Line")
@@ -801,7 +801,7 @@ xmlport 12 "IC Outbox Imp/Exp"
             repeat
                 NewICOutBoxPurchLine := ICOutBoxPurchLine;
                 NewICOutBoxPurchLine.Insert();
-            until ICOutBoxPurchLine.Next = 0;
+            until ICOutBoxPurchLine.Next() = 0;
     end;
 
     procedure GetICSalesDocDim(var NewICDocDim: Record "IC Document Dimension")

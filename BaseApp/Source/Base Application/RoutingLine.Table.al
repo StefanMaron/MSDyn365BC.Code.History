@@ -235,7 +235,7 @@ table 99000764 "Routing Line"
                         RtngTool."No." := StdTaskTool."No.";
                         RtngTool.Description := StdTaskTool.Description;
                         RtngTool.Insert();
-                    until StdTaskTool.Next = 0;
+                    until StdTaskTool.Next() = 0;
 
                 StdTaskPersonnel.SetRange("Standard Task Code", "Standard Task Code");
                 if StdTaskPersonnel.Find('-') then
@@ -247,7 +247,7 @@ table 99000764 "Routing Line"
                         RtngPersonnel."No." := StdTaskPersonnel."No.";
                         RtngPersonnel.Description := StdTaskPersonnel.Description;
                         RtngPersonnel.Insert();
-                    until StdTaskPersonnel.Next = 0;
+                    until StdTaskPersonnel.Next() = 0;
 
                 StdTaskQltyMeasure.SetRange("Standard Task Code", "Standard Task Code");
                 if StdTaskQltyMeasure.Find('-') then
@@ -262,7 +262,7 @@ table 99000764 "Routing Line"
                         RtngQltyMeasure."Max. Value" := StdTaskQltyMeasure."Max. Value";
                         RtngQltyMeasure."Mean Tolerance" := StdTaskQltyMeasure."Mean Tolerance";
                         RtngQltyMeasure.Insert();
-                    until StdTaskQltyMeasure.Next = 0;
+                    until StdTaskQltyMeasure.Next() = 0;
 
                 StdTaskComment.SetRange("Standard Task Code", "Standard Task Code");
                 if StdTaskComment.Find('-') then
@@ -273,7 +273,7 @@ table 99000764 "Routing Line"
                         RtngComment."Line No." := StdTaskComment."Line No.";
                         RtngComment.Comment := StdTaskComment.Text;
                         RtngComment.Insert();
-                    until StdTaskComment.Next = 0;
+                    until StdTaskComment.Next() = 0;
             end;
         }
         field(40; "Unit Cost per"; Decimal)
@@ -505,12 +505,14 @@ table 99000764 "Routing Line"
         exit(FindSet);
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by CheckIfRoutingCertified().', '17.0')]
     [Scope('OnPrem')]
     procedure CheckCertifiedRouting(RoutingLineType: Option; No: Code[20])
     begin
         CheckIfRoutingCertified("Capacity Type Routing".FromInteger(RoutingLineType), No);
     end;
+#endif
 
     procedure CheckIfRoutingCertified(RoutingLineType: Enum "Capacity Type Routing"; No: Code[20])
     var

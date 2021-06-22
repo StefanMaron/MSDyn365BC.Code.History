@@ -227,7 +227,7 @@ codeunit 134280 "Simple Data Exchange UI UT"
         // Verify child lines
         TempDataExchFieldMappingBuf.Reset();
         TempDataExchFieldMappingBuf.SetRange("Data Exchange Line Def Code", ChildDataExchLineDef.Code);
-        TempDataExchFieldMappingBuf.FindSet;
+        TempDataExchFieldMappingBuf.FindSet();
         VerifyDataExchangeDefLineField(TempDataExchFieldMappingBuf, ChildDataExchLineDef, ChildDataExchMapping, Depth);
 
         Depth := 2;
@@ -551,7 +551,7 @@ codeunit 134280 "Simple Data Exchange UI UT"
     begin
         TempDataExchFieldMappingBuf.SetRange(Type, TempDataExchFieldMappingBuf.Type::Field);
 
-        if TempDataExchFieldMappingBuf.IsEmpty then
+        if TempDataExchFieldMappingBuf.IsEmpty() then
             exit;
 
         DataExchDef.Get(DataExchLineDef."Data Exch. Def Code");
@@ -592,12 +592,12 @@ codeunit 134280 "Simple Data Exchange UI UT"
         DataExchFieldMapping.SetRange("Data Exch. Line Def Code", DataExchMapping."Data Exch. Line Def Code");
         DataExchFieldMapping.SetRange("Table ID", DataExchMapping."Table ID");
 
-        if TempDataExchFieldMappingBuf.IsEmpty then
+        if TempDataExchFieldMappingBuf.IsEmpty() then
             exit;
 
         DataExchDef.Get(DataExchMapping."Data Exch. Def Code");
 
-        DataExchFieldMapping.FindSet;
+        DataExchFieldMapping.FindSet();
         repeat
             TempDataExchFieldMappingBuf.SetRange("Field ID", DataExchFieldMapping."Field ID");
             TempDataExchFieldMappingBuf.SetRange("Table ID", DataExchFieldMapping."Table ID");

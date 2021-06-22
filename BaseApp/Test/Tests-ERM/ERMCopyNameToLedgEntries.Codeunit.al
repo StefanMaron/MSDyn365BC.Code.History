@@ -1068,7 +1068,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
         exit(GlobalTaskID);
     end;
 
-    [EventSubscriber(ObjectType::Table, 472, 'OnBeforeScheduleTask', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Job Queue Entry", 'OnBeforeScheduleTask', '', false, false)]
     local procedure OnBeforeScheduleTaskHandler(var JobQueueEntry: Record "Job Queue Entry"; var TaskGUID: Guid)
     begin
         TaskGUID := GlobalTaskID;

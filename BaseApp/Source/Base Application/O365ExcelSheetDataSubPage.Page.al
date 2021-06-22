@@ -147,7 +147,7 @@ page 2181 "O365 Excel Sheet Data SubPage"
             repeat
                 i += 1;
                 CellValue[i] := TempExcelBuffer."Cell Value as Text";
-            until (TempExcelBuffer.Next = 0) or (i = ArrayLen(CellValue));
+            until (TempExcelBuffer.Next() = 0) or (i = ArrayLen(CellValue));
 
         if UseEmphasizing then
             Emphasize := Number = StartRowNo;
@@ -187,7 +187,7 @@ page 2181 "O365 Excel Sheet Data SubPage"
             repeat
                 TempExcelBuffer := NewExcelBuffer;
                 TempExcelBuffer.Insert();
-            until NewExcelBuffer.Next = 0;
+            until NewExcelBuffer.Next() = 0;
         CreateLines;
     end;
 
@@ -230,7 +230,7 @@ page 2181 "O365 Excel Sheet Data SubPage"
             repeat
                 TempO365FieldExcelMapping := NewO365FieldExcelMapping;
                 TempO365FieldExcelMapping.Insert();
-            until NewO365FieldExcelMapping.Next = 0;
+            until NewO365FieldExcelMapping.Next() = 0;
     end;
 
     procedure SetColumnVisibility()

@@ -173,7 +173,7 @@ page 7393 "Posted Invt. Pick Subform"
 
     local procedure BinCodeOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

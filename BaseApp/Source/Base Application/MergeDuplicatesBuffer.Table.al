@@ -155,7 +155,7 @@ table 64 "Merge Duplicates Buffer"
             repeat
                 TempMergeDuplicatesLineBuffer.AddTableData(
                   Rec, TempTableRelationsMetadata."Table ID", TempTableRelationsMetadata."Field No.");
-            until TempTableRelationsMetadata.Next = 0;
+            until TempTableRelationsMetadata.Next() = 0;
     end;
 
     local procedure FindConflicts(): Boolean
@@ -170,7 +170,7 @@ table 64 "Merge Duplicates Buffer"
                 xConflicts := TempMergeDuplicatesLineBuffer.Conflicts;
                 if TempMergeDuplicatesLineBuffer.FindConflicts(Duplicate, Current, TempMergeDuplicatesConflict) <> xConflicts then
                     TempMergeDuplicatesLineBuffer.Modify();
-            until TempMergeDuplicatesLineBuffer.Next = 0;
+            until TempMergeDuplicatesLineBuffer.Next() = 0;
         Conflicts := TempMergeDuplicatesConflict.Count();
         Modify;
         TempMergeDuplicatesLineBuffer.Reset();
@@ -230,13 +230,12 @@ table 64 "Merge Duplicates Buffer"
                             TempTableRelationsMetadata.Insert();
                         end;
                 end;
-            until TableRelationsMetadata.Next = 0;
+            until TableRelationsMetadata.Next() = 0;
         IncludeDefaultDimTable(TempTableRelationsMetadata);
         OnAfterFindRelatedFields(TempTableRelationsMetadata);
         exit(TempTableRelationsMetadata.FindSet);
     end;
 
-    [Scope('OnPrem')]
     procedure GetConflictsMsg(): Text
     begin
         if Conflicts = 0 then
@@ -442,7 +441,7 @@ table 64 "Merge Duplicates Buffer"
                 FieldRef[1] := FromRecRef.Field(TempMergeDuplicatesLineBuffer.ID);
                 FieldRef[2] := ToRecRef.Field(TempMergeDuplicatesLineBuffer.ID);
                 FieldRef[2].Value(FieldRef[1].Value);
-            until TempMergeDuplicatesLineBuffer.Next = 0;
+            until TempMergeDuplicatesLineBuffer.Next() = 0;
             exit(true);
         end;
         exit(false);
@@ -584,9 +583,9 @@ table 64 "Merge Duplicates Buffer"
                     repeat
                         FieldRef.Value(NewID);
                         RecRef.Modify();
-                    until RecRef.Next = 0;
+                    until RecRef.Next() = 0;
                 RecRef.Close;
-            until TableRelationsMetadata.Next = 0;
+            until TableRelationsMetadata.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

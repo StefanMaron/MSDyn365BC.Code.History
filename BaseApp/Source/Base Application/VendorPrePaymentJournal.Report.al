@@ -593,7 +593,7 @@ report 317 "Vendor Pre-Payment Journal"
                     begin
                         LastDocumentNo := '';
                         LastAccountNo := '';
-                        LastAccountType := 0;
+                        LastAccountType := LastAccountType::"G/L Account";
                         AmountBalLcy := 0;
                         AmountLcy := 0;
                         TotalAmount := 0;
@@ -1011,7 +1011,7 @@ report 317 "Vendor Pre-Payment Journal"
     begin
         GenJnlLine := "Gen. Journal Line";
         LastLineNo := "Gen. Journal Line"."Line No.";
-        if "Gen. Journal Line".Next = 0 then;
+        if "Gen. Journal Line".Next() = 0 then;
         NextGenJnlLine := "Gen. Journal Line";
         MakeRecurringTexts(NextGenJnlLine);
         "Gen. Journal Line" := GenJnlLine;
@@ -1900,7 +1900,7 @@ report 317 "Vendor Pre-Payment Journal"
             if FindSet then
                 repeat
                     TotalAmount += "Remaining Amount";
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -1914,7 +1914,7 @@ report 317 "Vendor Pre-Payment Journal"
             if FindSet then
                 repeat
                     TotalAmount += "Remaining Amount";
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

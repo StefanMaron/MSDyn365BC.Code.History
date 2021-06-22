@@ -69,7 +69,7 @@ table 2153 "O365 Payment Terms"
                     "Due Date Calculation" := PaymentTerms."Due Date Calculation";
                     if Insert() then;
                 end;
-            until PaymentTerms.Next = 0;
+            until PaymentTerms.Next() = 0;
         if Get(CurrentRecordCode) then;
     end;
 }

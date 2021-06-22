@@ -1,4 +1,4 @@
-﻿table 5907 "Service Ledger Entry"
+table 5907 "Service Ledger Entry"
 {
     Caption = 'Service Ledger Entry';
     DrillDownPageID = "Service Ledger Entries";
@@ -279,12 +279,10 @@
             Caption = 'Job Task No.';
             TableRelation = "Job Task"."Job Task No." WHERE("Job No." = FIELD("Job No."));
         }
-        field(59; "Job Line Type"; Option)
+        field(59; "Job Line Type"; Enum "Job Line Type")
         {
             Caption = 'Job Line Type';
             InitValue = Budget;
-            OptionCaption = ' ,Budget,Billable,Both Budget and Billable';
-            OptionMembers = " ",Budget,Billable,"Both Budget and Billable";
         }
         field(60; "Job Posted"; Boolean)
         {

@@ -39,7 +39,7 @@ codeunit 5913 "FaultResolRelation-Calculate"
                 TempFaultResolutionRelation.Description := FaultResolutionRelation.Description;
                 TempFaultResolutionRelation."Created Manually" := FaultResolutionRelation."Created Manually";
                 TempFaultResolutionRelation.Insert();
-            until FaultResolutionRelation.Next = 0;
+            until FaultResolutionRelation.Next() = 0;
 
         Clear(FaultResolutionRelation);
         FaultResolutionRelation.DeleteAll();
@@ -134,11 +134,11 @@ codeunit 5913 "FaultResolRelation-Calculate"
                                         FaultResolutionRelation.Insert();
                                     end;
                                 end;
-                            until ServShptLine.Next = 0;
+                            until ServShptLine.Next() = 0;
 
-                    until ServShptItemLine.Next = 0;
+                    until ServShptItemLine.Next() = 0;
 
-            until ServShptHeader.Next = 0;
+            until ServShptHeader.Next() = 0;
         end;
         if TempFaultResolutionRelation.Find('-') then
             repeat
@@ -181,7 +181,7 @@ codeunit 5913 "FaultResolRelation-Calculate"
                     FaultResolutionRelation.Occurrences := 1;
                     FaultResolutionRelation.Insert();
                 end;
-            until TempFaultResolutionRelation.Next = 0;
+            until TempFaultResolutionRelation.Next() = 0;
 
         Window.Close;
     end;

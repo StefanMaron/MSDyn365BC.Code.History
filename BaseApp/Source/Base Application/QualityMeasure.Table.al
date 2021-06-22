@@ -35,11 +35,11 @@ table 99000785 "Quality Measure"
         ProdOrderRtngQltyMeas: Record "Prod. Order Rtng Qlty Meas.";
     begin
         ProdOrderRtngQltyMeas.SetRange("Qlty Measure Code", Code);
-        if not ProdOrderRtngQltyMeas.IsEmpty then
+        if not ProdOrderRtngQltyMeas.IsEmpty() then
             Error(CannotDeleteRecProdOrderErr);
 
         RoutingQualityMeasure.SetRange("Qlty Measure Code", Code);
-        if not RoutingQualityMeasure.IsEmpty then
+        if not RoutingQualityMeasure.IsEmpty() then
             Error(CannotDeleteRecActRoutingErr);
     end;
 

@@ -121,7 +121,7 @@ page 130150 "Generate Test Data"
     trigger OnOpenPage()
     begin
         RecordsToAdd := 100;
-        if IsEmpty then
+        if IsEmpty() then
             GenerateTestDataMgt.GetLines;
     end;
 

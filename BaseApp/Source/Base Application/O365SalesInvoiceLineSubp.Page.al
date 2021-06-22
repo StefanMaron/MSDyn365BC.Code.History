@@ -99,7 +99,7 @@ page 2111 "O365 Sales Invoice Line Subp."
                         exit;
                     Delete(true);
                     if not EnvInfoProxy.IsInvoicing then
-                        CurrPage.Update;
+                        CurrPage.Update();
                 end;
             }
             action(Open)

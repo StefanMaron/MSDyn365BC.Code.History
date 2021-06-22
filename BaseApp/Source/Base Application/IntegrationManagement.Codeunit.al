@@ -3,7 +3,8 @@ codeunit 5150 "Integration Management"
     Permissions = TableData "Sales Invoice Header" = rm,
                   TableData "Sales Invoice Line" = rm,
                   TableData "Marketing Setup" = r,
-                  TableData "Integration Table Mapping" = r;
+                  TableData "Integration Table Mapping" = r,
+                  TableData "Integration Record" = rm;
     SingleInstance = true;
     ObsoleteReason = 'Integration Management will be removed. Refactor the code to use systemID and other system fields such as systemLastModifiedDateTime.';
     ObsoleteState = Pending;
@@ -260,7 +261,7 @@ codeunit 5150 "Integration Management"
         repeat
             Evaluate(TableId, TempNameValueBuffer.Value);
             InitializeIntegrationRecords(TableId);
-        until TempNameValueBuffer.Next = 0;
+        until TempNameValueBuffer.Next() = 0;
     end;
 
     procedure CreateIntegrationPageList(var TempNameValueBuffer: Record "Name/Value Buffer" temporary)
@@ -561,7 +562,7 @@ codeunit 5150 "Integration Management"
             if Objects.FindFirst then
                 WebServiceManagement.CreateWebService(WebService."Object Type"::Page, Objects."Object ID",
                   StrSubstNo(PageServiceNameTok, Objects."Object Name"), true);
-        until TempNameValueBuffer.Next = 0;
+        until TempNameValueBuffer.Next() = 0;
     end;
 
     local procedure DeleteIntegrationServices()
@@ -586,7 +587,7 @@ codeunit 5150 "Integration Management"
                 if WebService.FindFirst then
                     WebService.Delete();
             end;
-        until TempNameValueBuffer.Next = 0;
+        until TempNameValueBuffer.Next() = 0;
     end;
 
     [Scope('Cloud')]
@@ -599,7 +600,7 @@ codeunit 5150 "Integration Management"
             if FindSet(false) then
                 repeat
                     InsertUpdateIntegrationRecord(RecRef, CurrentDateTime);
-                until Next = 0;
+                until Next() = 0;
             Close;
         end;
     end;
@@ -654,11 +655,11 @@ codeunit 5150 "Integration Management"
             exit;
         JobQueueEntry.FilterInactiveOnHoldEntries;
         JobQueueEntry.SetRange("Recurring Job", true);
-        if JobQueueEntry.IsEmpty then
+        if JobQueueEntry.IsEmpty() then
             exit;
         if not UserCanRescheduleJob() then
             exit;
-        JobQueueEntry.FindSet;
+        JobQueueEntry.FindSet();
         repeat
             // Restart only those jobs whose time to re-execute has nearly arrived.
             // This postpones locking of the Job Queue Entries when restarting.
@@ -667,7 +668,7 @@ codeunit 5150 "Integration Management"
             if CurrentDateTime > MomentForJobToBeReady then
                 if DoesJobActOnTable(JobQueueEntry, TableNo) then
                     JobQueueEntry.Restart;
-        until JobQueueEntry.Next = 0;
+        until JobQueueEntry.Next() = 0;
     end;
 
     local procedure DoesJobActOnTable(JobQueueEntry: Record "Job Queue Entry"; TableNo: Integer): Boolean
@@ -712,7 +713,7 @@ codeunit 5150 "Integration Management"
         exit(CopyStr(Format(Id), 2, StrLen(Format(Id)) - 2));
     end;
 
-    [Obsolete('Integration Records will be replaced by SystemID and SystemLastDateTimeModified', '17.0')]
+    [Obsolete('Integration Records will be replaced by SystemID and SystemModifiedAt ', '17.0')]
     local procedure UpdateReferencedIdField(var Id: Guid; var RecRef: RecordRef; var Handled: Boolean)
     var
         DummyGLAccount: Record "G/L Account";

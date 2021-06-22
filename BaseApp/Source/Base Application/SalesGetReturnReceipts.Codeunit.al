@@ -62,7 +62,7 @@ codeunit 6638 "Sales-Get Return Receipts"
                         if Type = Type::"Charge (Item)" then
                             GetItemChargeAssgnt(ReturnRcptLine2, SalesLine."Qty. to Invoice");
                     end;
-                until Next = 0;
+                until Next() = 0;
             end;
         end;
 
@@ -122,7 +122,7 @@ codeunit 6638 "Sales-Get Return Receipts"
                             repeat
                                 SalesLine2.CalcFields("Qty. to Assign");
                                 InsertChargeAssgnt := SalesLine2."Qty. to Assign" <> SalesLine2.Quantity;
-                            until (SalesLine2.Next = 0) or InsertChargeAssgnt;
+                            until (SalesLine2.Next() = 0) or InsertChargeAssgnt;
 
                         if InsertChargeAssgnt then begin
                             ItemChargeAssgntSales2."Document Type" := SalesLine2."Document Type";
@@ -164,7 +164,7 @@ codeunit 6638 "Sales-Get Return Receipts"
                             QtyToAssign := QtyToAssign - ItemChargeAssgntSales2."Qty. to Assign";
                         end;
                     end;
-                until ItemChargeAssgntSales.Next = 0;
+                until ItemChargeAssgntSales.Next() = 0;
         end;
     end;
 

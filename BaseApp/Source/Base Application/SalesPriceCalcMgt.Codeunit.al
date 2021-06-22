@@ -1,4 +1,4 @@
-﻿codeunit 7000 "Sales Price Calc. Mgt."
+codeunit 7000 "Sales Price Calc. Mgt."
 {
     ObsoleteState = Pending;
     ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
@@ -326,7 +326,7 @@
             exit;
 
         with SalesPrice do begin
-            FoundSalesPrice := FindSet;
+            FoundSalesPrice := FindSet();
             if FoundSalesPrice then
                 repeat
                     if IsInMinQty("Unit of Measure Code", "Minimum Quantity") then begin
@@ -353,7 +353,7 @@
                                 end;
                         end;
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
 
         OnAfterCalcBestUnitPrice(SalesPrice, BestSalesPrice);
@@ -399,7 +399,7 @@
                                 if BestSalesLineDisc."Line Discount %" < "Line Discount %" then
                                     BestSalesLineDisc := SalesLineDisc;
                         end;
-                until Next = 0;
+                until Next() = 0;
         end;
 
         SalesLineDisc := BestSalesLineDisc;
@@ -453,7 +453,7 @@
                     repeat
                         SetRange("Sales Code", TempTargetCampaignGr."Campaign No.");
                         CopySalesPriceToSalesPrice(FromSalesPrice, ToSalesPrice);
-                    until TempTargetCampaignGr.Next = 0;
+                    until TempTargetCampaignGr.Next() = 0;
             end;
         end;
 
@@ -553,7 +553,7 @@
                 repeat
                     ToSalesPrice := FromSalesPrice;
                     Insert;
-                until FromSalesPrice.Next = 0;
+                until FromSalesPrice.Next() = 0;
     end;
 
     local procedure CopySalesDiscToSalesDisc(var FromSalesLineDisc: Record "Sales Line Discount"; var ToSalesLineDisc: Record "Sales Line Discount")
@@ -563,7 +563,7 @@
                 repeat
                     ToSalesLineDisc := FromSalesLineDisc;
                     Insert;
-                until FromSalesLineDisc.Next = 0;
+                until FromSalesLineDisc.Next() = 0;
     end;
 
     procedure SetItem(ItemNo: Code[20])
@@ -1025,7 +1025,7 @@
                     repeat
                         ToCampaignTargetGr := FromCampaignTargetGr;
                         ToCampaignTargetGr.Insert();
-                    until Next = 0
+                    until Next() = 0
                 else
                     if Cont.Get(ContNo) then begin
                         SetRange(Type, Type::Contact);
@@ -1034,14 +1034,14 @@
                             repeat
                                 ToCampaignTargetGr := FromCampaignTargetGr;
                                 ToCampaignTargetGr.Insert();
-                            until Next = 0;
+                            until Next() = 0;
                     end;
             end;
             exit(ToCampaignTargetGr.FindFirst);
         end;
     end;
 
-    local procedure SalesHeaderExchDate(SalesHeader: Record "Sales Header"): Date
+    procedure SalesHeaderExchDate(SalesHeader: Record "Sales Header"): Date
     begin
         with SalesHeader do begin
             if "Posting Date" <> 0D then
@@ -1050,8 +1050,16 @@
         end;
     end;
 
-    local procedure SalesHeaderStartDate(var SalesHeader: Record "Sales Header"; var DateCaption: Text[30]): Date
+    procedure SalesHeaderStartDate(var SalesHeader: Record "Sales Header"; var DateCaption: Text[30]): Date
+    var
+        StartDate: Date;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSalesHeaderStartDate(SalesHeader, DateCaption, StartDate, IsHandled);
+        if IsHandled then
+            exit(StartDate);
+
         with SalesHeader do
             if "Document Type" in ["Document Type"::Invoice, "Document Type"::"Credit Memo"] then begin
                 DateCaption := FieldCaption("Posting Date");
@@ -1062,7 +1070,7 @@
             end;
     end;
 
-    local procedure ServHeaderExchDate(ServHeader: Record "Service Header"): Date
+    procedure ServHeaderExchDate(ServHeader: Record "Service Header"): Date
     begin
         with ServHeader do begin
             if ("Document Type" = "Document Type"::Quote) and
@@ -1073,7 +1081,7 @@
         end;
     end;
 
-    local procedure ServHeaderStartDate(ServHeader: Record "Service Header"; var DateCaption: Text[30]): Date
+    procedure ServHeaderStartDate(ServHeader: Record "Service Header"; var DateCaption: Text[30]): Date
     begin
         with ServHeader do
             if "Document Type" in ["Document Type"::Invoice, "Document Type"::"Credit Memo"] then begin
@@ -1907,6 +1915,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeJobPlanningLineFindJTPrice(var JobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSalesHeaderStartDate(var SalesHeader: Record "Sales Header"; var DateCaption: Text[30]; var StartDate: Date; var IsHandled: Boolean)
     begin
     end;
 

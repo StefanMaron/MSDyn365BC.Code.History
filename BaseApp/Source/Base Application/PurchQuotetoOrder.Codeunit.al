@@ -103,7 +103,9 @@ codeunit 96 "Purch.-Quote to Order"
             PurchOrderHeader."Prepayment %" := PrepmtPercent;
             if PurchOrderHeader."Posting Date" = 0D then
                 PurchOrderHeader."Posting Date" := WorkDate;
+#if not CLEAN17
             OnBeforeInsertPurchOrderHeader(PurchOrderHeader, PurchHeader);
+#endif
             OnCreatePurchHeaderOnBeforePurchOrderHeaderModify(PurchOrderHeader, PurchHeader);
             PurchOrderHeader.Modify();
         end;
@@ -169,7 +171,7 @@ codeunit 96 "Purch.-Quote to Order"
                     OnAfterInsertPurchOrderLine(PurchQuoteLine, PurchOrderLine);
                     PurchLineReserve.VerifyQuantity(PurchOrderLine, PurchQuoteLine);
                 end;
-            until PurchQuoteLine.Next = 0;
+            until PurchQuoteLine.Next() = 0;
     end;
 
     local procedure ValidatePurchOrderLinePrepaymentPct(var PurchOrderLine: Record "Purchase Line")
@@ -204,11 +206,13 @@ codeunit 96 "Purch.-Quote to Order"
     begin
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by OnCreatePurchHeaderOnBeforePurchOrderHeaderModify()', '17.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertPurchOrderHeader(var PurchOrderHeader: Record "Purchase Header"; PurchQuoteHeader: Record "Purchase Header")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertPurchOrderLine(var PurchOrderLine: Record "Purchase Line"; PurchOrderHeader: Record "Purchase Header"; PurchQuoteLine: Record "Purchase Line"; PurchQuoteHeader: Record "Purchase Header")

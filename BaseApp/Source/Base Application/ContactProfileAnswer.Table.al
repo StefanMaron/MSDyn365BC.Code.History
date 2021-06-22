@@ -57,7 +57,7 @@ table 5089 "Contact Profile Answer"
         }
         field(5; Answer; Text[250])
         {
-            CalcFormula = Lookup ("Profile Questionnaire Line".Description WHERE("Profile Questionnaire Code" = FIELD("Profile Questionnaire Code"),
+            CalcFormula = Lookup("Profile Questionnaire Line".Description WHERE("Profile Questionnaire Code" = FIELD("Profile Questionnaire Code"),
                                                                                  "Line No." = FIELD("Line No.")));
             Caption = 'Answer';
             Editable = false;
@@ -65,24 +65,22 @@ table 5089 "Contact Profile Answer"
         }
         field(6; "Contact Company Name"; Text[100])
         {
-            CalcFormula = Lookup (Contact."Company Name" WHERE("No." = FIELD("Contact No.")));
+            CalcFormula = Lookup(Contact."Company Name" WHERE("No." = FIELD("Contact No.")));
             Caption = 'Contact Company Name';
             Editable = false;
             FieldClass = FlowField;
         }
         field(7; "Contact Name"; Text[100])
         {
-            CalcFormula = Lookup (Contact.Name WHERE("No." = FIELD("Contact No.")));
+            CalcFormula = Lookup(Contact.Name WHERE("No." = FIELD("Contact No.")));
             Caption = 'Contact Name';
             Editable = false;
             FieldClass = FlowField;
         }
-        field(8; "Profile Questionnaire Priority"; Option)
+        field(8; "Profile Questionnaire Priority"; Enum "Profile Questionnaire Priority")
         {
             Caption = 'Profile Questionnaire Priority';
             Editable = false;
-            OptionCaption = 'Very Low,Low,Normal,High,Very High';
-            OptionMembers = "Very Low",Low,Normal,High,"Very High";
         }
         field(9; "Answer Priority"; Option)
         {
@@ -133,9 +131,9 @@ table 5089 "Contact Profile Answer"
         ProfileQuestnLine.TestField("Auto Contact Classification", false);
 
         if PartOfRating then begin
-            Delete;
+            Delete();
             UpdateContactClassification.UpdateRating("Contact No.");
-            Insert;
+            Insert();
         end;
 
         Contact.TouchContact("Contact No.");
@@ -168,14 +166,14 @@ table 5089 "Contact Profile Answer"
                 ContProfileAnswer.SetFilter("Line No.", '>%1', ProfileQuestnLine2."Line No.");
             ContProfileAnswer.SetRange("Contact No.", "Contact No.");
             ContProfileAnswer.SetRange("Profile Questionnaire Code", "Profile Questionnaire Code");
-            if not ContProfileAnswer.IsEmpty then
+            if not ContProfileAnswer.IsEmpty() then
                 Error(Text000, ProfileQuestnLine2.FieldCaption("Multiple Answers"));
         end;
 
         if PartOfRating then begin
-            Insert;
+            Insert();
             UpdateContactClassification.UpdateRating("Contact No.");
-            Delete;
+            Delete();
         end;
 
         Contact.TouchContact("Contact No.");
@@ -217,11 +215,11 @@ table 5089 "Contact Profile Answer"
         ProfileQuestnLine: Record "Profile Questionnaire Line";
     begin
         with ProfileQuestnLine do begin
-            Reset;
+            Reset();
             SetRange("Profile Questionnaire Code", Rec."Profile Questionnaire Code");
             SetFilter("Line No.", '<%1', Rec."Line No.");
             SetRange(Type, Type::Question);
-            if FindLast then
+            if FindLast() then
                 exit("Line No.")
         end;
     end;
@@ -236,7 +234,7 @@ table 5089 "Contact Profile Answer"
         Rating.SetRange("Rating Profile Quest. Code", "Profile Questionnaire Code");
 
         ProfileQuestnLine.Get("Profile Questionnaire Code", "Line No.");
-        ProfileQuestnLine.Get("Profile Questionnaire Code", ProfileQuestnLine.FindQuestionLine);
+        ProfileQuestnLine.Get("Profile Questionnaire Code", ProfileQuestnLine.FindQuestionLine());
 
         ProfileQuestnLine2 := ProfileQuestnLine;
         ProfileQuestnLine2.SetRange(Type, ProfileQuestnLine2.Type::Question);
@@ -246,7 +244,7 @@ table 5089 "Contact Profile Answer"
         else
             Rating.SetFilter("Rating Profile Quest. Line No.", '%1..', ProfileQuestnLine."Line No.");
 
-        exit(Rating.FindFirst);
+        exit(Rating.FindFirst());
     end;
 }
 

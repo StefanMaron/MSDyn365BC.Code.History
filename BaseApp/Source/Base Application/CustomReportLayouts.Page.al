@@ -261,6 +261,9 @@ page 9650 "Custom Report Layouts"
 #endif
         PageName := CurrPage.Caption;
         CurrPage.Caption := GetPageCaption;
+
+        // show notification if bank account is not setup
+        SendSetUpBankAccountNotification();
     end;
 
     var
@@ -273,6 +276,8 @@ page 9650 "Custom Report Layouts"
         PageName: Text;
         CaptionTxt: Label '%1 - %2 %3', Locked = true;
         IsNotBuiltIn: Boolean;
+        SetUpBankAccountMsg: Label 'Business documents often require bank information. To specify the information to include on documents, use the Payments FastTab on the Company Information page.';
+        BankAccountNotificationActionMsg: Label 'Specify bank information';
 
     local procedure GetPageCaption(): Text
     var
@@ -289,6 +294,15 @@ page 9650 "Custom Report Layouts"
             if AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Report, ReportID) then
                 exit(StrSubstNo(CaptionTxt, PageName, ReportID, AllObjWithCaption."Object Caption"));
         exit(PageName);
+    end;
+
+    local procedure SendSetUpBankAccountNotification()
+    var
+        BankNotification: Notification;
+    begin
+        BankNotification.Message := SetUpBankAccountMsg;
+        BankNotification.AddAction(BankAccountNotificationActionMsg, Codeunit::"Company Setup Notification", 'OpenCompanyInformationPage');
+        BankNotification.Send();
     end;
 }
 

@@ -987,7 +987,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         // Assert.ExpectedError(STRSUBSTNO(Text013,ConfigLine."Table ID",ConfigPackage.Code));
         Assert.ExpectedError(StrSubstNo(LineBlockedErr, ConfigLine."Table ID", ''));
 
-        ConfigLine.FindSet;
+        ConfigLine.FindSet();
         repeat
             Assert.AreEqual('', ConfigLine."Package Code",
               StrSubstNo(IncorrectValueErr, ConfigLine.FieldCaption("Package Code"), ConfigLine.TableCaption));
@@ -1009,7 +1009,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
 
         ConfigPackageMgt.AssignPackage(ConfigLine, ConfigPackage.Code);
 
-        ConfigLine.FindSet;
+        ConfigLine.FindSet();
         Assert.AreEqual(ConfigPackage.Code, ConfigLine."Package Code",
           StrSubstNo(IncorrectValueErr, ConfigLine.FieldCaption("Package Code"), ConfigLine.TableCaption));
 
@@ -3080,7 +3080,7 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
     var
         Counter: Integer;
     begin
-        ConfigLine.FindSet;
+        ConfigLine.FindSet();
         repeat
             Counter := Counter + 1;
             ConfigLine.Validate("Vertical Sorting", Counter);

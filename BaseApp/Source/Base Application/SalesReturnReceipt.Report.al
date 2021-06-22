@@ -233,7 +233,7 @@ report 6646 "Sales - Return Receipt"
                                     Continue := true;
                                     exit;
                                 end;
-                            until DimSetEntry1.Next = 0;
+                            until DimSetEntry1.Next() = 0;
                         end;
 
                         trigger OnPreDataItem()
@@ -318,7 +318,7 @@ report 6646 "Sales - Return Receipt"
                                         Continue := true;
                                         exit;
                                     end;
-                                until DimSetEntry2.Next = 0;
+                                until DimSetEntry2.Next() = 0;
                             end;
 
                             trigger OnPreDataItem()
@@ -514,7 +514,7 @@ report 6646 "Sales - Return Receipt"
                     SegManagement.LogDocument(20, "Return Receipt Header"."No.", 0, 0, DATABASE::Customer,
                       "Return Receipt Header"."Bill-to Customer No.", "Return Receipt Header"."Salesperson Code",
                       "Return Receipt Header"."Campaign No.", "Return Receipt Header"."Posting Description", '');
-                until "Return Receipt Header".Next = 0;
+                until "Return Receipt Header".Next() = 0;
     end;
 
     trigger OnPreReport()

@@ -559,7 +559,7 @@ codeunit 138023 "O365 Generic Chart Page Tests"
     var
         ChartDefinition: Record "Chart Definition";
     begin
-        ChartDefinition.FindSet;
+        ChartDefinition.FindSet();
         ChartDefinition.Next(LibraryRandom.RandInt(ChartDefinition.Count));
 
         LibraryVariableStorage.Enqueue(ChartDefinition."Chart Name");

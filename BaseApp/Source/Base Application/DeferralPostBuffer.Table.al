@@ -176,8 +176,6 @@ table 1703 "Deferral Post. Buffer"
     }
 
     procedure PrepareSales(SalesLine: Record "Sales Line"; DocumentNo: Code[20])
-    var
-        DeferralUtilities: Codeunit "Deferral Utilities";
     begin
         Clear(Rec);
         Type := SalesLine.Type.AsInteger();
@@ -194,7 +192,7 @@ table 1703 "Deferral Post. Buffer"
             "Use Tax" := false;
         end;
         "Deferral Code" := SalesLine."Deferral Code";
-        "Deferral Doc. Type" := DeferralUtilities.GetSalesDeferralDocType;
+        "Deferral Doc. Type" := "Deferral Document Type"::Sales.AsInteger();
         "Document No." := DocumentNo;
     end;
 
@@ -207,8 +205,6 @@ table 1703 "Deferral Post. Buffer"
     end;
 
     procedure PreparePurch(PurchLine: Record "Purchase Line"; DocumentNo: Code[20])
-    var
-        DeferralUtilities: Codeunit "Deferral Utilities";
     begin
         Clear(Rec);
         Type := PurchLine.Type.AsInteger();
@@ -225,7 +221,7 @@ table 1703 "Deferral Post. Buffer"
             "Use Tax" := false;
         end;
         "Deferral Code" := PurchLine."Deferral Code";
-        "Deferral Doc. Type" := DeferralUtilities.GetPurchDeferralDocType;
+        "Deferral Doc. Type" := "Deferral Document Type"::Purchase.AsInteger();
         "Document No." := DocumentNo;
     end;
 

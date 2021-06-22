@@ -130,7 +130,7 @@ table 7504 "Item Attribute Value Selection"
         if TempItemAttributeValue.FindSet then
             repeat
                 InsertRecord(TempItemAttributeValue, DefinedOnTableID, DefinedOnKeyValue);
-            until TempItemAttributeValue.Next = 0;
+            until TempItemAttributeValue.Next() = 0;
     end;
 
     procedure PopulateItemAttributeValue(var TempNewItemAttributeValue: Record "Item Attribute Value" temporary)
@@ -160,9 +160,9 @@ table 7504 "Item Attribute Value Selection"
                             if Value <> '' then begin
                                 Evaluate(ValDecimal, Value);
                                 ItemAttributeValue.SetRange(Value, Format(ValDecimal, 0, 9));
-                                if ItemAttributeValue.IsEmpty then begin
+                                if ItemAttributeValue.IsEmpty() then begin
                                     ItemAttributeValue.SetRange(Value, Format(ValDecimal));
-                                    if ItemAttributeValue.IsEmpty then
+                                    if ItemAttributeValue.IsEmpty() then
                                         ItemAttributeValue.SetRange(Value, Value);
                                 end;
                             end;
@@ -185,7 +185,7 @@ table 7504 "Item Attribute Value Selection"
 
                 OnPopulateItemAttributeValueOnBeforeInsert(Rec, TempNewItemAttributeValue);
                 TempNewItemAttributeValue.Insert();
-            until Next = 0;
+            until Next() = 0;
     end;
 
     procedure InsertItemAttributeValue(var ItemAttributeValue: Record "Item Attribute Value"; TempItemAttributeValueSelection: Record "Item Attribute Value Selection" temporary)
@@ -263,7 +263,7 @@ table 7504 "Item Attribute Value Selection"
             repeat
                 if LowerCase(ItemAttribute.Name) = AttributeName then
                     exit;
-            until ItemAttribute.Next = 0;
+            until ItemAttribute.Next() = 0;
 
         Error(AttributeDoesntExistErr, "Attribute Name");
     end;
@@ -286,7 +286,7 @@ table 7504 "Item Attribute Value Selection"
             repeat
                 if LowerCase(ItemAttributeValue.Value) = AttributeValue then
                     exit(true);
-            until ItemAttributeValue.Next = 0;
+            until ItemAttributeValue.Next() = 0;
         end;
         exit(false);
     end;
@@ -296,7 +296,7 @@ table 7504 "Item Attribute Value Selection"
         TempItemAttributeValueSelection: Record "Item Attribute Value Selection" temporary;
         AttributeName: Text[250];
     begin
-        if IsEmpty then
+        if IsEmpty() then
             exit;
         AttributeName := LowerCase("Attribute Name");
         TempItemAttributeValueSelection.Copy(Rec, true);
@@ -305,7 +305,7 @@ table 7504 "Item Attribute Value Selection"
                 if TempItemAttributeValueSelection."Attribute ID" <> "Attribute ID" then
                     if LowerCase(TempItemAttributeValueSelection."Attribute Name") = AttributeName then
                         Error(AttributeValueAlreadySpecifiedErr, "Attribute Name");
-            until TempItemAttributeValueSelection.Next = 0;
+            until TempItemAttributeValueSelection.Next() = 0;
     end;
 
     local procedure CheckIfBlocked(var ItemAttribute: Record "Item Attribute")

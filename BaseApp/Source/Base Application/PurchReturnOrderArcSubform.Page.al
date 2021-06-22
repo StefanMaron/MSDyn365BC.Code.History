@@ -23,6 +23,7 @@ page 6645 "Purch Return Order Arc Subform"
                     ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
+#if not CLEAN17
                 field("Cross-Reference No."; "Cross-Reference No.")
                 {
                     ApplicationArea = PurchReturnOrder;
@@ -32,6 +33,7 @@ page 6645 "Purch Return Order Arc Subform"
                     ObsoleteState = Pending;
                     ObsoleteTag = '17.0';
                 }
+#endif
                 field("Item Reference No."; "Item Reference No.")
                 {
                     ApplicationArea = PurchReturnOrder;

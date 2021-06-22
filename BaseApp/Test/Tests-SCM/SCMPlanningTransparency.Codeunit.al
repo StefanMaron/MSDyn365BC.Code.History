@@ -821,7 +821,7 @@ codeunit 137058 "SCM Planning Transparency"
         RequisitionLine2.SetRange(Type, RequisitionLine.Type::Item);
         RequisitionLine2.SetRange("No.", ItemNo);
         RequisitionLine2.SetRange("Location Code", LocationCode);
-        RequisitionLine2.FindSet;
+        RequisitionLine2.FindSet();
     end;
 
     local procedure SelectRequisitionLineQuantity(var RequisitionLine2: Record "Requisition Line") RequisitionLineQuantity: Decimal
@@ -966,7 +966,7 @@ codeunit 137058 "SCM Planning Transparency"
         UntrackedPlanningElement: Record "Untracked Planning Element";
         Index: Integer;
     begin
-        UntrackedPlanningElement.FindSet;
+        UntrackedPlanningElement.FindSet();
         Index := 1;
         repeat
             Assert.IsTrue(StrPos(UntrackedPlanningElement.Source, Source2[Index]) > 0, ErrUntrackedPlanningElementMsg);

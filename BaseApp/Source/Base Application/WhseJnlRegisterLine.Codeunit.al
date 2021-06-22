@@ -1,4 +1,4 @@
-﻿codeunit 7301 "Whse. Jnl.-Register Line"
+codeunit 7301 "Whse. Jnl.-Register Line"
 {
     Permissions = TableData "Warehouse Entry" = imd,
                   TableData "Warehouse Register" = imd;

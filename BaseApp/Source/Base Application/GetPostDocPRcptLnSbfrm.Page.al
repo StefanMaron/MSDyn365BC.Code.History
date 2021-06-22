@@ -49,6 +49,7 @@ page 5856 "Get Post.Doc - P.RcptLn Sbfrm"
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
+#if not CLEAN17
                 field("Cross-Reference No."; "Cross-Reference No.")
                 {
                     ApplicationArea = SalesReturnOrder;
@@ -58,6 +59,7 @@ page 5856 "Get Post.Doc - P.RcptLn Sbfrm"
                     ObsoleteState = Pending;
                     ObsoleteTag = '17.0';
                 }
+#endif
                 field("Item Reference No."; "Item Reference No.")
                 {
                     ApplicationArea = Suite;
@@ -330,7 +332,7 @@ page 5856 "Get Post.Doc - P.RcptLn Sbfrm"
                     TempPurchRcptLine := PurchRcptLine2;
                     TempPurchRcptLine.Insert();
                 end;
-            until (PurchRcptLine2.Next = 0) or ShowRec;
+            until (PurchRcptLine2.Next() = 0) or ShowRec;
             RemainingQty := RemainingQty2;
             RevUnitCostLCY := RevUnitCostLCY2;
         end;

@@ -1056,7 +1056,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
             LibraryDimension.FindDimension(Dimension);
             Dimension.SetFilter(Code, '<>%1', CostAccountingSetup."Cost Center Dimension");
             Dimension.SetFilter(Code, '<>%1', CostAccountingSetup."Cost Object Dimension");
-            Dimension.FindSet;
+            Dimension.FindSet();
             Dimension.Next(LibraryRandom.RandInt(Dimension.Count));
             FieldRef.Validate(Dimension.Code);
             RecordRef.Modify(true);

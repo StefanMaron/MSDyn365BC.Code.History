@@ -25,7 +25,7 @@ codeunit 783 "Relationship Performance Mgt."
                 I += 1;
                 TempOpportunity := Opportunity;
                 TempOpportunity.Insert();
-            until (Opportunity.Next = 0) or (I = 5);
+            until (Opportunity.Next() = 0) or (I = 5);
     end;
 
     procedure DrillDown(var BusinessChartBuffer: Record "Business Chart Buffer"; var TempOpportunity: Record Opportunity temporary)
@@ -46,7 +46,7 @@ codeunit 783 "Relationship Performance Mgt."
     begin
         with BusinessChartBuffer do begin
             Initialize;
-            AddMeasure(TempOpportunity.FieldCaption("Estimated Value (LCY)"), 1, "Data Type"::Decimal, "Chart Type"::StackedColumn);
+            AddDecimalMeasure(TempOpportunity.FieldCaption("Estimated Value (LCY)"), 1, "Chart Type"::StackedColumn);
             SetXAxis(TempOpportunity.TableCaption, "Data Type"::String);
             CalcTopFiveOpportunities(TempOpportunity);
             TempOpportunity.SetAutoCalcFields("Estimated Value (LCY)");
@@ -55,7 +55,7 @@ codeunit 783 "Relationship Performance Mgt."
                     I += 1;
                     AddColumn(TempOpportunity.Description);
                     SetValueByIndex(0, I - 1, TempOpportunity."Estimated Value (LCY)");
-                until TempOpportunity.Next = 0;
+                until TempOpportunity.Next() = 0;
         end;
     end;
 

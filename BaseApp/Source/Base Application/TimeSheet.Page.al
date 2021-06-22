@@ -598,7 +598,7 @@ page 950 "Time Sheet"
                 NoOfColumns += 1;
                 ColumnRecords[NoOfColumns]."Period Start" := Calendar."Period Start";
                 ColumnCaption[NoOfColumns] := TimeSheetMgt.FormatDate(Calendar."Period Start", 1);
-            until Calendar.Next = 0;
+            until Calendar.Next() = 0;
     end;
 
     local procedure GetTimeSheetHeader()
@@ -686,7 +686,7 @@ page 950 "Time Sheet"
                   Action::"Reopen All":
                         TimeSheetApprovalMgt.ReopenSubmitted(TimeSheetLine);
                 end;
-            until TimeSheetLine.Next = 0;
+            until TimeSheetLine.Next() = 0;
         OnAfterProcess(TempTimeSheetLine, Action);
         CurrPage.Update(true);
     end;

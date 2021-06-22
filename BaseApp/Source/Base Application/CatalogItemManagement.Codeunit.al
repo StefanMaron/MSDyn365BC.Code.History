@@ -1,4 +1,4 @@
-﻿codeunit 5703 "Catalog Item Management"
+codeunit 5703 "Catalog Item Management"
 {
 
     trigger OnRun()
@@ -53,8 +53,10 @@
             NonstockItemVend(NonStock2);
         if CheckLicensePermission(DATABASE::"Item Reference") and ItemReferenceMgt.IsEnabled() then
             NonstockItemReference(NonStock2);
+#if not CLEAN17
         if CheckLicensePermission(DATABASE::"Item Cross Reference") and not ItemReferenceMgt.IsEnabled() then
             NonstockItemCrossRef(NonStock2);
+#endif
 
         OnAfterNonstockAutoItem(NonStock2, NewItem);
     end;
@@ -70,7 +72,7 @@
 
         NonStock2.TestField("Vendor No.");
         NonStock2.TestField("Vendor Item No.");
-        NonStock2.TestField("Item Template Code");
+        CheckItemTemplateCode(NonStock2);
     end;
 
     procedure NonstockItemVend(NonStock2: Record "Nonstock Item")
@@ -87,6 +89,7 @@
         ItemVend.Insert(true);
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by NonstockItemReference().', '17.0')]
     local procedure NonstockItemCrossRef(var NonStock2: Record "Nonstock Item")
     var
@@ -133,6 +136,7 @@
 
         OnAfterNonstockItemCrossRef(NonStock2);
     end;
+#endif
 
     procedure NonstockItemReference(var NonStock2: Record "Nonstock Item")
     var
@@ -177,22 +181,29 @@
                 OnAfterItemReferenceInsert(ItemReference, NonStock2);
             end;
         end;
+
+        OnAfterNonstockItemCrossRef(NonStock2);
     end;
 
     procedure NonstockItemDel(var Item: Record Item)
     var
+#if not CLEAN16
         ItemCrossReference: Record "Item Cross Reference";
+#endif
         ItemReference: Record "Item Reference";
     begin
         ItemVend.SetRange("Item No.", Item."No.");
         ItemVend.SetRange("Vendor No.", Item."Vendor No.");
         ItemVend.DeleteAll();
 
+#if not CLEAN16
         if not ItemReferenceMgt.IsEnabled() then begin
             ItemCrossReference.SetRange("Item No.", Item."No.");
             ItemCrossReference.SetRange("Variant Code", Item."Variant Filter");
             ItemCrossReference.DeleteAll();
-        end else begin
+        end;
+#endif
+        if ItemReferenceMgt.IsEnabled() then begin
             ItemReference.SetRange("Item No.", Item."No.");
             ItemReference.SetRange("Variant Code", Item."Variant Filter");
             ItemReference.DeleteAll();
@@ -254,8 +265,10 @@
             NonstockItemVend(NonStock);
         if CheckLicensePermission(DATABASE::"Item Reference") and ItemReferenceMgt.IsEnabled() then
             NonstockItemReference(NonStock);
+#if not CLEAN17
         if CheckLicensePermission(DATABASE::"Item Cross Reference") and not ItemReferenceMgt.IsEnabled() then
             NonstockItemCrossRef(NonStock);
+#endif
 
         OnNonStockSalesOnBeforeProgWindowClose(NonStock, NewItem);
         ProgWindow.Close();
@@ -344,9 +357,10 @@
             NonstockItemVend(NonStock);
         if CheckLicensePermission(DATABASE::"Item Reference") and ItemReferenceMgt.IsEnabled() then
             NonstockItemReference(NonStock);
+#if not CLEAN17
         if CheckLicensePermission(DATABASE::"Item Cross Reference") and not ItemReferenceMgt.IsEnabled() then
             NonstockItemCrossRef(NonStock);
-
+#endif
         ProgWindow.Close();
     end;
 
@@ -374,8 +388,10 @@
             NonstockItemVend(Nonstock2);
         if CheckLicensePermission(DATABASE::"Item Reference") and ItemReferenceMgt.IsEnabled() then
             NonstockItemReference(Nonstock2);
+#if not CLEAN17
         if CheckLicensePermission(DATABASE::"Item Cross Reference") and not ItemReferenceMgt.IsEnabled() then
             NonstockItemCrossRef(Nonstock2);
+#endif
     end;
 
     local procedure CheckLicensePermission(TableID: Integer): Boolean
@@ -426,7 +442,7 @@
         SalesLineArch.SetCurrentKey(Type, "No.");
         SalesLineArch.SetRange(Type, SalesLineArch.Type::Item);
         SalesLineArch.SetRange("No.", Item."No.");
-        if not SalesLineArch.IsEmpty then
+        if not SalesLineArch.IsEmpty() then
             exit;
 
         ProdBOMLine.Reset();
@@ -439,7 +455,7 @@
                    (ProdBOMHeader.Status = ProdBOMHeader.Status::Certified)
                 then
                     exit;
-            until ProdBOMLine.Next = 0;
+            until ProdBOMLine.Next() = 0;
 
         NewItem.Get(Item."No.");
         DeleteCreatedFromNonstockItem();
@@ -537,22 +553,10 @@
     local procedure CreateNewItem(ItemNo: Code[20]; NonstockItem: Record "Nonstock Item")
     var
         Item: Record Item;
-        DummyItemTemplate: Record "Item Template";
-        ConfigTemplateHeader: Record "Config. Template Header";
     begin
         Item.Init();
 
-        ConfigTemplateHeader.SetRange(Code, NonstockItem."Item Template Code");
-        ConfigTemplateHeader.FindFirst;
-        DummyItemTemplate.InitializeTempRecordFromConfigTemplate(DummyItemTemplate, ConfigTemplateHeader);
-        Item."Inventory Posting Group" := DummyItemTemplate."Inventory Posting Group";
-        Item."Costing Method" := DummyItemTemplate."Costing Method";
-        Item."Gen. Prod. Posting Group" := DummyItemTemplate."Gen. Prod. Posting Group";
-        Item."Tax Group Code" := DummyItemTemplate."Tax Group Code";
-        Item."VAT Prod. Posting Group" := DummyItemTemplate."VAT Prod. Posting Group";
-        Item."Item Disc. Group" := DummyItemTemplate."Item Disc. Group";
-
-        OnBeforeCreateNewItem(Item, DummyItemTemplate, NonstockItem);
+        InitItemFromTemplate(Item, NonstockItem);
 
         Item."No." := ItemNo;
         Item.Description := NonstockItem.Description;
@@ -569,11 +573,70 @@
         Item."Net Weight" := NonstockItem."Net Weight";
         Item."Gross Weight" := NonstockItem."Gross Weight";
         Item."Manufacturer Code" := NonstockItem."Manufacturer Code";
-        Item."Item Category Code" := DummyItemTemplate."Item Category Code";
         Item."Created From Nonstock Item" := true;
         Item.Insert();
 
         OnAfterCreateNewItem(Item);
+    end;
+
+    local procedure InitItemFromTemplate(var Item: Record Item; NonstockItem: Record "Nonstock Item")
+    var
+        ItemTempl: Record "Item Templ.";
+#if not CLEAN18
+        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
+#endif
+    begin
+#if not CLEAN18
+        if not ItemTemplMgt.IsEnabled() then begin
+            InitItemFromOldTemplate(Item, NonstockItem);
+            exit;
+        end;
+#endif
+        ItemTempl.Get(NonstockItem."Item Templ. Code");
+        Item."Inventory Posting Group" := ItemTempl."Inventory Posting Group";
+        Item."Costing Method" := ItemTempl."Costing Method";
+        Item."Gen. Prod. Posting Group" := ItemTempl."Gen. Prod. Posting Group";
+        Item."Tax Group Code" := ItemTempl."Tax Group Code";
+        Item."VAT Prod. Posting Group" := ItemTempl."VAT Prod. Posting Group";
+        Item."Item Disc. Group" := ItemTempl."Item Disc. Group";
+        Item."Item Category Code" := ItemTempl."Item Category Code";
+
+        OnAfterInitItemFromTemplate(Item, ItemTempl, NonstockItem);
+    end;
+
+#if not CLEAN18
+    local procedure InitItemFromOldTemplate(var Item: Record Item; NonstockItem: Record "Nonstock Item")
+    var
+        DummyItemTemplate: Record "Item Template";
+        ConfigTemplateHeader: Record "Config. Template Header";
+    begin
+        ConfigTemplateHeader.SetRange(Code, NonstockItem."Item Template Code");
+        ConfigTemplateHeader.FindFirst;
+        DummyItemTemplate.InitializeTempRecordFromConfigTemplate(DummyItemTemplate, ConfigTemplateHeader);
+        Item."Inventory Posting Group" := DummyItemTemplate."Inventory Posting Group";
+        Item."Costing Method" := DummyItemTemplate."Costing Method";
+        Item."Gen. Prod. Posting Group" := DummyItemTemplate."Gen. Prod. Posting Group";
+        Item."Tax Group Code" := DummyItemTemplate."Tax Group Code";
+        Item."VAT Prod. Posting Group" := DummyItemTemplate."VAT Prod. Posting Group";
+        Item."Item Disc. Group" := DummyItemTemplate."Item Disc. Group";
+        Item."Item Category Code" := DummyItemTemplate."Item Category Code";
+
+        OnBeforeCreateNewItem(Item, DummyItemTemplate, NonstockItem);
+    end;
+#endif
+
+    local procedure CheckItemTemplateCode(NonstockItem: Record "Nonstock Item")
+#if not CLEAN18
+    var
+        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
+#endif
+    begin
+#if not CLEAN18
+        if not ItemTemplMgt.IsEnabled() then
+            NonstockItem.TestField("Item Template Code")
+        else
+#endif
+        NonstockItem.TestField("Item Templ. Code");
     end;
 
     [IntegrationEvent(false, false)]
@@ -581,15 +644,21 @@
     begin
     end;
 
+#if not CLEAN17
+    [Obsolete('Replaced by OnNonstockItemReferenceOnAfterSetVendorItemNoFilters().', '17.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterItemCrossReferenceFilter(var ItemCrossReference: Record "Item Cross Reference"; NonstockItem: Record "Nonstock Item")
     begin
     end;
+#endif
 
+#if not CLEAN17
+    [Obsolete('Replaced by OnAfterItemReferenceInsert().', '17.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterItemCrossReferenceInsert(var ItemCrossReference: Record "Item Cross Reference"; NonstockItem: Record "Nonstock Item")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnNonstockItemReferenceOnAfterSetBarCodeFilters(var ItemReference: Record "Item Reference"; NonstockItem: Record "Nonstock Item")
@@ -626,10 +695,13 @@
     begin
     end;
 
+#if not CLEAN18
+    [Obsolete('Event will be removed with other functionality related to "old" templates. Replaced by OnAfterInitItemFromTemplate()', '18.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateNewItem(var Item: Record Item; ItemTemplate: Record "Item Template"; NonstockItem: Record "Nonstock Item")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDelNonStockItem(var Item: Record Item)
@@ -708,6 +780,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterNonstockItemCrossRef(var NonStock2: Record "Nonstock Item")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitItemFromTemplate(var Item: Record Item; ItemTempl: Record "Item Templ."; NonstockItem: Record "Nonstock Item")
     begin
     end;
 }

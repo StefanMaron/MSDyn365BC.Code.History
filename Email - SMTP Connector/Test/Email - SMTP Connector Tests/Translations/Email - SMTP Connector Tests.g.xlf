@@ -2,7 +2,23 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
   <file datatype="xml" source-language="en-US" target-language="en-US" original="Email - SMTP Connector Tests">
     <body>
-      <group id="body" />
+      <group id="body">
+        <trans-unit id="Codeunit 1562624570 - NamedType 2563123446" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Could not authenticate.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Account Auth Tests - NamedType AuthenticationFailedMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1562624570 - NamedType 1534236911" size-unit="char" translate="yes" xml:space="preserve">
+          <source>%1 was authenticated.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Account Auth Tests - NamedType AuthenticationSuccessfulMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1562624570 - NamedType 3367967186" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Before people can send email they must authenticate their email account. They can do that by choosing the Authenticate action on the SMTP Account page.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Account Auth Tests - NamedType EveryUserShouldPressAuthenticateMsg</note>
+        </trans-unit>
+      </group>
     </body>
   </file>
 </xliff>

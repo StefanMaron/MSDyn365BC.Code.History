@@ -561,7 +561,7 @@ table 1304 "Sales Price and Line Disc Buff"
                 OnLoadSalesLineDiscountOnBeforeInsert(Rec, SalesLineDiscount);
                 Insert;
                 NoOfRows += 1;
-            until (SalesLineDiscount.Next = 0) or (MaxNoOfLines > 0) and (NoOfRows >= MaxNoOfLines);
+            until (SalesLineDiscount.Next() = 0) or (MaxNoOfLines > 0) and (NoOfRows >= MaxNoOfLines);
         exit(NoOfRows);
     end;
 
@@ -595,7 +595,7 @@ table 1304 "Sales Price and Line Disc Buff"
                 OnLoadSalesPriceOnBeforeInsert(Rec, SalesPrice);
                 Insert;
                 NoOfRows += 1;
-            until (SalesPrice.Next = 0) or (MaxNoOfLines > 0) and (NoOfRows >= MaxNoOfLines);
+            until (SalesPrice.Next() = 0) or (MaxNoOfLines > 0) and (NoOfRows >= MaxNoOfLines);
         exit(NoOfRows);
     end;
 
@@ -798,16 +798,16 @@ table 1304 "Sales Price and Line Disc Buff"
         "Loaded Disc. Group" := Item."Item Disc. Group";
 
         SetFiltersOnSalesPrice(SalesPrice);
-        if not SalesPrice.IsEmpty then
+        if not SalesPrice.IsEmpty() then
             exit(true);
 
         SetFiltersOnSalesLineDiscountItem(SalesLineDiscount);
-        if not SalesLineDiscount.IsEmpty then
+        if not SalesLineDiscount.IsEmpty() then
             exit(true);
         Clear(SalesLineDiscount);
 
         SetFiltersOnSalesLineDiscountItemGroup(SalesLineDiscount);
-        if not SalesLineDiscount.IsEmpty then
+        if not SalesLineDiscount.IsEmpty() then
             exit(true);
 
         exit(false);
@@ -846,7 +846,7 @@ table 1304 "Sales Price and Line Disc Buff"
                 "Unit Price" := "Unit Price" * 100 / (100 + VATPostingSetup."VAT %");
 
             Modify(true);
-        until Next = 0;
+        until Next() = 0;
     end;
 
     local procedure GetCustomerCampaignSalesPrice(MaxNoOfLines: Integer): Integer
@@ -868,11 +868,11 @@ table 1304 "Sales Price and Line Disc Buff"
         RemainingLinesToLoad := MaxNoOfLines;
         TempCampaign.SetAutoCalcFields(Activated);
         TempCampaign.SetRange(Activated, true);
-        if TempCampaign.FindSet then
+        if TempCampaign.FindSet() then
             repeat
                 SalesPrice.SetRange("Sales Code", TempCampaign."No.");
                 LoadedLines += LoadSalesPrice(SalesPrice, RemainingLinesToLoad);
-            until (TempCampaign.Next = 0) or EnoughLoaded(LoadedLines, MaxNoOfLines, RemainingLinesToLoad);
+            until (TempCampaign.Next() = 0) or EnoughLoaded(LoadedLines, MaxNoOfLines, RemainingLinesToLoad);
         exit(LoadedLines);
     end;
 
@@ -889,7 +889,7 @@ table 1304 "Sales Price and Line Disc Buff"
             repeat
                 SegmentLine.SetRange("Contact No.", Contact."No.");
                 InsertTempCampaignFromSegmentLines(TempCampaign, SegmentLine);
-            until Contact.Next = 0;
+            until Contact.Next() = 0;
         end;
     end;
 
@@ -901,7 +901,7 @@ table 1304 "Sales Price and Line Disc Buff"
                 TempCampaign.Init();
                 TempCampaign."No." := SegmentLine."Campaign No.";
                 if TempCampaign.Insert() then;
-            until SegmentLine.Next = 0;
+            until SegmentLine.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

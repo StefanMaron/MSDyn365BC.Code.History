@@ -3373,7 +3373,7 @@ codeunit 134976 "ERM Sales Report"
         LibraryReportDataset.AssertElementWithValueExists('JobNo', SalesInvoiceLine."Job No.");
         LibraryReportDataset.AssertElementWithValueExists('JobTaskNo', SalesInvoiceLine."Job Task No.");
     end;
-    
+
     [Test]
     [HandlerFunctions('SalesInvoiceRequestPageHandler')]
     [Scope('OnPrem')]
@@ -4131,22 +4131,13 @@ codeunit 134976 "ERM Sales Report"
         exit(WorkDate);
     end;
 
-    local procedure GetRandomLanguageCode(): Code[10]
-    var
-        Language: Record Language;
-    begin
-        // TODO: BUG 134976 - Get random codes
-        Language.Get('ENU');
-        exit(Language.Code);
-    end;
-
     local procedure LanguageCodeForAssemblyItemsSetup(var Customer: Record Customer; var ParentItem: Record Item): Text[50]
     var
         ItemJournalLine: Record "Item Journal Line";
         AssemblyItemNo: Code[20];
     begin
         // Create Customer with Language Code.
-        Customer.Get(CreateCustomerWithLanguageCode(GetRandomLanguageCode));
+        Customer.Get(CreateCustomerWithLanguageCode(LibraryERM.GetAnyLanguageDifferentFromCurrent()));
 
         // Create Item with Assembly Component. Update Inventory for Assembly Item.
         LibraryAssembly.CreateItem(ParentItem, ParentItem."Costing Method"::FIFO, ParentItem."Replenishment System"::Assembly, '', '');
@@ -5036,28 +5027,36 @@ codeunit 134976 "ERM Sales Report"
     [Scope('OnPrem')]
     procedure SalesInvoiceRequestPageHandler(var SalesInvoice: TestRequestPage "Sales - Invoice")
     begin
+        if SalesInvoice.Editable() then;
         SalesInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        Sleep(200);
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SalesInvoiceExcelRequestPageHandler(var SalesInvoice: TestRequestPage "Sales - Invoice")
     begin
+        if SalesInvoice.Editable() then;
         SalesInvoice.SaveAsExcel(LibraryReportValidation.GetFileName);
+        Sleep(200);
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SalesCreditMemoRequestPageHandler(var SalesCreditMemo: TestRequestPage "Sales - Credit Memo")
     begin
+        if SalesCreditMemo.Editable() then;
         SalesCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        Sleep(200);
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SalesCreditMemoExcelRequestPageHandler(var SalesCreditMemo: TestRequestPage "Sales - Credit Memo")
     begin
+        if SalesCreditMemo.Editable() then;
         SalesCreditMemo.SaveAsExcel(LibraryReportValidation.GetFileName);
+        Sleep(200);
     end;
 
     [RequestPageHandler]
@@ -5310,16 +5309,20 @@ codeunit 134976 "ERM Sales Report"
     [Scope('OnPrem')]
     procedure StdSalesInvoiceRequestPageHandler(var StandardSalesInvoice: TestRequestPage "Standard Sales - Invoice")
     begin
+        if StandardSalesInvoice.Editable then;
         StandardSalesInvoice.DisplayShipmentInformation.SetValue(true);
         StandardSalesInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        Sleep(200);
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure StdSalesCrMemoRequestPageHandler(var StandardSalesCreditMemo: TestRequestPage "Standard Sales - Credit Memo")
     begin
+        if StandardSalesCreditMemo.Editable then;
         StandardSalesCreditMemo.DisplayShipmentInformation.SetValue(true);
         StandardSalesCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        Sleep(200);
     end;
 
     [RequestPageHandler]

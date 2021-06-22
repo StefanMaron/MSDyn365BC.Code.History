@@ -3022,7 +3022,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         ReportSelections.SetRange(Usage, ReportUsage);
         ReportSelections.SetRange(Sequence, '1');
         ReportSelections.SetRange("Report ID", ReportID);
-        if not ReportSelections.IsEmpty then
+        if not ReportSelections.IsEmpty() then
             exit;
 
         with ReportSelections do begin
@@ -3173,7 +3173,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         CODEUNIT.Run(TempJobQueueEntry."Object ID to Run", TempJobQueueEntry);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 9651, 'OnBeforeMergeDocument', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Document Report Mgt.", 'OnBeforeMergeDocument', '', false, false)]
     local procedure VerifyXmlContainsDatasetOnBeforeMergeDocument(ReportID: Integer; ReportAction: Option SaveAsPdf,SaveAsWord,SaveAsExcel,Preview,Print,SaveAsHtml; InStrXmlData: InStream; PrinterName: Text; OutStream: OutStream; var Handled: Boolean; IsFileNameBlank: Boolean)
     var
         XMLDOMManagement: Codeunit "XML DOM Management";
@@ -3204,9 +3204,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     var
         ActivityLog: Record "Activity Log";
     begin
-        TempErrorMessage.FindSet;
+        TempErrorMessage.FindSet();
         ActivityLog.SetRange("User ID", UserId);
-        ActivityLog.FindSet;
+        ActivityLog.FindSet();
         repeat
             Assert.ExpectedMessage(TempErrorMessage.Description, LibraryUtility.ConvertCRLFToBackSlash(ActivityLog.Description));
             ActivityLog.TestField(Status, ActivityLog.Status::Failed);
@@ -3220,7 +3220,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     var
         Stop: Boolean;
     begin
-        TempErrorMessage.FindSet;
+        TempErrorMessage.FindSet();
         repeat
             Assert.ExpectedMessage(TempErrorMessage.Description, ErrorMessages.Description.Value);
             ErrorMessages."Message Type".AssertEquals(TempErrorMessage."Message Type");
@@ -3268,7 +3268,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         ReportInbox.SetRange("Report ID", GetStandardStatementReportID);
         ReportInbox.SetRange("User ID", UserId);
-        ReportInbox.FindSet;
+        ReportInbox.FindSet();
         repeat
             ReportInbox.TestField("Output Type", OutputType);
             Assert.IsTrue(ReportInbox."Report Output".HasValue, 'Output must be saved in Report Inbox');

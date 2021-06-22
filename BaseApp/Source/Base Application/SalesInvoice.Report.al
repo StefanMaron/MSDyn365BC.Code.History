@@ -263,7 +263,7 @@ report 206 "Sales - Invoice"
                                     Continue := true;
                                     exit;
                                 end;
-                            until DimSetEntry1.Next = 0;
+                            until DimSetEntry1.Next() = 0;
                         end;
 
                         trigger OnPreDataItem()
@@ -494,7 +494,7 @@ report 206 "Sales - Invoice"
                                         Continue := true;
                                         exit;
                                     end;
-                                until DimSetEntry2.Next = 0;
+                                until DimSetEntry2.Next() = 0;
                             end;
 
                             trigger OnPreDataItem()
@@ -777,7 +777,7 @@ report 206 "Sales - Invoice"
                             PaymentServiceSetup: Record "Payment Service Setup";
                         begin
                             PaymentServiceSetup.CreateReportingArgs(PaymentReportingArgument, "Sales Invoice Header");
-                            if IsEmpty then
+                            if IsEmpty() then
                                 CurrReport.Break();
                         end;
                     }
@@ -840,7 +840,7 @@ report 206 "Sales - Invoice"
                                 if not TempLineFeeNoteOnReportHist.FindSet then
                                     CurrReport.Break
                             end else
-                                if TempLineFeeNoteOnReportHist.Next = 0 then
+                                if TempLineFeeNoteOnReportHist.Next() = 0 then
                                     CurrReport.Break();
                         end;
                     }
@@ -997,7 +997,7 @@ report 206 "Sales - Invoice"
                           SegManagement.SalesInvoiceInterDocType, "Sales Invoice Header"."No.", 0, 0, DATABASE::Customer,
                           "Sales Invoice Header"."Bill-to Customer No.", "Sales Invoice Header"."Salesperson Code",
                           "Sales Invoice Header"."Campaign No.", "Sales Invoice Header"."Posting Description", '');
-                until "Sales Invoice Header".Next = 0;
+                until "Sales Invoice Header".Next() = 0;
     end;
 
     trigger OnPreReport()
@@ -1150,7 +1150,7 @@ report 206 "Sales - Invoice"
         SalesShipmentBuffer.SetRange("Line No.", "Sales Invoice Line"."Line No.");
         if SalesShipmentBuffer.Find('-') then begin
             TempSalesShipmentBuffer := SalesShipmentBuffer;
-            if SalesShipmentBuffer.Next = 0 then begin
+            if SalesShipmentBuffer.Next() = 0 then begin
                 SalesShipmentBuffer.Get(
                   TempSalesShipmentBuffer."Document No.", TempSalesShipmentBuffer."Line No.", TempSalesShipmentBuffer."Entry No.");
                 SalesShipmentBuffer.Delete();
@@ -1191,7 +1191,7 @@ report 206 "Sales - Invoice"
                     TotalQuantity := TotalQuantity + ValueEntry."Invoiced Quantity";
                 end;
                 FirstValueEntryNo := ValueEntry."Entry No." + 1;
-            until (ValueEntry.Next = 0) or (TotalQuantity = 0);
+            until (ValueEntry.Next() = 0) or (TotalQuantity = 0);
     end;
 
     local procedure GenerateBufferFromShipment(SalesInvoiceLine: Record "Sales Invoice Line")
@@ -1217,8 +1217,8 @@ report 206 "Sales - Invoice"
                 if SalesInvoiceLine2.Find('-') then
                     repeat
                         TotalQuantity := TotalQuantity + SalesInvoiceLine2.Quantity;
-                    until SalesInvoiceLine2.Next = 0;
-            until SalesInvoiceHeader.Next = 0;
+                    until SalesInvoiceLine2.Next() = 0;
+            until SalesInvoiceHeader.Next() = 0;
 
         SalesShipmentLine.SetCurrentKey("Order No.", "Order Line No.");
         SalesShipmentLine.SetRange("Order No.", "Sales Invoice Header"."Order No.");
@@ -1250,7 +1250,7 @@ report 206 "Sales - Invoice"
                           Quantity,
                           SalesShipmentHeader."Posting Date");
                 end;
-            until (SalesShipmentLine.Next = 0) or (TotalQuantity = 0);
+            until (SalesShipmentLine.Next() = 0) or (TotalQuantity = 0);
     end;
 
     local procedure CorrectShipment(var SalesShipmentLine: Record "Sales Shipment Line")
@@ -1263,7 +1263,7 @@ report 206 "Sales - Invoice"
         if SalesInvoiceLine.Find('-') then
             repeat
                 SalesShipmentLine.Quantity := SalesShipmentLine.Quantity - SalesInvoiceLine.Quantity;
-            until SalesInvoiceLine.Next = 0;
+            until SalesInvoiceLine.Next() = 0;
     end;
 
     local procedure AddBufferEntry(SalesInvoiceLine: Record "Sales Invoice Line"; QtyOnShipment: Decimal; PostingDate: Date)
@@ -1365,13 +1365,13 @@ report 206 "Sales - Invoice"
         if LineFeeNoteOnReportHist.FindSet then begin
             repeat
                 InsertTempLineFeeNoteOnReportHist(LineFeeNoteOnReportHist, TempLineFeeNoteOnReportHist);
-            until LineFeeNoteOnReportHist.Next = 0;
+            until LineFeeNoteOnReportHist.Next() = 0;
         end else begin
             LineFeeNoteOnReportHist.SetRange("Language Code", Language.GetUserLanguageCode);
             if LineFeeNoteOnReportHist.FindSet then
                 repeat
                     InsertTempLineFeeNoteOnReportHist(LineFeeNoteOnReportHist, TempLineFeeNoteOnReportHist);
-                until LineFeeNoteOnReportHist.Next = 0;
+                until LineFeeNoteOnReportHist.Next() = 0;
         end;
     end;
 
@@ -1411,7 +1411,7 @@ report 206 "Sales - Invoice"
             TempLineFeeNoteOnReportHist.Init();
             TempLineFeeNoteOnReportHist.Copy(LineFeeNoteOnReportHist);
             TempLineFeeNoteOnReportHist.Insert();
-        until TempLineFeeNoteOnReportHist.Next = 0;
+        until TempLineFeeNoteOnReportHist.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

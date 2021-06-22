@@ -33,7 +33,7 @@ codeunit 1236 "Suggest Col. Definition - XML"
                     Validate(Name, TempXMLBuffer.Name);
                     Validate(Path, TempXMLBuffer.Path);
                     Insert(true);
-                until TempXMLBuffer.Next = 0;
+                until TempXMLBuffer.Next() = 0;
         end;
     end;
 }
