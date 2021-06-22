@@ -179,6 +179,7 @@ table 472 "Job Queue Entry"
             InitValue = 1000;
             ObsoleteState = Removed;
             ObsoleteReason = 'No longer supported.';
+            ObsoleteTag = '15.0';
         }
         field(15; "Record ID to Process"; RecordID)
         {
@@ -347,18 +348,21 @@ table 472 "Job Queue Entry"
             Caption = 'Error Message 2';
             ObsoleteReason = 'Error Message field size has been increased.';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(36; "Error Message 3"; Text[250])
         {
             Caption = 'Error Message 3';
             ObsoleteReason = 'Error Message field size has been increased.';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(37; "Error Message 4"; Text[250])
         {
             Caption = 'Error Message 4';
             ObsoleteReason = 'Error Message field size has been increased.';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(40; "User Service Instance ID"; Integer)
         {
@@ -376,6 +380,7 @@ table 472 "Job Queue Entry"
             MinValue = 0;
             ObsoleteState = Removed;
             ObsoleteReason = 'No longer supported.';
+            ObsoleteTag = '15.0';
         }
         field(43; "Notify On Success"; Boolean)
         {
@@ -451,6 +456,7 @@ table 472 "Job Queue Entry"
             Caption = 'On Hold Due to Inactivity';
             ObsoleteReason = 'Functionality moved into new job queue status';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(52; "Inactivity Timeout Period"; Integer)
         {

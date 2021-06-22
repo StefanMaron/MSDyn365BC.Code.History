@@ -618,7 +618,7 @@ codeunit 9520 "Mail Management"
     begin
     end;
 
-    [Obsolete('Replaced by event OnBeforeCheckValidEmailAddresses')]
+    [Obsolete('Replaced by event OnBeforeCheckValidEmailAddresses','15.3')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckValidEmailAddress(Recipients: Text; var IsHandled: Boolean)
     begin

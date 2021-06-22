@@ -4,6 +4,7 @@ table 7828 "MS-QBO Sync Buffer"
     ObsoleteReason = 'replacing burntIn Extension tables with V2 Extension';
     ObsoleteState = Pending;
     ReplicateData = false;
+    ObsoleteTag = '15.0';
 
     fields
     {

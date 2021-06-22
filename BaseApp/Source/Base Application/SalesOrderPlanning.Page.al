@@ -294,7 +294,7 @@ page 99000883 "Sales Order Planning"
 
     trigger OnOpenPage()
     begin
-        BuildForm;
+        BuildForm();
     end;
 
     var
@@ -315,9 +315,9 @@ page 99000883 "Sales Order Planning"
 
     procedure BuildForm()
     begin
-        Reset;
-        DeleteAll;
-        MakeLines;
+        Reset();
+        DeleteAll();
+        MakeLines();
         SetRange("Sales Order No.", SalesHeader."No.");
     end;
 
@@ -389,8 +389,8 @@ page 99000883 "Sales Order Planning"
                   ("Planned Quantity" <> SalesLine."Outstanding Qty. (Base)") or
                   ("Expected Delivery Date" > "Shipment Date");
                 CalculateDisposalPlan(SalesLine."Variant Code", SalesLine."Location Code");
-                Insert;
-            until SalesLine.Next = 0;
+                Insert();
+            until SalesLine.Next() = 0;
     end;
 
     local procedure CalculateDisposalPlan(VariantCode: Code[20]; LocationCode: Code[10])
@@ -450,7 +450,7 @@ page 99000883 "Sales Order Planning"
     begin
         xSalesPlanLine := Rec;
 
-        if not FindSet then
+        if not FindSet() then
             exit;
 
         repeat
@@ -508,9 +508,16 @@ page 99000883 "Sales Order Planning"
 
         SetRange("Planning Status");
 
-        BuildForm;
+        BuildForm();
+
+        OnAfterCreateProdOrder(Rec);
 
         CurrPage.Update(false);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateProdOrder(var SalesPlanningLine: Record "Sales Planning Line")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

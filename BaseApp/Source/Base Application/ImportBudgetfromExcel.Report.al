@@ -331,7 +331,8 @@ report 81 "Import Budget from Excel"
             repeat
                 RecNo := RecNo + 1;
                 Window.Update(1, Round(RecNo / TotalRecNo * 10000, 1));
-                TempDim.SetRange("Code Caption", UpperCase(FormatData(ExcelBuf."Cell Value as Text")));
+                TempDim.SetRange(
+                  "Code Caption", UpperCase(CopyStr(FormatData(ExcelBuf."Cell Value as Text"), 1, MaxStrLen(TempDim."Code Caption"))));
                 case true of
                     ExcelBuf."Cell Value as Text" = GLBudgetEntry.FieldCaption("G/L Account No."):
                         begin

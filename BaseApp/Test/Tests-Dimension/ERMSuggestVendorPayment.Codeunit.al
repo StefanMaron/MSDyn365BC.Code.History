@@ -34,6 +34,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         MessageToRecipientMsg: Label 'Payment of %1 %2 ', Comment = '%1 document type, %2 Document No.';
         AmountMustBeNegativeErr: Label 'Amount must be negative in Gen. Journal Line';
         PaymentsLineErr: Label 'There are payments in %1 %2, %3 %4, %5 %6', Comment = 'There are payments in Journal Template Name PAYMENT, Journal Batch Name GENERAL, Applies-to Doc. No. 101321';
+        EarlierPostingDateErr: Label 'You cannot create a payment with an earlier posting date for %1 %2.';
 
     [Test]
     [HandlerFunctions('MessageHandler')]
@@ -1789,7 +1790,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
     end;
 
     [Test]
-    [HandlerFunctions('CreatePaymentOnlyDocNoModalPageHandler')]
+    [HandlerFunctions('CreatePaymentWithPostingModalPageHandler')]
     [Scope('OnPrem')]
     procedure CheckCorrectCopyDimensionToVendorLedgerEntry()
     var
@@ -1802,6 +1803,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         DimensionSetEntry: Record "Dimension Set Entry";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         GenJournalLine: Record "Gen. Journal Line";
+        BankAccount: Record "Bank Account";
         VendorLedgerEntries: TestPage "Vendor Ledger Entries";
         CreatePayment: TestPage "Create Payment";
         PaymentJournal: TestPage "Payment Journal";
@@ -1833,7 +1835,12 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         PurchaseLine.Modify(true);
 
         PostedDocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, false);
+
+        LibraryERM.FindBankAccount(BankAccount);
+
         LibraryVariableStorage.Enqueue(PostedDocNo);
+        LibraryVariableStorage.Enqueue(BankAccount."No.");
+        LibraryVariableStorage.Enqueue(WorkDate());
 
         // [WHEN] Run "Create Payment" for Vendor Ledger Entry, created for "PI"
         VendorLedgerEntries.OpenEdit();
@@ -1848,6 +1855,90 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         GenJournalLine.SetRange("Document No.", PostedDocNo);
         GenJournalLine.FindFirst();
         GenJournalLine.TestField("Dimension Set ID", DimSetID);
+
+        GenJournalLine.Delete();
+    end;
+
+    [Test]
+    [HandlerFunctions('CreatePaymentWithPostingModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure CreatePaymentWithDateEarlierThanInvoice()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        BankAccount: Record "Bank Account";
+        VendorLedgerEntries: TestPage "Vendor Ledger Entries";
+        PostedInvoiceNo: Code[20];
+    begin
+        // [FEATURE] [Create Payment] [Applicaition]
+        // [SCENARIO 344051] Stan can't create payment with an earlier posting date.
+        Initialize();
+
+        LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
+        PostedInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        LibraryERM.FindBankAccount(BankAccount);
+
+        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
+        LibraryVariableStorage.Enqueue(BankAccount."No.");
+        LibraryVariableStorage.Enqueue(WorkDate() - 1);
+        Commit();
+
+        VendorLedgerEntries.OpenView();
+        VendorLedgerEntries.FILTER.SetFilter("Vendor No.", PurchaseHeader."Buy-from Vendor No.");
+
+        asserterror VendorLedgerEntries."Create Payment".Invoke();
+
+        Assert.ExpectedError(StrSubstNo(EarlierPostingDateErr, PurchaseHeader."Document Type", PostedInvoiceNo));
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('CreatePaymentWithPostingModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure CreateAndPostRefundForCrediteMemoViaCreatePaymentPage()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        BankAccount: Record "Bank Account";
+        VendorLedgerEntries: TestPage "Vendor Ledger Entries";
+        PaymentJournal: TestPage "Payment Journal";
+    begin
+        // [FEATURE] [Create Payment] [Applicaition] [Credit Memo] [Refund]
+        // [SCENARIO 343320] Stan can create and post refund for credit memo via "Create Payment" page
+        Initialize();
+
+        LibraryPurchase.CreatePurchaseCreditMemo(PurchaseHeader);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        LibraryERM.FindBankAccount(BankAccount);
+
+        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
+        LibraryVariableStorage.Enqueue(BankAccount."No.");
+        LibraryVariableStorage.Enqueue(WorkDate());
+
+        PaymentJournal.Trap();
+        VendorLedgerEntries.OpenView();
+        VendorLedgerEntries.FILTER.SetFilter("Vendor No.", PurchaseHeader."Buy-from Vendor No.");
+        VendorLedgerEntries."Create Payment".Invoke();
+        PaymentJournal.Filter.SetFilter("Account No.", PurchaseHeader."Buy-from Vendor No.");
+        PaymentJournal."Document Type".AssertEquals(GenJournalLine."Document Type"::Refund);
+        PaymentJournal.Close();
+        Commit();
+
+        GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::Vendor);
+        GenJournalLine.SetRange("Account No.", PurchaseHeader."Buy-from Vendor No.");
+        GenJournalLine.FindFirst();
+        GenJournalLine.TestField("Document Type", GenJournalLine."Document Type"::Refund);
+
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        VendorLedgerEntry.SetRange("Vendor No.", PurchaseHeader."Buy-from Vendor No.");
+        VendorLedgerEntry.SetRange(Open, false);
+        Assert.RecordCount(VendorLedgerEntry, 2);
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
@@ -1856,9 +1947,9 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Suggest Vendor Payment");
-        ClearSelectedDim;
-        LibraryVariableStorage.Clear;
-        ObjectOptions.DeleteAll;
+        ClearSelectedDim();
+        LibraryVariableStorage.Clear();
+        ObjectOptions.DeleteAll();
 
         // Lazy Setup.
         if isInitialized then
@@ -1871,7 +1962,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         LibraryERMCountryData.UpdateGenJournalTemplate;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Suggest Vendor Payment");
     end;
 
@@ -3040,34 +3131,36 @@ codeunit 134076 "ERM Suggest Vendor Payment"
     [Scope('OnPrem')]
     procedure GetLastLineFromTemlateListHandler(var GeneralJournalTemplateList: TestPage "General Journal Template List")
     begin
-        GeneralJournalTemplateList.Last;
-        GeneralJournalTemplateList.OK.Invoke;
+        GeneralJournalTemplateList.Last();
+        GeneralJournalTemplateList.OK.Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GetFirstLineFromTemlateListHandler(var GeneralJournalTemplateList: TestPage "General Journal Template List")
     begin
-        GeneralJournalTemplateList.First;
-        GeneralJournalTemplateList.OK.Invoke;
+        GeneralJournalTemplateList.First();
+        GeneralJournalTemplateList.OK.Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure CreatePaymentModalPageHandler(var CreatePayment: TestPage "Create Payment")
     begin
-        CreatePayment."Template Name".SetValue(LibraryVariableStorage.DequeueText);
-        CreatePayment."Batch Name".SetValue(LibraryVariableStorage.DequeueText);
-        CreatePayment."Starting Document No.".SetValue(LibraryVariableStorage.DequeueText);
-        CreatePayment.OK.Invoke;
+        CreatePayment."Template Name".SetValue(LibraryVariableStorage.DequeueText());
+        CreatePayment."Batch Name".SetValue(LibraryVariableStorage.DequeueText());
+        CreatePayment."Starting Document No.".SetValue(LibraryVariableStorage.DequeueText());
+        CreatePayment.OK.Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure CreatePaymentOnlyDocNoModalPageHandler(var CreatePayment: TestPage "Create Payment")
+    procedure CreatePaymentWithPostingModalPageHandler(var CreatePayment: TestPage "Create Payment")
     begin
-        CreatePayment."Starting Document No.".SetValue(LibraryVariableStorage.DequeueText);
-        CreatePayment.OK.Invoke;
+        CreatePayment."Starting Document No.".SetValue(LibraryVariableStorage.DequeueText());
+        CreatePayment."Bank Account".SetValue(LibraryVariableStorage.DequeueText());
+        CreatePayment."Posting Date".SetValue(LibraryVariableStorage.DequeueDate());
+        CreatePayment.OK.Invoke();
     end;
 }
 

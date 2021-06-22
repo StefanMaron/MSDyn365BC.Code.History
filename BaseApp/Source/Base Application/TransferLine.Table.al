@@ -752,6 +752,7 @@ table 5741 "Transfer Line"
             ObsoleteState = Removed;
             TableRelation = "Product Group".Code WHERE("Item Category Code" = FIELD("Item Category Code"));
             ValidateTableRelation = false;
+            ObsoleteTag = '15.0';
         }
         field(5750; "Whse. Inbnd. Otsdg. Qty (Base)"; Decimal)
         {

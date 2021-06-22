@@ -2,6 +2,7 @@ table 134400 "Merge Duplicate Obsolete"
 {
     ObsoleteState = Removed;
     ObsoleteReason = 'verify if Merge Duplicate function skips obsolete tables';
+    ObsoleteTag = '15.0';
 
     fields
     {

@@ -1523,7 +1523,7 @@ report 1306 "Standard Sales - Invoice"
         end;
     end;
 
-    local procedure GetJobTaskDescription(JobNo: Code[20]; JobTaskNo: Code[20]): Text[50]
+    local procedure GetJobTaskDescription(JobNo: Code[20]; JobTaskNo: Code[20]): Text[100]
     var
         JobTask: Record "Job Task";
     begin

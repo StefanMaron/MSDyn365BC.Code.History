@@ -63,6 +63,8 @@ table 1400 "Service Connection"
     var
         ServiceConnectionOld: Record "Service Connection";
     begin
+        if Format(RecordID) = '' then
+            exit;
         ServiceConnection."Record ID" := RecordID;
         ServiceConnection."No." := Format(RecordID);
         ServiceConnection.Name := CopyStr(ServiceName, 1, MaxStrLen(ServiceConnection.Name));

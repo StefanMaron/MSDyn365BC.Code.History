@@ -21,7 +21,15 @@ table 6301 "Power BI Report Configuration"
         }
         field(4; EmbedUrl; Text[250])
         {
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The field has been extended to a bigger field. Use ReportEmbedUrl field instead.';
             Caption = 'EmbedUrl';
+            DataClassification = CustomerContent;
+            Description = 'Cached display URL.';
+        }
+        field(10; ReportEmbedUrl; Text[2048])
+        {
+            Caption = 'ReportEmbedUrl';
             DataClassification = CustomerContent;
             Description = 'Cached display URL.';
         }

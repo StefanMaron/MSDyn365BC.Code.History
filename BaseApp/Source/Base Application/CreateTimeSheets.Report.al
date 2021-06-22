@@ -18,7 +18,13 @@ report 950 "Create Time Sheets"
                 trigger OnAfterGetRecord()
                 var
                     TimeSheetMgt: Codeunit "Time Sheet Management";
+                    IsHandled: Boolean;
                 begin
+                    IsHandled := false;
+                    OnBeforeResourceOnAfterGerRecord(Resource, IsHandled);
+                    if IsHandled then
+                        CurrReport.Skip();
+
                     if CheckExistingPeriods then begin
                         TimeSheetHeader.Init;
                         TimeSheetHeader."No." := NoSeriesMgt.GetNextNo(ResourcesSetup."Time Sheet Nos.", Today, true);
@@ -226,6 +232,11 @@ report 950 "Create Time Sheets"
     begin
         if Date2DWY(StartingDate, 1) <> ResourcesSetup."Time Sheet First Weekday" + 1 then
             Error(Text010, ResourcesSetup."Time Sheet First Weekday");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeResourceOnAfterGerRecord(var Resource: Record Resource; var IsHandled: Boolean)
+    begin
     end;
 }
 

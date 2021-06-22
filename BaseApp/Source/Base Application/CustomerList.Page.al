@@ -1485,7 +1485,7 @@
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
         with SocialListeningSetup do
             SocialListeningSetupVisible := Get and "Show on Customers" and "Accept License Agreement" and ("Solution ID" <> '');
-        SetFilter("Date Filter", '..%1', WorkDate);
+        SetRange("Date Filter", 0D, WorkDate());
     end;
 
     var

@@ -1085,7 +1085,7 @@ codeunit 99000845 "Reservation Management"
         if not Item.Get(CalcReservEntry."Item No.") then
             Clear(Item);
 
-        CalcReservEntry.Lock;
+        CalcReservEntry.Lock();
 
         if Positive then begin
             Search := '+';
@@ -1103,6 +1103,8 @@ codeunit 99000845 "Reservation Management"
             InvSearch := '-';
             InvNextStep := 1;
         end;
+
+        OnAutoReserveOneLineOnAfterUpdateSearchNextStep(Item, Positive, Search, NextStep, InvSearch, InvNextStep);
 
         case ReservSummEntryNo of
             1: // Item Ledger Entry
@@ -1844,9 +1846,12 @@ codeunit 99000845 "Reservation Management"
         SignFactor: Integer;
         QuantityIsValidated: Boolean;
     begin
+        OnBeforeDeleteReservEntries(ReservEntry, DownToQuantity);
+
         ReservEntry.SetRange("Reservation Status");
         if ReservEntry.IsEmpty then
             exit;
+
         CurrentSerialNo := ReservEntry."Serial No.";
         CurrentLotNo := ReservEntry."Lot No.";
         CurrentQty := ReservEntry."Quantity (Base)";
@@ -3629,11 +3634,15 @@ codeunit 99000845 "Reservation Management"
         QtyOnAssemblyBin: Decimal;
         QtyOnOpenShopFloorBin: Decimal;
         QtyOnToProductionBin: Decimal;
+        IsHandled: Boolean;
     begin
         with CalcReservEntry do begin
             GetItemSetup(CalcReservEntry);
             Item.SetRange("Location Filter", "Location Code");
-            Item.SetRange("Variant Filter", "Variant Code");
+            IsHandled := false;
+            OnCalcReservedQtyOnPickOnbeforeSetItemVariantCodeFilter(Item, CalcReservEntry, IsHandled);
+            if not IsHandled then
+                Item.SetRange("Variant Filter", "Variant Code");
             if "Lot No." <> '' then
                 Item.SetRange("Lot No. Filter", "Lot No.");
             if "Serial No." <> '' then
@@ -3651,7 +3660,10 @@ codeunit 99000845 "Reservation Management"
             WhseActivLine.SetRange("Location Code", "Location Code");
             WhseActivLine.SetFilter(
               "Action Type", '%1|%2', WhseActivLine."Action Type"::" ", WhseActivLine."Action Type"::Take);
-            WhseActivLine.SetRange("Variant Code", "Variant Code");
+            IsHandled := false;
+            OnCalcReservedQtyOnPickOnBeforeSetWhseActivLineVariantCodeFilter(WhseActivLine, CalcReservEntry, IsHandled);
+            if not IsHandled then
+                WhseActivLine.SetRange("Variant Code", "Variant Code");
             WhseActivLine.SetRange("Breakbulk No.", 0);
             WhseActivLine.SetFilter(
               "Activity Type", '%1|%2', WhseActivLine."Activity Type"::Pick, WhseActivLine."Activity Type"::"Invt. Pick");
@@ -4048,6 +4060,11 @@ codeunit 99000845 "Reservation Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAutoReserveOneLineOnAfterUpdateSearchNextStep(var Item: Record Item; var Positive: Boolean; var Search: Text[1]; var NextStep: Integer; var InvSearch: Text[1]; InvNextStep: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAutoReserveItemLedgEntryOnFindNextItemLedgEntry(CalcReservEntry: Record "Reservation Entry"; var CalcItemLedgEntry: Record "Item Ledger Entry"; var InvSearch: Text[1]; var IsHandled: Boolean; var IsFound: Boolean)
     begin
     end;
@@ -4108,12 +4125,27 @@ codeunit 99000845 "Reservation Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteReservEntries(var ReservationEntry: Record "Reservation Entry"; var DownToQuantity: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeLookupDocument(SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceBatchName: Code[10]; SourceProdOrderLine: Integer; SourceRefNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateItemLedgEntryStats(var CalcReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcReservedQtyOnPickOnBeforeSetItemVariantCodeFilter(var Item: Record Item; var ReservationEntry: Record "Reservation Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcReservedQtyOnPickOnBeforeSetWhseActivLineVariantCodeFilter(var WnseActivLine: Record "Warehouse Activity Line"; var ReservationEntry: Record "Reservation Entry"; var IsHandled: Boolean)
     begin
     end;
 

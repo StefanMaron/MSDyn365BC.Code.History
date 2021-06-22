@@ -28,6 +28,7 @@ codeunit 139155 "PEPPOL Management Tests"
         NoUnitOfMeasureCRErr: Label 'The Credit Memo %1 contains lines on which the Unit of Measure Code field is empty.';
         NoItemDescriptionErr: Label 'Description field is empty.';
         NoInternationalStandardCodeErr: Label 'You must specify a valid International Standard Code for the Unit of Measure for %1.';
+        NegativeUnitPriceErr: Label 'It cannot be negative if you want to send the posted document as an electronic document. \\Do you want to continue?', Comment = '%1 - record ID';
 
     [Test]
     [Scope('OnPrem')]
@@ -2941,6 +2942,60 @@ codeunit 139155 "PEPPOL Management Tests"
         LibraryXMLRead.VerifyAttributeValueInSubtree('cac:DeliveryLocation', 'cbc:ID', 'schemeID', '0088');
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerFalseOnUnitPrice')]
+    [Scope('OnPrem')]
+    procedure TestPeppolValidationSalesLineWithNegativeUnitPriceConfirmFalse()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 342393] Confirm false on PEPPOL validation for Sales Invoice with negative price
+        Initialize;
+
+        // [GIVEN] Sales Invoice where the line has Unit Price = -1000.
+        CreateGenericSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice);
+        CreateGenericItem(Item);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandIntInRange(2, 5));
+        SalesLine.Validate("Unit Price", -LibraryRandom.RandDecInRange(100, 200, 2));
+        SalesLine.Modify(true);
+
+        // [WHEN] Validate the sales invoice with No on confirmation for 'Do you want to continue?'
+        asserterror CODEUNIT.Run(CODEUNIT::"PEPPOL Validation", SalesHeader);
+
+        // [THEN] The process is stopped with error
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError('');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrueOnUnitPrice')]
+    [Scope('OnPrem')]
+    procedure TestPeppolValidationSalesLineWithNegativeUnitPriceConfirmTrue()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 342393] Confirm true on PEPPOL validation for Sales Invoice with negative price
+        Initialize;
+
+        // [GIVEN] Sales Invoice where the line has Unit Price = -1000.
+        CreateGenericSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice);
+        CreateGenericItem(Item);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandIntInRange(2, 5));
+        SalesLine.Validate("Unit Price", -LibraryRandom.RandDecInRange(100, 200, 2));
+        SalesLine.Modify(true);
+
+        // [WHEN] Validate the sales invoice with Yes on confirmation for 'Do you want to continue?'
+        CODEUNIT.Run(CODEUNIT::"PEPPOL Validation", SalesHeader);
+
+        // [THEN] Validation is finished sucessfully
+    end;
+
     local procedure Initialize()
     var
         CompanyInfo: Record "Company Information";
@@ -3511,6 +3566,22 @@ codeunit 139155 "PEPPOL Management Tests"
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerTrueOnUnitPrice(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Assert.ExpectedMessage(NegativeUnitPriceErr, Question);
+        Reply := true;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerFalseOnUnitPrice(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Assert.ExpectedMessage(NegativeUnitPriceErr, Question);
+        Reply := false;
     end;
 }
 

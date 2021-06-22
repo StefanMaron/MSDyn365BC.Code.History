@@ -7,6 +7,7 @@ page 130407 "CAL Test Objects To Select"
     SourceTableView = WHERE(Type = FILTER(> TableData));
     ObsoleteState = Pending;
     ObsoleteReason = 'Replaced with the AL Test Objects To Select page';
+    ObsoleteTag = '15.2';
 
     layout
     {

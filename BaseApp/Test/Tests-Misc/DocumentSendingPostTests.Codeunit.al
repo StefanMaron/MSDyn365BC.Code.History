@@ -29,6 +29,7 @@ codeunit 139151 DocumentSendingPostTests
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryJob: Codeunit "Library - Job";
         LibraryApplicationArea: Codeunit "Library - Application Area";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         ActiveDirectoryMockEvents: Codeunit "Active Directory Mock Events";
         IsInitialized: Boolean;
         ReportNoSalesInvCrMemoHdrTxt: Label 'DocumentNo';
@@ -72,14 +73,14 @@ codeunit 139151 DocumentSendingPostTests
     begin
         // [WHEN] the default document sending profile list is empty and Annie tries to post and send a sales document
         // [THEN] a default document sending profile will be created and used - it will have the name Default and have "Send as PDF" as sending profile
-        Initialize;
+        Initialize();
 
         DocumentSendingProfile.DeleteAll;
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
-        SalesInvoiceList.OpenView;
+        SalesInvoiceList.OpenView();
         SalesInvoiceList.GotoRecord(SalesHeader);
-        SalesInvoiceList.PostAndSend.Invoke;
+        SalesInvoiceList.PostAndSend.Invoke();
         Assert.IsTrue(DocumentSendingProfile.FindFirst, 'Document sending profile not created on the fly.');
         Assert.IsTrue(DocumentSendingProfile.Default, 'The first and only document sending profile is not marked as default.');
         Assert.AreEqual(
@@ -108,16 +109,16 @@ codeunit 139151 DocumentSendingPostTests
     begin
         // [WHEN] Annie posts a sales invoice for a customer that doesn?t have the Sending Profile specified
         // [THEN] the default rule should be used.
-        Initialize;
+        Initialize();
 
         CreateTwoDocumentSendingProfiles(DefaultDocumentSendingProfile, NonDefaultDocumentSendingProfile);
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
         LibraryVariableStorage.Enqueue(DefaultDocumentSendingProfile);
         // verification of expected document sending profile is in the handler method
-        SalesInvoiceList.OpenView;
+        SalesInvoiceList.OpenView();
         SalesInvoiceList.GotoRecord(SalesHeader);
-        SalesInvoiceList.PostAndSend.Invoke;
+        SalesInvoiceList.PostAndSend.Invoke();
 
         // Test that after the handler clicked "No", Sales Header is not posted
         SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.")
@@ -136,7 +137,7 @@ codeunit 139151 DocumentSendingPostTests
     begin
         // [WHEN] Annie posts a sales credit memo for a customer that doesn?t have the Sending Profile specified
         // [THEN] the default rule should be used.
-        Initialize;
+        Initialize();
 
         CreateTwoDocumentSendingProfiles(DefaultDocumentSendingProfile, NonDefaultDocumentSendingProfile);
         LibrarySales.CreateCustomer(Customer);
@@ -144,9 +145,9 @@ codeunit 139151 DocumentSendingPostTests
         LibraryVariableStorage.Enqueue(DefaultDocumentSendingProfile);
 
         // Verification of expected document sending profile is in the handler method
-        SalesCreditMemos.OpenView;
+        SalesCreditMemos.OpenView();
         SalesCreditMemos.GotoRecord(SalesHeader);
-        SalesCreditMemos.PostAndSend.Invoke;
+        SalesCreditMemos.PostAndSend.Invoke();
 
         // Test that after the handler clicked "No", Sales Header is not posted
         SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.")
@@ -165,7 +166,7 @@ codeunit 139151 DocumentSendingPostTests
     begin
         // [WHEN] Annie posts a sales invoice for a customer with specified rule on the customer card
         // [THEN] this rule is suggested to her when posting. Bill-to Customer should be used.
-        Initialize;
+        Initialize();
 
         CreateTwoDocumentSendingProfiles(DefaultDocumentSendingProfile, NonDefaultDocumentSendingProfile);
         LibrarySales.CreateCustomer(Customer);
@@ -200,7 +201,7 @@ codeunit 139151 DocumentSendingPostTests
     begin
         // [WHEN] Annie posts a sales credit memo for a customer with specified rule on the customer card
         // [THEN] this rule is suggested to her when posting.
-        Initialize;
+        Initialize();
 
         CreateTwoDocumentSendingProfiles(DefaultDocumentSendingProfile, NonDefaultDocumentSendingProfile);
         LibrarySales.CreateCustomer(Customer);
@@ -214,9 +215,9 @@ codeunit 139151 DocumentSendingPostTests
         SalesHeader.Modify(true);
 
         LibraryVariableStorage.Enqueue(NonDefaultDocumentSendingProfile);
-        SalesCreditMemos.OpenView;
+        SalesCreditMemos.OpenView();
         SalesCreditMemos.GotoRecord(SalesHeader);
-        SalesCreditMemos.PostAndSend.Invoke;
+        SalesCreditMemos.PostAndSend.Invoke();
 
         // Test that after the handler clicked "No", Sales Header is not posted
         SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.")
@@ -235,7 +236,7 @@ codeunit 139151 DocumentSendingPostTests
     begin
         // [WHEN] Annie selects post or send action
         // [THEN] she can override the system proposed document sending profile. The system will show the available options. Specifying the custom document sending profile should not update the existing document sending profile.
-        Initialize;
+        Initialize();
 
         CreateTwoDocumentSendingProfiles(DefaultDocumentSendingProfile, NonDefaultDocumentSendingProfile);
         TempDefaultDocumentSendingProfileBeforeOverride.Copy(DefaultDocumentSendingProfile);
@@ -264,7 +265,7 @@ codeunit 139151 DocumentSendingPostTests
     begin
         // [WHEN] When Annie selects post or send action
         // [THEN] she can override the system proposed document sending profile. The system will show the available options. Specifying the custom document sending profile should not update the existing document sending profile.
-        Initialize;
+        Initialize();
 
         CreateTwoDocumentSendingProfiles(DefaultDocumentSendingProfile, NonDefaultDocumentSendingProfile);
         TempDefaultDocumentSendingProfileBeforeOverride.Copy(DefaultDocumentSendingProfile);
@@ -300,7 +301,7 @@ codeunit 139151 DocumentSendingPostTests
     begin
         // [WHEN] Email is selected as a sending profile in a default document sending profile, and Annie clicks Post and Send on a sales invoice
         // [THEN] the Email dialog launches, in which Annie can compile the message to the customer
-        Initialize;
+        Initialize();
 
         // create an email document sending profile default rule
         InitializeDocumentSendingProfile(DocumentSendingProfile, DocumentSendingProfile."E-Mail Attachment"::"PDF & Electronic Document",
@@ -321,7 +322,7 @@ codeunit 139151 DocumentSendingPostTests
         // verification is in the handler method
         SalesInvoice.OpenEdit;
         SalesInvoice.GotoRecord(SalesHeader);
-        SalesInvoice.PostAndSend.Invoke;
+        SalesInvoice.PostAndSend.Invoke();
         // Test that after the handler clicked "Yes", Sales Header is posted
         Assert.IsFalse(SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No."), 'Invoice not posted.');
     end;
@@ -342,7 +343,7 @@ codeunit 139151 DocumentSendingPostTests
         // [WHEN] Email is selected as a sending profile in a default document sending profile, and Annie clicks Send on a posted sales invoice
         // [THEN] a dialog for selecting a sending profile launches, where she choses to email
         // [THEN] the Email dialog launches, in which Annie can compile the message to the customer
-        Initialize;
+        Initialize();
 
         // create a sales invoice and post it
         CreateCustomerWithEmail(Customer);
@@ -363,15 +364,15 @@ codeunit 139151 DocumentSendingPostTests
         // Invoke Send action. verification is in the handler method
         PostedSalesInvoice.OpenEdit;
         PostedSalesInvoice.GotoRecord(SalesInvoiceHeader);
-        PostedSalesInvoice.SendCustom.Invoke;
+        PostedSalesInvoice.SendCustom.Invoke();
         PostedSalesInvoice.Close;
         // Invoke Send action again, this time from the list. verification is in the handler method
         LibraryVariableStorage.Enqueue(DocumentSendingProfile);
         LibraryVariableStorage.Enqueue(Customer."E-Mail");
         LibraryVariableStorage.Enqueue(SalesInvoiceHeader."No.");
-        PostedSalesInvoices.OpenView;
+        PostedSalesInvoices.OpenView();
         PostedSalesInvoices.GotoRecord(SalesInvoiceHeader);
-        PostedSalesInvoices.SendCustom.Invoke;
+        PostedSalesInvoices.SendCustom.Invoke();
     end;
 
     [Test]
@@ -395,7 +396,7 @@ codeunit 139151 DocumentSendingPostTests
         // [THEN] a dialog for selecting a sending profile launches, where she choses the default sending rule, which is to email and print
         // [THEN] the Email dialog launches, in which Annie can compile the message to the customer
         // [THEN] the print dialog launches, in which Annie can choose where to print the document
-        Initialize;
+        Initialize();
 
         // create a sales invoice and post it
         if not CountryRegion.Get('AB') then begin
@@ -432,7 +433,7 @@ codeunit 139151 DocumentSendingPostTests
         // Invoke Send action. verification is in the handler method
         PostedSalesInvoice.OpenEdit;
         PostedSalesInvoice.GotoRecord(SalesInvoiceHeader);
-        PostedSalesInvoice.SendCustom.Invoke;
+        PostedSalesInvoice.SendCustom.Invoke();
 
         // verify that the print request page contains the correct invoice number
         LibraryReportDataset.LoadDataSetFile;
@@ -459,7 +460,7 @@ codeunit 139151 DocumentSendingPostTests
         // [THEN] a dialog for selecting a sending profile launches, where she choses the default sending rule, which is to email and print
         // [THEN] the Email dialog launches, in which Annie can compile the message to the customer
         // [THEN] the print dialog launches, in which Annie can choose where to print the document
-        Initialize;
+        Initialize();
 
         // for SelectDefaultSendingOptionHandler, insert a default rule with print and email
         InitializeTwoDocumentSendingProfilesForCustomer(CustomerSpecificDocumentSendingProfile);
@@ -487,11 +488,11 @@ codeunit 139151 DocumentSendingPostTests
         // Invoke Send action. verification is in the handler method
         SalesInvoice.OpenEdit;
         SalesInvoice.GotoRecord(SalesHeader);
-        SalesInvoice.PostAndSend.Invoke;
+        SalesInvoice.PostAndSend.Invoke();
 
         // verify that the print request page contains the correct invoice number
         SalesInvoiceHeader.SetRange("Bill-to Customer No.", Customer."No.");
-        SalesInvoiceHeader.FindLast;
+        SalesInvoiceHeader.FindLast();
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists(ReportNoSalesInvCrMemoHdrTxt, SalesInvoiceHeader."No.");
     end;
@@ -511,7 +512,7 @@ codeunit 139151 DocumentSendingPostTests
     begin
         // [WHEN] Print (prompt) is selected as a sending profile in a default document sending profile, and Annie clicks Post and Send on a sales invoice
         // [THEN] the print preview launches
-        Initialize;
+        Initialize();
 
         // create print with prompt sending profile default rule
         InitializeDocumentSendingProfile(DocumentSendingProfile, DocumentSendingProfile."E-Mail Attachment"::"PDF & Electronic Document",
@@ -527,12 +528,12 @@ codeunit 139151 DocumentSendingPostTests
         // invoke Post and Send action
         SalesInvoice.OpenEdit;
         SalesInvoice.GotoRecord(SalesHeader);
-        SalesInvoice.PostAndSend.Invoke;
+        SalesInvoice.PostAndSend.Invoke();
 
         // Test that after the handler clicked "Yes", Sales Header is posted
         Assert.IsFalse(SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No."), 'Invoice not posted.');
         SalesInvoiceHeader.SetRange("Bill-to Customer No.", Customer."No.");
-        SalesInvoiceHeader.FindLast;
+        SalesInvoiceHeader.FindLast();
 
         // verify that the request page contains the correct invoice number
         LibraryReportDataset.LoadDataSetFile;
@@ -554,7 +555,7 @@ codeunit 139151 DocumentSendingPostTests
         // [WHEN] Print (prompt) is selected as a sending profile in a default document sending profile, and Annie clicks Send on a posted sales invoice
         // [THEN] a dialog for selecting a sending profile launches, where she choses to print
         // [THEN] the print preview launches
-        Initialize;
+        Initialize();
 
         // create a sales invoice and post it
         LibrarySales.CreateCustomer(Customer);
@@ -568,9 +569,9 @@ codeunit 139151 DocumentSendingPostTests
         LibraryVariableStorage.Enqueue(DocumentSendingProfile);
 
         // Invoke Send action.
-        PostedSalesInvoices.OpenView;
+        PostedSalesInvoices.OpenView();
         PostedSalesInvoices.GotoRecord(SalesInvoiceHeader);
-        PostedSalesInvoices.SendCustom.Invoke;
+        PostedSalesInvoices.SendCustom.Invoke();
 
         // verify that the request page contains the correct invoice number
         LibraryReportDataset.LoadDataSetFile;
@@ -593,7 +594,7 @@ codeunit 139151 DocumentSendingPostTests
         // [WHEN] Print (prompt) is selected as a sending profile in a default document sending profile, and Annie clicks Send on a posted sales invoice
         // [THEN] a dialog for selecting a sending profile launches, where she choses to print
         // [THEN] the print preview launches and multiple invoices are exported to file
-        Initialize;
+        Initialize();
 
         // create a sales invoice and post it
         LibrarySales.CreateCustomer(Customer);
@@ -611,7 +612,7 @@ codeunit 139151 DocumentSendingPostTests
 
         // Send multipe.
         SalesInvoiceHeader.SetFilter("No.", StrSubstNo('%1|%2', SalesInvoiceHeader."No.", SalesInvoiceHeader2."No."));
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
 
         SalesInvoiceHeader.SendRecords;
 
@@ -636,7 +637,7 @@ codeunit 139151 DocumentSendingPostTests
     begin
         // [WHEN] Print (prompt) is selected as a sending profile in a default document sending profile, and Annie clicks Post and Send on a sales credit memo
         // [THEN] the print preview launches
-        Initialize;
+        Initialize();
 
         // create print with prompt sending profile default rule
         InitializeDocumentSendingProfile(DocumentSendingProfile, DocumentSendingProfile."E-Mail Attachment"::"PDF & Electronic Document",
@@ -652,12 +653,12 @@ codeunit 139151 DocumentSendingPostTests
         // invoke Post and Send action
         SalesCreditMemo.OpenEdit;
         SalesCreditMemo.GotoRecord(SalesHeader);
-        SalesCreditMemo.PostAndSend.Invoke;
+        SalesCreditMemo.PostAndSend.Invoke();
 
         // Test that after the handler clicked "Yes", Sales Header is posted
         Assert.IsFalse(SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No."), 'Credit memo not posted.');
         SalesCrMemoHeader.SetRange("Sell-to Customer No.", Customer."No.");
-        SalesCrMemoHeader.FindLast;
+        SalesCrMemoHeader.FindLast();
 
         // verify that the request page contains the correct credit memo number
         LibraryReportDataset.LoadDataSetFile;
@@ -680,7 +681,7 @@ codeunit 139151 DocumentSendingPostTests
         // [THEN] a dialog for selecting a sending profile launches, where she choses to print
         // [THEN] the print preview launches
         // create a sales invoice and post it
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateCustomer(Customer);
         CreateAndPostSalesHeaderAndLine(PostedDocumentVariant, Customer, SalesHeader."Document Type"::"Credit Memo");
@@ -695,7 +696,7 @@ codeunit 139151 DocumentSendingPostTests
         // Invoke Send action.
         PostedSalesCreditMemo.OpenEdit;
         PostedSalesCreditMemo.GotoRecord(SalesCrMemoHeader);
-        PostedSalesCreditMemo.SendCustom.Invoke;
+        PostedSalesCreditMemo.SendCustom.Invoke();
 
         // verify that the request page contains the correct credit memo number
         LibraryReportDataset.LoadDataSetFile;
@@ -718,7 +719,7 @@ codeunit 139151 DocumentSendingPostTests
         // [WHEN] Print (prompt) is selected as a sending profile in a default document sending profile, and Annie clicks Send on a posted sales credit memo
         // [THEN] a dialog for selecting a sending profile launches, where she choses to print
         // [THEN] the print preview launches and multiple credit memos are exported to the file
-        Initialize;
+        Initialize();
 
         // create a sales invoice and post it
         LibrarySales.CreateCustomer(Customer);
@@ -735,7 +736,7 @@ codeunit 139151 DocumentSendingPostTests
 
         // Send multipe.
         SalesCrMemoHeader.SetFilter("No.", StrSubstNo('%1|%2', SalesCrMemoHeader."No.", SalesCrMemoHeader2."No."));
-        SalesCrMemoHeader.FindFirst;
+        SalesCrMemoHeader.FindFirst();
 
         SalesCrMemoHeader.SendRecords;
 
@@ -760,7 +761,7 @@ codeunit 139151 DocumentSendingPostTests
     begin
         // [WHEN] Email is selected as a sending profile in a default document sending profile, and Annie clicks Post and Send on a sales credit memo
         // [THEN] the Email dialog launches, in which Annie can compile the message to the customer
-        Initialize;
+        Initialize();
 
         // create an email document sending profile default rule
         InitializeDocumentSendingProfile(DocumentSendingProfile, DocumentSendingProfile."E-Mail Attachment"::"PDF & Electronic Document",
@@ -780,7 +781,7 @@ codeunit 139151 DocumentSendingPostTests
         // verification is in the handler method
         SalesCreditMemo.OpenEdit;
         SalesCreditMemo.GotoRecord(SalesHeader);
-        SalesCreditMemo.PostAndSend.Invoke;
+        SalesCreditMemo.PostAndSend.Invoke();
 
         // Test that after the handler clicked "Yes", Sales Header is posted
         Assert.IsFalse(SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No."), 'Credit Memo not posted.');
@@ -802,7 +803,7 @@ codeunit 139151 DocumentSendingPostTests
         // [WHEN] Email is selected as a sending profile in a default document sending profile, and Annie clicks Send on a posted sales credit memo
         // [THEN] a dialog for selecting a sending profile launches, where she choses to print
         // [THEN] the Email dialog launches, in which Annie can compile the message to the customer
-        Initialize;
+        Initialize();
 
         // create a sales credit memo and post it
         CreateCustomerWithEmail(Customer);
@@ -822,7 +823,7 @@ codeunit 139151 DocumentSendingPostTests
         // invoke Send action. verification is in the handler method
         PostedSalesCreditMemo.OpenEdit;
         PostedSalesCreditMemo.GotoRecord(SalesCrMemoHeader);
-        PostedSalesCreditMemo.SendCustom.Invoke;
+        PostedSalesCreditMemo.SendCustom.Invoke();
         PostedSalesCreditMemo.Close;
 
         // invoke Send action again, this time from the list. verification is in the handler method
@@ -830,9 +831,9 @@ codeunit 139151 DocumentSendingPostTests
         LibraryVariableStorage.Enqueue(Customer."E-Mail");
         LibraryVariableStorage.Enqueue(SalesCrMemoHeader."No.");
 
-        PostedSalesCreditMemos.OpenView;
+        PostedSalesCreditMemos.OpenView();
         PostedSalesCreditMemos.GotoRecord(SalesCrMemoHeader);
-        PostedSalesCreditMemos.SendCustom.Invoke;
+        PostedSalesCreditMemos.SendCustom.Invoke();
         PostedSalesCreditMemos.Close;
     end;
 
@@ -856,7 +857,7 @@ codeunit 139151 DocumentSendingPostTests
         // [THEN] a dialog for selecting a sending profile launches, where she choses the default sending rule, which is to email and print
         // [THEN] the Email dialog launches, in which Annie can compile the message to the customer
         // [THEN] the print dialog launches, in which Annie can choose where to print the document
-        Initialize;
+        Initialize();
 
         // for SelectSendingOptionHandler, insert a default rule with print and email
         InitializeDocumentSendingProfile(DocumentSendingProfile, DocumentSendingProfile."E-Mail Attachment"::"Electronic Document",
@@ -887,9 +888,9 @@ codeunit 139151 DocumentSendingPostTests
         LibraryVariableStorage.Enqueue(SalesCrMemoHeader."No.");
 
         // Invoke Send action. verification is in the handler method
-        PostedSalesCreditMemos.OpenView;
+        PostedSalesCreditMemos.OpenView();
         PostedSalesCreditMemos.GotoRecord(SalesCrMemoHeader);
-        PostedSalesCreditMemos.SendCustom.Invoke;
+        PostedSalesCreditMemos.SendCustom.Invoke();
         PostedSalesCreditMemos.Close;
 
         // verify that the print request page contains the correct credit memo number
@@ -916,7 +917,7 @@ codeunit 139151 DocumentSendingPostTests
         // [THEN] a dialog for selecting a sending profile launches, where she choses the default sending rule, which is to email and print
         // [THEN] the Email dialog launches, in which Annie can compile the message to the customer
         // [THEN] the print dialog launches, in which Annie can choose where to print the document
-        Initialize;
+        Initialize();
 
         // for SelectDefaultSendingOptionHandler, insert a default rule with print and email
         InitializeTwoDocumentSendingProfilesForCustomer(CustomerSpecificDocumentSendingProfile);
@@ -954,11 +955,11 @@ codeunit 139151 DocumentSendingPostTests
         // Invoke Send action. verification is in the handler method
         SalesCreditMemo.OpenEdit;
         SalesCreditMemo.GotoRecord(SalesHeader);
-        SalesCreditMemo.PostAndSend.Invoke;
+        SalesCreditMemo.PostAndSend.Invoke();
 
         // verify that the print request page contains the correct credit memo number
         SalesCrMemoHeader.SetRange("Bill-to Customer No.", Customer."No.");
-        SalesCrMemoHeader.FindLast;
+        SalesCrMemoHeader.FindLast();
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists(ReportNoSalesInvCrMemoHdrTxt, SalesCrMemoHeader."No.");
     end;
@@ -979,12 +980,12 @@ codeunit 139151 DocumentSendingPostTests
     begin
         // [WHEN] Disk (PDF & Electronic Doc) is selected as a sending profile in a default document sending profile, and Annie clicks Post and Send on a sales invoice
         // [THEN] the files are saved to disk
-        Initialize;
+        Initialize();
 
         // create disk with pdf & electronic document sending profile default rule
         DeleteDefaultDocumentSendingProfile(DocumentSendingProfile);
         DocumentSendingProfile.Disk := DocumentSendingProfile.Disk::"PDF & Electronic Document";
-        ElectronicDocumentFormat.FindFirst;
+        ElectronicDocumentFormat.FindFirst();
         DocumentSendingProfile."Disk Format" := ElectronicDocumentFormat.Code;
         DocumentSendingProfile.Insert(true);
 
@@ -997,12 +998,12 @@ codeunit 139151 DocumentSendingPostTests
         // invoke Post and Send action
         SalesInvoice.OpenEdit;
         SalesInvoice.GotoRecord(SalesHeader);
-        SalesInvoice.PostAndSend.Invoke;
+        SalesInvoice.PostAndSend.Invoke();
 
         // Test that after the handler clicked "Yes", Sales Header is posted
         Assert.IsFalse(SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No."), 'Invoice not posted.');
         SalesInvoiceHeader.SetRange("Bill-to Customer No.", Customer."No.");
-        SalesInvoiceHeader.FindLast;
+        SalesInvoiceHeader.FindLast();
     end;
 
     [Test]
@@ -1021,13 +1022,13 @@ codeunit 139151 DocumentSendingPostTests
     begin
         // [WHEN] Electronic Document (Through Document Exchange Service) is selected as a sending profile in a default document sending profile, and Annie clicks Post and Send on a sales invoice
         // [THEN] the posting will fail as the document exchange service is not enabled
-        Initialize;
+        Initialize();
 
         // create sending profile configured for sending through document exch service as default rule
         DeleteDefaultDocumentSendingProfile(DocumentSendingProfile);
         DocumentSendingProfile."Electronic Document" :=
           DocumentSendingProfile."Electronic Document"::"Through Document Exchange Service";
-        ElectronicDocumentFormat.FindFirst;
+        ElectronicDocumentFormat.FindFirst();
         DocumentSendingProfile."Electronic Format" := ElectronicDocumentFormat.Code;
         DocumentSendingProfile.Insert(true);
 
@@ -1041,7 +1042,7 @@ codeunit 139151 DocumentSendingPostTests
         ErrorMessagesPage.Trap;
         SalesInvoice.OpenEdit;
         SalesInvoice.GotoRecord(SalesHeader);
-        SalesInvoice.PostAndSend.Invoke;
+        SalesInvoice.PostAndSend.Invoke();
 
         ErrorMessagesPage.Description.AssertEquals(DocExchServiceNotEnabledErr);
         ErrorMessagesPage.Context.AssertEquals(Format(SalesHeader.RecordId));
@@ -1058,7 +1059,7 @@ codeunit 139151 DocumentSendingPostTests
     begin
         // [WHEN] Annie tries to invoke Post and Send for a sales order
         // [THEN] she gets the error that this document type is unsupported
-        Initialize;
+        Initialize();
 
         UnsupportedDocumentType(SalesHeader."Document Type"::Quote);
     end;
@@ -1079,9 +1080,9 @@ codeunit 139151 DocumentSendingPostTests
     begin
         // [WHEN] Annie tries to Send on multiple posted sales credit memos and chooses to send them electronically
         // [THEN] she gets an error that this is not supported
-        Initialize;
+        Initialize();
         ElectronicDocumentFormat.SetRange(Usage, ElectronicDocumentFormat.Usage::"Sales Credit Memo");
-        ElectronicDocumentFormat.FindFirst;
+        ElectronicDocumentFormat.FindFirst();
 
         // create two sales credit memos and post them
         CreateElectronicDocumentCustomer(Customer);
@@ -1092,7 +1093,7 @@ codeunit 139151 DocumentSendingPostTests
 
         // try to send both posted sales credit memos electronically
         SalesCrMemoHeader.SetFilter("No.", StrSubstNo('%1|%2', SalesCrMemoHeader1."No.", SalesCrMemoHeader2."No."));
-        SalesCrMemoHeader.FindFirst;
+        SalesCrMemoHeader.FindFirst();
 
         // in the handler, electronic document format will be chosen, which will cause an error because this is not supported
         SalesCrMemoHeader.SendRecords;
@@ -1115,9 +1116,9 @@ codeunit 139151 DocumentSendingPostTests
     begin
         // [WHEN] Annie tries to Send on multiple posted sales invoices and chooses to send them electronically
         // [THEN] she gets an error that this is not supported
-        Initialize;
+        Initialize();
         ElectronicDocumentFormat.SetRange(Usage, ElectronicDocumentFormat.Usage::"Sales Invoice");
-        ElectronicDocumentFormat.FindFirst;
+        ElectronicDocumentFormat.FindFirst();
 
         // create two sales invoices and post them
         CreateElectronicDocumentCustomer(Customer1);
@@ -1129,7 +1130,7 @@ codeunit 139151 DocumentSendingPostTests
 
         // try to send both posted sales invoices electronically
         SalesInvoiceHeader.SetFilter("No.", StrSubstNo('%1|%2', SalesInvoiceHeader1."No.", SalesInvoiceHeader2."No."));
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
 
         // in the handler, electronic document format will be chosen, which will cause an error because this is not supported
         SalesInvoiceHeader.SendRecords;
@@ -1153,7 +1154,7 @@ codeunit 139151 DocumentSendingPostTests
     begin
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 256223] Mutiple posted sales credit memos for different customers printed in a single document when customer report selection is not defined.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.AssertEmpty;
 
         // Create document sending profile
@@ -1175,7 +1176,7 @@ codeunit 139151 DocumentSendingPostTests
         // [WHEN] When send "CM[1]" and "CM[2]" simultaneously
         // Try to send both posted sales credit memos electronically
         SalesCrMemoHeader.SetFilter("No.", StrSubstNo('%1|%2', SalesCrMemoHeader1."No.", SalesCrMemoHeader2."No."));
-        SalesCrMemoHeader.FindFirst;
+        SalesCrMemoHeader.FindFirst();
 
         // In the handler, electronic document format will be chosen
         LibraryVariableStorage.Enqueue(DocumentSendingProfile);
@@ -1212,7 +1213,7 @@ codeunit 139151 DocumentSendingPostTests
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 256223] Mutiple posted sales invoices for different customers printed in a single document when customer report selection is not defined.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.AssertEmpty;
 
         // Create document sending profile
@@ -1235,7 +1236,7 @@ codeunit 139151 DocumentSendingPostTests
         // [WHEN] When send "Invoice[1]" and "Invoice[2]" simultaneously
         // Try to send both posted sales invoices electronically
         SalesInvoiceHeader.SetFilter("No.", StrSubstNo('%1|%2', SalesInvoiceHeader1."No.", SalesInvoiceHeader2."No."));
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
 
         // In the handler, electronic document format will be chosen
         LibraryVariableStorage.Enqueue(DocumentSendingProfile);
@@ -1271,12 +1272,12 @@ codeunit 139151 DocumentSendingPostTests
         // [GIVEN] Send Electronically is selected as a sending profile in a default document sending profile, and the specified Electronic Format is deleted or renamed
         // [WHEN] Annie clicks Post and Send on a sales invoice
         // [THEN] she gets an error that the specified Electronic Document Format cannot be found
-        Initialize;
+        Initialize();
 
         // for SelectDefaultSendingOptionHandler, insert a default rule with print and email
         DeleteDefaultDocumentSendingProfile(DocumentSendingProfile);
         DocumentSendingProfile.Disk := DocumentSendingProfile.Disk::"Electronic Document";
-        ElectronicDocumentFormat.FindFirst;
+        ElectronicDocumentFormat.FindFirst();
         DocumentSendingProfile."Disk Format" := ElectronicDocumentFormat.Code;
         DocumentSendingProfile.Insert(true);
 
@@ -1289,10 +1290,10 @@ codeunit 139151 DocumentSendingPostTests
         // Invoke Post & Send action. verification is in the handler method
         SalesInvoice.OpenEdit;
         SalesInvoice.GotoRecord(SalesHeader);
-        ElectronicDocumentFormat.FindFirst;
-        ElectronicDocumentFormat.Delete;
+        ElectronicDocumentFormat.FindFirst();
+        ElectronicDocumentFormat.Delete();
         ErrorMessagesPage.Trap;
-        SalesInvoice.PostAndSend.Invoke;
+        SalesInvoice.PostAndSend.Invoke();
 
         ErrorMessagesPage.Description.AssertEquals(ElectronicDocFormatNotFoundErr);
         ErrorMessagesPage.Context.AssertEquals(Format(SalesHeader.RecordId));
@@ -1311,7 +1312,7 @@ codeunit 139151 DocumentSendingPostTests
     begin
         // [WHEN] Email is selected as a sending profile in a default document sending profile, and Annie clicks Post and Send on a service invoice
         // [THEN] the Email dialog launches, in which Annie can compile the message to the customer
-        Initialize;
+        Initialize();
 
         // create an email document sending profile default rule
         InitializeDocumentSendingProfile(DocumentSendingProfile, DocumentSendingProfile."E-Mail Attachment"::"Electronic Document",
@@ -1345,7 +1346,7 @@ codeunit 139151 DocumentSendingPostTests
         // verification is in the handler method
         ServiceInvoice.OpenEdit;
         ServiceInvoice.GotoRecord(ServiceHeader);
-        ServiceInvoice.PostAndSend.Invoke;
+        ServiceInvoice.PostAndSend.Invoke();
 
         // Test that after the handler clicked "Yes", Service Header is posted
         Assert.IsFalse(ServiceHeader.Get(ServiceHeader."Document Type", ServiceHeader."No."), 'Invoice not posted.');
@@ -1368,7 +1369,7 @@ codeunit 139151 DocumentSendingPostTests
         // [WHEN] Email is selected as a sending profile in a default document sending profile, and Annie clicks Send on a posted service invoice
         // [THEN] a dialog for selecting a sending profile launches, where she choses to email
         // [THEN] the Email dialog launches, in which Annie can compile the message to the customer
-        Initialize;
+        Initialize();
 
         // create a service invoice and post it
         CreateCustomerWithEmail(Customer);
@@ -1391,15 +1392,15 @@ codeunit 139151 DocumentSendingPostTests
         // Invoke Send action. verification is in the handler method
         PostedServiceInvoice.OpenEdit;
         PostedServiceInvoice.GotoRecord(ServiceInvoiceHeader);
-        PostedServiceInvoice.SendCustom.Invoke;
+        PostedServiceInvoice.SendCustom.Invoke();
         PostedServiceInvoice.Close;
         // Invoke Send action again, this time from the list. verification is in the handler method
         LibraryVariableStorage.Enqueue(DocumentSendingProfile);
         LibraryVariableStorage.Enqueue(Customer."No.");
         LibraryVariableStorage.Enqueue(ServiceInvoiceHeader."No.");
-        PostedServiceInvoices.OpenView;
+        PostedServiceInvoices.OpenView();
         PostedServiceInvoices.GotoRecord(ServiceInvoiceHeader);
-        PostedServiceInvoices.SendCustom.Invoke;
+        PostedServiceInvoices.SendCustom.Invoke();
     end;
 
     [Test]
@@ -1422,7 +1423,7 @@ codeunit 139151 DocumentSendingPostTests
         // [THEN] a dialog for selecting a sending profile launches, where she choses the default sending rule, which is to email and print
         // [THEN] the Email dialog launches, in which Annie can compile the message to the customer
         // [THEN] the print dialog launches, in which Annie can choose where to print the document
-        Initialize;
+        Initialize();
 
         // create a Service invoice and post it
         if not CountryRegion.Get('AB') then begin
@@ -1458,7 +1459,7 @@ codeunit 139151 DocumentSendingPostTests
         // Invoke Send action. verification is in the handler method
         PostedServiceInvoice.OpenEdit;
         PostedServiceInvoice.GotoRecord(ServiceInvoiceHeader);
-        PostedServiceInvoice.SendCustom.Invoke;
+        PostedServiceInvoice.SendCustom.Invoke();
 
         // verify that the print request page contains the correct invoice number
         LibraryReportDataset.LoadDataSetFile;
@@ -1482,7 +1483,7 @@ codeunit 139151 DocumentSendingPostTests
         // [THEN] a dialog for selecting a sending profile launches, where she choses the default sending rule, which is to email and print
         // [THEN] the Email dialog launches, in which Annie can compile the message to the customer
         // [THEN] the print dialog launches, in which Annie can choose where to print the document
-        Initialize;
+        Initialize();
 
         // for SelectDefaultSendingOptionHandler, insert a default rule with print and email
         InitializeTwoDocumentSendingProfilesForCustomer(CustomerSpecificDocumentSendingProfile);
@@ -1507,11 +1508,11 @@ codeunit 139151 DocumentSendingPostTests
         // Invoke Send action. verification is in the handler method
         ServiceInvoice.OpenEdit;
         ServiceInvoice.GotoRecord(ServiceHeader);
-        ServiceInvoice.PostAndSend.Invoke;
+        ServiceInvoice.PostAndSend.Invoke();
 
         // verify that the print request page contains the correct invoice number
         ServiceInvoiceHeader.SetRange("Bill-to Customer No.", Customer."No.");
-        ServiceInvoiceHeader.FindLast;
+        ServiceInvoiceHeader.FindLast();
         LibraryReportDataset.LoadDataSetFile;
         AssertValidServiceInvoiceHeaderNo(ServiceInvoiceHeader."No.");
     end;
@@ -1531,7 +1532,7 @@ codeunit 139151 DocumentSendingPostTests
     begin
         // [WHEN] Print (prompt) is selected as a sending profile in a default document sending profile, and Annie clicks Post and Send on a Service invoice
         // [THEN] the print preview launches
-        Initialize;
+        Initialize();
 
         // create print with prompt sending profile default rule
         InitializeDocumentSendingProfile(DocumentSendingProfile, DocumentSendingProfile."E-Mail Attachment"::PDF,
@@ -1547,12 +1548,12 @@ codeunit 139151 DocumentSendingPostTests
         // invoke Post and Send action
         ServiceInvoice.OpenEdit;
         ServiceInvoice.GotoRecord(ServiceHeader);
-        ServiceInvoice.PostAndSend.Invoke;
+        ServiceInvoice.PostAndSend.Invoke();
 
         // Test that after the handler clicked "Yes", Service Header is posted
         Assert.IsFalse(ServiceHeader.Get(ServiceHeader."Document Type", ServiceHeader."No."), 'Invoice not posted.');
         ServiceInvoiceHeader.SetRange("Bill-to Customer No.", Customer."No.");
-        ServiceInvoiceHeader.FindLast;
+        ServiceInvoiceHeader.FindLast();
 
         // verify that the request page contains the correct invoice number
         LibraryReportDataset.LoadDataSetFile;
@@ -1574,7 +1575,7 @@ codeunit 139151 DocumentSendingPostTests
         // [WHEN] Print (prompt) is selected as a sending profile in a default document sending profile, and Annie clicks Send on a posted service invoice
         // [THEN] a dialog for selecting a sending profile launches, where she choses to print
         // [THEN] the print preview launches
-        Initialize;
+        Initialize();
 
         // create a Service invoice and post it
         CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice);
@@ -1590,9 +1591,9 @@ codeunit 139151 DocumentSendingPostTests
         LibraryVariableStorage.Enqueue(DocumentSendingProfile);
 
         // Invoke Send action.
-        PostedServiceInvoices.OpenView;
+        PostedServiceInvoices.OpenView();
         PostedServiceInvoices.GotoRecord(ServiceInvoiceHeader);
-        PostedServiceInvoices.SendCustom.Invoke;
+        PostedServiceInvoices.SendCustom.Invoke();
 
         // verify that the request page contains the correct invoice number
         LibraryReportDataset.LoadDataSetFile;
@@ -1620,7 +1621,7 @@ codeunit 139151 DocumentSendingPostTests
         // [WHEN] Print (prompt) is selected as a sending profile in a default document sending profile, and Annie clicks Send on a posted service invoice
         // [THEN] a dialog for selecting a sending profile launches, where she choses to print
         // [THEN] the print preview launches and multiple invoices are exported to file
-        Initialize;
+        Initialize();
 
         // create a Service invoice and post it
         LibrarySales.CreateCustomer(Customer);
@@ -1645,7 +1646,7 @@ codeunit 139151 DocumentSendingPostTests
 
         // Send multipe.
         ServiceInvoiceHeader.SetFilter("No.", StrSubstNo('%1|%2', ServiceInvoiceHeader."No.", ServiceInvoiceHeader2."No."));
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
 
         ServiceInvoiceHeader.SendRecords;
 
@@ -1671,12 +1672,12 @@ codeunit 139151 DocumentSendingPostTests
     begin
         // [WHEN] Disk (PDF & Electronic Doc) is selected as a sending profile in a default document sending profile, and Annie clicks Post and Send on a service invoice
         // [THEN] the files are saved to disk
-        Initialize;
+        Initialize();
 
         // create disk with pdf & electronic document sending profile default rule
         DeleteDefaultDocumentSendingProfile(DocumentSendingProfile);
         DocumentSendingProfile.Disk := DocumentSendingProfile.Disk::"PDF & Electronic Document";
-        ElectronicDocumentFormat.FindFirst;
+        ElectronicDocumentFormat.FindFirst();
         DocumentSendingProfile."Disk Format" := ElectronicDocumentFormat.Code;
         DocumentSendingProfile.Insert(true);
 
@@ -1692,12 +1693,12 @@ codeunit 139151 DocumentSendingPostTests
         // invoke Post and Send action
         ServiceInvoice.OpenEdit;
         ServiceInvoice.GotoRecord(ServiceHeader);
-        ServiceInvoice.PostAndSend.Invoke;
+        ServiceInvoice.PostAndSend.Invoke();
 
         // Test that after the handler clicked "Yes", Service Header is posted
         Assert.IsFalse(ServiceHeader.Get(ServiceHeader."Document Type", ServiceHeader."No."), 'Invoice not posted.');
         ServiceInvoiceHeader.SetRange("Bill-to Customer No.", Customer."No.");
-        ServiceInvoiceHeader.FindLast;
+        ServiceInvoiceHeader.FindLast();
     end;
 
     [Test]
@@ -1715,7 +1716,7 @@ codeunit 139151 DocumentSendingPostTests
     begin
         // [WHEN] Email is selected as a sending profile in a default document sending profile, and Annie clicks Post and Send on a service credit memo
         // [THEN] the Email dialog launches, in which Annie can compile the message to the customer
-        Initialize;
+        Initialize();
 
         // create an email document sending profile default rule
         InitializeDocumentSendingProfile(DocumentSendingProfile, DocumentSendingProfile."E-Mail Attachment"::"Electronic Document",
@@ -1741,7 +1742,7 @@ codeunit 139151 DocumentSendingPostTests
         // verification is in the handler method
         ServiceCreditMemo.OpenEdit;
         ServiceCreditMemo.GotoRecord(ServiceHeader);
-        ServiceCreditMemo.PostAndSend.Invoke;
+        ServiceCreditMemo.PostAndSend.Invoke();
         // Test that after the handler clicked "Yes", Service Header is posted
         Assert.IsFalse(ServiceHeader.Get(ServiceHeader."Document Type", ServiceHeader."No."), 'Credit Memo not posted.');
     end;
@@ -1765,7 +1766,7 @@ codeunit 139151 DocumentSendingPostTests
         // [WHEN] Email is selected as a sending profile in a default document sending profile, and Annie clicks Send on a posted service credit memo
         // [THEN] a dialog for selecting a sending profile launches, where she choses to email
         // [THEN] the Email dialog launches, in which Annie can compile the message to the customer
-        Initialize;
+        Initialize();
 
         // create a service credit memo and post it
         CreateCustomerWithEmail(Customer);
@@ -1791,15 +1792,15 @@ codeunit 139151 DocumentSendingPostTests
         // Invoke Send action. verification is in the handler method
         PostedServiceCreditMemo.OpenEdit;
         PostedServiceCreditMemo.GotoRecord(ServiceCrMemoHeader);
-        PostedServiceCreditMemo.SendCustom.Invoke;
+        PostedServiceCreditMemo.SendCustom.Invoke();
         PostedServiceCreditMemo.Close;
         // Invoke Send action again, this time from the list. verification is in the handler method
         LibraryVariableStorage.Enqueue(DocumentSendingProfile);
         LibraryVariableStorage.Enqueue(Customer."No.");
         LibraryVariableStorage.Enqueue(ServiceCrMemoHeader."No.");
-        PostedServiceCreditMemos.OpenView;
+        PostedServiceCreditMemos.OpenView();
         PostedServiceCreditMemos.GotoRecord(ServiceCrMemoHeader);
-        PostedServiceCreditMemos.SendCustom.Invoke;
+        PostedServiceCreditMemos.SendCustom.Invoke();
     end;
 
     [Test]
@@ -1823,7 +1824,7 @@ codeunit 139151 DocumentSendingPostTests
         // [THEN] a dialog for selecting a sending profile launches, where she choses the default sending rule, which is to email and print
         // [THEN] the Email dialog launches, in which Annie can compile the message to the customer
         // [THEN] the print dialog launches, in which Annie can choose where to print the document
-        Initialize;
+        Initialize();
 
         // create a service credit memo and post it
         if not CountryRegion.Get('AB') then begin
@@ -1860,7 +1861,7 @@ codeunit 139151 DocumentSendingPostTests
         // Invoke Send action. verification is in the handler method
         PostedServiceCreditMemo.OpenEdit;
         PostedServiceCreditMemo.GotoRecord(ServiceCrMemoHeader);
-        PostedServiceCreditMemo.SendCustom.Invoke;
+        PostedServiceCreditMemo.SendCustom.Invoke();
 
         // verify that the print request page contains the correct invoice number
         LibraryReportDataset.LoadDataSetFile;
@@ -1884,7 +1885,7 @@ codeunit 139151 DocumentSendingPostTests
         // [THEN] a dialog for selecting a sending profile launches, where she choses the default sending rule, which is to email and print
         // [THEN] the Email dialog launches, in which Annie can compile the message to the customer
         // [THEN] the print dialog launches, in which Annie can choose where to print the document
-        Initialize;
+        Initialize();
 
         // for SelectDefaultSendingOptionHandler, insert a default rule with print and email
         InitializeTwoDocumentSendingProfilesForCustomer(CustomerSpecificDocumentSendingProfile);
@@ -1910,11 +1911,11 @@ codeunit 139151 DocumentSendingPostTests
         // Invoke Send action. verification is in the handler method
         ServiceCreditMemo.OpenEdit;
         ServiceCreditMemo.GotoRecord(ServiceHeader);
-        ServiceCreditMemo.PostAndSend.Invoke;
+        ServiceCreditMemo.PostAndSend.Invoke();
 
         // verify that the print request page contains the correct invoice number
         ServiceCrMemoHeader.SetRange("Bill-to Customer No.", Customer."No.");
-        ServiceCrMemoHeader.FindLast;
+        ServiceCrMemoHeader.FindLast();
         LibraryReportDataset.LoadDataSetFile;
         AssertValidServiceHeaderNo(ServiceCrMemoHeader."No.");
     end;
@@ -1935,7 +1936,7 @@ codeunit 139151 DocumentSendingPostTests
         // [WHEN] Print (prompt) is selected as a sending profile in a default document sending profile,
         // and Annie clicks Post and Send on a service credit memo
         // [THEN] the print preview launches
-        Initialize;
+        Initialize();
 
         // create print with prompt sending profile default rule
         InitializeDocumentSendingProfile(DocumentSendingProfile, DocumentSendingProfile."E-Mail Attachment"::PDF,
@@ -1951,12 +1952,12 @@ codeunit 139151 DocumentSendingPostTests
         // invoke Post and Send action
         ServiceCreditMemo.OpenEdit;
         ServiceCreditMemo.GotoRecord(ServiceHeader);
-        ServiceCreditMemo.PostAndSend.Invoke;
+        ServiceCreditMemo.PostAndSend.Invoke();
 
         // Test that after the handler clicked "Yes", Service Header is posted
         Assert.IsFalse(ServiceHeader.Get(ServiceHeader."Document Type", ServiceHeader."No."), 'Credit Memo not posted.');
         ServiceCrMemoHeader.SetRange("Bill-to Customer No.", Customer."No.");
-        ServiceCrMemoHeader.FindLast;
+        ServiceCrMemoHeader.FindLast();
 
         // verify that the request page contains the correct invoice number
         LibraryReportDataset.LoadDataSetFile;
@@ -1978,7 +1979,7 @@ codeunit 139151 DocumentSendingPostTests
         // [WHEN] Print (prompt) is selected as a sending profile in a default document sending profile, and Annie clicks Send on a posted service credit memo
         // [THEN] a dialog for selecting a sending profile launches, where she choses to print
         // [THEN] the print preview launches
-        Initialize;
+        Initialize();
 
         // create a service credit memo and post it
         CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo");
@@ -1993,9 +1994,9 @@ codeunit 139151 DocumentSendingPostTests
         LibraryVariableStorage.Enqueue(DocumentSendingProfile);
 
         // Invoke Send action.
-        PostedServiceCreditMemos.OpenView;
+        PostedServiceCreditMemos.OpenView();
         PostedServiceCreditMemos.GotoRecord(ServiceCrMemoHeader);
-        PostedServiceCreditMemos.SendCustom.Invoke;
+        PostedServiceCreditMemos.SendCustom.Invoke();
 
         // verify that the request page contains the correct invoice number
         LibraryReportDataset.LoadDataSetFile;
@@ -2023,7 +2024,7 @@ codeunit 139151 DocumentSendingPostTests
         // [WHEN] Print (prompt) is selected as a sending profile in a default document sending profile, and Annie clicks Send on a posted service credit memo
         // [THEN] a dialog for selecting a sending profile launches, where she choses to print
         // [THEN] the print preview launches and multiple invoices are exported to file
-        Initialize;
+        Initialize();
 
         // create a service credit memo and post it
         LibrarySales.CreateCustomer(Customer);
@@ -2048,7 +2049,7 @@ codeunit 139151 DocumentSendingPostTests
 
         // Send multipe.
         ServiceCrMemoHeader.SetFilter("No.", StrSubstNo('%1|%2', ServiceCrMemoHeader."No.", ServiceCrMemoHeader2."No."));
-        ServiceCrMemoHeader.FindFirst;
+        ServiceCrMemoHeader.FindFirst();
 
         ServiceCrMemoHeader.SendRecords;
 
@@ -2074,12 +2075,12 @@ codeunit 139151 DocumentSendingPostTests
     begin
         // [WHEN] Disk (PDF & Electronic Doc) is selected as a sending profile in a default document sending profile, and Annie clicks Post and Send on a service credit memo
         // [THEN] the files are saved to disk
-        Initialize;
+        Initialize();
 
         // create disk with pdf & electronic document sending profile default rule
         DeleteDefaultDocumentSendingProfile(DocumentSendingProfile);
         DocumentSendingProfile.Disk := DocumentSendingProfile.Disk::"PDF & Electronic Document";
-        ElectronicDocumentFormat.FindFirst;
+        ElectronicDocumentFormat.FindFirst();
         DocumentSendingProfile."Disk Format" := ElectronicDocumentFormat.Code;
         DocumentSendingProfile.Insert(true);
 
@@ -2095,12 +2096,12 @@ codeunit 139151 DocumentSendingPostTests
         // invoke Post and Send action
         ServiceCreditMemo.OpenEdit;
         ServiceCreditMemo.GotoRecord(ServiceHeader);
-        ServiceCreditMemo.PostAndSend.Invoke;
+        ServiceCreditMemo.PostAndSend.Invoke();
 
         // Test that after the handler clicked "Yes", Service Header is posted
         Assert.IsFalse(ServiceHeader.Get(ServiceHeader."Document Type", ServiceHeader."No."), 'Invoice not posted.');
         ServiceCrMemoHeader.SetRange("Bill-to Customer No.", Customer."No.");
-        ServiceCrMemoHeader.FindLast;
+        ServiceCrMemoHeader.FindLast();
     end;
 
     [Test]
@@ -2115,7 +2116,7 @@ codeunit 139151 DocumentSendingPostTests
     begin
         // [WHEN] Annie tries to post and send a sales document and one of the chosen sending profile includes showing a dialog
         // [THEN] a warning will be displayed to Annie that there will be additional dialogs that require completing the task
-        Initialize;
+        Initialize();
 
         CreateTwoDocumentSendingProfiles(DefaultDocumentSendingProfile, NonDefaultDocumentSendingProfile);
         LibrarySales.CreateCustomer(Customer);
@@ -2137,7 +2138,7 @@ codeunit 139151 DocumentSendingPostTests
     begin
         // [WHEN] Annie tries to post and send a sales document and all of the chosen sending profiles are silent
         // [THEN] no warning will be displayed to Annie that there will be additional dialogs that require completing the task
-        Initialize;
+        Initialize();
 
         CreateTwoDocumentSendingProfiles(DefaultDocumentSendingProfile, NonDefaultDocumentSendingProfile);
         LibrarySales.CreateCustomer(Customer);
@@ -2166,12 +2167,12 @@ codeunit 139151 DocumentSendingPostTests
         // [WHEN] Annie tries to post and send an invoice, she can modify the "Send Document to" options using AssistEdit.
         // [THEN] She can click AssistEdit and change her preferences multiple times and her preferences will be preserved until
         // [THEN] she closes the modal page 365
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
-        SalesInvoiceList.OpenView;
+        SalesInvoiceList.OpenView();
         SalesInvoiceList.GotoRecord(SalesHeader);
-        SalesInvoiceList.PostAndSend.Invoke;
+        SalesInvoiceList.PostAndSend.Invoke();
     end;
 
     [Test]
@@ -2182,7 +2183,7 @@ codeunit 139151 DocumentSendingPostTests
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         // [FEATURE] [Email] [Sales] [Invoice]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Company Name = "C"
         // [GIVEN] Select posted Invoice "A"
@@ -2206,7 +2207,7 @@ codeunit 139151 DocumentSendingPostTests
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         // [FEATURE] [Email] [Sales] [Invoice]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Company Name = "C"
         // [GIVEN] Select several posted Invoices
@@ -2230,7 +2231,7 @@ codeunit 139151 DocumentSendingPostTests
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
     begin
         // [FEATURE] [Email] [Sales] [Credit Memo]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Company Name = "C"
         // [GIVEN] Select posted Credit Memo "A"
@@ -2254,7 +2255,7 @@ codeunit 139151 DocumentSendingPostTests
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
     begin
         // [FEATURE] [Email] [Sales] [Credit Memo]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Company Name = "C"
         // [GIVEN] Select several posted Credit Memos
@@ -2278,7 +2279,7 @@ codeunit 139151 DocumentSendingPostTests
         SalesShipmentHeader: Record "Sales Shipment Header";
     begin
         // [FEATURE] [Email] [Sales] [Shipment]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Company Name = "C"
         // [GIVEN] Select posted Shipment "A"
@@ -2302,7 +2303,7 @@ codeunit 139151 DocumentSendingPostTests
         SalesShipmentHeader: Record "Sales Shipment Header";
     begin
         // [FEATURE] [Email] [Sales] [Shipment]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Company Name = "C"
         // [GIVEN] Select several posted Shipments
@@ -2326,7 +2327,7 @@ codeunit 139151 DocumentSendingPostTests
         ReturnReceiptHeader: Record "Return Receipt Header";
     begin
         // [FEATURE] [Email] [Sales] [Return Receipt]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Company Name = "C"
         // [GIVEN] Select posted Return Receipt "A"
@@ -2350,7 +2351,7 @@ codeunit 139151 DocumentSendingPostTests
         ReturnReceiptHeader: Record "Return Receipt Header";
     begin
         // [FEATURE] [Email] [Sales] [Return Receipt]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Company Name = "C"
         // [GIVEN] Select several posted Return Receipts
@@ -2510,7 +2511,7 @@ codeunit 139151 DocumentSendingPostTests
     begin
         // [FEATURE] [Email] [Customer] [Sales] [Invoice]
         // [SCENARIO 382296] Several "Send Email" dialogs, one per each customer document layout with different email addresses
-        Initialize;
+        Initialize();
         InitializeDocumentSendingProfile(DocumentSendingProfile, DocumentSendingProfile."E-Mail Attachment"::PDF,
           DocumentSendingProfile.Printer::No, DocumentSendingProfile."E-Mail"::"Yes (Prompt for Settings)");
 
@@ -2565,7 +2566,7 @@ codeunit 139151 DocumentSendingPostTests
     begin
         // [FEATURE] [UI] [Customer] [Sales] [Invoice]
         // [SCENARIO 201308] Profile selection method dialog is shown for selected posted sales invoices for distinct customers
-        Initialize;
+        Initialize();
 
         // [GIVEN] Select several posted sales invoices for distinct customers
         CreatePostSevSalesInvoicesDistinctCustomers(SalesInvoiceHeader);
@@ -2591,7 +2592,7 @@ codeunit 139151 DocumentSendingPostTests
     begin
         // [FEATURE] [UI] [Customer] [Sales] [Credit Memo]
         // [SCENARIO 201308] Profile selection method dialog is shown for selected posted sales credit memos for distinct customers
-        Initialize;
+        Initialize();
 
         // [GIVEN] Select several posted sales credit memos for distinct customers
         CreatePostSevSalesCrMemosDistinctCustomers(SalesCrMemoHeader);
@@ -2617,7 +2618,7 @@ codeunit 139151 DocumentSendingPostTests
     begin
         // [FEATURE] [UI] [Customer] [Service] [Invoice]
         // [SCENARIO 201308] Profile selection method dialog is shown for selected posted service invoices for distinct customers
-        Initialize;
+        Initialize();
 
         // [GIVEN] Select several posted service invoices for distinct customers
         CreatePostSevServiceInvoicesDistinctCustomers(ServiceInvoiceHeader);
@@ -2643,7 +2644,7 @@ codeunit 139151 DocumentSendingPostTests
     begin
         // [FEATURE] [UI] [Customer] [Service] [Credit Memo]
         // [SCENARIO 201308] Profile selection method dialog is shown for selected posted service credit memos for distinct customers
-        Initialize;
+        Initialize();
 
         // [GIVEN] Select several posted service credit memos for distinct customers
         CreatePostSevServiceCrMemosDistinctCustomers(ServiceCrMemoHeader);
@@ -2669,7 +2670,7 @@ codeunit 139151 DocumentSendingPostTests
     begin
         // [FEATURE] [UI] [Customer] [Job]
         // [SCENARIO 201308] Profile selection method dialog is shown for selected jobs for distinct customers
-        Initialize;
+        Initialize();
 
         // [GIVEN] Select several jobs for distinct customers
         CreateSevJobsDistinctCustomers(Job);
@@ -2695,7 +2696,7 @@ codeunit 139151 DocumentSendingPostTests
     begin
         // [FEATURE] [UI] [Vendor] [Purchase] [Order]
         // [SCENARIO 201308] Profile selection method dialog is shown for selected purchase orders for distinct vendors
-        Initialize;
+        Initialize();
 
         // [GIVEN] Select several purchase orders for distinct vendors
         CreateSevPurchaseOrdersDistinctVendors(PurchaseHeader);
@@ -2722,7 +2723,7 @@ codeunit 139151 DocumentSendingPostTests
     begin
         // [FEATURE] [UT] [Customer]
         // [SCENARIO 201308] TAB 60 "Document Sending Profile".LookupProfile() returns customer's document profile wthout confirmation dialog in case of "Multiselection" = FALSE, "ShowDialog" = FALSE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with document sending profile
         CreateFullDocumentSendingProfile(CustomerDocumentSendingProfile);
@@ -2745,7 +2746,7 @@ codeunit 139151 DocumentSendingPostTests
     begin
         // [FEATURE] [UT] [Customer]
         // [SCENARIO 201308] TAB 60 "Document Sending Profile".LookupProfile() returns customer's document profile wthout confirmation dialog in case of "Multiselection" = TRUE, "ShowDialog" = FALSE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with document sending profile
         CreateFullDocumentSendingProfile(CustomerDocumentSendingProfile);
@@ -2769,7 +2770,7 @@ codeunit 139151 DocumentSendingPostTests
     begin
         // [FEATURE] [UT] [Customer]
         // [SCENARIO 201308] TAB 60 "Document Sending Profile".LookupProfile() shows "Select Sending Options" dialog with customer's document profile in case of "Multiselection" = FALSE, "ShowDialog" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with document sending profile
         CreateFullDocumentSendingProfile(CustomerDocumentSendingProfile);
@@ -2796,7 +2797,7 @@ codeunit 139151 DocumentSendingPostTests
     begin
         // [FEATURE] [UT] [Customer]
         // [SCENARIO 201308] TAB 60 "Document Sending Profile".LookupProfile() shows "Select Sending Options" dialog with customer's document profile in case of "Multiselection" = TRUE, "ShowDialog" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with document sending profile
         CreateFullDocumentSendingProfile(CustomerDocumentSendingProfile);
@@ -2822,7 +2823,7 @@ codeunit 139151 DocumentSendingPostTests
     begin
         // [FEATURE] [UT] [Vendor]
         // [SCENARIO 201308] TAB 60 "Document Sending Profile".LookupProfileVendor() returns vendor's document profile wthout confirmation dialog in case of "Multiselection" = FALSE, "ShowDialog" = FALSE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with document sending profile
         CreateFullDocumentSendingProfile(VendorDocumentSendingProfile);
@@ -2845,7 +2846,7 @@ codeunit 139151 DocumentSendingPostTests
     begin
         // [FEATURE] [UT] [Vendor]
         // [SCENARIO 201308] TAB 60 "Document Sending Profile".LookupProfileVendor() returns vendor's document profile wthout confirmation dialog in case of "Multiselection" = TRUE, "ShowDialog" = FALSE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with document sending profile
         CreateFullDocumentSendingProfile(VendorDocumentSendingProfile);
@@ -2869,7 +2870,7 @@ codeunit 139151 DocumentSendingPostTests
     begin
         // [FEATURE] [UT] [Vendor]
         // [SCENARIO 201308] TAB 60 "Document Sending Profile".LookupProfileVendor() shows "Select Sending Options" dialog with vendor's document profile in case of "Multiselection" = FALSE, "ShowDialog" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with document sending profile
         CreateFullDocumentSendingProfile(VendorDocumentSendingProfile);
@@ -2896,7 +2897,7 @@ codeunit 139151 DocumentSendingPostTests
     begin
         // [FEATURE] [UT] [Vendor]
         // [SCENARIO 201308] TAB 60 "Document Sending Profile".LookupProfileVendor() shows "Select Sending Options" dialog with vendor's document profile in case of "Multiselection" = TRUE, "ShowDialog" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with document sending profile
         CreateFullDocumentSendingProfile(VendorDocumentSendingProfile);
@@ -2925,7 +2926,7 @@ codeunit 139151 DocumentSendingPostTests
     begin
         // [FEATURE] [UI] [Customer] [Sales] [Invoice]
         // [SCENARIO 201308] Profile selection method "Confirm profile per each document" with canceled sending for selected posted sales invoices for distinct customers
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "C1" with document seding profile "P1" (only print)
         // [GIVEN] Customer "C2" with document seding profile "P2" (only email)
@@ -2967,7 +2968,7 @@ codeunit 139151 DocumentSendingPostTests
     begin
         // [FEATURE] [UI] [Customer] [Sales] [Invoice]
         // [SCENARIO 201308] Profile selection method "Confirm profile per each document" for selected posted sales invoices for distinct customers
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "C1" with email "petrushka@microsoft.com" and document seding profile "P1" (only print)
         // [GIVEN] Customer "C2" with email "gorbushka@microsoft.com" and document seding profile "P2" (only email)
@@ -3017,7 +3018,7 @@ codeunit 139151 DocumentSendingPostTests
     begin
         // [FEATURE] [UI] [Customer] [Sales] [Invoice]
         // [SCENARIO 201308] Profile selection method "Use default profile per each document without confimation" for selected posted sales invoices for distinct customers
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "C1" with email "petrushka@microsoft.com" and document seding profile "P1" (only print)
         // [GIVEN] Customer "C2" with email "gorbushka@microsoft.com" and document seding profile "P2" (only email)
@@ -3057,7 +3058,7 @@ codeunit 139151 DocumentSendingPostTests
     begin
         // [FEATURE] [UI] [Vendor] [Purchase] [Order]
         // [SCENARIO 201308] Profile selection method "Confirm profile per each document" with canceled sending for selected purchase orders for distinct vendors
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor "V1" with document seding profile "P1" (only print)
         // [GIVEN] Vendor "V2" with document seding profile "P2" (only email)
@@ -3098,7 +3099,7 @@ codeunit 139151 DocumentSendingPostTests
     begin
         // [FEATURE] [UI] [Vendor] [Purchase] [Order]
         // [SCENARIO 201308] Profile selection method "Confirm profile per each document" for selected purchase orders for distinct vendors
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor "C1" with email "petrushka@microsoft.com" and document seding profile "P1" (only print)
         // [GIVEN] Vendor "C2" with email "gorbushka@microsoft.com" and document seding profile "P2" (only email)
@@ -3149,7 +3150,7 @@ codeunit 139151 DocumentSendingPostTests
     begin
         // [FEATURE] [UI] [Vendor] [Purchase] [Order]
         // [SCENARIO 201308] Profile selection method "Use default profile per each document without confimation" for selected purchase orders for distinct vendors
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor "C1" with email "petrushka@microsoft.com" and document seding profile "P1" (only print)
         // [GIVEN] Vendor "C2" with email "gorbushka@microsoft.com" and document seding profile "P2" (only email)
@@ -3211,7 +3212,7 @@ codeunit 139151 DocumentSendingPostTests
     begin
         // [FEATURES] [UI] [Purchase] [Quote]
         // [SCENARIO 274511] Purchase Quote can be printed with Send button.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Report Selections for Purchase Quote and Report 404 "Purchase - Quote"
         LibraryERM.SetupReportSelection(DummyReportSelections.Usage::"P.Quote", REPORT::"Purchase - Quote");
@@ -3249,7 +3250,7 @@ codeunit 139151 DocumentSendingPostTests
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 290802] Mutiple posted sales invoices for different customers with special symbols in "No." printed in a single document when customer report selection is not defined.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.AssertEmpty;
 
         // [GIVEN] Document sending profile
@@ -3276,7 +3277,7 @@ codeunit 139151 DocumentSendingPostTests
 
         // [WHEN] When send posted "Invoice[1]" and "Invoice[2]" simultaneously
         SalesInvoiceHeader.SetFilter("No.", StrSubstNo('%1|%2', SalesInvoiceHeader1."No.", SalesInvoiceHeader2."No."));
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
         SalesInvoiceHeader.SendRecords;
 
         // [THEN] Both invoices printed in a single document
@@ -3292,23 +3293,27 @@ codeunit 139151 DocumentSendingPostTests
         CompanyInfo: Record "Company Information";
         SalesHeader: Record "Sales Header";
     begin
-        BindActiveDirectoryMockEvents;
-        LibraryVariableStorage.Clear;
+        LibraryTestInitialize.OnTestInitialize(Codeunit::DocumentSendingPostTests);
+
+        BindActiveDirectoryMockEvents();
+        LibraryVariableStorage.Clear();
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
 
         if IsInitialized then
             exit;
 
-        SetupInvoiceReportLayoutSelection;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::DocumentSendingPostTests);
 
-        LibraryERMCountryData.SetupReportSelections;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateVATPostingSetup;
-        LibraryApplicationArea.EnableEssentialSetup;
-        InsertElectronicFormat;
+        SetupInvoiceReportLayoutSelection();
+
+        LibraryERMCountryData.SetupReportSelections();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateVATPostingSetup();
+        LibraryApplicationArea.EnableEssentialSetup();
+        InsertElectronicFormat();
 
         CompanyInfo.Get;
         CompanyInfo.Validate(Name, LibraryUtility.GenerateGUID);
@@ -3320,7 +3325,7 @@ codeunit 139151 DocumentSendingPostTests
 
         LibraryERMCountryData.CompanyInfoSetVATRegistrationNo;
 
-        ConfigureVATPostingSetup;
+        ConfigureVATPostingSetup();
 
         LibraryERM.CreatePostCode(PostCode);
         LibraryERM.CreateCountryRegion(CountryRegion);
@@ -3328,6 +3333,8 @@ codeunit 139151 DocumentSendingPostTests
 
         Commit;
         IsInitialized := true;
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::DocumentSendingPostTests);
     end;
 
     local procedure SetupInvoiceReportLayoutSelection()
@@ -3353,7 +3360,7 @@ codeunit 139151 DocumentSendingPostTests
         DocumentSendingProfile.Validate(Printer, Printer);
         DocumentSendingProfile.Validate("E-Mail", Email);
         DocumentSendingProfile.Validate("E-Mail Attachment", EmailAttachmentType);
-        ElectronicDocumentFormat.FindFirst;
+        ElectronicDocumentFormat.FindFirst();
         DocumentSendingProfile.Validate("E-Mail Format", ElectronicDocumentFormat.Code);
         DocumentSendingProfile.Insert(true);
     end;
@@ -3373,7 +3380,7 @@ codeunit 139151 DocumentSendingPostTests
         CustomerSpecificDocumentSendingProfile."E-Mail" := CustomerSpecificDocumentSendingProfile."E-Mail"::"Yes (Prompt for Settings)";
         CustomerSpecificDocumentSendingProfile."E-Mail Attachment" :=
           CustomerSpecificDocumentSendingProfile."E-Mail Attachment"::"Electronic Document";
-        ElectronicDocumentFormat.FindFirst;
+        ElectronicDocumentFormat.FindFirst();
         CustomerSpecificDocumentSendingProfile."E-Mail Format" := ElectronicDocumentFormat.Code;
         CustomerSpecificDocumentSendingProfile.Default := false;
         CustomerSpecificDocumentSendingProfile.Insert(true);
@@ -3382,8 +3389,8 @@ codeunit 139151 DocumentSendingPostTests
     local procedure CreatePrintAndEmailDocumentSendingProfiles(var PrintDocumentSendingProfile: Record "Document Sending Profile"; var EmailDocumentSendingProfile: Record "Document Sending Profile")
     begin
         with PrintDocumentSendingProfile do begin
-            DeleteAll;
-            Init;
+            DeleteAll();
+            Init();
             Code := LibraryUtility.GenerateGUID;
             Default := true;
             Validate(Printer, Printer::"Yes (Prompt for Settings)");
@@ -3391,7 +3398,7 @@ codeunit 139151 DocumentSendingPostTests
         end;
 
         with EmailDocumentSendingProfile do begin
-            Init;
+            Init();
             Code := LibraryUtility.GenerateGUID;
             Default := true;
             Validate("E-Mail", "E-Mail"::"Yes (Prompt for Settings)");
@@ -3415,7 +3422,7 @@ codeunit 139151 DocumentSendingPostTests
         NonDefaultDocumentSendingProfile.Init;
         NonDefaultDocumentSendingProfile.Code := LibraryUtility.GenerateGUID;
         NonDefaultDocumentSendingProfile.Default := false;
-        ElectronicDocumentFormat.FindLast;
+        ElectronicDocumentFormat.FindLast();
         NonDefaultDocumentSendingProfile.Validate(
           "Electronic Document", NonDefaultDocumentSendingProfile."Electronic Document"::"Through Document Exchange Service");
         NonDefaultDocumentSendingProfile.Validate("Electronic Format", ElectronicDocumentFormat.Code);
@@ -3804,7 +3811,7 @@ codeunit 139151 DocumentSendingPostTests
     var
         CountryRegion: Record "Country/Region";
     begin
-        CountryRegion.FindFirst;
+        CountryRegion.FindFirst();
 
         Customer.Validate(Address, LibraryUtility.GenerateRandomCode(Customer.FieldNo(Address), DATABASE::Customer));
         Customer.Validate("Country/Region Code", CountryRegion.Code);
@@ -3970,14 +3977,14 @@ codeunit 139151 DocumentSendingPostTests
     [Scope('OnPrem')]
     procedure PostAndSendHandlerYes(var PostandSendConfirm: TestPage "Post and Send Confirmation")
     begin
-        PostandSendConfirm.Yes.Invoke;
+        PostandSendConfirm.Yes.Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostAndSendHandlerNo(var PostandSendConfirm: TestPage "Post and Send Confirmation")
     begin
-        PostandSendConfirm.No.Invoke;
+        PostandSendConfirm.No.Invoke();
     end;
 
     [ModalPageHandler]
@@ -3995,7 +4002,7 @@ codeunit 139151 DocumentSendingPostTests
           StrPos(EmailDialog."Attachment Name".Value, DocumentNo) > 0,
           'Wrong attachment name - it doesnt contain the posted sales document number.');
 
-        EmailDialog.Cancel.Invoke;
+        EmailDialog.Cancel.Invoke();
     end;
 
     [ModalPageHandler]
@@ -4020,7 +4027,7 @@ codeunit 139151 DocumentSendingPostTests
           StrPos(EmailDialog."Attachment Name".Value, DocumentNo) > 0,
           'Wrong attachment name - it doesnt contain the posted sales document number.');
 
-        EmailDialog.Cancel.Invoke;
+        EmailDialog.Cancel.Invoke();
     end;
 
     [RequestPageHandler]
@@ -4082,7 +4089,7 @@ codeunit 139151 DocumentSendingPostTests
         SelectSendingOption."E-Mail Format".SetValue(DocumentSendingProfile."E-Mail Format");
         SelectSendingOption."Electronic Document".SetValue(DocumentSendingProfile."Electronic Document");
         SelectSendingOption."Electronic Format".SetValue(DocumentSendingProfile."Electronic Format");
-        SelectSendingOption.OK.Invoke;
+        SelectSendingOption.OK.Invoke();
     end;
 
     [ModalPageHandler]
@@ -4103,7 +4110,7 @@ codeunit 139151 DocumentSendingPostTests
             SelectSendingOption."E-Mail".SetValue(DocumentSendingProfile."E-Mail");
             SelectSendingOption."E-Mail Attachment".SetValue(DocumentSendingProfile."E-Mail Attachment");
             SelectSendingOption.Disk.SetValue(DocumentSendingProfile.Disk);
-            SelectSendingOption.OK.Invoke;
+            SelectSendingOption.OK.Invoke();
         end else begin
             Assert.IsTrue(StrPos(SelectSendingOption.Printer.Value, YesUseDefaultSettingsTxt) > 0, DocumentSendingProfileChangedErr);
             Assert.IsTrue(StrPos(SelectSendingOption."E-Mail".Value, YesUseDefaultSettingsTxt) > 0, DocumentSendingProfileChangedErr);
@@ -4122,7 +4129,7 @@ codeunit 139151 DocumentSendingPostTests
         SelectSendingOption."E-Mail".SetValue(DocumentSendingProfile."E-Mail"::No);
         SelectSendingOption.Disk.SetValue(DocumentSendingProfile.Disk::"Electronic Document");
         SelectSendingOption."Electronic Document".SetValue(DocumentSendingProfile."Electronic Document"::No);
-        SelectSendingOption.OK.Invoke;
+        SelectSendingOption.OK.Invoke();
     end;
 
     [ModalPageHandler]
@@ -4136,7 +4143,7 @@ codeunit 139151 DocumentSendingPostTests
         LibraryVariableStorage.Dequeue(DocumentSendingProfileVar);
         DocumentSendingProfile := DocumentSendingProfileVar;
         SelectedSendingProfilesText := PostandSendConfirm.SelectedSendingProfiles.Value;
-        PostandSendConfirm.No.Invoke;
+        PostandSendConfirm.No.Invoke();
         Assert.AreEqual(
           DocumentSendingProfile.Printer <> DocumentSendingProfile.Printer::No,
           StrPos(SelectedSendingProfilesText, DocumentSendingProfile.FieldCaption(Printer)) > 0,
@@ -4171,7 +4178,7 @@ codeunit 139151 DocumentSendingPostTests
         LibraryVariableStorage.Dequeue(ExpectedWarningMessageVar);
         ExpectedWarningMessage := ExpectedWarningMessageVar;
         ActualWarningMessage := PostandSendConfirm.ChoicesForSendingTxt.Value;
-        PostandSendConfirm.No.Invoke;
+        PostandSendConfirm.No.Invoke();
         Assert.AreEqual(
           ExpectedWarningMessage, ActualWarningMessage, 'Unexpected warning message about additional dialogs that will be shown.');
     end;
@@ -4189,7 +4196,7 @@ codeunit 139151 DocumentSendingPostTests
         DocumentSendingProfile := DocumentSendingProfileVar;
         PostandSendConfirm.SelectedSendingProfiles.AssistEdit;
         SelectedSendingProfilesText := PostandSendConfirm.SelectedSendingProfiles.Value;
-        PostandSendConfirm.No.Invoke;
+        PostandSendConfirm.No.Invoke();
         Assert.AreEqual(
           DocumentSendingProfile.Printer <> DocumentSendingProfile.Printer::No,
           StrPos(SelectedSendingProfilesText, DocumentSendingProfile.FieldCaption(Printer)) > 0,
@@ -4224,7 +4231,7 @@ codeunit 139151 DocumentSendingPostTests
         ExpectedWarningMessage := ExpectedWarningMessageVar;
         PostandSendConfirm.SelectedSendingProfiles.AssistEdit;
         ActualWarningMessage := PostandSendConfirm.ChoicesForSendingTxt.Value;
-        PostandSendConfirm.No.Invoke;
+        PostandSendConfirm.No.Invoke();
         Assert.AreEqual(
           ExpectedWarningMessage, ActualWarningMessage, 'Unexpected warning message about additional dialogs that will be shown.');
     end;
@@ -4234,7 +4241,7 @@ codeunit 139151 DocumentSendingPostTests
     procedure PostAndSendHandlerYesWithOverride(var PostandSendConfirm: TestPage "Post and Send Confirmation")
     begin
         PostandSendConfirm.SelectedSendingProfiles.AssistEdit;
-        PostandSendConfirm.Yes.Invoke;
+        PostandSendConfirm.Yes.Invoke();
     end;
 
     [ModalPageHandler]
@@ -4277,7 +4284,7 @@ codeunit 139151 DocumentSendingPostTests
         LibraryVariableStorage.Enqueue(Count);
         PostandSendConfirm.SelectedSendingProfiles.AssistEdit;
 
-        PostandSendConfirm.No.Invoke;
+        PostandSendConfirm.No.Invoke();
     end;
 
     [ConfirmHandler]
@@ -4293,7 +4300,7 @@ codeunit 139151 DocumentSendingPostTests
     begin
         EmailDialog.Subject.AssertEquals(LibraryVariableStorage.DequeueText);
         EmailDialog."Attachment Name".AssertEquals(LibraryVariableStorage.DequeueText);
-        EmailDialog.Cancel.Invoke;
+        EmailDialog.Cancel.Invoke();
     end;
 
     [StrMenuHandler]
@@ -4330,7 +4337,7 @@ codeunit 139151 DocumentSendingPostTests
         CustomerDocumentSendingProfile := DocumentSendingProfileVar;
         ElectronicDocumentVisible := LibraryVariableStorage.DequeueBoolean;
         VerifyDocumentProfilesAreIdenticalOnPage(SelectSendingOptions, CustomerDocumentSendingProfile, ElectronicDocumentVisible);
-        SelectSendingOptions.OK.Invoke;
+        SelectSendingOptions.OK.Invoke();
     end;
 
     [ModalPageHandler]
@@ -4345,7 +4352,7 @@ codeunit 139151 DocumentSendingPostTests
         CustomerDocumentSendingProfile := DocumentSendingProfileVar;
         ElectronicDocumentVisible := LibraryVariableStorage.DequeueBoolean;
         VerifyDocumentProfilesAreIdenticalOnPage(SelectSendingOptions, CustomerDocumentSendingProfile, ElectronicDocumentVisible);
-        SelectSendingOptions.Cancel.Invoke;
+        SelectSendingOptions.Cancel.Invoke();
     end;
 
     local procedure VerifyDocumentNosSalesInvoiceCreditMemoReportDifferentCustomer(DocumentNo: Code[20]; FileName: Text)

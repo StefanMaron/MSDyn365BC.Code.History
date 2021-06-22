@@ -103,7 +103,7 @@ page 4003 "Intelligent Cloud Management"
                     if CompanyCreationInProgress() then
                         Error(CompanyNotCreatedErr);
                     if CompanyCreationFailed(ErrorMessage) then
-                        Error(StrSubstNo(CompanyCreationFailedErr, ErrorMessage));
+                        Error(CompanyCreationFailedErr, ErrorMessage);
                     if CompanyCreationNotComplete() then
                         Error(CompanyNotCreatedErr);
                     if not CanRunReplication() then
@@ -136,7 +136,7 @@ page 4003 "Intelligent Cloud Management"
                     if CompanyCreationInProgress() then
                         Error(CompanyNotCreatedErr);
                     if CompanyCreationFailed(ErrorMessage) then
-                        Error(StrSubstNo(CompanyCreationFailedErr, ErrorMessage));
+                        Error(CompanyCreationFailedErr, ErrorMessage);
                     if not CanRunReplication() then
                         Error(CannotRunReplicationErr);
 
@@ -285,6 +285,19 @@ page 4003 "Intelligent Cloud Management"
                     Page.RunModal(Page::"Hybrid Companies Management");
                 end;
             }
+
+            action(ManageCustomTables)
+            {
+                Enabled = IsSuper and IsSetupComplete;
+                Visible = not IsOnPrem and CustomTablesEnabled;
+                ApplicationArea = Basic, Suite;
+                Caption = 'Manage Custom Tables';
+                ToolTip = 'Manage custom table mappings for the migration.';
+                RunObject = page "Migration Table Mapping";
+                RunPageMode = Edit;
+                Image = TransferToGeneralJournal;
+            }
+
         }
     }
 
@@ -308,6 +321,7 @@ page 4003 "Intelligent Cloud Management"
         CanShowSetupChecklist(SetupChecklistEnabled);
         CanShowMapUsers(MapUsersEnabled);
         CanShowUpdateReplicationCompanies(UpdateReplicationCompaniesEnabled);
+        CanMapCustomTables(CustomTablesEnabled);
 
         if IntelligentCloudSetup.Get() then begin
             HybridDeployment.Initialize(IntelligentCloudSetup."Product ID");
@@ -394,6 +408,11 @@ page 4003 "Intelligent Cloud Management"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    internal procedure CanMapCustomTables(var Enabled: Boolean)
+    begin
+    end;
+
     var
         HybridDeployment: Codeunit "Hybrid Deployment";
         CompanyCreationTaskID: Guid;
@@ -405,6 +424,7 @@ page 4003 "Intelligent Cloud Management"
         SetupChecklistEnabled: Boolean;
         MapUsersEnabled: Boolean;
         UpdateReplicationCompaniesEnabled: Boolean;
+        CustomTablesEnabled: Boolean;
         DetailsValue: Text;
         RunReplicationConfirmQst: Label 'Are you sure you want to trigger migration?';
         RegenerateNewKeyConfirmQst: Label 'Are you sure you want to generate new integration runtime key?';

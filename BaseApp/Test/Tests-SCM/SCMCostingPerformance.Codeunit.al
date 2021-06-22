@@ -22,6 +22,7 @@ codeunit 133504 "SCM Costing Performance"
         LibraryRandom: Codeunit "Library - Random";
         CodeCoverageMgt: Codeunit "Code Coverage Mgt.";
         LibraryCalcComplexity: Codeunit "Library - Calc. Complexity";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         isInitialized: Boolean;
         NotLinearCCErr: Label 'Computational cost is not linear.';
         NotConstantCCErr: Label 'Computational cost must be constant.';
@@ -30,17 +31,19 @@ codeunit 133504 "SCM Costing Performance"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"SCM Costing Performance");
+
         LibraryVariableStorage.Clear;
         // Lazy Setup.
         if isInitialized then
             exit;
 
         LibraryPatterns.SETNoSeries;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
 
         isInitialized := true;
         Commit;

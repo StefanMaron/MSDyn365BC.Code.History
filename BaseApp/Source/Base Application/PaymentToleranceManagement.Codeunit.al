@@ -882,12 +882,19 @@ codeunit 426 "Payment Tolerance Management"
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
         PmtTolWarning: Page "Payment Tolerance Warning";
         ActionType: Integer;
+        IsHandled: Boolean;
     begin
         if GenJnlPostPreview.IsActive() then
             exit(true);
 
         if SuppressCommit then
             exit(true);
+
+
+        IsHandled := false;
+        OnBeforeRunModalPmtTolWarningCallPmtTolWarning(PostingDate, No, DocNo, CurrencyCode, Amount, AppliedAmount, AccountType, ActionType, IsHandled);
+        if IsHandled then
+            exit(ActionType = 2);
 
         PmtTolWarning.SetValues(PostingDate, No, DocNo, CurrencyCode, Amount, AppliedAmount, 0);
         PmtTolWarning.SetAccountName(GetAccountName(AccountType, No));
@@ -2073,7 +2080,6 @@ codeunit 426 "Payment Tolerance Management"
         exit(true);
     end;
 
-    [Scope('OnPrem')]
     procedure SetSuppressCommit(NewSuppressCommit: Boolean)
     begin
         SuppressCommit := NewSuppressCommit;
@@ -2167,6 +2173,11 @@ codeunit 426 "Payment Tolerance Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckCalcPmtDisc(NewCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; OldCVLedgEntryBuf2: Record "CV Ledger Entry Buffer"; ApplnRoundingPrecision: Decimal; CheckFilter: Boolean; CheckAmount: Boolean; var Handled: Boolean; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunModalPmtTolWarningCallPmtTolWarning(PostingDate: Date; No: Code[20]; DocNo: Code[20]; CurrencyCode: Code[10]; var Amount: Decimal; AppliedAmount: Decimal; AccountType: Option Customer,Vendor; var ActionType: Integer; var IsHandled: Boolean)
     begin
     end;
 

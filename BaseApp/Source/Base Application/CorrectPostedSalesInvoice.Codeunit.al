@@ -464,11 +464,20 @@ codeunit 1303 "Correct Posted Sales Invoice"
     local procedure TestInventoryPostingClosed(SalesInvoiceHeader: Record "Sales Invoice Header")
     var
         InventoryPeriod: Record "Inventory Period";
+        SalesInvoiceLine: Record "Sales Invoice Line";
+        DocumentHasLineWithRestrictedType: Boolean;
     begin
-        InventoryPeriod.SetRange(Closed, true);
-        InventoryPeriod.SetFilter("Ending Date", '>=%1', SalesInvoiceHeader."Posting Date");
-        if InventoryPeriod.FindFirst then
-            ErrorHelperHeader(ErrorType::InventoryPostClosed, SalesInvoiceHeader);
+        SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
+        SalesInvoiceLine.SetFilter(Quantity, '<>%1', 0);
+        SalesInvoiceLine.SetFilter(Type, '%1|%2', SalesInvoiceLine.Type::Item, SalesInvoiceLine.Type::"Charge (Item)");
+        DocumentHasLineWithRestrictedType := not SalesInvoiceLine.IsEmpty;
+
+        if DocumentHasLineWithRestrictedType then begin
+            InventoryPeriod.SetRange(Closed, true);
+            InventoryPeriod.SetFilter("Ending Date", '>=%1', SalesInvoiceHeader."Posting Date");
+            if InventoryPeriod.FindFirst then
+                ErrorHelperHeader(ErrorType::InventoryPostClosed, SalesInvoiceHeader);
+        end;
     end;
 
     local procedure TestSalesLineType(SalesInvoiceLine: Record "Sales Invoice Line")
@@ -795,7 +804,7 @@ codeunit 1303 "Correct Posted Sales Invoice"
     begin
     end;
 
-    [Obsolete]
+    [Obsolete('', '15.1')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSelesHeaderInsert(var SalesHeader: Record "Sales Header"; var SalesInvoiceHeader: Record "Sales Invoice Header"; CancellingOnly: Boolean)
     begin

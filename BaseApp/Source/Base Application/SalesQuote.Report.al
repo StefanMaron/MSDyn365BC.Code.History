@@ -6,6 +6,7 @@ report 204 "Sales - Quote"
     PreviewMode = PrintLayout;
     ObsoleteReason = 'Replaced with report 1304 Standard Sales - Quote';
     ObsoleteState = Pending;
+    ObsoleteTag = '15.2';
 
     dataset
     {

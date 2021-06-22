@@ -19,21 +19,27 @@ codeunit 135514 "Sales Order Line E2E Test"
         LibrarySales: Codeunit "Library - Sales";
         LibrarySmallBusiness: Codeunit "Library - Small Business";
         LibraryApplicationArea: Codeunit "Library - Application Area";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
         OrderServiceLinesNameTxt: Label 'salesOrderLines';
         LineTypeFieldNameTxt: Label 'lineType';
 
     local procedure Initialize()
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Sales Order Line E2E Test");
+
         if IsInitialized then
             exit;
 
-        LibrarySales.SetStockoutWarning(false);
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Sales Order Line E2E Test");
 
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibrarySales.SetStockoutWarning(false);
+        LibraryApplicationArea.EnableFoundationSetup();
 
         IsInitialized := true;
-        Commit;
+        Commit();
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Sales Order Line E2E Test");
     end;
 
     [Test]
@@ -45,7 +51,7 @@ codeunit 135514 "Sales Order Line E2E Test"
     begin
         // [SCENARIO] Call GET on the lines without providing a parent order ID.
         // [GIVEN] the order API exposed
-        Initialize;
+        Initialize();
 
         // [WHEN] we GET all the lines without an ID from the web service
         TargetURL := LibraryGraphMgt
@@ -73,7 +79,7 @@ codeunit 135514 "Sales Order Line E2E Test"
     begin
         // [SCENARIO] Call GET on the Lines of a  order
         // [GIVEN] An order with lines.
-        Initialize;
+        Initialize();
         OrderId := CreateSalesOrderWithLines(SalesHeader);
 
         SalesLine.SetRange("Document No.", SalesHeader."No.");
@@ -112,7 +118,7 @@ codeunit 135514 "Sales Order Line E2E Test"
     begin
         // [SCENARIO] POST a new line to an  order
         // [GIVEN] An existing  order and a valid JSON describing the new order line
-        Initialize;
+        Initialize();
         OrderId := CreateSalesOrderWithLines(SalesHeader);
         LibraryInventory.CreateItem(Item);
 
@@ -155,7 +161,7 @@ codeunit 135514 "Sales Order Line E2E Test"
     begin
         // [SCENARIO] PATCH a line of an  order
         // [GIVEN] An  order with lines and a valid JSON describing the fields that we want to change
-        Initialize;
+        Initialize();
         OrderLineId := CreateSalesOrderWithLines(SalesHeader);
         Assert.AreNotEqual('', OrderLineId, 'ID should not be empty');
         SalesLine.SetRange("Document No.", SalesHeader."No.");
@@ -199,7 +205,7 @@ codeunit 135514 "Sales Order Line E2E Test"
     begin
         // [SCENARIO] DELETE a line from an  order
         // [GIVEN] An  order with lines
-        Initialize;
+        Initialize();
         OrderId := CreateSalesOrderWithLines(SalesHeader);
 
         SalesLine.SetRange("Document No.", SalesHeader."No.");
@@ -251,7 +257,7 @@ codeunit 135514 "Sales Order Line E2E Test"
     begin
         // [SCENARIO] Create an order both through the client UI and through the API and compare their final values.
         // [GIVEN] An  order and a JSON describing the line we want to create
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CustomerNo := Customer."No.";
         ItemNo := LibraryInventory.CreateItem(Item);
@@ -317,7 +323,7 @@ codeunit 135514 "Sales Order Line E2E Test"
         // [FEATURE] [Discount]
         // [SCENARIO] Creating a line through API should update Discount Pct
         // [GIVEN] An  order for customer with order discount pct
-        Initialize;
+        Initialize();
         CreateOrderWithTwoLines(SalesHeader, Customer, Item);
         SalesHeader.CalcFields(Amount);
         MinAmount := SalesHeader.Amount + Item."Unit Price" / 2;
@@ -359,7 +365,7 @@ codeunit 135514 "Sales Order Line E2E Test"
         // [FEATURE] [Discount]
         // [SCENARIO] Modifying a line through API should update Discount Pct
         // [GIVEN] An  order for customer with order discount pct
-        Initialize;
+        Initialize();
         CreateOrderWithTwoLines(SalesHeader, Customer, Item);
         SalesHeader.CalcFields(Amount);
         MinAmount := SalesHeader.Amount + Item."Unit Price" / 2;
@@ -406,7 +412,7 @@ codeunit 135514 "Sales Order Line E2E Test"
         // [FEATURE] [Discount]
         // [SCENARIO] Deleting a line through API should update Discount Pct
         // [GIVEN] An  order for customer with order discount pct
-        Initialize;
+        Initialize();
         CreateOrderWithTwoLines(SalesHeader, Customer, Item);
         SalesHeader.CalcFields(Amount);
         FindFirstSalesLine(SalesHeader, SalesLine);
@@ -453,7 +459,7 @@ codeunit 135514 "Sales Order Line E2E Test"
         // [FEATURE] [Discount]
         // [SCENARIO] Deleting a line through API should update Discount Pct
         // [GIVEN] An  order for customer with order discount pct
-        Initialize;
+        Initialize();
         CreateOrderWithTwoLines(SalesHeader, Customer, Item);
         SalesHeader.CalcFields(Amount);
         FindFirstSalesLine(SalesHeader, SalesLine);
@@ -494,7 +500,7 @@ codeunit 135514 "Sales Order Line E2E Test"
         // [FEATURE] [Discount]
         // [SCENARIO] Adding an order through API will keep Discount Amount
         // [GIVEN] An  order for customer with order discount amount
-        Initialize;
+        Initialize();
         SetupAmountDiscountTest(SalesHeader, DiscountAmount);
         OrderLineJSON := CreateOrderLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100));
 
@@ -529,7 +535,7 @@ codeunit 135514 "Sales Order Line E2E Test"
         // [FEATURE] [Discount]
         // [SCENARIO] Modifying a line through API should keep existing Discount Amount
         // [GIVEN] An  order for customer with order discount amt
-        Initialize;
+        Initialize();
         SetupAmountDiscountTest(SalesHeader, DiscountAmount);
         OrderLineJSON := CreateOrderLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100));
 
@@ -567,7 +573,7 @@ codeunit 135514 "Sales Order Line E2E Test"
         // [FEATURE] [Discount]
         // [SCENARIO] Deleting a line through API should update Discount Pct
         // [GIVEN] An  order for customer with order discount pct
-        Initialize;
+        Initialize();
         SetupAmountDiscountTest(SalesHeader, DiscountAmount);
         Commit;
 
@@ -601,7 +607,7 @@ codeunit 135514 "Sales Order Line E2E Test"
     begin
         // [SCENARIO] Getting a line through API lists all possible types
         // [GIVEN] An invoice with lines of different types
-        Initialize;
+        Initialize();
         CreateOrderWithAllPossibleLineTypes(SalesHeader, ExpectedNumberOfLines);
 
         Commit;
@@ -638,7 +644,7 @@ codeunit 135514 "Sales Order Line E2E Test"
     begin
         // [SCENARIO] Posting a line with description only will get a type item
         // [GIVEN] A post request with description only
-        Initialize;
+        Initialize();
         CreateSalesOrderWithLines(SalesHeader);
 
         Commit;
@@ -680,7 +686,7 @@ codeunit 135514 "Sales Order Line E2E Test"
         // [FEATURE] [Comment]
         // [SCENARIO] Posting a line with Type Comment and description will make a comment line
         // [GIVEN] A post request with type and description
-        Initialize;
+        Initialize();
         CreateSalesOrderWithLines(SalesHeader);
 
         OrderLineJSON := '{"' + LineTypeFieldNameTxt + '":"Comment","description":"test"}';
@@ -726,7 +732,7 @@ codeunit 135514 "Sales Order Line E2E Test"
     begin
         // [SCENARIO] PATCH a Type on a line of an unposted Order
         // [GIVEN] An unposted Order with lines and a valid JSON describing the fields that we want to change
-        Initialize;
+        Initialize();
         OrderLineID := CreateSalesOrderWithLines(SalesHeader);
         Assert.AreNotEqual('', OrderLineID, 'ID should not be empty');
         FindFirstSalesLine(SalesHeader, SalesLine);
@@ -776,7 +782,7 @@ codeunit 135514 "Sales Order Line E2E Test"
     begin
         // [SCENARIO] PATCH a Type on a line of an unposted Order
         // [GIVEN] An unposted Order with lines and a valid JSON describing the fields that we want to change
-        Initialize;
+        Initialize();
         CreateOrderWithAllPossibleLineTypes(SalesHeader, ExpectedNumberOfLines);
         OrderLineID := IntegrationManagement.GetIdWithoutBrackets(SalesHeader.Id);
         SalesLine.SetRange(Type, SalesLine.Type::"G/L Account");
@@ -828,7 +834,7 @@ codeunit 135514 "Sales Order Line E2E Test"
     begin
         // [SCENARIO] PATCH a Type on a line of an unposted Order
         // [GIVEN] An unposted Order with lines and a valid JSON describing the fields that we want to change
-        Initialize;
+        Initialize();
         OrderLineID := CreateSalesOrderWithLines(SalesHeader);
         Assert.AreNotEqual('', OrderLineID, 'ID should not be empty');
         FindFirstSalesLine(SalesHeader, SalesLine);

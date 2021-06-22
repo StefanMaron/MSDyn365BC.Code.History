@@ -169,6 +169,17 @@ table 339 "Item Application Entry"
         exit(FindSet);
     end;
 
+    [Scope('Internal')]
+    procedure GetInboundEntriesTheOutbndEntryAppliedTo(OutbndItemLedgEntryNo: Integer): Boolean
+    begin
+        Reset();
+        SetCurrentKey("Outbound Item Entry No.", "Item Ledger Entry No.");
+        SetRange("Outbound Item Entry No.", OutbndItemLedgEntryNo);
+        SetRange("Item Ledger Entry No.", OutbndItemLedgEntryNo);
+        SetFilter("Inbound Item Entry No.", '<>%1', 0);
+        exit(FindSet());
+    end;
+
     procedure CheckAppliedFromEntryToAdjust(InbndItemLedgEntryNo: Integer)
     var
         OutbndItemLedgEntry: Record "Item Ledger Entry";

@@ -918,7 +918,15 @@ table 5740 "Transfer Header"
     end;
 
     procedure ShouldDeleteOneTransferOrder(var TransLine2: Record "Transfer Line"): Boolean
+    var
+        IsHandled: Boolean;
+        ShouldDelete: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShouldDeleteOneTransferOrder(TransLine2, ShouldDelete, IsHandled);
+        if IsHandled then
+            exit(ShouldDelete);
+
         if TransLine2.Find('-') then
             repeat
                 if (TransLine2.Quantity <> TransLine2."Quantity Shipped") or
@@ -1251,6 +1259,11 @@ table 5740 "Transfer Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetNoSeriesCode(var TransferHeader: Record "Transfer Header"; InventorySetup: Record "Inventory Setup"; var NoSeriesCode: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShouldDeleteOneTransferOrder(var TransferLine: record "Transfer Line"; var ShouldDelete: Boolean; var IsHandled: Boolean)
     begin
     end;
 

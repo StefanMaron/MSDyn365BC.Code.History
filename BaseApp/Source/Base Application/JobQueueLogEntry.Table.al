@@ -64,18 +64,21 @@ table 474 "Job Queue Log Entry"
             Caption = 'Error Message 2';
             ObsoleteReason = 'Error Message field size has been increased.';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(13; "Error Message 3"; Text[250])
         {
             Caption = 'Error Message 3';
             ObsoleteReason = 'Error Message field size has been increased.';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(14; "Error Message 4"; Text[250])
         {
             Caption = 'Error Message 4';
             ObsoleteReason = 'Error Message field size has been increased.';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(16; "Processed by User ID"; Text[65])
         {

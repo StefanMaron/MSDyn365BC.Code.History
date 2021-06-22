@@ -14,6 +14,7 @@ codeunit 138901 "O365 Test Item Selection P2124"
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         LibrarySales: Codeunit "Library - Sales";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
 
     [Test]
     [HandlerFunctions('VerifyNoNotificationsAreSend')]
@@ -25,7 +26,7 @@ codeunit 138901 "O365 Test Item Selection P2124"
     begin
         // [SCENARIO 195957] Invoice Lines 'Add multiple' action is hidden, until the 'basket' UX is improved.
         // [GIVEN] An empty invoice
-        Initialize;
+        Initialize();
         CreateInvoice(SalesHeader, 0);
         LibraryLowerPermissions.SetSalesDocsCreate;
 
@@ -76,7 +77,7 @@ codeunit 138901 "O365 Test Item Selection P2124"
         SalesHeader: Record "Sales Header";
     begin
         // [GIVEN] An empty invoice
-        Initialize;
+        Initialize();
         CreateInvoice(SalesHeader, 0);
         LibraryLowerPermissions.SetSalesDocsCreate;
 
@@ -95,7 +96,7 @@ codeunit 138901 "O365 Test Item Selection P2124"
         SalesHeader: Record "Sales Header";
     begin
         // [GIVEN] An empty invoice
-        Initialize;
+        Initialize();
         CreateInvoice(SalesHeader, 0);
         LibraryInventory.CreateItem(Item1);
         LibraryInventory.CreateItem(Item2);
@@ -117,7 +118,7 @@ codeunit 138901 "O365 Test Item Selection P2124"
         SalesHeader: Record "Sales Header";
     begin
         // [GIVEN] An invoice with 2 lines
-        Initialize;
+        Initialize();
         CreateInvoice(SalesHeader, 2);
         LibraryInventory.CreateItem(Item1);
         LibraryInventory.CreateItem(Item2);
@@ -140,7 +141,7 @@ codeunit 138901 "O365 Test Item Selection P2124"
         SalesLine: Record "Sales Line";
     begin
         // [GIVEN] An invoice with 2 lines
-        Initialize;
+        Initialize();
         CreateInvoice(SalesHeader, 2);
         LibraryInventory.CreateItem(Item1);
         SalesLine.Get(SalesHeader."Document Type", SalesHeader."No.", 10000);
@@ -177,6 +178,8 @@ codeunit 138901 "O365 Test Item Selection P2124"
     var
         O365C2GraphEventSettings: Record "O365 C2Graph Event Settings";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"O365 Test Item Selection P2124");
+
         if not O365C2GraphEventSettings.Get then
             O365C2GraphEventSettings.Insert(true);
 

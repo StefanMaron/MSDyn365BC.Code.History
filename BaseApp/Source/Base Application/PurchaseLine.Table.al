@@ -50,18 +50,8 @@ table 39 "Purchase Line"
 
                 TestField("Prepmt. Amt. Inv.", 0);
 
-                if "Drop Shipment" then
-                    Error(
-                      Text001,
-                      FieldCaption(Type), "Sales Order No.");
-                if "Special Order" then
-                    Error(
-                      Text001,
-                      FieldCaption(Type), "Special Order Sales No.");
-                if "Prod. Order No." <> '' then
-                    Error(
-                      Text044,
-                      FieldCaption(Type), FieldCaption("Prod. Order No."), "Prod. Order No.");
+                CheckAssosiatedSalesOrder();
+                CheckAssosiatedProdOrder();
 
                 if Type <> xRec.Type then begin
                     case xRec.Type of
@@ -84,7 +74,7 @@ table 39 "Purchase Line"
                         DeferralUtilities.RemoveOrSetDeferralSchedule('',
                           DeferralUtilities.GetPurchDeferralDocType, '', '',
                           xRec."Document Type", xRec."Document No.", xRec."Line No.",
-                          xRec.GetDeferralAmount, PurchHeader."Posting Date", '', xRec."Currency Code", true);
+                          xRec.GetDeferralAmount(), PurchHeader."Posting Date", '', xRec."Currency Code", true);
                 end;
                 TempPurchLine := Rec;
                 Init;
@@ -132,35 +122,22 @@ table 39 "Purchase Line"
             trigger OnValidate()
             var
                 TempPurchLine: Record "Purchase Line" temporary;
-                FindRecordMgt: Codeunit "Find Record Management";
             begin
-                GetPurchSetup;
-                if PurchSetup."Create Item from Item No." then
-                    "No." := FindRecordMgt.FindNoFromTypedValue(Type, "No.", not "System-Created Entry");
+                GetPurchSetup();
 
-                TestStatusOpen;
+                "No." := FindOrCreateRecordByNo("No.");
+
+                TestStatusOpen();
                 TestField("Qty. Rcd. Not Invoiced", 0);
                 TestField("Quantity Received", 0);
                 TestField("Receipt No.", '');
 
                 TestField("Prepmt. Amt. Inv.", 0);
 
-                TestReturnFieldsZero;
+                TestReturnFieldsZero();
 
-                if "Drop Shipment" then
-                    Error(
-                      Text001,
-                      FieldCaption("No."), "Sales Order No.");
-
-                if "Special Order" then
-                    Error(
-                      Text001,
-                      FieldCaption("No."), "Special Order Sales No.");
-
-                if "Prod. Order No." <> '' then
-                    Error(
-                      Text044,
-                      FieldCaption(Type), FieldCaption("Prod. Order No."), "Prod. Order No.");
+                CheckAssosiatedSalesOrder();
+                CheckAssosiatedProdOrder();
 
                 OnValidateNoOnAfterChecks(Rec, xRec, CurrFieldNo);
 
@@ -196,6 +173,9 @@ table 39 "Purchase Line"
                 end;
 
                 "System-Created Entry" := TempPurchLine."System-Created Entry";
+
+                OnBeforeAssignHeaderValues(Rec, PurchHeader);
+
                 GetPurchHeader;
                 InitHeaderDefaults(PurchHeader);
                 UpdateLeadTimeFields;
@@ -2175,7 +2155,7 @@ table 39 "Purchase Line"
                 DeferralUtilities.DeferralCodeOnValidate(
                   "Deferral Code", DeferralUtilities.GetPurchDeferralDocType, '', '',
                   "Document Type", "Document No.", "Line No.",
-                  GetDeferralAmount, DeferralPostDate,
+                  GetDeferralAmount(), DeferralPostDate,
                   Description, PurchHeader."Currency Code");
 
                 if "Document Type" = "Document Type"::"Return Order" then
@@ -2196,7 +2176,7 @@ table 39 "Purchase Line"
                 GetPurchHeader;
                 if DeferralHeader.Get(DeferralUtilities.GetPurchDeferralDocType, '', '', "Document Type", "Document No.", "Line No.") then
                     DeferralUtilities.CreateDeferralSchedule("Deferral Code", DeferralUtilities.GetPurchDeferralDocType, '', '',
-                      "Document Type", "Document No.", "Line No.", GetDeferralAmount,
+                      "Document Type", "Document No.", "Line No.", GetDeferralAmount(),
                       DeferralHeader."Calc. Method", "Returns Deferral Start Date",
                       DeferralHeader."No. of Periods", true,
                       DeferralHeader."Schedule Description", false,
@@ -2360,7 +2340,7 @@ table 39 "Purchase Line"
                 end;
 
                 IsHandled := false;
-                OnValidateUnitOfMeasureCodeOnBeforeDropShipmentError(Rec, IsHandled);
+                OnValidateUnitOfMeasureCodeOnBeforeDropShipmentError(Rec, IsHandled, xRec, CurrFieldNo);
                 if not IsHandled then
                     if "Drop Shipment" then
                         Error(Text001, FieldCaption("Unit of Measure Code"), "Sales Order No.");
@@ -2661,6 +2641,7 @@ table 39 "Purchase Line"
             ObsoleteState = Removed;
             TableRelation = "Product Group".Code WHERE("Item Category Code" = FIELD("Item Category Code"));
             ValidateTableRelation = false;
+            ObsoleteTag = '15.0';
         }
         field(5713; "Special Order"; Boolean)
         {
@@ -3355,7 +3336,7 @@ table 39 "Purchase Line"
         end;
         LockTable;
         PurchHeader."No." := '';
-        if ("Deferral Code" <> '') and (GetDeferralAmount <> 0) then
+        if ("Deferral Code" <> '') and (GetDeferralAmount() <> 0) then
             UpdateDeferralAmounts;
     end;
 
@@ -3473,7 +3454,7 @@ table 39 "Purchase Line"
         CannotFindDescErr: Label 'Cannot find %1 with Description %2.\\Make sure to use the correct type.', Comment = '%1 = Type caption %2 = Description';
         CommentLbl: Label 'Comment';
         LineDiscountPctErr: Label 'The value in the Line Discount % field must be between 0 and 100.';
-        PurchasingBlockedErr: Label 'You cannot purchase this item because the Purchasing Blocked check box is selected on the item card.';
+        PurchasingBlockedErr: Label 'You cannot purchase item %1 because the Purchasing Blocked check box is selected on the item card.', Comment = '%1 = Item Number';
         CannotChangePrepaidServiceChargeErr: Label 'You cannot change the line because it will affect service charges that are already invoiced as part of a prepayment.';
         LineInvoiceDiscountAmountResetTok: Label 'The value in the Inv. Discount Amount field in %1 has been cleared.', Comment = '%1 - Record ID';
         BlockedItemNotificationMsg: Label 'Item %1 is blocked, but it is allowed on this type of document.', Comment = '%1 is Item No.';
@@ -3750,7 +3731,7 @@ table 39 "Purchase Line"
             if IsCreditDocType then
                 SendBlockedItemNotification
             else
-                Error(PurchasingBlockedErr);
+                Error(PurchasingBlockedErr, Item."No.");
         if Item.Type = Item.Type::Inventory then begin
             Item.TestField("Inventory Posting Group");
             "Posting Group" := Item."Inventory Posting Group";
@@ -4351,7 +4332,6 @@ table 39 "Purchase Line"
     local procedure AddItems(SelectionFilter: Text)
     var
         Item: Record Item;
-        DummyPurchLine: Record "Purchase Line";
         PurchLine: Record "Purchase Line";
         LastPurchLine: Record "Purchase Line";
         TransferExtendedText: Codeunit "Transfer Extended Text";
@@ -4368,7 +4348,7 @@ table 39 "Purchase Line"
                 PurchLine.Validate("No.", Item."No.");
                 PurchLine.Insert(true);
                 if TransferExtendedText.PurchCheckIfAnyExtText(PurchLine, false) then begin
-                    TransferExtendedText.InsertPurchExtTextRetLast(PurchLine, DummyPurchLine);
+                    TransferExtendedText.InsertPurchExtTextRetLast(PurchLine, LastPurchLine);
                     PurchLine."Line No." := LastPurchLine."Line No."
                 end;
                 OnAfterAddItem(PurchLine, LastPurchLine);
@@ -4582,6 +4562,7 @@ table 39 "Purchase Line"
         AssignItemChargePurch: Codeunit "Item Charge Assgnt. (Purch.)";
         ItemChargeAssgnts: Page "Item Charge Assignment (Purch)";
         ItemChargeAssgntLineAmt: Decimal;
+        IsHandled: Boolean;
     begin
         Get("Document Type", "Document No.", "Line No.");
         TestField("No.");
@@ -4622,10 +4603,12 @@ table 39 "Purchase Line"
                 Currency."Unit-Amount Rounding Precision");
         end;
 
-        ItemChargeAssgntLineAmt :=
-          Round(
-            ItemChargeAssgntLineAmt * ("Qty. to Invoice" / Quantity),
-            Currency."Amount Rounding Precision");
+
+        IsHandled := false;
+        OnShowItemChargeAssgntOnBeforeCalcItemCharge(Rec, ItemChargeAssgntLineAmt, Currency, IsHandled, ItemChargeAssgntPurch);
+        if not IsHandled then
+            ItemChargeAssgntLineAmt :=
+                Round(ItemChargeAssgntLineAmt * ("Qty. to Invoice" / Quantity), Currency."Amount Rounding Precision");
 
         if IsCreditDocType then
             AssignItemChargePurch.CreateDocChargeAssgnt(ItemChargeAssgntPurch, "Return Shipment No.")
@@ -4746,6 +4729,34 @@ table 39 "Purchase Line"
                 ItemChargeAssgntPurch.TestField("Qty. to Assign", 0);
             until ItemChargeAssgntPurch.Next = 0;
         end;
+    end;
+
+    local procedure CheckAssosiatedSalesOrder()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckAssosiatedSalesOrder(Rec, xRec, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
+        if "Drop Shipment" then
+            Error(Text001, FieldCaption("No."), "Sales Order No.");
+        if "Special Order" then
+            Error(Text001, FieldCaption("No."), "Special Order Sales No.");
+    end;
+
+    local procedure CheckAssosiatedProdOrder()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckAssosiatedProdOrder(Rec, xRec, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
+        if "Prod. Order No." <> '' then
+            Error(Text044, FieldCaption(Type), FieldCaption("Prod. Order No."), "Prod. Order No.");
     end;
 
     procedure GetCaptionClass(FieldNumber: Integer): Text[80]
@@ -4995,7 +5006,7 @@ table 39 "Purchase Line"
                             Modify;
                             LineWasModified := true;
 
-                            if ("Deferral Code" <> '') and (DeferralAmount <> GetDeferralAmount) then
+                            if ("Deferral Code" <> '') and (DeferralAmount <> GetDeferralAmount()) then
                                 UpdateDeferralAmounts();
 
                             TempVATAmountLineRemainder."Amount Including VAT" :=
@@ -5489,6 +5500,25 @@ table 39 "Purchase Line"
             if not Item2.Get(ItemNo) then
                 exit(false);
         exit(true);
+    end;
+
+    local procedure FindOrCreateRecordByNo(SourceNo: Code[20]): Code[20]
+    var
+        Item: Record Item;
+        FindRecordManagement: Codeunit "Find Record Management";
+        FoundNo: Text;
+    begin
+        GetPurchSetup;
+
+        if Type = Type::Item then begin
+            if Item.TryGetItemNoOpenCardWithView(
+                 FoundNo, SourceNo, PurchSetup."Create Item from Item No.", true, PurchSetup."Create Item from Item No.", '')
+            then
+                exit(CopyStr(FoundNo, 1, MaxStrLen("No.")))
+        end else
+            exit(FindRecordManagement.FindNoFromTypedValue(Type, "No.", not "System-Created Entry"));
+
+        exit(SourceNo);
     end;
 
     local procedure GetAbsMin(QtyToHandle: Decimal; QtyHandled: Decimal): Decimal
@@ -6246,7 +6276,14 @@ table 39 "Purchase Line"
     end;
 
     procedure GetDeferralAmount() DeferralAmount: Decimal
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetDeferralAmount(Rec, DeferralAmount, IsHandled);
+        if IsHandled then
+            exit;
+
         if "VAT Base Amount" <> 0 then
             DeferralAmount := "VAT Base Amount"
         else
@@ -6273,7 +6310,7 @@ table 39 "Purchase Line"
         DeferralUtilities.RemoveOrSetDeferralSchedule(
           "Deferral Code", DeferralUtilities.GetPurchDeferralDocType, '', '',
           "Document Type", "Document No.", "Line No.",
-          GetDeferralAmount, DeferralPostDate, Description, PurchHeader."Currency Code", AdjustStartDate);
+          GetDeferralAmount(), DeferralPostDate, Description, PurchHeader."Currency Code", AdjustStartDate);
     end;
 
     [Scope('OnPrem')]
@@ -6287,10 +6324,11 @@ table 39 "Purchase Line"
         if IsHandled then
             exit(ReturnValue);
 
-        exit(DeferralUtilities.OpenLineScheduleEdit(
-            "Deferral Code", DeferralUtilities.GetPurchDeferralDocType, '', '',
-            "Document Type", "Document No.", "Line No.",
-            GetDeferralAmount, PostingDate, Description, CurrencyCode));
+        exit(
+            DeferralUtilities.OpenLineScheduleEdit(
+                "Deferral Code", DeferralUtilities.GetPurchDeferralDocType, '', '',
+                "Document Type", "Document No.", "Line No.",
+                GetDeferralAmount(), PostingDate, Description, CurrencyCode));
     end;
 
     local procedure InitDeferralCode()
@@ -6785,12 +6823,27 @@ table 39 "Purchase Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeAssignHeaderValues(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcPrepaymentToDeduct(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeClearQtyIfBlank(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckAssosiatedSalesOrder(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckAssosiatedProdOrder(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -6826,6 +6879,11 @@ table 39 "Purchase Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetDefaultBin(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetDeferralAmount(var PurchaseLine: Record "Purchase Line"; var DeferralAmount: Decimal; var IsHandled: Boolean);
     begin
     end;
 
@@ -7015,6 +7073,11 @@ table 39 "Purchase Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnShowItemChargeAssgntOnBeforeCalcItemCharge(var PurchaseLine: Record "Purchase Line"; var ItemChargeAssgntLineAmt: Decimal; Currency: Record Currency; var IsHandled: Boolean; var ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnUpdateDirectUnitCostOnBeforeFindPrice(PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; CalledByFieldNo: Integer; CallingFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
@@ -7135,7 +7198,7 @@ table 39 "Purchase Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateUnitOfMeasureCodeOnBeforeDropShipmentError(PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    local procedure OnValidateUnitOfMeasureCodeOnBeforeDropShipmentError(PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean; xPurchaseLine: Record "Purchase Line"; CurrentFieldNo: Integer)
     begin
     end;
 
@@ -7164,7 +7227,7 @@ table 39 "Purchase Line"
         exit((Type = Type::"Charge (Item)") and ("No." <> '') and ("Qty. to Assign" < Quantity));
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
     procedure ShowDeferralSchedule()
     var
         PurchaseHeader: Record "Purchase Header";

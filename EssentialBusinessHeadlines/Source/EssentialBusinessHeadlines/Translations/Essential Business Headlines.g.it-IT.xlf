@@ -208,7 +208,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 3892878374 - NamedType 4046857381" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
           <source>%1 was busy, with %2 units booked</source>
-          <target>%1 è stato occupato con %2 unità prenotate</target>
+          <target>%1 è occupato con %2 unità prenotate</target>
           <note from="Developer" annotates="general" priority="2">%1 is the resource name, %2 is the quantity sold</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Essential Bus. Headline Mgt. - NamedType BusiestResourcePayloadTxt</note>
         </trans-unit>

@@ -22,6 +22,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         LibraryWorkflow: Codeunit "Library - Workflow";
         LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
         LibraryFileMgtHandler: Codeunit "Library - File Mgt Handler";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Initialized: Boolean;
         CustomerEmailTxt: Label 'Customer@contoso.com';
         NoDataOutputErr: Label 'No data exists for the specified report filters.';
@@ -51,7 +52,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email]
         // [SCENARIO] Send email when Customer "A" with entries, email is not specified and Customer "B" does not exist. "Print Remaining" = FALSE
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithEntries(Customer, '', GetStandardStatementReportID);
         Commit;
@@ -80,7 +81,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email]
         // [SCENARIO] Send email when Customer "A" without entries, email is specified and Customer "B" does not exist. "Print Remaining" = FALSE
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithoutEntries(Customer, CustomerEmailTxt, GetStandardStatementReportID);
         Commit;
@@ -108,7 +109,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email]
         // [SCENARIO] Send email when Customer "A" with entries, email is specified and Customer "B" does not exist. "Print Remaining" = FALSE
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithEntries(Customer, CustomerEmailTxt, GetStandardStatementReportID);
         Commit;
@@ -138,7 +139,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email]
         // [SCENARIO] Send email when Customer "A" with entries, email is not specified and Customer "B" with entries, email is specified. "Print Remaining" = TRUE, Filter = "A"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithEntries(Customer[1], '', GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
@@ -172,7 +173,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email]
         // [SCENARIO] Send email when Customer "A" without entries, email is specified and Customer "B" with entries, email is specified. "Print Remaining" = TRUE, Filter = "A"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithoutEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
@@ -203,7 +204,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email]
         // [SCENARIO] Send email when Customer "A" with entries, email is not specified and Customer "B" without entries, email is specified. "Print Remaining" = TRUE, Filter = "A"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithEntries(Customer[1], '', GetStandardStatementReportID);
         PrepareCustomerWithoutEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
@@ -237,7 +238,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email]
         // [SCENARIO] Send email when Customer "A" without entries, email is specified and Customer "B" without entries, email is specified. "Print Remaining" = TRUE, Filter = "A"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithoutEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithoutEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
@@ -268,7 +269,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email]
         // [SCENARIO] Send email when Customer "A" with entries, email is not specified and Customer "B" with entries, email is specified. "Print Remaining" = TRUE, Filter = "A"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
@@ -301,7 +302,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email]
         // [SCENARIO] Send email when Customer "A" with entries, email is specified and Customer "B" with entries, email is not specified. "Print Remaining" = TRUE, Filter = "A"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], '', GetStandardStatementReportID);
@@ -334,7 +335,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email]
         // [SCENARIO] Send email when Customer "A" with entries, email is specified and Customer "B" without entries, email is specified. "Print Remaining" = TRUE, Filter = "A"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithoutEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
@@ -369,7 +370,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email]
         // [SCENARIO] Send email when Customer "A" with entries, email is not specified and Customer "B" with entries, email is specified. "Print Remaining" = TRUE, Filter = "A|B"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithEntries(Customer[1], '', GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
@@ -418,7 +419,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email]
         // [SCENARIO] Send email when Customer "A" without entries, email is specified and Customer "B" with entries, email is specified. "Print Remaining" = TRUE, Filter = "A|B"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithoutEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
@@ -453,7 +454,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email]
         // [SCENARIO] Send email when Customer "A" with entries, email is not specified and Customer "B" without entries, email is specified. "Print Remaining" = TRUE, Filter = "A|B"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithEntries(Customer[1], '', GetStandardStatementReportID);
         PrepareCustomerWithoutEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
@@ -491,7 +492,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email]
         // [SCENARIO] Send email when Customer "A" without entries, email is specified and Customer "B" without entries, email is specified. "Print Remaining" = TRUE, Filter = "A|B"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithoutEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithoutEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
@@ -527,7 +528,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email]
         // [SCENARIO] Send email when Customer "A" with entries, email is not specified and Customer "B" with entries, email is not specified. "Print Remaining" = TRUE, Filter = "A|B"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithEntries(Customer[1], '', GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], '', GetStandardStatementReportID);
@@ -568,7 +569,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email]
         // [SCENARIO] Send email when Customer "A" without entries, email is specified and Customer "B" with entries, email is not specified. "Print Remaining" = TRUE, Filter = "A|B"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithoutEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], '', GetStandardStatementReportID);
@@ -605,7 +606,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email]
         // [SCENARIO] Send email when Customer "A" with entries, email is specified and Customer "B" with entries, email is specified. "Print Remaining" = TRUE, Filter = "A|B"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
@@ -642,7 +643,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email]
         // [SCENARIO] Send email when Customer "A" with entries, email is specified and Customer "B" with entries, email is not specified. "Print Remaining" = TRUE, Filter = "A|B"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], '', GetStandardStatementReportID);
@@ -689,7 +690,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email]
         // [SCENARIO] Send email when Customer "A" with entries, email is specified and Customer "B" without entries, email is specified. "Print Remaining" = TRUE, Filter = "A|B"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithoutEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
@@ -724,7 +725,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email]
         // [SCENARIO] Send email when Customer "A" with entries, email is not specified and Customer "B" without entries, email is specified. "Print Remaining" = FALSE, Filter = "A|B"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithEntries(Customer[1], '', GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
@@ -761,7 +762,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email]
         // [SCENARIO] Send email when Customer "A" without entries, email is specified and Customer "B" with entries, email is specified. "Print Remaining" = FALSE, Filter = "A|B"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithoutEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
@@ -795,7 +796,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email]
         // [SCENARIO] Send email when Customer "A" with entries, email is not specified and Customer "B" without entries, email is specified. "Print Remaining" = FALSE, Filter = "A|B"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithEntries(Customer[1], '', GetStandardStatementReportID);
         PrepareCustomerWithoutEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
@@ -831,7 +832,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email]
         // [SCENARIO] Send email when Customer "A" without entries, email is specified and Customer "B" without entries, email is specified. "Print Remaining" = FALSE, Filter = "A|B"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithoutEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithoutEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
@@ -866,7 +867,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email]
         // [SCENARIO] Send email when Customer "A" with entries, email is not specified and Customer "B" with entries, email is not specified. "Print Remaining" = FALSE, Filter = "A|B"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithEntries(Customer[1], '', GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], '', GetStandardStatementReportID);
@@ -903,7 +904,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email]
         // [SCENARIO] Send email when Customer "A" without entries, email is specified and Customer "B" with entries, email is not specified. "Print Remaining" = FALSE, Filter = "A|B"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithoutEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], '', GetStandardStatementReportID);
@@ -938,7 +939,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email]
         // [SCENARIO] Send email when Customer "A" with entries, email is specified and Customer "B" with entries, email is specified. "Print Remaining" = FALSE, Filter = "A|B"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
@@ -974,7 +975,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email]
         // [SCENARIO] Send email when Customer "A" with entries, email is specified and Customer "B" with entries, email is not specified. "Print Remaining" = FALSE, Filter = "A|B"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], '', GetStandardStatementReportID);
@@ -1010,7 +1011,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email]
         // [SCENARIO] Send email when Customer "A" with entries, email is specified and Customer "B" without entries, email is specified. "Print Remaining" = FALSE, Filter = "A|B"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithoutEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
@@ -1042,7 +1043,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email] [Job Queue]
         // [SCENARIO] Enqueue email when Customer "A" with entries, email is not specified and Customer "B" does not exist. "Print Remaining" = FALSE
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithEntries(Customer, '', GetStandardStatementReportID);
         Commit;
@@ -1072,7 +1073,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email] [Job Queue]
         // [SCENARIO] Enqueue email when Customer "A" without entries, email is specified and Customer "B" does not exist. "Print Remaining" = FALSE
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithoutEntries(Customer, CustomerEmailTxt, GetStandardStatementReportID);
         Commit;
@@ -1104,7 +1105,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email] [Job Queue]
         // [SCENARIO] Enqueue email when Customer "A" with entries, email is specified and Customer "B" does not exist. "Print Remaining" = FALSE
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithEntries(Customer, CustomerEmailTxt, GetStandardStatementReportID);
         Commit;
@@ -1139,7 +1140,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email] [Job Queue]
         // [SCENARIO] Enqueue email when Customer "A" with entries, email is not specified and Customer "B" with entries, email is specified. "Print Remaining" = TRUE, Filter = "A"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithEntries(Customer[1], '', GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
@@ -1174,7 +1175,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email] [Job Queue]
         // [SCENARIO] Enqueue email when Customer "A" without entries, email is specified and Customer "B" with entries, email is specified. "Print Remaining" = TRUE, Filter = "A"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithoutEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
@@ -1210,7 +1211,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email] [Job Queue]
         // [SCENARIO] Enqueue email when Customer "A" with entries, email is not specified and Customer "B" without entries, email is specified. "Print Remaining" = TRUE, Filter = "A"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithEntries(Customer[1], '', GetStandardStatementReportID);
         PrepareCustomerWithoutEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
@@ -1245,7 +1246,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email] [Job Queue]
         // [SCENARIO] Enqueue email when Customer "A" without entries, email is specified and Customer "B" without entries, email is specified. "Print Remaining" = TRUE, Filter = "A"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithoutEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithoutEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
@@ -1282,7 +1283,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email] [Job Queue]
         // [SCENARIO] Enqueue email when Customer "A" with entries, email is specified and Customer "B" with entries, email is specified. "Print Remaining" = TRUE, Filter = "A"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
@@ -1325,7 +1326,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email] [Job Queue]
         // [SCENARIO] Enqueue email when Customer "A" with entries, email is specified and Customer "B" with entries, email is not specified. "Print Remaining" = TRUE, Filter = "A"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], '', GetStandardStatementReportID);
@@ -1368,7 +1369,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email] [Job Queue]
         // [SCENARIO] Enqueue email when Customer "A" with entries, email is specified and Customer "B" without entries, email is specified. "Print Remaining" = TRUE, Filter = "A"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithoutEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
@@ -1411,7 +1412,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email] [Job Queue]
         // [SCENARIO] Enqueue email when Customer "A" with entries, email is not specified and Customer "B" with entries, email is specified. "Print Remaining" = TRUE, Filter = "A|B"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithEntries(Customer[1], '', GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
@@ -1456,7 +1457,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email] [Job Queue]
         // [SCENARIO] Enqueue email when Customer "A" without entries, email is specified and Customer "B" with entries, email is specified. "Print Remaining" = TRUE, Filter = "A|B"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithoutEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
@@ -1499,7 +1500,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email] [Job Queue]
         // [SCENARIO] Enqueue email when Customer "A" with entries, email is not specified and Customer "B" without entries, email is specified. "Print Remaining" = TRUE, Filter = "A|B"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithEntries(Customer[1], '', GetStandardStatementReportID);
         PrepareCustomerWithoutEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
@@ -1536,7 +1537,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email] [Job Queue]
         // [SCENARIO] Enqueue email when Customer "A" without entries, email is specified and Customer "B" without entries, email is specified. "Print Remaining" = TRUE, Filter = "A|B"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithoutEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithoutEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
@@ -1569,7 +1570,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email] [Job Queue]
         // [SCENARIO] Enqueue email when Customer "A" with entries, email is not specified and Customer "B" with entries, email is not specified. "Print Remaining" = TRUE, Filter = "A|B"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithEntries(Customer[1], '', GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], '', GetStandardStatementReportID);
@@ -1604,7 +1605,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email] [Job Queue]
         // [SCENARIO] Enqueue email when Customer "A" without entries, email is specified and Customer "B" with entries, email is not specified. "Print Remaining" = TRUE, Filter = "A|B"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithoutEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], '', GetStandardStatementReportID);
@@ -1639,7 +1640,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email] [Job Queue]
         // [SCENARIO] Enqueue email when Customer "A" with entries, email is specified and Customer "B" with entries, email is specified. "Print Remaining" = TRUE, Filter = "A|B"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
@@ -1689,7 +1690,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email] [Job Queue]
         // [SCENARIO] Enqueue email when Customer "A" with entries, email is specified and Customer "B" with entries, email is not specified. "Print Remaining" = TRUE, Filter = "A|B"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], '', GetStandardStatementReportID);
@@ -1734,7 +1735,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email] [Job Queue]
         // [SCENARIO] Enqueue email when Customer "A" with entries, email is specified and Customer "B" without entries, email is specified. "Print Remaining" = TRUE, Filter = "A|B"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithoutEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
@@ -1777,7 +1778,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email] [Job Queue]
         // [SCENARIO] Enqueue email when Customer "A" with entries, email is not specified and Customer "B" with entries, email is specified. "Print Remaining" = FALSE, Filter = "A|B"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithEntries(Customer[1], '', GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
@@ -1822,7 +1823,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email] [Job Queue]
         // [SCENARIO] Enqueue email when Customer "A" without entries, email is specified and Customer "B" with entries, email is specified. "Print Remaining" = FALSE, Filter = "A|B"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithoutEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
@@ -1865,7 +1866,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email] [Job Queue]
         // [SCENARIO] Enqueue email when Customer "A" with entries, email is not specified and Customer "B" without entries, email is specified. "Print Remaining" = FALSE, Filter = "A|B"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithEntries(Customer[1], '', GetStandardStatementReportID);
         PrepareCustomerWithoutEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
@@ -1906,7 +1907,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email] [Job Queue]
         // [SCENARIO] Enqueue email when Customer "A" without entries, email is specified and Customer "B" without entries, email is specified. "Print Remaining" = FALSE, Filter = "A|B"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithoutEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithoutEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
@@ -1946,7 +1947,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email] [Job Queue]
         // [SCENARIO] Enqueue email when Customer "A" with entries, email is not specified and Customer "B" with entries, email is not specified. "Print Remaining" = FALSE, Filter = "A|B"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithEntries(Customer[1], '', GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], '', GetStandardStatementReportID);
@@ -1988,7 +1989,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email] [Job Queue]
         // [SCENARIO] Enqueue email when Customer "A" without entries, email is specified and Customer "B" with entries, email is not specified. "Print Remaining" = FALSE, Filter = "A|B"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithoutEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], '', GetStandardStatementReportID);
@@ -2028,7 +2029,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email] [Job Queue]
         // [SCENARIO] Enqueue email when Customer "A" with entries, email is specified and Customer "B" with entries, email is specified. "Print Remaining" = FALSE, Filter = "A|B"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
@@ -2076,7 +2077,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email] [Job Queue]
         // [SCENARIO] Enqueue email when Customer "A" with entries, email is specified and Customer "B" with entries, email is not specified. "Print Remaining" = FALSE, Filter = "A|B"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], '', GetStandardStatementReportID);
@@ -2115,7 +2116,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email] [Job Queue]
         // [SCENARIO] Enqueue email when Customer "A" with entries, email is specified and Customer "B" without entries, email is specified. "Print Remaining" = FALSE, Filter = "A|B"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithoutEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
@@ -2154,7 +2155,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Print]
         // [SCENARIO] Send to print when Customer "A" with entries, email is not specified and Customer "B" does not exist.
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithEntries(Customer, '', GetStandardStatementReportID);
         Commit;
@@ -2190,7 +2191,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Print]
         // [SCENARIO] Send to print when Customer "A" without entries and Customer "B" does not exist.
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithoutEntries(Customer, CustomerEmailTxt, GetStandardStatementReportID);
         Commit;
@@ -2221,7 +2222,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Print]
         // [SCENARIO] Send to print when Customer "A" with entries and Customer "B" does not exist.
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithEntries(Customer, CustomerEmailTxt, GetStandardStatementReportID);
         Commit;
@@ -2252,7 +2253,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Print]
         // [SCENARIO] Send to print when Customer "A" with entries and Customer "B" with entries. Filter = "A|B"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithEntries(Customer[1], '', GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], '', GetStandardStatementReportID);
@@ -2287,7 +2288,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Print]
         // [SCENARIO] Send to print when Customer "A" without entries and Customer "B" with entries.Filter = "A|B"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithoutEntries(Customer[1], '', GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], '', GetStandardStatementReportID);
@@ -2321,7 +2322,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Print]
         // [SCENARIO] Send to print when Customer "A" with entries and Customer "B" without entries. Filter = "A|B"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithEntries(Customer[1], '', GetStandardStatementReportID);
         PrepareCustomerWithoutEntries(Customer[2], '', GetStandardStatementReportID);
@@ -2357,7 +2358,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Print]
         // [SCENARIO] Send to print when Customer "A" without entries and Customer "B" without entries. Filter = "A|B"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithoutEntries(Customer[1], '', GetStandardStatementReportID);
         PrepareCustomerWithoutEntries(Customer[2], '', GetStandardStatementReportID);
@@ -2390,7 +2391,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Print] [Job Queue]
         // [SCENARIO] Enqueue to print when Customer "A" with entries, email is not specified and Customer "B" does not exist.
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithEntries(Customer, '', GetStandardStatementReportID);
         Commit;
@@ -2422,7 +2423,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Print] [Job Queue]
         // [SCENARIO] Enqueue to print when Customer "A" without entries and Customer "B" without entries. Filter = "A"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithoutEntries(Customer, CustomerEmailTxt, GetStandardStatementReportID);
         Commit;
@@ -2453,7 +2454,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Print] [Job Queue]
         // [SCENARIO] Enqueue to print when Customer "A" with entries and Customer "B" does not exist. Filter = "A"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithEntries(Customer, CustomerEmailTxt, GetStandardStatementReportID);
         Commit;
@@ -2484,7 +2485,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Print] [Job Queue]
         // [SCENARIO] Enqueue to print when Customer "A" with entries and Customer "B" with entries. Filter = "A|B"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithEntries(Customer[1], '', GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], '', GetStandardStatementReportID);
@@ -2518,7 +2519,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Print] [Job Queue]
         // [SCENARIO] Enqueue to print when Customer "A" without entries and Customer "B" with entries. Filter = "A|B"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithoutEntries(Customer[1], '', GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], '', GetStandardStatementReportID);
@@ -2552,7 +2553,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Print] [Job Queue]
         // [SCENARIO] Enqueue to print when Customer "A" with entries and Customer "B" without entries. Filter = "A|B"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithEntries(Customer[1], '', GetStandardStatementReportID);
         PrepareCustomerWithoutEntries(Customer[2], '', GetStandardStatementReportID);
@@ -2587,7 +2588,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Print] [Job Queue]
         // [SCENARIO] Enqueue to print when Customer "A" without entries and Customer "B" without entries. Filter = "A|B"
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithoutEntries(Customer[1], '', GetStandardStatementReportID);
         PrepareCustomerWithoutEntries(Customer[2], '', GetStandardStatementReportID);
@@ -2635,7 +2636,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [UT]
         // [SCENARIO] CheckEmailSendTo of TAB9657 throws error when "Send to Email" is blank
-        Initialize;
+        Initialize();
 
         CreateCustomer(Customer);
 
@@ -2658,7 +2659,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Job Queue] [Xml] [UT]
         // [SCENARIO] Enqueue to print when Customer "A" with entries and Customer "B" with entries. Filter = "A|B"
-        Initialize;
+        Initialize();
 
         JobQueueEntry.ID := CreateGuid;
         JobQueueEntry."User ID" := UserId;
@@ -2683,7 +2684,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email] [Job Queue]
         // [SCENARIO] Enqueueed email with Customer "A" having entries failed with SMTP error
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         Commit;
@@ -2724,7 +2725,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     begin
         // [FEATURE] [Email] [Job Queue]
         // [SCENARIO] Enqueueed email with Customers "A" and "B" both having entries failed with SMTP error
-        Initialize;
+        Initialize();
 
         PrepareCustomerWithEntries(Customer[1], CustomerEmailTxt, GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], CustomerEmailTxt, GetStandardStatementReportID);
@@ -2772,16 +2773,18 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         ReportInbox: Record "Report Inbox";
         CustomerCard: TestPage "Customer Card";
     begin
-        LibraryVariableStorage.Clear;
-        CustomReportSelection.DeleteAll;
-        ReportSelections.DeleteAll;
-        ReportLayoutSelection.DeleteAll;
-        LibraryWorkflow.SetUpSMTPEmailSetup;
-        LibrarySetupStorage.Restore;
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Rep. Selections - Std. Stmt.");
+
+        LibraryVariableStorage.Clear();
+        CustomReportSelection.DeleteAll();
+        ReportSelections.DeleteAll();
+        ReportLayoutSelection.DeleteAll();
+        LibraryWorkflow.SetUpSMTPEmailSetup();
+        LibrarySetupStorage.Restore();
 
         // Page opening may cause DB (i.e. Business Chart insertion) transaction. So, open, close, commit  and reopen
-        CustomerCard.OpenView;
-        CustomerCard.Close;
+        CustomerCard.OpenView();
+        CustomerCard.Close();
 
         // Job Queue Entry could not be deleted when test fails unexpectedly. That caused other false negative results
         JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
@@ -2803,17 +2806,19 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         if Initialized then
             exit;
 
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Rep. Selections - Std. Stmt.");
+
         Initialized := true;
 
         CompanyInformation.Get;
         CompanyInformation."SWIFT Code" := 'A';
         CompanyInformation.Modify;
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryInventory.NoSeriesSetup(InventorySetup);
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Company Information");
@@ -2821,6 +2826,8 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         LibraryFileMgtHandler.SetDownloadSubscriberActivated(true);
         BindSubscription(LibraryFileMgtHandler);
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Rep. Selections - Std. Stmt.");
     end;
 
     local procedure AddExpectedErrorMessage(var TempErrorMessage: Record "Error Message" temporary; ErrorMessage: Text)

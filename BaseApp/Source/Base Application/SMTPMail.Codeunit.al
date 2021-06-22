@@ -297,7 +297,7 @@ codeunit 400 "SMTP Mail"
     /// <param name="Subject">The subject of the mail</param>
     /// <param name="Body">The body of the mail</param>
     /// <param name="HtmlFormatted">Whether the body is html formatted</param>
-    [Obsolete('This method is obsolete. A new CreateMessage overload is available, with the following parameters (FromName: Text; FromAddress: Text; Recipients: List of [Text]; Subject: Text; Body: Text).')]
+    [Obsolete('This method is obsolete. A new CreateMessage overload is available, with the following parameters (FromName: Text; FromAddress: Text; Recipients: List of [Text]; Subject: Text; Body: Text).', '15.0')]
     [TryFunction]
     procedure CreateMessage(FromName: Text; FromAddress: Text; Recipient: Text; Subject: Text; Body: Text; HtmlFormatted: Boolean)
     var

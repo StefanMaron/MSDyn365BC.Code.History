@@ -26,6 +26,7 @@ table 323 "VAT Business Posting Group"
             Caption = 'Id';
             ObsoleteState = Pending;
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
+            ObsoleteTag = '15.0';
         }
     }
 

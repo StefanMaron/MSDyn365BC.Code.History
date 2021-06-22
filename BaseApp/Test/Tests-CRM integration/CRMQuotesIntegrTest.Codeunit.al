@@ -468,47 +468,6 @@ codeunit 139172 "CRM Quotes Integr.Test"
     end;
 
     [Test]
-    [HandlerFunctions('ConnectionBrokenMessageHandler')]
-    [Scope('OnPrem')]
-    procedure DisableBrokenConnectionPostCoupledSalesQuote()
-    var
-        SalesHeader: Record "Sales Header";
-        CRMQuote: Record "CRM Quote";
-        CRMQuotedetail: Record "CRM Quotedetail";
-        CRMSystemuser: Record "CRM Systemuser";
-        CRMConnectionSetup: Record "CRM Connection Setup";
-    begin
-        // [SCENARIO 257435] Disable broken connection when delete(post) coupled Sales Quote
-        Initialize;
-        ClearCRMData;
-
-        // [GIVEN] CRM Connection is enabled
-        CRMConnectionSetup.Get;
-        CRMConnectionSetup."Is Enabled" := true;
-        CRMConnectionSetup.Modify;
-
-        // [GIVEN] Created NAV Quote from CRM Quote
-        CreateCRMQuoteInLCY(CRMQuote);
-        LibraryCRMIntegration.CreateCRMQuoteLine(CRMQuote, CRMQuotedetail);
-        CreateSalesQuoteInNAV(CRMQuote, SalesHeader);
-
-        // [GIVEN] CRM Connection is broken
-        CRMSystemuser.DeleteAll;
-
-        // [WHEN] Post Sales Quote
-        // Deletion of Sales Document is happening, without running trigger
-        SalesHeader.Delete;
-
-        // [THEN] Message notifying user about broken connection and error text ET is shown
-        Assert.ExpectedMessage('The CRM Systemuser table is empty.', LibraryVariableStorage.DequeueText);
-
-        // [THEN] CRM Connection is disabled, "Disable Reason" = ET
-        CRMConnectionSetup.Get;
-        CRMConnectionSetup.TestField("Is Enabled", false);
-        CRMConnectionSetup.TestField("Disable Reason", 'The CRM Systemuser table is empty.');
-    end;
-
-    [Test]
     [Scope('OnPrem')]
     procedure CRMExistingQuoteWon()
     var
@@ -860,13 +819,6 @@ codeunit 139172 "CRM Quotes Integr.Test"
                 exit;
         until RecordLink.Next = 0;
         Error(StrSubstNo(SalesQuotenoteNotFoundErr, SalesHeader."No.", AnnotationText));
-    end;
-
-    [MessageHandler]
-    [Scope('OnPrem')]
-    procedure ConnectionBrokenMessageHandler(Message: Text)
-    begin
-        LibraryVariableStorage.Enqueue(Message);
     end;
 
     [Scope('OnPrem')]

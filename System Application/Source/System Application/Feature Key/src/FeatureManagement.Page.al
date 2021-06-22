@@ -10,8 +10,6 @@ page 2610 "Feature Management"
 {
     PageType = List;
     Caption = 'Available Features and Changes';
-    ApplicationArea = All;
-    UsageCategory = Administration;
     SourceTable = "Feature Key";
     InsertAllowed = false;
     DeleteAllowed = false;

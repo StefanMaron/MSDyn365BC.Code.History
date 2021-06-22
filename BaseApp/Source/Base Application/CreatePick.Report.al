@@ -504,7 +504,7 @@ report 5754 "Create Pick"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePrintPickList(var PickWhseActivHeader: Record "Warehouse Activity Header"; var PickListReportID: Integer; IsHandled: Boolean)
+    local procedure OnBeforePrintPickList(var PickWhseActivHeader: Record "Warehouse Activity Header"; var PickListReportID: Integer; var IsHandled: Boolean)
     begin
     end;
 

@@ -1,4 +1,4 @@
-codeunit 9025 "Small Business Report Catalog"
+﻿codeunit 9025 "Small Business Report Catalog"
 {
 
     trigger OnRun()
@@ -14,7 +14,13 @@ codeunit 9025 "Small Business Report Catalog"
         AgingBy: Option "Due Date","Posting Date","Document Date";
         HeadingType: Option "Date Interval","Number of Days";
         PeriodLength: DateFormula;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeRunAgedAccountsReceivableReport(UseRequestPage, IsHandled);
+        if IsHandled then
+            exit;
+
         Evaluate(PeriodLength, '<30D>');
         AgedAccountsReceivable.InitializeRequest(
           WorkDate, AgingBy::"Posting Date", PeriodLength, false, false, HeadingType::"Date Interval", false);
@@ -29,7 +35,13 @@ codeunit 9025 "Small Business Report Catalog"
         AgingBy: Option "Due Date","Posting Date","Document Date";
         HeadingType: Option "Date Interval","Number of Days";
         PeriodLength: DateFormula;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeRunAgedAccountsPayableReport(UseRequestPage, IsHandled);
+        if IsHandled then
+            exit;
+
         Evaluate(PeriodLength, '<30D>');
         AgedAccountsPayable.InitializeRequest(
           WorkDate, AgingBy::"Posting Date", PeriodLength, false, false, HeadingType::"Date Interval", false);
@@ -43,7 +55,13 @@ codeunit 9025 "Small Business Report Catalog"
         CustomerTop10ListReport: Report "Customer - Top 10 List";
         ChartType: Option "Bar chart","Pie chart";
         ShowType: Option "Sales (LCY)","Balance (LCY)";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeRunCustomerTop10ListReport(UseRequestPage, IsHandled);
+        if IsHandled then
+            exit;
+
         CustomerTop10ListReport.InitializeRequest(ChartType::"Bar chart", ShowType::"Sales (LCY)", 10);
         CustomerTop10ListReport.UseRequestPage(UseRequestPage);
         CustomerTop10ListReport.Run;
@@ -53,7 +71,13 @@ codeunit 9025 "Small Business Report Catalog"
     var
         VendorTop10ListReport: Report "Vendor - Top 10 List";
         ShowType: Option "Purchases (LCY)","Balance (LCY)";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeRunVendorTop10ListReport(UseRequestPage, IsHandled);
+        if IsHandled then
+            exit;
+
         VendorTop10ListReport.InitializeRequest(ShowType::"Purchases (LCY)", 10);
         VendorTop10ListReport.UseRequestPage(UseRequestPage);
         VendorTop10ListReport.Run;
@@ -75,7 +99,13 @@ codeunit 9025 "Small Business Report Catalog"
         NewStartDate: Date;
         NewEndDate: Date;
         DateChoice: Option "Due Date","Posting Date";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeRunCustomerStatementReport(UseRequestPage, IsHandled);
+        if IsHandled then
+            exit;
+
         // Use default parameters when you launch the request page, with Start/End Date being the YTD of current financial year
         NewPrintEntriesDue := false;
         NewPrintAllHavingEntry := false;
@@ -101,9 +131,14 @@ codeunit 9025 "Small Business Report Catalog"
     procedure RunTrialBalanceReport(UseRequestPage: Boolean)
     var
         TrialBalance: Report "Trial Balance";
+        IsHandled: Boolean;
     begin
-        TrialBalance.UseRequestPage(UseRequestPage);
+        IsHandled := false;
+        OnBeforeRunTrialBalanceReport(UseRequestPage, IsHandled);
+        if IsHandled then
+            exit;
 
+        TrialBalance.UseRequestPage(UseRequestPage);
         TrialBalance.Run;
     end;
 
@@ -133,7 +168,37 @@ codeunit 9025 "Small Business Report Catalog"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunCustomerStatementReport(UseRequestPage: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunCustomerTop10ListReport(UseRequestPage: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunVendorTop10ListReport(UseRequestPage: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunTrialBalanceReport(UseRequestPage: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeRunDetailTrialBalanceReport(UseRequestPage: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunAgedAccountsReceivableReport(UseRequestPage: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunAgedAccountsPayableReport(UseRequestPage: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

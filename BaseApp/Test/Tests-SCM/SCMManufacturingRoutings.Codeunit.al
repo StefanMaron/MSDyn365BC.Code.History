@@ -234,6 +234,186 @@ codeunit 137082 "SCM Manufacturing - Routings"
 
     [Test]
     [Scope('OnPrem')]
+    procedure CertifyParallelRoutingLongWayPointsToShortWay()
+    var
+        WorkCenter: Record "Work Center";
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Array[5] of Record "Routing Line";
+        i: Integer;
+    begin
+        // [FEATURE] [Parallel Routing]
+        // [SCENARIO 340158] Sequence numbers on two parallel execution paths of different lengths, long way points to short way.
+        Initialize;
+
+        // [GIVEN] Create a parallel routing with 5 operations
+        LibraryManufacturing.CreateWorkCenter(WorkCenter);
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Parallel);
+        for i := 1 to ArrayLen(RoutingLine) do
+            LibraryManufacturing.CreateRoutingLine(
+              RoutingHeader, RoutingLine[i], '', Format(i), RoutingLine[i].Type::"Work Center", WorkCenter."No.");
+
+        // [GIVEN] Setup the execution path: starting operation 1, operations 2 and 5 are executed in parallel.
+        // [GIVEN] Way A: 1 → 2 → 3 → 4 → 5; Way B: 1 → 5. Termination operation 5.
+        // [GIVEN]   1
+        // [GIVEN]  / \ 
+        // [GIVEN] 5   2
+        // [GIVEN] ↑   ↓
+        // [GIVEN]  \  3
+        // [GIVEN]   \ ↓
+        // [GIVEN]     4
+        SetNextOperationNo(RoutingLine[1], StrSubstNo('%1|%2', RoutingLine[2]."Operation No.", RoutingLine[5]."Operation No."));
+        SetNextOperationNo(RoutingLine[2], RoutingLine[3]."Operation No.");
+        SetNextOperationNo(RoutingLine[3], RoutingLine[4]."Operation No.");
+        SetNextOperationNo(RoutingLine[4], RoutingLine[5]."Operation No.");
+
+        // [WHEN] Certify the routing
+        CertifyRoutingAndRefreshLines(RoutingHeader, RoutingLine);
+
+        // [THEN] The following sequence is generated:
+        // [THEN]  "Sequence No. (Forward)": 1           "Sequence No. (Backward)": 5
+        // [THEN]                           / \                                    / \
+        // [THEN]                          5   2                                  1   4
+        // [THEN]                          |   |                                  |   |
+        // [THEN]                           \  3                                   \  3
+        // [THEN]                            \ |                                    \ |
+        // [THEN]                              4                                      2
+        RoutingLine[1].TestField("Sequence No. (Forward)", 1);
+        RoutingLine[2].TestField("Sequence No. (Forward)", 2);
+        RoutingLine[3].TestField("Sequence No. (Forward)", 3);
+        RoutingLine[4].TestField("Sequence No. (Forward)", 4);
+        RoutingLine[5].TestField("Sequence No. (Forward)", 5);
+
+        RoutingLine[5].TestField("Sequence No. (Backward)", 1);
+        RoutingLine[4].TestField("Sequence No. (Backward)", 2);
+        RoutingLine[3].TestField("Sequence No. (Backward)", 3);
+        RoutingLine[2].TestField("Sequence No. (Backward)", 4);
+        RoutingLine[1].TestField("Sequence No. (Backward)", 5);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CertifyParallelRoutingShortWayPointsToLongWay()
+    var
+        WorkCenter: Record "Work Center";
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Array[5] of Record "Routing Line";
+        i: Integer;
+    begin
+        // [FEATURE] [Parallel Routing]
+        // [SCENARIO 340158] Sequence numbers on two parallel execution paths of different lengths, short way points to long way.
+        Initialize;
+
+        // [GIVEN] Create a parallel routing with 5 operations
+        LibraryManufacturing.CreateWorkCenter(WorkCenter);
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Parallel);
+        for i := 1 to ArrayLen(RoutingLine) do
+            LibraryManufacturing.CreateRoutingLine(
+              RoutingHeader, RoutingLine[i], '', Format(i), RoutingLine[i].Type::"Work Center", WorkCenter."No.");
+
+        // [GIVEN] Setup the execution path: starting operation 1, operations 2 and 3 are executed in parallel.
+        // [GIVEN] Way A: 1 → 2; Way B: 1 → 3 → 4 → 5. Termination operation 5.
+        // [GIVEN]   1
+        // [GIVEN]  / \ 
+        // [GIVEN] 2 → 3
+        // [GIVEN]     ↓
+        // [GIVEN]     4
+        // [GIVEN]     ↓
+        // [GIVEN]     5
+        SetNextOperationNo(RoutingLine[1], StrSubstNo('%1|%2', RoutingLine[2]."Operation No.", RoutingLine[3]."Operation No."));
+        SetNextOperationNo(RoutingLine[2], RoutingLine[3]."Operation No.");
+        SetNextOperationNo(RoutingLine[3], RoutingLine[4]."Operation No.");
+        SetNextOperationNo(RoutingLine[4], RoutingLine[5]."Operation No.");
+
+        // [WHEN] Certify the routing
+        CertifyRoutingAndRefreshLines(RoutingHeader, RoutingLine);
+
+        // [THEN] The following sequence is generated:
+        // [THEN]  "Sequence No. (Forward)": 1           "Sequence No. (Backward)": 5
+        // [THEN]                           / \                                    / \
+        // [THEN]                          2 - 3                                  4 - 3
+        // [THEN]                              |                                      |
+        // [THEN]                              4                                      2
+        // [THEN]                              |                                      |
+        // [THEN]                              5                                      1
+        RoutingLine[1].TestField("Sequence No. (Forward)", 1);
+        RoutingLine[2].TestField("Sequence No. (Forward)", 2);
+        RoutingLine[3].TestField("Sequence No. (Forward)", 3);
+        RoutingLine[4].TestField("Sequence No. (Forward)", 4);
+        RoutingLine[5].TestField("Sequence No. (Forward)", 5);
+
+        RoutingLine[5].TestField("Sequence No. (Backward)", 1);
+        RoutingLine[4].TestField("Sequence No. (Backward)", 2);
+        RoutingLine[3].TestField("Sequence No. (Backward)", 3);
+        RoutingLine[2].TestField("Sequence No. (Backward)", 4);
+        RoutingLine[1].TestField("Sequence No. (Backward)", 5);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CertifyParallelRoutingDottedFilterInNextOperationNo()
+    var
+        WorkCenter: Record "Work Center";
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Array[7] of Record "Routing Line";
+        i: Integer;
+    begin
+        // [FEATURE] [Parallel Routing]
+        // [SCENARIO 340158] Sequence numbers on multiple parallel execution paths of different lengths. "Next Operation No." contains filter 2..5
+        Initialize;
+
+        // [GIVEN] Create a parallel routing with 5 operations
+        LibraryManufacturing.CreateWorkCenter(WorkCenter);
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Parallel);
+        for i := 1 to ArrayLen(RoutingLine) do
+            LibraryManufacturing.CreateRoutingLine(
+              RoutingHeader, RoutingLine[i], '', Format(i), RoutingLine[i].Type::"Work Center", WorkCenter."No.");
+
+        // [GIVEN] Setup the execution path: starting operation 1, operations 2, 3, 4, 5 are executed in parallel.
+        // [GIVEN] Ways: 1 -> 2 -> 7; 1 -> 3 -> 6 -> 7; 1 -> 4 -> 7; 1 -> 5 -> 7. Termination operation 7.
+        // [GIVEN]      1
+        // [GIVEN]  / /  \ \
+        // [GIVEN] 2  3  4  5
+        // [GIVEN]    |
+        // [GIVEN]    6
+        // [GIVEN]    |
+        // [GIVEN]    7
+        SetNextOperationNo(RoutingLine[1], StrSubstNo('%1..%2', RoutingLine[2]."Operation No.", RoutingLine[5]."Operation No."));
+        SetNextOperationNo(RoutingLine[2], RoutingLine[7]."Operation No.");
+        SetNextOperationNo(RoutingLine[3], RoutingLine[6]."Operation No.");
+        SetNextOperationNo(RoutingLine[4], RoutingLine[7]."Operation No.");
+        SetNextOperationNo(RoutingLine[5], RoutingLine[7]."Operation No.");
+        SetNextOperationNo(RoutingLine[6], RoutingLine[7]."Operation No.");
+
+        // [WHEN] Certify the routing
+        CertifyRoutingAndRefreshLines(RoutingHeader, RoutingLine);
+
+        // [THEN] The following sequence is generated:
+        // [THEN]  "Sequence No. (Forward)":    1           "Sequence No. (Backward)":  4
+        // [THEN]                           / /  \ \                                 / /  \ \
+        // [THEN]                          2  2  2  2                               2  3  2  2
+        // [THEN]                             |                                        |
+        // [THEN]                             3                                        2
+        // [THEN]                             |                                        |
+        // [THEN]                             4                                        1
+        RoutingLine[1].TestField("Sequence No. (Forward)", 1);
+        RoutingLine[2].TestField("Sequence No. (Forward)", 2);
+        RoutingLine[3].TestField("Sequence No. (Forward)", 2);
+        RoutingLine[4].TestField("Sequence No. (Forward)", 2);
+        RoutingLine[5].TestField("Sequence No. (Forward)", 2);
+        RoutingLine[6].TestField("Sequence No. (Forward)", 3);
+        RoutingLine[7].TestField("Sequence No. (Forward)", 4);
+
+        RoutingLine[7].TestField("Sequence No. (Backward)", 1);
+        RoutingLine[6].TestField("Sequence No. (Backward)", 2);
+        RoutingLine[5].TestField("Sequence No. (Backward)", 2);
+        RoutingLine[4].TestField("Sequence No. (Backward)", 2);
+        RoutingLine[3].TestField("Sequence No. (Backward)", 3);
+        RoutingLine[2].TestField("Sequence No. (Backward)", 2);
+        RoutingLine[1].TestField("Sequence No. (Backward)", 4);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure CertifyParallelRoutingWithCrossParallelOperations()
     var
         WorkCenter: Record "Work Center";

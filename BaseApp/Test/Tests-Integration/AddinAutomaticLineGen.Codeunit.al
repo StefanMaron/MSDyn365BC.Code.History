@@ -16,6 +16,7 @@ codeunit 139062 "Add-in Automatic Line Gen."
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         OfficeHostType: DotNet OfficeHostType;
         CommandType: DotNet OutlookCommand;
         IsInitialized: Boolean;
@@ -28,7 +29,7 @@ codeunit 139062 "Add-in Automatic Line Gen."
         SalesQuote: TestPage "Sales Quote";
     begin
         // [SCENARIO 183290] If there is no email body, we do not try to generate lines for the user.
-        Initialize;
+        Initialize();
 
         // [GIVEN] User has an email from a customer that contains no body text
         Setup(OfficeAddinContext, '', CommandType.NewSalesQuote);
@@ -50,7 +51,7 @@ codeunit 139062 "Add-in Automatic Line Gen."
         SalesQuote: TestPage "Sales Quote";
     begin
         // [SCENARIO 183290] If there is an email body that contains no relevant items, we do not try to generate lines for the user.
-        Initialize;
+        Initialize();
 
         // [GIVEN] User has an email from a customer that contains some irrelevant body text
         Setup(OfficeAddinContext, IrrelevantBodyText, CommandType.NewSalesQuote);
@@ -75,7 +76,7 @@ codeunit 139062 "Add-in Automatic Line Gen."
         Quantity: array[5] of Integer;
     begin
         // [SCENARIO 183290] If there is an email body that contains a decimal quantity for an item, generate a line item for it.
-        Initialize;
+        Initialize();
 
         // [GIVEN] User has an email from a customer that contains a request for an item.
         CreateRandomItems(Item, Quantity, 1);
@@ -104,7 +105,7 @@ codeunit 139062 "Add-in Automatic Line Gen."
         Quantity: array[5] of Integer;
     begin
         // [SCENARIO 183290] If there is an email body that contains decimal quantities for multiple items, generate line items for each.
-        Initialize;
+        Initialize();
 
         // [GIVEN] User has an email from a customer that contains a request for several items
         CreateRandomItems(Item, Quantity, 2);
@@ -133,7 +134,7 @@ codeunit 139062 "Add-in Automatic Line Gen."
         Quantity: array[5] of Integer;
     begin
         // [SCENARIO 183290] Line generation is enabled for purchase documents.
-        Initialize;
+        Initialize();
 
         // [GIVEN] User has an email from a customer that contains a request for several items
         CreateRandomItems(Item, Quantity, 2);
@@ -169,7 +170,7 @@ codeunit 139062 "Add-in Automatic Line Gen."
         Quantity: array[5] of Integer;
     begin
         // [SCENARIO 183290] If there is an email body that contains decimal quantities for multiple items, generate line items for each.
-        Initialize;
+        Initialize();
 
         // [GIVEN] User has an email from a customer that contains a request for several items
         CreateRandomItems(Item, Quantity, 4);
@@ -202,7 +203,7 @@ codeunit 139062 "Add-in Automatic Line Gen."
         Quantity: array[5] of Integer;
     begin
         // [SCENARIO 183290] If there is an email body that contains a textual quantity for an item, generate a line item for it.
-        Initialize;
+        Initialize();
 
         // [GIVEN] User has an email from a customer that contains a request for an item with a textual quantity.
         CreateRandomItems(Item, Quantity, 1);
@@ -231,7 +232,7 @@ codeunit 139062 "Add-in Automatic Line Gen."
         Quantity: array[5] of Integer;
     begin
         // [SCENARIO 183290] If there is an email body that contains both text and decimal quantities of items, generate line items for both.
-        Initialize;
+        Initialize();
 
         // [GIVEN] User has an email from a customer that contains a request for items using both textual and numeric quantities
         CreateRandomItems(Item, Quantity, 2);
@@ -260,7 +261,7 @@ codeunit 139062 "Add-in Automatic Line Gen."
         Quantity: array[5] of Integer;
     begin
         // [SCENARIO 183290] If there is an email body that contains only references to items (no quantities), we still find the items.
-        Initialize;
+        Initialize();
 
         // [GIVEN] User has an email from a customer that contains a request for several items but does not reference a quantity
         CreateRandomItems(Item, Quantity, 2);
@@ -290,7 +291,7 @@ codeunit 139062 "Add-in Automatic Line Gen."
         Quantity: array[5] of Integer;
     begin
         // [SCENARIO 183290] If there is a very long email body that contains several item keywords, generate the correct line items.
-        Initialize;
+        Initialize();
 
         // [GIVEN] User has a long email from a customer that contains a request for an item.
         CreateRandomItems(Item, Quantity, 3);
@@ -321,7 +322,7 @@ codeunit 139062 "Add-in Automatic Line Gen."
         Quantity: array[5] of Integer;
     begin
         // [SCENARIO 183290] If the user unchecks the items, do not add them to the document lines.
-        Initialize;
+        Initialize();
 
         // [GIVEN] User has an email from a customer that contains a request for several items
         CreateRandomItems(Item, Quantity, 2);
@@ -350,7 +351,7 @@ codeunit 139062 "Add-in Automatic Line Gen."
         Quantity: array[5] of Integer;
     begin
         // [SCENARIO 183290] If the user clicks cancel when the suggested items page comes up, do not generate line items.
-        Initialize;
+        Initialize();
 
         // [GIVEN] User has an email from a customer that contains a request for several items
         CreateRandomItems(Item, Quantity, 2);
@@ -398,7 +399,7 @@ codeunit 139062 "Add-in Automatic Line Gen."
         Quantity: array[5] of Integer;
     begin
         // [SCENARIO 183290] If the user unchecks the items, do not add them to the document lines.
-        Initialize;
+        Initialize();
 
         // [GIVEN] The message is disabled in instruction mgt
         InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.AutomaticLineItemsDialogCode);
@@ -430,7 +431,7 @@ codeunit 139062 "Add-in Automatic Line Gen."
         Quantity: array[5] of Integer;
     begin
         // [SCENARIO 183290] An email containing an item reference that yields multiple hits in the item table enables user to resolve the item.
-        Initialize;
+        Initialize();
 
         // [GIVEN] User has an email from a customer that contains a request for an ambiguous item
         CreateSimilarItems(Item, Quantity, 2, 'jabberwocky');
@@ -459,7 +460,7 @@ codeunit 139062 "Add-in Automatic Line Gen."
         Quantity: array[5] of Integer;
     begin
         // [SCENARIO 183290] If there is an incorrect item in the suggested lines, the user can change it to another item.
-        Initialize;
+        Initialize();
 
         // [GIVEN] User has an email from a customer that contains a request for several items
         CreateRandomItems(Item, Quantity, 2);
@@ -490,7 +491,7 @@ codeunit 139062 "Add-in Automatic Line Gen."
         Quantity: array[5] of Integer;
     begin
         // [SCENARIO 183290] If there is an email body that contains decimal quantities for multiple items, generate line items for each.
-        Initialize;
+        Initialize();
 
         // [GIVEN] User has an email from a customer that contains a request for several items
         CreateRandomItems(Item, Quantity, 2);
@@ -526,6 +527,8 @@ codeunit 139062 "Add-in Automatic Line Gen."
         OfficeMgt: Codeunit "Office Management";
         OfficeHost: DotNet OfficeHost;
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Add-in Automatic Line Gen.");
+
         Clear(LibraryVariableStorage);
         Clear(LibraryOfficeHostProvider);
         Clear(OfficeHost);
@@ -544,14 +547,18 @@ codeunit 139062 "Add-in Automatic Line Gen."
         if IsInitialized then
             exit;
 
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Add-in Automatic Line Gen.");
+
         AddinManifestManagement.CreateDefaultAddins(OfficeAddin);
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         IsInitialized := true;
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Add-in Automatic Line Gen.");
     end;
 
     [ModalPageHandler]

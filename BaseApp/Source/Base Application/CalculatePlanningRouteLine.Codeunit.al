@@ -171,7 +171,7 @@ codeunit 99000810 "Calculate Planning Route Line"
                             ProdOrderCapNeed."Send-Ahead Type" := ProdOrderCapNeed."Send-Ahead Type"::Output;
                     end;
 
-        ProdOrderCapNeed.UpdateDatetime;
+        ProdOrderCapNeed.UpdateDatetime();
 
         ProdOrderCapNeed.Insert;
 
@@ -187,17 +187,23 @@ codeunit 99000810 "Calculate Planning Route Line"
         RemainNeedQtyBase: Decimal;
         StartingTime: Time;
         StopLoop: Boolean;
+        IsHandled: Boolean;
     begin
         xConCurrCap := 1;
         if (RemainNeedQty = 0) and ((not FirstEntry) or (not Write)) then
             exit;
+
         if CalendarEntry.Find('+') then begin
-            if not IsFirstRoutingLine then
-                if (RemainNeedQty <> 0) and (not IsFirstCalculate) then begin
-                    if TimeType = TimeType::"Wait Time" then
-                        ProdEndingTime := CalendarEntry."Ending Time";
-                    IsFirstCalculate := true;
-                end;
+            IsHandled := false;
+            OnCreateLoadBackOnBeforeFirstCalculate(PlanningRoutingLine, IsHandled);
+            if not IsHandled then
+                if not IsFirstRoutingLine then
+                    if (RemainNeedQty <> 0) and (not IsFirstCalculate) then begin
+                        if TimeType = TimeType::"Wait Time" then
+                            ProdEndingTime := CalendarEntry."Ending Time";
+                        IsFirstCalculate := true;
+                    end;
+
             GetCurrentWorkCenterTimeFactorAndRounding(WorkCenter);
             RemainNeedQtyBase := Round(RemainNeedQty * CurrentTimeFactor, CurrentRounding);
             repeat
@@ -350,7 +356,14 @@ codeunit 99000810 "Calculate Planning Route Line"
     end;
 
     local procedure LoadCapForward(CapType: Option "Work Center","Machine Center"; CapNo: Code[20]; TimeType: Option "Setup Time","Run Time","Wait Time","Move Time","Queue Time"; Write: Boolean)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeLoadCapForward(PlanningRoutingLine, TimeType, ProdStartingDate, ProdStartingTime, IsHandled);
+        if IsHandled then
+            exit;
+
         PlanningRoutingLine."Ending Date" := ProdStartingDate;
         PlanningRoutingLine."Ending Time" := ProdStartingTime;
 
@@ -366,24 +379,44 @@ codeunit 99000810 "Calculate Planning Route Line"
         TestForError(Text003, Text004, PlanningRoutingLine."Ending Date");
     end;
 
-    local procedure CalcMoveAndWaitBack()
+    local procedure CalcMoveTimeBack()
+    var
+        IsHandled: Boolean;
     begin
         UpdateDates := true;
+        IsHandled := false;
+        OnBeforeCalcMoveTimeBack(
+            PlanningRoutingLine, WorkCenter, ProdEndingDate, ProdEndingTime, ProdStartingDate, ProdStartingTime, UpdateDates, IsHandled);
+        if IsHandled then
+            exit;
 
         RemainNeedQty :=
-          Round(
-            PlanningRoutingLine."Move Time" *
-            CalendarMgt.TimeFactor(PlanningRoutingLine."Move Time Unit of Meas. Code") /
-            CalendarMgt.TimeFactor(WorkCenter."Unit of Measure Code"),
-            WorkCenter."Calendar Rounding Precision");
+            Round(
+                PlanningRoutingLine."Move Time" *
+                CalendarMgt.TimeFactor(PlanningRoutingLine."Move Time Unit of Meas. Code") /
+                CalendarMgt.TimeFactor(WorkCenter."Unit of Measure Code"),
+                WorkCenter."Calendar Rounding Precision");
 
         LoadCapBack(PlanningRoutingLine.Type, PlanningRoutingLine."No.", 3, false);
+    end;
+
+    local procedure CalcWaitTimeBack()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCalcWaitTimeBack(
+            PlanningRoutingLine, WorkCenter, ProdEndingDate, ProdEndingTime, ProdStartingDate, ProdStartingTime, UpdateDates, IsHandled);
+        if IsHandled then
+            exit;
+
         RemainNeedQty :=
-          Round(
-            PlanningRoutingLine."Wait Time" *
-            CalendarMgt.TimeFactor(PlanningRoutingLine."Wait Time Unit of Meas. Code") /
-            CalendarMgt.TimeFactor(WorkCenter."Unit of Measure Code"),
-            WorkCenter."Calendar Rounding Precision");
+            Round(
+                PlanningRoutingLine."Wait Time" *
+                CalendarMgt.TimeFactor(PlanningRoutingLine."Wait Time Unit of Meas. Code") /
+                CalendarMgt.TimeFactor(WorkCenter."Unit of Measure Code"),
+                WorkCenter."Calendar Rounding Precision");
+
         LoadCapBack(PlanningRoutingLine.Type, PlanningRoutingLine."No.", 2, false);
     end;
 
@@ -557,9 +590,11 @@ codeunit 99000810 "Calculate Planning Route Line"
             TotalLotSize := MaxLotSize;
             SendAheadLotSize := MaxLotSize;
         end;
+
         UpdateDates := true;
 
-        CalcMoveAndWaitBack;
+        CalcMoveTimeBack();
+        CalcWaitTimeBack();
 
         repeat
             LotSize := SendAheadLotSize;
@@ -1407,8 +1442,39 @@ codeunit 99000810 "Calculate Planning Route Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCreatePlanningCapNeed(
+        var NextCapNeedLineNo: Integer; PlanningRoutingLine: Record "Planning Routing Line"; ReqLine: Record "Requisition Line"; NeedDate: Date;
+        StartingTime: Time; EndingTime: Time; TimeType: option "Setup Time","Run Time"; NeedQty: Decimal; ConCurrCap: Decimal;
+        CalendarEntry: Record "Calendar Entry"; LotSize: Decimal; RemainNeedQty: Decimal; FirstInBatch: Boolean; Direction: Option "Forward","Backward")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+
+    local procedure OnBeforeCalcMoveTimeBack(var PlanningRoutingLine: Record "Planning Routing Line"; WorkCenter: Record "Work Center"; var ProdEndingDate: Date; var ProdEndingTime: Time; var ProdStartingDate: Date; var ProdStartingTime: Time; var UpdateDates: Boolean; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+
+    local procedure OnBeforeCalcWaitTimeBack(var PlanningRoutingLine: Record "Planning Routing Line"; WorkCenter: Record "Work Center"; var ProdEndingDate: Date; var ProdEndingTime: Time; var ProdStartingDate: Date; var ProdStartingTime: Time; var UpdateDates: Boolean; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculateRouteLine(var PlanningRoutingLine: Record "Planning Routing Line")
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLoadCapForward(var PlanningRoutingLine: Record "Planning Routing Line"; TimeType: Option; var ProdStartingDate: Date; ProdStartingTime: Time; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateLoadBackOnBeforeFirstCalculate(var PlanningRoutingLine: Record "Planning Routing Line"; var IsHandled: Boolean)
+    begin
+    end;
+
 }
 

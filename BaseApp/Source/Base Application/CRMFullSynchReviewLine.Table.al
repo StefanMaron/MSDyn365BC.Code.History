@@ -254,7 +254,8 @@ table 5373 "CRM Full Synch. Review Line"
         if RecID.TableNo = DATABASE::"Integration Table Mapping" then begin
             RecRef := RecID.GetRecord;
             RecRef.SetTable(IntegrationTableMapping);
-            IntegrationTableMapping.Find;
+            if not IntegrationTableMapping.Find() then
+                exit('');
             if IntegrationTableMapping.IsFullSynch then
                 exit(IntegrationTableMapping."Parent Name");
         end;

@@ -18,7 +18,13 @@ codeunit 950 "Time Sheet Management"
     procedure FilterTimeSheets(var TimeSheetHeader: Record "Time Sheet Header"; FieldNo: Integer)
     var
         UserSetup: Record "User Setup";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFilterTimeSheets(TimeSheetHeader, FieldNo, IsHandled);
+        If IsHandled then
+            exit;
+
         if UserSetup.Get(UserId) then;
         if not UserSetup."Time Sheet Admin." then begin
             TimeSheetHeader.FilterGroup(2);
@@ -334,8 +340,9 @@ codeunit 950 "Time Sheet Management"
         if FromTimeSheetHeader.Next(-1) <> 0 then begin
             FromTimeSheetLine.SetRange("Time Sheet No.", FromTimeSheetHeader."No.");
             FromTimeSheetLine.SetFilter(Type, '<>%1&<>%2', FromTimeSheetLine.Type::Service, FromTimeSheetLine.Type::"Assembly Order");
-            if FromTimeSheetLine.FindSet then
+            if FromTimeSheetLine.FindSet() then
                 repeat
+                    OnCopyPrevTimeSheetLinesOnBeforeCopyLine(FromTimeSheetLine);
                     LineNo := LineNo + 10000;
                     ToTimeSheetLine.Init;
                     ToTimeSheetLine."Time Sheet No." := ToTimeSheetHeader."No.";
@@ -355,9 +362,11 @@ codeunit 950 "Time Sheet Management"
                     ToTimeSheetLine.Chargeable := FromTimeSheetLine.Chargeable;
                     ToTimeSheetLine."Work Type Code" := FromTimeSheetLine."Work Type Code";
                     OnBeforeToTimeSheetLineInsert(ToTimeSheetLine, FromTimeSheetLine);
-                    ToTimeSheetLine.Insert;
-                until FromTimeSheetLine.Next = 0;
+                    ToTimeSheetLine.Insert();
+                until FromTimeSheetLine.Next() = 0;
         end;
+
+        OnAfterCopyPrevTimeSheetLines();
     end;
 
     procedure CalcPrevTimeSheetLines(ToTimeSheetHeader: Record "Time Sheet Header") LinesQty: Integer
@@ -776,6 +785,8 @@ codeunit 950 "Time Sheet Management"
                 else
                     OnGetActivityInfoCaseTypeElse(TimeSheetLine, ActivitySubCaption, ActivitySubID, ActivityCaption, ActivityID);
             end;
+
+        OnAfterGetActivityInfo(TimeSheetLine, ActivitySubCaption, ActivitySubID, ActivityCaption, ActivityID);
     end;
 
     procedure ShowPostingEntries(TimeSheetNo: Code[20]; TimeSheetLineNo: Integer)
@@ -889,7 +900,17 @@ codeunit 950 "Time Sheet Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyPrevTimeSheetLines()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCheckInsertJobPlanningLine(JobPlanningLine: Record "Job Planning Line"; var JobPlanningLineBuffer: Record "Job Planning Line"; var SkipLine: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyPrevTimeSheetLinesOnBeforeCopyLine(var TimeSheetLine: Record "Time Sheet Line")
     begin
     end;
 
@@ -909,12 +930,22 @@ codeunit 950 "Time Sheet Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeFilterTimeSheets(var TimeSheetHeader: Record "Time Sheet Header"; FieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeToTimeSheetLineInsert(var ToTimeSheetLine: Record "Time Sheet Line"; FromTimeSheetLine: Record "Time Sheet Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateLinesFromJobPlanningOnBeforeTimeSheetLineInsert(var TimeSheetLine: Record "Time Sheet Line"; var JobPlanningLine: Record "Job Planning Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetActivityInfo(var TimeSheetLine: Record "Time Sheet Line"; var ActivityCaption: Text[30]; var ActivityID: Code[20]; var ActivitySubCaption: Text[30]; var ActivitySubID: Code[20]);
     begin
     end;
 

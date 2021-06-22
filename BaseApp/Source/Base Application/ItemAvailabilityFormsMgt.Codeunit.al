@@ -70,28 +70,16 @@ codeunit 353 "Item Availability Forms Mgt"
                 TransOrdReceiptQty := "Trans. Ord. Receipt (Qty.)";
             end;
             GrossRequirement :=
-              "Qty. on Sales Order" +
-              "Qty. on Service Order" +
-              "Qty. on Job Order" +
-              "Scheduled Need (Qty.)" +
-              TransOrdShipmentQty +
-              "Planning Issues (Qty.)" +
-              "Qty. on Asm. Component" +
-              "Qty. on Purch. Return";
+                "Qty. on Sales Order" + "Qty. on Service Order" + "Qty. on Job Order" + "Scheduled Need (Qty.)" +
+                TransOrdShipmentQty + "Planning Issues (Qty.)" + "Qty. on Asm. Component" + "Qty. on Purch. Return";
             PlannedOrderReceipt :=
-              "Planned Order Receipt (Qty.)" +
-              "Purch. Req. Receipt (Qty.)";
+                "Planned Order Receipt (Qty.)" + "Purch. Req. Receipt (Qty.)";
             ScheduledReceipt :=
-              "FP Order Receipt (Qty.)" +
-              "Rel. Order Receipt (Qty.)" +
-              "Qty. on Purch. Order" +
-              QtyinTransit +
-              TransOrdReceiptQty +
-              "Qty. on Assembly Order" +
-              "Qty. on Sales Return";
+                "FP Order Receipt (Qty.)" + "Rel. Order Receipt (Qty.)" + "Qty. on Purch. Order" +
+                QtyinTransit + TransOrdReceiptQty + "Qty. on Assembly Order" + "Qty. on Sales Return";
+            OnCalculateNeedOnAfterCalcScheduledReceipt(Item, ScheduledReceipt, QtyinTransit, TransOrdReceiptQty);
             PlannedOrderReleases :=
-              "Planned Order Release (Qty.)" +
-              "Purch. Req. Release (Qty.)";
+                "Planned Order Release (Qty.)" + "Purch. Req. Release (Qty.)";
         end;
         OnAfterCalculateNeed(Item, GrossRequirement, PlannedOrderReceipt, ScheduledReceipt, PlannedOrderReleases);
     end;
@@ -1112,6 +1100,11 @@ codeunit 353 "Item Availability Forms Mgt"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowItemAvailVariant(var Item: Record Item; FieldCaption: Text[80]; OldVariant: Code[20]; var NewVariant: Code[20]; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateNeedOnAfterCalcScheduledReceipt(var Item: Record Item; var ScheduledReceipt: Decimal; QtyinTransit: Decimal; TransOrdReceiptQty: Decimal)
     begin
     end;
 }

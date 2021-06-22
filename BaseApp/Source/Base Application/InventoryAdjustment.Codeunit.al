@@ -37,6 +37,7 @@ codeunit 5895 "Inventory Adjustment"
         TempFixApplBuffer: Record "Integer" temporary;
         TempOpenItemLedgEntry: Record "Integer" temporary;
         TempJobToAdjustBuf: Record Job temporary;
+        TempValueEntryCalcdOutbndCostBuf: Record "Value Entry" temporary;
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
         CostCalcMgt: Codeunit "Cost Calculation Management";
         ItemCostMgt: Codeunit ItemCostManagement;
@@ -210,6 +211,8 @@ codeunit 5895 "Inventory Adjustment"
         AppliedQty: Decimal;
     begin
         UpDateWindow(WindowAdjmtLevel, WindowItem, Text007, WindowFWLevel, WindowEntry, 0);
+
+        TempValueEntryCalcdOutbndCostBuf.DeleteAll();
 
         with ItemLedgEntry do
             if AppliedEntryToAdjustExists(Item."No.") then begin
@@ -393,8 +396,27 @@ codeunit 5895 "Inventory Adjustment"
     local procedure CalcOutbndCost(var OutbndCostElementBuf: Record "Cost Element Buffer"; var AdjustedCostElementBuf: Record "Cost Element Buffer"; OutbndItemLedgEntry: Record "Item Ledger Entry"; Recursion: Boolean)
     var
         OutbndItemApplnEntry: Record "Item Application Entry";
+        TempCostElementBuf: Record "Cost Element Buffer" temporary;
     begin
-        AdjustedCostElementBuf.DeleteAll;
+        AdjustedCostElementBuf.DeleteAll();
+        OutbndCostElementBuf.DeleteAll();
+
+        if RestoreValuesFromBuffers(OutbndCostElementBuf, AdjustedCostElementBuf, OutbndItemLedgEntry."Entry No.") then begin
+            if not Recursion then begin
+                OutbndItemApplnEntry.SetCurrentKey("Inbound Item Entry No.");
+                OutbndItemApplnEntry.SetRange("Inbound Item Entry No.", RndgResidualBuf."Item Ledger Entry No.");
+                OutbndItemApplnEntry.SetRange("Item Ledger Entry No.", OutbndItemLedgEntry."Entry No.");
+                OutbndItemApplnEntry.SetFilter("Transferred-from Entry No.", '<>%1', RndgResidualBuf."Item Ledger Entry No.");
+                if OutbndItemApplnEntry.FindSet() then
+                    repeat
+                        CalcInbndEntryAdjustedCost(
+                          TempCostElementBuf, OutbndItemApplnEntry, OutbndItemLedgEntry."Entry No.", OutbndItemApplnEntry."Inbound Item Entry No.",
+                          OutbndItemLedgEntry.IsExactCostReversingPurchase() or OutbndItemLedgEntry.IsExactCostReversingOutput(), false);
+                    until OutbndItemApplnEntry.Next() = 0;
+            end;
+            exit;
+        end;
+
         with OutbndCostElementBuf do begin
             "Remaining Quantity" := OutbndItemLedgEntry.Quantity;
             "Inbound Completely Invoiced" := true;
@@ -422,6 +444,8 @@ codeunit 5895 "Inventory Adjustment"
             if "Inbound Completely Invoiced" then
                 "Inbound Completely Invoiced" := "Remaining Quantity" = 0;
         end;
+
+        SaveValuesToBuffers(OutbndCostElementBuf, AdjustedCostElementBuf, OutbndItemLedgEntry."Entry No.");
     end;
 
     local procedure CalcOutbndDocNewCost(var NewCostElementBuf: Record "Cost Element Buffer"; OutbndCostElementBuf: Record "Cost Element Buffer"; OutbndValueEntry: Record "Value Entry"; ItemLedgEntryQty: Decimal)
@@ -619,8 +643,10 @@ codeunit 5895 "Inventory Adjustment"
 
                     if CreateCostAdjmtBuf(
                          InbndValueEntry, DocCostElementBuf, InbndItemLedgEntry."Posting Date", InbndValueEntry."Entry Type")
-                    then
+                    then begin
                         EntryAdjusted := true;
+                        TempValueEntryCalcdOutbndCostBuf.DeleteAll();
+                    end;
 
                     InbndValueEntry.FindLast;
                     InbndValueEntry.SetRange("Document No.");
@@ -2274,6 +2300,7 @@ codeunit 5895 "Inventory Adjustment"
         ExcludedValueEntry.DeleteAll;
         AvgCostExceptionBuf.DeleteAll;
         RevaluationPoint.DeleteAll;
+        TempValueEntryCalcdOutbndCostBuf.DeleteAll();
     end;
 
     local procedure InsertEntryPointToUpdate(var TempAvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point" temporary; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10])
@@ -2441,6 +2468,84 @@ codeunit 5895 "Inventory Adjustment"
             end;
 
             exit(false);
+        end;
+    end;
+
+    local procedure RestoreValuesFromBuffers(var OutbndCostElementBuf: Record "Cost Element Buffer"; var AdjustedCostElementBuf: Record "Cost Element Buffer"; OutbndItemLedgEntryNo: Integer): Boolean
+    begin
+        with TempValueEntryCalcdOutbndCostBuf do begin
+            Reset();
+            SetRange("Item Ledger Entry No.", OutbndItemLedgEntryNo);
+            if IsEmpty() then
+                exit(false);
+
+            FindSet();
+            CopyValueEntryBufToCostElementBuf(OutbndCostElementBuf, TempValueEntryCalcdOutbndCostBuf);
+
+            Next();
+            repeat
+                CopyValueEntryBufToCostElementBuf(AdjustedCostElementBuf, TempValueEntryCalcdOutbndCostBuf);
+            until Next() = 0;
+        end;
+
+        exit(true);
+    end;
+
+    local procedure SaveValuesToBuffers(var OutbndCostElementBuf: Record "Cost Element Buffer"; var AdjustedCostElementBuf: Record "Cost Element Buffer"; OutbndItemLedgEntryNo: Integer)
+    begin
+        if AdjustedCostElementBuf.IsEmpty() then
+            exit;
+
+        CopyCostElementBufToValueEntryBuf(TempValueEntryCalcdOutbndCostBuf, OutbndCostElementBuf, OutbndItemLedgEntryNo);
+        AdjustedCostElementBuf.FindSet();
+        repeat
+            CopyCostElementBufToValueEntryBuf(TempValueEntryCalcdOutbndCostBuf, AdjustedCostElementBuf, OutbndItemLedgEntryNo);
+        until AdjustedCostElementBuf.Next() = 0;
+    end;
+
+    local procedure CopyCostElementBufToValueEntryBuf(var ValueEntryBuf: Record "Value Entry"; CostElementBuffer: Record "Cost Element Buffer"; ItemLedgEntryNo: Integer)
+    var
+        EntryNo: Integer;
+    begin
+        with ValueEntryBuf do begin
+            Reset();
+            if FindLast() then
+                EntryNo := "Entry No.";
+
+            Init();
+            "Entry No." := EntryNo + 1;
+            "Entry Type" := CostElementBuffer.Type;
+            "Variance Type" := CostElementBuffer."Variance Type";
+            "Item Ledger Entry No." := ItemLedgEntryNo;
+            "Cost Amount (Actual)" := CostElementBuffer."Actual Cost";
+            "Cost Amount (Actual) (ACY)" := CostElementBuffer."Actual Cost (ACY)";
+            "Cost Amount (Expected)" := CostElementBuffer."Expected Cost";
+            "Cost Amount (Expected) (ACY)" := CostElementBuffer."Expected Cost (ACY)";
+            "Cost Amount (Non-Invtbl.)" := CostElementBuffer."Rounding Residual";
+            "Cost Amount (Non-Invtbl.)(ACY)" := CostElementBuffer."Rounding Residual (ACY)";
+            "Invoiced Quantity" := CostElementBuffer."Invoiced Quantity";
+            "Valued Quantity" := CostElementBuffer."Remaining Quantity";
+            "Expected Cost" := CostElementBuffer."Inbound Completely Invoiced";
+            Insert();
+        end;
+    end;
+
+    local procedure CopyValueEntryBufToCostElementBuf(var CostElementBuffer: Record "Cost Element Buffer"; ValueEntryBuf: Record "Value Entry")
+    begin
+        with CostElementBuffer do begin
+            Init();
+            Type := ValueEntryBuf."Entry Type";
+            "Variance Type" := ValueEntryBuf."Variance Type";
+            "Actual Cost" := ValueEntryBuf."Cost Amount (Actual)";
+            "Actual Cost (ACY)" := ValueEntryBuf."Cost Amount (Actual) (ACY)";
+            "Expected Cost" := ValueEntryBuf."Cost Amount (Expected)";
+            "Expected Cost (ACY)" := ValueEntryBuf."Cost Amount (Expected) (ACY)";
+            "Rounding Residual" := ValueEntryBuf."Cost Amount (Non-Invtbl.)";
+            "Rounding Residual (ACY)" := ValueEntryBuf."Cost Amount (Non-Invtbl.)(ACY)";
+            "Invoiced Quantity" := ValueEntryBuf."Invoiced Quantity";
+            "Remaining Quantity" := ValueEntryBuf."Valued Quantity";
+            "Inbound Completely Invoiced" := ValueEntryBuf."Expected Cost";
+            Insert();
         end;
     end;
 

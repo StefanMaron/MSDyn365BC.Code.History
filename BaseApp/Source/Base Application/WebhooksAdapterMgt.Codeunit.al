@@ -2,6 +2,7 @@ codeunit 2201 "Webhooks Adapter Mgt."
 {
     ObsoleteState = Pending;
     ObsoleteReason = 'This function will be removed for security reason as it used to contain Microsoft secrets';
+    ObsoleteTag = '15.2';
     trigger OnRun()
     begin
     end;

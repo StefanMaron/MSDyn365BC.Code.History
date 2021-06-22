@@ -647,12 +647,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Hybrid Message Management - NamedType UnsupportedVersionErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 4202943371 - NamedType 248683348" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Failed to create company for the Data Migration setup. Error %1</source>
-          <target>Impossibile creare la società per il setup di migrazione dei dati. Errore %1</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Handle Create Company Failure - NamedType CompanyCreationFailedErr</note>
-        </trans-unit>
         <trans-unit id="Codeunit 594380566 - NamedType 585235238" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>An update is available for the Cloud Migration.</source>
           <target>È disponibile un aggiornamento per la migrazione cloud.</target>
@@ -1564,23 +1558,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Intelligent Cloud Insights - Control IntelligentEdgeKPIS - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 432782781 - Control 3958318543 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Intelligent Edge KPIs</source>
-          <target>KPI di rete perimetrale intelligente</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Intelligent Cloud Insights - Control IntelligentEdgeKPIS - Property ToolTip</note>
-        </trans-unit>
         <trans-unit id="Page 432782781 - Control 3835255931 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Insights</source>
           <target>Informazioni</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Intelligent Cloud Insights - Control IntelligentEdgeInsights - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 432782781 - Control 3835255931 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Intelligent Edge Insights</source>
-          <target>Informazioni su rete perimetrale intelligente</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Intelligent Cloud Insights - Control IntelligentEdgeInsights - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 432782781 - Control 2109523570 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Power BI</source>
@@ -1594,23 +1576,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Intelligent Cloud Insights - Control PowerBIReportSpinnerPart - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 432782781 - Control 3786424220 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Power BI Report</source>
-          <target>Report Power BI</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Intelligent Cloud Insights - Control PowerBIReportSpinnerPart - Property ToolTip</note>
-        </trans-unit>
         <trans-unit id="Page 432782781 - Control 151094470 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Power BI Report</source>
           <target>Report Power BI</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Intelligent Cloud Insights - Control PowerBIReportSpinnerPart2 - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 432782781 - Control 151094470 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Power BI Report</source>
-          <target>Report Power BI</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Intelligent Cloud Insights - Control PowerBIReportSpinnerPart2 - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 432782781 - Control 2699611539 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Azure ML</source>
@@ -1623,12 +1593,6 @@
           <target>Previsione flusso di cassa</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Intelligent Cloud Insights - Control CashFlowForecastChart - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 432782781 - Control 791597496 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Cash Flow Forecast</source>
-          <target>Previsione flusso di cassa</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Intelligent Cloud Insights - Control CashFlowForecastChart - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 872301191 - Control 1550718196 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Cash Available</source>

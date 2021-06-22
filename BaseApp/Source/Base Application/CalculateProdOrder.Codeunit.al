@@ -87,14 +87,14 @@ codeunit 99000773 "Calculate Prod. Order"
                             ProdOrderRoutingLine."Flushing Method" := MachineCenter."Flushing Method";
                         end;
                 end;
+
                 CostCalcMgt.RoutingCostPerUnit(
-                  ProdOrderRoutingLine.Type,
-                  ProdOrderRoutingLine."No.",
-                  ProdOrderRoutingLine."Direct Unit Cost",
-                  ProdOrderRoutingLine."Indirect Cost %",
-                  ProdOrderRoutingLine."Overhead Rate",
-                  ProdOrderRoutingLine."Unit Cost per",
-                  ProdOrderRoutingLine."Unit Cost Calculation");
+                    ProdOrderRoutingLine.Type, ProdOrderRoutingLine."No.",
+                    ProdOrderRoutingLine."Direct Unit Cost", ProdOrderRoutingLine."Indirect Cost %", ProdOrderRoutingLine."Overhead Rate",
+                    ProdOrderRoutingLine."Unit Cost per", ProdOrderRoutingLine."Unit Cost Calculation");
+
+                OnTransferRoutingOnbeforeValidateDirectUnitCost(ProdOrderRoutingLine, ProdOrderLine, RoutingLine);
+
                 ProdOrderRoutingLine.Validate("Direct Unit Cost");
                 ProdOrderRoutingLine."Starting Time" := ProdOrderLine."Starting Time";
                 ProdOrderRoutingLine."Starting Date" := ProdOrderLine."Starting Date";
@@ -356,6 +356,7 @@ codeunit 99000773 "Calculate Prod. Order"
         ProdOrderRoutingLine.SetFilter("Routing Status", '<>%1', ProdOrderRoutingLine."Routing Status"::Finished);
         OnCalculateRoutingFromActualOnAfterSetProdOrderRoutingLineFilters(ProdOrderRoutingLine);
         repeat
+            OnCalculateRoutingFromActualOnBeforeCalcStartEndDate(ProdOrderRoutingLine, CalcStartEndDate);
             if CalcStartEndDate and not ProdOrderRoutingLine."Schedule Manually" then
                 if ((Direction = Direction::Forward) and (ProdOrderRoutingLine."Previous Operation No." <> '')) or
                    ((Direction = Direction::Backward) and (ProdOrderRoutingLine."Next Operation No." <> ''))
@@ -611,6 +612,9 @@ codeunit 99000773 "Calculate Prod. Order"
                     ErrorOccured := true;
             end;
         Recalculate(ProdOrderLine, Direction, LetDueDateDecrease);
+
+        OnAfterCalculate(ProdOrderLine, ErrorOccured);
+
         exit(not ErrorOccured);
     end;
 
@@ -833,6 +837,11 @@ codeunit 99000773 "Calculate Prod. Order"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCalculate(ProdOrderLine: Record "Prod. Order Line"; var ErrorOccured: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterInsertProdRoutingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProdOrderLine: Record "Prod. Order Line")
     begin
     end;
@@ -943,6 +952,11 @@ codeunit 99000773 "Calculate Prod. Order"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCalculateRoutingFromActualOnBeforeCalcStartEndDate(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var CalcStartEndDate: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnTransferBOMOnAfterCalcReqQty(ProductionBOMLine: Record "Production BOM Line"; ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProdOrderLine: Record "Prod. Order Line"; var ReqQty: Decimal; LineQtyPerUOM: Decimal; ItemQtyPerUOM: Decimal)
     begin
     end;
@@ -964,6 +978,11 @@ codeunit 99000773 "Calculate Prod. Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnTransferBOMProcessItemOnBeforeGetPlanningParameters(var ProdOrderComponent: Record "Prod. Order Component"; ProductionBOMLine: Record "Production BOM Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferRoutingOnbeforeValidateDirectUnitCost(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProdOrderLine: Record "Prod. Order Line"; RoutingLine: Record "Routing Line")
     begin
     end;
 }

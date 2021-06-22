@@ -392,6 +392,7 @@ table 5505 "Sales Quote Entity Buffer"
             ObsoleteState = Removed;
             OptionCaption = 'Not Sent,In Process,Finished,Error', Locked = true;
             OptionMembers = "Not Sent","In Process",Finished,Error;
+            ObsoleteTag = '15.0';
         }
         field(171; "Sell-to Phone No."; Text[30])
         {

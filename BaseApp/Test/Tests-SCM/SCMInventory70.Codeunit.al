@@ -25,6 +25,7 @@ codeunit 137060 "SCM Inventory 7.0"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Assert: Codeunit Assert;
         ErrorDoNotMatchErr: Label 'Expected error: ''%1''\Actual error: ''%2''', Comment = '%1 = Error Text, %2 = Error Text';
         DivideByZeroErr: Label 'Attempted to divide by zero.';
@@ -47,7 +48,7 @@ codeunit 137060 "SCM Inventory 7.0"
     procedure B7425_AmtAtLowerBound()
     begin
         // Item Unit Cost test Boundary value : 0.
-        Initialize;
+        Initialize();
         ItemJournalAmount(0, false); // Divide by Zero boolean - False.
     end;
 
@@ -56,7 +57,7 @@ codeunit 137060 "SCM Inventory 7.0"
     procedure B7425_AmtLessThanUpperBound()
     begin
         // Item Unit Cost test Boundary value : Decimal value less than 100.
-        Initialize;
+        Initialize();
         ItemJournalAmount(LibraryRandom.RandDec(99, 2), false);  // Divide by Zero boolean - False.
     end;
 
@@ -65,7 +66,7 @@ codeunit 137060 "SCM Inventory 7.0"
     procedure B7425_AmtLargerThanUpperBound()
     begin
         // Item Unit Cost test Boundary value : Decimal value greater than 100.
-        Initialize;
+        Initialize();
         ItemJournalAmount(100 + LibraryRandom.RandDec(10, 2), false);  // Divide by Zero boolean - False.
     end;
 
@@ -74,7 +75,7 @@ codeunit 137060 "SCM Inventory 7.0"
     procedure B7425_AmtLessThanLowerBound()
     begin
         // Item Unit Cost test Boundary value : Decimal value less than -10.
-        Initialize;
+        Initialize();
         ItemJournalAmount(-LibraryRandom.RandDec(10, 2), false);  // Divide by Zero boolean - False.
     end;
 
@@ -83,7 +84,7 @@ codeunit 137060 "SCM Inventory 7.0"
     procedure B7425_AmtErrorDivisionByZero()
     begin
         // Item Unit Cost test Boundary value : -100 required for test.
-        Initialize;
+        Initialize();
         ItemJournalAmount(-100, true);  // Divide by Zero boolean True to generate error.
     end;
 
@@ -116,7 +117,7 @@ codeunit 137060 "SCM Inventory 7.0"
         VendorNo: Code[20];
     begin
         // Setup.
-        Initialize;
+        Initialize();
 
         LibraryWarehouse.CreateLocation(Location);
         VendorNo := LibraryUtility.GenerateGUID;
@@ -142,7 +143,7 @@ codeunit 137060 "SCM Inventory 7.0"
     begin
         // Update Average Cost Period in Inventory Setup and verify message in confirm handler.
         // Setup.
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateItem(Item);
         CreateItemJournalLine(
@@ -177,7 +178,7 @@ codeunit 137060 "SCM Inventory 7.0"
         // [SCENARIO] Verify that Dimensions entered in invoice are same in Revaluation Journal.
 
         // Setup.
-        Initialize;
+        Initialize();
         PurchaseDocumentWithDimSetup(Item, DimensionValue, DimensionValue2);
 
         // Calculate inventory on Revaluation journal- calculate per ILE.
@@ -205,7 +206,7 @@ codeunit 137060 "SCM Inventory 7.0"
         // [SCENARIO] Verify that Dimensions entered in the item card and dimension values are still same as invoice in the Revaluation Journal.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         PurchaseDocumentWithDimSetup(Item, DimensionValue, DimensionValue2);
         UpdateItemWithDimensions(Item, DimensionValue3, DimensionValue4, DimensionValue."Dimension Code", DimensionValue2."Dimension Code");
@@ -237,7 +238,7 @@ codeunit 137060 "SCM Inventory 7.0"
         // [SCENARIO] Verify that Dimensions entered in the item card are same in the Revaluation Journal.
 
         // Setup.
-        Initialize;
+        Initialize();
         PurchaseDocumentWithDimSetup(Item, DimensionValue, DimensionValue2);
         UpdateItemWithDimensions(Item, DimensionValue3, DimensionValue4, DimensionValue."Dimension Code", DimensionValue2."Dimension Code");
 
@@ -259,7 +260,7 @@ codeunit 137060 "SCM Inventory 7.0"
     begin
         // Verify Dimension on Transfer Shipment.
         // Setup.
-        Initialize;
+        Initialize();
         TransferOrderWithDimension(false);  // Update Dimension as False.
     end;
 
@@ -270,7 +271,7 @@ codeunit 137060 "SCM Inventory 7.0"
     begin
         // Verify Dimension on Transfer Receipt after Updating Dimension on Transfer Order.
         // Setup.
-        Initialize;
+        Initialize();
         TransferOrderWithDimension(true);  // Update Dimension as True.
     end;
 
@@ -311,7 +312,7 @@ codeunit 137060 "SCM Inventory 7.0"
     begin
         // Verify Error message when update Zero Rounding Precision on Item.
         // Setup.
-        Initialize;
+        Initialize();
         ItemWithRoundingPrecision(0);  // Zero Rounding Precision.
     end;
 
@@ -321,7 +322,7 @@ codeunit 137060 "SCM Inventory 7.0"
     begin
         // Verify Error message when update Negative Rounding Precision on Item.
         // Setup.
-        Initialize;
+        Initialize();
         ItemWithRoundingPrecision(-LibraryRandom.RandDec(10, 2));  // Negative Rounding Precision.
     end;
 
@@ -348,7 +349,7 @@ codeunit 137060 "SCM Inventory 7.0"
     begin
         // Verify Error message when update Rounding Precision with more than five decimal place value on Item.
         // Setup: Create Item and Open Item Card.
-        Initialize;
+        Initialize();
         CreateItem(Item, '', Item."Costing Method"::FIFO);
         OpenItemCard(ItemCard, Item."No.");
 
@@ -369,7 +370,7 @@ codeunit 137060 "SCM Inventory 7.0"
     begin
         // Verify Rounding Precision on Item when update Rounding Precision with five decimal place value on Item.
         // Setup: Create Item and Open Item Card.
-        Initialize;
+        Initialize();
         RoundingPrecision := LibraryRandom.RandDec(10, LibraryRandom.RandInt(5));  // Using Random for range of one to five decimal place.
         CreateItem(Item, '', Item."Costing Method"::FIFO);
         OpenItemCard(ItemCard, Item."No.");
@@ -391,7 +392,7 @@ codeunit 137060 "SCM Inventory 7.0"
         TransferLine: Record "Transfer Line";
     begin
         // Setup: Create an Item. Create and post Item Journal Line, Create Transfer Order with reservation.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         CreateAndPostItemJournalLine(Item."No.", LocationBlue.Code, LibraryRandom.RandInt(100) + 100); // Random Number Generator Add 100 is for reservation.
         CreateTransferOrderWithReservation(TransferLine, LibraryRandom.RandInt(100), Item."No.");
@@ -418,7 +419,7 @@ codeunit 137060 "SCM Inventory 7.0"
     begin
         // [FEATURE] [Item Cross Reference]
         // [SCENARIO 361680] Lead time calculation in Vendor Item is not changed after changing "Cross-Ref. No." in linked cross reference when two cross-ref. with diff. units of measure
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with two units of measure
         CreateItemWithTwoUnitsOfMeasure(Item, UnitOfMeasure);
@@ -461,7 +462,7 @@ codeunit 137060 "SCM Inventory 7.0"
     begin
         // [FEATURE] [Item Cross Reference]
         // [SCENARIO 361680] Lead time calculation in Vendor Item is not changed after changing "Cross-Ref. No." in linked cross reference when two cross-ref. with the same unit of measure
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item cross reference with unit of measure = "U" and Cross Reference No. = "N1"
         LibraryInventory.CreateItem(Item);
@@ -502,7 +503,7 @@ codeunit 137060 "SCM Inventory 7.0"
     begin
         // [FEATURE] [Item Cross Reference]
         // [SCENARIO 361680] One linked Item Vendor created for each of two Item Cross References
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item cross-reference related to Vendor "V1"
         CreateItemWithTwoUnitsOfMeasure(Item, UnitOfMeasure);
@@ -531,7 +532,7 @@ codeunit 137060 "SCM Inventory 7.0"
     begin
         // [FEATURE] [Item Cross Reference]
         // [SCENARIO 361680] Item Vendor deleted after the linked cross reference renamed so that two item cross references refer to the same vendor after renaming
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with two cross-references on different vendors "V1" and "V2"
         CreateItemWithTwoUnitsOfMeasure(Item, UnitOfMeasure);
@@ -563,7 +564,7 @@ codeunit 137060 "SCM Inventory 7.0"
     begin
         // [FEATURE] [Item Cross Reference]
         // [SCENARIO 361680] Lead time calculation in Vendor Item is not changed after changing "Unit of Measure" in linked cross reference when two cross-ref.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with two units of measure "U1" and "U2"
         // [GIVEN] Item cross reference with unit of measure = "U1" and Cross Reference No. = "N"
@@ -600,7 +601,7 @@ codeunit 137060 "SCM Inventory 7.0"
     begin
         // [FEATURE] [Item Cross Reference] [Vendor Item No.]
         // [SCENARIO 377506] "Vendor Item No." in purchase line should be copied from item cross reference if there is a cross reference with matching vendor and unit of measure
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create item "I" with base unit of measure "U"
         LibraryInventory.CreateItem(Item);
@@ -628,7 +629,7 @@ codeunit 137060 "SCM Inventory 7.0"
     begin
         // [FEATURE] [Item Cross Reference] [Item Unit of Measure] [Vendor Item No.]
         // [SCENARIO 377506] "Vendor Item No." in purch. line should be copied from item cross reference if there is no cross reference with matching UoM and no other item vendors
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create item "I" with base unit of measure "U1"
         LibraryInventory.CreateItem(Item);
@@ -662,7 +663,7 @@ codeunit 137060 "SCM Inventory 7.0"
     begin
         // [FEATURE] [Item Cross Reference] [Item Vendor] [Vendor Item No.]
         // [SCENARIO 377506] "Vendor Item No." in purch. line should be copied from item cross reference if there is a cross reference with matching UoM and another item vendor for the same item
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create item "I" with base unit of measure "U"
         LibraryInventory.CreateItem(Item);
@@ -693,7 +694,7 @@ codeunit 137060 "SCM Inventory 7.0"
     begin
         // [FEATURE] [Item Cross Reference] [Item Vendor] [Vendor Item No.]
         // [SCENARIO 377506] "Vendor Item No." in purch. line should be copied from item item vendor catalog if there is a cross reference with mismatching UoM and another item vendor for the same item
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create item "I" with base unit of measure "U1"
         LibraryInventory.CreateItem(Item);
@@ -727,7 +728,7 @@ codeunit 137060 "SCM Inventory 7.0"
     begin
         // [FEATURE] [Item Vendor] [Stockkeeping Unit] [Vendor Item No.]
         // [SCENARIO 377506] "Vendor Item No." in purch. line should be copied from item item vendor catalog if there is an item vendor and SKU for the same item
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create item "I"
         LibraryInventory.CreateItem(Item);
@@ -761,7 +762,7 @@ codeunit 137060 "SCM Inventory 7.0"
     begin
         // [FEATURE] [Item Vendor] [Stockkeeping Unit] [Vendor Item No.]
         // [SCENARIO 377506] "Vendor Item No." in purch. line should be copied from SKU if variant code in item vendor does not match the purch. line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create item "I"
         LibraryInventory.CreateItem(Item);
@@ -796,7 +797,7 @@ codeunit 137060 "SCM Inventory 7.0"
     begin
         // [FEATURE] [Stockkeeping Unit] [Location] [Vendor Item No.]
         // [SCENARIO 377506] Vendor item no. in purchase line should be copied from a stockkeeping unit if there is a SKU matching the purchase line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create item "I"
         LibraryInventory.CreateItem(Item);
@@ -824,7 +825,7 @@ codeunit 137060 "SCM Inventory 7.0"
     begin
         // [FEATURE] [Item Cross Reference] [Item Unit of Measure] [Vendor Item No.]
         // [SCENARIO 377506] Vendor item no. in purchase line should be updated when changing the unit of measure and there are cross references matching both UoMs
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create item "I" with base unit of measure "U1"
         LibraryInventory.CreateItem(Item);
@@ -862,7 +863,7 @@ codeunit 137060 "SCM Inventory 7.0"
     begin
         // [FEATURE] [Item Cross Reference] [Item Unit of Measure] [Vendor Item No.]
         // [SCENARIO 377506] Vendor item no. in purchase line should not be updated from item vendor when changing the unit of measure and there is a mismatching cross reference and item vendor for the item
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create item "I" with base unit of measure "U1"
         LibraryInventory.CreateItem(Item);
@@ -897,7 +898,7 @@ codeunit 137060 "SCM Inventory 7.0"
     begin
         // [FEATURE] [Item Cross Reference] [Item Unit of Measure] [Vendor Item No.]
         // [SCENARIO 377506] Vendor item no. in purchase line should be copied from item card when changing the unit of measure and there is a mismatching cross reference
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create item "I" with base unit of measure "U1", Set vendor item no. = "N1"
         LibraryInventory.CreateItem(Item);
@@ -936,7 +937,7 @@ codeunit 137060 "SCM Inventory 7.0"
     begin
         // [FEATURE] [Stockkeeping Unit] [Item Variant] [Location] [Vendor Item No.]
         // [SCENARIO 377506] Vendor item no. in purchase line should be updated when changing the variant code and there are matching stockkeeping units
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create item "I"
         LibraryInventory.CreateItem(Item);
@@ -973,7 +974,7 @@ codeunit 137060 "SCM Inventory 7.0"
     begin
         // [FEATURE] [Stockkeeping Unit] [Item Variant] [Location] [Vendor Item No.]
         // [SCENARIO 377506] Vendor item no. in purchase line should be copied from item card when changing the variant code and new variant code does not match the SKU
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create item "I", set vendor item no. = "N1"
         LibraryInventory.CreateItem(Item);
@@ -1013,7 +1014,7 @@ codeunit 137060 "SCM Inventory 7.0"
     begin
         // [FEATURE] [Stockkeeping Unit] [Item Variant] [Location] [Item Cross Reference] [Unit of Measure] [Vendor Item No.]
         // [SCENARIO 377506] Vendor item no. in purchase line should be copied from item vendor catalog when changing UoM, cross ref. does not match the new UoM, there is a matching item vendor
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create item "I" with base unit of measure "U1"
         LibraryInventory.CreateItem(Item);
@@ -1051,7 +1052,7 @@ codeunit 137060 "SCM Inventory 7.0"
     begin
         // [FEATURE] [Description]
         // [SCENARIO 378078] Item Description in Requisition Line mustn't be modified after Vendor No. validate
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with a Description
         LibraryInventory.CreateItem(Item);
@@ -1087,7 +1088,7 @@ codeunit 137060 "SCM Inventory 7.0"
         // [FEATURE] [Description] [Item Translation]
         // [SCENARIO 378078] Item Description in Requisition Line must be validated from Item Translation when it exists
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create with a Description
         LibraryInventory.CreateItem(Item);
@@ -1114,19 +1115,25 @@ codeunit 137060 "SCM Inventory 7.0"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
-        LibraryVariableStorage.Clear;
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"SCM Inventory 7.0");
+
+        LibraryVariableStorage.Clear();
         if Initialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.CreateVATData;
-        NoSeriesSetup;
-        CreateLocationSetup;
-        ItemJournalSetup;
-        RevaluationJournalSetup;
-        Commit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"SCM Inventory 7.0");
 
-        Initialized := true
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.CreateVATData();
+        NoSeriesSetup();
+        CreateLocationSetup();
+        ItemJournalSetup();
+        RevaluationJournalSetup();
+        Commit();
+
+        Initialized := true;
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"SCM Inventory 7.0");
     end;
 
     local procedure ItemJournalSetup()

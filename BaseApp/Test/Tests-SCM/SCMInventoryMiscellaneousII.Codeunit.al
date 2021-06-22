@@ -1103,6 +1103,160 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         Assert.ExpectedError(WhseHandlingRequiredErr);
     end;
 
+    [Test]
+    [HandlerFunctions('WhseItemTrackingLinesDequeuePageHandler,DummyMessageHandler,CreateWhseMovementPageHandler')]
+    [Scope('OnPrem')]
+    procedure CreateWhseMvmtMultipleLots()
+    var
+        Bin: Record Bin;
+        WarehouseJournalTemplate: Record "Warehouse Journal Template";
+        WarehouseJournalBatch: Record "Warehouse Journal Batch";
+        WarehouseJournalLine: Record "Warehouse Journal Line";
+        WhseWorksheetName: Record "Whse. Worksheet Name";
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        Item: Record Item;
+        ItemJournalBatch: Record "Item Journal Batch";
+        LotNo: array[2] of Code[20];
+        Quantity: array[2] of Decimal;
+        I: Integer;
+    begin
+        // [FEATURE] [Item Tracking] [Movement] [Create Movement] [Lot No.]
+        // [SCENARIO 338913] Create Movement respects Item Tracking information for multiple source movement worksheet lines for the same item
+        Initialize();
+
+        // [GIVEN] Bin for Location "WHITE"
+        WhiteLocationSetup(Bin);
+
+        // [GIVEN] Item with lot tracking
+        LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode, '', CreateItemTrackingCode);
+
+        // [GIVEN] Warehouse Item Journal Line 10000 with Quantity = 6 and Item Tracking Line for Lot No. "L01"
+        // [GIVEN] Warehouse Item Journal Line 20000 with Quantity = 3 and Item Tracking Line for Lot No. "L02"
+        CreateWarehouseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Type::Item, Bin."Location Code");
+        for I := 1 to ArrayLen(LotNo) do begin
+            Quantity[I] := LibraryRandom.RandDec(10, 0);
+            LotNo[I] := LibraryUtility.GenerateGUID();
+            CreateWarehouseJournalLineWithItemTracking(WarehouseJournalLine, WarehouseJournalBatch, Bin, Item."No.", Quantity[I], LotNo[I]);
+        end;
+
+        // [GIVEN] Warehouse Item Journal Lines registered
+        LibraryWarehouse.RegisterWhseJournalLine(
+          WarehouseJournalLine."Journal Template Name", WarehouseJournalLine."Journal Batch Name", WarehouseJournalLine."Location Code",
+          true);
+
+        // [GIVEN] Item Journal Line created with Calculate Warehouse Adjustment for the Item, Posted
+        SelectAndClearItemJournalBatch(ItemJournalBatch, ItemJournalBatch."Template Type"::Item);
+        LibraryWarehouse.CalculateWhseAdjustment(Item, ItemJournalBatch);
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+
+        // [GIVEN] Movement Worksheet Line 10000 for Quantity = 6, Item Tracked with "Lot No." = "L01"
+        // [GIVEN] Movement Worksheet Line 20000 for Quantity = 3, Item Tracked with "Lot No." = "L02"
+        CreateWhseWorksheetName(WhseWorksheetName, Bin."Location Code");
+        for I := 1 to ArrayLen(Quantity) do begin
+            CreateWhseWorksheetLine(
+              WhseWorksheetLine, WhseWorksheetName."Worksheet Template Name", WhseWorksheetName.Name, Item."No.", Bin."Location Code",
+              Quantity[I]);
+
+            LibraryVariableStorage.Enqueue(LotNo[I]);
+            LibraryVariableStorage.Enqueue(Quantity[I]);
+            WhseWorksheetLine.OpenItemTrackingLines;
+        end;
+
+        // [WHEN] Run Create Movement for Movement Worksheet Lines
+        Commit();
+        WhseWorksheetLine.MovementCreate(WhseWorksheetLine);
+
+        // [THEN] 2 Movement Lines (Take/Place) created with Quantity = 6 and "Lot No." = "L01"
+        // [THEN] 2 Movement Lines (Take/Place) created with Quantity = 3 and "Lot No." = "L02"
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::Movement);
+        WarehouseActivityLine.SetRange("Item No.", Item."No.");
+        WarehouseActivityLine.SetFilter(
+          "Action Type", '%1|%2', WarehouseActivityLine."Action Type"::Place, WarehouseActivityLine."Action Type"::Take);
+        Assert.RecordCount(WarehouseActivityLine, ArrayLen(LotNo) * 2);
+        for I := 1 to ArrayLen(Quantity) do
+            VerifyWhseActivityLineWithLotNo(WarehouseActivityLine, Quantity[I], LotNo[I]);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('WhseItemTrackingLinesDequeuePageHandler,DummyMessageHandler,CreateWhseMovementPageHandler')]
+    [Scope('OnPrem')]
+    procedure CreateWhseMvmtMultipleLinesSameLots()
+    var
+        Bin: Record Bin;
+        WarehouseJournalTemplate: Record "Warehouse Journal Template";
+        WarehouseJournalBatch: Record "Warehouse Journal Batch";
+        WarehouseJournalLine: Record "Warehouse Journal Line";
+        WhseWorksheetName: Record "Whse. Worksheet Name";
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        Item: Record Item;
+        ItemJournalBatch: Record "Item Journal Batch";
+        LotNo: Code[20];
+        Quantity: array[2] of Decimal;
+        TotalQuantity: Integer;
+        I: Integer;
+    begin
+        // [FEATURE] [Item Tracking] [Movement] [Create Movement] [Lot No.]
+        // [SCENARIO 338913] Create Movement summarizes Item Tracking quantities for multiple source movement worksheet lines for the same item and same "Lot No."
+        Initialize();
+
+        // [GIVEN] Bin for Location "WHITE"
+        WhiteLocationSetup(Bin);
+
+        // [GIVEN] Item with lot tracking
+        LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode, '', CreateItemTrackingCode);
+
+        // [GIVEN] Warehouse Item Journal Line 10000 with Quantity = 6 and Item Tracking Line for Lot No. "L01"
+        // [GIVEN] Warehouse Item Journal Line 20000 with Quantity = 3 and Item Tracking Line for Lot No. "L01"
+        CreateWarehouseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Type::Item, Bin."Location Code");
+        LotNo := LibraryUtility.GenerateGUID();
+        for I := 1 to ArrayLen(Quantity) do begin
+            Quantity[I] := LibraryRandom.RandDec(10, 0);
+            CreateWarehouseJournalLineWithItemTracking(WarehouseJournalLine, WarehouseJournalBatch, Bin, Item."No.", Quantity[I], LotNo);
+            TotalQuantity += Quantity[I];
+        end;
+
+        // [GIVEN] Warehouse Item Journal Lines registered
+        LibraryWarehouse.RegisterWhseJournalLine(
+          WarehouseJournalLine."Journal Template Name", WarehouseJournalLine."Journal Batch Name", WarehouseJournalLine."Location Code",
+          true);
+
+        // [GIVEN] Item Journal Line created with Calculate Warehouse Adjustment for the Item, Posted
+        SelectAndClearItemJournalBatch(ItemJournalBatch, ItemJournalBatch."Template Type"::Item);
+        LibraryWarehouse.CalculateWhseAdjustment(Item, ItemJournalBatch);
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+
+        // [GIVEN] Movement Worksheet Line 10000 for Quantity = 6, Item Tracked with "Lot No." = "L01"
+        // [GIVEN] Movement Worksheet Line 20000 for Quantity = 3, Item Tracked with "Lot No." = "L01"
+        CreateWhseWorksheetName(WhseWorksheetName, Bin."Location Code");
+        for I := 1 to ArrayLen(Quantity) do begin
+            CreateWhseWorksheetLine(
+              WhseWorksheetLine, WhseWorksheetName."Worksheet Template Name", WhseWorksheetName.Name, Item."No.", Bin."Location Code",
+              Quantity[I]);
+
+            LibraryVariableStorage.Enqueue(LotNo);
+            LibraryVariableStorage.Enqueue(Quantity[I]);
+            WhseWorksheetLine.OpenItemTrackingLines();
+        end;
+
+        // [WHEN] Run Create Movement for Movement Worksheet Lines
+        Commit();
+        WhseWorksheetLine.MovementCreate(WhseWorksheetLine);
+
+        // [THEN] 2 Movement Lines (Take/Place) created with Quantity = 9 and "Lot No." = "L01"
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::Movement);
+        WarehouseActivityLine.SetRange("Item No.", Item."No.");
+        WarehouseActivityLine.SetFilter(
+          "Action Type", '%1|%2', WarehouseActivityLine."Action Type"::Place, WarehouseActivityLine."Action Type"::Take);
+        Assert.RecordCount(WarehouseActivityLine, 2);
+        VerifyWhseActivityLineWithLotNo(WarehouseActivityLine, TotalQuantity, LotNo);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1716,6 +1870,18 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
           Bin."Zone Code", Bin.Code, WarehouseJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, Quantity);
     end;
 
+    local procedure CreateWarehouseJournalLineWithItemTracking(var WarehouseJournalLine: Record "Warehouse Journal Line"; WarehouseJournalBatch: Record "Warehouse Journal Batch"; Bin: Record Bin; ItemNo: Code[20]; Quantity: Decimal; LotNo: Code[50])
+    begin
+        LibraryWarehouse.CreateWhseJournalLine(
+          WarehouseJournalLine, WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name, Bin."Location Code",
+          Bin."Zone Code", Bin.Code, WarehouseJournalLine."Entry Type"::"Positive Adjmt.", ItemNo,
+          Quantity);
+
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(Quantity);
+        WarehouseJournalLine.OpenItemTrackingLines();
+    end;
+
     local procedure CreateAndRegisterWhseJournalLine(PurchaseLine: Record "Purchase Line"; LocationCode: Code[10]; BinCode: Code[20])
     var
         Bin: Record Bin;
@@ -1791,9 +1957,9 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         LibraryWarehouse.CreateWhseWorksheetLine(
           WhseWorksheetLine, WorksheetTemplateName, Name, LocationCode, WhseWorksheetLine."Whse. Document Type"::"Whse. Mov.-Worksheet");
         WhseWorksheetLine.Validate("Item No.", ItemNo);
-        WhseWorksheetLine.Validate(Quantity, Quantity);
         WhseWorksheetLine.Validate("From Bin Code", FindBinContent(LocationCode, ItemNo));
         WhseWorksheetLine.Validate("To Bin Code", FindBin(LocationCode, true));
+        WhseWorksheetLine.Validate(Quantity, Quantity);
         WhseWorksheetLine.Modify(true);
     end;
 
@@ -2369,6 +2535,13 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         WarehouseActivityLine.TestField("Qty. to Handle", Quantity);
     end;
 
+    local procedure VerifyWhseActivityLineWithLotNo(WarehouseActivityLine: Record "Warehouse Activity Line"; Quantity: Decimal; LotNo: Code[50])
+    begin
+        WarehouseActivityLine.SetRange("Lot No.", LotNo);
+        WarehouseActivityLine.SetRange(Quantity, Quantity);
+        Assert.RecordCount(WarehouseActivityLine, 2);
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure CreateOrderFromSalesPageHandler(var CreateOrderFromSales: Page "Create Order From Sales"; var Response: Action)
@@ -2482,6 +2655,15 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
     procedure WhseItemTrackingLinesPageHandler(var WhseItemTrackingLines: TestPage "Whse. Item Tracking Lines")
     begin
         WhseItemTrackingLines."Lot No.".AssistEdit;
+        WhseItemTrackingLines.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure WhseItemTrackingLinesDequeuePageHandler(var WhseItemTrackingLines: TestPage "Whse. Item Tracking Lines")
+    begin
+        WhseItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
+        WhseItemTrackingLines.Quantity.SetValue(LibraryVariableStorage.DequeueDecimal);
         WhseItemTrackingLines.OK.Invoke;
     end;
 

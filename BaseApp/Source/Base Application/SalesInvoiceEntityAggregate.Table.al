@@ -379,6 +379,7 @@ table 5475 "Sales Invoice Entity Aggregate"
             ObsoleteState = Removed;
             OptionCaption = 'Not Sent,In Process,Finished,Error', Locked = true;
             OptionMembers = "Not Sent","In Process",Finished,Error;
+            ObsoleteTag = '15.0';
         }
         field(170; IsTest; Boolean)
         {

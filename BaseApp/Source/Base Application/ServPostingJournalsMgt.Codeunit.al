@@ -392,7 +392,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
                   TotalServiceLineLCY."Amount Including VAT" +
                   Round(CustLedgEntry."Remaining Pmt. Disc. Possible" / CustLedgEntry."Adjusted Currency Factor");
 
-            OnBeforePostBalancingEntry(GenJnlLine, ServiceHeader);
+            OnBeforePostBalancingEntry(GenJnlLine, ServiceHeader, TotalServiceLine);
             GenJnlPostLine.RunWithCheck(GenJnlLine);
             OnAfterPostBalancingEntry(GenJnlLine, ServiceHeader, GenJnlPostLine);
         end;
@@ -702,7 +702,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostBalancingEntry(var GenJournalLine: Record "Gen. Journal Line"; var ServiceHeader: Record "Service Header")
+    local procedure OnBeforePostBalancingEntry(var GenJournalLine: Record "Gen. Journal Line"; var ServiceHeader: Record "Service Header"; var TotalServiceLine: Record "Service Line")
     begin
     end;
 

@@ -15,6 +15,8 @@ codeunit 1620 "PEPPOL Validation"
         MissingCustGLNOrVATRegNoErr: Label 'You must specify either GLN or VAT Registration No. for Customer %1.';
         MissingCompInfGLNOrVATRegNoErr: Label 'You must specify either GLN or VAT Registration No. in %1.', Comment = '%1=Company Information';
         PEPPOLManagement: Codeunit "PEPPOL Management";
+        NegativeUnitPriceErr: Label 'The unit price is negative in %1. It cannot be negative if you want to send the posted document as an electronic document. \\Do you want to continue?', Comment = '%1 - record ID';
+        ConfirmManagement: Codeunit "Confirm Management";
 
     local procedure CheckSalesDocument(SalesHeader: Record "Sales Header")
     var
@@ -115,6 +117,9 @@ codeunit 1620 "PEPPOL Validation"
                     TestField("VAT Prod. Posting Group");
                 VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group");
                 VATPostingSetup.TestField("Tax Category");
+                if (Type = Type::Item) and ("Unit Price" < 0) then
+                    if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(NegativeUnitPriceErr, RecordId), false) then
+                        Error('');
             end;
         end;
     end;

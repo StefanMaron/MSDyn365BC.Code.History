@@ -29,6 +29,7 @@ table 560 "VAT Clause"
             Caption = 'Id';
             ObsoleteState = Pending;
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
+            ObsoleteTag = '15.0';
         }
     }
 

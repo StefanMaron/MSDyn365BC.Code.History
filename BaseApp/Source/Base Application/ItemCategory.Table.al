@@ -27,7 +27,8 @@ table 5722 "Item Category"
                         Error(CyclicInheritanceErr);
                     ParentCategory := ItemCategory."Parent Category";
                 end;
-                ItemAttributeManagement.UpdateCategoryAttributesAfterChangingParentCategory(Code, "Parent Category", xRec."Parent Category");
+                if "Parent Category" <> xRec."Parent Category" then
+                    ItemAttributeManagement.UpdateCategoryAttributesAfterChangingParentCategory(Code, "Parent Category", xRec."Parent Category");
             end;
         }
         field(3; Description; Text[100])
@@ -57,6 +58,7 @@ table 5722 "Item Category"
             Caption = 'Id';
             ObsoleteState = Pending;
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
+            ObsoleteTag = '15.0';
         }
     }
 
@@ -89,6 +91,7 @@ table 5722 "Item Category"
     trigger OnInsert()
     begin
         TestField(Code);
+        UpdatePresentationOrderAfterTheTrigger();
         "Last Modified Date Time" := CurrentDateTime;
     end;
 

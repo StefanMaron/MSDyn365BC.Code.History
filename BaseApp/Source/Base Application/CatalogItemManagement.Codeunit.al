@@ -123,6 +123,8 @@ codeunit 5703 "Catalog Item Management"
         NonStock.SetRange("Item No.", Item."No.");
         if NonStock.Find('-') then
             NonStock.ModifyAll("Item No.", '');
+
+        OnAfterNonstockItemDel(Item);
     end;
 
     procedure NonStockSales(var SalesLine2: Record "Sales Line")
@@ -468,6 +470,11 @@ codeunit 5703 "Catalog Item Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterItemCrossReferenceInsert(var ItemCrossReference: Record "Item Cross Reference"; NonstockItem: Record "Nonstock Item")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterNonstockItemDel(var Item: Record Item)
     begin
     end;
 

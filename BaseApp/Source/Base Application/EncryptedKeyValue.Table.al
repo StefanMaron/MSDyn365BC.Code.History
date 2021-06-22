@@ -5,6 +5,7 @@ table 1805 "Encrypted Key/Value"
     ObsoleteReason = 'The suggested way to store the secrets is Isolated Storage, therefore Encrypted Key/Value will be removed.';
     ObsoleteState = Removed;
     ReplicateData = false;
+    ObsoleteTag = '15.0';
 
     fields
     {

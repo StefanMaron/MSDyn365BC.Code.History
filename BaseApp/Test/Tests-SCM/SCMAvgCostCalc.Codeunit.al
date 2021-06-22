@@ -591,6 +591,80 @@ codeunit 137070 "SCM Avg. Cost Calc."
         until ItemLedgerEntry.Next = 0;
     end;
 
+    [Test]
+    [Scope('Internal')]
+    procedure PreciseAvgCostPerEntriesHavingOpenOutboundEntries()
+    var
+        Item: Record Item;
+        PosItemLedgerEntry: Record "Item Ledger Entry";
+        NegItemLedgerEntry: Record "Item Ledger Entry";
+        ItemCostManagement: Codeunit ItemCostManagement;
+        AverageCost: Decimal;
+        AverageCostACY: Decimal;
+    begin
+        // [FEATURE] [Unit Cost] [UT]
+        // [SCENARIO 342239] Precise cost calculation of item with open outbound entries in the case of cost equal to amount rounding precision. Using the rounded cost might lead to a big round-off error.
+        Initialize();
+
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Positive item entry. Quantity = 8.003; Unit Cost = 3; Cost Amount = 24.01 (rounded).
+        // [GIVEN] Negative item entry. Quantity = -8; Unit Cost = 3; Cost Amount = -24.00.
+        // [GIVEN] Another negative item entry resulting in negative inventory. Quantity = -4; Unit Cost = 4; Cost Amount = -16.
+        // [GIVEN] The positive entry is fully applied to both negative entries and is closed.
+        MockItemLedgerEntry(PosItemLedgerEntry, Item."No.", 8.003, 0, 24.01, 0);
+
+        MockItemLedgerEntry(NegItemLedgerEntry, Item."No.", -8, 0, -24.0, 0);
+        MockItemApplicationEntry(NegItemLedgerEntry."Entry No.", PosItemLedgerEntry."Entry No.", NegItemLedgerEntry."Entry No.", -8);
+
+        MockItemLedgerEntry(NegItemLedgerEntry, Item."No.", -4, -3.997, -16.0, 0);
+        MockItemApplicationEntry(NegItemLedgerEntry."Entry No.", PosItemLedgerEntry."Entry No.", NegItemLedgerEntry."Entry No.", -0.003);
+
+        // [WHEN] Calculate unit cost of the item.
+        ItemCostManagement.SetProperties(true, 0);
+        ItemCostManagement.CalculateAverageCost(Item, AverageCost, AverageCostACY);
+
+        // [THEN] The unit cost is nearly equal to 3. So the item entry causing negative inventory does not affect the unit cost.
+        Assert.AreNearlyEqual(24.01 / 8.003, AverageCost, LibraryERM.GetUnitAmountRoundingPrecision(), IncorrectAverageCostErr);
+    end;
+
+    [Test]
+    [Scope('Internal')]
+    procedure PreciseAvgCostPerEntriesHavingBothOpenInboundAndOutboundEntries()
+    var
+        Item: Record Item;
+        PosItemLedgerEntry: Record "Item Ledger Entry";
+        NegItemLedgerEntry: Record "Item Ledger Entry";
+        ItemCostManagement: Codeunit ItemCostManagement;
+        AverageCost: Decimal;
+        AverageCostACY: Decimal;
+    begin
+        // [FEATURE] [Unit Cost] [UT]
+        // [SCENARIO 342239] Precise cost calculation of item with open inbound and outbound entries in the case of cost equal to amount rounding precision. Using the rounded cost might lead to a big round-off error.
+        Initialize();
+
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Positive item entry. Quantity = 8.003; Unit Cost = 3; Cost Amount = 24.01 (rounded).
+        // [GIVEN] Negative item entry. Quantity = -8; Unit Cost = 3; Cost Amount = -24.00.
+        // [GIVEN] Another negative item entry resulting in negative inventory. Quantity = -4; Unit Cost = 4; Cost Amount = -16.
+        // [GIVEN] The positive entry is partially applied to both negative entries and is still open.
+        MockItemLedgerEntry(PosItemLedgerEntry, Item."No.", 8.003, 0.001, 24.01, 0);
+
+        MockItemLedgerEntry(NegItemLedgerEntry, Item."No.", -8, 0, -24.0, 0);
+        MockItemApplicationEntry(NegItemLedgerEntry."Entry No.", PosItemLedgerEntry."Entry No.", NegItemLedgerEntry."Entry No.", -8);
+
+        MockItemLedgerEntry(NegItemLedgerEntry, Item."No.", -4, -3.998, -16.0, 0);
+        MockItemApplicationEntry(NegItemLedgerEntry."Entry No.", PosItemLedgerEntry."Entry No.", NegItemLedgerEntry."Entry No.", -0.002);
+
+        // [WHEN] Calculate unit cost of the item.
+        ItemCostManagement.SetProperties(true, 0);
+        ItemCostManagement.CalculateAverageCost(Item, AverageCost, AverageCostACY);
+
+        // [THEN] The unit cost is nearly equal to 3. So the item entry causing negative inventory does not affect the unit cost.
+        Assert.AreNearlyEqual(24.01 / 8.003, AverageCost, LibraryERM.GetUnitAmountRoundingPrecision(), IncorrectAverageCostErr);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -809,9 +883,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
         end;
     end;
 
-    local procedure MockItemLedgerEntry(ItemNo: Code[20]; Qty: Decimal; RemQty: Decimal; CostAmt: Decimal; CostAmtACY: Decimal)
-    var
-        ItemLedgerEntry: Record "Item Ledger Entry";
+    local procedure MockItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemNo: Code[20]; Qty: Decimal; RemQty: Decimal; CostAmt: Decimal; CostAmtACY: Decimal)
     begin
         with ItemLedgerEntry do begin
             Init;
@@ -843,8 +915,24 @@ codeunit 137070 "SCM Avg. Cost Calc."
         end;
     end;
 
+    local procedure MockItemApplicationEntry(ItemLedgEntryNo: Integer; InbndItemLedgEntryNo: Integer; OutbndItemLedgEntryNo: Integer; Qty: Decimal)
+    var
+        ItemApplicationEntry: Record "Item Application Entry";
+    begin
+        with ItemApplicationEntry do begin
+            Init();
+            "Entry No." := LibraryUtility.GetNewRecNo(ItemApplicationEntry, FieldNo("Entry No."));
+            "Item Ledger Entry No." := ItemLedgEntryNo;
+            "Inbound Item Entry No." := InbndItemLedgEntryNo;
+            "Outbound Item Entry No." := OutbndItemLedgEntryNo;
+            Quantity := Qty;
+            Insert();
+        end;
+    end;
+
     local procedure PostPositiveAndNegativeAdjustments(ItemNo: Code[20]; QtyDifference: Decimal; AmtDifference: Decimal; AmtACYDifference: Decimal)
     var
+        ItemLedgerEntry: Record "Item Ledger Entry";
         PositiveQty: Decimal;
         PositiveAmt: Decimal;
         PositiveAmtACY: Decimal;
@@ -859,8 +947,8 @@ codeunit 137070 "SCM Avg. Cost Calc."
         NegativeAmt := PositiveAmt - AmtDifference;
         NegativeAmtACY := PositiveAmtACY - AmtACYDifference;
 
-        MockItemLedgerEntry(ItemNo, PositiveQty, PositiveQty - NegativeQty, PositiveAmt, PositiveAmtACY);
-        MockItemLedgerEntry(ItemNo, -NegativeQty, 0, -NegativeAmt, -NegativeAmtACY);
+        MockItemLedgerEntry(ItemLedgerEntry, ItemNo, PositiveQty, PositiveQty - NegativeQty, PositiveAmt, PositiveAmtACY);
+        MockItemLedgerEntry(ItemLedgerEntry, ItemNo, -NegativeQty, 0, -NegativeAmt, -NegativeAmtACY);
     end;
 
     local procedure GetItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; TemplateType: Integer)

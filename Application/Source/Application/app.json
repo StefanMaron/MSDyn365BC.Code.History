@@ -2,7 +2,7 @@
     "id":  "c1335042-3002-4257-bf8a-75c898ccb1b8",
     "name":  "Application",
     "publisher":  "Microsoft",
-    "version":  "15.3.40074.40822",
+    "version":  "15.4.41023.41345",
     "propagateDependencies":  true,
     "logo":  "ExtensionLogo.png",
     "privacyStatement":  "https://go.microsoft.com/fwlink/?LinkId=724009",
@@ -14,13 +14,13 @@
                              "appId":  "437dbf0e-84ff-417a-965d-ed2bb9650972",
                              "name":  "Base Application",
                              "publisher":  "Microsoft",
-                             "version":  "15.3.0.0"
+                             "version":  "15.4.0.0"
                          },
                          {
                              "appId":  "63ca2fa4-4f03-4f2b-a480-172fef340d3f",
                              "name":  "System Application",
                              "publisher":  "Microsoft",
-                             "version":  "15.3.0.0"
+                             "version":  "15.4.0.0"
                          }
                      ],
     "screenshots":  [

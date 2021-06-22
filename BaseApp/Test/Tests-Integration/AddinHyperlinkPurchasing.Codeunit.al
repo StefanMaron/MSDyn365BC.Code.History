@@ -12,6 +12,7 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
     var
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryOfficeHostProvider: Codeunit "Library - Office Host Provider";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         OfficeHostType: DotNet OfficeHostType;
         DocNo: Code[20];
         DocNotExistErr: Label 'This document number should not exist for this test.';
@@ -34,7 +35,7 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
     begin
         // [SCENARIO 147201] Stan will get a message that a document does not exist when clicking on a hyperlink for a document number that does not exist.
         // Setup
-        Initialize;
+        Initialize();
 
         // [WHEN] Purchase Invoice has been proven to not exist
         No := 'ZZZQUOTE001';
@@ -59,7 +60,7 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
         OfficeAddinContext: Record "Office Add-in Context";
     begin
         // [SCENARIO 147201] Stan will get a window to select a doc number when clicking on a hyperlink for a doc number that exists for multiple doc types.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice has been created
         LibraryPurchase.CreatePurchHeaderWithDocNo(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor, 'PDOC0001');
@@ -84,7 +85,7 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
         OfficeAddinContext: Record "Office Add-in Context";
     begin
         // [SCENARIO 147201] Stan will get a Purchase Invoice window when clicking on a hyperlink for a doc number includes the document name and a number
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice has been created
         LibraryPurchase.CreatePurchHeaderWithDocNo(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor, '9990001');
@@ -115,7 +116,7 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
         SalesLine: Record "Sales Line";
     begin
         // [SCENARIO 147201] Stan will get a window to select a doc number when clicking on a hyperlink for a doc number that exists for the same doc type in Sales and Purchasing
-        Initialize;
+        Initialize();
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
         // [GIVEN] Purchase Invoice has been created
@@ -147,7 +148,7 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
         SalesLine: Record "Sales Line";
     begin
         // [SCENARIO 147201] Stan will get a window to select a doc number when clicking on a hyperlink for a doc number that exists for the same doc type in Sales and Purchasing
-        Initialize;
+        Initialize();
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
         // [GIVEN] Purchase Invoice has been created
@@ -178,7 +179,7 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
     begin
         // [FEATURE] [ORDER]
         // [SCENARIO] Stan can view Purchase Order from a hyperlink where the doc type and doc number were derived from the Outlook email.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order has been created
         CreatePurchaseOrder(PurchaseHeader);
@@ -206,7 +207,7 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
     begin
         // [FEATURE] [ORDER]
         // [SCENARIO] Stan can view Purchase Order from a hyperlink in the Outlook email that contained the Document Window Title
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order has been created
         CreatePurchaseOrder(PurchaseHeader);
@@ -237,7 +238,7 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
     begin
         // [FEATURE] [ORDER]
         // [SCENARIO] Stan can view Purchase Order from a hyperlink in the Outlook email that contained the Purchase Order acronym (PO)
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order has been created
         CreatePurchaseOrder(PurchaseHeader);
@@ -267,7 +268,7 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
     begin
         // [FEATURE] [ORDER]
         // [SCENARIO] Stan can view Purchase Order from a hyperlink in the Outlook email that contained the 'order' keyword
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order has been created
         CreatePurchaseOrder(PurchaseHeader);
@@ -296,7 +297,7 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
     begin
         // [FEATURE] [Invoice]
         // [SCENARIO 147201] Stan can view Purchase Invoice from a hyperlink where the doc type and doc number were derived from the Outlook email.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice has been created
         LibraryPurchase.CreatePurchHeaderWithDocNo(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor, 'PINVOICE001');
@@ -325,7 +326,7 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
     begin
         // [FEATURE] [Invoice]
         // [SCENARIO 147201] Stan can view Purchase Invoice from a hyperlink in the Outlook email that contained the Document Window Title
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice has been created
         No := 'PINVOICE002';
@@ -361,7 +362,7 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
         // [SCENARIO 147201] Stan can view Purchase Invoice from a hyperlink in the Outlook email that contained the 'invoice' keyword
 
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice has been created
         No := 'PINVOICE003';
@@ -394,7 +395,7 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
         // [SCENARIO 147201] Stan can view Posted Purchase Invoice from a hyperlink where the doc type and doc number were derived from the Outlook email.
 
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post the Purchase Invoice
         CreateandPostPurchInvoice(PurchInvHeader, 'PINVOICE004', 2);
@@ -422,7 +423,7 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
         // [SCENARIO 147201] Stan can view Posted Purchase Invoice from a hyperlink in the Outlook email that contained the Document Window Title
 
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post the Purchase Invoice
         CreateandPostPurchInvoice(PurchInvHeader, 'PINVOICE005', 2);
@@ -453,7 +454,7 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
         // [SCENARIO 147201] Stan can view Posted Purchase Invoice from a hyperlink in the Outlook email that contained the 'invoice' keyword
 
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post the Purchase Invoice
         CreateandPostPurchInvoice(PurchInvHeader, 'PINVOICE006', 3);
@@ -482,7 +483,7 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
         // [SCENARIO 147201] Stan can view Purchase Credit Memo from a hyperlink where the doc type and doc number were derived from the Outlook email.
 
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Credit Memo has been created
         LibraryPurchase.CreatePurchHeaderWithDocNo(
@@ -514,7 +515,7 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
         // [SCENARIO 147201] Stan can view Purchase Credit Memo from a hyperlink in the Outlook email that contained the Document Window Title
 
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Credit Memo has been created
         No := 'PCRMEMO002';
@@ -550,7 +551,7 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
         // [SCENARIO 147201] Stan can view Purchase Credit Memo from a hyperlink in the Outlook email that contained the 'credit memo' keyword
 
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Credit Memo has been created
         No := 'PCRMEMO003';
@@ -583,7 +584,7 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
         // [SCENARIO 147201] Stan can view Posted Purchase Credit Memo from a hyperlink where the doc type and doc number were derived from the Outlook email.
 
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post the Purchase Credit Memo
         CreateandPostPurchCrMemo(PurchCrMemoHdr, 'PCRMEMO004', 2);
@@ -611,7 +612,7 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
         // [SCENARIO 147201] Stan can view Posted Purchase Credit Memo from a hyperlink in the Outlook email that contained the Document Window Title
 
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post the Purchase Credit Memo
         CreateandPostPurchCrMemo(PurchCrMemoHdr, 'PCRMEMO005', 2);
@@ -642,7 +643,7 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
         // [SCENARIO 147201] Stan can view Posted Purchase Credit Memo from a hyperlink in the Outlook email that contained the 'credit memo' keyword
 
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post the Purchase Credit Memo
         CreateandPostPurchCrMemo(PurchCrMemoHdr, 'PCRMEMO006', 3);
@@ -864,14 +865,18 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
         SMBOfficePages: Codeunit "SMB Office Pages";
         DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Add-in Hyperlink Purchasing");
+
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
         Clear(LibraryOfficeHostProvider);
         BindSubscription(LibraryOfficeHostProvider);
         InitializeOfficeHostProvider(OfficeHostType.OutlookHyperlink);
 
         if isInitialized then
             exit;
+
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Add-in Hyperlink Purchasing");
 
         AddinManifestManagement.CreateDefaultAddins(OfficeAddin);
         SalesHeader.DeleteAll;
@@ -880,16 +885,18 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
 
         SetNoSeries(DocType::Invoice);
         SetNoSeries(DocType::"Credit Memo");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
 
-        VendorNo := CreateVendor;
-        SMBOfficePages.SetupMarketing;
+        VendorNo := CreateVendor();
+        SMBOfficePages.SetupMarketing();
         isInitialized := true;
-        Commit;
+        Commit();
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Add-in Hyperlink Purchasing");
     end;
 
     local procedure InitializeOfficeHostProvider(HostType: Text)

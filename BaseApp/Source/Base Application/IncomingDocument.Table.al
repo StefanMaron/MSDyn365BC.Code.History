@@ -125,6 +125,7 @@ table 130 "Incoming Document"
             Editable = false;
             ObsoleteState = Removed;
             ObsoleteReason = 'URL field was introduced';
+            ObsoleteTag = '15.0';
         }
         field(20; URL2; Text[250])
         {
@@ -132,6 +133,7 @@ table 130 "Incoming Document"
             Editable = false;
             ObsoleteState = Removed;
             ObsoleteReason = 'URL field was introduced';
+            ObsoleteTag = '15.0';
         }
         field(21; URL3; Text[250])
         {
@@ -139,6 +141,7 @@ table 130 "Incoming Document"
             Editable = false;
             ObsoleteState = Removed;
             ObsoleteReason = 'URL field was introduced';
+            ObsoleteTag = '15.0';
         }
         field(22; URL4; Text[250])
         {
@@ -146,6 +149,7 @@ table 130 "Incoming Document"
             Editable = false;
             ObsoleteState = Removed;
             ObsoleteReason = 'URL field was introduced';
+            ObsoleteTag = '15.0';
         }
         field(23; "Vendor Name"; Text[100])
         {
@@ -755,7 +759,7 @@ table 130 "Incoming Document"
     end;
 
     [Scope('OnPrem')]
-    [Obsolete('Replaced with CreateIncomingDocument function')]
+    [Obsolete('Replaced with CreateIncomingDocument function','15.3')]
     procedure CreateIncomingDocumentFromServerFile(FileName: Text; FilePath: Text)
     var
         IncomingDocument: Record "Incoming Document";
@@ -1797,7 +1801,7 @@ table 130 "Incoming Document"
         ImportAttachmentIncDoc.ImportAttachment(NewIncomingDocumentAttachment, FilePath);
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem','15.1')]
     procedure ShowMainAttachment()
     var
         IncomingDocumentAttachment: Record "Incoming Document Attachment";

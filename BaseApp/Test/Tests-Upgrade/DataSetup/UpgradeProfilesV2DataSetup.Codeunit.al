@@ -1,4 +1,4 @@
-codeunit 128005 "Upgrade Profiles V2 Data Setup"
+codeunit 132805 "Upgrade Profiles V2 Data Setup"
 {
     Subtype = Upgrade;
 

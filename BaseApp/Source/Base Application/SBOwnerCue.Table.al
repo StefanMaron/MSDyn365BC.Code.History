@@ -57,6 +57,7 @@ table 9060 "SB Owner Cue"
             FieldClass = FlowField;
             ObsoleteReason = 'Poor performance';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(8; "Customers - Blocked"; Integer)
         {

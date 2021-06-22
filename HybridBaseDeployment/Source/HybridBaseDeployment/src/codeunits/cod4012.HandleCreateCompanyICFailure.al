@@ -13,9 +13,9 @@ codeunit 4012 "Handle Create Company Failure"
                 IntelligentCloudSetup.Modify();
                 Commit();
             end;
-        Error(StrSubstNo(CompanyCreationFailedErr, ErrorMessage));
+        Error(CompanyCreationFailedErr, ErrorMessage);
     end;
 
     var
-        CompanyCreationFailedErr: Label 'Failed to create company for the Data Migration setup. Error %1';
+        CompanyCreationFailedErr: Label 'Failed to create company for the Data Migration setup.\\\\%1', Comment = '%1 - Error message';
 }
