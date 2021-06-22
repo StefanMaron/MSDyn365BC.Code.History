@@ -3,6 +3,7 @@ report 15 "Consolidation - Test File"
     DefaultLayout = RDLC;
     RDLCLayout = './ConsolidationTestFile.rdlc';
     Caption = 'Consolidation - Test File';
+    AllowScheduling = false;
 
     dataset
     {

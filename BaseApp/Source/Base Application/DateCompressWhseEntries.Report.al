@@ -94,10 +94,6 @@ report 7398 "Date Compress Whse. Entries"
 
             trigger OnPreDataItem()
             begin
-                if not HideDialog then
-                    if not Confirm(Text000, false) then
-                        CurrReport.Break();
-
                 if EntrdDateComprReg."Ending Date" = 0D then
                     Error(Text003, EntrdDateComprReg.FieldCaption("Ending Date"));
 
@@ -149,6 +145,13 @@ report 7398 "Date Compress Whse. Entries"
                         ApplicationArea = Warehouse;
                         Caption = 'Ending Date';
                         ToolTip = 'Specifies the last date to be included in the date compression. The compression will affect all warehouse entries from the Starting Date to this date.';
+
+                        trigger OnValidate()
+                        var
+                            DateCompression: Codeunit "Date Compression";
+                        begin
+                            DateCompression.VerifyDateCompressionDates(EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
+                        end;
                     }
                     field(PeriodLength; EntrdDateComprReg."Period Length")
                     {
@@ -187,10 +190,23 @@ report 7398 "Date Compress Whse. Entries"
         {
         }
 
+        trigger OnQueryClosePage(CloseAction: Action): Boolean
+        var
+            ConfirmManagement: Codeunit "Confirm Management";
+        begin
+            if CloseAction = Action::Cancel then
+                exit;
+            if not HideDialog then
+                if not ConfirmManagement.GetResponseOrDefault(CompressEntriesQst, true) then
+                    CurrReport.Break();
+        end;
+
         trigger OnOpenPage()
+        var
+            DateCompression: Codeunit "Date Compression";
         begin
             if EntrdDateComprReg."Ending Date" = 0D then
-                EntrdDateComprReg."Ending Date" := Today;
+                EntrdDateComprReg."Ending Date" := DateCompression.CalcMaxEndDate();
 
             with "Warehouse Entry" do begin
                 InsertField(FieldNo("Serial No."), FieldCaption("Serial No."));
@@ -205,12 +221,22 @@ report 7398 "Date Compress Whse. Entries"
     }
 
     trigger OnPreReport()
+    var
+        DateCompression: Codeunit "Date Compression";
     begin
         WhseEntryFilter := CopyStr("Warehouse Entry".GetFilters, 1, MaxStrLen(DateComprReg.Filter));
+
+        DateCompression.VerifyDateCompressionDates(EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
+        LogStartTelemetryMessage();
+    end;
+
+    trigger OnPostReport()
+    begin
+        LogEndTelemetryMessage();
     end;
 
     var
-        Text000: Label 'This batch job deletes entries. Therefore, it is important that you make a backup of the database before you run the batch job.\\Do you want to date compress the entries?';
+        CompressEntriesQst: Label 'This batch job deletes entries. We recommend that you create a backup of the database before you run the batch job.\\Do you want to continue?';
         Text003: Label '%1 must be specified.';
         Text004: Label 'Date compressing warehouse entries...\\';
         Text005: Label 'Date                 #1######\\';
@@ -246,6 +272,8 @@ report 7398 "Date Compress Whse. Entries"
         RetainPackageNo: Boolean;
         Text008: Label 'Date Compressed';
         HideDialog: Boolean;
+        StartDateCompressionTelemetryMsg: Label 'Running date compression report %1 %2.', Locked = true;
+        EndDateCompressionTelemetryMsg: Label 'Completed date compression report %1 %2.', Locked = true;
 
     local procedure InitRegisters()
     var
@@ -495,11 +523,9 @@ report 7398 "Date Compress Whse. Entries"
     procedure SetParameters(EntrdDateComprReg2: Record "Date Compr. Register"; ItemTrackingSetup: Record "Item Tracking Setup")
     begin
         EntrdDateComprReg.Copy(EntrdDateComprReg2);
-        with WhseEntry2 do begin
-            InsertField(FieldNo("Serial No."), FieldCaption("Serial No."));
-            InsertField(FieldNo("Lot No."), FieldCaption("Lot No."));
-            InsertField(FieldNo("Package No."), FieldCaption("Package No."));
-        end;
+        InsertField(WhseEntry2.FieldNo("Serial No."), WhseEntry2.FieldCaption("Serial No."));
+        InsertField(WhseEntry2.FieldNo("Lot No."), WhseEntry2.FieldCaption("Lot No."));
+        InsertField(WhseEntry2.FieldNo("Package No."), WhseEntry2.FieldCaption("Package No."));
         RetainFields[1] := ItemTrackingSetup."Serial No. Required";
         RetainFields[2] := ItemTrackingSetup."Lot No. Required";
         RetainFields[3] := ItemTrackingSetup."Package No. Required";
@@ -508,6 +534,40 @@ report 7398 "Date Compress Whse. Entries"
     procedure SetHideDialog(NewHideDialog: Boolean)
     begin
         HideDialog := NewHideDialog;
+    end;
+
+    local procedure LogStartTelemetryMessage()
+    var
+        TelemetryDimensions: Dictionary of [Text, Text];
+    begin
+        // TelemetryDimensions.Add('CompanyName', CompanyName());
+        TelemetryDimensions.Add('ReportId', Format(CurrReport.ObjectId(false), 0, 9));
+        TelemetryDimensions.Add('ReportName', CurrReport.ObjectId(true));
+        TelemetryDimensions.Add('UseRequestPage', Format(CurrReport.UseRequestPage()));
+        TelemetryDimensions.Add('StartDate', Format(EntrdDateComprReg."Starting Date", 0, 9));
+        TelemetryDimensions.Add('EndDate', Format(EntrdDateComprReg."Ending Date", 0, 9));
+        TelemetryDimensions.Add('PeriodLength', Format(EntrdDateComprReg."Period Length", 0, 9));
+        TelemetryDimensions.Add('SerialNoRequired', Format(RetainFields[1], 0, 9));
+        TelemetryDimensions.Add('LotNoRequired', Format(RetainFields[2], 0, 9));
+        TelemetryDimensions.Add('PackageNoRequired', Format(RetainFields[3], 0, 9));
+        // TelemetryDimensions.Add('Filters', "Warehouse Entry".GetFilters());
+
+        Session.LogMessage('0000F50', StrSubstNo(StartDateCompressionTelemetryMsg, CurrReport.ObjectId(false), CurrReport.ObjectId(true)), Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::All, TelemetryDimensions);
+    end;
+
+    local procedure LogEndTelemetryMessage()
+    var
+        TelemetryDimensions: Dictionary of [Text, Text];
+    begin
+        // TelemetryDimensions.Add('CompanyName', CompanyName());
+        TelemetryDimensions.Add('ReportId', Format(CurrReport.ObjectId(false), 0, 9));
+        TelemetryDimensions.Add('ReportName', CurrReport.ObjectId(true));
+        TelemetryDimensions.Add('RegisterNo', Format(DateComprReg."Register No.", 0, 9));
+        TelemetryDimensions.Add('TableID', Format(DateComprReg."Table ID", 0, 9));
+        TelemetryDimensions.Add('NoRecordsDeleted', Format(DateComprReg."No. Records Deleted", 0, 9));
+        TelemetryDimensions.Add('NoofNewRecords', Format(DateComprReg."No. of New Records", 0, 9));
+
+        Session.LogMessage('0000F51', StrSubstNo(EndDateCompressionTelemetryMsg, CurrReport.ObjectId(false), CurrReport.ObjectId(true)), Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::All, TelemetryDimensions);
     end;
 
     [IntegrationEvent(false, false)]

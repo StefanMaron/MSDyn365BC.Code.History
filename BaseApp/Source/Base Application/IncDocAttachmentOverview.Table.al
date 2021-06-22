@@ -148,6 +148,8 @@ table 137 "Inc. Doc. Attachment Overview"
         InsertSupportingAttachments(
           IncomingDocument, TempIncDocAttachmentOverview, SortingOrder,
           IncomingDocument."Document Type" <> IncomingDocument."Document Type"::"Sales Invoice");
+
+        OnAfterInsertFromIncomingDocument(IncomingDocument, TempIncDocAttachmentOverview, SortingOrder);
     end;
 
     procedure InsertSupportingAttachmentsFromIncomingDocument(IncomingDocument: Record "Incoming Document"; var TempIncDocAttachmentOverview: Record "Inc. Doc. Attachment Overview" temporary)
@@ -239,6 +241,11 @@ table 137 "Inc. Doc. Attachment Overview"
     begin
         SortingOrder += 1;
         TempIncDocAttachmentOverview."Sorting Order" := SortingOrder;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInsertFromIncomingDocument(IncomingDocument: Record "Incoming Document"; var TempIncDocAttachmentOverview: Record "Inc. Doc. Attachment Overview" temporary; var SortingOrder: Integer)
+    begin
     end;
 }
 

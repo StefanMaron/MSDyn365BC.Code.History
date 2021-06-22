@@ -277,7 +277,7 @@ report 1095 "Update Job Item Cost"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostTotalCostAdjustment(var JobLedgEntry: Record "Job Ledger Entry"; ItemLedgerEntry: Record "Item Ledger Entry"; JobLedgerEntryCostValue: Decimal; JobLedgerEntryCostValueACY: Decimal; var AdjustJobCost: Decimal; var AdjustJobCostLCY: Decimal; var NoOfJobLedgEntry: Integer; var IsHandled: Boolean)
+    local procedure OnBeforePostTotalCostAdjustment(var JobLedgEntry: Record "Job Ledger Entry"; ItemLedgerEntry: Record "Item Ledger Entry"; var JobLedgerEntryCostValue: Decimal; var JobLedgerEntryCostValueACY: Decimal; var AdjustJobCost: Decimal; var AdjustJobCostLCY: Decimal; var NoOfJobLedgEntry: Integer; var IsHandled: Boolean)
     begin
     end;
 

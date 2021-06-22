@@ -1222,6 +1222,8 @@
         SetFilter("Shortcut Dimension 1 Code", Item.GetFilter("Global Dimension 1 Filter"));
         SetFilter("Shortcut Dimension 2 Code", Item.GetFilter("Global Dimension 2 Filter"));
         SetFilter("Remaining Qty. (Base)", '<>0');
+
+        OnAfterFilterLinesWithItemToPlan(Rec, Item, IncludeFirmPlanned);
     end;
 
     procedure FindLinesWithItemToPlan(var Item: Record Item; IncludeFirmPlanned: Boolean): Boolean
@@ -1438,6 +1440,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterDeleteProdOrderRtngLines(var ProdOrderLine: Record "Prod. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFilterLinesWithItemToPlan(var ProdOrderLine: Record "Prod. Order Line"; var Item: Record Item; IncludeFirmPlanned: Boolean)
     begin
     end;
 

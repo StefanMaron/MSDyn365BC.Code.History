@@ -85,6 +85,24 @@ codeunit 130000 Assert
         RecRefIsEmpty(RecRef);
     end;
 
+    procedure RecordIsEmpty(RecVariant: Variant; CompanyName: Text)
+    var
+        RecRef: RecordRef;
+    begin
+        RecRef.GetTable(RecVariant);
+        RecRef.ChangeCompany(CompanyName);
+        RecRefIsEmpty(RecRef);
+    end;
+
+    procedure RecordIsNotEmpty(RecVariant: Variant; CompanyName: Text)
+    var
+        RecRef: RecordRef;
+    begin
+        RecRef.GetTable(RecVariant);
+        RecRef.ChangeCompany(CompanyName);
+        RecRefIsNotEmpty(RecRef);
+    end;
+
     procedure RecordIsNotEmpty(RecVariant: Variant)
     var
         RecRef: RecordRef;

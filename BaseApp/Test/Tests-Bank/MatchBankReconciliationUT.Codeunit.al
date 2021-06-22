@@ -15,6 +15,8 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        isInitialized: Boolean;
         MatchSummaryMsg: Label '%1 reconciliation lines out of %2 are matched.';
         WrongValueOfFieldErr: Label 'Wrong value of field.';
         MatchedManuallyTxt: Label 'This statement line was matched manually.';
@@ -929,10 +931,47 @@ codeunit 134252 "Match Bank Reconciliation - UT"
         end;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure BankAccountWithSpecialChar()
+    var
+        BankAccount: Record "Bank Account";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        ResultDate: Date;
+    begin
+        // [FEATURE] [Special Character]
+        // [SCENARIO 398533] Stan call bank account reconciliation when bank account's number contains special character like '('
+        Initialize();
+
+        BankAccount.Init();
+        BankAccount.Validate("No.", StrSubstNo('%1()', LibraryUtility.GenerateGUID()));
+        BankAccount.Insert(true);
+
+        CreateBankAccRec(BankAccReconciliation, BankAccount."No.", LibraryUtility.GenerateGUID());
+
+        ResultDate := BankAccReconciliation.MatchCandidateFilterDate();
+
+        Assert.AreEqual(BankAccReconciliation."Statement Date", ResultDate, '');
+    end;
+
     local procedure Initialize()
+    var
+        LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Match Bank Reconciliation - UT");
+        LibraryApplicationArea.EnableFoundationSetup;
+        if isInitialized then
+            exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Match Bank Reconciliation - UT");
+
+        LibraryERMCountryData.UpdateLocalData;
+        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateLocalPostingSetup;
         LibraryVariableStorage.Clear;
+
+        isInitialized := true;
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Match Bank Reconciliation - UT");
     end;
 
     local procedure AddBankRecLinesToTemp(var TempBankAccReconciliationLine: Record "Bank Acc. Reconciliation Line" temporary; BankAccReconciliation: Record "Bank Acc. Reconciliation")

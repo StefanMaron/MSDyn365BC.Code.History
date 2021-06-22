@@ -453,7 +453,7 @@ codeunit 9520 "Mail Management"
         MailManagement.InitializeFrom(HideMailDialog, not IsBackground());
         if MailManagement.IsEnabled() then
             if MailManagement.Send(TempEmailItem, EmailScenario) then begin
-                OnSendMailOrDownloadOnBeforeMailManagementIsSent(MailManagement);
+                OnSendMailOrDownloadOnBeforeMailManagementIsSent(MailManagement, TempEmailItem);
                 MailSent := MailManagement.IsSent();
                 exit;
             end;
@@ -796,7 +796,7 @@ codeunit 9520 "Mail Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSendMailOrDownloadOnBeforeMailManagementIsSent(var MailManagement: Codeunit "Mail Management")
+    local procedure OnSendMailOrDownloadOnBeforeMailManagementIsSent(var MailManagement: Codeunit "Mail Management"; TempEmailItem: Record "Email Item" temporary)
     begin
     end;
 

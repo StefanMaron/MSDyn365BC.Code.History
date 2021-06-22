@@ -1,4 +1,4 @@
-codeunit 1431 "Forward Link Mgt."
+﻿codeunit 1431 "Forward Link Mgt."
 {
 
     trigger OnRun()

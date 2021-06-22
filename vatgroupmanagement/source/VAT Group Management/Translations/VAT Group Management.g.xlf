@@ -3,6 +3,11 @@
   <file datatype="xml" source-language="en-US" target-language="en-US" original="VAT Group Management">
     <body>
       <group id="body">
+        <trans-unit id="Table 1626420089 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT Group Approved Member</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table VAT Group Approved Member - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 1626420089 - Field 3133801257 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Company</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -322,6 +327,11 @@
           <source>Specifies the identifier of the group member.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Approved Member List - Control ID - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1700225543 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT Group Member Calculation</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Member Calculation - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1700225543 - Control 636392376 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the VAT amount for the specified box number.</source>
@@ -877,6 +887,11 @@
           <source>Report Lines</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Submission - Control VATGroupSubmissionLines - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2949480547 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT Group Submission Lines</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Group Submission Lines - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2949480547 - Control 1121446808 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the VAT amount for the specified box number.</source>

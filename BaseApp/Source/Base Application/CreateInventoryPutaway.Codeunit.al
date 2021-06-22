@@ -34,6 +34,7 @@ codeunit 7321 "Create Inventory Put-away"
     local procedure "Code"()
     var
         IsHandled: Boolean;
+        SuppressError: Boolean;
     begin
         WhseActivHeader.TestField("No.");
         WhseActivHeader.TestField("Location Code");
@@ -46,7 +47,7 @@ codeunit 7321 "Create Inventory Put-away"
         UpdateWhseActivHeader(WhseRequest);
 
         IsHandled := false;
-        OnBeforeCreatePutAwayLines(WhseRequest, WhseActivHeader, LineCreated, IsHandled);
+        OnBeforeCreatePutAwayLines(WhseRequest, WhseActivHeader, LineCreated, IsHandled, HideDialog);
         if IsHandled then
             exit;
 
@@ -69,11 +70,18 @@ codeunit 7321 "Create Inventory Put-away"
                 OnCreatePutAwayFromWhseRequest(WhseRequest, SourceDocRecRef, LineCreated)
         end;
 
+        IsHandled := false;
+        SuppressError := false;
+        OnCodeOnAfterCreatePutAwayLines(WhseRequest, WhseActivHeader, LineCreated, AutoCreation, SuppressError, IsHandled);
+        if IsHandled then
+            exit;
+
         if LineCreated then
             WhseActivHeader.Modify
         else
             if not AutoCreation then
-                Error(Text000);
+                if not SuppressError then
+                    Error(Text000);
 
         OnAfterCreateInventoryPutaway(WhseRequest, LineCreated, WhseActivHeader);
     end;
@@ -239,6 +247,8 @@ codeunit 7321 "Create Inventory Put-away"
                     end;
             until Next() = 0;
         end;
+
+        OnAfterCreatePutAwayLinesFromPurchase(PurchHeader, WhseActivHeader);
     end;
 
     local procedure FindReservationFromPurchaseLine(var PurchLine: Record "Purchase Line"; var WhseItemTrackingSetup: Record "Item Tracking Setup")
@@ -835,7 +845,7 @@ codeunit 7321 "Create Inventory Put-away"
         GetLocation(WhseRequest."Location Code");
 
         IsHandled := false;
-        OnBeforeAutoCreatePutAwayLines(WhseRequest, WhseActivHeader, LineCreated, IsHandled);
+        OnBeforeAutoCreatePutAwayLines(WhseRequest, WhseActivHeader, LineCreated, IsHandled, HideDialog);
         if IsHandled then
             exit;
 
@@ -876,6 +886,11 @@ codeunit 7321 "Create Inventory Put-away"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCreatePutAwayLinesFromPurchase(PurchaseHeader: Record "Purchase Header"; WarehouseActivityHeader: Record "Warehouse Activity Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterInsertWhseActivLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SNRequired: Boolean; LNRequired: Boolean)
     begin
     end;
@@ -886,7 +901,7 @@ codeunit 7321 "Create Inventory Put-away"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeAutoCreatePutAwayLines(WarehouseRequest: Record "Warehouse Request"; var WarehouseActivityHeader: Record "Warehouse Activity Header"; var LineCreated: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeAutoCreatePutAwayLines(WarehouseRequest: Record "Warehouse Request"; var WarehouseActivityHeader: Record "Warehouse Activity Header"; var LineCreated: Boolean; var IsHandled: Boolean; var HideDialog: Boolean)
     begin
     end;
 
@@ -961,7 +976,7 @@ codeunit 7321 "Create Inventory Put-away"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreatePutAwayLines(WarehouseRequest: Record "Warehouse Request"; var WarehouseActivityHeader: Record "Warehouse Activity Header"; var LineCreated: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeCreatePutAwayLines(WarehouseRequest: Record "Warehouse Request"; var WarehouseActivityHeader: Record "Warehouse Activity Header"; var LineCreated: Boolean; var IsHandled: Boolean; var HideDialog: Boolean)
     begin
     end;
 
@@ -1027,6 +1042,11 @@ codeunit 7321 "Create Inventory Put-away"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreatePutAwayFromWhseRequest(var WarehouseRequest: Record "Warehouse Request"; SourceDocRecRef: RecordRef; var LineCreated: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterCreatePutAwayLines(WarehouseRequest: Record "Warehouse Request"; var WarehouseActivityHeader: Record "Warehouse Activity Header"; var LineCreated: Boolean; AutoCreation: Boolean; var SuppressError: Boolean; var IsHandled: Boolean)
     begin
     end;
 

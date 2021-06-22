@@ -81,7 +81,14 @@ codeunit 5336 "Integration Record Synch."
         exit(IntVar);
     end;
 
-    local procedure TextToOptionFieldRef(InputText: Text; var FieldRef: FieldRef; ToValidate: Boolean): Boolean
+    local procedure EvaluateTextToFieldRef(InputText: Text; var FieldRef: FieldRef; ToValidate: Boolean): Boolean
+    begin
+        if FieldRef.Type = FieldType::Option then
+            exit(EvaluateTextToOptionFieldRef(InputText, FieldRef, ToValidate));
+        exit(OutlookSynchTypeConv.EvaluateTextToFieldRef(InputText, FieldRef, ToValidate));
+    end;
+
+    local procedure EvaluateTextToOptionFieldRef(InputText: Text; var FieldRef: FieldRef; ToValidate: Boolean): Boolean
     var
         NewValue: Integer;
         OldValue: Integer;
@@ -163,7 +170,7 @@ codeunit 5336 "Integration Record Synch."
         if SourceFieldNo < 1 then begin // using ConstantValue as a source value
             if (not ParameterOnlyModified) or IsConstantDiffToDestination(ConstantValue, DestinationFieldRef) then begin
                 CurrValue := Format(DestinationFieldRef.Value);
-                if TextToOptionFieldRef(ConstantValue, DestinationFieldRef, true) then
+                if EvaluateTextToFieldRef(ConstantValue, DestinationFieldRef, true) then
                     IsModified := (CurrValue <> Format(DestinationFieldRef.Value)) or not ParameterOnlyModified;
             end;
         end else begin
@@ -207,7 +214,7 @@ codeunit 5336 "Integration Record Synch."
             exit(IsModified);
         end;
         CurrValue := Format(DestinationFieldRef.Value);
-        if OutlookSynchTypeConv.EvaluateTextToFieldRef(Format(NewValue), DestinationFieldRef, ValidateDestinationField) then
+        if EvaluateTextToFieldRef(Format(NewValue), DestinationFieldRef, ValidateDestinationField) then
             IsModified := (CurrValue <> Format(DestinationFieldRef.Value)) or not ParameterOnlyModified;
         exit(IsModified);
     end;

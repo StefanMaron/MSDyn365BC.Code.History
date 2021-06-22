@@ -14,7 +14,7 @@ codeunit 1008 "Job Calculate Statistics"
         PlanLineType: Option Schedule,Contract;
         JobLedgAmounts: array[10, 4, 4] of Decimal;
         JobPlanAmounts: array[10, 4, 4] of Decimal;
-        Text000: Label 'Budget Price,Usage Price,Billable Price,Inv. Price,Budget Cost,Usage Cost,Billable Cost,Inv. Cost,Budget Profit,Usage Profit,Billable Profit,Inv. Profit';
+        HeadlineTxt: Label 'Budget Price,Usage Price,Billable Price,Invoiced Price,Budget Cost,Usage Cost,Billable Cost,Invoiced Cost,Budget Profit,Usage Profit,Billable Profit,Invoiced Profit';
 
     procedure ReportAnalysis(var Job2: Record Job; var JT: Record "Job Task"; var Amt: array[8] of Decimal; AmountField: array[8] of Option " ",SchPrice,UsagePrice,ContractPrice,InvoicedPrice,SchCost,UsageCost,ContractCost,InvoicedCost,SchProfit,UsageProfit,ContractProfit,InvoicedProfit; CurrencyField: array[8] of Option LCY,FCY; JobLevel: Boolean)
     var
@@ -326,7 +326,7 @@ codeunit 1008 "Job Calculate Statistics"
             if Txt = '' then
                 Txt := GLSetup."LCY Code";
             if AmountField[I] > 0 then
-                HeadLineText[I] := SelectStr(AmountField[I], Text000) + '\' + Txt;
+                HeadLineText[I] := SelectStr(AmountField[I], HeadlineTxt) + '\' + Txt;
         end;
     end;
 

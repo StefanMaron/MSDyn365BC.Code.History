@@ -15,11 +15,11 @@ codeunit 134034 "ERM Cust Date Compress Manual"
         LibraryRandom: Codeunit "Library - Random";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryFiscalYear: Codeunit "Library - Fiscal Year";
         IsInitialized: Boolean;
         EntryError: Label 'Entries posted after Date Compression End Date must not be compressed.';
 
     [Test]
-    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure DateCompressionByWeek()
     var
@@ -32,7 +32,6 @@ codeunit 134034 "ERM Cust Date Compress Manual"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure DateCompressionByMonth()
     var
@@ -55,7 +54,6 @@ codeunit 134034 "ERM Cust Date Compress Manual"
     begin
         // Setup: Close any open Fiscal Year. Create Customer, Post multiple Invoice and Payment Entries on different dates for Customer
         // and apply Payment over Invoice.
-        LibraryFiscalYear.CloseFiscalYear;
         PostingDate := LibraryFiscalYear.GetFirstPostingDate(true);
         LibrarySales.CreateCustomer(Customer);
         for Counter := 1 to 1 + LibraryRandom.RandInt(2) do begin
@@ -83,6 +81,7 @@ codeunit 134034 "ERM Cust Date Compress Manual"
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateLocalData;
+        LibraryFiscalYear.CreateClosedAccountingPeriods();
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Cust Date Compress Manual");
@@ -154,14 +153,6 @@ codeunit 134034 "ERM Cust Date Compress Manual"
         repeat
             Assert.AreNotEqual(LastPostingDate, CustLedgerEntry."Posting Date", EntryError);
         until CustLedgerEntry.Next = 0;
-    end;
-
-    [ConfirmHandler]
-    [Scope('OnPrem')]
-    procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
-    begin
-        // Confirm Handler for Date Compression confirmation message.
-        Reply := true;
     end;
 }
 

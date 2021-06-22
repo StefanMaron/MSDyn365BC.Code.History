@@ -677,13 +677,9 @@ table 5991 "Service Shipment Line"
             ServiceLine."Shipment No." := "Document No.";
             ServiceLine."Shipment Line No." := "Line No.";
 
-            if not ExtTextLine then begin
-                ServiceLine.Validate(Quantity, Quantity - "Quantity Invoiced" - "Quantity Consumed");
-                ServiceLine.Validate("Unit Price", ServiceOrderLine."Unit Price");
-                ServiceLine."Allow Line Disc." := ServiceOrderLine."Allow Line Disc.";
-                ServiceLine."Allow Invoice Disc." := ServiceOrderLine."Allow Invoice Disc.";
-                ServiceLine.Validate("Line Discount %", ServiceOrderLine."Line Discount %");
-            end;
+            if not ExtTextLine then
+                ValidateServiceLineAmounts(ServiceLine, ServiceOrderLine);
+
             ServiceLine."Attached to Line No." :=
               TransferOldExtLines.TransferExtendedText(
                 ServiceOrderLine."Line No.",
@@ -719,6 +715,17 @@ table 5991 "Service Shipment Line"
 
         if ServiceOrderHeader.Get(ServiceOrderHeader."Document Type"::Order, "Order No.") then
             ServiceOrderHeader.Modify();
+    end;
+
+    local procedure ValidateServiceLineAmounts(var ServiceLine: Record "Service Line"; ServiceOrderLine: Record "Service Line")
+    begin
+        ServiceLine.Validate(Quantity, Quantity - "Quantity Invoiced" - "Quantity Consumed");
+        ServiceLine.Validate("Unit Price", ServiceOrderLine."Unit Price");
+        ServiceLine."Allow Line Disc." := ServiceOrderLine."Allow Line Disc.";
+        ServiceLine."Allow Invoice Disc." := ServiceOrderLine."Allow Invoice Disc.";
+        ServiceLine.Validate("Line Discount %", ServiceOrderLine."Line Discount %");
+
+        OnAfterValidateServiceLineAmounts(ServiceLine, ServiceOrderLine);
     end;
 
     local procedure GetServInvLines(var TempServInvLine: Record "Service Invoice Line" temporary)
@@ -814,6 +821,11 @@ table 5991 "Service Shipment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterServiceInvLineInsert(var ToServiceLine: Record "Service Line"; FromServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateServiceLineAmounts(var ServiceLine: Record "Service Line"; ServiceOrderLine: Record "Service Line")
     begin
     end;
 

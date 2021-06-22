@@ -3012,6 +3012,8 @@
                     end;
                 until ServLine.Next() = 0;
         end;
+
+        OnAfterUpdateServLinesByFieldNo(Rec, ServLine, ChangedFieldNo);
     end;
 
     procedure TestMandatoryFields(var PassedServLine: Record "Service Line")
@@ -4336,6 +4338,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateShipToAddress(var ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateServLinesByFieldNo(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; ChangedFieldNo: Integer)
     begin
     end;
 

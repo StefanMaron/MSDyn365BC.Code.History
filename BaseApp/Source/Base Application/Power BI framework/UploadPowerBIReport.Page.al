@@ -38,8 +38,6 @@ page 6320 "Upload Power BI Report"
                         IsFileLoaded := true;
                     end;
                 end;
-
-                
             }
             field(ReportName; ReportName)
             {
@@ -121,9 +119,16 @@ page 6320 "Upload Power BI Report"
             Error(NotReadyErr);
     end;
 
+    trigger OnClosePage()
+    begin
+        if PowerBIReportSynchronizer.UserNeedsToSynchronize('') then
+            PowerBIServiceMgt.SynchronizeReportsInBackground();
+    end;
+
     var
         TempBlob: Codeunit "Temp Blob";
         PowerBIServiceMgt: Codeunit "Power BI Service Mgt.";
+        PowerBIReportSynchronizer: Codeunit "Power BI Report Synchronizer";
         FileManagement: Codeunit "File Management";
         ReportNameErr: Label 'You must enter a report name.';
         FileNameErr: Label 'You must enter a file name.';

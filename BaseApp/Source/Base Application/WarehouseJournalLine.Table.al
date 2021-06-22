@@ -165,10 +165,8 @@ table 7311 "Warehouse Journal Line"
                 end;
 
                 ItemTrackingMgt.GetWhseItemTrkgSetup("Item No.", WhseItemTrackingSetup);
-                if WhseItemTrackingSetup."Serial No. Required" and not "Phys. Inventory" and
-                   ("Serial No." <> '') and ((Quantity < 0) or (Quantity > 1))
-                then
-                    Error(Text006, FieldCaption(Quantity));
+                if WhseItemTrackingSetup."Serial No. Required" and not "Phys. Inventory" and ("Serial No." <> '') then
+                    CheckSerialNoTrackedQuantity();
             end;
         }
         field(11; "Qty. (Base)"; Decimal)
@@ -350,6 +348,8 @@ table 7311 "Warehouse Journal Line"
                 Bin.CalcFields("Adjustment Bin");
                 if Bin."Adjustment Bin" and ("Entry Type" <> "Entry Type"::"Negative Adjmt.") then
                     Bin.FieldError("Adjustment Bin");
+
+                OnValidateToBinCodeOnBeforeSetToZoneCode(Rec, Bin);
 
                 if "To Bin Code" <> '' then
                     "To Zone Code" := Bin."Zone Code";
@@ -551,8 +551,7 @@ table 7311 "Warehouse Journal Line"
                 if "Serial No." <> '' then
                     ItemTrackingMgt.CheckWhseItemTrkgSetup("Item No.");
 
-                if (Quantity < 0) or (Quantity > 1) then
-                    Error(Text006, FieldCaption(Quantity));
+                CheckSerialNoTrackedQuantity();
             end;
         }
         field(6501; "Lot No."; Code[50])
@@ -848,7 +847,7 @@ table 7311 "Warehouse Journal Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeSetItemFields(Rec, IsHandled);
+        OnBeforeSetItemFields(Rec, IsHandled, xRec, Item);
         if IsHandled then
             exit;
 
@@ -1133,6 +1132,19 @@ table 7311 "Warehouse Journal Line"
         if "Serial No." <> '' then
             if ("Qty. (Phys. Inventory)" < 0) or ("Qty. (Phys. Inventory)" > 1) then
                 Error(Text006, FieldCaption("Qty. (Phys. Inventory)"));
+    end;
+
+    local procedure CheckSerialNoTrackedQuantity()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckSerialNoTrackedQuantity(Rec, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
+        if (Quantity < 0) or (Quantity > 1) then
+            Error(Text006, FieldCaption(Quantity));
     end;
 
     procedure SetName(CurrentJnlBatchName: Code[10]; CurrentLocationCode: Code[10]; var WhseJnlLine: Record "Warehouse Journal Line")
@@ -1519,6 +1531,11 @@ table 7311 "Warehouse Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckSerialNoTrackedQuantity(var WarehouseJournalLine: Record "Warehouse Journal Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckTemplateName(var JnlTemplateName: Code[10]; var JnlBatchName: Code[10]; var LocationCode: Code[10]; var IsHandled: Boolean)
     begin
     end;
@@ -1549,7 +1566,7 @@ table 7311 "Warehouse Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSetItemFields(var WarehouseJournalLine: Record "Warehouse Journal Line"; var IsHandled: Boolean)
+    local procedure OnBeforeSetItemFields(var WarehouseJournalLine: Record "Warehouse Journal Line"; var IsHandled: Boolean; xWarehouseJournalLine: Record "Warehouse Journal Line"; Item: Record Item)
     begin
     end;
 
@@ -1585,6 +1602,11 @@ table 7311 "Warehouse Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateUnitOfMeasureCodeOnBeforeValidateQuantity(var WarehouseJournalLine: Record "Warehouse Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateToBinCodeOnBeforeSetToZoneCode(var WarehouseJournalLine: Record "Warehouse Journal Line"; var Bin: Record Bin)
     begin
     end;
 }

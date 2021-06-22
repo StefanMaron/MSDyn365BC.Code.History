@@ -185,6 +185,8 @@ codeunit 5720 "Item Reference Management"
         ItemReference2: Record "Item Reference";
     begin
         FillItemReferenceFromItemVendor(ItemReference2, ItemVend);
+
+        OnCreateItemReferenceOnBeforeInsert(ItemReference2, ItemVend);
         ItemReference2.Insert();
     end;
 
@@ -667,6 +669,11 @@ codeunit 5720 "Item Reference Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSalesReferenceNoLookup(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateItemReferenceOnBeforeInsert(var ItemReference: Record "Item Reference"; ItemVendor: Record "Item Vendor")
     begin
     end;
 

@@ -1780,6 +1780,7 @@ codeunit 5334 "CRM Setup Defaults"
         // Only CRM
         AddEntityTableMapping('incident', DATABASE::"CRM Incident", TempNameValueBuffer);
         AddEntityTableMapping('quote', DATABASE::"CRM Quote", TempNameValueBuffer);
+        AddEntityTableMapping('team', DATABASE::"CRM Team", TempNameValueBuffer);
 
         OnAddEntityTableMapping(TempNameValueBuffer);
     end;

@@ -1918,11 +1918,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Extension Management - Control AdditionalInfo - Property ToolTip</note>
         </trans-unit>
-        <trans-unit id="Page 2005578726 - Control 2565932393 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Description</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Extension Management - Control AdditionalInfo - Property Caption</note>
-        </trans-unit>
         <trans-unit id="Page 2005578726 - Control 2961552353 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the name of the extension.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -2387,16 +2382,6 @@
           <source>Recurrence Start Time</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Recurrence Schedule Card - Control RecurrenceStartTime - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 2817068111 - Control 3459751907 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the interval between occurrences.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Recurrence Schedule Card - Control MontlyFrequency - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 2817068111 - Control 3459751907 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Months Between</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Recurrence Schedule Card - Control MontlyFrequency - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2817068111 - Control 3465500804 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the month for the recurrence.</source>

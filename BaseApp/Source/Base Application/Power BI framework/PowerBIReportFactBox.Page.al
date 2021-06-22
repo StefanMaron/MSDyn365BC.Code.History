@@ -525,8 +525,8 @@ page 6306 "Power BI Report FactBox"
 
     local procedure SetInitialPageState()
     var
-        PowerBIReportSynchronizer: Codeunit "Power BI Report Synchronizer";
         PowerBIUserConfiguration: Record "Power BI User Configuration";
+        PowerBIReportSynchronizer: Codeunit "Power BI Report Synchronizer";
         ExceptionMessage: Text;
         ExceptionDetails: Text;
     begin
@@ -536,13 +536,6 @@ page 6306 "Power BI Report FactBox"
             PageState := PageState::GetStarted;
             exit;
         end;
-
-        if not PowerBiServiceMgt.IsUserSynchronizingReports() then
-            if PowerBIReportSynchronizer.UserNeedsToSynchronize(Context) then begin
-                LoadOptInImage();
-                PageState := PageState::ShouldDeploy;
-                exit;
-            end;
 
         SetPowerBIUserConfig.CreateOrReadUserConfigEntry(PowerBIUserConfiguration, Context);
         LastOpenedReportID := PowerBIUserConfiguration."Selected Report ID";
@@ -554,11 +547,18 @@ page 6306 "Power BI Report FactBox"
         end;
 
         if TempPowerBiReportBuffer.IsEmpty() then begin
-            if PowerBiServiceMgt.IsUserSynchronizingReports() then
-                PageState := PageState::NoReportButDeploying
-            else
-                PageState := PageState::NoReport;
+            if PowerBiServiceMgt.IsUserSynchronizingReports() then begin
+                PageState := PageState::NoReportButDeploying;
+                exit;
+            end;
 
+            if PowerBIReportSynchronizer.UserNeedsToSynchronize(Context) then begin
+                LoadOptInImage();
+                PageState := PageState::ShouldDeploy;
+                exit;
+            end;
+
+            PageState := PageState::NoReport;
             exit;
         end;
 

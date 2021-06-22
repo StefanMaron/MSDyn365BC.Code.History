@@ -1084,6 +1084,12 @@ table 5330 "CRM Connection Setup"
 
     [Scope('OnPrem')]
     procedure RefreshDataFromCRM()
+    begin
+        RefreshDataFromCRM(true);
+    end;
+
+    [Scope('OnPrem')]
+    procedure RefreshDataFromCRM(ResetSalesOrderMappingConfiguration: Boolean)
     var
         TempCRMConnectionSetup: Record "CRM Connection Setup" temporary;
         CRMSetupDefaults: Codeunit "CRM Setup Defaults";
@@ -1100,7 +1106,8 @@ table 5330 "CRM Connection Setup"
             "Is CRM Solution Installed" := CRMIntegrationManagement.IsCRMSolutionInstalled;
             RefreshFromCRMConnectionInformation;
             if TryRefreshCRMSettings then
-                CRMSetupDefaults.ResetSalesOrderMappingConfiguration(Rec);
+                if ResetSalesOrderMappingConfiguration then
+                    CRMSetupDefaults.ResetSalesOrderMappingConfiguration(Rec);
 
             if ConnectionName <> '' then
                 TempCRMConnectionSetup.UnregisterConnectionWithName(ConnectionName);

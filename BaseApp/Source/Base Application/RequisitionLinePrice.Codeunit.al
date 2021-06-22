@@ -104,6 +104,7 @@ codeunit 7025 "Requisition Line - Price" implements "Line With Price"
             else
                 AssetType := AssetType::" ";
         end;
+        OnAfterGetAssetType(RequisitionLine, AssetType);
     end;
 
     procedure CopyToBuffer(var PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt."): Boolean
@@ -183,6 +184,11 @@ codeunit 7025 "Requisition Line - Price" implements "Line With Price"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFillBuffer(var PriceCalculationBuffer: Record "Price Calculation Buffer"; RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetAssetType(RequisitionLine: Record "Requisition Line"; var AssetType: Enum "Price Asset Type")
     begin
     end;
 

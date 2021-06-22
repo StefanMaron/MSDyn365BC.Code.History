@@ -1,4 +1,4 @@
-pageextension 3998 "Reten. Pol. Setup Card - JQ" extends "Retention Policy Setup Card"
+pageextension 3999 "Reten. Pol. Setup List Ext." extends "Retention Policy Setup List"
 {
     actions
     {

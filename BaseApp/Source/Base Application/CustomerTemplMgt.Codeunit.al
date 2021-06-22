@@ -66,21 +66,28 @@ codeunit 1381 "Customer Templ. Mgt."
         if IsHandled then
             exit;
 
-        Customer.City := CustomerTempl.City;
+        if CustomerTempl.City <> '' then
+            Customer.City := CustomerTempl.City;
         Customer."Customer Posting Group" := CustomerTempl."Customer Posting Group";
-        Customer."Currency Code" := CustomerTempl."Currency Code";
-        Customer."Language Code" := CustomerTempl."Language Code";
+        if (CustomerTempl."Currency Code" <> '') and (Customer."Currency Code" = '') then
+            Customer."Currency Code" := CustomerTempl."Currency Code";
+        if (CustomerTempl."Language Code" <> '') and (Customer."Language Code" = '') then
+            Customer."Language Code" := CustomerTempl."Language Code";
         Customer."Payment Terms Code" := CustomerTempl."Payment Terms Code";
         Customer."Fin. Charge Terms Code" := CustomerTempl."Fin. Charge Terms Code";
-        Customer."Invoice Disc. Code" := CustomerTempl."Invoice Disc. Code";
-        Customer."Country/Region Code" := CustomerTempl."Country/Region Code";
+        if CustomerTempl."Invoice Disc. Code" <> '' then
+            Customer."Invoice Disc. Code" := CustomerTempl."Invoice Disc. Code";
+        if (CustomerTempl."Country/Region Code" <> '') and (Customer."Country/Region Code" = '') then
+            Customer."Country/Region Code" := CustomerTempl."Country/Region Code";
         Customer."Bill-to Customer No." := CustomerTempl."Bill-to Customer No.";
         Customer."Payment Method Code" := CustomerTempl."Payment Method Code";
         Customer."Application Method" := CustomerTempl."Application Method";
         Customer."Prices Including VAT" := CustomerTempl."Prices Including VAT";
         Customer."Gen. Bus. Posting Group" := CustomerTempl."Gen. Bus. Posting Group";
-        Customer."Post Code" := CustomerTempl."Post Code";
-        Customer.County := CustomerTempl.County;
+        if CustomerTempl."Post Code" <> '' then
+            Customer."Post Code" := CustomerTempl."Post Code";
+        if CustomerTempl.County <> '' then
+            Customer.County := CustomerTempl.County;
         Customer."VAT Bus. Posting Group" := CustomerTempl."VAT Bus. Posting Group";
         Customer."Block Payment Tolerance" := CustomerTempl."Block Payment Tolerance";
         Customer."Validate EU Vat Reg. No." := CustomerTempl."Validate EU Vat Reg. No.";
@@ -91,6 +98,10 @@ codeunit 1381 "Customer Templ. Mgt."
         Customer."Customer Price Group" := CustomerTempl."Customer Price Group";
         Customer."Customer Disc. Group" := CustomerTempl."Customer Disc. Group";
         Customer."Document Sending Profile" := CustomerTempl."Document Sending Profile";
+        if (CustomerTempl."Territory Code" <> '') and (Customer."Territory Code" = '') then
+            Customer."Territory Code" := CustomerTempl."Territory Code";
+        Customer."Credit Limit (LCY)" := CustomerTempl."Credit Limit (LCY)";
+        Customer."Allow Line Disc." := CustomerTempl."Allow Line Disc.";
         OnApplyTemplateOnBeforeCustomerModify(Customer, CustomerTempl);
         Customer.Modify(true);
     end;
@@ -285,6 +296,9 @@ codeunit 1381 "Customer Templ. Mgt."
         CustomerTempl."Customer Price Group" := Customer."Customer Price Group";
         CustomerTempl."Customer Disc. Group" := Customer."Customer Disc. Group";
         CustomerTempl."Document Sending Profile" := Customer."Document Sending Profile";
+        CustomerTempl."Territory Code" := Customer."Territory Code";
+        CustomerTempl."Credit Limit (LCY)" := Customer."Credit Limit (LCY)";
+        CustomerTempl."Allow Line Disc." := Customer."Allow Line Disc.";
 
         CustomerTempl.Insert();
     end;

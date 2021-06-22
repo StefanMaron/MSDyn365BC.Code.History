@@ -2,6 +2,7 @@ page 2592 "Dimension Corrections"
 {
     PageType = List;
     ApplicationArea = All;
+    Caption = 'Dimension Corrections';
     UsageCategory = Administration;
     SourceTable = "Dimension Correction";
     CardPageId = "Dimension Correction Draft";

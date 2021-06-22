@@ -32,6 +32,13 @@ codeunit 134776 "Document Attachment Tests"
         isInitialized: Boolean;
         ConfirmConvertToOrderQst: Label 'Do you want to convert the quote to an order?';
         ConfirmOpeningNewOrderAfterQuoteToOrder: Label 'Do you want to open the new order?';
+        SalesInvoiceDocTypeTxt: Label 'Sales Invoice';
+        SalesCrMemoDocTypeTxt: Label 'Sales Credit Memo';
+        SalesQuoteDocTypeTxt: Label 'Sales Quote';
+        SalesOrderDocTypeTxt: Label 'Sales Order';
+        PurchaseInvoiceDocTypeTxt: Label 'Purchase Invoice';
+        PurchaseCrMemoDocTypeTxt: Label 'Purchase Credit Memo';
+        PurchaseQuoteDocTypeTxt: Label 'Purchase Quote';
 
     [Test]
     [Scope('OnPrem')]
@@ -1471,7 +1478,8 @@ codeunit 134776 "Document Attachment Tests"
         // [THEN] New document attachment created with "Document Flow Sales" = yes
         FindDocumentAttachment(DocumentAttachment, Database::"Sales Header", SalesHeader."No.", SalesHeader."Document Type".AsInteger());
         DocumentAttachment.TestField("Document Flow Sales", true);
-        DocumentAttachment.TestField("File Name", GetExpectedAttachmentFileName(Report::"Standard Sales - Quote", SalesHeader."No."));
+        DocumentAttachment.TestField(
+            "File Name", GetExpectedAttachmentFileName(Report::"Standard Sales - Quote", SalesQuoteDocTypeTxt, SalesHeader."No."));
 
         // [THEN] Notification "Document has been printed to attachments." displayed
         Assert.AreEqual(PrintedToAttachmentTxt, LibraryVariableStorage.DequeueText(), 'Unexpected notification.');
@@ -1591,7 +1599,8 @@ codeunit 134776 "Document Attachment Tests"
 
         // [THEN] New document attachment created with "File Name" = "204 Purchase Quote 1001"
         FindDocumentAttachment(DocumentAttachment, Database::"Purchase Header", PurchaseHeader."No.", PurchaseHeader."Document Type".AsInteger());
-        DocumentAttachment.TestField("File Name", GetExpectedAttachmentFileName(Report::"Purchase - Quote", PurchaseHeader."No."));
+        DocumentAttachment.TestField(
+            "File Name", GetExpectedAttachmentFileName(Report::"Purchase - Quote", PurchaseQuoteDocTypeTxt, PurchaseHeader."No."));
 
         LibraryNotificationMgt.RecallNotificationsForRecord(PurchaseHeader);
     end;
@@ -1615,14 +1624,16 @@ codeunit 134776 "Document Attachment Tests"
         // [WHEN] "Print to attachment" function is called with "Order Confirmation" strmenu choice
         LibraryVariableStorage.Enqueue("Sales Order Print Option"::"Order Confirmation");
         SalesHeader.SetRecFilter();
-        DocPrint.PrintSalesOrderToDocumentAttachment(SalesHeader, DocPrint.GetSalesOrderPrintToAttachmentOption((SalesHeader)));
+        DocPrint.PrintSalesOrderToDocumentAttachment(SalesHeader, DocPrint.GetSalesOrderPrintToAttachmentOption(SalesHeader));
 
         // [THEN] New document attachment created with "Document Flow Sales" = yes
         FindDocumentAttachment(DocumentAttachment, Database::"Sales Header", SalesHeader."No.", SalesHeader."Document Type"::Order.AsInteger());
         DocumentAttachment.TestField("Document Flow Sales", true);
-        DocumentAttachment.TestField("File Name", GetExpectedAttachmentFileName(Report::"Standard Sales - Order Conf.", SalesHeader."No."));
+        DocumentAttachment.TestField(
+            "File Name", GetExpectedAttachmentFileName(Report::"Standard Sales - Order Conf.", SalesOrderDocTypeTxt, SalesHeader."No."));
 
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesHeader);
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1649,9 +1660,11 @@ codeunit 134776 "Document Attachment Tests"
         // [THEN] New document attachment created with "Document Flow Sales" = yes
         FindDocumentAttachment(DocumentAttachment, Database::"Sales Header", SalesHeader."No.", SalesHeader."Document Type"::Order.AsInteger());
         DocumentAttachment.TestField("Document Flow Sales", true);
-        DocumentAttachment.TestField("File Name", GetExpectedAttachmentFileName(Report::"Pick Instruction", SalesHeader."No."));
+        DocumentAttachment.TestField(
+            "File Name", GetExpectedAttachmentFileName(Report::"Pick Instruction", SalesOrderDocTypeTxt, SalesHeader."No."));
 
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesHeader);
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1678,9 +1691,11 @@ codeunit 134776 "Document Attachment Tests"
         // [THEN] New document attachment created with "Document Flow Sales" = yes
         FindDocumentAttachment(DocumentAttachment, Database::"Sales Header", SalesHeader."No.", SalesHeader."Document Type"::Order.AsInteger());
         DocumentAttachment.TestField("Document Flow Sales", true);
-        DocumentAttachment.TestField("File Name", GetExpectedAttachmentFileName(Report::"Standard Sales - Pro Forma Inv", SalesHeader."No."));
+        DocumentAttachment.TestField(
+            "File Name", GetExpectedAttachmentFileName(Report::"Standard Sales - Pro Forma Inv", SalesOrderDocTypeTxt, SalesHeader."No."));
 
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesHeader);
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1707,9 +1722,11 @@ codeunit 134776 "Document Attachment Tests"
         // [THEN] New document attachment created with "Document Flow Sales" = yes
         FindDocumentAttachment(DocumentAttachment, Database::"Sales Header", SalesHeader."No.", SalesHeader."Document Type"::Order.AsInteger());
         DocumentAttachment.TestField("Document Flow Sales", true);
-        DocumentAttachment.TestField("File Name", GetExpectedAttachmentFileName(Report::"Work Order", SalesHeader."No."));
+        DocumentAttachment.TestField(
+            "File Name", GetExpectedAttachmentFileName(Report::"Work Order", SalesOrderDocTypeTxt, SalesHeader."No."));
 
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesHeader);
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1736,9 +1753,11 @@ codeunit 134776 "Document Attachment Tests"
         // [THEN] New document attachment created with "Document Flow Sales" = yes
         FindDocumentAttachment(DocumentAttachment, Database::"Sales Header", SalesHeader."No.", SalesHeader."Document Type"::Invoice.AsInteger());
         DocumentAttachment.TestField("Document Flow Sales", true);
-        DocumentAttachment.TestField("File Name", GetExpectedAttachmentFileName(Report::"Standard Sales - Draft Invoice", SalesHeader."No."));
+        DocumentAttachment.TestField(
+            "File Name", GetExpectedAttachmentFileName(Report::"Standard Sales - Draft Invoice", SalesInvoiceDocTypeTxt, SalesHeader."No."));
 
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesHeader);
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1765,9 +1784,11 @@ codeunit 134776 "Document Attachment Tests"
         // [THEN] New document attachment created with "Document Flow Sales" = yes
         FindDocumentAttachment(DocumentAttachment, Database::"Sales Header", SalesHeader."No.", SalesHeader."Document Type"::Invoice.AsInteger());
         DocumentAttachment.TestField("Document Flow Sales", true);
-        DocumentAttachment.TestField("File Name", GetExpectedAttachmentFileName(Report::"Standard Sales - Pro Forma Inv", SalesHeader."No."));
+        DocumentAttachment.TestField(
+            "File Name", GetExpectedAttachmentFileName(Report::"Standard Sales - Pro Forma Inv", SalesInvoiceDocTypeTxt, SalesHeader."No."));
 
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesHeader);
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1794,7 +1815,8 @@ codeunit 134776 "Document Attachment Tests"
 
         // [THEN] New document attachment created with "Document Flow Sales" = yes
         FindDocumentAttachment(DocumentAttachment, Database::"Sales Invoice Header", SalesInvoiceHeader."No.", 0);
-        DocumentAttachment.TestField("File Name", GetExpectedAttachmentFileName(Report::"Standard Sales - Invoice", SalesInvoiceHeader."No."));
+        DocumentAttachment.TestField(
+            "File Name", GetExpectedAttachmentFileName(Report::"Standard Sales - Invoice", SalesInvoiceDocTypeTxt, SalesInvoiceHeader."No."));
 
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesInvoiceHeader);
     end;
@@ -1823,7 +1845,8 @@ codeunit 134776 "Document Attachment Tests"
 
         // [THEN] New document attachment created with "Document Flow Purchase" = yes
         FindDocumentAttachment(DocumentAttachment, Database::"Purch. Inv. Header", PurchInvHeader."No.", 0);
-        DocumentAttachment.TestField("File Name", GetExpectedAttachmentFileName(Report::"Purchase - Invoice", PurchInvHeader."No."));
+        DocumentAttachment.TestField(
+            "File Name", GetExpectedAttachmentFileName(Report::"Purchase - Invoice", PurchaseInvoiceDocTypeTxt, PurchInvHeader."No."));
 
         LibraryNotificationMgt.RecallNotificationsForRecord(PurchInvHeader);
     end;
@@ -1881,7 +1904,8 @@ codeunit 134776 "Document Attachment Tests"
 
         // [THEN] Attachment file name starts from 206
         FindDocumentAttachment(DocumentAttachment, Database::"Sales Invoice Header", SalesInvoiceHeader."No.", 0);
-        DocumentAttachment.TestField("File Name", GetExpectedAttachmentFileName(Report::"Sales - Invoice", SalesInvoiceHeader."No."));
+        DocumentAttachment.TestField(
+            "File Name", GetExpectedAttachmentFileName(Report::"Sales - Invoice", SalesInvoiceDocTypeTxt, SalesInvoiceHeader."No."));
 
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesInvoiceHeader);
     end;
@@ -1913,9 +1937,74 @@ codeunit 134776 "Document Attachment Tests"
 
         // [THEN] Attachment file name starts from 324
         FindDocumentAttachment(DocumentAttachment, Database::"Purch. Inv. Header", PurchInvHeader."No.", 0);
-        DocumentAttachment.TestField("File Name", GetExpectedAttachmentFileName(Report::"Purchase Invoice Nos.", PurchInvHeader."No."));
+        DocumentAttachment.TestField(
+            "File Name", GetExpectedAttachmentFileName(Report::"Purchase Invoice Nos.", PurchaseInvoiceDocTypeTxt, PurchInvHeader."No."));
 
         LibraryNotificationMgt.RecallNotificationsForRecord(PurchInvHeader);
+    end;
+
+    [Test]
+    procedure PostedSalesCrMemoPrintToAttachment()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        DocumentAttachment: Record "Document Attachment";
+        PostedSalesCrMemo: TestPage "Posted Sales Credit Memo";
+    begin
+        // [FEATURE] [UI] [Print to Attachment] [Posted Sales Credit Memo]
+        // [SCENARIO 396624] "Print to attachment" action on posted Sales Credit Memo page makes new "Document Attachment" record 
+        Initialize();
+
+        // [GIVEN] Posted Sales Credit Memo with "Document No." = "1001" opened in the Posted Sales Credit Memo Card page
+        LibrarySales.CreateSalesCreditMemo(SalesHeader);
+        SalesCrMemoHeader.Get(
+            LibrarySales.PostSalesDocument(SalesHeader, false, true));
+        PostedSalesCrMemo.OpenEdit();
+        PostedSalesCrMemo.Filter.SetFilter("No.", SalesCrMemoHeader."No.");
+
+        // [WHEN] "Print to attachment" function is called
+        PostedSalesCrMemo.AttachAsPDF.Invoke();
+
+        // [THEN] New document attachment created with "Document Flow Sales" = yes, File Name = "1307 Sales Credit Memo 1001".
+        FindDocumentAttachment(DocumentAttachment, Database::"Sales Cr.Memo Header", SalesCrMemoHeader."No.", 0);
+        DocumentAttachment.TestField(
+            "File Name", GetExpectedAttachmentFileName(Report::"Standard Sales - Credit Memo", SalesCrMemoDocTypeTxt, SalesCrMemoHeader."No."));
+
+        LibraryNotificationMgt.RecallNotificationsForRecord(SalesCrMemoHeader);
+    end;
+
+    [Test]
+    procedure PostedPurchaseCrMemoPrintToAttachment()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
+        DocumentAttachment: Record "Document Attachment";
+        ReportSelections: Record "Report Selections";
+        PostedPurchaseCrMemo: TestPage "Posted Purchase Credit Memo";
+    begin
+        // [FEATURE] [UI] [Print to Attachment] [Posted Purchase Credit Memo]
+        // [SCENARIO 396624] "Print to attachment" action on posted Purchase Credit Memo page makes new "Document Attachment" record 
+        Initialize();
+
+        // [GIVEN] Report 407 "Purchase - Credit Memo" is set as default report for printing Purchase Credit Memo.
+        LibraryERM.SetupReportSelection(ReportSelections.Usage::"P.Cr.Memo", Report::"Purchase - Credit Memo");
+
+        // [GIVEN] Posted Purchase Credit Memo with "Document No." = "1001" opened in the Posted Purchase Credit Memo Card page
+        LibraryPurchase.CreatePurchaseCreditMemo(PurchaseHeader);
+        PurchCrMemoHeader.Get(
+            LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true));
+        PostedPurchaseCrMemo.OpenEdit();
+        PostedPurchaseCrMemo.Filter.SetFilter("No.", PurchCrMemoHeader."No.");
+
+        // [WHEN] "Print to attachment" function is called
+        PostedPurchaseCrMemo.AttachAsPDF.Invoke();
+
+        // [THEN] New document attachment created with "Document Flow Purchase" = yes, File Name = "407 Purchase Credit Memo 1001".
+        FindDocumentAttachment(DocumentAttachment, Database::"Purch. Cr. Memo Hdr.", PurchCrMemoHeader."No.", 0);
+        DocumentAttachment.TestField(
+            "File Name", GetExpectedAttachmentFileName(Report::"Purchase - Credit Memo", PurchaseCrMemoDocTypeTxt, PurchCrMemoHeader."No."));
+
+        LibraryNotificationMgt.RecallNotificationsForRecord(PurchCrMemoHeader);
     end;
 
     local procedure Initialize()
@@ -2143,17 +2232,11 @@ codeunit 134776 "Document Attachment Tests"
         end;
     end;
 
-    local procedure GetReportCaption(ReportID: Integer): Text
+    local procedure GetExpectedAttachmentFileName(ReportId: Integer; DocumentTypeTxt: Text[50]; DocumentNo: Code[20]): Text
     var
-        AllObjWithCaption: Record AllObjWithCaption;
+        ReportDistributionMgt: Codeunit "Report Distribution Management";
     begin
-        if AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Report, ReportID) then
-            exit(AllObjWithCaption."Object Caption");
-    end;
-
-    local procedure GetExpectedAttachmentFileName(ReportId: Integer; DocumentNo: Code[20]): Text
-    begin
-        exit(StrSubstNo('%1 %2 %3', ReportId, GetReportCaption(ReportId), DocumentNo));
+        exit(StrSubstNo('%1 %2 %3', ReportId, DocumentTypeTxt, DocumentNo));
     end;
 
     local procedure MockDocumentAttachment(var DocumentAttachment: Record "Document Attachment"; TableId: Integer; DocumentNo: Code[20]; DocumentType: Enum "Attachment Document Type"; FileName: Text; FileExtension: Text)

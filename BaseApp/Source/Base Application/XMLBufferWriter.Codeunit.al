@@ -290,9 +290,9 @@ codeunit 1235 "XML Buffer Writer"
             exit;
 
         with XMLBuffer do begin
-            Reset;
-            if FindLast then;
-            Init;
+            Reset();
+            if FindLast() then;
+            Init();
             "Entry No." += 1;
             "Parent Entry No." := ParentXMLBuffer."Entry No.";
             Path := CopyStr(ParentXMLBuffer.Path + '/@' + AttributeName, 1, MaxStrLen(Path));
@@ -304,7 +304,40 @@ codeunit 1235 "XML Buffer Writer"
             Type := Type::Attribute;
             "Import ID" := ParentXMLBuffer."Import ID";
 
-            Insert;
+            Insert();
+        end;
+    end;
+
+    procedure InsertAttributeWithNamespace(var XMLBuffer: Record "XML Buffer"; ParentXMLBuffer: Record "XML Buffer"; NodeNumber: Integer; NodeDepth: Integer; AttributeNameWithNamespace: Text; AttributeValue: Text)
+    var
+        AttributeName: Text;
+        AttributeNamespace: Text;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeInsertAttributeWithNamespace(XMLBuffer, ParentXMLBuffer, NodeNumber, NodeDepth, AttributeNameWithNamespace, AttributeValue, IsHandled);
+        IF IsHandled then
+            exit;
+
+        SplitXmlElementName(AttributeNameWithNamespace, AttributeName, AttributeNamespace);
+
+        with XMLBuffer do begin
+            Reset();
+            if FindLast() then;
+            Init();
+            "Entry No." += 1;
+            "Parent Entry No." := ParentXMLBuffer."Entry No.";
+            Path := CopyStr(ParentXMLBuffer.Path + '/@' + AttributeNameWithNamespace, 1, MaxStrLen(Path));
+            "Node Number" := NodeNumber;
+            Name := CopyStr(AttributeName, 1, MaxStrLen(Name));
+            Namespace := CopyStr(AttributeNamespace, 1, MaxStrLen(Namespace));
+            Value := CopyStr(AttributeValue, 1, MaxStrLen(Value));
+            Depth := NodeDepth;
+            "Data Type" := GetType(Value);
+            Type := Type::Attribute;
+            "Import ID" := ParentXMLBuffer."Import ID";
+
+            Insert();
         end;
     end;
 
@@ -408,6 +441,11 @@ codeunit 1235 "XML Buffer Writer"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertAttribute(var XMLBuffer: Record "XML Buffer"; ParentXMLBuffer: Record "XML Buffer"; NodeNumber: Integer; NodeDepth: Integer; var AttributeName: Text; var AttributeValue: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertAttributeWithNamespace(var XMLBuffer: Record "XML Buffer"; ParentXMLBuffer: Record "XML Buffer"; NodeNumber: Integer; NodeDepth: Integer; var AttributeNameWithNamespace: Text; var AttributeValue: Text; var IsHandled: Boolean)
     begin
     end;
 

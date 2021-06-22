@@ -19,6 +19,8 @@ codeunit 915 "Assembly Info-Pane Management"
         if GetItem(AsmLine) then begin
             SetItemFilter(Item, AsmLine);
 
+            Evaluate(LookaheadDateformula, '<0D>');
+
             exit(
               AvailableToPromise.QtyAvailabletoPromise(
                 Item,

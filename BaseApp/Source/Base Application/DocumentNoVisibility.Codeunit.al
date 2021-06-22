@@ -601,6 +601,7 @@ codeunit 1400 DocumentNoVisibility
         FieldRef: FieldRef;
         NewNo: Code[20];
     begin
+        OnBeforeCheckNumberSeries(RecVariant, NoSeriesCode, FieldNo, NoSeries);
         if RecVariant.IsRecord and (NoSeriesCode <> '') and NoSeries.Get(NoSeriesCode) then begin
             NewNo := NoSeriesMgt.DoGetNextNo(NoSeriesCode, 0D, false, true);
             RecRef.GetTable(RecVariant);
@@ -611,6 +612,11 @@ codeunit 1400 DocumentNoVisibility
                 CheckNumberSeries(RecRef, NoSeriesCode, FieldNo);
             end;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckNumberSeries(var RecVariant: Variant; var NoSeriesCode: Code[20]; FieldNo: Integer; var NoSeries: Record "No. Series")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

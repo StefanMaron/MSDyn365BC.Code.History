@@ -3,6 +3,11 @@
   <file datatype="xml" source-language="en-US" target-language="en-US" original="Simplified Bank Statement Import">
     <body>
       <group id="body">
+        <trans-unit id="Table 3726475704 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Bank Statement Import Preview</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Bank Statement Import Preview - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 3726475704 - Field 636392376 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Amount</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -448,6 +453,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Action ActionNext - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 3726475704 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Bank Statement Import Preview</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement Import Preview - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 3726475704 - Control 636392376 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Transaction amount.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -492,6 +502,11 @@
           <source>Start the Bank Statement File Setup wizard to set up a bank statement file import format.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PageExtension Bank Exp. Imp. Setup Extension - Action Bank Statement File Format Wizard - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 674905867 - Action 1918701063 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve" al-object-target="Page 4286163337">
+          <source>Bank Statement File Format Wizard</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PageExtension Bank Exp. Imp. Setup Extension - Action Bank Statement File Format Wizard - Property Caption</note>
         </trans-unit>
       </group>
     </body>

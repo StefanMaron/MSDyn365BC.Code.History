@@ -3,6 +3,11 @@
   <file datatype="xml" source-language="en-US" target-language="en-US" original="Email - Outlook REST API">
     <body>
       <group id="body">
+        <trans-unit id="Table 923233499 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email - Outlook Account</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email - Outlook Account - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 923233499 - Field 2369664869 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Created By</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -27,6 +32,11 @@
           <source>Outlook API Email Connector</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Email - Outlook Account - Field Outlook API Email Connector - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3074962881 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email - Outlook API Setup</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email - Outlook API Setup - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3074962881 - Field 2788077256 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Client Id</source>
@@ -192,6 +202,11 @@
           <source> </source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - Action Ok - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3074962881 - Action 1010501080 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Ok</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - Action Ok - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3074962881 - Action 273330248 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Change the email account that is associated with the email app registration for the current user.</source>

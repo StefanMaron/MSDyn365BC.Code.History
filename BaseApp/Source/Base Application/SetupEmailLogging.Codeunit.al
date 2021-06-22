@@ -65,9 +65,10 @@ codeunit 1641 "Setup Email Logging"
         FolderDoesNotExistErr: Label 'The specified Exchange folder does not exist.';
         FolderDoesNotExistTxt: Label 'Exchange folder %1 (%2) does not exist.', Locked = true;
         SetupEmailLoggingTitleTxt: Label 'Set up email logging';
+        SetupEmailLoggingShortTitleTxt: Label 'Set up email logging';
         SetupEmailLoggingHelpTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2115467', Locked = true;
         VideoUrlSetupEmailLoggingTxt: Label 'https://go.microsoft.com/fwlink/?linkid=843360', Locked = true;
-        SetupEmailLoggingDescriptionTxt: Label 'Track email exchanges between your sales team and customers and prospects, and then turning them into actionable opportunities.';
+        SetupEmailLoggingDescriptionTxt: Label 'Track email exchanges between your sales team and your customers and prospects, and then turn the emails into actionable opportunities.';
         EmptyAccessTokenTxt: Label 'Access token is empty.', Locked = true;
         TenantIdExtractedTxt: Label 'Tenant ID %1 has been extracted from token.', Locked = true;
         CannotExtractTenantIdTxt: Label 'Cannot extract tenant ID from token %1.', Locked = true;
@@ -648,7 +649,7 @@ codeunit 1641 "Setup Email Logging"
 
         CurrentGlobalLanguage := GLOBALLANGUAGE;
         NavApp.GetCurrentModuleInfo(ModuleInfo);
-        GuidedExperience.InsertAssistedSetup(SetupEmailLoggingTitleTxt, CopyStr(SetupEmailLoggingTitleTxt, 1, 50), SetupEmailLoggingDescriptionTxt, 0, ObjectType::Page,
+        GuidedExperience.InsertAssistedSetup(SetupEmailLoggingTitleTxt, SetupEmailLoggingShortTitleTxt, SetupEmailLoggingDescriptionTxt, 10, ObjectType::Page,
             Page::"Setup Email Logging", AssistedSetupGroup::ApprovalWorkflows, VideoUrlSetupEmailLoggingTxt, VideoCategory::ApprovalWorkflows, SetupEmailLoggingHelpTxt);
         GLOBALLANGUAGE(Language.GetDefaultApplicationLanguageId());
         GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page, Page::"Setup Email Logging",

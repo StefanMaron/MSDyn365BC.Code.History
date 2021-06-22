@@ -829,6 +829,9 @@ table 472 "Job Queue Entry"
                 "Earliest Start Date/Time" := ExecutionDateTime;
                 SetStatus(Status::Ready);
             end;
+
+            OnReuseExisingJobFromId(Rec);
+
             exit(true);
         end;
 
@@ -1390,6 +1393,11 @@ table 472 "Job Queue Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeScheduleRecoveryJob(var JobQueueEntry: Record "Job Queue Entry"; var Delay: Duration)
+    begin
+    end;
+
+    [InternalEvent(false)]
+    local procedure OnReuseExisingJobFromId(var JobQueueEntry: Record "Job Queue Entry")
     begin
     end;
 }

@@ -214,8 +214,16 @@ table 1235 "XML Buffer"
     var
         XMLBufferWriter: Codeunit "XML Buffer Writer";
     begin
-        XMLBufferWriter.InsertAttribute(Rec, Rec, CountAttributes + 1, Depth + 1, AttributeName, AttributeValue);
+        XMLBufferWriter.InsertAttribute(Rec, Rec, CountAttributes() + 1, Depth + 1, AttributeName, AttributeValue);
         GetParent;
+    end;
+
+    procedure AddAttributeWithNamespace(AttributeNameWithNamespace: Text[250]; AttributeValue: Text[250])
+    var
+        XMLBufferWriter: Codeunit "XML Buffer Writer";
+    begin
+        XMLBufferWriter.InsertAttributeWithNamespace(Rec, Rec, CountAttributes() + 1, Depth + 1, AttributeNameWithNamespace, AttributeValue);
+        GetParent();
     end;
 
     procedure AddGroupElement(ElementNameWithNamespace: Text[250]): Integer

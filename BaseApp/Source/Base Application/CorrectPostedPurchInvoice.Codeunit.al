@@ -419,8 +419,6 @@ codeunit 1313 "Correct Posted Purch. Invoice"
         if PurchInvLine."VAT Calculation Type" = PurchInvLine."VAT Calculation Type"::"Sales Tax" then
             exit;
 
-        PurchasesPayablesSetup.GetRecordOnce;
-
         with GenPostingSetup do begin
             Get(PurchInvLine."Gen. Bus. Posting Group", PurchInvLine."Gen. Prod. Posting Group");
             if PurchInvLine.Type <> PurchInvLine.Type::"G/L Account" then begin
@@ -433,7 +431,7 @@ codeunit 1313 "Correct Posted Purch. Invoice"
                 TestField("Direct Cost Applied Account");
                 TestGLAccount("Direct Cost Applied Account", PurchInvLine);
             end;
-            if HasLineDiscountSetup() then
+            if HasLineDiscountSetup(PurchInvLine) then
                 if "Purch. Line Disc. Account" <> '' then
                     TestGLAccount("Purch. Line Disc. Account", PurchInvLine);
         end;
@@ -729,12 +727,14 @@ codeunit 1313 "Correct Posted Purch. Invoice"
         PurchaseLine.Modify();
     end;
 
-    local procedure HasLineDiscountSetup() Result: Boolean
+    local procedure HasLineDiscountSetup(PurchInvLine: Record "Purch. Inv. Line") Result: Boolean
     begin
         with PurchasesPayablesSetup do begin
             GetRecordOnce();
             Result := "Discount Posting" in ["Discount Posting"::"Line Discounts", "Discount Posting"::"All Discounts"];
         end;
+        if Result then
+            Result := PurchInvLine."Line Discount %" <> 0;
         OnHasLineDiscountSetup(PurchasesPayablesSetup, Result);
     end;
 

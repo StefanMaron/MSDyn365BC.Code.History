@@ -639,7 +639,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         SaveVendorBalanceToDate(PurchaseHeader, false, false, false);
         VerifyVendorBalanceToDate(PurchaseHeader."Buy-from Vendor No.", DocumentNo);
         with VendorLedgerEntry do
-            LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', "Original Amount");
+            LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', Format("Original Amount"));
     end;
 
     [Test]
@@ -666,7 +666,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         VerifyVendorBalanceToDate(PurchaseHeader."Buy-from Vendor No.", DocumentNo);
         LibraryReportDataset.AssertElementWithValueExists('CurrTotalBufferCurrCode', PurchaseHeader."Currency Code");
         with VendorLedgerEntry do
-            LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', "Original Amount");
+            LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', Format("Original Amount"));
     end;
 
     [Test]
@@ -692,7 +692,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         SaveVendorBalanceToDate(PurchaseHeader, true, false, false);
         VerifyVendorBalanceToDate(PurchaseHeader."Buy-from Vendor No.", DocumentNo);
         with VendorLedgerEntry do
-            LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', "Original Amt. (LCY)");
+            LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', Format("Original Amt. (LCY)"));
 
         asserterror LibraryReportDataset.AssertElementWithValueExists('', PurchaseHeader."Currency Code");
     end;
@@ -704,6 +704,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
     var
         GenJournalLine: Record "Gen. Journal Line";
         PurchaseHeader: Record "Purchase Header";
+        AutoFormat: Codeunit "Auto Format";
         DocumentNo: Code[20];
         LineAmount: Decimal;
     begin
@@ -722,7 +723,8 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         VerifyVendorBalanceToDate(PurchaseHeader."Buy-from Vendor No.", DocumentNo);
         with GenJournalLine do begin
             LibraryReportDataset.AssertElementWithValueExists('DocType_DtldVendLedEnt', Format("Document Type"));
-            LibraryReportDataset.AssertElementWithValueExists('Amt', Round(LineAmount / 2));
+            LibraryReportDataset.AssertElementWithValueExists('Amt', Format(Round(LineAmount / 2), 0,
+                AutoFormat.ResolveAutoFormat("Auto Format"::AmountFormat, "Currency Code")));
         end;
     end;
 
@@ -1782,8 +1784,8 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         LibraryReportDataset.LoadDataSetFile();
 
         // [THEN] Original Amount was filled correctly
-        LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', VendorLedgerEntryCrMemo."Original Amount");
-        LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', VendorLedgerEntryInvoice."Original Amount");
+        LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', Format(VendorLedgerEntryCrMemo."Original Amount"));
+        LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', Format(VendorLedgerEntryInvoice."Original Amount"));
     end;
 
     [Test]
@@ -1842,8 +1844,8 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         LibraryReportDataset.LoadDataSetFile();
 
         // [THEN] Original Amount was filled correctly
-        LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', VendorLedgerEntryCrMemo."Original Amount");
-        LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', VendorLedgerEntryInvoice."Original Amount");
+        LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', Format(VendorLedgerEntryCrMemo."Original Amount"));
+        LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', Format(VendorLedgerEntryInvoice."Original Amount"));
     end;
 
     [Test]
@@ -2984,8 +2986,8 @@ codeunit 134335 "ERM Purch. Doc. Reports"
     begin
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('No_Vendor', VendorNo);
-        LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', PmtAmount);
-        LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', Amount);
+        LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', Format(PmtAmount));
+        LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', Format(Amount));
         LibraryReportDataset.AssertElementWithValueExists('CurrTotalBufferTotalAmt', TotalAmount);
         LibraryReportDataset.AssertElementWithValueNotExist('PostDate_DtldVendLedEnt', Format(WorkDate + 1));
     end;
@@ -2994,8 +2996,8 @@ codeunit 134335 "ERM Purch. Doc. Reports"
     begin
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('No_Vendor', VendorNo);
-        LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', PmtAmount);
-        LibraryReportDataset.AssertElementWithValueNotExist('OriginalAmt', Amount);
+        LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', Format(PmtAmount));
+        LibraryReportDataset.AssertElementWithValueNotExist('OriginalAmt', Format(Amount));
         LibraryReportDataset.AssertElementWithValueExists('CurrTotalBufferTotalAmt', PmtAmount);
         LibraryReportDataset.AssertElementWithValueNotExist('PostDate_DtldVendLedEnt', Format(WorkDate + 1));
     end;

@@ -412,7 +412,7 @@ page 8625 "Config. Package Subform"
         [InDataSet]
         NoOfErrorsStyleTxt: Text;
         SingleTableSelectedQst: Label 'One table has been selected. Do you want to continue?', Comment = '%1 = Table name';
-        MultiRelationQst: Label 'Some fields have 2 or more related tables.\Do you want check them?';
+        MultiRelationQst: Label 'Some fields have two or more related tables.\Do you want to check them?';
         AditionalOptionsEnabled: Boolean;
 
     local procedure SelectionConfirmMessage(): Text

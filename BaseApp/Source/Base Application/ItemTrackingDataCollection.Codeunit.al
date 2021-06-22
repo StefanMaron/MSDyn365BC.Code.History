@@ -47,6 +47,9 @@ codeunit 6501 "Item Tracking Data Collection"
 
         IsHandled := false;
         OnAssistEditTrackingNoOnBeforeRetrieveLookupData(TempTrackingSpecification, TempGlobalEntrySummary, FullGlobalDataSetExists, IsHandled);
+        if IsHandled then
+            exit;
+
         if not FullGlobalDataSetExists then
             RetrieveLookupData(TempTrackingSpecification, true);
 
@@ -177,7 +180,13 @@ codeunit 6501 "Item Tracking Data Collection"
         TempEntrySummary: Record "Entry Summary" temporary;
         ItemTrackingSummaryForm: Page "Item Tracking Summary";
         Window: Dialog;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSelectMultipleTrackingNo(TempTrackingSpecification, MaxQuantity, CurrentSignFactor, FullGlobalDataSetExists, IsHandled);
+        if IsHandled then
+            exit;
+
         Clear(ItemTrackingSummaryForm);
         Window.Open(Text004);
         if not FullGlobalDataSetExists then
@@ -1266,6 +1275,11 @@ codeunit 6501 "Item Tracking Data Collection"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateEntrySummary2(var TempGlobalEntrySummary: Record "Entry Summary" temporary; var TempReservationEntry: Record "Reservation Entry" temporary; TrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSelectMultipleTrackingNo(var TempTrackingSpecification: Record "Tracking Specification" temporary; MaxQuantity: Decimal; CurrentSignFactor: Integer; FullGlobalDataSetExists: Boolean; var IsHandled: Boolean)
     begin
     end;
 

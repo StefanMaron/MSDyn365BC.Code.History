@@ -408,7 +408,10 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"Intrastat Jnl. Template");
         SetTableFieldsToNormal(DATABASE::"Intrastat Jnl. Batch");
         SetTableFieldsToNormal(DATABASE::"Intrastat Jnl. Line");
+#if not CLEAN19
         SetTableFieldsToNormal(DATABASE::"Intrastat Checklist Setup");
+#endif
+        SetTableFieldsToNormal(DATABASE::"Advanced Intrastat Checklist");
         SetTableFieldsToNormal(DATABASE::"Currency Amount");
         SetTableFieldsToNormal(DATABASE::"Customer Amount");
         SetTableFieldsToNormal(DATABASE::"Vendor Amount");

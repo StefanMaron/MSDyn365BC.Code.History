@@ -308,6 +308,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Pictures - Control contentType - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 1048301999 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV1 - Purchase Invoice Lines</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Purchase Invoice Lines - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 1048301999 - NamedType 3559327969" size-unit="char" translate="yes" xml:space="preserve">
           <source>Both itemId and accountId are specified. Specify only one of them.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -462,6 +467,11 @@
           <source>Specifies the ship-to address of the Purchase Invoice.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Purchase Invoices - Control shipToAddress - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2572387921 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV1 - Sales Credit Mem Lines</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Credit Mem Lines - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2572387921 - NamedType 3559327969" size-unit="char" translate="yes" xml:space="preserve">
           <source>Both itemId and accountId are specified. Specify only one of them.</source>
@@ -622,6 +632,11 @@
           <source>Specifies the total tax amount for the sales credit memo.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Credit Memos - Control totalTaxAmount - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3908586298 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV1 - Sales Invoice Lines</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Invoice Lines - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3908586298 - NamedType 3559327969" size-unit="char" translate="yes" xml:space="preserve">
           <source>Both itemId and accountId are specified. Specify only one of them.</source>
@@ -792,6 +807,11 @@
           <source>Specifies the total tax amount for the sales invoice.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Invoices - Control totalTaxAmount - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1254803123 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV1 - Sales Order Lines</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Order Lines - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1254803123 - NamedType 3559327969" size-unit="char" translate="yes" xml:space="preserve">
           <source>Both itemId and accountId are specified. Specify only one of them.</source>
@@ -983,6 +1003,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Orders - Control totalTaxAmount - Property ToolTip</note>
         </trans-unit>
+        <trans-unit id="Page 287431775 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV1 - Sales Quote Lines</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Quote Lines - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 287431775 - NamedType 3559327969" size-unit="char" translate="yes" xml:space="preserve">
           <source>Both itemId and accountId are specified. Specify only one of them.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -1172,6 +1197,11 @@
           <source>picture</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Vendors - Control picture - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3012055073 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Customer Financial Details</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Customer Financial Details - Property Caption</note>
         </trans-unit>
       </group>
     </body>

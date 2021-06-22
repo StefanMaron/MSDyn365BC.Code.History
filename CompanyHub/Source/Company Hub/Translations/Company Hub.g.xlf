@@ -3,6 +3,11 @@
   <file datatype="xml" source-language="en-US" target-language="en-US" original="Company Hub">
     <body>
       <group id="body">
+        <trans-unit id="Table 1042448833 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>COHUB Company Endpoint</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company Endpoint - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 1042448833 - Field 392504525 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Assigned To</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -32,6 +37,11 @@
           <source>ODATA Company URL</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company Endpoint - Field ODATA Company URL - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1480219922 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>COHUB Company KPI</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 3764554179 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Approved Incoming Docs Style</source>
@@ -483,6 +493,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field Vendors-Payment on Hold Style - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 4066499956 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>COHUB Enviroment</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Enviroment - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 4066499956 - Field 3168444338 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Address</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -563,6 +578,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Enviroment - Field Privacy Blocked - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 2619134632 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>COHUB Group</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 2619134632 - NamedType 1969705838" size-unit="char" translate="yes" xml:space="preserve">
           <source>There are companies assigned to this group. This action will remove the group assignment from the companies and delete the group. Do you want to continue?</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -577,6 +597,11 @@
           <source>Description</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group - Field Description - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2821884881 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>COHUB Group Company Summary</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 3764554179 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Approved Incoming Docs Style</source>
@@ -1033,6 +1058,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Vendors-Payment on Hold Style - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 3496359017 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>COHUB User Task</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table COHUB User Task - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 3496359017 - Field 392504525 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Assigned To</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -1092,6 +1122,11 @@
           <source>Priority</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB User Task - Field Priority - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3496359017 - Field 4130293374 - Property 62802879" size-unit="char" translate="yes" xml:space="preserve">
+          <source>,Low,Normal,High</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table COHUB User Task - Field Priority - Property OptionCaption</note>
         </trans-unit>
         <trans-unit id="Table 3496359017 - Field 474480784 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Start Date</source>
@@ -1267,6 +1302,11 @@
           <source>Reload all companies</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Companies Overview - Action ReloadAllCompanies - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2379616563 - Action 2973329650 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Tasks</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Companies Overview - Action Tasks - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2379616563 - Action 2366028613 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>View pending user tasks that are assigned to you across all companies.</source>

@@ -33,7 +33,7 @@ codeunit 137295 "SCM Inventory Misc. III"
         ChangeBaseUnitOfMeasureError: Label 'You cannot change Base Unit of Measure because there are one or more open ledger entries for this item.';
         CancelReservationMessage: Label 'Do you want to cancel all reservations in ';
         ClosedFiscalYear: Label 'Once the fiscal year is closed it cannot be opened again, and the periods in the fiscal year cannot be changed.';
-        DeleteEntries: Label 'This batch job deletes entries. Therefore, it is important that you make a backup of the database before you run the batch job.';
+        DeleteEntriesQst: Label 'This batch job deletes entries. We recommend that you create a backup of the database before you run the batch job.\\Do you want to continue?';
         ExpectedMessage: Label 'The Credit Memo doesn''t have a Corrected Invoice No. Do you want to continue?';
         JournalLinesRegistered: Label 'The journal lines were successfully registered.You are now in the ';
         FinishProductionOrder: Label 'Production Order %1 has not been finished. Some output is still missing.';
@@ -2422,7 +2422,7 @@ codeunit 137295 "SCM Inventory Misc. III"
         PhysInventoryLedgerEntry: Record "Phys. Inventory Ledger Entry";
         DeletePhysInventoryLedger: Report "Delete Phys. Inventory Ledger";
     begin
-        LibraryVariableStorage.Enqueue(DeleteEntries);
+        LibraryVariableStorage.Enqueue(DeleteEntriesQst);
         Clear(DeletePhysInventoryLedger);
         PhysInventoryLedgerEntry.SetRange("Item No.", ItemNo);
         DeletePhysInventoryLedger.SetTableView(PhysInventoryLedgerEntry);

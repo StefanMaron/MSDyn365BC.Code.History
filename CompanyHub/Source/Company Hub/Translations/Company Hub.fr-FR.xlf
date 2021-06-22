@@ -3,6 +3,12 @@
   <file datatype="xml" source-language="en-US" target-language="fr-FR" original="Company Hub">
     <body>
       <group id="body">
+        <trans-unit id="Table 1042448833 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>COHUB Company Endpoint</source>
+          <target state="translated">Point de terminaison société COHUB</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company Endpoint - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 1042448833 - Field 392504525 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Assigned To</source>
           <target state="translated">Affecté à</target>
@@ -38,6 +44,12 @@
           <target state="translated">URL société ODATA</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company Endpoint - Field ODATA Company URL - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1480219922 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>COHUB Company KPI</source>
+          <target state="translated">Indicateur de performance clé société COHUB</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1480219922 - Field 3764554179 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Approved Incoming Docs Style</source>
@@ -579,6 +591,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Company KPI - Field Vendors-Payment on Hold Style - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 4066499956 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>COHUB Enviroment</source>
+          <target state="translated">Environnement COHUB</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Enviroment - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 4066499956 - Field 3168444338 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Address</source>
           <target state="translated">Adresse</target>
@@ -675,6 +693,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Enviroment - Field Privacy Blocked - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 2619134632 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>COHUB Group</source>
+          <target state="translated">Groupe COHUB</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 2619134632 - NamedType 1969705838" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>There are companies assigned to this group. This action will remove the group assignment from the companies and delete the group. Do you want to continue?</source>
           <target state="translated">Des sociétés sont affectées à ce groupe. Cette action va supprimer l’affectation de groupe des sociétés et supprimer le groupe. Voulez-vous continuer ?</target>
@@ -692,6 +716,12 @@
           <target state="translated">Description</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group - Field Description - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2821884881 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>COHUB Group Company Summary</source>
+          <target state="translated">Résumé société groupe COHUB</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2821884881 - Field 3764554179 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Approved Incoming Docs Style</source>
@@ -1239,6 +1269,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB Group Company Summary - Field Vendors-Payment on Hold Style - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 3496359017 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>COHUB User Task</source>
+          <target state="translated">Tâche utilisateur COHUB</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table COHUB User Task - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 3496359017 - Field 392504525 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Assigned To</source>
           <target state="translated">Affecté à</target>
@@ -1311,6 +1347,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB User Task - Field Priority - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 3496359017 - Field 4130293374 - Property 62802879" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>,Low,Normal,High</source>
+          <target state="translated">,Faible,Normale,Haute</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table COHUB User Task - Field Priority - Property OptionCaption</note>
+        </trans-unit>
         <trans-unit id="Table 3496359017 - Field 474480784 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Start Date</source>
           <target state="translated">Date début</target>
@@ -1328,6 +1370,111 @@
           <target state="translated">Groupe de tâches utilisateur</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table COHUB User Task - Field User Task Group Assigned To - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4070282003 - Method 2860688696" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>GatherKPIData</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit COHUB Comp. Url Task Manager - Method GatherKPIData</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4070282003 - Method 883783863" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SetTaskComplete</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit COHUB Comp. Url Task Manager - Method SetTaskComplete</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2252641548 - Method 1354913827" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>GoToCompany</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit COHUB Core - Method GoToCompany</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2252641548 - Method 2037864790" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>UpdateEnviromentCompany</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit COHUB Core - Method UpdateEnviromentCompany</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2252641548 - Method 3717761652" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SetUserTaskComplete</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit COHUB Core - Method SetUserTaskComplete</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2252641548 - Method 2942522543" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>UpdateAllCompanies</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit COHUB Core - Method UpdateAllCompanies</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2252641548 - Method 362832910" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>OpenEnviroment</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit COHUB Core - Method OpenEnviroment</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2252641548 - Method 2363302955" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>ValidateEnviromentUrl</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit COHUB Core - Method ValidateEnviromentUrl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2252641548 - Method 1614584964" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>AppendRedirectedFromSignupUrl</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit COHUB Core - Method AppendRedirectedFromSignupUrl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2252641548 - Method 2590535659" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VerifyForDuplicates</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit COHUB Core - Method VerifyForDuplicates</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2252641548 - Method 139633351" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>GetCRONUSEnviromentName</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit COHUB Core - Method GetCRONUSEnviromentName</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2252641548 - Method 304551461" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>LogFailure</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit COHUB Core - Method LogFailure</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2252641548 - Method 700859351" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>IsPPE</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit COHUB Core - Method IsPPE</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2252641548 - Method 2269388900" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>GetFixedWebServicesUrl</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit COHUB Core - Method GetFixedWebServicesUrl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2252641548 - Method 2195391696" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>GetFixedClientUrl</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit COHUB Core - Method GetFixedClientUrl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2252641548 - Method 228647858" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>GetResoureUrl</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit COHUB Core - Method GetResoureUrl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2252641548 - Method 4106614096" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>ExportEnviroments</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit COHUB Core - Method ExportEnviroments</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2252641548 - Method 3970602103" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>ImportEnviroments</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit COHUB Core - Method ImportEnviroments</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2252641548 - Method 3308110732" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>ShowNotSupportedOnPremNotification</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit COHUB Core - Method ShowNotSupportedOnPremNotification</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2252641548 - Method 350542442" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>GetEnviromentManagementUrl</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit COHUB Core - Method GetEnviromentManagementUrl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2252641548 - Method 207443122" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>GetEnviromentNameAndEnviroment</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit COHUB Core - Method GetEnviromentNameAndEnviroment</note>
         </trans-unit>
         <trans-unit id="Codeunit 2252641548 - NamedType 3371301238" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Company Hub</source>
@@ -1419,6 +1566,16 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit COHUB Delete Activity Log - NamedType ActivityContextTxt</note>
         </trans-unit>
+        <trans-unit id="Codeunit 483645376 - Method 3382898867" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>GetAmountFormat</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit COHUB Format Amount - Method GetAmountFormat</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 483645376 - Method 338987659" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>ParseAmount</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit COHUB Format Amount - Method ParseAmount</note>
+        </trans-unit>
         <trans-unit id="Codeunit 2706456750 - NamedType 1599302730" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Dyn. 365 Company Hub</source>
           <target state="translated">Hub Entreprise Dyn. 365</target>
@@ -1430,6 +1587,11 @@
           <target state="translated">Les données ont été mises à jour</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit COHUB Reload Companies - NamedType DataUpdatedSuccessfullyLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 974053442 - Method 832304181" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>FetchCompanies</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit COHUB Url Task Manager - Method FetchCompanies</note>
         </trans-unit>
         <trans-unit id="Codeunit 974053442 - NamedType 2153063748" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Could not fetch companies, verify if you have permissions to access the company.</source>
@@ -1520,6 +1682,12 @@
           <target state="translated">Recharger toutes les sociétés</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Companies Overview - Action ReloadAllCompanies - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2379616563 - Action 2973329650 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Tasks</source>
+          <target state="translated">Tâches</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page COHUB Companies Overview - Action Tasks - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2379616563 - Action 2366028613 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>View pending user tasks that are assigned to you across all companies.</source>
