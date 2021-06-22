@@ -1,4 +1,4 @@
-codeunit 97 "Blanket Purch. Order to Order"
+﻿codeunit 97 "Blanket Purch. Order to Order"
 {
     TableNo = "Purchase Header";
 
@@ -38,24 +38,7 @@ codeunit 97 "Blanket Purch. Order to Order"
                 if (PurchBlanketOrderLine.Type = PurchBlanketOrderLine.Type::" ") or
                    (PurchBlanketOrderLine."Qty. to Receive" <> 0)
                 then begin
-                    PurchLine.SetCurrentKey("Document Type", "Blanket Order No.", "Blanket Order Line No.");
-                    PurchLine.SetRange("Blanket Order No.", PurchBlanketOrderLine."Document No.");
-                    PurchLine.SetRange("Blanket Order Line No.", PurchBlanketOrderLine."Line No.");
-                    QuantityOnOrders := 0;
-                    if PurchLine.FindSet then
-                        repeat
-                            if (PurchLine."Document Type" = PurchLine."Document Type"::"Return Order") or
-                               ((PurchLine."Document Type" = PurchLine."Document Type"::"Credit Memo") and
-                                (PurchLine."Return Shipment No." = ''))
-                            then
-                                QuantityOnOrders := QuantityOnOrders - PurchLine."Outstanding Qty. (Base)"
-                            else
-                                if (PurchLine."Document Type" = PurchLine."Document Type"::Order) or
-                                   ((PurchLine."Document Type" = PurchLine."Document Type"::Invoice) and
-                                    (PurchLine."Receipt No." = ''))
-                                then
-                                    QuantityOnOrders := QuantityOnOrders + PurchLine."Outstanding Qty. (Base)";
-                        until PurchLine.Next = 0;
+                    CalcQuantityOnOrders();
 
                     CheckBlanketOrderLineQuantity();
 
@@ -141,6 +124,35 @@ codeunit 97 "Blanket Purch. Order to Order"
         ReservePurchLine: Codeunit "Purch. Line-Reserve";
         QuantityOnOrders: Decimal;
         Text002: Label 'There is nothing to create.';
+
+    local procedure CalcQuantityOnOrders()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCalcQuantityOnOrders(PurchBlanketOrderLine, QuantityOnOrders, IsHandled);
+        if IsHandled then
+            exit;
+
+        PurchLine.SetCurrentKey("Document Type", "Blanket Order No.", "Blanket Order Line No.");
+        PurchLine.SetRange("Blanket Order No.", PurchBlanketOrderLine."Document No.");
+        PurchLine.SetRange("Blanket Order Line No.", PurchBlanketOrderLine."Line No.");
+        QuantityOnOrders := 0;
+        if PurchLine.FindSet then
+            repeat
+                if (PurchLine."Document Type" = PurchLine."Document Type"::"Return Order") or
+                   ((PurchLine."Document Type" = PurchLine."Document Type"::"Credit Memo") and
+                    (PurchLine."Return Shipment No." = ''))
+                then
+                    QuantityOnOrders := QuantityOnOrders - PurchLine."Outstanding Qty. (Base)"
+                else
+                    if (PurchLine."Document Type" = PurchLine."Document Type"::Order) or
+                       ((PurchLine."Document Type" = PurchLine."Document Type"::Invoice) and
+                        (PurchLine."Receipt No." = ''))
+                    then
+                        QuantityOnOrders := QuantityOnOrders + PurchLine."Outstanding Qty. (Base)";
+            until PurchLine.Next() = 0;
+    end;
 
     local procedure CheckBlanketOrderLineQuantity()
     var
@@ -262,6 +274,11 @@ codeunit 97 "Blanket Purch. Order to Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRun(var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcQuantityOnOrders(var PurchBlanketOrderLine: Record "Purchase Line"; var QuantityOnOrders: Decimal; var IsHandled: Boolean)
     begin
     end;
 

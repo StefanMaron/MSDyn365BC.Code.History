@@ -1,4 +1,4 @@
-report 5405 "Calc. Consumption"
+﻿report 5405 "Calc. Consumption"
 {
     Caption = 'Calc. Consumption';
     ProcessingOnly = true;
@@ -163,10 +163,7 @@ report 5405 "Calc. Consumption"
            (LocationCode = ItemJnlLine."Location Code") and
            (BinCode = ItemJnlLine."Bin Code")
         then begin
-            if Item."Rounding Precision" > 0 then
-                ItemJnlLine.Validate(Quantity, ItemJnlLine.Quantity + UOMMgt.RoundToItemRndPrecision(QtyToPost, Item."Rounding Precision"))
-            else
-                ItemJnlLine.Validate(Quantity, ItemJnlLine.Quantity + UOMMgt.RoundQty(QtyToPost));
+            ValidateItemJnlLineQuantity(QtyToPost);
             OnBeforeItemJnlLineModify(ItemJnlLine, "Prod. Order Component");
             ItemJnlLine.Modify();
         end else begin
@@ -184,10 +181,7 @@ report 5405 "Calc. Consumption"
             ItemJnlLine.Validate("Item No.", "Prod. Order Component"."Item No.");
             ItemJnlLine.Validate("Unit of Measure Code", "Prod. Order Component"."Unit of Measure Code");
             ItemJnlLine.Description := "Prod. Order Component".Description;
-            if Item."Rounding Precision" > 0 then
-                ItemJnlLine.Validate(Quantity, UOMMgt.RoundToItemRndPrecision(QtyToPost, Item."Rounding Precision"))
-            else
-                ItemJnlLine.Validate(Quantity, UOMMgt.RoundQty(QtyToPost));
+            ValidateItemJnlLineQuantity(QtyToPost);
             ItemJnlLine."Variant Code" := "Prod. Order Component"."Variant Code";
             ItemJnlLine.Validate("Location Code", LocationCode);
             if BinCode <> '' then
@@ -206,6 +200,21 @@ report 5405 "Calc. Consumption"
         NextConsumpJnlLineNo := NextConsumpJnlLineNo + 10000;
 
         OnAfterCreateConsumpJnlLine(LocationCode, BinCode, QtyToPost, ItemJnlLine);
+    end;
+
+    local procedure ValidateItemJnlLineQuantity(QtyToPost: Decimal)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeValidateItemJnlLineQuantity(ItemJnlLine, "Prod. Order Component", QtyToPost, IsHandled);
+        if IsHandled then
+            exit;
+
+        if Item."Rounding Precision" > 0 then
+            ItemJnlLine.Validate(Quantity, ItemJnlLine.Quantity + UOMMgt.RoundToItemRndPrecision(QtyToPost, Item."Rounding Precision"))
+        else
+            ItemJnlLine.Validate(Quantity, ItemJnlLine.Quantity + UOMMgt.RoundQty(QtyToPost));
     end;
 
     procedure SetTemplateAndBatchName(TemplateName: Code[10]; BatchName: Code[10])
@@ -277,6 +286,11 @@ report 5405 "Calc. Consumption"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeItemJnlLineModify(var ItemJournalLine: Record "Item Journal Line"; ProdOrderComponent: Record "Prod. Order Component")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateItemJnlLineQuantity(var ItemJnlLine: Record "Item Journal Line"; ProdOrderComponent: Record "Prod. Order Component"; QtyToPost: Decimal; var IsHandled: Boolean)
     begin
     end;
 

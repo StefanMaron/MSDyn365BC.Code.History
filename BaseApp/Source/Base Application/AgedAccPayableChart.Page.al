@@ -161,6 +161,7 @@ page 769 "Aged Acc. Payable Chart"
     begin
         BusChartUserSetup.InitSetupPage(PAGE::"Aged Acc. Payable Chart");
         BusinessChartBuffer."Period Length" := BusChartUserSetup."Period Length";
+        IsVisible := true;
     end;
 
     var
@@ -177,6 +178,7 @@ page 769 "Aged Acc. Payable Chart"
         AllEnabled: Boolean;
         VendorNo: Code[20];
         UpdatedVendorNo: Code[20];
+        IsVisible: Boolean;
 
     local procedure Initialize()
     begin
@@ -249,6 +251,9 @@ page 769 "Aged Acc. Payable Chart"
     [Scope('OnPrem')]
     procedure UpdateChartForVendor(NewVendorNo: Code[20])
     begin
+        if not IsVisible then
+            exit;
+
         VendorNo := NewVendorNo;
         UpdateChart;
     end;

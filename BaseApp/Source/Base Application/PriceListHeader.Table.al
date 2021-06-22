@@ -325,14 +325,21 @@ table 7000 "Price List Header"
 
     procedure CopyFrom(PriceSource: Record "Price Source")
     begin
+        "Price Type" := PriceSource."Price Type";
         "Source Group" := PriceSource."Source Group";
+        if "Source Group" = "Source Group"::All then
+            case "Price Type" of
+                "Price Type"::Sale:
+                    "Source Group" := "Source Group"::Customer;
+                "Price Type"::Purchase:
+                    "Source Group" := "Source Group"::Vendor;
+            end;
         "Source Type" := PriceSource."Source Type";
         "Source No." := PriceSource."Source No.";
         "Parent Source No." := PriceSource."Parent Source No.";
         "Source ID" := PriceSource."Source ID";
         "Filter Source No." := PriceSource."Filter Source No.";
 
-        "Price Type" := PriceSource."Price Type";
         "Currency Code" := PriceSource."Currency Code";
         "Starting Date" := PriceSource."Starting Date";
         "Ending Date" := PriceSource."Ending Date";

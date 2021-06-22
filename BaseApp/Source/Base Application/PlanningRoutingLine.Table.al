@@ -182,6 +182,11 @@ table 99000830 "Planning Routing Line"
         {
             Caption = 'Lot Size';
             DecimalPlaces = 0 : 5;
+
+            trigger OnValidate()
+            begin
+                CalcStartingEndingDates();
+            end;
         }
         field(18; "Scrap Factor %"; Decimal)
         {
@@ -679,52 +684,51 @@ table 99000830 "Planning Routing Line"
 
     local procedure CalculateRoutingBack()
     begin
-        if "Previous Operation No." = '' then
-            exit;
-
         GetLine;
 
-        PlanningRtngLine.Reset();
-        PlanningRtngLine.SetRange("Worksheet Template Name", "Worksheet Template Name");
-        PlanningRtngLine.SetRange("Worksheet Batch Name", "Worksheet Batch Name");
-        PlanningRtngLine.SetRange("Worksheet Line No.", "Worksheet Line No.");
-        PlanningRtngLine.SetFilter("Operation No.", "Previous Operation No.");
+        if "Previous Operation No." <> '' then begin
+            PlanningRtngLine.Reset();
+            PlanningRtngLine.SetRange("Worksheet Template Name", "Worksheet Template Name");
+            PlanningRtngLine.SetRange("Worksheet Batch Name", "Worksheet Batch Name");
+            PlanningRtngLine.SetRange("Worksheet Line No.", "Worksheet Line No.");
+            PlanningRtngLine.SetFilter("Operation No.", "Previous Operation No.");
 
-        if PlanningRtngLine.Find('-') then
-            repeat
-                PlanningRtngLine.SetCurrentKey(
-                  "Worksheet Template Name",
-                  "Worksheet Batch Name",
-                  "Worksheet Line No.", "Sequence No. (Actual)");
-                WorkCenter.Get(PlanningRtngLine."Work Center No.");
+            if PlanningRtngLine.Find('-') then
+                repeat
+                    PlanningRtngLine.SetCurrentKey(
+                      "Worksheet Template Name",
+                      "Worksheet Batch Name",
+                      "Worksheet Line No.", "Sequence No. (Actual)");
+                    WorkCenter.Get(PlanningRtngLine."Work Center No.");
 
-                case WorkCenter."Simulation Type" of
-                    WorkCenter."Simulation Type"::Moves:
-                        begin
-                            PlanningRoutingMgt.CalcSequenceFromActual(PlanningRtngLine, 1, ReqLine);
-                            PlngLnMgt.CalculateRoutingFromActual(PlanningRtngLine, 1, true);
-                        end;
-                    WorkCenter."Simulation Type"::"Moves When Necessary":
-                        if (PlanningRtngLine."Ending Date" > "Starting Date") or
-                           ((PlanningRtngLine."Ending Date" = "Starting Date") and
-                            (PlanningRtngLine."Ending Time" > "Starting Time"))
-                        then begin
-                            PlanningRoutingMgt.CalcSequenceFromActual(PlanningRtngLine, 1, ReqLine);
-                            PlngLnMgt.CalculateRoutingFromActual(PlanningRtngLine, 1, true);
-                        end;
-                    WorkCenter."Simulation Type"::Critical:
-                        begin
+                    case WorkCenter."Simulation Type" of
+                        WorkCenter."Simulation Type"::Moves:
+                            begin
+                                PlanningRoutingMgt.CalcSequenceFromActual(PlanningRtngLine, 1, ReqLine);
+                                PlngLnMgt.CalculateRoutingFromActual(PlanningRtngLine, 1, true);
+                            end;
+                        WorkCenter."Simulation Type"::"Moves When Necessary":
                             if (PlanningRtngLine."Ending Date" > "Starting Date") or
                                ((PlanningRtngLine."Ending Date" = "Starting Date") and
                                 (PlanningRtngLine."Ending Time" > "Starting Time"))
-                            then
-                                Error(Text000);
-                        end;
-                end;
-                PlanningRtngLine.SetCurrentKey(
-                  "Worksheet Template Name",
-                  "Worksheet Batch Name", "Worksheet Line No.", "Operation No.");
-            until PlanningRtngLine.Next = 0;
+                            then begin
+                                PlanningRoutingMgt.CalcSequenceFromActual(PlanningRtngLine, 1, ReqLine);
+                                PlngLnMgt.CalculateRoutingFromActual(PlanningRtngLine, 1, true);
+                            end;
+                        WorkCenter."Simulation Type"::Critical:
+                            begin
+                                if (PlanningRtngLine."Ending Date" > "Starting Date") or
+                                   ((PlanningRtngLine."Ending Date" = "Starting Date") and
+                                    (PlanningRtngLine."Ending Time" > "Starting Time"))
+                                then
+                                    Error(Text000);
+                            end;
+                    end;
+                    PlanningRtngLine.SetCurrentKey(
+                      "Worksheet Template Name",
+                      "Worksheet Batch Name", "Worksheet Line No.", "Operation No.");
+                until PlanningRtngLine.Next() = 0;
+        end;
 
         PlngLnMgt.CalculatePlanningLineDates(ReqLine);
         AdjustComponents(ReqLine);
@@ -732,51 +736,50 @@ table 99000830 "Planning Routing Line"
 
     local procedure CalculateRoutingForward()
     begin
-        if "Next Operation No." = '' then
-            exit;
-
         GetLine;
 
-        PlanningRtngLine.Reset();
-        PlanningRtngLine.SetRange("Worksheet Template Name", "Worksheet Template Name");
-        PlanningRtngLine.SetRange("Worksheet Batch Name", "Worksheet Batch Name");
-        PlanningRtngLine.SetRange("Worksheet Line No.", "Worksheet Line No.");
-        PlanningRtngLine.SetFilter("Operation No.", "Next Operation No.");
+        if "Next Operation No." <> '' then begin
+            PlanningRtngLine.Reset();
+            PlanningRtngLine.SetRange("Worksheet Template Name", "Worksheet Template Name");
+            PlanningRtngLine.SetRange("Worksheet Batch Name", "Worksheet Batch Name");
+            PlanningRtngLine.SetRange("Worksheet Line No.", "Worksheet Line No.");
+            PlanningRtngLine.SetFilter("Operation No.", "Next Operation No.");
 
-        if PlanningRtngLine.Find('-') then
-            repeat
-                PlanningRtngLine.SetCurrentKey(
-                  "Worksheet Template Name",
-                  "Worksheet Batch Name",
-                  "Worksheet Line No.", "Sequence No. (Actual)");
-                WorkCenter.Get(PlanningRtngLine."Work Center No.");
-                case WorkCenter."Simulation Type" of
-                    WorkCenter."Simulation Type"::Moves:
-                        begin
-                            PlanningRoutingMgt.CalcSequenceFromActual(PlanningRtngLine, 0, ReqLine);
-                            PlngLnMgt.CalculateRoutingFromActual(PlanningRtngLine, 0, true);
-                        end;
-                    WorkCenter."Simulation Type"::"Moves When Necessary":
-                        if (PlanningRtngLine."Starting Date" < "Ending Date") or
-                           ((PlanningRtngLine."Starting Date" = "Ending Date") and
-                            (PlanningRtngLine."Starting Time" < "Ending Time"))
-                        then begin
-                            PlanningRoutingMgt.CalcSequenceFromActual(PlanningRtngLine, 0, ReqLine);
-                            PlngLnMgt.CalculateRoutingFromActual(PlanningRtngLine, 0, true);
-                        end;
-                    WorkCenter."Simulation Type"::Critical:
-                        begin
+            if PlanningRtngLine.Find('-') then
+                repeat
+                    PlanningRtngLine.SetCurrentKey(
+                      "Worksheet Template Name",
+                      "Worksheet Batch Name",
+                      "Worksheet Line No.", "Sequence No. (Actual)");
+                    WorkCenter.Get(PlanningRtngLine."Work Center No.");
+                    case WorkCenter."Simulation Type" of
+                        WorkCenter."Simulation Type"::Moves:
+                            begin
+                                PlanningRoutingMgt.CalcSequenceFromActual(PlanningRtngLine, 0, ReqLine);
+                                PlngLnMgt.CalculateRoutingFromActual(PlanningRtngLine, 0, true);
+                            end;
+                        WorkCenter."Simulation Type"::"Moves When Necessary":
                             if (PlanningRtngLine."Starting Date" < "Ending Date") or
                                ((PlanningRtngLine."Starting Date" = "Ending Date") and
                                 (PlanningRtngLine."Starting Time" < "Ending Time"))
-                            then
-                                Error(Text001);
-                        end;
-                end;
-                PlanningRtngLine.SetCurrentKey(
-                  "Worksheet Template Name",
-                  "Worksheet Batch Name", "Worksheet Line No.", "Operation No.");
-            until PlanningRtngLine.Next = 0;
+                            then begin
+                                PlanningRoutingMgt.CalcSequenceFromActual(PlanningRtngLine, 0, ReqLine);
+                                PlngLnMgt.CalculateRoutingFromActual(PlanningRtngLine, 0, true);
+                            end;
+                        WorkCenter."Simulation Type"::Critical:
+                            begin
+                                if (PlanningRtngLine."Starting Date" < "Ending Date") or
+                                   ((PlanningRtngLine."Starting Date" = "Ending Date") and
+                                    (PlanningRtngLine."Starting Time" < "Ending Time"))
+                                then
+                                    Error(Text001);
+                            end;
+                    end;
+                    PlanningRtngLine.SetCurrentKey(
+                      "Worksheet Template Name",
+                      "Worksheet Batch Name", "Worksheet Line No.", "Operation No.");
+                until PlanningRtngLine.Next() = 0;
+        end;
 
         PlngLnMgt.CalculatePlanningLineDates(ReqLine);
         AdjustComponents(ReqLine);

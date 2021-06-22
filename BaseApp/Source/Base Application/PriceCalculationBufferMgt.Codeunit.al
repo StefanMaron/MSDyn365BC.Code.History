@@ -8,6 +8,10 @@ codeunit 7008 "Price Calculation Buffer Mgt."
         UnitAmountRoundingPrecision: Decimal;
         PricesInclVATErr: Label 'Prices including VAT cannot be calculated because the VAT Calculation Type field contains %1.',
             Comment = '%1 - VAT Calculation Type field value';
+        GetPriceOutOfDateErr: Label 'The selected price line is not valid on the document date %1.',
+            Comment = '%1 - a date value';
+        GetPriceFieldMismatchErr: Label 'The %1 in the selected price line must be %2.',
+            Comment = '%1 - a field caption, %2 - a value of the field';
 
     procedure AddAsset(AssetType: Enum "Price Asset Type"; AssetNo: Code[20])
     begin
@@ -221,6 +225,22 @@ codeunit 7008 "Price Calculation Buffer Mgt."
     begin
         PriceListLine.Reset();
         PriceListLine.CopyFilters(PriceListLineFiltered);
+    end;
+
+    procedure VerifySelectedLine(PriceListLine: Record "Price List Line")
+    begin
+        if not (PriceListLine."Currency Code" in [PriceCalculationBuffer."Currency Code", '']) then
+            Error(
+                GetPriceFieldMismatchErr,
+                PriceListLine.FieldCaption("Currency Code"), PriceCalculationBuffer."Currency Code");
+
+        if not (PriceListLine."Unit of Measure Code" in [PriceCalculationBuffer."Unit of Measure Code", '']) then
+            Error(
+                GetPriceFieldMismatchErr,
+                PriceListLine.FieldCaption("Unit of Measure Code"), PriceCalculationBuffer."Unit of Measure Code");
+
+        if PriceListLine."Starting Date" > PriceCalculationBuffer."Document Date" then
+            Error(GetPriceOutOfDateErr, PriceCalculationBuffer."Document Date")
     end;
 
     [IntegrationEvent(false, false)]

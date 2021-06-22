@@ -110,26 +110,32 @@ codeunit 8800 "Custom Layout Reporting"
     var
         Customer: Record Customer;
         SelectionFilterMgt: Codeunit SelectionFilterManagement;
+        CustomerRecRef: RecordRef;
     begin
         repeat
             Customer.Get(CustomReportSelection."Source No.");
             Customer.Mark(true);
         until CustomReportSelection.Next = 0;
         Customer.MarkedOnly(true);
-        exit(SelectionFilterMgt.GetSelectionFilterForCustomer(Customer));
+
+        CustomerRecRef.GetTable(Customer);
+        exit(SelectionFilterMgt.GetSelectionFilter(CustomerRecRef, Customer.FieldNo("No."), false));
     end;
 
     local procedure GetVendorFilter(var CustomReportSelection: Record "Custom Report Selection"): Text
     var
         Vendor: Record Vendor;
         SelectionFilterMgt: Codeunit SelectionFilterManagement;
+        VendorRecRef: RecordRef;
     begin
         repeat
             Vendor.Get(CustomReportSelection."Source No.");
             Vendor.Mark(true);
         until CustomReportSelection.Next = 0;
         Vendor.MarkedOnly(true);
-        exit(SelectionFilterMgt.GetSelectionFilterForVendor(Vendor));
+
+        VendorRecRef.GetTable(Vendor);
+        exit(SelectionFilterMgt.GetSelectionFilter(VendorRecRef, Vendor.FieldNo("No."), false));
     end;
 
     [Scope('OnPrem')]
@@ -624,9 +630,12 @@ codeunit 8800 "Custom Layout Reporting"
         // If we're iterating through Customer or Vendor, get the appropriate name
         if not ReportDataAndIteratorDiffer then begin
             if GetNameFieldRef(DataRecRef, NameFieldRef) then
-                ObjectName := StrSubstNo('%1', NameFieldRef.Value);
+                ObjectName := Format(NameFieldRef.Value);
         end else
-            ObjectName := StrSubstNo('%1', IteratorJoinFieldRef.Value);
+            if GetNameFieldRef(IteratorRecordRef, NameFieldRef) then
+                ObjectName := Format(NameFieldRef.Value)
+            else
+                ObjectName := Format(IteratorJoinFieldRef.Value);
 
         exit(GenerateFileName(ObjectName, ReportID, Extension, FilePath, DataRecRef));
     end;

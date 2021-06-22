@@ -599,7 +599,6 @@ codeunit 99000813 "Carry Out Action"
         ProdOrderLine: Record "Prod. Order Line";
         CalculateProdOrder: Codeunit "Calculate Prod. Order";
         NextLineNo: Integer;
-        RefreshProdOrderLine: Boolean;
     begin
         ProdOrderLine.SetRange("Prod. Order No.", ProdOrder."No.");
         ProdOrderLine.SetRange(Status, ProdOrder.Status);
@@ -642,7 +641,7 @@ codeunit 99000813 "Carry Out Action"
         ProdOrderLine."Planning Level Code" := ReqLine."Planning Level";
         ProdOrderLine."Indirect Cost %" := ReqLine."Indirect Cost %";
         ProdOrderLine."Overhead Rate" := ReqLine."Overhead Rate";
-        ProdOrderLine.Validate(Quantity, ReqLine.Quantity);
+        UpdateProdOrderLineQuantity(ProdOrderLine, ReqLine, Item);
         if not (ProdOrder.Status = ProdOrder.Status::Planned) then
             ProdOrderLine."Planning Flexibility" := ReqLine."Planning Flexibility";
         ProdOrderLine.UpdateDatetime;
@@ -659,14 +658,7 @@ codeunit 99000813 "Carry Out Action"
             ReserveBindingOrderToProd(ProdOrderLine, ReqLine);
 
         ProdOrderLine.Modify();
-        if TransferRouting(ReqLine, ProdOrder, ProdOrderLine."Routing No.", ProdOrderLine."Routing Reference No.") then begin
-            RefreshProdOrderLine := false;
-            OnInsertProdOrderLineOnAfterTransferRouting(ProdOrderLine, RefreshProdOrderLine);
-            if RefreshProdOrderLine then
-                ProdOrderLine.Get(ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.");
-            CalcProdOrder.SetProdOrderLineBinCodeFromPlanningRtngLines(ProdOrderLine, ReqLine);
-            ProdOrderLine.Modify();
-        end;
+        SetProdOrderLineBinCodeFromPlanningRtngLines(ProdOrder, ProdOrderLine, ReqLine, Item);
         TransferBOM(ReqLine, ProdOrder, ProdOrderLine."Line No.");
         TransferCapNeed(ReqLine, ProdOrder, ProdOrderLine."Routing No.", ProdOrderLine."Routing Reference No.");
 
@@ -676,6 +668,38 @@ codeunit 99000813 "Carry Out Action"
         OnAfterInsertProdOrderLine(ReqLine, ProdOrder, ProdOrderLine, Item);
 
         FinalizeOrderHeader(ProdOrder);
+    end;
+
+    local procedure SetProdOrderLineBinCodeFromPlanningRtngLines(ProdOrder: Record "Production Order"; var ProdOrderLine: Record "Prod. Order Line"; ReqLine: Record "Requisition Line"; Item: Record Item)
+    var
+        RefreshProdOrderLine: Boolean;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetProdOrderLineBinCodeFromPlanningRtngLines(ProdOrder, ProdOrderLine, ReqLine, Item, IsHandled);
+        if IsHandled then
+            exit;
+
+        if TransferRouting(ReqLine, ProdOrder, ProdOrderLine."Routing No.", ProdOrderLine."Routing Reference No.") then begin
+            RefreshProdOrderLine := false;
+            OnInsertProdOrderLineOnAfterTransferRouting(ProdOrderLine, RefreshProdOrderLine);
+            if RefreshProdOrderLine then
+                ProdOrderLine.Get(ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.");
+            CalcProdOrder.SetProdOrderLineBinCodeFromPlanningRtngLines(ProdOrderLine, ReqLine);
+            ProdOrderLine.Modify();
+        end;
+    end;
+
+    local procedure UpdateProdOrderLineQuantity(var ProdOrderLine: Record "Prod. Order Line"; ReqLine: Record "Requisition Line"; Item: Record Item)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateProdOrderLineQuantity(ProdOrderLine, ReqLine, Item, IsHandled);
+        if IsHandled then
+            exit;
+
+        ProdOrderLine.Validate(Quantity, ReqLine.Quantity);
     end;
 
     [Scope('OnPrem')]
@@ -1569,6 +1593,16 @@ codeunit 99000813 "Carry Out Action"
     [Obsolete('Replaced by event OnInsertTransHeaderOnBeforeTransHeaderModify', '17.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTransHeaderInsert(var TransferHeader: Record "Transfer Header"; RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateProdOrderLineQuantity(var ProdOrderLine: Record "Prod. Order Line"; ReqLine: Record "Requisition Line"; Item: Record Item; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetProdOrderLineBinCodeFromPlanningRtngLines(ProdOrder: Record "Production Order"; var ProdOrderLine: Record "Prod. Order Line"; ReqLine: Record "Requisition Line"; Item: Record Item; var IsHandled: Boolean)
     begin
     end;
 

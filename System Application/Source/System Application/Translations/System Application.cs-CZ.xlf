@@ -1290,6 +1290,156 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Recurrence Schedule - Field End Date - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 1656495825 - Field 2756380846 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>CaptureIndex</source>
+          <target state="translated">CaptureIndex</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Captures - Field CaptureIndex - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1656495825 - Field 171145402 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Index</source>
+          <target state="translated">Index</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Captures - Field Index - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1656495825 - Field 3060051996 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>ValueBlob</source>
+          <target state="translated">HodnotaBlob</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Captures - Field ValueBlob - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1656495825 - Field 1881551368 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Length</source>
+          <target state="translated">Délka</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Captures - Field Length - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 28344312 - Field 1139687811 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>GroupIndex</source>
+          <target state="translated">IndexSkupiny</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Groups - Field GroupIndex - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 28344312 - Field 171145402 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Index</source>
+          <target state="translated">Index</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Groups - Field Index - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 28344312 - Field 2961552353 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Name</source>
+          <target state="translated">Název</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Groups - Field Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 28344312 - Field 3060051996 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>ValueBlob</source>
+          <target state="translated">HodnotaBlob</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Groups - Field ValueBlob - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 28344312 - Field 1881551368 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Length</source>
+          <target state="translated">Délka</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Groups - Field Length - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 28344312 - Field 3878926381 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Success</source>
+          <target state="translated">Úspěch</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Groups - Field Success - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1641495975 - Field 2038629119 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>MatchIndex</source>
+          <target state="translated">MatchIndex</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Matches - Field MatchIndex - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1641495975 - Field 171145402 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Index</source>
+          <target state="translated">Index</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Matches - Field Index - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1641495975 - Field 3060051996 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>ValueBlob</source>
+          <target state="translated">HodnotaBlob</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Matches - Field ValueBlob - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1641495975 - Field 1881551368 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Length</source>
+          <target state="translated">Délka</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Matches - Field Length - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1641495975 - Field 3878926381 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Success</source>
+          <target state="translated">Úspěch</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Matches - Field Success - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2794189023 - Field 1001505280 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>IgnoreCase</source>
+          <target state="translated">Ignorecase</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Regex Options - Field IgnoreCase - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2794189023 - Field 2572413993 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Multiline</source>
+          <target state="translated">Víceřádkové</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Regex Options - Field Multiline - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2794189023 - Field 3963650414 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>ExplicitCapture</source>
+          <target state="translated">ExplicitníTitulek</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Regex Options - Field ExplicitCapture - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2794189023 - Field 1628235799 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Compiled</source>
+          <target state="translated">Kompilováno</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Regex Options - Field Compiled - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2794189023 - Field 3541926248 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Singleline</source>
+          <target state="translated">Jednořádkové</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Regex Options - Field Singleline - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2794189023 - Field 2272751685 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>IgnorePatternWhitespace</source>
+          <target state="translated">IgnorovatMezeryVzoru</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Regex Options - Field IgnorePatternWhitespace - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2794189023 - Field 2612374468 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>RightToLeft</source>
+          <target state="translated">Zprava doleva</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Regex Options - Field RightToLeft - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2794189023 - Field 61155663 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>ECMAScript</source>
+          <target state="translated">ECMAScript</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Regex Options - Field ECMAScript - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2794189023 - Field 3024051472 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>CultureInvariant</source>
+          <target state="translated">CultureInvariant</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Regex Options - Field CultureInvariant - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2794189023 - Field 3798167227 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>MatchTimeoutInMs</source>
+          <target state="translated">MatchTimeoutInMs</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Regex Options - Field MatchTimeoutInMs - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 2219781045 - Field 1950707465 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>User SID</source>
           <target state="translated">SID uživatele</target>
@@ -2328,6 +2478,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Email Outbox - Field Error Message - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 1251581097 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Outbox</source>
+          <target state="translated">E-mailová pošta k odeslání</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Outbox - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 1251581097 - Property 3863440606" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>draft email</source>
           <target state="translated">koncept e-mailu</target>
@@ -2423,6 +2579,12 @@
           <target state="translated">Odešlete e-mail ke zpracování. Stav se změní na Čeká na vyřízení, dokud nebude zpracován. Pokud je e-mail úspěšně odeslán, nebude se již zobrazovat ve složce Pošta k odeslání.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Outbox - Action SendEmail - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1251581097 - Action 2026913255 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Refresh</source>
+          <target state="translated">Aktualizovat</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Outbox - Action Refresh - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1251581097 - Action 2026913255 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Refresh</source>
@@ -3649,6 +3811,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 3158499545 - NamedType 3716788505" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Could not parse parameter Admin.</source>
+          <target state="translated">Nelze analyzovat parametr Admin.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Activities - NamedType ParseAdminErr</note>
         </trans-unit>
@@ -4668,7 +4831,7 @@
         </trans-unit>
         <trans-unit id="Page 523480673 - Control 1673237505 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>It can take up to 72 hours for a change in Office 365 to become available to Business Central.</source>
-          <target state="translated">Může trvat až 72 hodin, než bude změna v Office 365 dostupná pro Business Central. Pokud se změna v tomto období po aktualizaci uživatelů v aplikaci Business Central nezobrazí, zkuste to znovu později.</target>
+          <target state="translated">Může trvat až 72 hodin, než bude změna v Office 365 dostupná pro Business Central.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control NoteGroup - Property InstructionalText</note>
         </trans-unit>
@@ -4680,6 +4843,7 @@
         </trans-unit>
         <trans-unit id="Page 523480673 - Control 1154908253 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>There are no updates from Office 365. You can exit this guide.</source>
+          <target state="translated">Z Office 365 nejsou žádné aktualizace. Tuto příručku můžete ukončit.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control No Updates - Property InstructionalText</note>
         </trans-unit>
@@ -4703,7 +4867,7 @@
         </trans-unit>
         <trans-unit id="Page 523480673 - Control 3491181912 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>For each update with Select in the Action column, you must either choose Keep current to disregard the updated permissions, or Append to update the user permissions.</source>
-          <target state="translated">Použijte oprávnění z nové licence nebo ponechte aktuální oprávnění.</target>
+          <target state="translated">Pro každou aktualizaci ve výběru ve sloupci Akce musíte buď zvolit Zachovat aktuální, abyste ignorovali aktualizovaná oprávnění, nebo Připojit, chcete-li aktualizovat uživatelská oprávnění.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control ConfirmPermissionChanges - Property InstructionalText</note>
         </trans-unit>
@@ -4757,7 +4921,7 @@
         </trans-unit>
         <trans-unit id="Page 523480673 - Control 3616446514 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>To apply the changes, choose Finish.</source>
-          <target state="translated">Tyto změny budou použity, když zvolíte Dokončit.</target>
+          <target state="translated">Chcete-li použít nastavení, klikněte na tlačítko Dokončit.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control ListOfChanges - Property InstructionalText</note>
         </trans-unit>
@@ -4841,6 +5005,7 @@
         </trans-unit>
         <trans-unit id="Page 523480673 - Action 119972692 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Proceed to applying the user updates</source>
+          <target state="translated">Pokračujte v aplikaci uživatelských aktualizací</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Action DoneSelectingPermissions - Property ToolTip</note>
         </trans-unit>
@@ -4918,17 +5083,19 @@
         </trans-unit>
         <trans-unit id="Page 523480673 - NamedType 3177497220" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>We found %1 license update for a user who has customized permissions. Before continuing, you must either keep the current permissions or add the permissions associated with the new license for the user.</source>
+          <target state="translated">Zjistili jsme, %1 aktualizace licence pro uživatele, který má vlastní oprávnění. Před pokračováním je nutné buď zachovat aktuální oprávnění nebo přidat oprávnění přidružená k nové licenci pro uživatele.</target>
           <note from="Developer" annotates="general" priority="2">%1 = An integer count of total updates to get confirmation on</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - NamedType TotalUpdatesToConfirmSingularTxt</note>
         </trans-unit>
         <trans-unit id="Page 523480673 - NamedType 3386275873" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>We found %1 license updates for users who have customized permissions. Before continuing, you must either keep the current permissions or add the permissions associated with the new license for those users.</source>
+          <target state="translated">Zjistili jsme, %1 aktualizace licence pro uživatele, který má vlastní oprávnění. Před pokračováním je nutné buď zachovat aktuální oprávnění nebo přidat oprávnění přidružená k nové licenci pro uživatele.</target>
           <note from="Developer" annotates="general" priority="2">%1 = An integer count of total updates to get confirmation on</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - NamedType TotalUpdatesToConfirmPluralTxt</note>
         </trans-unit>
         <trans-unit id="Page 523480673 - NamedType 2580697080" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Number of updates ready to be applied: %1. These can be name, email address, preferred language, and user access changes. Choose View changes to see the list.</source>
-          <target state="translated">Počet dostupných změn: %1. Může se jednat o jméno, e-mailovou adresu, upřednostňovaný jazyk a změny přístupu uživatelů. Chcete-li zobrazit seznam, zvolte Zobrazit změny.</target>
+          <target state="translated">Počet aktualizací připravených k použití: %1. Může se jednat o jméno, e-mailovou adresu, preferovaný jazyk a změny přístupu uživatele. Chcete-li zobrazit seznam, zvolte Zobrazit změny.</target>
           <note from="Developer" annotates="general" priority="2">%1 = An integer count of total updates ready to apply</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - NamedType TotalUpdatesReadyToApplyTxt</note>
         </trans-unit>
@@ -8055,6 +8222,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Video Link - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 3389183890 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Accounts</source>
+          <target state="translated">E-mailové účty</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Accounts - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 3389183890 - Property 3863440606" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>SMTP,Office 365,Exchange,Outlook</source>
           <target state="translated">SMTP,Office 365,Exchange,Outlook</target>
@@ -8119,6 +8292,18 @@
           <target state="translated">Určuje typ rozšíření e-mailu, ke kterému je účet přidán.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Accounts - Control EmailConnector - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3389183890 - Control 2215568871 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Scenarios</source>
+          <target state="translated">Scénáře e-mailu</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Accounts - Control Scenarios - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3389183890 - Control 2215568871 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The email scenarios assigned to the selected account.</source>
+          <target state="translated">E-mailové scénáře přiřazené k vybranému účtu.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Accounts - Control Scenarios - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3389183890 - Action 176562519 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>View settings for the email account.</source>
@@ -8306,6 +8491,12 @@
           <target state="translated">Při přidávání e-mailových účtů buďte opatrní. V závislosti na nastavení mohou být účty k dispozici všem uživatelům.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Account Wizard - Control UsageWarning - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3756518970 - Control 4067785176 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specify the type of email account to add</source>
+          <target state="translated">Zadejte typ e-mailového účtu, který chcete přidat.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Account Wizard - Control Specify the type of email account to add - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3756518970 - Control 1123305005 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source> </source>
@@ -8649,6 +8840,18 @@
           <target state="translated">Zrušte přiřazení vybraných scénářů. Poté bude výchozí e-mailový účet použit k odesílání e-mailů pro scénáře.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Scenario Setup - Action Unassign - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 329821768 - Control 2961552353 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The email scenario.</source>
+          <target state="translated">Scénář e-mailu.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Scenarios FactBox - Control Name - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 329821768 - Control 2961552353 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email scenario</source>
+          <target state="translated">Scénář e-mailu</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Scenarios FactBox - Control Name - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1514646453 - Control 2961552353 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The email scenario.</source>
@@ -9034,6 +9237,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Retention Policy Setup List - Action ApplyAll - Property ToolTip</note>
         </trans-unit>
+        <trans-unit id="Page 709229469 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sent Emails</source>
+          <target state="translated">Odeslané e-maily</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sent Emails - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 709229469 - Control 3552705779 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies a short description of the email that was sent.</source>
           <target state="translated">Určuje krátký popis odeslaného e-mailu.</target>
@@ -9099,6 +9308,12 @@
           <target state="translated">Upravte a odešlete e-mail.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Sent Emails - Action EditAndSend - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 709229469 - Action 2026913255 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Refresh</source>
+          <target state="translated">Aktualizovat</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sent Emails - Action Refresh - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 709229469 - Action 2026913255 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Refresh</source>

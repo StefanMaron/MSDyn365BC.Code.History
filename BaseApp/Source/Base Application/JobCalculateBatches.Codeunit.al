@@ -1,4 +1,4 @@
-codeunit 1005 "Job Calculate Batches"
+﻿codeunit 1005 "Job Calculate Batches"
 {
 
     trigger OnRun()
@@ -251,9 +251,10 @@ codeunit 1005 "Job Calculate Batches"
                 if JobLedgEntry.Find('-') then
                     repeat
                         JobDiffBuffer[1].Quantity := JobDiffBuffer[1].Quantity - JobLedgEntry.Quantity;
-                    until JobLedgEntry.Next = 0;
+                    until JobLedgEntry.Next() = 0;
+                OnPostDiffBufferOnBeforeModify(JobLedgEntry, JobDiffBuffer[1]);
                 JobDiffBuffer[1].Modify();
-            until JobDiffBuffer[1].Next = 0;
+            until JobDiffBuffer[1].Next() = 0;
         JobJnlLine.LockTable();
         JobJnlLine.Validate("Journal Template Name", TemplateName);
         JobJnlLine.Validate("Journal Batch Name", BatchName);
@@ -290,6 +291,7 @@ codeunit 1005 "Job Calculate Batches"
                     JobJnlLine."Line No." := NextLineNo;
                     NextLineNo := NextLineNo + 10000;
                     JobJnlLine.Insert(true);
+                    OnPostDiffBufferOnAfterInsertJobJnlLine(JobJnlLine, JobDiffBuffer[1]);
                     LineNo := LineNo + 1;
                 end;
             until JobDiffBuffer[1].Next = 0;
@@ -466,6 +468,16 @@ codeunit 1005 "Job Calculate Batches"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateJTOnBeforeAssigneJobDiffBuffer2(var JobDiffBuffer: array[2] of Record "Job Difference Buffer" temporary; JobPlanningLine: Record "Job Planning Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostDiffBufferOnAfterInsertJobJnlLine(var JobJnlLine: Record "Job Journal Line"; var JobDiffBuffer: Record "Job Difference Buffer" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostDiffBufferOnBeforeModify(var JobLedgEntry: Record "Job Ledger Entry"; var JobDiffBuffer: Record "Job Difference Buffer" temporary)
     begin
     end;
 }

@@ -13,25 +13,41 @@
     end;
 
     var
+        TempBlob: Codeunit "Temp Blob";
         EmailSubjectCapTxt: Label '%1 - %2 %3', Comment = '%1 = Customer Name. %2 = Document Type %3 = Invoice No.';
         ReportAsPdfFileNameMsg: Label '%1 %2.pdf', Comment = '%1 = Document Type %2 = Invoice No. or Job Number';
         EmailSubjectPluralCapTxt: Label '%1 - %2', Comment = '%1 = Customer Name. %2 = Document Type in plural form';
         ReportAsPdfFileNamePluralMsg: Label 'Sales %1.pdf', Comment = '%1 = Document Type in plural form';
         PdfFileNamePluralMsg: Label '%1.pdf', Comment = '%1 = Document Type in plural form';
-        InvoiceEmailSubjectTxt: Label 'Invoice from %1', Comment = '%1 = name of the company';
         TestInvoiceEmailSubjectTxt: Label 'Test invoice from %1', Comment = '%1 = name of the company';
-        QuoteEmailSubjectTxt: Label 'Estimate from %1', Comment = '%1 = name of the company';
         CustomerLbl: Label '<Customer>';
 
-    [Scope('OnPrem')]
-    procedure EmailFile(AttachmentFilePath: Text[250]; AttachmentFileName: Text[250]; HtmlBodyFilePath: Text[250]; PostedDocNo: Code[20]; ToEmailAddress: Text[250]; EmailDocName: Text[250]; HideDialog: Boolean; ReportUsage: Integer): Boolean
+    procedure EmailFile(AttachmentStream: Instream; AttachmentName: Text; HtmlBodyFilePath: Text; EmailSubject: Text; ToEmailAddress: Text; HideDialog: Boolean; EmailScenario: Enum "Email Scenario"): Boolean
     var
         TempEmailItem: Record "Email Item" temporary;
     begin
+        TempEmailItem.AddAttachment(AttachmentStream, AttachmentName);
         exit(EmailFileInternal(
             TempEmailItem,
-            AttachmentFilePath,
-            AttachmentFileName,
+            CopyStr(HtmlBodyFilePath, 1, MaxStrLen(TempEmailItem."Body File Path")),
+            CopyStr(EmailSubject, 1, MaxStrLen(TempEmailItem.Subject)),
+            CopyStr(ToEmailAddress, 1, MaxStrLen(TempEmailItem."Send to")),
+            '',
+            '',
+            HideDialog,
+            -1,
+            false,
+            '',
+            EmailScenario));
+    end;
+
+    procedure EmailFile(AttachmentStream: Instream; AttachmentName: Text; HtmlBodyFilePath: Text[250]; PostedDocNo: Code[20]; ToEmailAddress: Text[250]; EmailDocName: Text[250]; HideDialog: Boolean; ReportUsage: Integer): Boolean
+    var
+        TempEmailItem: Record "Email Item" temporary;
+    begin
+        TempEmailItem.AddAttachment(AttachmentStream, AttachmentName);
+        exit(EmailFileInternal(
+            TempEmailItem,
             HtmlBodyFilePath,
             '',
             ToEmailAddress,
@@ -45,14 +61,49 @@
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Replaced by an overload that supports streams.', '17.2')]
+    procedure EmailFile(AttachmentFilePath: Text[250]; AttachmentFileName: Text[250]; HtmlBodyFilePath: Text[250]; PostedDocNo: Code[20]; ToEmailAddress: Text[250]; EmailDocName: Text[250]; HideDialog: Boolean; ReportUsage: Integer): Boolean
+    var
+        TempEmailItem: Record "Email Item" temporary;
+        FileManagement: Codeunit "File Management";
+        AttachmentStream: Instream;
+    begin
+        Clear(TempBlob);
+        if AttachmentFilePath <> '' then begin
+            FileManagement.BLOBImportFromServerFile(TempBlob, AttachmentFilePath);
+            TempBlob.CreateInStream(AttachmentStream);
+            TempEmailItem.AddAttachment(AttachmentStream, AttachmentFileName);
+        end;
+        exit(EmailFileInternal(
+            TempEmailItem,
+            HtmlBodyFilePath,
+            '',
+            ToEmailAddress,
+            PostedDocNo,
+            EmailDocName,
+            HideDialog,
+            ReportUsage,
+            true,
+            '',
+            Enum::"Email Scenario"::Default));
+    end;
+
+    [Scope('OnPrem')]
+    [Obsolete('Replaced by an overload that supports streams.', '17.2')]
     procedure EmailFile(AttachmentFilePath: Text; AttachmentFileName: Text; HtmlBodyFilePath: Text; EmailSubject: Text; ToEmailAddress: Text; HideDialog: Boolean; EmailScenario: Enum "Email Scenario"): Boolean
     var
         TempEmailItem: Record "Email Item" temporary;
+        FileManagement: Codeunit "File Management";
+        AttachmentStream: Instream;
     begin
+        Clear(TempBlob);
+        if AttachmentFilePath <> '' then begin
+            FileManagement.BLOBImportFromServerFile(TempBlob, AttachmentFilePath);
+            TempBlob.CreateInStream(AttachmentStream);
+            TempEmailItem.AddAttachment(AttachmentStream, AttachmentFileName);
+        end;
         exit(EmailFileInternal(
             TempEmailItem,
-            CopyStr(AttachmentFilePath, 1, MaxStrLen(TempEmailItem."Attachment File Path")),
-            CopyStr(AttachmentFileName, 1, MaxStrLen(TempEmailItem."Attachment Name")),
             CopyStr(HtmlBodyFilePath, 1, MaxStrLen(TempEmailItem."Body File Path")),
             CopyStr(EmailSubject, 1, MaxStrLen(TempEmailItem.Subject)),
             CopyStr(ToEmailAddress, 1, MaxStrLen(TempEmailItem."Send to")),
@@ -71,20 +122,9 @@
     var
         TempEmailItem: Record "Email Item" temporary;
     begin
-        exit(EmailFileInternal(
-            TempEmailItem,
-            CopyStr(AttachmentFilePath, 1, MaxStrLen(TempEmailItem."Attachment File Path")),
-            CopyStr(AttachmentFileName, 1, MaxStrLen(TempEmailItem."Attachment Name")),
-            CopyStr(HtmlBodyFilePath, 1, MaxStrLen(TempEmailItem."Body File Path")),
-            CopyStr(EmailSubject, 1, MaxStrLen(TempEmailItem.Subject)),
-            CopyStr(ToEmailAddress, 1, MaxStrLen(TempEmailItem."Send to")),
-            '',
-            '',
-            HideDialog,
-            0, // 0 is a possible value of the Report Selection Usage, it's not recommended to run this function when the feature switch is on
-            false,
-            '',
-            Enum::"Email Scenario"::Default));
+        #pragma warning disable AL0432
+        exit(EmailFileWithSubjectAndSender(AttachmentFilePath, AttachmentFileName, HtmlBodyFilePath, EmailSubject, ToEmailAddress, HideDialog, ''));
+        #pragma warning restore AL0432
     end;
 
     [Scope('OnPrem')]
@@ -92,11 +132,17 @@
     procedure EmailFileWithSubjectAndSender(AttachmentFilePath: Text; AttachmentFileName: Text; HtmlBodyFilePath: Text; EmailSubject: Text; ToEmailAddress: Text; HideDialog: Boolean; SenderUserID: Code[50]): Boolean
     var
         TempEmailItem: Record "Email Item" temporary;
+        FileManagement: Codeunit "File Management";
+        AttachmentStream: Instream;
     begin
+        Clear(TempBlob);
+        if AttachmentFilePath <> '' then begin
+            FileManagement.BLOBImportFromServerFile(TempBlob, AttachmentFilePath);
+            TempBlob.CreateInStream(AttachmentStream);
+            TempEmailItem.AddAttachment(AttachmentStream, AttachmentFileName);
+        end;
         exit(EmailFileInternal(
             TempEmailItem,
-            CopyStr(AttachmentFilePath, 1, MaxStrLen(TempEmailItem."Attachment File Path")),
-            CopyStr(AttachmentFileName, 1, MaxStrLen(TempEmailItem."Attachment Name")),
             CopyStr(HtmlBodyFilePath, 1, MaxStrLen(TempEmailItem."Body File Path")),
             CopyStr(EmailSubject, 1, MaxStrLen(TempEmailItem.Subject)),
             CopyStr(ToEmailAddress, 1, MaxStrLen(TempEmailItem."Send to")),
@@ -110,14 +156,40 @@
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Replaced by an overload that supports streams.', '17.2')]
     procedure EmailFileWithSubjectAndReportUsage(AttachmentFilePath: Text[250]; AttachmentFileName: Text[250]; HtmlBodyFilePath: Text[250]; EmailSubject: Text[250]; PostedDocNo: Code[20]; ToEmailAddress: Text[250]; EmailDocName: Text[250]; HideDialog: Boolean; ReportUsage: Integer): Boolean
     var
         TempEmailItem: Record "Email Item" temporary;
+        FileManagement: Codeunit "File Management";
+        AttachmentStream: Instream;
     begin
+        Clear(TempBlob);
+        if AttachmentFilePath <> '' then begin
+            FileManagement.BLOBImportFromServerFile(TempBlob, AttachmentFilePath);
+            TempBlob.CreateInStream(AttachmentStream);
+            TempEmailItem.AddAttachment(AttachmentStream, AttachmentFileName);
+        end;
         exit(EmailFileInternal(
             TempEmailItem,
-            AttachmentFilePath,
-            AttachmentFileName,
+            HtmlBodyFilePath,
+            EmailSubject,
+            ToEmailAddress,
+            PostedDocNo,
+            EmailDocName,
+            HideDialog,
+            ReportUsage,
+            false,
+            '',
+            Enum::"Email Scenario"::Default));
+    end;
+
+    procedure EmailFileWithSubjectAndReportUsage(AttachmentStream: InStream; AttachmentName: Text; HtmlBodyFilePath: Text[250]; EmailSubject: Text[250]; PostedDocNo: Code[20]; ToEmailAddress: Text[250]; EmailDocName: Text[250]; HideDialog: Boolean; ReportUsage: Integer): Boolean
+    var
+        TempEmailItem: Record "Email Item" temporary;
+    begin
+        TempEmailItem.AddAttachment(AttachmentStream, AttachmentName);
+        exit(EmailFileInternal(
+            TempEmailItem,
             HtmlBodyFilePath,
             EmailSubject,
             ToEmailAddress,
@@ -201,25 +273,16 @@
 
     procedure GetEmailBody(PostedDocNo: Code[20]; ReportUsage: Integer; CustomerNo: Code[20]): Text
     var
-        O365DefaultEmailMessage: Record "O365 Default Email Message";
         EmailParameter: Record "Email Parameter";
         Customer: Record Customer;
-        EnvInfoProxy: Codeunit "Env. Info Proxy";
         String: DotNet String;
-        DocumentType: Option;
     begin
         if Customer.Get(CustomerNo) then;
 
         if EmailParameter.GetParameterWithReportUsage(
             PostedDocNo, "Report Selection Usage".FromInteger(ReportUsage), EmailParameter."Parameter Type"::Body)
         then begin
-            String := EmailParameter.GetParameterValue;
-            exit(String.Replace(CustomerLbl, Customer.Name));
-        end;
-
-        if EnvInfoProxy.IsInvoicing then begin
-            O365DefaultEmailMessage.ReportUsageToDocumentType(DocumentType, ReportUsage);
-            String := O365DefaultEmailMessage.GetMessage(DocumentType);
+            String := EmailParameter.GetParameterValue();
             exit(String.Replace(CustomerLbl, Customer.Name));
         end;
     end;
@@ -240,23 +303,10 @@
     var
         EmailParameter: Record "Email Parameter";
         CompanyInformation: Record "Company Information";
-        ReportSelections: Record "Report Selections";
-        SalesHeader: Record "Sales Header";
-        EnvInfoProxy: Codeunit "Env. Info Proxy";
-        DocumentType: Enum "Sales Document Type";
     begin
         if EmailParameter.GetParameterWithReportUsage(PostedDocNo, "Report Selection Usage".FromInteger(ReportUsage), EmailParameter."Parameter Type"::Subject) then
-            exit(EmailParameter.GetParameterValue);
+            exit(CopyStr(EmailParameter.GetParameterValue(), 1, 250));
         CompanyInformation.Get();
-        if EnvInfoProxy.IsInvoicing then begin
-            ReportSelections.ConvertReportUsageToSalesDocumentType(DocumentType, "Report Selection Usage".FromInteger(ReportUsage));
-            case DocumentType of
-                SalesHeader."Document Type"::Invoice:
-                    exit(StrSubstNo(InvoiceEmailSubjectTxt, CompanyInformation.Name));
-                SalesHeader."Document Type"::Quote:
-                    exit(StrSubstNo(QuoteEmailSubjectTxt, CompanyInformation.Name));
-            end;
-        end;
         if PostedDocNo = '' then
             Subject := CopyStr(
                 StrSubstNo(EmailSubjectPluralCapTxt, CompanyInformation.Name, EmailDocumentName), 1, MaxStrLen(Subject))
@@ -272,7 +322,7 @@
         String: DotNet String;
     begin
         if Customer.Get(CustomerNo) then;
-        String := O365DefaultEmailMessage.GetTestInvoiceMessage;
+        String := O365DefaultEmailMessage.GetTestInvoiceMessage();
         exit(String.Replace(CustomerLbl, Customer.Name));
     end;
 
@@ -280,7 +330,7 @@
     var
         CompanyInformation: Record "Company Information";
     begin
-        if CompanyInformation.Get then;
+        if CompanyInformation.Get() then;
         exit(StrSubstNo(TestInvoiceEmailSubjectTxt, CompanyInformation.Name));
     end;
 
@@ -295,13 +345,13 @@
             exit;
 
         O365DocumentSentHistory.NewInProgressFromSalesHeader(SalesHeader);
-        O365DocumentSentHistory.SetStatusAsFailed; // In case the code below throws an error, we want to default to failed.
+        O365DocumentSentHistory.SetStatusAsFailed(); // In case the code below throws an error, we want to default to failed.
 
         if ReportSelections.SendEmailInForeground(
-             SalesHeader.RecordId, SalesHeader."No.", SalesHeader.GetDocTypeTxt, ReportSelections.Usage::"S.Quote".AsInteger(),
+             SalesHeader.RecordId, SalesHeader."No.", SalesHeader.GetDocTypeTxt(), ReportSelections.Usage::"S.Quote".AsInteger(),
              true, SalesHeader."Bill-to Customer No.")
         then begin
-            O365DocumentSentHistory.SetStatusAsSuccessfullyFinished;
+            O365DocumentSentHistory.SetStatusAsSuccessfullyFinished();
             exit(true);
         end;
 
@@ -319,71 +369,86 @@
             exit;
 
         O365DocumentSentHistory.NewInProgressFromSalesInvoiceHeader(SalesInvoiceHeader);
-        O365DocumentSentHistory.SetStatusAsFailed; // In case the code below throws an error, we want to default to failed.
+        O365DocumentSentHistory.SetStatusAsFailed(); // In case the code below throws an error, we want to default to failed.
 
         if ReportSelections.SendEmailInForeground(
              SalesInvoiceHeader.RecordId, SalesInvoiceHeader."No.", 'Invoice', ReportSelections.Usage::"S.Invoice".AsInteger(),
              true, SalesInvoiceHeader."Bill-to Customer No.")
         then begin
-            O365DocumentSentHistory.SetStatusAsSuccessfullyFinished;
+            O365DocumentSentHistory.SetStatusAsSuccessfullyFinished();
             exit(true);
         end;
 
         exit(false);
     end;
 
-    local procedure EmailFileInternal(var TempEmailItem: Record "Email Item" temporary; AttachmentFilePath: Text[250]; AttachmentFileName: Text[250]; HtmlBodyFilePath: Text[250]; EmailSubject: Text[250]; ToEmailAddress: Text[250]; PostedDocNo: Code[20]; EmailDocName: Text[250]; HideDialog: Boolean; ReportUsage: Integer; IsFromPostedDoc: Boolean; SenderUserID: Code[50]; EmailScenario: Enum "Email Scenario"): Boolean
+    // Email Item needs to be passed by var so the attachments are available
+    local procedure EmailFileInternal(var TempEmailItem: Record "Email Item" temporary; HtmlBodyFilePath: Text[250]; EmailSubject: Text[250]; ToEmailAddress: Text[250]; PostedDocNo: Code[20]; EmailDocName: Text[250]; HideDialog: Boolean; ReportUsage: Integer; IsFromPostedDoc: Boolean; SenderUserID: Code[50]; EmailScenario: Enum "Email Scenario"): Boolean
     var
         OfficeMgt: Codeunit "Office Management";
         EmailScenarioMapping: Codeunit "Email Scenario Mapping";
         EmailFeature: Codeunit "Email Feature";
+        Attachments: Codeunit "Temp Blob List";
+        Attachment: Codeunit "Temp Blob";
         EmailSentSuccesfully: Boolean;
         IsHandled: Boolean;
+        AttachmentStream: Instream;
+        AttachmentNames: List of [Text];
+        Name: Text[250];
     begin
-        with TempEmailItem do begin
-            if not EmailFeature.IsEnabled() then
-                if IsAllowedToChangeSender(SenderUserID) then begin
-                    "From Address" := GetSenderEmail(SenderUserID);
-                    "From Name" := GetSenderName(SenderUserID);
-                end;
-
-            "Send to" := ToEmailAddress;
-            AddCcBcc;
-
-            // If true, that means we came from "EmailFile" call and need to get data from the document
-            if IsFromPostedDoc then begin
-                GetAttachmentFileName(AttachmentFileName, PostedDocNo, EmailDocName, ReportUsage);
-                EmailSubject := GetEmailSubject(PostedDocNo, EmailDocName, ReportUsage);
-                AttachIncomingDocuments(PostedDocNo);
-            end;
-            "Attachment File Path" := AttachmentFilePath;
-            "Attachment Name" := AttachmentFileName;
-            Subject := EmailSubject;
-
-            if HtmlBodyFilePath <> '' then begin
-                Validate("Plaintext Formatted", false);
-                Validate("Body File Path", HtmlBodyFilePath);
-                Validate("Message Type", "Message Type"::"From Email Body Template");
+        if not EmailFeature.IsEnabled() then
+            if IsAllowedToChangeSender(SenderUserID) then begin
+                TempEmailItem."From Address" := GetSenderEmail(SenderUserID);
+                TempEmailItem."From Name" := GetSenderName(SenderUserID);
             end;
 
-            IsHandled := false;
-            OnBeforeSendEmail(TempEmailItem, IsFromPostedDoc, PostedDocNo, HideDialog, ReportUsage, EmailSentSuccesfully, IsHandled, EmailDocName, SenderUserID, EmailScenario);
-            if IsHandled then
-                exit(EmailSentSuccesfully);
+        TempEmailItem."Send to" := ToEmailAddress;
+        TempEmailItem.AddCcBcc();
 
-            if OfficeMgt.AttachAvailable then
-                OfficeMgt.AttachDocument(AttachmentFilePath, AttachmentFileName, GetBodyText, Subject)
-            else begin
-                if EmailFeature.IsEnabled() then begin
-                    if Enum::"Report Selection Usage".Ordinals().Contains(ReportUsage) then
-                        EmailScenario := EmailScenarioMapping.FromReportSelectionUsage(Enum::"Report Selection Usage".FromInteger(ReportUsage));
-                    EmailSentSuccesfully := Send(HideDialog, EmailScenario)
-                end else
-                    EmailSentSuccesfully := Send(HideDialog);
-                if EmailSentSuccesfully then
-                    OnAfterEmailSentSuccesfully(TempEmailItem, PostedDocNo, ReportUsage);
-                exit(EmailSentSuccesfully);
+        TempEmailItem.GetAttachments(Attachments, AttachmentNames);
+        // If true, that means we came from "EmailFile" call and need to get data from the document
+        if IsFromPostedDoc then begin
+            if Attachments.Count() > 0 then begin
+                Name := CopyStr(AttachmentNames.Get(1), 1, 250);
+                GetAttachmentFileName(Name, PostedDocNo, EmailDocName, ReportUsage);
+                if Name <> AttachmentNames.Get(1) then
+                    AttachmentNames.Set(1, Name);
             end;
+            EmailSubject := GetEmailSubject(PostedDocNo, EmailDocName, ReportUsage);
+            TempEmailItem.AttachIncomingDocuments(PostedDocNo);
+        end;
+
+        TempEmailItem.Subject := EmailSubject;
+
+        if HtmlBodyFilePath <> '' then begin
+            TempEmailItem.Validate("Plaintext Formatted", false);
+            TempEmailItem.Validate("Body File Path", HtmlBodyFilePath);
+            TempEmailItem.Validate("Message Type", TempEmailItem."Message Type"::"From Email Body Template");
+        end;
+
+        IsHandled := false;
+        OnBeforeSendEmail(TempEmailItem, IsFromPostedDoc, PostedDocNo, HideDialog, ReportUsage, EmailSentSuccesfully, IsHandled, EmailDocName, SenderUserID, EmailScenario);
+        if IsHandled then
+            exit(EmailSentSuccesfully);
+
+        if OfficeMgt.AttachAvailable() and (Attachments.Count() > 0) then begin
+            Attachments.Get(1, Attachment);
+            Attachment.CreateInStream(AttachmentStream);
+            OfficeMgt.AttachDocument(AttachmentStream, AttachmentNames.Get(1), TempEmailItem.GetBodyText(), TempEmailItem.Subject);
+        end else 
+            if OfficeMgt.AttachAvailable() then
+                OfficeMgt.AttachDocument(TempEmailItem.GetBodyText(), TempEmailItem.Subject);
+        
+        if not OfficeMgt.AttachAvailable() then begin
+            if EmailFeature.IsEnabled() then begin
+                if Enum::"Report Selection Usage".Ordinals().Contains(ReportUsage) then
+                    EmailScenario := EmailScenarioMapping.FromReportSelectionUsage(Enum::"Report Selection Usage".FromInteger(ReportUsage));
+                EmailSentSuccesfully := TempEmailItem.Send(HideDialog, EmailScenario)
+            end else
+                EmailSentSuccesfully := TempEmailItem.Send(HideDialog);
+            if EmailSentSuccesfully then
+                OnAfterEmailSentSuccesfully(TempEmailItem, PostedDocNo, ReportUsage);
+            exit(EmailSentSuccesfully);
         end;
     end;
 
@@ -395,25 +460,13 @@
     procedure EmailFileFromStream(AttachmentStream: InStream; AttachmentName: Text; Body: Text; Subject: Text; MailTo: Text; HideDialog: Boolean; ReportUsage: Integer): Boolean
     var
         TempEmailItem: Record "Email Item" temporary;
-        FileManagement: Codeunit "File Management";
-        TempFile: File;
-        OutStream: OutStream;
-        TempFileName: Text;
     begin
-        TempFileName := FileManagement.ServerTempFileName('');
-        TempFile.Create(TempFileName);
-
-        TempFile.CreateOutStream(OutStream);
-        CopyStream(OutStream, AttachmentStream);
-        TempFile.Close;
-
+        TempEmailItem.AddAttachment(AttachmentStream, AttachmentName);
         TempEmailItem.Validate("Plaintext Formatted", true);
         TempEmailItem.SetBodyText(Body);
 
         exit(EmailFileInternal(
             TempEmailItem,
-            CopyStr(TempFileName, 1, MaxStrLen(TempEmailItem."Attachment File Path")),
-            CopyStr(AttachmentName, 1, MaxStrLen(TempEmailItem."Attachment Name")),
             '',
             CopyStr(Subject, 1, MaxStrLen(TempEmailItem.Subject)),
             CopyStr(MailTo, 1, MaxStrLen(TempEmailItem."Send to")),
@@ -435,8 +488,6 @@
         FileName := FileManagement.InstreamExportToServerFile(MailInStream, 'html');
         exit(EmailFileInternal(
             TempEmailItem,
-            '',
-            '',
             CopyStr(FileName, 1, MaxStrLen(TempEmailItem."Body File Path")),
             CopyStr(Subject, 1, MaxStrLen(TempEmailItem.Subject)),
             CopyStr(ToEmailAddress, 1, MaxStrLen(TempEmailItem."Send to")),
@@ -458,21 +509,12 @@
     var
         TempEmailItem: Record "Email Item" temporary;
         FileManagement: Codeunit "File Management";
-        TempFile: File;
-        OutStream: OutStream;
-        TempFileName: Text;
         BodyFileName: Text;
     begin
-        TempFileName := FileManagement.ServerTempFileName('');
-        TempFile.Create(TempFileName);
-        TempFile.CreateOutStream(OutStream);
-        CopyStream(OutStream, AttachmentStream);
-        TempFile.Close;
+        TempEmailItem.AddAttachment(AttachmentStream, AttachmentName);
         BodyFileName := FileManagement.InstreamExportToServerFile(MailInStream, 'html');
         exit(EmailFileInternal(
             TempEmailItem,
-            CopyStr(TempFileName, 1, MaxStrLen(TempEmailItem."Attachment File Path")),
-            CopyStr(AttachmentName, 1, MaxStrLen(TempEmailItem."Attachment Name")),
             CopyStr(BodyFileName, 1, MaxStrLen(TempEmailItem."Body File Path")),
             CopyStr(Subject, 1, MaxStrLen(TempEmailItem.Subject)),
             CopyStr(ToEmailAddress, 1, MaxStrLen(TempEmailItem."Send to")),
@@ -500,10 +542,10 @@
         if SenderUserID = '' then
             exit(false);
 
-        if not SMTPMail.IsEnabled then
+        if not SMTPMail.IsEnabled() then
             exit(false);
 
-        SMTPMailSetup.GetSetup;
+        SMTPMailSetup.GetSetup();
         exit(SMTPMailSetup."Allow Sender Substitution");
     end;
 

@@ -329,6 +329,177 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Table Page Provider Summary Test - Field TestTime - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Table 1387421654 - Field 3454824340 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[TestInteger]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Page Provider Summary Test2 - Field TestInteger - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 1387421654 - Field 3701787576 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[TestBigInteger]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Page Provider Summary Test2 - Field TestBigInteger - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 1387421654 - Field 268477239 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[TestBlob]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Page Provider Summary Test2 - Field TestBlob - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 1387421654 - Field 2439816278 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[TestBoolean]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Page Provider Summary Test2 - Field TestBoolean - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 1387421654 - Field 605824933 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[TestCode]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Page Provider Summary Test2 - Field TestCode - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 1387421654 - Field 2758623758 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[TestDate]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Page Provider Summary Test2 - Field TestDate - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 1387421654 - Field 2508899688 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[TestDateFormula]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Page Provider Summary Test2 - Field TestDateFormula - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 1387421654 - Field 1472475305 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[TestDateTime]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Page Provider Summary Test2 - Field TestDateTime - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 1387421654 - Field 786433927 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[TestDecimal]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Page Provider Summary Test2 - Field TestDecimal - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 1387421654 - Field 183768620 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[TestDuration]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Page Provider Summary Test2 - Field TestDuration - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 1387421654 - Field 1017158143 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[TestEnum]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Page Provider Summary Test2 - Field TestEnum - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 1387421654 - Field 1953416235 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[TestGuid]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Page Provider Summary Test2 - Field TestGuid - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 1387421654 - Field 528613398 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[TestMedia]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Page Provider Summary Test2 - Field TestMedia - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 1387421654 - Field 3496944484 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[TestMediaSet]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Page Provider Summary Test2 - Field TestMediaSet - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 1387421654 - Field 4240445951 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[TestOption]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Page Provider Summary Test2 - Field TestOption - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 1387421654 - Field 1807230138 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[TestRecordId]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Page Provider Summary Test2 - Field TestRecordId - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 1387421654 - Field 1505510780 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[TestTableFilter]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Page Provider Summary Test2 - Field TestTableFilter - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 1387421654 - Field 193589645 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[TestText]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Page Provider Summary Test2 - Field TestText - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 1387421654 - Field 3989568237 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[TestTime]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Page Provider Summary Test2 - Field TestTime - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Table 242040258 - Field 970416965 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[PK]]></Val>
@@ -1686,6 +1857,177 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Xml Validation Test - NamedType InvalidSchemaErrTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1236609991 - Control 3701787576 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test field]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Page Summary Test Card - Control TestBigInteger - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1236609991 - Control 268477239 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test field]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Page Summary Test Card - Control TestBlob - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1236609991 - Control 2439816278 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test field]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Page Summary Test Card - Control TestBoolean - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1236609991 - Control 605824933 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test field]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Page Summary Test Card - Control TestCode - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1236609991 - Control 2758623758 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test field]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Page Summary Test Card - Control TestDate - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1236609991 - Control 2508899688 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test field]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Page Summary Test Card - Control TestDateFormula - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1236609991 - Control 1472475305 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test field]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Page Summary Test Card - Control TestDateTime - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1236609991 - Control 786433927 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test field]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Page Summary Test Card - Control TestDecimal - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1236609991 - Control 3989568237 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test field]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Page Summary Test Card - Control TestTime - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1236609991 - Control 193589645 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test field]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Page Summary Test Card - Control TestText - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1236609991 - Control 1505510780 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test field]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Page Summary Test Card - Control TestTableFilter - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1236609991 - Control 1807230138 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test field]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Page Summary Test Card - Control TestRecordId - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1236609991 - Control 4240445951 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test field]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Page Summary Test Card - Control TestOption - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1236609991 - Control 3496944484 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test field]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Page Summary Test Card - Control TestMediaSet - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1236609991 - Control 528613398 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test field]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Page Summary Test Card - Control TestMedia - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1236609991 - Control 3454824340 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test field]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Page Summary Test Card - Control TestInteger - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1236609991 - Control 1953416235 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test field]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Page Summary Test Card - Control TestGuid - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1236609991 - Control 1017158143 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test field]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Page Summary Test Card - Control TestEnum - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1236609991 - Control 183768620 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test field]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Page Summary Test Card - Control TestDuration - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";EnumExtension 2341160244 - EnumValue 542996891 - Property 2879900210" ItemType=";EnumExtension - EnumValue" PsrId="63" InstFlg="true" Leaf="true">

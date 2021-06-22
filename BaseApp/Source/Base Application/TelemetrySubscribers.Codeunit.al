@@ -17,6 +17,14 @@ codeunit 1351 "Telemetry Subscribers"
         PermissionSetAddedTelemetryTxt: Label 'Permission Set %1 was added. Total count of user defined Permission Sets is %2.', Locked = true;
         PermissionSetAssignedToUserTelemetryTxt: Label 'Permission Set %1 was added to a user.', Locked = true;
         PermissionSetAssignedToUserGroupTelemetryTxt: Label 'Permission Set %1 was added to a user group %2.', Locked = true;
+        PermissionSetLinkAddedTelemetryScopeAllTxt: Label 'Permission set link added: %1 -> %2', Locked = true;
+        PermissionSetLinkRemovedTelemetryScopeAllTxt: Label 'Permission set link removed: %1 -> %2', Locked = true;
+        PermissionSetAddedTelemetryScopeAllTxt: Label 'User-defined permission set added: %1', Locked = true;
+        PermissionSetRemovedTelemetryScopeAllTxt: Label 'User-defined permission set removed: %1', Locked = true;
+        PermissionSetAssignedToUserTelemetryScopeAllTxt: Label 'Permission set assigned to user: %1', Locked = true;
+        PermissionSetRemovedFromUserTelemetryScopeAllTxt: Label 'Permission set removed from user: %1', Locked = true;
+        PermissionSetAssignedToUserGroupTelemetryScopeAllTxt: Label 'Permission set assigned to user group: %1', Locked = true;
+        PermissionSetRemovedFromUserGroupTelemetryScopeAllTxt: Label 'Permission set removed from user group: %1', Locked = true;
         EffectivePermsCalculatedTxt: Label 'Effective permissions were calculated for company %1, object type %2, object ID %3.', Locked = true, Comment = '%1 = company name, %2 = object type, %3 = object Id';
         TenantPermissionsChangedFromEffectivePermissionsPageTxt: Label 'Tenant permission set %1 was changed.', Locked = true, Comment = '%1 = permission set id';
         NumberOfDocumentLinesMsg: Label 'Type of Document: %1, Number of Document Lines: %2', Locked = true;
@@ -25,6 +33,9 @@ codeunit 1351 "Telemetry Subscribers"
         JobQueueEntryStartedTxt: Label 'JobID = %1, ObjectType = %2, ObjectID = %3, Status = Started', Locked = true;
         JobQueueEntryFinishedTxt: Label 'JobID = %1, ObjectType = %2, ObjectID = %3, Status = Finished, Result = %4', Locked = true;
         JobQueueEntryEnqueuedTxt: Label 'JobID = %1, ObjectType = %2, ObjectID = %3, Recurring = %4, Status = %5', Locked = true;
+        JobQueueEntryStartedAllTxt: Label 'Job queue entry started: %1', Comment = '%1 = Job queue id', Locked = true;
+        JobQueueEntryFinishedAllTxt: Label 'Job queue entry finished: %1', Comment = '%1 = Job queue id', Locked = true;
+        JobQueueEntryEnqueuedAllTxt: Label 'Job queue entry enqueued: %1', Comment = '%1 = Job queue id', Locked = true;
         UndoSalesShipmentCategoryTxt: Label 'AL UndoSalesShipmentNoOfLines', Locked = true;
         UndoSalesShipmentNoOfLinesTxt: Label 'UndoNoOfLines = %1', Locked = true;
         EmailLoggingTelemetryCategoryTxt: Label 'AL Email Logging', Locked = true;
@@ -49,7 +60,7 @@ codeunit 1351 "Telemetry Subscribers"
         CodeUnitMetadata: Record "CodeUnit Metadata";
         TelemetryManagement: Codeunit "Telemetry Management";
     begin
-        if not IsSaaS then
+        if not IsSaaS() then
             exit;
 
         CodeUnitMetadata.ID := CODEUNIT::"Generate Master Data Telemetry";
@@ -62,7 +73,7 @@ codeunit 1351 "Telemetry Subscribers"
         CodeUnitMetadata: Record "CodeUnit Metadata";
         TelemetryManagement: Codeunit "Telemetry Management";
     begin
-        if not IsSaaS then
+        if not IsSaaS() then
             exit;
 
         CodeUnitMetadata.ID := CODEUNIT::"Generate Activity Telemetry";
@@ -72,7 +83,7 @@ codeunit 1351 "Telemetry Subscribers"
     [EventSubscriber(ObjectType::Codeunit, 9170, 'OnProfileChanged', '', true, true)]
     local procedure SendTraceOnProfileChanged(PrevAllProfile: Record "All Profile"; CurrentAllProfile: Record "All Profile")
     begin
-        if not IsSaaS then
+        if not IsSaaS() then
             exit;
 
         Session.LogMessage('00001O5', StrSubstNo(ProfileChangedTelemetryMsg, PrevAllProfile."Profile ID", CurrentAllProfile."Profile ID"), Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', ProfileChangedTelemetryCategoryTxt);
@@ -81,7 +92,7 @@ codeunit 1351 "Telemetry Subscribers"
     [EventSubscriber(ObjectType::Page, 2340, 'OnAfterNoSeriesModified', '', true, true)]
     local procedure LogNoSeriesModifiedInvoicing()
     begin
-        if not IsSaaS then
+        if not IsSaaS() then
             exit;
 
         Session.LogMessage('00001PI', NoSeriesEditedTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', NoSeriesCategoryTxt);
@@ -91,34 +102,85 @@ codeunit 1351 "Telemetry Subscribers"
     local procedure SendTraceOnPermissionSetLinkAdded(var Rec: Record "Permission Set Link"; RunTrigger: Boolean)
     var
         PermissionSetLink: Record "Permission Set Link";
+        Dimensions: Dictionary of [Text, Text];
     begin
-        if not IsSaaS then
+        if not IsSaaS() then
             exit;
 
-        Session.LogMessage('0000250', StrSubstNo(PermissionSetLinkAddedTelemetryTxt, Rec."Permission Set ID", Rec."Linked Permission Set ID", PermissionSetLink.Count), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PermissionSetCategoryTxt);
+        Session.LogMessage('0000250', StrSubstNo(PermissionSetLinkAddedTelemetryTxt, Rec."Permission Set ID", Rec."Linked Permission Set ID", PermissionSetLink.Count), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', PermissionSetCategoryTxt);
+
+        Dimensions.Add('Category', PermissionSetCategoryTxt);
+        Dimensions.Add('SourcePermissionSetId', Rec."Permission Set ID");
+        Dimensions.Add('LinkedPermissionSetId', Rec."Linked Permission Set ID");
+        Dimensions.Add('NumberOfUserDefinedPermissionSetLinks', Format(PermissionSetLink.Count));
+        Session.LogMessage('0000E28', StrSubstNo(PermissionSetLinkAddedTelemetryScopeAllTxt, Rec."Permission Set ID", Rec."Linked Permission Set ID"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Permission Set Link", 'OnBeforeDeleteEvent', '', true, true)]
+    local procedure SendTraceOnPermissionSetLinkRemoved(var Rec: Record "Permission Set Link"; RunTrigger: Boolean)
+    var
+        PermissionSetLink: Record "Permission Set Link";
+        Dimensions: Dictionary of [Text, Text];
+    begin
+        if not IsSaaS() then
+            exit;
+
+        Dimensions.Add('Category', PermissionSetCategoryTxt);
+        Dimensions.Add('SourcePermissionSetId', Rec."Permission Set ID");
+        Dimensions.Add('LinkedPermissionSetId', Rec."Linked Permission Set ID");
+        Dimensions.Add('NumberOfUserDefinedPermissionSetLinks', Format(PermissionSetLink.Count - 1));
+        Session.LogMessage('0000E29', StrSubstNo(PermissionSetLinkRemovedTelemetryScopeAllTxt, Rec."Permission Set ID", Rec."Linked Permission Set ID"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
     end;
 
     [EventSubscriber(ObjectType::Table, 2000000165, 'OnAfterInsertEvent', '', true, true)]
     local procedure SendTraceOnUserDefinedPermissionSetIsAdded(var Rec: Record "Tenant Permission Set"; RunTrigger: Boolean)
     var
         TenantPermissionSet: Record "Tenant Permission Set";
+        Dimensions: Dictionary of [Text, Text];
     begin
-        if not IsSaaS then
+        if not IsSaaS() then
             exit;
 
         if not IsNullGuid(Rec."App ID") then
             exit;
 
         TenantPermissionSet.SetRange("App ID", Rec."App ID");
-        Session.LogMessage('0000251', StrSubstNo(PermissionSetAddedTelemetryTxt, Rec."Role ID", TenantPermissionSet.Count), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PermissionSetCategoryTxt);
+
+        Session.LogMessage('0000251', StrSubstNo(PermissionSetAddedTelemetryTxt, Rec."Role ID", TenantPermissionSet.Count), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', PermissionSetCategoryTxt);
+
+        Dimensions.Add('Category', PermissionSetCategoryTxt);
+        Dimensions.Add('PermissionSetId', Rec."Role ID");
+        Dimensions.Add('NumberOfUserDefinedPermissionSets', Format(TenantPermissionSet.Count));
+        Session.LogMessage('0000E2A', StrSubstNo(PermissionSetAddedTelemetryScopeAllTxt, Rec."Role ID"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Tenant Permission Set", 'OnBeforeDeleteEvent', '', true, true)]
+    local procedure SendTraceOnUserDefinedPermissionSetIsRemoved(var Rec: Record "Tenant Permission Set"; RunTrigger: Boolean)
+    var
+        TenantPermissionSet: Record "Tenant Permission Set";
+        Dimensions: Dictionary of [Text, Text];
+    begin
+        if not IsSaaS() then
+            exit;
+
+        if not IsNullGuid(Rec."App ID") then
+            exit;
+
+        TenantPermissionSet.SetRange("App ID", Rec."App ID");
+
+        Dimensions.Add('Category', PermissionSetCategoryTxt);
+        Dimensions.Add('PermissionSetId', Rec."Role ID");
+        Dimensions.Add('NumberOfUserDefinedPermissionSets', Format(TenantPermissionSet.Count - 1));
+        Session.LogMessage('0000E2B', StrSubstNo(PermissionSetRemovedTelemetryScopeAllTxt, Rec."Role ID"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
     end;
 
     [EventSubscriber(ObjectType::Table, 2000000053, 'OnAfterInsertEvent', '', true, true)]
     local procedure SendTraceOnUserDefinedPermissionSetIsAssignedToAUser(var Rec: Record "Access Control"; RunTrigger: Boolean)
     var
         TenantPermissionSet: Record "Tenant Permission Set";
+        Dimensions: Dictionary of [Text, Text];
     begin
-        if not IsSaaS then
+        if not IsSaaS() then
             exit;
 
         if not IsNullGuid(Rec."App ID") then
@@ -127,15 +189,40 @@ codeunit 1351 "Telemetry Subscribers"
         if not TenantPermissionSet.Get(Rec."App ID", Rec."Role ID") then
             exit;
 
-        Session.LogMessage('0000252', StrSubstNo(PermissionSetAssignedToUserTelemetryTxt, Rec."Role ID"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PermissionSetCategoryTxt);
+        Session.LogMessage('0000252', StrSubstNo(PermissionSetAssignedToUserTelemetryTxt, Rec."Role ID"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', PermissionSetCategoryTxt);
+
+        Dimensions.Add('Category', PermissionSetCategoryTxt);
+        Dimensions.Add('PermissionSetId', Rec."Role ID");
+        Session.LogMessage('0000E2C', StrSubstNo(PermissionSetAssignedToUserTelemetryScopeAllTxt, Rec."Role ID"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Access Control", 'OnBeforeDeleteEvent', '', true, true)]
+    local procedure SendTraceOnUserDefinedPermissionSetIsRemovedFromAUser(var Rec: Record "Access Control"; RunTrigger: Boolean)
+    var
+        TenantPermissionSet: Record "Tenant Permission Set";
+        Dimensions: Dictionary of [Text, Text];
+    begin
+        if not IsSaaS() then
+            exit;
+
+        if not IsNullGuid(Rec."App ID") then
+            exit;
+
+        if not TenantPermissionSet.Get(Rec."App ID", Rec."Role ID") then
+            exit;
+
+        Dimensions.Add('Category', PermissionSetCategoryTxt);
+        Dimensions.Add('PermissionSetId', Rec."Role ID");
+        Session.LogMessage('0000E2D', StrSubstNo(PermissionSetRemovedFromUserTelemetryScopeAllTxt, Rec."Role ID"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
     end;
 
     [EventSubscriber(ObjectType::Table, 9003, 'OnAfterInsertEvent', '', true, true)]
     local procedure SendTraceOnUserDefinedPermissionSetIsAssignedToAUserGroup(var Rec: Record "User Group Permission Set"; RunTrigger: Boolean)
     var
         TenantPermissionSet: Record "Tenant Permission Set";
+        Dimensions: Dictionary of [Text, Text];
     begin
-        if not IsSaaS then
+        if not IsSaaS() then
             exit;
 
         if not IsNullGuid(Rec."App ID") then
@@ -145,24 +232,69 @@ codeunit 1351 "Telemetry Subscribers"
             exit;
 
         Session.LogMessage('0000253', StrSubstNo(PermissionSetAssignedToUserGroupTelemetryTxt, Rec."Role ID", Rec."User Group Code"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PermissionSetCategoryTxt);
+
+        Dimensions.Add('Category', PermissionSetCategoryTxt);
+        Dimensions.Add('PermissionSetId', Rec."Role ID");
+        Dimensions.Add('UserGroupId', Rec."User Group Code");
+        Session.LogMessage('0000E2E', StrSubstNo(PermissionSetAssignedToUserGroupTelemetryScopeAllTxt, Rec."Role ID"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"User Group Permission Set", 'OnBeforeDeleteEvent', '', true, true)]
+    local procedure SendTraceOnUserDefinedPermissionSetIsRemovedFromAUserGroup(var Rec: Record "User Group Permission Set"; RunTrigger: Boolean)
+    var
+        TenantPermissionSet: Record "Tenant Permission Set";
+        Dimensions: Dictionary of [Text, Text];
+    begin
+        if not IsSaaS() then
+            exit;
+
+        if not IsNullGuid(Rec."App ID") then
+            exit;
+
+        if not TenantPermissionSet.Get(Rec."App ID", Rec."Role ID") then
+            exit;
+
+        Dimensions.Add('Category', PermissionSetCategoryTxt);
+        Dimensions.Add('PermissionSetId', Rec."Role ID");
+        Dimensions.Add('UserGroupId', Rec."User Group Code");
+        Session.LogMessage('0000E2F', StrSubstNo(PermissionSetRemovedFromUserGroupTelemetryScopeAllTxt, Rec."Role ID"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 453, 'OnAfterEnqueueJobQueueEntry', '', false, false)]
     local procedure SendTraceOnAfterEnqueueJobQueueEntry(var JobQueueEntry: Record "Job Queue Entry")
+    var
+        Dimensions: Dictionary of [Text, Text];
     begin
         if not IsSaaS() then
             exit;
 
         Session.LogMessage('0000AIX', StrSubstNo(JobQueueEntryEnqueuedTxt, JobQueueEntry.ID, JobQueueEntry."Object Type to Run", JobQueueEntry."Object ID to Run", JobQueueEntry."Recurring Job", JobQueueEntry.Status), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', JobQueueEntriesCategoryTxt);
+
+        Dimensions.Add('Category', JobQueueEntriesCategoryTxt);
+        Dimensions.Add('JobQueueId', Format(JobQueueEntry.ID, 0, 4));
+        Dimensions.Add('JobQueueObjectType', Format(JobQueueEntry."Object Type to Run"));
+        Dimensions.Add('JobQueueObjectId', Format(JobQueueEntry."Object ID to Run"));
+        Dimensions.Add('JobQueueStatus', Format(JobQueueEntry.Status));
+        Dimensions.Add('JobQueueIsRecurring', Format(JobQueueEntry."Recurring Job"));
+        Session.LogMessage('0000E24', StrSubstNo(JobQueueEntryEnqueuedAllTxt, Format(JobQueueEntry.ID, 0, 4)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 448, 'OnBeforeExecuteJob', '', false, false)]
     local procedure SendTraceOnJobQueueEntryStarted(var JobQueueEntry: Record "Job Queue Entry")
+    var
+        Dimensions: Dictionary of [Text, Text];
     begin
-        if not IsSaaS then
+        if not IsSaaS() then
             exit;
 
         Session.LogMessage('000082B', StrSubstNo(JobQueueEntryStartedTxt, JobQueueEntry.ID, JobQueueEntry."Object Type to Run", JobQueueEntry."Object ID to Run"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', JobQueueEntriesCategoryTxt);
+
+        Dimensions.Add('Category', JobQueueEntriesCategoryTxt);
+        Dimensions.Add('JobQueueId', Format(JobQueueEntry.ID, 0, 4));
+        Dimensions.Add('JobQueueObjectType', Format(JobQueueEntry."Object Type to Run"));
+        Dimensions.Add('JobQueueObjectId', Format(JobQueueEntry."Object ID to Run"));
+        Dimensions.Add('JobQueueStatus', Format(JobQueueEntry.Status));
+        Session.LogMessage('0000E25', StrSubstNo(JobQueueEntryStartedAllTxt, Format(JobQueueEntry.ID, 0, 4)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 448, 'OnAfterExecuteJob', '', false, false)]
@@ -188,10 +320,40 @@ codeunit 1351 "Telemetry Subscribers"
         TranslationHelper.RestoreGlobalLanguage();
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, 448, 'OnAfterHandleRequest', '', false, false)]
+    local procedure SendTraceOnJobQueueEntryRequestFinished(var JobQueueEntry: Record "Job Queue Entry"; WasSuccess: Boolean; JobQueueExecutionTime: Integer)
+    var
+        Language: Codeunit Language;
+        TranslationHelper: Codeunit "Translation Helper";
+        Result: Text[10];
+        Dimensions: Dictionary of [Text, Text];
+    begin
+        if not IsSaaS then
+            exit;
+
+        if WasSuccess then
+            Result := 'Success'
+        else
+            Result := 'Fail';
+
+        TranslationHelper.SetGlobalLanguageById(Language.GetDefaultApplicationLanguageId());
+
+        Dimensions.Add('Category', JobQueueEntriesCategoryTxt);
+        Dimensions.Add('JobQueueId', Format(JobQueueEntry.ID, 0, 4));
+        Dimensions.Add('JobQueueObjectType', Format(JobQueueEntry."Object Type to Run"));
+        Dimensions.Add('JobQueueObjectId', Format(JobQueueEntry."Object ID to Run"));
+        Dimensions.Add('JobQueueStatus', Format(JobQueueEntry.Status));
+        Dimensions.Add('JobQueueResult', Result);
+        Dimensions.Add('JobQueueExecutionTimeInMs', Format(JobQueueExecutionTime));
+        Session.LogMessage('0000E26', StrSubstNo(JobQueueEntryFinishedAllTxt, Format(JobQueueEntry.ID, 0, 4)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
+
+        TranslationHelper.RestoreGlobalLanguage();
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, 5815, 'OnAfterCode', '', false, false)]
     local procedure SendTraceUndoSalesShipmentNoOfLines(var SalesShipmentLine: Record "Sales Shipment Line")
     begin
-        if not IsSaaS then
+        if not IsSaaS() then
             exit;
 
         SalesShipmentLine.SetRange(Correction, true);
@@ -201,7 +363,7 @@ codeunit 1351 "Telemetry Subscribers"
     [EventSubscriber(ObjectType::Page, 9852, 'OnEffectivePermissionsPopulated', '', true, true)]
     local procedure EffectivePermissionsFetchedInPage(CurrUserId: Guid; CurrCompanyName: Text[30]; CurrObjectType: Integer; CurrObjectId: Integer)
     begin
-        if not IsSaaS then
+        if not IsSaaS() then
             exit;
 
         Session.LogMessage('000027E', StrSubstNo(EffectivePermsCalculatedTxt, CurrCompanyName, CurrObjectType, CurrObjectId), Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::ExtensionPublisher, 'Category', PermissionSetCategoryTxt);
@@ -210,7 +372,7 @@ codeunit 1351 "Telemetry Subscribers"
     [EventSubscriber(ObjectType::Codeunit, 9852, 'OnTenantPermissionModified', '', true, true)]
     local procedure EffectivePermissionsChangeInPage(PermissionSetId: Code[20])
     begin
-        if not IsSaaS then
+        if not IsSaaS() then
             exit;
 
         Session.LogMessage('000027G', StrSubstNo(TenantPermissionsChangedFromEffectivePermissionsPageTxt, PermissionSetId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PermissionSetCategoryTxt);
@@ -279,7 +441,7 @@ codeunit 1351 "Telemetry Subscribers"
     var
         EnvironmentInfo: Codeunit "Environment Information";
     begin
-        exit(EnvironmentInfo.IsSaaS);
+        exit(EnvironmentInfo.IsSaaS());
     end;
 
     [EventSubscriber(ObjectType::Page, 1811, 'OnOpenPageEvent', '', false, false)]

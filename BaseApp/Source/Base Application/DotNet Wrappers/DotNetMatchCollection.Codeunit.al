@@ -1,5 +1,8 @@
 codeunit 3053 DotNet_MatchCollection
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This codeunit is obsolete. Use the Matches table in the Regex Module instead.';
+    ObsoleteTag = '18.0';
 
     trigger OnRun()
     begin

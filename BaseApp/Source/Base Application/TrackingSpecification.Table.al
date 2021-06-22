@@ -1175,7 +1175,15 @@ table 336 "Tracking Specification"
     procedure CheckItemTrackingQuantity(TableNo: Integer; DocumentType: Option; DocumentNo: Code[20]; LineNo: Integer; ProdOrderLineNo: Integer; QtyToHandleBase: Decimal; QtyToInvoiceBase: Decimal; Handle: Boolean; Invoice: Boolean)
     var
         ReservationEntry: Record "Reservation Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckItemTrackingQuantity(
+            Rec, TableNo, DocumentType, DocumentNo, LineNo, ProdOrderLineNo,
+            QtyToHandleBase, QtyToInvoiceBase, Handle, Invoice, IsHandled);
+        if IsHandled then
+            exit;
+
         if QtyToHandleBase = 0 then
             Handle := false;
         if QtyToInvoiceBase = 0 then
@@ -1200,7 +1208,14 @@ table 336 "Tracking Specification"
         InvoiceQtyBase: Decimal;
         LotsToHandleUndefined: Boolean;
         LotsToInvoiceUndefined: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckItemTrackingByType(
+            ReservationEntry, QtyToHandleBase, QtyToInvoiceBase, OnlyLot, Handle, Invoice, IsHandled);
+        if IsHandled then
+            exit;
+
         if OnlyLot then begin
             GetUndefinedLots(ReservationEntry, Handle, Invoice, LotsToHandleUndefined, LotsToInvoiceUndefined);
             if not (LotsToHandleUndefined or LotsToInvoiceUndefined) then
@@ -1574,6 +1589,16 @@ table 336 "Tracking Specification"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateQtyToHandleOnBeforeInitQtyToInvoice(var TrackingSpecification: Record "Tracking Specification"; xTrackingSpecification: Record "Tracking Specification"; CallingFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckItemTrackingQuantity(var TrackingSpecification: Record "Tracking Specification"; TableNo: Integer; DocumentType: Option; DocumentNo: Code[20]; LineNo: Integer; ProdOrderLineNo: Integer; var QtyToHandleBase: Decimal; var QtyToInvoiceBase: Decimal; var Handle: Boolean; var Invoice: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckItemTrackingByType(var ReservationEntry: Record "Reservation Entry"; var QtyToHandleBase: Decimal; var QtyToInvoiceBase: Decimal; var OnlyLot: Boolean; var Handle: Boolean; var Invoice: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

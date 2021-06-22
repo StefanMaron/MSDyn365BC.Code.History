@@ -14,6 +14,7 @@ codeunit 134073 "Check Document No. Unit Test"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryJournals: Codeunit "Library - Journals";
         DocumentNoErr: Label 'You have one or more documents that must be posted before you post document no. %1 according to your company''s No. Series setup.', Comment = '%1 = Document number';
         IncorrectNoSeriesCodeErr: Label 'Incorrect No. Series code';
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
@@ -289,6 +290,157 @@ codeunit 134073 "Check Document No. Unit Test"
         NoSeriesLine.TestField("Last No. Used", GenJournalLine."Document No.");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure LastNoUsedNotIncrementedWhenManualNosTrueAndDocNoManual()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesCode: Code[20];
+        LastNoUsed: Code[20];
+    begin
+        // [FEATURE] [No. Series]
+        // [SCENARIO 376013] Run CheckDocNoBasedOnNoSeries funcion of table Gen. Journal Line for No Series with Manual Nos = true when Document No. is not the next No of No. Series.
+
+        // [GIVEN] No. Series with Manual Nos. = true.
+        // [GIVEN] No. Series Line with Last No. Used = 'A001'.
+        // [GIVEN] General Journal Line with Document No. = 'ABC', i.e. number is not from No Series.
+        NoSeriesCode := CreateNoSeriesWithManualNos(true);
+        LastNoUsed := GetLastNoUsedFromNoSeries(NoSeriesCode);
+        GenJournalLine.Validate("Document No.", LibraryUtility.GenerateRandomXMLText(MaxStrLen(GenJournalLine."Document No.")));
+
+        // [WHEN] Run CheckDocNoBasedOnNoSeries function of Gen. Journal Line table on General Journal Line with No Series as a parameter.
+        GenJournalLine.CheckDocNoBasedOnNoSeries('', NoSeriesCode, NoSeriesMgt);
+
+        // [THEN] Last No. Used was not incremented, so the next No that is gotten from No. Series is 'A002'.
+        NoSeriesMgt.IncrementNoText(LastNoUsed, 1);
+        Assert.AreEqual(LastNoUsed, NoSeriesMgt.GetNextNo(NoSeriesCode, WorkDate(), false), '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ErrorWhenManualNosFalseAndDocNoManual()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesCode: Code[20];
+    begin
+        // [FEATURE] [No. Series]
+        // [SCENARIO 376013] Run CheckDocNoBasedOnNoSeries funcion of table Gen. Journal Line for No. Series with Manual Nos = false when Document No. is not the next No of No. Series.
+
+        // [GIVEN] No. Series with Manual Nos. = false.
+        // [GIVEN] No. Series Line with Last No. Used = 'A001'.
+        // [GIVEN] General Journal Line with Document No. = 'ABC', i.e. number is not from No Series.
+        NoSeriesCode := CreateNoSeriesWithManualNos(false);
+        GenJournalLine.Validate("Document No.", LibraryUtility.GenerateRandomXMLText(MaxStrLen(GenJournalLine."Document No.")));
+
+        // [WHEN] Run CheckDocNoBasedOnNoSeries function of Gen. Journal Line table on General Journal Line with No Series as a parameter.
+        asserterror GenJournalLine.CheckDocNoBasedOnNoSeries('', NoSeriesCode, NoSeriesMgt);
+
+        // [THEN] Error "You have one or more documents that must be posted before you post document no. ABC" is thrown.
+        Assert.ExpectedError('You have one or more documents that must be posted before you post document no.');
+        Assert.ExpectedErrorCode('Dialog');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure LastNoUsedIncrementedWhenDocNoIsNextNoFromNoSeries()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesCode: Code[20];
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [No. Series]
+        // [SCENARIO 376013] Run CheckDocNoBasedOnNoSeries funcion of table Gen. Journal Line for No. Series with Manual Nos = true when Document No. is equal to the next No from No. Series.
+
+        // [GIVEN] No. Series with Manual Nos. = true.
+        // [GIVEN] No. Series Line with Last No. Used = 'A001'.
+        // [GIVEN] General Journal Line with Document No. = 'A002', i.e. number is the next No from No Series.
+        NoSeriesCode := CreateNoSeriesWithManualNos(true);
+        DocumentNo := GetLastNoUsedFromNoSeries(NoSeriesCode);
+        NoSeriesMgt.IncrementNoText(DocumentNo, 1);
+        GenJournalLine.Validate("Document No.", DocumentNo);
+
+        // [WHEN] Run CheckDocNoBasedOnNoSeries function of Gen. Journal Line table on General Journal Line with No Series as a parameter.
+        GenJournalLine.CheckDocNoBasedOnNoSeries('', NoSeriesCode, NoSeriesMgt);
+
+        // [THEN] Last No. Used was incremented, so the next No that is gotten from No. Series is 'A003'.
+        NoSeriesMgt.IncrementNoText(DocumentNo, 1);
+        Assert.AreEqual(DocumentNo, NoSeriesMgt.GetNextNo(NoSeriesCode, WorkDate(), false), '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure LastNoUsedNotIncrementedWhenPostGenJnlLineDocNoManual()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesCode: Code[20];
+        LastNoUsed: Code[20];
+        GenJournalAccountType: Enum "Gen. Journal Account Type";
+    begin
+        // [FEATURE] [No. Series]
+        // [SCENARIO 376013] Post General Journal Line when No. Series has Manual Nos = true and Document No. is not equal to the next No from No. Series.
+
+        // [GIVEN] No. Series with Manual Nos. = true.
+        // [GIVEN] No. Series Line with Last No. Used = 'A001'.
+        // [GIVEN] General Journal Line with Document No. = 'ABC', i.e. number is not from No Series.
+        NoSeriesCode := CreateNoSeriesWithManualNos(true);
+        LastNoUsed := GetLastNoUsedFromNoSeries(NoSeriesCode);
+
+        CreateGenJournalBatchWithNoSeries(GenJournalBatch, NoSeriesCode);
+        LibraryJournals.CreateGenJournalLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
+            GenJournalAccountType::Vendor, LibraryPurchase.CreateVendorNo(),
+            GenJournalAccountType::"G/L Account", LibraryERM.CreateGLAccountNo(), LibraryRandom.RandDecInRange(100, 200, 2));
+        GenJournalLine.Validate("Document No.", LibraryUtility.GenerateRandomXMLText(MaxStrLen(GenJournalLine."Document No.")));
+        GenJournalLine.Modify(true);
+
+        // [WHEN] Post General Journal Line.
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] Last No. Used was not changed.
+        Assert.AreEqual(LastNoUsed, GetLastNoUsedFromNoSeries(NoSeriesCode), '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure LastNoUsedIncrementedWhenPostGenJnlLineDocNoIsNextNoFromNoSeries()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesCode: Code[20];
+        DocumentNo: Code[20];
+        GenJournalAccountType: Enum "Gen. Journal Account Type";
+    begin
+        // [FEATURE] [No. Series]
+        // [SCENARIO 376013] Post General Journal Line when No. Series has Manual Nos = true and Document No. is equal to the next No from No. Series.
+
+        // [GIVEN] No. Series with Manual Nos. = true.
+        // [GIVEN] No. Series Line with Last No. Used = 'A001'.
+        // [GIVEN] General Journal Line with Document No. = 'A002', i.e. number is the next No from No Series.
+        NoSeriesCode := CreateNoSeriesWithManualNos(true);
+        DocumentNo := GetLastNoUsedFromNoSeries(NoSeriesCode);
+        NoSeriesMgt.IncrementNoText(DocumentNo, 1);
+
+        CreateGenJournalBatchWithNoSeries(GenJournalBatch, NoSeriesCode);
+        LibraryJournals.CreateGenJournalLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
+            GenJournalAccountType::Vendor, LibraryPurchase.CreateVendorNo(),
+            GenJournalAccountType::"G/L Account", LibraryERM.CreateGLAccountNo(), LibraryRandom.RandDecInRange(100, 200, 2));
+        GenJournalLine.Validate("Document No.", DocumentNo);
+        GenJournalLine.Modify(true);
+
+        // [WHEN] Post General Journal Line.
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] Last No. Used was changed to 'A002'.
+        Assert.AreEqual(DocumentNo, GetLastNoUsedFromNoSeries(NoSeriesCode), '');
+    end;
+
     local procedure CreateGenJnlBatch(var GenJnlBatch: Record "Gen. Journal Batch")
     var
         BankAcc: Record "Bank Account";
@@ -306,6 +458,17 @@ codeunit 134073 "Check Document No. Unit Test"
         LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '', '');
         GenJnlBatch.Validate("No. Series", NoSeries.Code);
         GenJnlBatch.Modify(true);
+    end;
+
+    local procedure CreateGenJournalBatchWithNoSeries(var GenJournalBatch: Record "Gen. Journal Batch"; NoSeriesCode: Code[20])
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+
+        GenJournalBatch.Validate("No. Series", NoSeriesCode);
+        GenJournalBatch.Modify(true);
     end;
 
     local procedure CreateDiffAccNoDiffDocNoLines(GenJnlBatch: Record "Gen. Journal Batch"; AccountType: Enum "Gen. Journal Account Type"; FirstAccountNo: Code[20]; SecondAccountNo: Code[20])
@@ -367,6 +530,31 @@ codeunit 134073 "Check Document No. Unit Test"
 
         GenJnlLine.Validate("Document No.", IncStr(GenJnlLine."Document No."));
         GenJnlLine.Modify(true);
+    end;
+
+    local procedure CreateNoSeriesWithManualNos(ManualNos: Boolean) NoSeriesCode: Code[20]
+    var
+        NoSeries: Record "No. Series";
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+    begin
+        NoSeriesCode := LibraryERM.CreateNoSeriesCode();
+
+        NoSeries.Get(NoSeriesCode);
+        NoSeries.Validate("Manual Nos.", ManualNos);
+        NoSeries.Modify(true);
+
+        NoSeriesMgt.GetNextNo(NoSeriesCode, WorkDate(), true);  // initialize Last No. Used
+    end;
+
+    local procedure GetLastNoUsedFromNoSeries(NoSeriesCode: Code[20]) LastNoUsed: Code[20]
+    var
+        NoSeriesLine: Record "No. Series Line";
+    begin
+        NoSeriesLine.SetRange("Series Code", NoSeriesCode);
+        NoSeriesLine.FindLast();
+
+        NoSeriesLine.TestField("Last No. Used");
+        LastNoUsed := NoSeriesLine."Last No. Used";
     end;
 
     [ModalPageHandler]

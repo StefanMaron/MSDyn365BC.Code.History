@@ -53,7 +53,7 @@ table 275 "Bank Account Statement"
 
     trigger OnDelete()
     begin
-        if not Confirm(HasBankEntriesQst, false, "Bank Account No.", "Statement No.") then
+        if not Confirm(HasBankEntriesQst, false) then
             Error('');
         CODEUNIT.Run(CODEUNIT::"BankAccStmtLines-Delete", Rec);
     end;
@@ -65,7 +65,7 @@ table 275 "Bank Account Statement"
 
     var
         Text000: Label 'You cannot rename a %1.';
-        HasBankEntriesQst: Label 'One or more bank account ledger entries in bank account %1 have been reconciled for bank account statement %2, which contain information about the bank statement. These bank ledger entries will not be modified if you delete bank account statement %2.\\Do you want to continue?';
+        HasBankEntriesQst: Label 'When you use action Delete the bank statement will be deleted, but the bank ledger entries will stay Closed. You will not be able to redo the bank reconciliation for these ledger entries.\\We suggest you use the Undo action instead.\\Do you want to continue with Delete?';
 
     local procedure GetCurrencyCode(): Code[10]
     var

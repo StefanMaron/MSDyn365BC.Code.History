@@ -15,7 +15,7 @@ codeunit 134767 "Test OData Wizard US"
         LibraryUtility: Codeunit "Library - Utility";
         ObjectTypeVariable: Option ,,,,,,,,"Page","Query";
         ODataWizardTxt: Label 'Set Up Reporting Data';
-        ExpectedFilterTok: Label '((((No ge ''01121212'') and (No le ''01445544'')) or ((No eq ''10000''))) and (((Name eq ''bo b'') or (Name eq ''fra nk''))))', Locked = true;
+        ExpectedFilterTok: Label '((Blocked eq '' '') and (((No ge ''01121212'') and (No le ''01445544'')) or ((No eq ''10000''))) and (((Name eq ''bo b'') or (Name eq ''fra nk''))))', Locked = true;
         ExcelAddinProviderUrlTxt: Label 'https://exceladdinprovider.smb.dynamics.com', Locked = true;
         ExcelAddinProviderUrlPPETxt: Label 'https://exceladdinprovider.smb.dynamics-tie.com', Locked = true;
 
@@ -24,10 +24,10 @@ codeunit 134767 "Test OData Wizard US"
     procedure Init()
     var
         AssistedSetup: Codeunit "Assisted Setup";
-		BaseAppID: Codeunit "BaseApp ID";
-		AssistedSetupGroup: Enum "Assisted Setup Group";
+        BaseAppID: Codeunit "BaseApp ID";
+        AssistedSetupGroup: Enum "Assisted Setup Group";
     begin
-		AssistedSetup.Add(BaseAppID.Get(), PAGE::"OData Setup Wizard", ODataWizardTxt, AssistedSetupGroup::Customize);
+        AssistedSetup.Add(BaseAppID.Get(), PAGE::"OData Setup Wizard", ODataWizardTxt, AssistedSetupGroup::Customize);
     end;
 
     [Test]
@@ -810,7 +810,7 @@ codeunit 134767 "Test OData Wizard US"
         TenantWebService.DeleteAll();
 
         ServiceName := 'Page22WorkBook';
-        NavFilterText := 'SORTING(No.) WHERE(No.=FILTER(01121212..01445544|10000),Name=FILTER(bo b|fra nk))';
+        NavFilterText := 'SORTING(No.) WHERE(Blocked=FILTER('' ''),No.=FILTER(01121212..01445544|10000),Name=FILTER(bo b|fra nk))';
 
         // [GIVEN] A Tenant Web Service record with a filter and columns selected.
         CreateCustomerListEndpoint(ServiceName, NavFilterText, true, TenantWebService);

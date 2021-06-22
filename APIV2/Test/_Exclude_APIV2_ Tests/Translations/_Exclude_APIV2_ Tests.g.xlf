@@ -878,6 +878,46 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - UofM E2E - NamedType ServiceNameTxt</note>
         </trans-unit>
+        <trans-unit id="Codeunit 2057046682 - NamedType 866661614" size-unit="char" translate="yes" xml:space="preserve">
+          <source>vendorPaymentJournals</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Vendor Payments E2E - NamedType ServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2057046682 - NamedType 3714203495" size-unit="char" translate="yes" xml:space="preserve">
+          <source>vendorPayments</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Vendor Payments E2E - NamedType ServiceSubpageNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2057046682 - NamedType 3415326070" size-unit="char" translate="yes" xml:space="preserve">
+          <source>lineNumber</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Vendor Payments E2E - NamedType LineNumberNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2057046682 - NamedType 3728243319" size-unit="char" translate="yes" xml:space="preserve">
+          <source>appliesToInvoiceId</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Vendor Payments E2E - NamedType AppliesToInvoiceIdTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2057046682 - NamedType 3933722305" size-unit="char" translate="yes" xml:space="preserve">
+          <source>appliesToInvoiceNumber</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Vendor Payments E2E - NamedType AppliesToDocNoNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2057046682 - NamedType 679908549" size-unit="char" translate="yes" xml:space="preserve">
+          <source>vendorId</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Vendor Payments E2E - NamedType VendorIdFieldTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2057046682 - NamedType 3482532710" size-unit="char" translate="yes" xml:space="preserve">
+          <source>vendorNumber</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Vendor Payments E2E - NamedType VendorNoNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2057046682 - NamedType 3800914516" size-unit="char" translate="yes" xml:space="preserve">
+          <source>balancingAccountNumber</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Vendor Payments E2E - NamedType BalAccountNoNameTxt</note>
+        </trans-unit>
         <trans-unit id="Codeunit 311337232 - NamedType 866661614" size-unit="char" translate="yes" xml:space="preserve">
           <source>vendors</source>
           <note from="Developer" annotates="general" priority="2"></note>

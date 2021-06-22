@@ -12,14 +12,104 @@ codeunit 139004 "Test ApplicationArea Setup"
     var
         Assert: Codeunit Assert;
         LibraryApplicationArea: Codeunit "Library - Application Area";
-        FieldShouldBeTrueMsg: Label 'Field %1 should be true';
-        FieldShouldBeFalseMsg: Label 'Field %1 should be false';
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryJournals: Codeunit "Library - Journals";
+        FieldShouldBeTrueMsg: Label 'Field %1 should be true', Locked = true;
+        FieldShouldBeFalseMsg: Label 'Field %1 should be false', Locked = true;
         IsInitialized: Boolean;
 
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    procedure TestApplicationAreaCache()
+    var
+        AllProfile: Record "All Profile";
+        ApplicationAreaSetup: Record "Application Area Setup";
+        ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
+        Cache: Dictionary of [Text, Text];
+    begin
+        // Setup
+        ApplicationAreaSetup.DeleteAll();
+        ApplicationAreaSetup.Basic := true;
+        ApplicationAreaSetup.Insert();
+        
+        // Exersice
+        ApplicationAreaMgmt.GetApplicationAreas();
+     
+        // Verify
+        LibraryApplicationArea.GetApplicationAreaCache(Cache);
+        Assert.IsTrue(Cache.ContainsKey(''), 'Cache was expected to have an entry for Cross Company Application Area');
+
+        // Setup
+        ApplicationAreaSetup.Init();
+        ApplicationAreaSetup."Company Name" := CopyStr(CompanyName(), 1, 30);
+        ApplicationAreaSetup.Basic := true;
+        
+        // Exercise
+        ApplicationAreaSetup.Insert();
+
+        // Verify
+        LibraryApplicationArea.GetApplicationAreaCache(Cache);
+        Assert.AreEqual(0, Cache.Count(), 'Cache Was expected to be cleared after inserting on Application Area');
+
+        // Exersice
+        ApplicationAreaMgmt.GetApplicationAreas();
+     
+        // Verify
+        LibraryApplicationArea.GetApplicationAreaCache(Cache);
+        Assert.IsTrue(Cache.ContainsKey('Company:' + CompanyName()), 'Cache was expected to have an entry for Company specific Application Area');
+
+        // Setup
+        AllProfile.SetRange("Profile ID", 'BUSINESS MANAGER');
+        AllProfile.FindFirst();
+        AllProfile.Validate("Default Role Center", true);
+        AllProfile.Modify(true);
+
+        // Exercise
+        ApplicationAreaSetup.Rename('', 'BUSINESS MANAGER', '');
+
+        // Verify
+        LibraryApplicationArea.GetApplicationAreaCache(Cache);
+        Assert.AreEqual(0, Cache.Count(), 'Cache Was expected to be cleared after Renaming on Application Area');
+
+         // Exersice
+        ApplicationAreaMgmt.GetApplicationAreas();
+     
+        // Verify
+        LibraryApplicationArea.GetApplicationAreaCache(Cache);
+        Assert.IsTrue(Cache.ContainsKey('Profile:BUSINESS MANAGER'), 'Cache was expected to have an entry for Profile specific Application Area');
+
+        // Exercise
+        ApplicationAreaSetup.Delete();
+
+        // Verify
+        LibraryApplicationArea.GetApplicationAreaCache(Cache);
+        Assert.AreEqual(0, Cache.Count(), 'Cache Was expected to be cleared after Deleting on Application Area');
+
+        // Setup
+        ApplicationAreaSetup.DeleteAll();
+        ApplicationAreaSetup.Basic := true;
+        ApplicationAreaSetup."User ID" := CopyStr(UserId(), 1, 50);
+        ApplicationAreaSetup.Insert();
+
+         // Exersice
+        ApplicationAreaMgmt.GetApplicationAreas();
+     
+        // Verify
+        LibraryApplicationArea.GetApplicationAreaCache(Cache);
+        Assert.IsTrue(Cache.ContainsKey('User:' + UserId()), 'Cache was expected to have an entry for Profile specific Application Area');
+     
+        // Exersice
+        ApplicationAreaSetup.Basic := false;
+        ApplicationAreaSetup.Modify();
+
+        // Verify
+        LibraryApplicationArea.GetApplicationAreaCache(Cache);
+        Assert.AreEqual(0, Cache.Count(), 'Cache Was expected to be cleared after Modyfying on Application Area');
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure TestSetupApplicationAreaDefaulting()
     var
@@ -28,7 +118,7 @@ codeunit 139004 "Test ApplicationArea Setup"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         ApplicationAreaSetup.Basic := true;
@@ -39,18 +129,18 @@ codeunit 139004 "Test ApplicationArea Setup"
         AllProfile.Modify(true);
 
         // Exercise and Verify
-        Assert.IsTrue(StrPos(ApplicationAreaMgmtFacade.GetApplicationAreaSetup, '#Basic') > 0, 'Tenant setting expected');
-        if ApplicationAreaMgmtFacade.IsVATEnabled then
-            Assert.IsTrue(StrPos(ApplicationAreaMgmtFacade.GetApplicationAreaSetup, '#VAT') > 0, 'Tenant setting expected');
-        if ApplicationAreaMgmtFacade.IsSalesTaxEnabled then
-            Assert.IsTrue(StrPos(ApplicationAreaMgmtFacade.GetApplicationAreaSetup, '#SalesTax') > 0, 'Tenant setting expected');
+        Assert.IsTrue(StrPos(ApplicationAreaMgmtFacade.GetApplicationAreaSetup(), '#Basic') > 0, 'Tenant setting expected');
+        if ApplicationAreaMgmtFacade.IsVATEnabled() then
+            Assert.IsTrue(StrPos(ApplicationAreaMgmtFacade.GetApplicationAreaSetup(), '#VAT') > 0, 'Tenant setting expected');
+        if ApplicationAreaMgmtFacade.IsSalesTaxEnabled() then
+            Assert.IsTrue(StrPos(ApplicationAreaMgmtFacade.GetApplicationAreaSetup(), '#SalesTax') > 0, 'Tenant setting expected');
 
         // Setup
         Clear(ApplicationAreaSetup);
         LibraryApplicationArea.CreateFoundationSetupForCurrentCompany(ApplicationAreaSetup);
 
         // Exercise and Verify
-        Assert.IsTrue(StrPos(ApplicationAreaMgmtFacade.GetApplicationAreaSetup, '#Suite') > 0, 'Company setting expected');
+        Assert.IsTrue(StrPos(ApplicationAreaMgmtFacade.GetApplicationAreaSetup(), '#Suite') > 0, 'Company setting expected');
 
         // Setup
         Clear(ApplicationAreaSetup);
@@ -60,16 +150,16 @@ codeunit 139004 "Test ApplicationArea Setup"
         ApplicationAreaSetup.Insert();
 
         // Exercise and Verify
-        Assert.AreEqual('#FixedAssets', ApplicationAreaMgmtFacade.GetApplicationAreaSetup, 'Profile setting expected');
+        Assert.AreEqual('#FixedAssets', ApplicationAreaMgmtFacade.GetApplicationAreaSetup(), 'Profile setting expected');
 
         // Setup
         Clear(ApplicationAreaSetup);
-        ApplicationAreaSetup."User ID" := UserId;
+        ApplicationAreaSetup."User ID" := CopyStr(UserId(), 1, 50);
         ApplicationAreaSetup.Jobs := true;
         ApplicationAreaSetup.Insert();
 
         // Exercise and Verify
-        Assert.AreEqual('#Jobs', ApplicationAreaMgmtFacade.GetApplicationAreaSetup, 'User setting expected');
+        Assert.AreEqual('#Jobs', ApplicationAreaMgmtFacade.GetApplicationAreaSetup(), 'User setting expected');
     end;
 
     [Test]
@@ -79,11 +169,11 @@ codeunit 139004 "Test ApplicationArea Setup"
         ApplicationAreaSetup: Record "Application Area Setup";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Clear(ApplicationAreaSetup);
-        ApplicationAreaSetup."User ID" := UserId;
+        ApplicationAreaSetup."User ID" := CopyStr(UserId(), 1, 50);
         ApplicationAreaSetup.Basic := true;
         ApplicationAreaSetup.Suite := true;
         ApplicationAreaSetup."Fixed Assets" := true;
@@ -96,11 +186,10 @@ codeunit 139004 "Test ApplicationArea Setup"
 
         // Exercise and Verify
         Assert.AreEqual('#Basic,#Suite,#RelationshipMgmt,#Jobs,#FixedAssets,#Location,#BasicHR,#Assembly',
-          ApplicationAreaMgmtFacade.GetApplicationAreaSetup, '8 comma separated areas');
+          ApplicationAreaMgmtFacade.GetApplicationAreaSetup(), '8 comma separated areas');
     end;
 
     [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure TestSetupApplicationAreaBufferDefaulting()
     var
@@ -110,7 +199,7 @@ codeunit 139004 "Test ApplicationArea Setup"
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
         ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryApplicationArea.CreateFoundationSetupForCurrentCompany(ApplicationAreaSetup);
@@ -141,7 +230,7 @@ codeunit 139004 "Test ApplicationArea Setup"
 
         // Setup
         Clear(ApplicationAreaSetup);
-        ApplicationAreaSetup."User ID" := UserId;
+        ApplicationAreaSetup."User ID" := CopyStr(UserId(), 1, 50);
         ApplicationAreaSetup.Jobs := true;
         ApplicationAreaSetup.Insert();
 
@@ -155,7 +244,7 @@ codeunit 139004 "Test ApplicationArea Setup"
 
         // Setup
         Clear(ApplicationAreaSetup);
-        ApplicationAreaSetup."User ID" := UserId;
+        ApplicationAreaSetup."User ID" := CopyStr(UserId(), 1, 50);
         ApplicationAreaSetup."Relationship Mgmt" := true;
         ApplicationAreaSetup.Insert();
 
@@ -169,7 +258,7 @@ codeunit 139004 "Test ApplicationArea Setup"
 
         // Setup
         Clear(ApplicationAreaSetup);
-        ApplicationAreaSetup."User ID" := UserId;
+        ApplicationAreaSetup."User ID" := CopyStr(UserId(), 1, 50);
         ApplicationAreaSetup.Location := true;
         ApplicationAreaSetup.Insert();
 
@@ -183,7 +272,7 @@ codeunit 139004 "Test ApplicationArea Setup"
 
         // Setup
         Clear(ApplicationAreaSetup);
-        ApplicationAreaSetup."User ID" := UserId;
+        ApplicationAreaSetup."User ID" := CopyStr(UserId(), 1, 50);
         ApplicationAreaSetup.BasicHR := true;
         ApplicationAreaSetup.Insert();
 
@@ -197,7 +286,7 @@ codeunit 139004 "Test ApplicationArea Setup"
 
         // Setup
         Clear(ApplicationAreaSetup);
-        ApplicationAreaSetup."User ID" := UserId;
+        ApplicationAreaSetup."User ID" := CopyStr(UserId(), 1, 50);
         ApplicationAreaSetup.Assembly := true;
         ApplicationAreaSetup.Insert();
 
@@ -218,10 +307,10 @@ codeunit 139004 "Test ApplicationArea Setup"
         TempApplicationAreaBuffer: Record "Application Area Buffer" temporary;
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
-        ApplicationAreaSetup."User ID" := UserId;
+        ApplicationAreaSetup."User ID" := CopyStr(UserId(), 1, 50);
         ApplicationAreaSetup.Suite := true;
         ApplicationAreaSetup.Jobs := true;
         ApplicationAreaSetup.Insert();
@@ -267,7 +356,6 @@ codeunit 139004 "Test ApplicationArea Setup"
     end;
 
     [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure TestTrySaveApplicationArea()
     var
@@ -275,7 +363,7 @@ codeunit 139004 "Test ApplicationArea Setup"
         TempApplicationAreaBuffer: Record "Application Area Buffer" temporary;
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         ApplicationAreaMgmt.GetApplicationAreaBuffer(TempApplicationAreaBuffer);
@@ -301,7 +389,7 @@ codeunit 139004 "Test ApplicationArea Setup"
 
         // Verify
         ApplicationAreaSetup.Get(CompanyName);
-        Assert.IsTrue(ApplicationAreaSetup.Suite, StrSubstNo('Unexpected value in %1', ApplicationAreaSetup.FieldName(Suite)));
+        Assert.IsTrue(ApplicationAreaSetup.Suite, 'Unexpected value in ' + ApplicationAreaSetup.FieldName(Suite));
 
         // Setup
         Clear(TempApplicationAreaBuffer);
@@ -315,15 +403,14 @@ codeunit 139004 "Test ApplicationArea Setup"
           'Change to ApplicationArea expected');
 
         // Verify
-        ApplicationAreaSetup.Get(CompanyName);
-        Assert.IsFalse(ApplicationAreaSetup.Suite, StrSubstNo('Unexpected value in %1', ApplicationAreaSetup.FieldName(Suite)));
+        ApplicationAreaSetup.Get(CompanyName());
+        Assert.IsFalse(ApplicationAreaSetup.Suite, 'Unexpected value in ' + ApplicationAreaSetup.FieldName(Suite));
 
         // Cleanup
         ApplicationArea('');
     end;
 
     [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure TestTrySaveApplicationAreaClearUserAppAreaWhenProfileAppAreaSet()
     var
@@ -334,7 +421,7 @@ codeunit 139004 "Test ApplicationArea Setup"
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
         ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Clear(ApplicationAreaSetup);
@@ -342,7 +429,7 @@ codeunit 139004 "Test ApplicationArea Setup"
         ApplicationAreaSetup."Profile ID" := AllProfile."Profile ID";
         ApplicationAreaSetup.Suite := true;
         ApplicationAreaSetup.Insert();
-        ApplicationAreaMgmtFacade.SetupApplicationArea;
+        ApplicationAreaMgmtFacade.SetupApplicationArea();
         ApplicationAreaMgmt.GetApplicationAreaBuffer(TempApplicationAreaBuffer);
 
         // Exercise and Verify
@@ -359,30 +446,29 @@ codeunit 139004 "Test ApplicationArea Setup"
     end;
 
     [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure TestIsFoundationOnlyAndIsAdvanced()
     var
         ApplicationAreaSetup: Record "Application Area Setup";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
-        Initialize;
+        Initialize();
 
         // Exercise and Verify
-        Assert.IsFalse(ApplicationAreaMgmtFacade.IsFoundationEnabled, 'No row, FoundationEnabled return false');
-        Assert.IsTrue(ApplicationAreaMgmtFacade.IsAdvancedEnabled, 'No row, IsAdvanced return true');
+        Assert.IsFalse(ApplicationAreaMgmtFacade.IsFoundationEnabled(), 'No row, FoundationEnabled return false');
+        Assert.IsTrue(ApplicationAreaMgmtFacade.IsAdvancedEnabled(), 'No row, IsAdvanced return true');
 
         // Setup Set Foundation
         Clear(ApplicationAreaSetup);
-        ApplicationAreaSetup."User ID" := UserId;
+        ApplicationAreaSetup."User ID" := CopyStr(UserId(), 1, 50);
         ApplicationAreaSetup.Validate(Suite, true);
         ApplicationAreaSetup.Validate("Fixed Assets", true);
         ApplicationAreaSetup.Insert(true);
         ApplicationAreaMgmtFacade.SetupApplicationArea();
 
         // Exercise and Verify
-        Assert.IsTrue(ApplicationAreaMgmtFacade.IsFoundationEnabled, 'Has Foundation, FoundationEnabled return true');
-        Assert.IsFalse(ApplicationAreaMgmtFacade.IsAdvancedEnabled, 'Has Foundation, IsAdvanced return false');
+        Assert.IsTrue(ApplicationAreaMgmtFacade.IsFoundationEnabled(), 'Has Foundation, FoundationEnabled return true');
+        Assert.IsFalse(ApplicationAreaMgmtFacade.IsAdvancedEnabled(), 'Has Foundation, IsAdvanced return false');
 
         // Setup Clear Foundation
         ApplicationAreaSetup.Suite := false;
@@ -390,12 +476,11 @@ codeunit 139004 "Test ApplicationArea Setup"
         ApplicationAreaMgmtFacade.SetupApplicationArea();
 
         // Exercise and Verify
-        Assert.IsFalse(ApplicationAreaMgmtFacade.IsFoundationEnabled, 'Foundation false, FoundationEnabled return false');
-        Assert.IsTrue(ApplicationAreaMgmtFacade.IsAdvancedEnabled, 'Foundation false, IsAdvanced return true');
+        Assert.IsFalse(ApplicationAreaMgmtFacade.IsFoundationEnabled(), 'Foundation false, FoundationEnabled return false');
+        Assert.IsTrue(ApplicationAreaMgmtFacade.IsAdvancedEnabled(), 'Foundation false, IsAdvanced return true');
     end;
 
     [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure TestStartWithNonFoundation()
     var
@@ -403,7 +488,7 @@ codeunit 139004 "Test ApplicationArea Setup"
         ApplicationAreaSetup: Record "Application Area Setup";
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         ApplicationAreaMgmt.GetApplicationAreaBuffer(TempApplicationAreaBuffer);
@@ -419,7 +504,6 @@ codeunit 139004 "Test ApplicationArea Setup"
     end;
 
     [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure TestRemoveFoundation()
     var
@@ -427,10 +511,10 @@ codeunit 139004 "Test ApplicationArea Setup"
         ApplicationAreaSetup: Record "Application Area Setup";
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
-        ApplicationAreaSetup."User ID" := UserId;
+        ApplicationAreaSetup."User ID" := CopyStr(UserId(), 1, 50);
         ApplicationAreaSetup.Validate(Suite, true);
         ApplicationAreaSetup.Validate(Jobs, true);
         ApplicationAreaSetup.Insert(true);
@@ -448,7 +532,6 @@ codeunit 139004 "Test ApplicationArea Setup"
     end;
 
     [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure TestRemoveNonFoundation()
     var
@@ -456,10 +539,10 @@ codeunit 139004 "Test ApplicationArea Setup"
         ApplicationAreaSetup: Record "Application Area Setup";
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
-        ApplicationAreaSetup."User ID" := UserId;
+        ApplicationAreaSetup."User ID" := CopyStr(UserId(), 1, 50);
         ApplicationAreaSetup.Validate(Suite, true);
         ApplicationAreaSetup.Validate(Jobs, true);
         ApplicationAreaSetup.Insert(true);
@@ -483,26 +566,26 @@ codeunit 139004 "Test ApplicationArea Setup"
         ExperienceTierSetup: Record "Experience Tier Setup";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
-        Initialize;
+        Initialize();
         // [WHEN] Set current company to Premium experience
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Premium));
 
         // [THEN] current company's ApplicationArea is set to Premium experience
-        ApplicationAreaSetup.Get(CompanyName);
+        ApplicationAreaSetup.Get(CompanyName());
         LibraryApplicationArea.VerifyApplicationAreaPremiumExperience(ApplicationAreaSetup);
 
         // [WHEN] Set current company to Essential experience
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential));
 
         // [THEN] current company's ApplicationArea is set to Essential experience
-        ApplicationAreaSetup.Get(CompanyName);
+        ApplicationAreaSetup.Get(CompanyName());
         LibraryApplicationArea.VerifyApplicationAreaEssentialExperience(ApplicationAreaSetup);
 
         // [WHEN] Set current company to Basic experience
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Basic));
 
         // [THEN] current company's ApplicationArea is set to Basic experience
-        ApplicationAreaSetup.Get(CompanyName);
+        ApplicationAreaSetup.Get(CompanyName());
         LibraryApplicationArea.VerifyApplicationAreaBasicExperience(ApplicationAreaSetup);
     end;
 
@@ -513,7 +596,7 @@ codeunit 139004 "Test ApplicationArea Setup"
         ExperienceTierSetup: Record "Experience Tier Setup";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
-        Initialize;
+        Initialize();
 
         // Exercise and Verify
         asserterror ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Custom));
@@ -527,11 +610,11 @@ codeunit 139004 "Test ApplicationArea Setup"
         ExperienceTierSetup: Record "Experience Tier Setup";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] non-company ApplicationArea is set to Essential experience
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential));
-        ApplicationAreaMgmtFacade.GetApplicationAreaSetupRecFromCompany(ApplicationAreaSetup, CompanyName);
+        ApplicationAreaMgmtFacade.GetApplicationAreaSetupRecFromCompany(ApplicationAreaSetup, CompanyName());
         ApplicationAreaSetup.Rename('', '', '');
 
         // [WHEN] Set current company to Basic experience
@@ -542,7 +625,7 @@ codeunit 139004 "Test ApplicationArea Setup"
         LibraryApplicationArea.VerifyApplicationAreaEssentialExperience(ApplicationAreaSetup);
 
         // [THEN] current company's ApplicationArea is set to Basic experience
-        ApplicationAreaSetup.Get(CompanyName);
+        ApplicationAreaSetup.Get(CompanyName());
         LibraryApplicationArea.VerifyApplicationAreaBasicExperience(ApplicationAreaSetup);
     end;
 
@@ -556,7 +639,7 @@ codeunit 139004 "Test ApplicationArea Setup"
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
         ExperienceTier: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
@@ -579,7 +662,7 @@ codeunit 139004 "Test ApplicationArea Setup"
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
         ExperienceTier: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
@@ -603,11 +686,11 @@ codeunit 139004 "Test ApplicationArea Setup"
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
         ExperienceTier: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
-        EnableSandbox;
+        EnableSandbox();
         ApplicationAreaMgmt.GetExperienceTierBuffer(TempExperienceTierBuffer);
 
         // Verify
@@ -616,7 +699,7 @@ codeunit 139004 "Test ApplicationArea Setup"
         // Exercise and Verify (ModalPageHandler)
         ApplicationAreaMgmtFacade.LookupExperienceTier(ExperienceTier);
 
-        DisableSandbox;
+        DisableSandbox();
     end;
 
     [Test]
@@ -629,7 +712,7 @@ codeunit 139004 "Test ApplicationArea Setup"
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
         CompanyInformation: TestPage "Company Information";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
@@ -639,10 +722,10 @@ codeunit 139004 "Test ApplicationArea Setup"
         VerifyExperienceTierBufferRecords(TempExperienceTierBuffer);
 
         // Exercise and Verify (ModalPageHandler)
-        CompanyInformation.OpenEdit;
-        CompanyInformation.Experience.AssistEdit;
+        CompanyInformation.OpenEdit();
+        CompanyInformation.Experience.AssistEdit();
         CompanyInformation.Experience.AssertEquals(ExperienceTierSetup.FieldCaption(Essential));
-        CompanyInformation.OK.Invoke;
+        CompanyInformation.OK().Invoke();
     end;
 
     [Test]
@@ -655,22 +738,22 @@ codeunit 139004 "Test ApplicationArea Setup"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         CompanyInformation: TestPage "Company Information";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential));
         ApplicationAreaSetup.Get(CompanyName);
-        ApplicationAreaSetup.Rename('', '', UserId);
+        ApplicationAreaSetup.Rename('', '', CopyStr(UserId(), 1, 50));
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Basic));
 
         // Exercise and Verify
-        CompanyInformation.OpenEdit;
+        CompanyInformation.OpenEdit();
         CompanyInformation.Experience.AssertEquals(ExperienceTierSetup.FieldCaption(Basic));
         LibraryVariableStorage.Enqueue(ExperienceTierSetup.FieldCaption(Essential));
-        CompanyInformation.Experience.AssistEdit;
-        CompanyInformation.Close;
-        CompanyInformation.OpenEdit;
+        CompanyInformation.Experience.AssistEdit();
+        CompanyInformation.Close();
+        CompanyInformation.OpenEdit();
         CompanyInformation.Experience.AssertEquals(ExperienceTierSetup.FieldCaption(Essential));
     end;
 
@@ -680,11 +763,11 @@ codeunit 139004 "Test ApplicationArea Setup"
     var
         ApplicationArea: TestPage "Application Area";
     begin
-        Initialize;
+        Initialize();
 
         // Exercise and Verify
-        ApplicationArea.OpenEdit;
-        Assert.IsFalse(ApplicationArea.Editable, 'Application Area Page should always be read-only');
+        ApplicationArea.OpenEdit();
+        Assert.IsFalse(ApplicationArea.Editable(), 'Application Area Page should always be read-only');
     end;
 
     [Test]
@@ -694,130 +777,130 @@ codeunit 139004 "Test ApplicationArea Setup"
         ApplicationAreaSetup: Record "Application Area Setup";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Clear(ApplicationAreaSetup);
         // Exercise and Verify
-        Assert.IsTrue(ApplicationAreaMgmtFacade.IsAllDisabled, 'All Application Areas are expected to be disabled.');
+        Assert.IsTrue(ApplicationAreaMgmtFacade.IsAllDisabled(), 'All Application Areas are expected to be disabled.');
 
         // Setup
-        ApplicationAreaSetup."User ID" := UserId;
+        ApplicationAreaSetup."User ID" := CopyStr(UserId(), 1, 50);
         ApplicationAreaSetup.Basic := true;
         ApplicationAreaSetup.Insert();
         ApplicationAreaMgmtFacade.SetupApplicationArea();
 
         // Exercise and Verify
-        Assert.IsFalse(ApplicationAreaMgmtFacade.IsAllDisabled, 'Basic Application Area is expected to be enabled.');
+        Assert.IsFalse(ApplicationAreaMgmtFacade.IsAllDisabled(), 'Basic Application Area is expected to be enabled.');
 
         // Setup
         Clear(ApplicationAreaSetup);
         ApplicationAreaSetup.DeleteAll();
-        ApplicationAreaSetup."User ID" := UserId;
+        ApplicationAreaSetup."User ID" := CopyStr(UserId(), 1, 50);
         ApplicationAreaSetup.Suite := true;
         ApplicationAreaSetup.Insert();
         ApplicationAreaMgmtFacade.SetupApplicationArea();
 
         // Exercise and Verify
-        Assert.IsFalse(ApplicationAreaMgmtFacade.IsAllDisabled, 'Suite Application Area is expected to be enabled.');
+        Assert.IsFalse(ApplicationAreaMgmtFacade.IsAllDisabled(), 'Suite Application Area is expected to be enabled.');
 
         // Setup
         Clear(ApplicationAreaSetup);
         ApplicationAreaSetup.DeleteAll();
-        ApplicationAreaSetup."User ID" := UserId;
+        ApplicationAreaSetup."User ID" := CopyStr(UserId(), 1, 50);
         ApplicationAreaSetup."Fixed Assets" := true;
         ApplicationAreaSetup.Insert();
         ApplicationAreaMgmtFacade.SetupApplicationArea();
 
         // Exercise and Verify
-        Assert.IsFalse(ApplicationAreaMgmtFacade.IsAllDisabled, 'Fixed Assets Application Area is expected to be enabled.');
+        Assert.IsFalse(ApplicationAreaMgmtFacade.IsAllDisabled(), 'Fixed Assets Application Area is expected to be enabled.');
 
         // Setup
         Clear(ApplicationAreaSetup);
         ApplicationAreaSetup.DeleteAll();
-        ApplicationAreaSetup."User ID" := UserId;
+        ApplicationAreaSetup."User ID" := CopyStr(UserId(), 1, 50);
         ApplicationAreaSetup.Jobs := true;
         ApplicationAreaSetup.Insert();
         ApplicationAreaMgmtFacade.SetupApplicationArea();
 
         // Exercise and Verify
-        Assert.IsFalse(ApplicationAreaMgmtFacade.IsAllDisabled, 'Jobs Application Area is expected to be enabled.');
+        Assert.IsFalse(ApplicationAreaMgmtFacade.IsAllDisabled(), 'Jobs Application Area is expected to be enabled.');
 
         // Setup
         Clear(ApplicationAreaSetup);
         ApplicationAreaSetup.DeleteAll();
-        ApplicationAreaSetup."User ID" := UserId;
+        ApplicationAreaSetup."User ID" := CopyStr(UserId(), 1, 50);
         ApplicationAreaSetup."Relationship Mgmt" := true;
         ApplicationAreaSetup.Insert();
 
         // Exercise and Verify
-        Assert.IsFalse(ApplicationAreaMgmtFacade.IsAllDisabled, 'Relationship Mgmt Application Area is expected to be enabled.');
+        Assert.IsFalse(ApplicationAreaMgmtFacade.IsAllDisabled(), 'Relationship Mgmt Application Area is expected to be enabled.');
 
         // Setup
         Clear(ApplicationAreaSetup);
         ApplicationAreaSetup.DeleteAll();
-        ApplicationAreaSetup."User ID" := UserId;
+        ApplicationAreaSetup."User ID" := CopyStr(UserId(), 1, 50);
         ApplicationAreaSetup.Location := true;
         ApplicationAreaSetup.Insert();
         ApplicationAreaMgmtFacade.SetupApplicationArea();
 
         // Exercise and Verify
-        Assert.IsFalse(ApplicationAreaMgmtFacade.IsAllDisabled, 'Location Application Area is expected to be enabled.');
+        Assert.IsFalse(ApplicationAreaMgmtFacade.IsAllDisabled(), 'Location Application Area is expected to be enabled.');
 
         // Setup
         Clear(ApplicationAreaSetup);
         ApplicationAreaSetup.DeleteAll();
-        ApplicationAreaSetup."User ID" := UserId;
+        ApplicationAreaSetup."User ID" := CopyStr(UserId(), 1, 50);
         ApplicationAreaSetup.BasicHR := true;
         ApplicationAreaSetup.Insert();
         ApplicationAreaMgmtFacade.SetupApplicationArea();
 
         // Exercise and Verify
-        Assert.IsFalse(ApplicationAreaMgmtFacade.IsAllDisabled, 'BasicHR Application Area is expected to be enabled.');
+        Assert.IsFalse(ApplicationAreaMgmtFacade.IsAllDisabled(), 'BasicHR Application Area is expected to be enabled.');
 
         // Setup
         Clear(ApplicationAreaSetup);
         ApplicationAreaSetup.DeleteAll();
-        ApplicationAreaSetup."User ID" := UserId;
+        ApplicationAreaSetup."User ID" := CopyStr(UserId(), 1, 50);
         ApplicationAreaSetup.Intercompany := true;
         ApplicationAreaSetup.Insert();
         ApplicationAreaMgmtFacade.SetupApplicationArea();
 
         // Exercise and Verify
-        Assert.IsFalse(ApplicationAreaMgmtFacade.IsAllDisabled, 'Intercompany Application Area is expected to be enabled.');
+        Assert.IsFalse(ApplicationAreaMgmtFacade.IsAllDisabled(), 'Intercompany Application Area is expected to be enabled.');
 
         // Setup
         Clear(ApplicationAreaSetup);
         ApplicationAreaSetup.DeleteAll();
-        ApplicationAreaSetup."User ID" := UserId;
+        ApplicationAreaSetup."User ID" := CopyStr(UserId(), 1, 50);
         ApplicationAreaSetup."Item Charges" := true;
         ApplicationAreaSetup.Insert();
         ApplicationAreaMgmtFacade.SetupApplicationArea();
 
         // Exercise and Verify
-        Assert.IsFalse(ApplicationAreaMgmtFacade.IsAllDisabled, 'Item Charges Application Area is expected to be enabled.');
+        Assert.IsFalse(ApplicationAreaMgmtFacade.IsAllDisabled(), 'Item Charges Application Area is expected to be enabled.');
 
         // Setup
         Clear(ApplicationAreaSetup);
         ApplicationAreaSetup.DeleteAll();
-        ApplicationAreaSetup."User ID" := UserId;
+        ApplicationAreaSetup."User ID" := CopyStr(UserId(), 1, 50);
         ApplicationAreaSetup.Assembly := true;
         ApplicationAreaSetup.Insert();
         ApplicationAreaMgmtFacade.SetupApplicationArea();
 
         // Exercise and Verify
-        Assert.IsFalse(ApplicationAreaMgmtFacade.IsAllDisabled, 'Assembly Application Area is expected to be enabled.');
+        Assert.IsFalse(ApplicationAreaMgmtFacade.IsAllDisabled(), 'Assembly Application Area is expected to be enabled.');
 
         // Setup
         Clear(ApplicationAreaSetup);
         ApplicationAreaSetup.DeleteAll();
-        ApplicationAreaSetup."User ID" := UserId;
+        ApplicationAreaSetup."User ID" := CopyStr(UserId(), 1, 50);
         ApplicationAreaSetup."Cost Accounting" := true;
         ApplicationAreaSetup.Insert();
         ApplicationAreaMgmtFacade.SetupApplicationArea();
 
         // Exercise and Verify
-        Assert.IsFalse(ApplicationAreaMgmtFacade.IsAllDisabled, 'Cost Accounting Application Area is expected to be enabled.');
+        Assert.IsFalse(ApplicationAreaMgmtFacade.IsAllDisabled(), 'Cost Accounting Application Area is expected to be enabled.');
     end;
 
     [Scope('OnPrem')]
@@ -829,7 +912,7 @@ codeunit 139004 "Test ApplicationArea Setup"
         ExperienceTier: Text;
     begin
         // [FEATURE] [Application Area]
-        Initialize;
+        Initialize();
 
         // [GIVEN] an experience tier is set
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Basic));
@@ -856,7 +939,7 @@ codeunit 139004 "Test ApplicationArea Setup"
         ExperienceTier: Text;
     begin
         // [FEATURE] [Application Area]
-        Initialize;
+        Initialize();
 
         // [GIVEN] an experience tier is set
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Basic));
@@ -883,7 +966,7 @@ codeunit 139004 "Test ApplicationArea Setup"
         ExperienceTier: Text;
     begin
         // [FEATURE] [Application Area]
-        Initialize;
+        Initialize();
 
         // [GIVEN] an experience tier is set
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential));
@@ -909,20 +992,20 @@ codeunit 139004 "Test ApplicationArea Setup"
     begin
         // [FEATURE] [Application Area]
         // [SCENARIO] When the experience is set to custom, opening and closing the company info page should not throw an error
-        Initialize;
-        ClearLastError;
+        Initialize();
+        ClearLastError();
 
         // Setup
-        ExperienceTierSetup."Company Name" := CompanyName;
+        ExperienceTierSetup."Company Name" := CopyStr(CompanyName(), 1, 30);
         ExperienceTierSetup.Custom := true;
         ExperienceTierSetup.Insert();
 
         // Exercise
-        CompanyInformation.OpenEdit;
+        CompanyInformation.OpenEdit();
 
         // Verify
-        CompanyInformation.Close;
-        Assert.AreEqual('', GetLastErrorText, 'no error should be thrown');
+        CompanyInformation.Close();
+        Assert.AreEqual('', GetLastErrorText(), 'no error should be thrown');
     end;
 
     [Test]
@@ -934,46 +1017,24 @@ codeunit 139004 "Test ApplicationArea Setup"
     begin
         // [FEATURE] [Application Area]
         // [SCENARIO] When the experience is changed to custom, closing the company info page should throw an error
-        Initialize;
-        ClearLastError;
+        Initialize();
+        ClearLastError();
 
         // Setup
-        ExperienceTierSetup."Company Name" := CompanyName;
+        ExperienceTierSetup."Company Name" := CopyStr(CompanyName(), 1, 30);
         ExperienceTierSetup.Custom := true; // This will be loaded in Company Info as the 'new' experience tier
         ExperienceTierSetup.Insert();
 
         // Exercise
-        CompanyInformation.OpenEdit;
-        ExperienceTierSetup."Company Name" := CompanyName;
+        CompanyInformation.OpenEdit();
+        ExperienceTierSetup."Company Name" := CopyStr(CompanyName(), 1, 30);
         ExperienceTierSetup.Basic := true; // This will be considered the 'old' experience tier
         ExperienceTierSetup.Custom := false;
         ExperienceTierSetup.Modify();
 
         // Verify
-        asserterror CompanyInformation.Close;
+        asserterror CompanyInformation.Close();
         Assert.ExpectedError('The selected experience is not supported.');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure GetApplicationAreaSetupForInvoicing()
-    var
-        ApplicationAreaSetup: Record "Application Area Setup";
-        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
-    begin
-        // [FEATURE] [Invoicing]
-        // [SCENARIO 197381] Enabled #Invoicing does not affect on number of public application areas
-        Initialize;
-
-        // [GIVEN] #Invoicing area enabled in ApplicationAreaSetup
-        Clear(ApplicationAreaSetup);
-        ApplicationAreaSetup.DeleteAll();
-        ApplicationAreaSetup.Invoicing := true;
-        ApplicationAreaSetup.Insert();
-
-        // [WHEN] ApplicationAreaSetup.GetApplicationAreaSetup is being called
-        // [THEN] It returns empty value
-        Assert.AreEqual('#Invoicing', ApplicationAreaMgmtFacade.GetApplicationAreaSetup, 'Invoicing Application Area is expected.');
     end;
 
     [Test]
@@ -986,24 +1047,24 @@ codeunit 139004 "Test ApplicationArea Setup"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 221676] Automatic sign out/sign in happens when user experience is being changed in Company Information page
-        Initialize;
-        MockUserHasPremiumPlan;
+        Initialize();
+        MockUserHasPremiumPlan();
 
         // [GIVEN] User experience set to Essential
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
-        SetEssentialUserExperience;
+        SetEssentialUserExperience();
 
         // [GIVEN] Open Company Information page
-        CompanyInformation.OpenEdit;
+        CompanyInformation.OpenEdit();
         CompanyInformation.Experience.AssertEquals(ExperienceTierSetup.FieldCaption(Essential));
 
         // [GIVEN] Change user experience to Premium
         LibraryVariableStorage.Enqueue(ExperienceTierSetup.FieldCaption(Premium));
-        CompanyInformation.Experience.AssistEdit;
+        CompanyInformation.Experience.AssistEdit();
         CompanyInformation.Experience.AssertEquals(ExperienceTierSetup.FieldCaption(Premium));
 
         // [WHEN] Page Company Information is being  closed
-        CompanyInformation.OK.Invoke;
+        CompanyInformation.OK().Invoke();
 
         // [THEN] Automatic sign out/sign in happens
         // The only verification available - executed SessionSettingsHandler
@@ -1019,29 +1080,29 @@ codeunit 139004 "Test ApplicationArea Setup"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 221676] There is no automatic sign out/sign in when user experience is not changed in Company Information page
-        Initialize;
-        MockUserHasPremiumPlan;
+        Initialize();
+        MockUserHasPremiumPlan();
 
         // [GIVEN] User experience set to Essential
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
-        SetEssentialUserExperience;
+        SetEssentialUserExperience();
 
         // [GIVEN] Open Company Information page
-        CompanyInformation.OpenEdit;
+        CompanyInformation.OpenEdit();
         CompanyInformation.Experience.AssertEquals(ExperienceTierSetup.FieldCaption(Essential));
 
         // [GIVEN] Change user experience to Premium
         LibraryVariableStorage.Enqueue(ExperienceTierSetup.FieldCaption(Premium));
-        CompanyInformation.Experience.AssistEdit;
+        CompanyInformation.Experience.AssistEdit();
         CompanyInformation.Experience.AssertEquals(ExperienceTierSetup.FieldCaption(Premium));
 
         // [GIVEN] Change user experience back to Essential
         LibraryVariableStorage.Enqueue(ExperienceTierSetup.FieldCaption(Essential));
-        CompanyInformation.Experience.AssistEdit;
+        CompanyInformation.Experience.AssistEdit();
         CompanyInformation.Experience.AssertEquals(ExperienceTierSetup.FieldCaption(Essential));
 
         // [WHEN] Page Company Information is being  closed
-        CompanyInformation.OK.Invoke;
+        CompanyInformation.OK().Invoke();
 
         // [THEN] No automatic sign out/sign in
         // The only verification available - SessionSettingsHandler is not executed
@@ -1055,18 +1116,18 @@ codeunit 139004 "Test ApplicationArea Setup"
     begin
         // [FEATURE] [UI] [General Ledger Setup]
         // [SCENARIO 229614] There is a "#Basic,#Suite" application area for "Application" tab in general ledger setup page
-        Initialize;
-        LibraryApplicationArea.EnableFoundationSetup;
-        SetBasicUserExperience;
+        Initialize();
+        LibraryApplicationArea.EnableFoundationSetup();
+        SetBasicUserExperience();
 
-        GeneralLedgerSetup.OpenEdit;
-        Assert.IsTrue(GeneralLedgerSetup."Pmt. Disc. Tolerance Warning".Enabled, '');
-        Assert.IsTrue(GeneralLedgerSetup."Pmt. Disc. Tolerance Posting".Enabled, '');
-        Assert.IsTrue(GeneralLedgerSetup."Payment Discount Grace Period".Enabled, '');
-        Assert.IsTrue(GeneralLedgerSetup."Payment Tolerance Warning".Enabled, '');
-        Assert.IsTrue(GeneralLedgerSetup."Payment Tolerance Posting".Enabled, '');
-        Assert.IsTrue(GeneralLedgerSetup."Payment Tolerance %".Enabled, '');
-        Assert.IsTrue(GeneralLedgerSetup."Max. Payment Tolerance Amount".Enabled, '');
+        GeneralLedgerSetup.OpenEdit();
+        Assert.IsTrue(GeneralLedgerSetup."Pmt. Disc. Tolerance Warning".Enabled(), '');
+        Assert.IsTrue(GeneralLedgerSetup."Pmt. Disc. Tolerance Posting".Enabled(), '');
+        Assert.IsTrue(GeneralLedgerSetup."Payment Discount Grace Period".Enabled(), '');
+        Assert.IsTrue(GeneralLedgerSetup."Payment Tolerance Warning".Enabled(), '');
+        Assert.IsTrue(GeneralLedgerSetup."Payment Tolerance Posting".Enabled(), '');
+        Assert.IsTrue(GeneralLedgerSetup."Payment Tolerance %".Enabled(), '');
+        Assert.IsTrue(GeneralLedgerSetup."Max. Payment Tolerance Amount".Enabled(), '');
     end;
 
     [Test]
@@ -1079,19 +1140,19 @@ codeunit 139004 "Test ApplicationArea Setup"
     begin
         // [FEATURE] [UI] [UT]
         // [SCENARIO 279398] Report 393 "Suggest Vendor Payment" request page has "CheckOtherJournalBatches" set to True for SaaS
-        Initialize;
+        Initialize();
 
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
 
         PreparePaymentJnlLine(GenJournalLine);
         Commit();
         SuggestVendorPayments.SetGenJnlLine(GenJournalLine);
-        SuggestVendorPayments.Run;
+        SuggestVendorPayments.Run();
 
         // Value collected with SuggestVendorPaymentCheckOtherJnlBatchesValueRequestPageHandler
-        Assert.AreEqual('Yes', LibraryVariableStorage.DequeueText, 'Expecting CheckOtherJournalBatches is Yes');
+        Assert.AreEqual('Yes', LibraryVariableStorage.DequeueText(), 'Expecting CheckOtherJournalBatches is Yes');
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
     end;
 
@@ -1105,22 +1166,22 @@ codeunit 139004 "Test ApplicationArea Setup"
     begin
         // [FEATURE] [UI] [UT]
         // [SCENARIO 279398] Report 393 "Suggest Vendor Payment" request page has "CheckOtherJournalBatches" checkbox visible and editable
-        Initialize;
+        Initialize();
 
-        LibraryApplicationArea.EnableFoundationSetup;
-        SetBasicUserExperience;
+        LibraryApplicationArea.EnableFoundationSetup();
+        SetBasicUserExperience();
 
         PreparePaymentJnlLine(GenJournalLine);
         Commit();
         SuggestVendorPayments.SetGenJnlLine(GenJournalLine);
-        SuggestVendorPayments.Run;
+        SuggestVendorPayments.Run();
 
         // Values collected with SuggestVendorPaymentCheckOtherJnlBatchesPropertyRequestPageHandler
-        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, 'Expecting CheckOtherJournalBatches is VISIBLE');
-        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, 'Expecting CheckOtherJournalBatches is EDITABLE');
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'Expecting CheckOtherJournalBatches is VISIBLE');
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'Expecting CheckOtherJournalBatches is EDITABLE');
 
-        LibraryVariableStorage.AssertEmpty;
-        LibraryApplicationArea.DeleteExistingFoundationSetup;
+        LibraryVariableStorage.AssertEmpty();
+        LibraryApplicationArea.DeleteExistingFoundationSetup();
     end;
 
     [Test]
@@ -1130,16 +1191,16 @@ codeunit 139004 "Test ApplicationArea Setup"
         CompanyInformation: TestPage "Company Information";
     begin
         // [SCENARIO 290518] Field "Responsibility Center" visible on page "Company Information"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enable Basic user experience
-        SetBasicUserExperience;
+        SetBasicUserExperience();
 
         // [WHEN] Page "Company Information" is being opened
-        CompanyInformation.OpenEdit;
+        CompanyInformation.OpenEdit();
 
         // [THEN] Field "Responsibility Center" visible
-        Assert.IsTrue(CompanyInformation."Responsibility Center".Visible, 'Responsibility Center should be visible.');
+        Assert.IsTrue(CompanyInformation."Responsibility Center".Visible(), 'Responsibility Center should be visible.');
     end;
 
     [Test]
@@ -1150,36 +1211,36 @@ codeunit 139004 "Test ApplicationArea Setup"
     begin
         // [FEATURE] [Special Price] [Application Area] [UI]
         // [SCENARIO 324319] On the item list page there is a link to Special Price and Discount for customers in SaaS
-        Initialize;
+        Initialize();
 
         // [GIVEN] Set Application Area = Suite
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         // [WHEN] Open Item List
-        ItemList.OpenEdit;
+        ItemList.OpenEdit();
 
-        // [THEN] Links to Special Prices, Discounts and Overview pages are present
-        Assert.IsTrue(ItemList.Prices_Prices.Visible, '');
-        Assert.IsTrue(ItemList.Prices_LineDiscounts.Visible, '');
-        Assert.IsTrue(ItemList.PricesDiscountsOverview.Visible, '');
+        // [THEN] Links to Orders, "Substituti&ons" and "Ledger E&ntries" are present
+        Assert.IsTrue(ItemList.Action40.Visible(), '');
+        Assert.IsTrue(ItemList."Substituti&ons".Visible(), '');
+        Assert.IsTrue(ItemList."Ledger E&ntries".Visible(), '');
     end;
 
     local procedure Initialize()
     var
         ExperienceTierSetup: Record "Experience Tier Setup";
     begin
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
         ExperienceTierSetup.DeleteAll(true);
-        LibrarySetupStorage.Restore;
-        LibraryVariableStorage.AssertEmpty;
+        LibrarySetupStorage.Restore();
+        LibraryVariableStorage.AssertEmpty();
 
         if IsInitialized then
             exit;
 
-        MockDisabledCompanyBankAccountUpdate;
+        MockDisabledCompanyBankAccountUpdate();
         Commit();
 
-        LibrarySetupStorage.Save(DATABASE::"Company Information");
+        LibrarySetupStorage.Save(Database::"Company Information");
 
         IsInitialized := true;
     end;
@@ -1258,7 +1319,7 @@ codeunit 139004 "Test ApplicationArea Setup"
         FieldRef: FieldRef;
     begin
         RecRef.Open(DATABASE::"Application Area Setup");
-        FieldRef := RecRef.FieldIndex(ApplicationAreaMgmt.GetFirstPublicAppAreaFieldIndex);
+        FieldRef := RecRef.FieldIndex(ApplicationAreaMgmt.GetFirstPublicAppAreaFieldIndex());
         Field.SetFilter("No.", '<%1', FieldRef.Number);
         Field.SetRange(TableNo, RecRef.Number);
         Field.SetFilter(ObsoleteState, '<>%1', Field.ObsoleteState::Removed);
@@ -1268,7 +1329,7 @@ codeunit 139004 "Test ApplicationArea Setup"
                 Assert.IsTrue(TempApplicationAreaBuffer.Selected, StrSubstNo(FieldShouldBeTrueMsg, FieldNoToBeTrue))
             else
                 Assert.IsFalse(TempApplicationAreaBuffer.Selected, StrSubstNo(FieldShouldBeFalseMsg, FieldNoToBeTrue))
-        until TempApplicationAreaBuffer.Next = 0;
+        until TempApplicationAreaBuffer.Next() = 0;
     end;
 
     local procedure VerifyExperienceTierBufferRecords(var TempExperienceTierBuffer: Record "Experience Tier Buffer" temporary)
@@ -1306,7 +1367,7 @@ codeunit 139004 "Test ApplicationArea Setup"
         Assert.ExpectedError('The row does not exist on the TestPage.');
         ExperienceTiers.GotoKey(ExperienceTierSetup.FieldNo(Essential));
         ExperienceTiers."Experience Tier".AssertEquals(ExperienceTierSetup.FieldCaption(Essential));
-        ExperienceTiers.OK.Invoke;
+        ExperienceTiers.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1317,10 +1378,10 @@ codeunit 139004 "Test ApplicationArea Setup"
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
     begin
         ApplicationAreaMgmt.GetExperienceTierBuffer(TempExperienceTierBuffer);
-        TempExperienceTierBuffer.SetRange("Experience Tier", LibraryVariableStorage.DequeueText);
-        TempExperienceTierBuffer.FindFirst;
+        TempExperienceTierBuffer.SetRange("Experience Tier", LibraryVariableStorage.DequeueText());
+        TempExperienceTierBuffer.FindFirst();
         ExperienceTiers.GotoKey(TempExperienceTierBuffer."Field No.");
-        ExperienceTiers.OK.Invoke;
+        ExperienceTiers.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1337,25 +1398,25 @@ codeunit 139004 "Test ApplicationArea Setup"
         ExperienceTiers."Experience Tier".AssertEquals(ExperienceTierSetup.FieldCaption(Essential));
         asserterror ExperienceTiers.GotoKey(ExperienceTierSetup.FieldNo(Advanced));
         Assert.ExpectedError('The row does not exist on the TestPage.');
-        ExperienceTiers.OK.Invoke;
+        ExperienceTiers.OK().Invoke();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Application Area Mgmt.", 'OnGetBasicExperienceAppAreas', '', false, false)]
     local procedure ClearAppAreaSetupOnGetBasicExperienceAppAreas(var TempApplicationAreaSetup: Record "Application Area Setup" temporary)
     begin
-        TempApplicationAreaSetup.Init
+        TempApplicationAreaSetup.Init()
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Application Area Mgmt.", 'OnGetEssentialExperienceAppAreas', '', false, false)]
     local procedure ClearAppAreaSetupOnGetEssentialExperienceAppAreas(var TempApplicationAreaSetup: Record "Application Area Setup" temporary)
     begin
-        TempApplicationAreaSetup.Init
+        TempApplicationAreaSetup.Init()
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Application Area Mgmt.", 'OnGetPremiumExperienceAppAreas', '', false, false)]
     local procedure ClearAppAreaSetupOnGetPremiumExperienceAppAreas(var TempApplicationAreaSetup: Record "Application Area Setup" temporary)
     begin
-        TempApplicationAreaSetup.Init
+        TempApplicationAreaSetup.Init()
     end;
 
     [RequestPageHandler]
@@ -1363,16 +1424,16 @@ codeunit 139004 "Test ApplicationArea Setup"
     procedure SuggestVendorPaymentCheckOtherJnlBatchesValueRequestPageHandler(var SuggestVendorPayments: TestRequestPage "Suggest Vendor Payments")
     begin
         LibraryVariableStorage.Enqueue(Format(SuggestVendorPayments.CheckOtherJournalBatches.Value));
-        SuggestVendorPayments.Cancel.Invoke;
+        SuggestVendorPayments.Cancel().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SuggestVendorPaymentCheckOtherJnlBatchesPropertyRequestPageHandler(var SuggestVendorPayments: TestRequestPage "Suggest Vendor Payments")
     begin
-        LibraryVariableStorage.Enqueue(SuggestVendorPayments.CheckOtherJournalBatches.Visible);
-        LibraryVariableStorage.Enqueue(SuggestVendorPayments.CheckOtherJournalBatches.Enabled);
-        SuggestVendorPayments.Cancel.Invoke;
+        LibraryVariableStorage.Enqueue(SuggestVendorPayments.CheckOtherJournalBatches.Visible());
+        LibraryVariableStorage.Enqueue(SuggestVendorPayments.CheckOtherJournalBatches.Enabled());
+        SuggestVendorPayments.Cancel().Invoke();
     end;
 }
 

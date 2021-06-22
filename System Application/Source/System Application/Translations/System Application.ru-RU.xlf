@@ -1290,6 +1290,156 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Recurrence Schedule - Field End Date - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 1656495825 - Field 2756380846 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>CaptureIndex</source>
+          <target state="translated">CaptureIndex</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Captures - Field CaptureIndex - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1656495825 - Field 171145402 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Index</source>
+          <target state="translated">Указатель</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Captures - Field Index - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1656495825 - Field 3060051996 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>ValueBlob</source>
+          <target state="translated">ValueBlob</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Captures - Field ValueBlob - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1656495825 - Field 1881551368 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Length</source>
+          <target state="translated">Длина</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Captures - Field Length - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 28344312 - Field 1139687811 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>GroupIndex</source>
+          <target state="translated">GroupIndex</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Groups - Field GroupIndex - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 28344312 - Field 171145402 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Index</source>
+          <target state="translated">Указатель</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Groups - Field Index - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 28344312 - Field 2961552353 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Name</source>
+          <target state="translated">Имя</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Groups - Field Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 28344312 - Field 3060051996 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>ValueBlob</source>
+          <target state="translated">ValueBlob</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Groups - Field ValueBlob - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 28344312 - Field 1881551368 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Length</source>
+          <target state="translated">Длина</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Groups - Field Length - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 28344312 - Field 3878926381 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Success</source>
+          <target state="translated">Успешно</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Groups - Field Success - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1641495975 - Field 2038629119 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>MatchIndex</source>
+          <target state="translated">MatchIndex</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Matches - Field MatchIndex - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1641495975 - Field 171145402 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Index</source>
+          <target state="translated">Указатель</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Matches - Field Index - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1641495975 - Field 3060051996 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>ValueBlob</source>
+          <target state="translated">ValueBlob</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Matches - Field ValueBlob - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1641495975 - Field 1881551368 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Length</source>
+          <target state="translated">Длина</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Matches - Field Length - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1641495975 - Field 3878926381 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Success</source>
+          <target state="translated">Успешно</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Matches - Field Success - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2794189023 - Field 1001505280 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>IgnoreCase</source>
+          <target state="translated">IgnoreCase</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Regex Options - Field IgnoreCase - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2794189023 - Field 2572413993 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Multiline</source>
+          <target state="translated">Многострочный</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Regex Options - Field Multiline - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2794189023 - Field 3963650414 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>ExplicitCapture</source>
+          <target state="translated">ExplicitCapture</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Regex Options - Field ExplicitCapture - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2794189023 - Field 1628235799 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Compiled</source>
+          <target state="translated">Скомпилировано</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Regex Options - Field Compiled - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2794189023 - Field 3541926248 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Singleline</source>
+          <target state="translated">Однострочный режим</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Regex Options - Field Singleline - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2794189023 - Field 2272751685 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>IgnorePatternWhitespace</source>
+          <target state="translated">IgnorePatternWhitespace</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Regex Options - Field IgnorePatternWhitespace - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2794189023 - Field 2612374468 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>RightToLeft</source>
+          <target state="translated">RightToLeft</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Regex Options - Field RightToLeft - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2794189023 - Field 61155663 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>ECMAScript</source>
+          <target state="translated">ECMAScript</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Regex Options - Field ECMAScript - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2794189023 - Field 3024051472 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>CultureInvariant</source>
+          <target state="translated">CultureInvariant</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Regex Options - Field CultureInvariant - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2794189023 - Field 3798167227 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>MatchTimeoutInMs</source>
+          <target state="translated">MatchTimeoutInMs</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Regex Options - Field MatchTimeoutInMs - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 2219781045 - Field 1950707465 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>User SID</source>
           <target state="translated">SID пользователя</target>
@@ -2328,6 +2478,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Email Outbox - Field Error Message - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 1251581097 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Outbox</source>
+          <target state="translated">Исходящие сообщения</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Outbox - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 1251581097 - Property 3863440606" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>draft email</source>
           <target state="translated">черновик сообщения электронной почты</target>
@@ -2423,6 +2579,12 @@
           <target state="translated">Отправка сообщения электронной почты на обработку. Состояние будет изменено на "Ожидание" до завершения обработки. Если сообщение электронной почты успешно отправлено, оно больше не будет отображаться в папке "Исходящие".</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Outbox - Action SendEmail - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1251581097 - Action 2026913255 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Refresh</source>
+          <target state="translated">Обновить</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Outbox - Action Refresh - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1251581097 - Action 2026913255 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Refresh</source>
@@ -8060,6 +8222,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Video Link - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 3389183890 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Accounts</source>
+          <target state="translated">Учетные записи электронной почты</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Accounts - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 3389183890 - Property 3863440606" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>SMTP,Office 365,Exchange,Outlook</source>
           <target state="translated">SMTP,Office 365,Exchange,Outlook</target>
@@ -8124,6 +8292,18 @@
           <target state="translated">Определяет тип почтового расширения, в которое добавлена учетная запись.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Accounts - Control EmailConnector - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3389183890 - Control 2215568871 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Scenarios</source>
+          <target state="translated">Сценарии электронной почты</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Accounts - Control Scenarios - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3389183890 - Control 2215568871 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The email scenarios assigned to the selected account.</source>
+          <target state="translated">Сценарии электронной почты, назначенные выбранной учетной записи.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Accounts - Control Scenarios - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3389183890 - Action 176562519 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>View settings for the email account.</source>
@@ -8311,6 +8491,12 @@
           <target state="translated">Соблюдайте осторожность при добавлении учетных записей электронной почты. В зависимости от настроек эти учетные записи могут быть доступны всем пользователям системы.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Account Wizard - Control UsageWarning - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3756518970 - Control 4067785176 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specify the type of email account to add</source>
+          <target state="translated">Укажите тип добавляемой учетной записи эл. почты</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Account Wizard - Control Specify the type of email account to add - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3756518970 - Control 1123305005 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source> </source>
@@ -8654,6 +8840,18 @@
           <target state="translated">Отмена назначения выбранных сценариев. После этого для отправки сообщений электронной почты для сценариев будет использоваться учетная запись, предусмотренная по умолчанию.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Scenario Setup - Action Unassign - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 329821768 - Control 2961552353 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The email scenario.</source>
+          <target state="translated">Сценарий электронной почты.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Scenarios FactBox - Control Name - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 329821768 - Control 2961552353 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email scenario</source>
+          <target state="translated">Сценарий электронной почты</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Scenarios FactBox - Control Name - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1514646453 - Control 2961552353 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The email scenario.</source>
@@ -9039,6 +9237,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Retention Policy Setup List - Action ApplyAll - Property ToolTip</note>
         </trans-unit>
+        <trans-unit id="Page 709229469 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sent Emails</source>
+          <target state="translated">Отправленные сообщения</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sent Emails - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 709229469 - Control 3552705779 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies a short description of the email that was sent.</source>
           <target state="translated">Определяет краткое описание отправленного сообщения электронной почты.</target>
@@ -9104,6 +9308,12 @@
           <target state="translated">Редактирование и отправка сообщения электронной почты.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Sent Emails - Action EditAndSend - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 709229469 - Action 2026913255 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Refresh</source>
+          <target state="translated">Обновить</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sent Emails - Action Refresh - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 709229469 - Action 2026913255 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Refresh</source>

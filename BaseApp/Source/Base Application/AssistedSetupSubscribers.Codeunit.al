@@ -66,7 +66,7 @@ codeunit 1814 "Assisted Setup Subscribers"
         VideoIntrotoDynamics365forFinancialsNameTxt: Label 'Learn about Dynamics 365';
         VideoAzureAIforFinancialsNameTxt: Label 'AzureAI with Dynamics 365';
         VideoUrlSetupEmailTxt: Label 'https://go.microsoft.com/fwlink/?linkid=843243', Locked = true;
-        VideoUrlSetupCRMConnectionTxt: Label 'https://go.microsoft.com/fwlink/?linkid=843244', Locked = true;
+        VideoUrlSetupCRMConnectionTxt: Label '', Locked = true;
         VideoUrlSetupApprovalsTxt: Label 'https://go.microsoft.com/fwlink/?linkid=843246', Locked = true;
         VideoUrlSetupEmailLoggingTxt: Label 'https://go.microsoft.com/fwlink/?linkid=843360', Locked = true;
         SetupDimensionsTxt: Label 'Set up dimensions';

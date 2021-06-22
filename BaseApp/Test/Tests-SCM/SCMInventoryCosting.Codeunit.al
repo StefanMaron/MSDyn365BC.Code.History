@@ -952,6 +952,146 @@ codeunit 137007 "SCM Inventory Costing"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    [Scope('OnPrem')]
+    procedure StandardCostOfProductionItemWithNonStdCostPurchComp()
+    var
+        CompItem: Record Item;
+        ProdItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        CalculateStandardCost: Codeunit "Calculate Standard Cost";
+    begin
+        // [FEATURE] [Standard Cost] [Unit Cost] [Production BOM]
+        // [SCENARIO 376957] Running "Calculate Standard Cost" by one level for a manufacturing item includes purchased components with "Costing Method" <> "Standard" into calculation.
+        Initialize();
+
+        // [GIVEN] Purchased component item "C" with "FIFO" costing method and "Unit Cost" = 100.
+        CreateItemWithCostingMethod(CompItem, CompItem."Costing Method"::FIFO);
+        CompItem.Validate("Unit Cost", LibraryRandom.RandDec(100, 2));
+        CompItem.Modify(true);
+
+        // [GIVEN] Manufacturing item "P" with Production BOM that includes "C".
+        CreateCertifiedProductionBOM(
+          ProductionBOMHeader, CompItem."Base Unit of Measure", ProductionBOMLine.Type::Item, CompItem."No.", 1);
+        CreateItemWithCostingMethod(ProdItem, ProdItem."Costing Method"::Standard);
+        ProdItem.Validate("Replenishment System", ProdItem."Replenishment System"::"Prod. Order");
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Modify(true);
+
+        // [WHEN] Calculate Standard Cost by "One Level" for the item "P".
+        CalculateStandardCost.CalcItem(ProdItem."No.", false);
+
+        // [THEN] The standard cost of "P" = 100.
+        ProdItem.Find();
+        ProdItem.TestField("Standard Cost", CompItem."Unit Cost");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure StandardCostOfAssemblyItemWithNonStdCostPurchComp()
+    var
+        CompItem: Record Item;
+        AsmItem: Record Item;
+        BOMComponent: Record "BOM Component";
+        CalculateStandardCost: Codeunit "Calculate Standard Cost";
+    begin
+        // [FEATURE] [Standard Cost] [Unit Cost] [Assembly BOM]
+        // [SCENARIO 376957] Running "Calculate Standard Cost" by one level for an assembly item includes purchased components with "Costing Method" <> "Standard" into calculation.
+        Initialize();
+
+        // [GIVEN] Purchased component item "C" with "FIFO" costing method and "Unit Cost" = 100.
+        CreateItemWithCostingMethod(CompItem, CompItem."Costing Method"::FIFO);
+        CompItem.Validate("Unit Cost", LibraryRandom.RandDec(100, 2));
+        CompItem.Modify(true);
+
+        // [GIVEN] Assembly item "A" with BOM that includes "C".
+        CreateItemWithCostingMethod(AsmItem, AsmItem."Costing Method"::Standard);
+        AsmItem.Validate("Replenishment System", AsmItem."Replenishment System"::Assembly);
+        LibraryManufacturing.CreateBOMComponent(
+          BOMComponent, AsmItem."No.", BOMComponent.Type::Item, CompItem."No.", 1, CompItem."Base Unit of Measure");
+
+        // [WHEN] Calculate Standard Cost by "One Level" for the item "A".
+        CalculateStandardCost.CalcItem(AsmItem."No.", true);
+
+        // [THEN] The standard cost of "A" = 100.
+        AsmItem.Find();
+        AsmItem.TestField("Standard Cost", CompItem."Unit Cost");
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    [Scope('OnPrem')]
+    procedure StandardCostOfProductionItemWithNonStdCostAsmComp()
+    var
+        CompItem: Record Item;
+        ProdItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        CalculateStandardCost: Codeunit "Calculate Standard Cost";
+    begin
+        // [FEATURE] [Standard Cost] [Unit Cost] [Production BOM]
+        // [SCENARIO 376957] Running "Calculate Standard Cost" by one level for a mfg. item does not include assembly components with "Costing Method" <> "Standard" into calculation.
+        // [SCENARIO 376957] This test is to state the current behavior.
+        Initialize();
+
+        // [GIVEN] Assembly component item "C" with "FIFO" costing method and "Unit Cost" = 100.
+        CreateItemWithCostingMethod(CompItem, CompItem."Costing Method"::FIFO);
+        CompItem.Validate("Replenishment System", CompItem."Replenishment System"::Assembly);
+        CompItem.Validate("Unit Cost", LibraryRandom.RandDec(100, 2));
+        CompItem.Modify(true);
+
+        // [GIVEN] Manufacturing item "P" with Production BOM that includes "C".
+        CreateCertifiedProductionBOM(
+          ProductionBOMHeader, CompItem."Base Unit of Measure", ProductionBOMLine.Type::Item, CompItem."No.", 1);
+        CreateItemWithCostingMethod(ProdItem, ProdItem."Costing Method"::Standard);
+        ProdItem.Validate("Replenishment System", ProdItem."Replenishment System"::"Prod. Order");
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Modify(true);
+
+        // [WHEN] Calculate Standard Cost by "One Level" for the item "P".
+        CalculateStandardCost.CalcItem(ProdItem."No.", false);
+
+        // [THEN] The standard cost of "P" = 100. The assembly component is not calculated and thus not included.
+        ProdItem.Find();
+        ProdItem.TestField("Standard Cost", 0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure StandardCostOfAssemblyItemWithNonStdCostProdComp()
+    var
+        CompItem: Record Item;
+        AsmItem: Record Item;
+        BOMComponent: Record "BOM Component";
+        CalculateStandardCost: Codeunit "Calculate Standard Cost";
+    begin
+        // [FEATURE] [Standard Cost] [Unit Cost] [Assembly BOM]
+        // [SCENARIO 376957] Running "Calculate Standard Cost" by one level for an assembly item does not include mfg. components with "Costing Method" <> "Standard" into calculation.
+        // [SCENARIO 376957] This test is to state the current behavior.
+        Initialize();
+
+        // [GIVEN] Manufacturing component item "C" with "FIFO" costing method and "Unit Cost" = 100.
+        CreateItemWithCostingMethod(CompItem, CompItem."Costing Method"::FIFO);
+        CompItem.Validate("Replenishment System", CompItem."Replenishment System"::"Prod. Order");
+        CompItem.Validate("Unit Cost", LibraryRandom.RandDec(100, 2));
+        CompItem.Modify(true);
+
+        // [GIVEN] Assembly item "A" with BOM that includes "C".
+        CreateItemWithCostingMethod(AsmItem, AsmItem."Costing Method"::Standard);
+        AsmItem.Validate("Replenishment System", AsmItem."Replenishment System"::Assembly);
+        LibraryManufacturing.CreateBOMComponent(
+          BOMComponent, AsmItem."No.", BOMComponent.Type::Item, CompItem."No.", 1, CompItem."Base Unit of Measure");
+
+        // [WHEN] Calculate Standard Cost by "One Level" for the item "A".
+        CalculateStandardCost.CalcItem(AsmItem."No.", true);
+
+        // [THEN] The standard cost of "A" = 100. The mfg. component is not calculated and thus not included.
+        AsmItem.Find();
+        AsmItem.TestField("Standard Cost", 0);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1774,6 +1914,13 @@ codeunit 137007 "SCM Inventory Costing"
               StrSubstNo(
                 UnexpectedCostAmtErr, FieldCaption("Cost Amount (Actual)"), ItemJournalLine.FieldCaption("Inventory Value (Revalued)")));
         end;
+    end;
+
+    [StrMenuHandler]
+    [Scope('OnPrem')]
+    procedure StrMenuHandler(Options: Text[1024]; var Choice: Integer; Instructions: Text[1024])
+    begin
+        Choice := 1;
     end;
 
     [MessageHandler]

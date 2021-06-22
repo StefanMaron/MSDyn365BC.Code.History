@@ -145,6 +145,54 @@ codeunit 134167 "Copy Price Data Test"
     end;
 
     [Test]
+    procedure T004_CopySalesPriceCampaignToSeparateHeaders()
+    var
+        Campaign: Record Campaign;
+        Currency: Record Currency;
+        CustomerPriceGroup: Record "Customer Price Group";
+        Item: Record Item;
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        SalesPrice: Record "Sales Price";
+        PriceListCode: Code[20];
+    begin
+        // [FEATURE] [Campaign]
+        // [SCENARIO 379607] Campaign Sales Price should be converted to Campaign price list line.
+        Initialize();
+        SalesPrice.DeleteAll();
+        PriceListLine.DeleteAll();
+        PriceListHeader.DeleteAll();
+        // [GIVEN] 2 Sales Prices, for Campaign andf Customer Price Group, Item, with/without Currency.
+        LibraryInventory.CreateItem(Item);
+        LibraryMarketing.CreateCampaign(Campaign);
+        LibrarySales.CreateCustomerPriceGroup(CustomerPriceGroup);
+        LibraryERM.CreateCurrency(Currency);
+        LibrarySales.CreateSalesPrice(
+            SalesPrice, Item."No.", "Sales Price Type"::Campaign, Campaign."No.",
+            Today(), Currency.Code, '', Item."Base Unit of Measure", 5, LibraryRandom.RandDec(1000, 2));
+        LibrarySales.CreateSalesPrice(
+            SalesPrice, Item."No.", "Sales Price Type"::"Customer Price Group", CustomerPriceGroup.Code,
+            Today(), '', '', Item."Base Unit of Measure", 5, LibraryRandom.RandDec(1000, 2));
+
+        // [WHEN] Copy SalesPrices with header generation
+        CopyFromToPriceListLine.SetGenerateHeader();
+        CopyFromToPriceListLine.CopyFrom(SalesPrice, PriceListLine);
+
+        // [THEN] Added 2 Price List Lines and 2 Headers with/without "Currency Code"
+        PriceListLine.FindFirst();
+        PriceListLine.TestField("Source Type", "Price Source Type"::"Customer Price Group");
+        PriceListLine.TestField("Source No.", CustomerPriceGroup.Code);
+        PriceListCode := PriceListLine."Price List Code";
+        VerifyHeader(PriceListLine);
+        // [THEN] Price line for Campaign belongs to the header, where "Source Group" is 'Customer'
+        PriceListLine.Next();
+        PriceListLine.TestField("Source Type", "Price Source Type"::Campaign);
+        PriceListLine.TestField("Source No.", Campaign."No.");
+        Assert.AreNotEqual(PriceListCode, PriceListLine."Price List Code", 'Same price list code');
+        VerifyHeader(PriceListLine);
+    end;
+
+    [Test]
     procedure T011_CopyPurchPriceToSeparateHeaders()
     var
         Currency: Record Currency;
@@ -1132,6 +1180,9 @@ codeunit 134167 "Copy Price Data Test"
         SalesReceivablesSetup.Modify();
         // [GIVEN] Sales Price record exists, Price List Line does not.
         PriceListLine.DeleteAll();
+        LibrarySales.CreateSalesPrice(
+            SalesPrice, LibraryInventory.CreateItemNo(),
+            "Sales Price Type"::Customer, LibrarySales.CreateCustomerNo(), Today(), '', '', '', 0, 0);
         SalesPrice.SetRange("Sales Type", SalesPrice."Sales Type"::Customer);
         SalesPrice.FindFirst();
 
@@ -1490,6 +1541,7 @@ codeunit 134167 "Copy Price Data Test"
         PriceListHeader.TestField("Source Type", PriceListLine."Source Type");
         PriceListHeader.TestField("Source No.", PriceListLine."Source No.");
         PriceListHeader.TestField("Parent Source No.", PriceListLine."Parent Source No.");
+        Assert.AreNotEqual(PriceListHeader."Source Group", "Price Source Group"::All, 'Source Group is All in header');
     end;
 
     [ModalPageHandler]

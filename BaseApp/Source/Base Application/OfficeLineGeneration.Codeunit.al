@@ -1,4 +1,4 @@
-codeunit 1639 "Office Line Generation"
+﻿codeunit 1639 "Office Line Generation"
 {
     // This codeunit contains algorithms for finding item references within text.
 
@@ -35,11 +35,16 @@ codeunit 1639 "Office Line Generation"
         SingleMatches: Integer;
         TotalMatches: Integer;
         AlreadyFound: Boolean;
+        IsHandled: Boolean;
     begin
         // Searches for quantity keywords (1,2,..,999,one,two,..,nine) and takes the first four
         // words on either side of the keyword as the "pretext" and the "posttext". Using the
         // pretext and posttext values, we try to take substrings and find matches in the Item
         // table. If multiple matches are found, then we allow the user to resolve the item.
+        IsHandled := false;
+        OnBeforeCreateLinesBasedOnQuantityReferences(HeaderRecRef, TempOfficeSuggestedLineItem, EmailBody, IsHandled);
+        if IsHandled then
+            exit;
 
         // Measure the time it takes to find the items
         Stopwatch := Stopwatch.StartNew;
@@ -561,6 +566,11 @@ codeunit 1639 "Office Line Generation"
                 Sanitized := Regex.Replace(Sanitized, Word, PluralizationService.Singularize(Word));
         end;
         Sanitized := PluralizationService.Singularize(Sanitized);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateLinesBasedOnQuantityReferences(var HeaderRecRef: RecordRef; var TempOfficeSuggestedLineItem: Record "Office Suggested Line Item" temporary; EmailBody: Text; var IsHandled: Boolean)
+    begin
     end;
 }
 

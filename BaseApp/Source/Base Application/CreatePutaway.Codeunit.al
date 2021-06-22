@@ -1,4 +1,4 @@
-codeunit 7313 "Create Put-away"
+﻿codeunit 7313 "Create Put-away"
 {
     TableNo = "Posted Whse. Receipt Line";
 
@@ -364,6 +364,7 @@ codeunit 7313 "Create Put-away"
                 Bin2.SetRange("Location Code", Location.Code);
                 Bin2.SetFilter(Code, '<>%1&<>%2&<>%3', Location."Receipt Bin Code", Location."Shipment Bin Code",
                   PostedWhseRcptLine."Bin Code");
+                OnAssignPlaceBinZoneOnAfterBin2SetFilters(PostedWhseRcptLine, WhseActivLine, Location, Bin2);
                 if Bin2.FindFirst then begin
                     "Bin Code" := Bin2.Code;
                     "Zone Code" := Bin2."Zone Code";
@@ -487,6 +488,7 @@ codeunit 7313 "Create Put-away"
         end else
             QtyToPutAwayBase := PostedWhseRcptLine."Qty. (Base)";
 
+        OnCalcQtyToPutAwayOnAfterSetQtyToPutAwayBase(PostedWhseRcptLine, Location, Bin, CrossDockInfo, EmptyZoneBin, QtyToPutAwayBase);
         QtyToPickBase := QtyToPickBase + QtyToPutAwayBase;
         if QtyToPutAwayBase > 0 then begin
             LineNo := LineNo + 10000;
@@ -659,7 +661,14 @@ codeunit 7313 "Create Put-away"
     end;
 
     local procedure GetPutAwayTemplate()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetPutAwayTemplate(SKU, Item, Location, PutAwayTemplHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         if SKU."Put-away Template Code" <> '' then begin
             if SKU."Put-away Template Code" <> PutAwayTemplHeader.Code then
                 if not PutAwayTemplHeader.Get(SKU."Put-away Template Code") then
@@ -948,6 +957,11 @@ codeunit 7313 "Create Put-away"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAssignPlaceBinZoneOnAfterBin2SetFilters(PostedWhseRcptLine: Record "Posted Whse. Receipt Line"; WhseActivLine: Record "Warehouse Activity Line"; Location: Record Location; var Bin2: Record Bin)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcAvailCubageAndWeight(var Bin: Record Bin; PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; PutAwayItemUOM: Record "Item Unit of Measure"; var QtyToPutAwayBase: Decimal; var IsHandled: Boolean)
     begin
     end;
@@ -973,12 +987,22 @@ codeunit 7313 "Create Put-away"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetPutAwayTemplate(SKU: Record "Stockkeeping Unit"; Item: Record Item; Location: Record Location; var PutAwayTemplHeader: Record "Put-away Template Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeWhseActivHeaderInsert(var WarehouseActivityHeader: Record "Warehouse Activity Header"; PostedWhseReceiptLine: Record "Posted Whse. Receipt Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeWhseActivLineInsert(var WarehouseActivityLine: Record "Warehouse Activity Line"; PostedWhseRcptLine: Record "Posted Whse. Receipt Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcQtyToPutAwayOnAfterSetQtyToPutAwayBase(PostedWhseRcptLine: Record "Posted Whse. Receipt Line"; Location: Record Location; Bin: Record Bin; CrossDockInfo: Option; EmptyZoneBin: Boolean; var QtyToPutAwayBase: Decimal)
     begin
     end;
 

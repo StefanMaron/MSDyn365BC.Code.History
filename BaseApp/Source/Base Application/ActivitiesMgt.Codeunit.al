@@ -15,6 +15,7 @@ codeunit 1311 "Activities Mgt."
     [Obsolete('Replaced by OverdueSalesInvoiceAmount(CalledFromWebService, UseCachedValue)', '17.0')]
     procedure CalcOverdueSalesInvoiceAmount(CalledFromWebService: Boolean) Amount: Decimal
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
         SetFilterForCalcOverdueSalesInvoiceAmount(DetailedCustLedgEntry, CalledFromWebService);
@@ -35,6 +36,7 @@ codeunit 1311 "Activities Mgt."
 
     procedure OverdueSalesInvoiceAmount(CalledFromWebService: Boolean; UseCachedValue: Boolean): Decimal
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         CustLedgerEntry: Record "Cust. Ledger Entry";
         ActivitiesCue: record "Activities Cue";
         Amount: Decimal;
@@ -66,6 +68,7 @@ codeunit 1311 "Activities Mgt."
 
     procedure DrillDownCalcOverdueSalesInvoiceAmount()
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         SetFilterOverdueSalesInvoice(CustLedgerEntry, false);
@@ -79,6 +82,7 @@ codeunit 1311 "Activities Mgt."
     [Obsolete('Replaced by OverduePurchaseInvoiceAmount(CalledFromWebService, UseCache', '17.0')]
     procedure CalcOverduePurchaseInvoiceAmount(CalledFromWebService: Boolean) Amount: Decimal
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
         SetFilterForCalcOverduePurchaseInvoiceAmount(DetailedVendorLedgEntry, CalledFromWebService);
@@ -99,6 +103,7 @@ codeunit 1311 "Activities Mgt."
 
     procedure OverduePurchaseInvoiceAmount(CalledFromWebService: Boolean; UseCachedValue: Boolean): Decimal
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         ActivitiesCue: Record "Activities Cue";
         Amount: Decimal;
@@ -130,6 +135,7 @@ codeunit 1311 "Activities Mgt."
 
     procedure DrillDownOverduePurchaseInvoiceAmount()
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
         SetFilterOverduePurchaseInvoice(VendorLedgerEntry, false);
@@ -142,6 +148,7 @@ codeunit 1311 "Activities Mgt."
 
     procedure CalcSalesThisMonthAmount(CalledFromWebService: Boolean) Amount: Decimal
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         SetFilterForCalcSalesThisMonthAmount(CustLedgerEntry, CalledFromWebService);
@@ -162,6 +169,7 @@ codeunit 1311 "Activities Mgt."
 
     procedure DrillDownSalesThisMonth()
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         CustLedgerEntry.SetFilter("Document Type", '%1|%2',
@@ -208,6 +216,7 @@ codeunit 1311 "Activities Mgt."
 
     procedure CalcAverageCollectionDays() AverageDays: Decimal
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         CustLedgerEntry: Record "Cust. Ledger Entry";
         SumCollectionDays: Integer;
         CountInvoices: Integer;
@@ -233,8 +242,11 @@ codeunit 1311 "Activities Mgt."
 
     procedure CalcCashAccountsBalances() CashAccountBalance: Decimal
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         GLAccount: Record "G/L Account";
+        [SecurityFiltering(SecurityFilter::Filtered)]
         GLAccCategory: Record "G/L Account Category";
+        [SecurityFiltering(SecurityFilter::Filtered)]
         GLEntries: Record "G/L Entry";
     begin
         GLAccount.SetRange("Account Category", GLAccount."Account Category"::Assets);
@@ -247,7 +259,9 @@ codeunit 1311 "Activities Mgt."
 
     procedure DrillDownCalcCashAccountsBalances()
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         GLAccount: Record "G/L Account";
+        [SecurityFiltering(SecurityFilter::Filtered)]
         GLAccCategory: Record "G/L Account Category";
     begin
         GLAccount.SetRange("Account Category", GLAccount."Account Category"::Assets);

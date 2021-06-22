@@ -56,7 +56,7 @@ codeunit 5475 "Graph Mgt - Sales Invoice"
             end;
     end;
 
-    procedure SellToCustomerAddressToJSON(SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate") JSON: Text
+    procedure SellToCustomerAddressToJSON(var SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate") JSON: Text
     var
         GraphMgtComplexTypes: Codeunit "Graph Mgt - Complex Types";
     begin
@@ -65,7 +65,7 @@ codeunit 5475 "Graph Mgt - Sales Invoice"
               "Sell-to City", "Sell-to County", "Sell-to Country/Region Code", "Sell-to Post Code", JSON);
     end;
 
-    procedure BillToCustomerAddressToJSON(SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate") JSON: Text
+    procedure BillToCustomerAddressToJSON(var SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate") JSON: Text
     var
         GraphMgtComplexTypes: Codeunit "Graph Mgt - Complex Types";
     begin
@@ -74,7 +74,7 @@ codeunit 5475 "Graph Mgt - Sales Invoice"
               "Bill-to City", "Bill-to County", "Bill-to Country/Region Code", "Bill-to Post Code", JSON);
     end;
 
-    procedure ShipToCustomerAddressToJSON(SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate") JSON: Text
+    procedure ShipToCustomerAddressToJSON(var SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate") JSON: Text
     var
         GraphMgtComplexTypes: Codeunit "Graph Mgt - Complex Types";
     begin

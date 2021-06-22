@@ -59,7 +59,7 @@ page 9094 "Vendor Statistics FactBox"
                 Caption = 'Total (LCY)';
                 ToolTip = 'Specifies the payment amount that you owe the vendor for completed purchases plus purchases that are still ongoing.';
             }
-            field("Balance Due (LCY)"; CalcOverDueBalance)
+            field("Balance Due (LCY)"; OverDueBalance)
             {
                 ApplicationArea = Basic, Suite;
                 CaptionClass = Format(StrSubstNo(Text000, Format(WorkDate)));
@@ -77,7 +77,7 @@ page 9094 "Vendor Statistics FactBox"
                     VendLedgEntry.DrillDownOnOverdueEntries(DtldVendLedgEntry);
                 end;
             }
-            field(GetInvoicedPrepmtAmountLCY; GetInvoicedPrepmtAmountLCY)
+            field(GetInvoicedPrepmtAmountLCY; InvoicedPrepmtAmountLCY)
             {
                 ApplicationArea = Prepayments;
                 Caption = 'Invoiced Prepayment Amount (LCY)';
@@ -93,7 +93,7 @@ page 9094 "Vendor Statistics FactBox"
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the sum of refunds paid to the vendor.';
             }
-            field(LastPaymentDate; GetLastPaymentDate)
+            field(LastPaymentDate; LastPaymentDate)
             {
                 AccessByPermission = TableData "Vendor Ledger Entry" = R;
                 ApplicationArea = Basic, Suite;
@@ -121,10 +121,26 @@ page 9094 "Vendor Statistics FactBox"
     }
 
     trigger OnAfterGetRecord()
+    var
+        VendorNo: Code[20];
+        VendorNoFilter: Text;
     begin
         FilterGroup(4);
         SetAutoCalcFields("Balance (LCY)", "Outstanding Orders (LCY)", "Amt. Rcd. Not Invoiced (LCY)", "Outstanding Invoices (LCY)");
         TotalAmountLCY := "Balance (LCY)" + "Outstanding Orders (LCY)" + "Amt. Rcd. Not Invoiced (LCY)" + "Outstanding Invoices (LCY)";
+
+        // Get the vendor number and set the current vendor number
+        VendorNoFilter := GetFilter("No.");
+        if (VendorNoFilter = '') then begin
+            FilterGroup(0);
+            VendorNoFilter := GetFilter("No.");
+        end;
+
+        VendorNo := CopyStr(VendorNoFilter, 1, MaxStrLen(VendorNo));
+        if VendorNo <> CurrVendorNo then begin
+            CurrVendorNo := VendorNo;
+            CalculateFieldValues(CurrVendorNo);
+        end;
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
@@ -137,9 +153,59 @@ page 9094 "Vendor Statistics FactBox"
     var
         Text000: Label 'Overdue Amounts (LCY) as of %1';
         ShowVendorNo: Boolean;
+        TaskIdCalculateCue: Integer;
+        CurrVendorNo: Code[20];
 
     protected var
         TotalAmountLCY: Decimal;
+        LastPaymentDate: Date;
+        InvoicedPrepmtAmountLCY: Decimal;
+        OverdueBalance: Decimal;
+
+    procedure CalculateFieldValues(VendorNo: Code[20])
+    var
+        CalculateVendorStats: Codeunit "Calculate Vendor Stats.";
+        Args: Dictionary of [Text, Text];
+    begin
+        if (TaskIdCalculateCue <> 0) then
+            CurrPage.CancelBackgroundTask(TaskIdCalculateCue);
+
+        Clear(LastPaymentDate);
+        Clear(OverdueBalance);
+        Clear(InvoicedPrepmtAmountLCY);
+
+        if VendorNo = '' then
+            exit;
+
+        Args.Add(CalculateVendorStats.GetVendorNoLabel(), VendorNo);
+        CurrPage.EnqueueBackgroundTask(TaskIdCalculateCue, Codeunit::"Calculate Vendor Stats.", Args);
+    end;
+
+    trigger OnPageBackgroundTaskCompleted(TaskId: Integer; Results: Dictionary of [Text, Text])
+    var
+        CalculateVendorStats: Codeunit "Calculate Vendor Stats.";
+        DictionaryValue: Text;
+    begin
+        if (TaskId = TaskIdCalculateCue) then begin
+            if Results.Count() = 0 then
+                exit;
+
+            if TryGetDictionaryValueFromKey(Results, CalculateVendorStats.GetLastPaymentDateLabel(), DictionaryValue) then
+                Evaluate(LastPaymentDate, DictionaryValue);
+
+            if TryGetDictionaryValueFromKey(Results, CalculateVendorStats.GetOverdueBalanceLabel(), DictionaryValue) then
+                Evaluate(OverdueBalance, DictionaryValue);
+
+            if TryGetDictionaryValueFromKey(Results, CalculateVendorStats.GetInvoicedPrepmtAmountLCYLabel(), DictionaryValue) then
+                Evaluate(InvoicedPrepmtAmountLCY, DictionaryValue);
+        end;
+    end;
+
+    [TryFunction]
+    local procedure TryGetDictionaryValueFromKey(var DictionaryToLookIn: Dictionary of [Text, Text]; KeyToSearchFor: Text; var ReturnValue: Text)
+    begin
+        ReturnValue := DictionaryToLookIn.Get(KeyToSearchFor);
+    end;
 
     local procedure ShowDetails()
     begin
@@ -152,15 +218,6 @@ page 9094 "Vendor Statistics FactBox"
         ShowVendorNo := Visible;
     end;
 
-    local procedure GetLastPaymentDate(): Date
-    var
-        VendorLedgerEntry: Record "Vendor Ledger Entry";
-    begin
-        SetFilterLastPaymentDateEntry(VendorLedgerEntry);
-        if VendorLedgerEntry.FindLast then;
-        exit(VendorLedgerEntry."Posting Date");
-    end;
-
     local procedure SetFilterLastPaymentDateEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
         VendorLedgerEntry.SetCurrentKey("Document Type", "Vendor No.", "Posting Date", "Currency Code");
@@ -168,5 +225,6 @@ page 9094 "Vendor Statistics FactBox"
         VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Payment);
         VendorLedgerEntry.SetRange(Reversed, false);
     end;
+
 }
 

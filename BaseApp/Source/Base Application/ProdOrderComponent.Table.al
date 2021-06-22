@@ -1032,7 +1032,14 @@
     end;
 
     procedure ShowReservation()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowReservation(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         TestField("Item No.");
         Clear(Reservation);
         Reservation.SetReservSource(Rec);
@@ -1302,6 +1309,7 @@
         ProdOrderRtngLine.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
         ProdOrderRtngLine.SetRange("Routing Reference No.", ProdOrderLine."Routing Reference No.");
         ProdOrderRtngLine.SetRange("Routing No.", ProdOrderLine."Routing No.");
+        ProdOrderRtngLine.SetRange("Location Code", ProdOrderLine."Location Code");
         ProdOrderRtngLine.SetFilter("No.", '<>%1', ''); // empty No. implies blank bin codes - ignore these
         ProdOrderRtngLine.SetRange("Previous Operation No.", ''); // first operation
         if "Routing Link Code" <> '' then begin
@@ -1825,6 +1833,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRoundExpectedQuantity(var ProdOrderComponent: Record "Prod. Order Component"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowReservation(var ProdOrderComponent: Record "Prod. Order Component"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -70,7 +70,7 @@
   </Item>
   <Item ItemId=";Codeunit 4055676525 - NamedType 809636057" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[One or more bank account ledger entries in bank account]]></Val>
+      <Val><![CDATA[When you use action Delete the bank statement will be deleted]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -102,6 +102,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Bank Reconciliation - NamedType ICPartnerAccountTypeQst)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4055676525 - NamedType 3323228506" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[A bank account reconciliation with statement number %1 already exists.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - statement number]D;]A;(LookupHint=Codeunit ERM Bank Reconciliation - NamedType StatementAlreadyExistsErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 184886348 - NamedType 2438184867" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

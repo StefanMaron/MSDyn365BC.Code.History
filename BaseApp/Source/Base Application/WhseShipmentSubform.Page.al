@@ -376,11 +376,15 @@ page 7336 "Whse. Shipment Subform"
         WhseShptLine: Record "Warehouse Shipment Line";
         ReleaseWhseShipment: Codeunit "Whse.-Shipment Release";
     begin
+        OnBeforePickCreate(Rec);
+
         WhseShptLine.Copy(Rec);
         WhseShptHeader.Get(WhseShptLine."No.");
         if WhseShptHeader.Status = WhseShptHeader.Status::Open then
             ReleaseWhseShipment.Release(WhseShptHeader);
         CreatePickDoc(WhseShptLine, WhseShptHeader);
+
+        OnAfterPickCreate(WhseShptLine);
     end;
 
     local procedure OpenItemTrackingLines()
@@ -390,12 +394,22 @@ page 7336 "Whse. Shipment Subform"
 
     protected procedure BinCodeOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     protected procedure QuantityOnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPickCreate(var WarehouseShipmentLine: Record "Warehouse Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePickCreate(var WarehouseShipmentLine: Record "Warehouse Shipment Line")
+    begin
     end;
 }
 

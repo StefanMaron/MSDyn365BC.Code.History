@@ -44,7 +44,7 @@ codeunit 9651 "Document Report Mgt."
         TempBlobIn: Codeunit "Temp Blob";
         TempBlobOut: Codeunit "Temp Blob";
         FileMgt: Codeunit "File Management";
-        DotNet_Regex: Codeunit DotNet_Regex;
+        Regex: Codeunit Regex;
         File: File;
         InStrWordDoc: InStream;
         OutStrWordDoc: OutStream;
@@ -101,8 +101,7 @@ codeunit 9651 "Document Report Mgt."
         OnBeforeMergeWordDocument;
 
         if not TryXmlMergeWordDocument(InStrWordDoc, InStrXmlData, OutStrWordDoc) then begin
-            DotNet_Regex.Regex(UnexpectedHexCharacterRegexErr);
-            if DotNet_Regex.IsMatch(GetLastErrorText) then
+            if Regex.IsMatch(GetLastErrorText, UnexpectedHexCharacterRegexErr) then
                 Error(UnexpectedCharInDataErr);
 
             Error(GetLastErrorText);

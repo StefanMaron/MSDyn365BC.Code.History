@@ -2268,7 +2268,13 @@
         PostPurchDelete: Codeunit "PostPurch-Delete";
         ArchiveManagement: Codeunit ArchiveManagement;
         ShowPostedDocsToPrint: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnDelete(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if not UserSetupMgt.CheckRespCenter(1, "Responsibility Center") then
             Error(
               Text023,
@@ -2281,7 +2287,7 @@
         Validate("Applies-to ID", '');
         Validate("Incoming Document Entry No.", 0);
 
-        ApprovalsMgmt.OnDeleteRecordInApprovalRequest(RecordId);
+        DeleteRecordInApprovalRequest();
         PurchLine.LockTable();
 
         WhseRequest.SetRange("Source Type", DATABASE::"Purchase Line");
@@ -3409,6 +3415,18 @@
         end;
     end;
 
+    local procedure DeleteRecordInApprovalRequest()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeDeleteRecordInApprovalRequest(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        ApprovalsMgmt.OnDeleteRecordInApprovalRequest(RecordId);
+    end;
+
     local procedure ClearItemAssgntPurchFilter(var TempItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)" temporary)
     begin
         TempItemChargeAssgntPurch.SetRange("Document Line No.");
@@ -4048,10 +4066,16 @@
         PurchasePostViaJobQueue.CancelQueueEntry(Rec);
     end;
 
-    procedure AddSpecialOrderToAddress(SalesHeader: Record "Sales Header"; ShowError: Boolean)
+    procedure AddSpecialOrderToAddress(var SalesHeader: Record "Sales Header"; ShowError: Boolean)
     var
         PurchaseHeader: Record "Purchase Header";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeAddSpecialOrderToAddress(Rec, SalesHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         if ShowError then
             if PurchLinesExist() then begin
                 PurchaseHeader := Rec;
@@ -5058,7 +5082,13 @@
     local procedure SetPurchaserCode(PurchaserCodeToCheck: Code[20]; var PurchaserCodeToAssign: Code[20])
     var
         UserSetupPurchaserCode: Code[20];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetPurchaserCode(Rec, PurchaserCodeToCheck, PurchaserCodeToAssign, IsHandled);
+        if IsHandled then
+            exit;
+
         UserSetupPurchaserCode := GetUserSetupPurchaserCode;
         if PurchaserCodeToCheck <> '' then begin
             if SalespersonPurchaser.Get(PurchaserCodeToCheck) then
@@ -5542,6 +5572,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeAddSpecialOrderToAddress(var PurchaseHeader: Record "Purchase Header"; var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeAssistEdit(var PurchaseHeader: Record "Purchase Header"; OldPurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
@@ -5583,6 +5618,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeletePurchaseLines(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteRecordInApprovalRequest(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 
@@ -5637,6 +5677,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnDelete(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeSetShipToCodeEmpty(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
@@ -5673,6 +5718,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetDefaultPurchaser(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetPurchaserCode(var PurchaseHeader: Record "Purchase Header"; PurchaserCodeToCheck: Code[20]; var PurchaserCodeToAssign: Code[20]; var IsHandled: Boolean)
     begin
     end;
 

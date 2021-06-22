@@ -1,4 +1,4 @@
-codeunit 8611 "Config. Package Management"
+﻿codeunit 8611 "Config. Package Management"
 {
     TableNo = "Config. Package Record";
 
@@ -45,6 +45,10 @@ codeunit 8611 "Config. Package Management"
         AcknowledgePerformanceImpactTxt: Label 'The user was informed about the potential of poor perfomance and decided to continue. Process: %1', Locked = true;
         LearnMoreTok: Label 'Learn more';
         RapidStartDocumentationUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2121629';
+        ConfigurationPackageApplyDataStartMsg: Label 'Configuration package apply started: %1', Comment = '%1 - package code', Locked = true;
+        ConfigurationPackageApplyDataFinishMsg: Label 'Configuration package applied successfully: %1', Locked = true;
+        ConfigurationPackageDeletedMsg: Label 'Configuration package deleted successfully: %1', Locked = true;
+
 
     procedure InsertPackage(var ConfigPackage: Record "Config. Package"; PackageCode: Code[20]; PackageName: Text[50]; ExcludeConfigTables: Boolean)
     begin
@@ -989,6 +993,8 @@ codeunit 8611 "Config. Package Management"
         DimSetIDUsed: Boolean;
         RecordCount: Integer;
         FieldCount: Integer;
+        ExecutionId: Guid;
+        Dimensions: Dictionary of [Text, Text];
     begin
         LocalConfigPackageRecord.SetRange("Package Code", ConfigPackage.Code);
         RecordCount := LocalConfigPackageRecord.Count();
@@ -1001,6 +1007,11 @@ codeunit 8611 "Config. Package Management"
         end;
 
         StartTime := CurrentDateTime();
+        ExecutionId := CreateGuid();
+        Dimensions.Add('Category', RapidStartTxt);
+        Dimensions.Add('PackageCode', ConfigPackage.Code);
+        Dimensions.Add('ExecutionId', Format(ExecutionId, 0, 4));
+        Session.LogMessage('0000E3N', StrSubstNo(ConfigurationPackageApplyDataStartMsg, ConfigPackage.Code), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
         Session.LogMessage('00009Q8', RSApplyDataStartMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', RapidStartTxt);
 
         BindSubscription(IntegrationService);
@@ -1081,6 +1092,12 @@ codeunit 8611 "Config. Package Management"
 
         RecordsModifiedCount := MaxInt(RecordsModifiedCount - RecordsInsertedCount, 0);
         DurationAsInt := CurrentDateTime() - StartTime;
+
+        Dimensions.Add('ErrorCount', Format(ErrorCount));
+        Dimensions.Add('ExecutionTimeInMs', Format(DurationAsInt));
+        Dimensions.Add('RecordCount', Format(RecordCount));
+        Dimensions.Add('FieldCount', Format(FieldCount));
+        Session.LogMessage('0000E3O', StrSubstNo(ConfigurationPackageApplyDataFinishMsg, ConfigPackage.Code), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
         // Tag used for analytics - DO NOT MODIFY
         Session.LogMessage('00009Q9', StrSubstNo(RSApplyDataFinishMsg, ErrorCount, DurationAsInt, RecordCount, FieldCount), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', RapidStartTxt);
 
@@ -1257,7 +1274,14 @@ codeunit 8611 "Config. Package Management"
     end;
 
     procedure SetFieldFilter(var "Field": Record "Field"; TableID: Integer; FieldID: Integer)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetFieldFilter(Field, TableID, FieldID, IsHandled);
+        if IsHandled then
+            exit;
+
         Field.Reset();
         if TableID > 0 then
             Field.SetRange(TableNo, TableID);
@@ -2394,6 +2418,16 @@ codeunit 8611 "Config. Package Management"
 
     end;
 
+    [EventSubscriber(ObjectType::Table, Database::"Config. Package", 'OnBeforeDeleteEvent', '', false, false)]
+    local procedure SendTelemetryOnDeleteConfigPackage(RunTrigger: Boolean; var Rec: Record "Config. Package")
+    var
+        Dimensions: Dictionary of [Text, Text];
+    begin
+        Dimensions.Add('Category', RapidStartTxt);
+        Dimensions.Add('PackageCode', Rec.Code);
+        Session.LogMessage('0000E3P', StrSubstNo(ConfigurationPackageDeletedMsg, Rec.Code), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidatePackageDataRelation(ConfigPackageData: Record "Config. Package Data"; ConfigPackageField: Record "Config. Package Field"; var ConfigPackageTable: Record "Config. Package Table"; var RelationTableNo: Integer; var RelationFieldNo: Integer; var DataInPackageData: Boolean)
     begin
@@ -2401,6 +2435,11 @@ codeunit 8611 "Config. Package Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetFieldRelationTableNo(ConfigPackageTable: Record "Config. Package Table"; var "Field": Record "Field"; var TempConfigPackageTable: Record "Config. Package Table" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetFieldFilter(var "Field": Record "Field"; TableID: Integer; FieldID: Integer; var IsHandled: Boolean)
     begin
     end;
 

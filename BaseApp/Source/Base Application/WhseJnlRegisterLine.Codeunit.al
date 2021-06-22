@@ -233,6 +233,7 @@
             end;
             WhseJnlLine2."Qty. (Absolute)" := 0;
             WhseJnlLine2."Qty. (Absolute, Base)" := Abs(WhseJnlLine2."Qty. (Base)");
+            OnRegisterRoundResidualOnBeforeWhseJnlRegLineSetWhseRegister(WhseEntry, WhseEntry2, WhseJnlLine, WhseJnlLine2);
             WhseJnlRegLine.SetWhseRegister(WhseReg);
             WhseJnlRegLine.Run(WhseJnlLine2);
             WhseJnlRegLine.GetWhseRegister(WhseReg);
@@ -335,18 +336,31 @@
             BinContent."Qty. per Unit of Measure" := "Qty. per Unit of Measure";
             BinContent.Fixed := WhseIntegrationMgt.IsOpenShopFloorBin("Location Code", "Bin Code");
             if not Location."Directed Put-away and Pick" then begin
-                if WMSMgt.CheckDefaultBin("Item No.", "Variant Code", "Location Code", "Bin Code") then begin
-                    if Location."Default Bin Selection" = Location."Default Bin Selection"::"Last-Used Bin" then begin
-                        DeleteDefaultBinContent("Item No.", "Variant Code", "Location Code");
-                        BinContent.Default := true;
-                    end
-                end else
-                    BinContent.Default := true;
+                CheckDefaultBin(WhseEntry, BinContent);
                 BinContent.Fixed := BinContent.Default;
             end;
             OnBeforeBinContentInsert(BinContent, WhseEntry);
             BinContent.Insert();
         end;
+    end;
+
+    local procedure CheckDefaultBin(WhseEntry: Record "Warehouse Entry"; var BinContent: Record "Bin Content")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckDefaultBin(WhseEntry, BinContent, IsHandled);
+        if IsHandled then
+            exit;
+
+        with WhseEntry do
+            if WMSMgt.CheckDefaultBin("Item No.", "Variant Code", "Location Code", "Bin Code") then begin
+                if Location."Default Bin Selection" = Location."Default Bin Selection"::"Last-Used Bin" then begin
+                    DeleteDefaultBinContent("Item No.", "Variant Code", "Location Code");
+                    BinContent.Default := true;
+                end
+            end else
+                BinContent.Default := true;
     end;
 
     local procedure UpdateDefaultBinContent(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; BinCode: Code[20])
@@ -573,6 +587,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeModifyBinEmpty(var Bin: Record Bin; NewEmpty: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckDefaultBin(WhseEntry: Record "Warehouse Entry"; var BinContent: Record "Bin Content"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRegisterRoundResidualOnBeforeWhseJnlRegLineSetWhseRegister(var WhseEntry: Record "Warehouse Entry"; WhseEntry2: Record "Warehouse Entry"; WhseJnlLine: Record "Warehouse Journal Line"; WhseJnlLine2: Record "Warehouse Journal Line")
     begin
     end;
 }

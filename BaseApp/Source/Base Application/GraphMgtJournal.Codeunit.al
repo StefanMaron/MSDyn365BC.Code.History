@@ -29,6 +29,20 @@ codeunit 5482 "Graph Mgt - Journal"
         exit(GenJnlTemplate.Name);
     end;
 
+    procedure GetDefaultVendorPaymentsTemplateName(): Text[10]
+    var
+        GenJnlTemplate: Record "Gen. Journal Template";
+    begin
+        GenJnlTemplate.Reset();
+#pragma warning disable AA0210 // The table Gen. Journal Template does not contain a key with the field Type, Recurring, PageID
+        GenJnlTemplate.SetRange("Page ID", PAGE::"Payment Journal");
+        GenJnlTemplate.SetRange(Recurring, false);
+        GenJnlTemplate.SetRange(Type, 4);
+#pragma warning restore AA0210
+        GenJnlTemplate.FindFirst();
+        exit(GenJnlTemplate.Name);
+    end;
+
     [Obsolete('Integration Records will be replaced by SystemID and SystemLastDateTimeModified', '17.0')]
     procedure UpdateIntegrationRecords(OnlyItemsWithoutId: Boolean)
     var

@@ -314,6 +314,11 @@ codeunit 28 "Error Message Management"
             FldRef.FieldError(ErrorMessage);
     end;
 
+    procedure LogLastError()
+    begin
+        OnLogLastError();
+    end;
+
     local procedure CompareValues(xValue: Variant; Value: Variant): Boolean
     begin
         if Value.IsInteger or Value.IsBigInteger or Value.IsDecimal or Value.IsDuration then
@@ -536,6 +541,11 @@ codeunit 28 "Error Message Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetTopContext(var ErrorMessage: Record "Error Message")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLogLastError()
     begin
     end;
 }

@@ -2317,7 +2317,9 @@
             SetRange("Lot No.", "Lot No.");
         SetFilter("Entry No.", '<>%1', "Entry No.");
         SetRange("Buffer Status", 0);
-        Exists := not IsEmpty;
+
+        OnTestTempSpecificationExistsOnAfterSetFilters(Rec);
+        Exists := not IsEmpty();
         Copy(TrackingSpecification);
         if Exists and CurrentPageIsOpen then
             if "Serial No." = '' then
@@ -2364,9 +2366,10 @@
                 "Warranty Date" := TempTrackingSpecification."Warranty Date";
                 "Expiration Date" := TempTrackingSpecification."Expiration Date";
                 if FormRunMode = FormRunMode::Reclass then begin
-                    "New Serial No." := TempTrackingSpecification."New Serial No.";
-                    "New Lot No." := TempTrackingSpecification."New Lot No.";
-                    "New Expiration Date" := TempTrackingSpecification."New Expiration Date"
+                    Rec."New Serial No." := TempTrackingSpecification."New Serial No.";
+                    Rec."New Lot No." := TempTrackingSpecification."New Lot No.";
+                    Rec."New Expiration Date" := TempTrackingSpecification."New Expiration Date";
+                    OnRegisterItemTrackingLinesOnAfterReclass(Rec, TempTrackingSpecification);
                 end;
                 OnAfterCopyTrackingSpec(TempTrackingSpecification, Rec);
                 Validate("Quantity (Base)", TempTrackingSpecification."Quantity (Base)");
@@ -3019,6 +3022,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateExpDateEditable(var TrackingSpecification: Record "Tracking Specification"; var ExpirationDateEditable: Boolean; var ItemTrackingCode: Record "Item Tracking Code"; var NewExpirationDateEditable: Boolean; CurrentSignFactor: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTestTempSpecificationExistsOnAfterSetFilters(var TrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRegisterItemTrackingLinesOnAfterReclass(var TrackingSpecification: Record "Tracking Specification"; TempTrackingSpecification: Record "Tracking Specification" temporary)
     begin
     end;
 }

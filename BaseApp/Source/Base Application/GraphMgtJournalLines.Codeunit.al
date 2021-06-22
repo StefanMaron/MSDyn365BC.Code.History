@@ -55,6 +55,36 @@ codeunit 5478 "Graph Mgt - Journal Lines"
         end
     end;
 
+    procedure SetPaymentsValues(var GenJournalLine: Record "Gen. Journal Line"; TempGenJournalLine: Record "Gen. Journal Line" temporary)
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        DummyDate: Date;
+    begin
+        if not IsNullGuid(TempGenJournalLine."Account Id") then
+            GenJournalLine.Validate("Account Id", TempGenJournalLine."Account Id");
+        GenJournalLine.Validate("Account No.", TempGenJournalLine."Account No.");
+        if TempGenJournalLine."Contact Graph Id" <> '' then
+            GenJournalLine.Validate("Contact Graph Id", TempGenJournalLine."Contact Graph Id");
+        if TempGenJournalLine."Posting Date" <> DummyDate then
+            GenJournalLine.Validate("Posting Date", TempGenJournalLine."Posting Date");
+        GenJournalLine.Validate("Document Type", GenJournalLine."Document Type"::Payment);
+        GenJournalLine.Validate("Document No.", TempGenJournalLine."Document No.");
+        GenJournalLine.Validate("External Document No.", TempGenJournalLine."External Document No.");
+        GenJournalLine.Validate(Amount, TempGenJournalLine.Amount);
+        GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
+        GenJournalLine."Applies-to Doc. No." := TempGenJournalLine."Applies-to Doc. No.";
+        if not IsNullGuid(TempGenJournalLine."Applies-to Invoice Id") then
+            GenJournalLine.Validate("Applies-to Invoice Id", TempGenJournalLine."Applies-to Invoice Id");
+        if TempGenJournalLine.Description <> '' then
+            GenJournalLine.Validate(Description, TempGenJournalLine.Description);
+        GenJournalLine.Validate(Comment, TempGenJournalLine.Comment);
+        GenJournalLine.Validate("Bal. Account No.", '');
+        if GenJournalBatch.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name") then begin
+            GenJournalLine.Validate("Bal. Account Type", GenJournalBatch."Bal. Account Type");
+            GenJournalLine.Validate("Bal. Account No.", GenJournalBatch."Bal. Account No.");
+        end
+    end;
+
     [Obsolete('Integration Records will be replaced by SystemID and SystemLastDateTimeModified', '17.0')]
     procedure UpdateIntegrationRecords(OnlyItemsWithoutId: Boolean)
     var

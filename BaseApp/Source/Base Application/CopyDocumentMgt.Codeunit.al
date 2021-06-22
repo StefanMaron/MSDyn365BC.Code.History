@@ -1378,16 +1378,8 @@
            (FromSalesLine."Appl.-from Item Entry" <> 0) and
            not MoveNegLines
         then begin
-            if RecalculateAmount then begin
-                ToSalesLine.Validate("Unit Price", FromSalesLine."Unit Price");
-                ToSalesLine.Validate("Line Discount %", FromSalesLine."Line Discount %");
-                ToSalesLine.Validate(
-                  "Line Discount Amount",
-                  Round(FromSalesLine."Line Discount Amount", Currency."Amount Rounding Precision"));
-                ToSalesLine.Validate(
-                  "Inv. Discount Amount",
-                  Round(FromSalesLine."Inv. Discount Amount", Currency."Amount Rounding Precision"));
-            end;
+            if RecalculateAmount then
+                RecalculateSalesLineAmounts(FromSalesLine, ToSalesLine, Currency);
             ToSalesLine.Validate("Appl.-from Item Entry", FromSalesLine."Appl.-from Item Entry");
             if not CreateToHeader then
                 if ToSalesLine."Shipment Date" = 0D then
@@ -1433,6 +1425,25 @@
             LinesNotCopied := LinesNotCopied + 1;
 
         exit(CopyThisLine);
+    end;
+
+    local procedure RecalculateSalesLineAmounts(FromSalesLine: Record "Sales Line"; var ToSalesLine: Record "Sales Line"; Currency: Record Currency)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRecalculateSalesLineAmounts(FromSalesLine, ToSalesLine, Currency, IsHandled);
+        if IsHandled then
+            exit;
+
+        ToSalesLine.Validate("Unit Price", FromSalesLine."Unit Price");
+        ToSalesLine.Validate("Line Discount %", FromSalesLine."Line Discount %");
+        ToSalesLine.Validate(
+            "Line Discount Amount",
+            Round(FromSalesLine."Line Discount Amount", Currency."Amount Rounding Precision"));
+        ToSalesLine.Validate(
+            "Inv. Discount Amount",
+            Round(FromSalesLine."Inv. Discount Amount", Currency."Amount Rounding Precision"));
     end;
 
     procedure UpdateSalesHeaderWhenCopyFromSalesHeader(var SalesHeader: Record "Sales Header"; OriginalSalesHeader: Record "Sales Header"; FromDocType: Enum "Sales Document Type From")
@@ -1536,7 +1547,8 @@
 
         OnAfterUpdateSalesLine(
           ToSalesHeader, ToSalesLine, FromSalesHeader, FromSalesLine,
-          CopyThisLine, RecalculateAmount, FromSalesDocType.AsInteger(), CopyPostedDeferral);
+          CopyThisLine, RecalculateAmount, FromSalesDocType.AsInteger(), CopyPostedDeferral,
+          ExactCostRevMandatory, MoveNegLines);
     end;
 
     local procedure RecalculateSalesLine(var ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; var FromSalesHeader: Record "Sales Header"; var FromSalesLine: Record "Sales Line"; var CopyThisLine: Boolean)
@@ -2626,10 +2638,7 @@
                     FromSalesLine."Appl.-from Item Entry" := 0;
                     FromSalesLine."Copied From Posted Doc." := true;
 
-                    if "Document No." <> OldDocNo then begin
-                        OldDocNo := "Document No.";
-                        InsertDocNoLine := true;
-                    end;
+                    CheckUpdateOldDocumentNoFromSalesShptLine(FromSalesShptLine, OldDocNo, InsertDocNoLine);
 
                     OnBeforeCopySalesShptLinesToBuffer(FromSalesLine, FromSalesShptLine, ToSalesHeader);
 
@@ -2700,6 +2709,21 @@
                 until Next = 0;
 
         Window.Close;
+    end;
+
+    local procedure CheckUpdateOldDocumentNoFromSalesShptLine(FromSalesShptLine: Record "Sales Shipment Line"; var OldDocNo: Code[20]; var InsertDocNoLine: Boolean)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckUpdateOldDocumentNoFromSalesShptLine(FromSalesShptLine, OldDocNo, InsertDocNoLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        if FromSalesShptLine."Document No." <> OldDocNo then begin
+            OldDocNo := FromSalesShptLine."Document No.";
+            InsertDocNoLine := true;
+        end;
     end;
 
     procedure CopySalesInvLinesToDoc(ToSalesHeader: Record "Sales Header"; var FromSalesInvLine: Record "Sales Invoice Line"; var LinesNotCopied: Integer; var MissingExCostRevLink: Boolean)
@@ -3094,10 +3118,7 @@
                     FromSalesLine."Appl.-from Item Entry" := 0;
                     FromSalesLine."Copied From Posted Doc." := true;
 
-                    if "Document No." <> OldDocNo then begin
-                        OldDocNo := "Document No.";
-                        InsertDocNoLine := true;
-                    end;
+                    CheckUpdateOldDocumentNoFromReturnRcptLine(FromReturnRcptLine, OldDocNo, InsertDocNoLine);
 
                     OnBeforeCopySalesReturnRcptLinesToBuffer(FromSalesLine, FromReturnRcptLine, ToSalesHeader);
 
@@ -3159,6 +3180,21 @@
                 until Next = 0;
 
         Window.Close;
+    end;
+
+    local procedure CheckUpdateOldDocumentNoFromReturnRcptLine(FromReturnRcptLine: Record "Return Receipt Line"; var OldDocNo: Code[20]; var InsertDocNoLine: Boolean)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckUpdateOldDocumentNoFromReturnRcptLine(FromReturnRcptLine, OldDocNo, InsertDocNoLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        if FromReturnRcptLine."Document No." <> OldDocNo then begin
+            OldDocNo := FromReturnRcptLine."Document No.";
+            InsertDocNoLine := true;
+        end;
     end;
 
     local procedure CopySalesLinesToBuffer(FromSalesHeader: Record "Sales Header"; FromSalesLine: Record "Sales Line"; var FromSalesLine2: Record "Sales Line"; var TempSalesLineBuf: Record "Sales Line" temporary; ToSalesHeader: Record "Sales Header"; var TempDocSalesLine: Record "Sales Line" temporary; DocNo: Code[20]; var NextLineNo: Integer)
@@ -3475,10 +3511,7 @@
 
                     OnCopyPurchRcptLinesToDocOnAfterTransferFields(FromPurchLine, FromPurchHeader, ToPurchHeader, FromPurchRcptHeader);
 
-                    if "Document No." <> OldDocNo then begin
-                        OldDocNo := "Document No.";
-                        InsertDocNoLine := true;
-                    end;
+                    CheckUpdateOldDocumentNoFromPurchRcptLine(FromPurchRcptLine, OldDocNo, InsertDocNoLine);
 
                     SplitLine := true;
                     FilterPstdDocLnItemLedgEntries(ItemLedgEntry);
@@ -3544,6 +3577,21 @@
                 until Next = 0;
 
         Window.Close;
+    end;
+
+    local procedure CheckUpdateOldDocumentNoFromPurchRcptLine(FromPurchRcptLine: Record "Purch. Rcpt. Line"; var OldDocNo: Code[20]; var InsertDocNoLine: Boolean)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckUpdateOldDocumentNoFromPurchRcptLine(FromPurchRcptLine, OldDocNo, InsertDocNoLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        if FromPurchRcptLine."Document No." <> OldDocNo then begin
+            OldDocNo := FromPurchRcptLine."Document No.";
+            InsertDocNoLine := true;
+        end;
     end;
 
     procedure CopyPurchInvLinesToDoc(ToPurchHeader: Record "Purchase Header"; var FromPurchInvLine: Record "Purch. Inv. Line"; var LinesNotCopied: Integer; var MissingExCostRevLink: Boolean)
@@ -3934,10 +3982,7 @@
                     OnCopyPurchReturnShptLinesToDocOnAfterTransferFields(
                       FromPurchLine, FromPurchHeader, ToPurchHeader, FromReturnShptHeader);
 
-                    if "Document No." <> OldDocNo then begin
-                        OldDocNo := "Document No.";
-                        InsertDocNoLine := true;
-                    end;
+                    CheckUpdateOldDocumentNoFromReturnShptLine(FromReturnShptLine, OldDocNo, InsertDocNoLine);
 
                     SplitLine := true;
                     FilterPstdDocLnItemLedgEntries(ItemLedgEntry);
@@ -4001,6 +4046,21 @@
                 until Next = 0;
 
         Window.Close;
+    end;
+
+    local procedure CheckUpdateOldDocumentNoFromReturnShptLine(FromReturnShptLine: Record "Return Shipment Line"; var OldDocNo: Code[20]; var InsertDocNoLine: Boolean)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckUpdateOldDocumentNoFromReturnShptLine(FromReturnShptLine, OldDocNo, InsertDocNoLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        if FromReturnShptLine."Document No." <> OldDocNo then begin
+            OldDocNo := FromReturnShptLine."Document No.";
+            InsertDocNoLine := true;
+        end;
     end;
 
     local procedure CopyPurchLinesToBuffer(FromPurchHeader: Record "Purchase Header"; FromPurchLine: Record "Purchase Line"; var FromPurchLine2: Record "Purchase Line"; var TempPurchLineBuf: Record "Purchase Line" temporary; ToPurchHeader: Record "Purchase Header"; var TempDocPurchaseLine: Record "Purchase Line" temporary; DocNo: Code[20]; var NextLineNo: Integer)
@@ -5272,6 +5332,7 @@
                 Quantity := QtyToAsmToOrder;
                 "Quantity (Base)" := QtyToAsmToOrderBase;
             end;
+            OnProcessToAsmHeaderOnAfterValidateQty(ToAsmHeader, TempFromAsmHeader, ToSalesLine, BasicAsmOrderCopy, AvailabilityCheck);
             "Bin Code" := TempFromAsmHeader."Bin Code";
             "Unit Cost" := TempFromAsmHeader."Unit Cost";
             RoundQty(Quantity);
@@ -5318,6 +5379,7 @@
                         ToAssemblyLine.Validate("Quantity per", FromAsmLine."Quantity per");
                     ToAssemblyLine.Validate(Quantity, GetAppliedQuantityForAsmLine(BasicAsmOrderCopy, ToAsmHeader, FromAsmLine, ToSalesLine));
                 end;
+                OnCreateToAsmLinesOnAfterValidateQty(ToAsmHeader, FromAsmLine, ToAssemblyLine, ToSalesLine, BasicAsmOrderCopy, AvailabilityCheck);
                 ToAssemblyLine.ValidateDueDate(ToAsmHeader, ToAsmHeader."Starting Date", false);
                 ToAssemblyLine.ValidateLeadTimeOffset(ToAsmHeader, FromAsmLine."Lead-Time Offset", false);
                 ToAssemblyLine.Description := FromAsmLine.Description;
@@ -7754,7 +7816,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterUpdateSalesLine(var ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; var FromSalesHeader: Record "Sales Header"; var FromSalesLine: Record "Sales Line"; var CopyThisLine: Boolean; RecalculateAmount: Boolean; FromSalesDocType: Option; var CopyPostedDeferral: Boolean)
+    local procedure OnAfterUpdateSalesLine(var ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; var FromSalesHeader: Record "Sales Header"; var FromSalesLine: Record "Sales Line"; var CopyThisLine: Boolean; RecalculateAmount: Boolean; FromSalesDocType: Option; var CopyPostedDeferral: Boolean; ExactCostRevMandatory: Boolean; MoveNegLines: Boolean)
     begin
     end;
 
@@ -7989,6 +8051,26 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckUpdateOldDocumentNoFromSalesShptLine(FromSalesShptLine: Record "Sales Shipment Line"; var OldDocNo: Code[20]; var InsertDocNoLine: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckUpdateOldDocumentNoFromPurchRcptLine(FromPurchRcptLine: Record "Purch. Rcpt. Line"; var OldDocNo: Code[20]; var InsertDocNoLine: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckUpdateOldDocumentNoFromReturnRcptLine(FromReturnRcptLine: Record "Return Receipt Line"; var OldDocNo: Code[20]; var InsertDocNoLine: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckUpdateOldDocumentNoFromReturnShptLine(FromReturnShptLine: Record "Return Shipment Line"; var OldDocNo: Code[20]; var InsertDocNoLine: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeClearPurchaseBlanketOrderFields(var ToPurchaseLine: Record "Purchase Line"; ToPurchHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
@@ -8010,6 +8092,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRecalculatePurchLine(var ToPurchHeader: Record "Purchase Header"; var ToPurchLine: Record "Purchase Line"; var FromPurchHeader: Record "Purchase Header"; var FromPurchLine: Record "Purchase Line"; var CopyThisLine: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRecalculateSalesLineAmounts(FromSalesLine: Record "Sales Line"; var ToSalesLine: Record "Sales Line"; Currency: Record Currency; var IsHandled: Boolean)
     begin
     end;
 
@@ -8489,6 +8576,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnProcessToAsmHeaderOnAfterValidateQty(var ToAsmHeader: Record "Assembly Header"; TempFromAsmHeader: Record "Assembly Header" temporary; ToSalesLine: Record "Sales Line"; BasicAsmOrderCopy: Boolean; AvailabilityCheck: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnRecalculateSalesLineOnAfterValidateQuantity(var ToSalesLine: Record "Sales Line"; var FromSalesLine: Record "Sales Line")
     begin
     end;
@@ -8505,6 +8597,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateToAsmLinesOnBeforeToAssemblyLineModify(ToAsmHeader: Record "Assembly Header"; var ToAssemblyLine: Record "Assembly Line"; FromAsmLine: Record "Assembly Line"; ToSalesLine: Record "Sales Line"; BasicAsmOrderCopy: Boolean; AvailabilityCheck: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateToAsmLinesOnAfterValidateQty(ToAsmHeader: Record "Assembly Header"; FromAsmLine: Record "Assembly Line"; var ToAssemblyLine: Record "Assembly Line"; ToSalesLine: Record "Sales Line"; BasicAsmOrderCopy: Boolean; AvailabilityCheck: Boolean)
     begin
     end;
 

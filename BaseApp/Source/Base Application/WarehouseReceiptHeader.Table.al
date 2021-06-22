@@ -1,4 +1,4 @@
-table 7316 "Warehouse Receipt Header"
+﻿table 7316 "Warehouse Receipt Header"
 {
     Caption = 'Warehouse Receipt Header';
     LookupPageID = "Warehouse Receipts";
@@ -481,7 +481,14 @@ table 7316 "Warehouse Receipt Header"
     end;
 
     local procedure GetLocation(LocationCode: Code[10])
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetLocation(LocationCode, Rec, Location, IsHandled);
+        if IsHandled then
+            exit;
+
         if LocationCode = '' then
             Location.GetLocationSetup(LocationCode, Location)
         else
@@ -568,6 +575,11 @@ table 7316 "Warehouse Receipt Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteWhseRcptRelatedLines(var WhseRcptLine: Record "Warehouse Receipt Line"; var SkipConfirm: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetLocation(LocationCode: Code[10]; var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; var Location: Record Location; var IsHandled: Boolean)
     begin
     end;
 

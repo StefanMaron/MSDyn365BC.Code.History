@@ -1,4 +1,4 @@
-codeunit 1381 "Customer Templ. Mgt."
+﻿codeunit 1381 "Customer Templ. Mgt."
 {
     trigger OnRun()
     begin
@@ -76,6 +76,8 @@ codeunit 1381 "Customer Templ. Mgt."
         Customer."Block Payment Tolerance" := CustomerTempl."Block Payment Tolerance";
         Customer."Validate EU Vat Reg. No." := CustomerTempl."Validate EU Vat Reg. No.";
         Customer.Blocked := CustomerTempl.Blocked;
+        Customer."Shipment Method Code" := CustomerTempl."Shipment Method Code";
+        OnApplyTemplateOnBeforeCustomerModify(Customer, CustomerTempl);
         Customer.Modify(true);
     end;
 
@@ -213,6 +215,11 @@ codeunit 1381 "Customer Templ. Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterIsEnabled(var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyTemplateOnBeforeCustomerModify(var Customer: Record Customer; CustomerTempl: Record "Customer Templ.")
     begin
     end;
 

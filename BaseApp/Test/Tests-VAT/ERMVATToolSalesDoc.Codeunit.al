@@ -23,7 +23,9 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         LibraryFixedAsset: Codeunit "Library - Fixed Asset";
+        LibraryService: Codeunit "Library - Service";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         isInitialized: Boolean;
         GroupFilter: Label '%1|%2';
 
@@ -1158,6 +1160,89 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
 
         // Tear down
         ERMVATToolHelper.DeleteGroups();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATToolAdjustExtTextsAttachedToLineNo()
+    var
+        VATProdPostingGroup: Array[2] of Record "VAT Product Posting Group";
+        VATBusPostingGroup: Record "VAT Business Posting Group";
+        VATPostingSetup: Record "VAT Posting Setup";
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesOrderHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesOrderLine: Record "Sales Line";
+        VATRateChangeConv: Record "VAT Rate Change Conversion";
+        BlanketSalesOrderPage: TestPage "Blanket Sales Order";
+        SalesDocumentType: Enum "Sales Document Type";
+        SalesLineType: Enum "Sales Line Type";
+        SalesOrderDocNo: Code[20];
+        CustomerNo: Code[20];
+        SecondSalesLineNo: Integer;
+    begin
+        // [FEATURE] [Extended Text]
+        // [SCENARIO 377264] VAT Rate Change tool adjusts Extended Text line "Attached to Line No." field
+        Initialize();
+
+        // [GIVEN] VAT Prod. Posting Group 'VPPG1' and 'VPPG2'
+        LibraryERM.CreateVATProductPostingGroup(VATProdPostingGroup[1]);
+        LibraryERM.CreateVATProductPostingGroup(VATProdPostingGroup[2]);
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusPostingGroup);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusPostingGroup.Code, VATProdPostingGroup[1].Code);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusPostingGroup.Code, VATProdPostingGroup[2].Code);
+
+        CustomerNo := LibrarySales.CreateCustomerWithVATBusPostingGroup(VATBusPostingGroup.Code);
+
+        // [GIVEN] Item with VAT Prod. Posting Group = 'VPPG1' and enabled Automatic Ext. Texts with one line Ext. Text
+        LibraryInventory.CreateItem(Item);
+        Item.VALIDATE("VAT Prod. Posting Group", VATProdPostingGroup[1].Code);
+        Item.Validate("Automatic Ext. Texts", TRUE);
+        Item.Modify(TRUE);
+        LibraryService.CreateExtendedTextForItem(Item."No.");
+
+        // [GIVEN] Blanket Sales Order with line of type Item, Qty = 10 and one Ext. Text line
+        // VAT Prod. Posting Group of Sales Line = 'VPPG1'
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesDocumentType::"Blanket Order", CustomerNo);
+        BlanketSalesOrderPage.OpenEdit();
+        BlanketSalesOrderPage.Filter.SetFilter("No.", SalesHeader."No.");
+        BlanketSalesOrderPage.SalesLines.Type.SetValue(SalesLineType::Item);
+        BlanketSalesOrderPage.SalesLines."No.".SetValue(Item."No.");
+        BlanketSalesOrderPage.SalesLines.Quantity.SetValue(10);
+        BlanketSalesOrderPage.Close();
+        Commit();
+
+        // [GIVEN] Sales Order made out of Sales Blanket Order
+        SalesOrderDocNo := LibrarySales.BlanketSalesOrderMakeOrder(SalesHeader);
+
+        SalesOrderHeader.GET(SalesDocumentType::Order, SalesOrderDocNo);
+        LibrarySales.FindFirstSalesLine(SalesOrderLine, SalesOrderHeader);
+
+        // [GIVEN] Sales Order posted with Quanitity = 8.
+        SalesOrderLine.Validate(Quantity, 8);
+        SalesOrderLine.Modify(TRUE);
+        LibrarySales.PostSalesDocument(SalesOrderHeader, TRUE, TRUE);
+
+        // [WHEN] Run VAT Change Tool with option to convert 'VPPG1' into 'VPPG2' for Sales documents
+        ERMVATToolHelper.SetupToolConvGroups(
+            VATRateChangeConv.Type::"VAT Prod. Posting Group", VATProdPostingGroup[1].Code, VATProdPostingGroup[2].Code);
+        SetupToolSales(VATRateChangeSetup2."Update Sales Documents"::"VAT Prod. Posting Group", true, false);
+        ERMVATToolHelper.RunVATRateChangeTool;
+
+        // [THEN] Blanket Sales Order has 3 lines. Extended text line is attached to Sales Line with 'VPPG2' VAT Posting Group
+        LibrarySales.FindFirstSalesLine(SalesLine, SalesHeader);
+        SalesLine.TestField(Quantity, 8);
+        SalesLine.TestField("VAT Prod. Posting Group", VATProdPostingGroup[1].Code);
+        SalesLine.Next();
+        SalesLine.TestField(Quantity, 2);
+        SalesLine.TestField("VAT Prod. Posting Group", VATProdPostingGroup[2].Code);
+        SecondSalesLineNo := SalesLine."Line No.";
+
+        SalesLine.Next();
+        SalesLine.TestField("Attached to Line No.", SecondSalesLineNo);
+
+        NotificationLifecycleMgt.RecallAllNotifications;
     end;
 
     local procedure VATToolReminderLine(FieldOption: Option; "Count": Integer)

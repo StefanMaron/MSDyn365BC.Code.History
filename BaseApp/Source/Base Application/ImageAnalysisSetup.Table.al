@@ -128,10 +128,9 @@ table 2020 "Image Analysis Setup"
 
     local procedure EndsInAnalyze(ApiUri: Text): Boolean
     var
-        DotNet_Regex: Codeunit DotNet_Regex;
+        Regex: Codeunit Regex;
     begin
-        DotNet_Regex.Regex('/analyze$');
-        exit(DotNet_Regex.IsMatch(LowerCase(ApiUri)));
+        exit(Regex.IsMatch(LowerCase(ApiUri), '/analyze$'));
     end;
 
     [Scope('OnPrem')]

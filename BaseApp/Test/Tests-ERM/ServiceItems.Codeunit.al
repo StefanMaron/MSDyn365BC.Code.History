@@ -3129,11 +3129,13 @@ codeunit 136103 "Service Items"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         NoSeries: Record "No. Series";
+        DocumentNoVisibility: Codeunit DocumentNoVisibility;
     begin
         SalesReceivablesSetup.Get();
         NoSeries.Get(SalesReceivablesSetup."Return Order Nos.");
         NoSeries.Validate("Manual Nos.", true);
         NoSeries.Modify(true);
+        Clear(DocumentNoVisibility);
     end;
 
     local procedure VerifyComponents(ServiceItemLine: Record "Service Item Line"; ServiceItemComponent: Record "Service Item Component")

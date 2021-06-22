@@ -429,6 +429,68 @@ codeunit 134317 "Workflow Additional Scenarios"
         SalesHeader.TestField(Status, SalesHeader.Status::Released);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VendorCardNameFieldRevertedByWorkflow()
+    var
+        UserSetup: Record "User Setup";
+        Vendor: Record Vendor;
+        Workflow: Record Workflow;
+        WorkflowEventHandling: Codeunit "Workflow Event Handling";
+        VendorCard: TestPage "Vendor Card";
+    begin
+        // [SCENARIO 376405] Vendor "Name" change on Vendor Card page is reverted by enabled workflow.
+        Initialize();
+
+        // [GIVEN] Workflow reverting and saving change to Vendor "Name" field untill it's approved.
+        LibraryDocumentApprovals.SetupUsersForApprovals(UserSetup);
+        CreateWorkflowWithRevert(
+            Workflow, WorkflowEventHandling.RunWorkflowOnVendorChangedCode(), DATABASE::Vendor, Vendor.FieldNo(Name));
+
+        // [GIVEN] Vendor Cart page is opened for Vendor.
+        LibraryPurchase.CreateVendor(Vendor);
+        VendorCard.OpenEdit();
+        VendorCard.FILTER.SetFilter("No.", Vendor."No.");
+
+        // [WHEN] Vendor "Name" is cleared.
+        VendorCard.Name.SetValue('');
+
+        // [THEN] Vendor "Name" didn't change.
+        VendorCard.Name.AssertEquals(Vendor.Name);
+        VendorCard.Close();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CustomerCardNameFieldRevertedByWorkflow()
+    var
+        UserSetup: Record "User Setup";
+        Customer: Record Customer;
+        Workflow: Record Workflow;
+        WorkflowEventHandling: Codeunit "Workflow Event Handling";
+        CustomerCard: TestPage "Customer Card";
+    begin
+        // [SCENARIO 376405] Customer "Name" change on Customer Card page is reverted by enabled workflow.
+        Initialize();
+
+        // [GIVEN] Workflow reverting and saving change to Customer "Name" field untill it's approved.
+        LibraryDocumentApprovals.SetupUsersForApprovals(UserSetup);
+        CreateWorkflowWithRevert(
+            Workflow, WorkflowEventHandling.RunWorkflowOnCustomerChangedCode(), DATABASE::Customer, Customer.FieldNo(Name));
+
+        // [GIVEN] Customer Cart page is opened for Customer.
+        LibrarySales.CreateCustomer(Customer);
+        CustomerCard.OpenEdit();
+        CustomerCard.FILTER.SetFilter("No.", Customer."No.");
+
+        // [WHEN] Customer "Name" is cleared.
+        CustomerCard.Name.SetValue('');
+
+        // [THEN] Customer "Name" didn't change.
+        CustomerCard.Name.AssertEquals(Customer.Name);
+        CustomerCard.Close();
+    end;
+
     local procedure Initialize()
     var
         Workflow: Record Workflow;
@@ -587,6 +649,41 @@ codeunit 134317 "Workflow Additional Scenarios"
         LibraryWorkflow.CreateWorkflowTableRelation(
           WorkflowTableRelation, DATABASE::"Approval Entry", ApprovalEntry.FieldNo("Document Type"),
           DATABASE::"Sales Header", SalesHeader.FieldNo("Document Type"));
+    end;
+
+    local procedure CreateWorkflowWithRevert(var Workflow: Record Workflow; ActivityName: Code[128]; TableNo: Integer; FieldNo: Integer)
+    var
+        WorkflowRule: Record "Workflow Rule";
+        WorkflowStep: Record "Workflow Step";
+        WorkflowStepArgument: Record "Workflow Step Argument";
+        WorkflowEventHandling: Codeunit "Workflow Event Handling";
+        StepId: Integer;
+    begin
+        LibraryWorkflow.CreateWorkflow(Workflow);
+
+        StepId := LibraryWorkflow.InsertEntryPointEventStep(Workflow, ActivityName);
+        LibraryWorkflow.InsertEventRule(StepId, FieldNo, WorkflowRule.Operator::Changed);
+
+        StepId := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.RevertValueForFieldCode(), StepId);
+
+        WorkflowStepArgument.Type := WorkflowStepArgument.Type::Response;
+        WorkflowStepArgument.Validate("Response Function Name", WorkflowResponseHandling.RevertValueForFieldCode());
+        WorkflowStepArgument.Validate("Table No.", TableNo);
+        WorkflowStepArgument.Validate("Field No.", FieldNo);
+        WorkflowStepArgument.Insert(true);
+
+        WorkflowStep.Get(Workflow.Code, StepId);
+        WorkflowStep.Validate(Argument, WorkflowStepArgument.ID);
+        WorkflowStep.Modify(true);
+
+        StepId := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateApprovalRequestsCode(), StepId);
+        LibraryWorkflow.InsertApprovalArgument(
+          StepId, WorkflowStepArgument."Approver Type"::Approver, WorkflowStepArgument."Approver Limit Type"::"Direct Approver", '', false);
+
+        StepId := LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode(), StepId);
+        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.ApplyNewValuesCode(), StepId);
+
+        LibraryWorkflow.EnableWorkflow(Workflow);
     end;
 
     [MessageHandler]

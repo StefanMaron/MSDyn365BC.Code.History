@@ -240,11 +240,10 @@ codeunit 47 StringConversionManagement
 
     procedure RemoveNonAlphaNumericCharacters(InputString: Text): Text
     var
-        DotNet_Regex: Codeunit DotNet_Regex;
+        Regex: Codeunit Regex;
         OutputString: Text;
     begin
-        DotNet_Regex.Regex('\W|_');
-        OutputString := DotNet_Regex.Replace(InputString, '');
+        OutputString := Regex.Replace(InputString, '\W|_', '');
         exit(OutputString);
     end;
 }

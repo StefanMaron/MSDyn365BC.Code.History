@@ -13,11 +13,11 @@ codeunit 136315 "Send Job To Calendar"
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryRandom: Codeunit "Library - Random";
-        CouldNotFindValueErr: Label 'Could not find value in description. Expected %1.', Comment = '%1 = Expected value';
         LibraryUtility: Codeunit "Library - Utility";
-        SMTPSenderTxt: Label 'person@mycompany.org';
         LibraryDocumentApprovals: Codeunit "Library - Document Approvals";
         ActiveDirectoryMockEvents: Codeunit "Active Directory Mock Events";
+        CouldNotFindValueErr: Label 'Could not find value in description. Expected %1.', Comment = '%1 = Expected value';
+        SMTPSenderTxt: Label 'person@mycompany.org';
         IsInitialized: Boolean;
 
     [Test]
@@ -28,7 +28,7 @@ codeunit 136315 "Send Job To Calendar"
         JobPlanningLineCalendar: Codeunit "Job Planning Line - Calendar";
     begin
         // [SCENARIO 167920] Attempting to generate the appointment before setting the job planning line results in an error.
-        Initialize;
+        Initialize();
 
         // [WHEN] GenerateAppointment is called without setting the job planning line
         // [THEN] Error is thrown
@@ -47,7 +47,7 @@ codeunit 136315 "Send Job To Calendar"
         CanSend: Boolean;
     begin
         // [SCENARIO 167920] Creating the appointment request returns true if the email is ready to send.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job planning line exists.
         CreateJobPlanningLine(JobPlanningLine, Resource, 10);
@@ -71,7 +71,7 @@ codeunit 136315 "Send Job To Calendar"
         CanSend: Boolean;
     begin
         // [SCENARIO 167920] Creating the appointment request returns false if the resource has no authentication email.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A resource exists and is associated to a user with no authentication email set.
         CreateResource(Resource, '');
@@ -98,7 +98,7 @@ codeunit 136315 "Send Job To Calendar"
         CanSend: Boolean;
     begin
         // [SCENARIO 167921] Creating the appointment cancellation returns true if the cancellation is ready to send.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A job planning line exists for a resource.
         CreateJobPlanningLine(JobPlanningLine, Resource, 10);
@@ -125,7 +125,7 @@ codeunit 136315 "Send Job To Calendar"
         CanSend: Boolean;
     begin
         // [SCENARIO 167921] Creating the appointment cancellation returns false if the resource has no auth email.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A resource exists with no authentication email set.
         CreateResource(Resource, '');
@@ -153,7 +153,7 @@ codeunit 136315 "Send Job To Calendar"
         CanSend: Boolean;
     begin
         // [SCENARIO 167921] Creating the appointment cancellation returns false if no request was ever sent in the first place.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A job planning line exists for a resource.
         CreateJobPlanningLine(JobPlanningLine, Resource, 10);
@@ -264,6 +264,8 @@ codeunit 136315 "Send Job To Calendar"
         Resource: Record Resource;
         DummyJobTask: Record "Job Task";
         JobPlanningLineCalendar: Codeunit "Job Planning Line - Calendar";
+        Attachments: Codeunit "Temp Blob List";
+        AttachmentNames: List of [Text];
     begin
         // [SCENARIO 167920] Send to calendar generates email with attachment name set to the correct value.
 
@@ -274,9 +276,10 @@ codeunit 136315 "Send Job To Calendar"
         JobPlanningLineCalendar.SetPlanningLine(JobPlanningLine);
         JobPlanningLineCalendar.CreateRequest(TempEmailItem);
 
+        TempEmailItem.GetAttachments(Attachments, AttachmentNames);
+
         // [THEN] Name of attachment is set to "Job Task.ics"
-        Assert.AreEqual(StrSubstNo('%1.ics', DummyJobTask.TableCaption), TempEmailItem."Attachment Name",
-          'Unexpected file attachment name.');
+        Assert.AreEqual(StrSubstNo('%1.ics', DummyJobTask.TableCaption), AttachmentNames.Get(1), 'Unexpected file attachment name.');
     end;
 
     [Test]
@@ -293,7 +296,7 @@ codeunit 136315 "Send Job To Calendar"
         ExpectedEnd: Text;
     begin
         // [SCENARIO 167920] Send to calendar generates email with the correct start and end days for a task that lasts less than a day.
-        Initialize;
+        Initialize();
 
         // [GIVEN] We have a job planning line with a random quantity.
         Quantity := LibraryRandom.RandIntInRange(2, 11);
@@ -327,7 +330,7 @@ codeunit 136315 "Send Job To Calendar"
         ExpectedEnd: Text;
     begin
         // [SCENARIO 167920] Send to calendar generates email with the correct start and end days for a task that spans multiple days.
-        Initialize;
+        Initialize();
 
         // [GIVEN] We have a job planning line with a random quantity of at least 13.
         Quantity := LibraryRandom.RandIntInRange(13, 240);
@@ -361,7 +364,7 @@ codeunit 136315 "Send Job To Calendar"
         ExpectedLocation: Text;
     begin
         // [SCENARIO 167920] Send to calendar generates email with ICS file that contains customer's address.
-        Initialize;
+        Initialize();
 
         // [GIVEN] We have a job planning line.
         CreateJobPlanningLine(JobPlanningLine, Resource, 10);
@@ -390,7 +393,7 @@ codeunit 136315 "Send Job To Calendar"
         ExpectedSummary: Text;
     begin
         // [SCENARIO 167920] Send to calendar generates ICS file with subject containing the job number and job task number.
-        Initialize;
+        Initialize();
 
         // [GIVEN] We have a job planning line.
         CreateJobPlanningLine(JobPlanningLine, Resource, 10);
@@ -418,7 +421,7 @@ codeunit 136315 "Send Job To Calendar"
         ExpectedText: Text;
     begin
         // [SCENARIO 167920] Send to calendar generates ICS file with description containing the job details.
-        Initialize;
+        Initialize();
 
         // [GIVEN] We have a job planning line.
         CreateJobPlanningLine(JobPlanningLine, Resource, 10);
@@ -448,7 +451,7 @@ codeunit 136315 "Send Job To Calendar"
         ExpectedText: Text;
     begin
         // [SCENARIO 167920] Send to calendar generates ICS file with description containing the job task details.
-        Initialize;
+        Initialize();
 
         // [GIVEN] We have a job planning line.
         CreateJobPlanningLine(JobPlanningLine, Resource, 10);
@@ -479,7 +482,7 @@ codeunit 136315 "Send Job To Calendar"
         ExpectedText: Text;
     begin
         // [SCENARIO 177132] Send to calendar generates email with ICS file that contains customer's name.
-        Initialize;
+        Initialize();
 
         // [GIVEN] We have a job planning line.
         CreateJobPlanningLine(JobPlanningLine, Resource, 10);
@@ -492,7 +495,7 @@ codeunit 136315 "Send Job To Calendar"
         // [THEN] Description contains the customer name
         Job.Get(JobPlanningLine."Job No.");
         Customer.Get(Job."Bill-to Customer No.");
-        ExpectedText := StrSubstNo('%1: %2', Customer.TableCaption, Customer.Name);
+        ExpectedText := StrSubstNo('%1: %2', Customer.TableCaption(), Customer.Name);
         if StrPos(Description, ExpectedText) < 1 then
             Error(CouldNotFindValueErr, ExpectedText);
     end;
@@ -509,7 +512,7 @@ codeunit 136315 "Send Job To Calendar"
         Method: Text;
     begin
         // [SCENARIO 167921] Send to calendar generates ICS file with correct method for an appointment request.
-        Initialize;
+        Initialize();
 
         // [GIVEN] We have a job planning line.
         CreateJobPlanningLine(JobPlanningLine, Resource, 10);
@@ -536,7 +539,7 @@ codeunit 136315 "Send Job To Calendar"
         Status: Text;
     begin
         // [SCENARIO 167921] Send to calendar generates ICS file with correct status for an appointment request.
-        Initialize;
+        Initialize();
 
         // [GIVEN] We have a job planning line.
         CreateJobPlanningLine(JobPlanningLine, Resource, 10);
@@ -563,7 +566,7 @@ codeunit 136315 "Send Job To Calendar"
         Method: Text;
     begin
         // [SCENARIO 167921] Send to calendar generates ICS file with correct method for an appointment cancellation.
-        Initialize;
+        Initialize();
 
         // [GIVEN] We have a job planning line.
         CreateJobPlanningLine(JobPlanningLine, Resource, 10);
@@ -593,7 +596,7 @@ codeunit 136315 "Send Job To Calendar"
         Status: Text;
     begin
         // [SCENARIO 167921] Send to calendar generates ICS file with correct status for an appointment cancellation.
-        Initialize;
+        Initialize();
 
         // [GIVEN] We have a job planning line.
         CreateJobPlanningLine(JobPlanningLine, Resource, 10);
@@ -621,7 +624,7 @@ codeunit 136315 "Send Job To Calendar"
         JobPlanningLineCalendar: Codeunit "Job Planning Line - Calendar";
     begin
         // [SCENARIO 230609] Send to calendar generates ICS file with Unicode characters.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job Planning Line "JPL" with Unicode characters in Description.
         CreateJobPlanningLineWithUnicodeDescription(JobPlanningLine, Resource, LibraryRandom.RandIntInRange(5, 10));
@@ -644,18 +647,18 @@ codeunit 136315 "Send Job To Calendar"
         JobPlanningLines: TestPage "Job Planning Lines";
     begin
         // [SCENARIO 167920] Send to calendar generates an email with an ICS file and sends it to the resource.
-        Initialize;
+        Initialize();
 
         // [GIVEN] We have a job planning line.
         CreateJobPlanningLine(JobPlanningLine, Resource, 10);
-        CreateUserSetupWithEmail;
+        CreateUserSetupWithEmail();
 
         // [WHEN] Job Planning Lines page runs
-        JobPlanningLines.Trap;
-        PAGE.Run(PAGE::"Job Planning Lines", JobPlanningLine);
+        JobPlanningLines.Trap();
+        Page.Run(Page::"Job Planning Lines", JobPlanningLine);
 
         // [WHEN] User clicks "Send to Calendar"
-        JobPlanningLines.SendToCalendar.Invoke;
+        JobPlanningLines.SendToCalendar.Invoke();
 
         // [THEN] Email is sent to the resource.
         // Handler confirms that the SMTP prompt is shown
@@ -671,21 +674,21 @@ codeunit 136315 "Send Job To Calendar"
         JobPlanningLines: TestPage "Job Planning Lines";
     begin
         // [SCENARIO 167920] Send to calendar skips planning lines if the resource doesn't have an email address.
-        Initialize;
+        Initialize();
 
         // [GIVEN] We have a job planning line.
         CreateJobPlanningLine(JobPlanningLine, Resource, 10);
         User.SetRange("User Name", Resource."Time Sheet Owner User ID");
-        User.FindFirst;
+        User.FindFirst();
         User."Authentication Email" := '';
         User.Modify();
 
         // [WHEN] Job Planning Lines page runs
-        JobPlanningLines.Trap;
+        JobPlanningLines.Trap();
         PAGE.Run(PAGE::"Job Planning Lines", JobPlanningLine);
 
         // [WHEN] User clicks "Send to Calendar"
-        JobPlanningLines.SendToCalendar.Invoke;
+        JobPlanningLines.SendToCalendar.Invoke();
 
         // [THEN] Nothing happens for this line since there is no email.
         // No confirm dialog should be handled since the SMTP function isn't called.
@@ -700,7 +703,7 @@ codeunit 136315 "Send Job To Calendar"
         JobPlanningLineCalendar: Record "Job Planning Line - Calendar";
     begin
         // [SCENARIO 167921] Developer can easily create JobPlanningLineCalendar record with wrapper function.
-        Initialize;
+        Initialize();
 
         // [GIVEN] We have a job planning line.
         CreateJobPlanningLine(JobPlanningLine, Resource, 10);
@@ -726,7 +729,7 @@ codeunit 136315 "Send Job To Calendar"
         Resource: Record Resource;
     begin
         // [SCENARIO 167921] Modifying a JobPlanningLineCalendar record increments the Sequence.
-        Initialize;
+        Initialize();
 
         // [GIVEN] We have a job planning line.
         CreateJobPlanningLine(JobPlanningLine, Resource, 10);
@@ -751,11 +754,11 @@ codeunit 136315 "Send Job To Calendar"
         JobPlanningLineCalendar: Record "Job Planning Line - Calendar";
     begin
         // [SCENARIO 167921] When a job planning line is deleted, a cancellation gets sent to the resource.
-        Initialize;
+        Initialize();
 
         // [GIVEN] We have a job planning line.
         CreateJobPlanningLine(JobPlanningLine, Resource, 10);
-        CreateUserSetupWithEmail;
+        CreateUserSetupWithEmail();
 
         // [GIVEN] An appointment request was sent to the resource.
         CreateJobPlanningLineCalendar(JobPlanningLine);
@@ -780,11 +783,11 @@ codeunit 136315 "Send Job To Calendar"
         CUJobPlanningLineCalendar: Codeunit "Job Planning Line - Calendar";
     begin
         // [SCENARIO 167921] When the resource of a job planning line is changed, send a cancellation to the original resource.
-        Initialize;
+        Initialize();
 
         // [GIVEN] We have a job planning line for a resource and an appointment request has been sent.
         CreateJobPlanningLine(JobPlanningLine, Resource, 10);
-        CreateUserSetupWithEmail;
+        CreateUserSetupWithEmail();
         CreateJobPlanningLineCalendar(JobPlanningLine);
 
         // [GIVEN] Another resource exists in the system.
@@ -795,7 +798,7 @@ codeunit 136315 "Send Job To Calendar"
 
         // [WHEN] The send to calendar action is invoked.
         CUJobPlanningLineCalendar.SetPlanningLine(JobPlanningLine);
-        CUJobPlanningLineCalendar.CreateAndSend;
+        CUJobPlanningLineCalendar.CreateAndSend();
 
         // [THEN] A cancellation is sent to the original resource.
         // ConfirmHandler verifies that the SMTP dialog was opened
@@ -814,11 +817,11 @@ codeunit 136315 "Send Job To Calendar"
         CUJobPlanningLineCalendar: Codeunit "Job Planning Line - Calendar";
     begin
         // [SCENARIO 167921] When the quantity is changed on a job planning line, an update is sent to the resource's calendar.
-        Initialize;
+        Initialize();
 
         // [GIVEN] We have a job planning line.
         CreateJobPlanningLine(JobPlanningLine, Resource, 10);
-        CreateUserSetupWithEmail;
+        CreateUserSetupWithEmail();
 
         // [GIVEN] A request has already been sent to the resource.
         JobPlanningLineCalendar.InsertOrUpdate(JobPlanningLine);
@@ -828,7 +831,7 @@ codeunit 136315 "Send Job To Calendar"
 
         // [WHEN] The send to calendar action is invoked.
         CUJobPlanningLineCalendar.SetPlanningLine(JobPlanningLine);
-        CUJobPlanningLineCalendar.CreateAndSend;
+        CUJobPlanningLineCalendar.CreateAndSend();
 
         // [THEN] An updated appointment request is sent to the resource.
         JobPlanningLineCalendar.HasBeenSent(JobPlanningLine);
@@ -846,11 +849,11 @@ codeunit 136315 "Send Job To Calendar"
         CUJobPlanningLineCalendar: Codeunit "Job Planning Line - Calendar";
     begin
         // [SCENARIO 167921] When the planning date is changed on a job planning line, an update is sent to the resource's calendar.
-        Initialize;
+        Initialize();
 
         // [GIVEN] We have a job planning line.
         CreateJobPlanningLine(JobPlanningLine, Resource, 10);
-        CreateUserSetupWithEmail;
+        CreateUserSetupWithEmail();
 
         // [GIVEN] A request has already been sent to the resource.
         JobPlanningLineCalendar.InsertOrUpdate(JobPlanningLine);
@@ -861,7 +864,7 @@ codeunit 136315 "Send Job To Calendar"
 
         // [WHEN] The send to calendar action is invoked.
         CUJobPlanningLineCalendar.SetPlanningLine(JobPlanningLine);
-        CUJobPlanningLineCalendar.CreateAndSend;
+        CUJobPlanningLineCalendar.CreateAndSend();
 
         // [THEN] An updated appointment request is sent to the resource.
         JobPlanningLineCalendar.HasBeenSent(JobPlanningLine);
@@ -878,7 +881,7 @@ codeunit 136315 "Send Job To Calendar"
         CUJobPlanningLineCalendar: Codeunit "Job Planning Line - Calendar";
     begin
         // [SCENARIO 167921] When the send to calendar action is invoked, but the planning line hasn't changed, do not send an update.
-        Initialize;
+        Initialize();
 
         // [GIVEN] We have a job planning line.
         CreateJobPlanningLine(JobPlanningLine, Resource, 5);
@@ -888,7 +891,7 @@ codeunit 136315 "Send Job To Calendar"
 
         // [WHEN] The send to calendar action is invoked.
         CUJobPlanningLineCalendar.SetPlanningLine(JobPlanningLine);
-        CUJobPlanningLineCalendar.CreateAndSend;
+        CUJobPlanningLineCalendar.CreateAndSend();
 
         // [THEN] Nothing happens since there is not an update.
         // Lack of handler codeunit verifies that nothing has happened.
@@ -908,8 +911,8 @@ codeunit 136315 "Send Job To Calendar"
         SMTPMailSetup: Record "SMTP Mail Setup";
         Seed: Variant;
     begin
-        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Send Job To Calendar");
-        BindActiveDirectoryMockEvents;
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Send Job To Calendar");
+        BindActiveDirectoryMockEvents();
         Seed := Format(Time, 0, '<Seconds>');
         LibraryRandom.SetSeed(Seed);
         JobPlanningLine.DeleteAll(false);
@@ -926,9 +929,9 @@ codeunit 136315 "Send Job To Calendar"
         if IsInitialized then
             exit;
 
-        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Send Job To Calendar");
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Send Job To Calendar");
         IsInitialized := true;
-        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Send Job To Calendar");
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Send Job To Calendar");
     end;
 
     local procedure CreateJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; var Resource: Record Resource; Quantity: Decimal)
@@ -944,11 +947,11 @@ codeunit 136315 "Send Job To Calendar"
             CreateResource(Resource, RandomEmail);
 
         LibraryJob.CreateJob(Job);
-        Job.Validate(Description, CreateGuid);
+        Job.Validate(Description, CreateGuid());
         Job.Modify();
 
         LibraryJob.CreateJobTask(Job, JobTask);
-        JobTask.Validate(Description, CreateGuid);
+        JobTask.Validate(Description, CreateGuid());
         JobTask.Modify();
 
         LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Budget, JobPlanningLine.Type::Resource, JobTask, JobPlanningLine);
@@ -960,9 +963,9 @@ codeunit 136315 "Send Job To Calendar"
         LibraryMarketing.CreateCompanyContact(Contact);
         Customer.Get(Job."Bill-to Customer No.");
         Customer."Primary Contact No." := Contact."No.";
-        Customer.Address := CopyStr(CreateGuid, 2, 13);
-        Customer.City := CopyStr(CreateGuid, 2, 5);
-        Customer."Country/Region Code" := CopyStr(CreateGuid, 2, 2);
+        Customer.Address := CopyStr(CreateGuid(), 2, 13);
+        Customer.City := CopyStr(CreateGuid(), 2, 5);
+        Customer."Country/Region Code" := CopyStr(CreateGuid(), 2, 2);
         Customer.Modify();
     end;
 
@@ -988,7 +991,7 @@ codeunit 136315 "Send Job To Calendar"
         LibraryResource.CreateResource(Resource, '');
         User.Init();
         User.Validate("User Name", LibraryUtility.GenerateRandomCode(User.FieldNo("User Name"), DATABASE::User));
-        User.Validate("User Security ID", CreateGuid);
+        User.Validate("User Security ID", CreateGuid());
         User.Validate("Authentication Email", AuthEmail);
         User.Insert(true);
 
@@ -996,18 +999,20 @@ codeunit 136315 "Send Job To Calendar"
         Resource.Modify();
     end;
 
-    local procedure GetICSText(TempEmailItem: Record "Email Item" temporary) ICSText: Text
+    local procedure GetICSText(var TempEmailItem: Record "Email Item" temporary) ICSText: Text
     var
+        Attachments: Codeunit "Temp Blob List";
         TempBlob: Codeunit "Temp Blob";
-        FileManagement: Codeunit "File Management";
         Stream: InStream;
+        AttachmentNames: List of [Text];
     begin
-        FileManagement.BLOBImportFromServerFile(TempBlob, TempEmailItem."Attachment File Path");
-        TempBlob.CreateInStream(Stream, TEXTENCODING::UTF8);
+        TempEmailItem.GetAttachments(Attachments, AttachmentNames);
+        Attachments.Get(1, TempBlob);
+        TempBlob.CreateInStream(Stream, TextEncoding::UTF8);
         Stream.Read(ICSText);
     end;
 
-    local procedure GetDescription(TempEmailItem: Record "Email Item" temporary) Description: Text
+    local procedure GetDescription(var TempEmailItem: Record "Email Item" temporary) Description: Text
     var
         ICSText: Text;
     begin
@@ -1031,10 +1036,10 @@ codeunit 136315 "Send Job To Calendar"
         Regex := Regex.Regex(StrSubstNo('%1:(.*)\r\n', Element));
         Match := Regex.Match(ICSText);
         Assert.IsTrue(Match.Success, StrSubstNo('Element %1 could not be found in ICS', Element));
-        Value := Match.Groups.Item(1).Value;
+        Value := Match.Groups.Item(1).Value();
     end;
 
-    local procedure VerifyICSJobPlanningLineDescription(JobPlanningLine: Record "Job Planning Line"; TempEmailItem: Record "Email Item" temporary)
+    local procedure VerifyICSJobPlanningLineDescription(JobPlanningLine: Record "Job Planning Line";var TempEmailItem: Record "Email Item" temporary)
     var
         Description: Text;
     begin
@@ -1046,7 +1051,7 @@ codeunit 136315 "Send Job To Calendar"
 
     local procedure RandomEmail(): Text[250]
     begin
-        exit(StrSubstNo('%1@contoso.com', CreateGuid));
+        exit(StrSubstNo('%1@contoso.com', CreateGuid()));
     end;
 
     local procedure CreateUserSetupWithEmail()
@@ -1054,20 +1059,20 @@ codeunit 136315 "Send Job To Calendar"
         UserSetup: Record "User Setup";
     begin
         UserSetup.SetRange("User ID", UserId);
-        if not UserSetup.FindFirst then
-            LibraryDocumentApprovals.CreateUserSetup(UserSetup, UserId, '');
+        if not UserSetup.FindFirst() then
+            LibraryDocumentApprovals.CreateUserSetup(UserSetup, UserId(), '');
         if UserSetup."E-Mail" = '' then begin
-            UserSetup."E-Mail" := CopyStr(RandomEmail, 1, MaxStrLen(UserSetup."E-Mail"));
+            UserSetup."E-Mail" := CopyStr(RandomEmail(), 1, MaxStrLen(UserSetup."E-Mail"));
             UserSetup.Modify();
         end;
     end;
 
     local procedure BindActiveDirectoryMockEvents()
     begin
-        if ActiveDirectoryMockEvents.Enabled then
+        if ActiveDirectoryMockEvents.Enabled() then
             exit;
         BindSubscription(ActiveDirectoryMockEvents);
-        ActiveDirectoryMockEvents.Enable;
+        ActiveDirectoryMockEvents.Enable();
     end;
 }
 

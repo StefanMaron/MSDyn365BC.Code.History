@@ -364,6 +364,16 @@ codeunit 483 "Change Global Dimensions"
             if IsHandled then
                 exit;
 
+            if ("Change Type 1" = "Change Type 1"::Replace) and ("Global Dim.2 Field No." = 0) then
+                "Change Type 1" := "Change Type 1"::New;
+            if ("Change Type 2" = "Change Type 2"::Replace) and ("Global Dim.1 Field No." = 0) then
+                "Change Type 2" := "Change Type 2"::New;
+
+            if "Global Dim.1 Field No." = 0 then
+                "Change Type 1" := "Change Type 1"::None;
+            if "Global Dim.2 Field No." = 0 then
+                "Change Type 2" := "Change Type 2"::None;
+
             GetFieldRefValues(RecRef, GlobalDimFieldRef, OldDimValueCode);
             ChangeDimOnRecord(RecRef, 1, GlobalDimFieldRef[1], OldDimValueCode[2]);
             ChangeDimOnRecord(RecRef, 2, GlobalDimFieldRef[2], OldDimValueCode[1]);

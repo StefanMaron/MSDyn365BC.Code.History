@@ -131,6 +131,18 @@ page 6645 "Purch Return Order Arc Subform"
                     BlankZero = true;
                     ToolTip = 'Specifies the discount percentage that is granted for the item on the line.';
                 }
+                field("Return Qty. to Ship"; "Return Qty. to Ship")
+                {
+                    ApplicationArea = PurchReturnOrder;
+                    BlankZero = true;
+                    ToolTip = 'Specifies the quantity of items that remains to be shipped.';
+                }
+                field("Return Qty. Shipped"; "Return Qty. Shipped")
+                {
+                    ApplicationArea = PurchReturnOrder;
+                    BlankZero = true;
+                    ToolTip = 'Specifies how many units of the item on the line have been posted as shipped.';
+                }
                 field("Line Discount Amount"; "Line Discount Amount")
                 {
                     ApplicationArea = PurchReturnOrder;

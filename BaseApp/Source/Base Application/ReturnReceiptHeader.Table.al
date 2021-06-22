@@ -1,4 +1,4 @@
-table 6660 "Return Receipt Header"
+﻿table 6660 "Return Receipt Header"
 {
     Caption = 'Return Receipt Header';
     DataCaptionFields = "No.", "Sell-to Customer Name";
@@ -652,7 +652,13 @@ table 6660 "Return Receipt Header"
     procedure PrintRecords(ShowRequestForm: Boolean)
     var
         ReportSelection: Record "Report Selections";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePrintRecords(Rec, ShowRequestForm, IsHandled);
+        if IsHandled then
+            exit;
+
         with ReturnRcptHeader do begin
             Copy(Rec);
             ReportSelection.PrintWithDialogForCust(
@@ -702,6 +708,11 @@ table 6660 "Return Receipt Header"
         TestField("Shipping Agent Code");
         ShippingAgent.Get("Shipping Agent Code");
         HyperLink(ShippingAgent.GetTrackingInternetAddr("Package Tracking No."));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintRecords(var ReturnRcptHeader: Record "Return Receipt Header"; ShowDialog: Boolean; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

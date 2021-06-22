@@ -163,20 +163,7 @@ codeunit 5341 "CRM Int. Table. Subscriber"
     begin
         case GetSourceDestCode(SourceRecordRef, DestinationRecordRef) of
             'Sales Invoice Header-CRM Invoice':
-                begin
-                    CheckItemOrResourceIsNotBlocked(SourceRecordRef);
-                    UpdateOwnerIdType(DestinationRecordRef);
-                end;
-            'Customer-CRM Account',
-            'Vendor-CRM Account',
-            'Contact-CRM Contact',
-            'Item-CRM Product',
-            'Resource-CRM Product',
-            'Opportunity-CRM Opportunity',
-            'Sales Header-CRM Salesorder',
-            'Price List Header-CRM Pricelevel',
-            'Customer Price Group-CRM Pricelevel':
-                UpdateOwnerIdType(DestinationRecordRef);
+                CheckItemOrResourceIsNotBlocked(SourceRecordRef);
         end;
     end;
 
@@ -483,25 +470,6 @@ codeunit 5341 "CRM Int. Table. Subscriber"
             CDSIntTableSubscriber.SetCompanyId(DestinationRecordRef);
             CDSIntTableSubscriber.SetOwnerId(SourceRecordRef, DestinationRecordRef);
         end;
-    end;
-
-    local procedure UpdateOwnerIdType(var DestinationRecordRef: RecordRef)
-    var
-        CDSConnectionSetup: Record "CDS Connection Setup";
-        OwnerIdTypeFieldRef: FieldRef;
-    begin
-        if not CRMIntegrationManagement.IsCDSIntegrationEnabled() then
-            exit;
-
-        CDSConnectionSetup.Get();
-        // OwnerIdType is set to system user by the Integration Field Mapping by default, so in this case - do nothing
-        if CDSConnectionSetup."Ownership Model" = CDSConnectionSetup."Ownership Model"::Person then
-            exit;
-
-        if not CDSIntegrationImpl.FindOwnerTypeField(DestinationRecordRef, OwnerIdTypeFieldRef) then
-            exit;
-
-        OwnerIdTypeFieldRef.Value := CDSConnectionSetup."Ownership Model"::Team;
     end;
 
     local procedure GetSourceDestCode(SourceRecordRef: RecordRef; DestinationRecordRef: RecordRef): Text
@@ -858,6 +826,11 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         DestinationRecordRef.SetTable(CRMPricelevel);
         CRMPricelevel.Description.CreateOutStream(OutStream, TEXTENCODING::UTF16);
         OutStream.WriteText(PriceListHeader.Description);
+
+        if PriceListHeader.Status = PriceListHeader.Status::Active then
+            CRMPricelevel.StateCode := CRMPricelevel.StateCode::Active
+        else
+            CRMPricelevel.StateCode := CRMPricelevel.StateCode::Inactive;
         DestinationRecordRef.GetTable(CRMPricelevel);
 
         UpdateOwnerIdAndCompanyId(SourceRecordRef, DestinationRecordRef);

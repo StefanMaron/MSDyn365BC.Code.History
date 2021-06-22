@@ -209,6 +209,7 @@ codeunit 884 "ReadSoft OCR Master Data Sync"
         ModifyVendorPackageCount: Integer;
         BankAccountPackageCount: Integer;
         TotalPackageCount: Integer;
+        PortionSize: Integer;
         Success: Boolean;
         ModifiedVendorFirstPortionAction: Code[6];
     begin
@@ -222,11 +223,18 @@ codeunit 884 "ReadSoft OCR Master Data Sync"
 
         ModifiedVendorCount := ModifiedVendorTempBlobList.Count();
         BankAccountCount := BankAccountTempBlobList.Count();
+        PortionSize := GetPortionSize();
 
-        if (ModifiedVendorCount > 0) or (StartDateTime = 0DT) then
-            ModifyVendorPackageCount := (ModifiedVendorCount div MaxPortionSize()) + 1;
-        if BankAccountCount > 0 then
-            BankAccountPackageCount := (BankAccountTempBlobList.Count() div MaxPortionSize()) + 1;
+        if (ModifiedVendorCount > 0) or (StartDateTime = 0DT) then begin
+            ModifyVendorPackageCount := (ModifiedVendorCount div PortionSize);
+            if (ModifiedVendorCount mod PortionSize) > 0 then
+                ModifyVendorPackageCount += 1;
+        end;
+        if BankAccountCount > 0 then begin
+            BankAccountPackageCount := (BankAccountCount div PortionSize);
+            if (BankAccountCount mod PortionSize) > 0 then
+                BankAccountPackageCount := 1;
+        end;
         TotalPackageCount := ModifyVendorPackageCount + BankAccountPackageCount;
 
         if TotalPackageCount = 0 then
@@ -238,12 +246,12 @@ codeunit 884 "ReadSoft OCR Master Data Sync"
 
         Success := SyncMasterDataEntities(
             ModifiedVendorTempBlobList, VendorsUri(), ModifiedVendorFirstPortionAction, MethodPostTok,
-            'Suppliers', SyncModifiedVendorsMsg, MaxPortionSize());
+            'Suppliers', SyncModifiedVendorsMsg, PortionSize);
 
         if Success then
             Success := SyncMasterDataEntities(
                 BankAccountTempBlobList, VendorBankAccountsUri(), MethodPutTok, MethodPutTok,
-                'SupplierBankAccounts', SyncBankAccountsMsg, MaxPortionSize());
+                'SupplierBankAccounts', SyncBankAccountsMsg, PortionSize);
 
         CloseWindow();
 
@@ -253,9 +261,9 @@ codeunit 884 "ReadSoft OCR Master Data Sync"
     local procedure SyncMasterDataEntities(var TempBlobList: Codeunit "Temp Blob List"; RequestUri: Text; FirstPortionAction: Code[6]; NextPortionAction: Code[6]; RootNodeName: Text; ActivityDescription: Text; PortionSize: Integer): Boolean
     var
         EntityCount: Integer;
+        EntityNumber: Integer;
         PortionCount: Integer;
         PortionNumber: Integer;
-        LastPortion: Boolean;
         RequestAction: Code[6];
         RequestBody: Text;
         ResponseBody: Text;
@@ -270,13 +278,18 @@ codeunit 884 "ReadSoft OCR Master Data Sync"
                 exit(true);
             PortionCount := 1;
             PortionSize := 0;
-        end else
-            PortionCount := (EntityCount div PortionSize) + 1;
+        end else begin
+            PortionCount := EntityCount div PortionSize;
+            if (EntityCount mod PortionSize) > 0 then
+                PortionCount += 1;
+        end;
 
+        EntityNumber := 1;
         RequestAction := FirstPortionAction;
         for PortionNumber := 1 to PortionCount do begin
             UpdateWindow();
-            RequestBody := GetMasterDataEntitiesXml(TempBlobList, RootNodeName, PortionSize, LastPortion);
+            ResponseBody := '';
+            RequestBody := GetMasterDataEntitiesXml(TempBlobList, RootNodeName, PortionSize, EntityNumber);
             OnBeforeSendRequest(RequestBody);
             if not OCRServiceMgt.RsoRequest(RequestUri, RequestAction, RequestBody, ResponseBody, ErrorMessage, ErrorDetails, StatusCode) then begin
                 LogTelemetryFailedMasterDataSync(RootNodeName);
@@ -285,7 +298,7 @@ codeunit 884 "ReadSoft OCR Master Data Sync"
             end;
             if not CheckSyncResponse(ResponseBody, RootNodeName, ActivityDescription) then
                 OCRServiceMgt.LogActivityFailed(OCRServiceSetup.RecordId, ActivityDescription, InvalidResponseMsg);
-            if LastPortion then
+            if EntityNumber > EntityCount then
                 break;
             RequestAction := NextPortionAction;
         end;
@@ -336,19 +349,20 @@ codeunit 884 "ReadSoft OCR Master Data Sync"
         exit(B);
     end;
 
-    local procedure GetMasterDataEntitiesXml(var TempBlobList: Codeunit "Temp Blob List"; RootNodeName: Text; PortionSize: Integer; var LastPortion: Boolean): Text
+    local procedure GetMasterDataEntitiesXml(var TempBlobList: Codeunit "Temp Blob List"; RootNodeName: Text; PortionSize: Integer; var EntityNumber: Integer): Text
     var
         TempBlob: Codeunit "Temp Blob";
         Data: Text;
         Index: Integer;
+        MaxIndex: Integer;
     begin
         Data := '';
-        LastPortion := (PortionSize > TempBlobList.Count()) or (PortionSize = 0);
-        for Index := 1 to Min(PortionSize, TempBlobList.Count()) do begin
+        MaxIndex := Min(EntityNumber + PortionSize - 1, TempBlobList.Count());
+        for Index := EntityNumber to MaxIndex do begin
             TempBlobList.Get(Index, TempBlob);
             Data += GetFromBuffer(TempBlob);
         end;
-
+        EntityNumber := Index + 1;
         Data := StrSubstNo(RequestTemplateTxt, RootNodeName, Data, RootNodeName);
         exit(Data);
     end;
@@ -481,6 +495,19 @@ codeunit 884 "ReadSoft OCR Master Data Sync"
         OCRServiceSetup.TestField("Organization ID");
     end;
 
+    local procedure GetPortionSize(): Integer
+    var
+        PortionSize: Integer;
+        DefaultPortionSize: Integer;
+        Handled: Boolean;
+    begin
+        OnGetPortionSize(PortionSize, Handled);
+        DefaultPortionSize := MaxPortionSize();
+        if (not Handled) or (PortionSize <= 0) or (PortionSize > MaxPortionSize) then
+            PortionSize := DefaultPortionSize;
+        exit(PortionSize);
+    end;
+
     local procedure MaxPortionSize(): Integer
     begin
         if MaxPortionSizeValue = 0 then
@@ -513,6 +540,11 @@ codeunit 884 "ReadSoft OCR Master Data Sync"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSendRequest(Body: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetPortionSize(var PortionSize: Integer; var Handled: Boolean)
     begin
     end;
 

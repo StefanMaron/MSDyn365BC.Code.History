@@ -62,7 +62,7 @@ codeunit 412 "SMTP Test Mail"
         if SMTPMailSetup.Authentication = SMTPMailSetup.Authentication::Anonymous then
             SenderEmail := EmailAddress
         else
-            SenderEmail := MailManagement.GetSenderEmailAddress;
+            SenderEmail := SMTPMailSetup."User ID";
 
         SMTPMail.CreateMessage(
           '',

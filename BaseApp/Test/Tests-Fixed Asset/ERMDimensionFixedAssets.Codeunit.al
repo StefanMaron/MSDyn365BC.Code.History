@@ -1081,6 +1081,76 @@ codeunit 134478 "ERM Dimension Fixed Assets"
         DeleteDefaultDimensionPriorities(SourceCode);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure FALedgerEntryMoveToGenJnlCopyGlobalDimensions()
+    var
+        FALedgerEntry: Record "FA Ledger Entry";
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 376439] "FA Ledger Entry".MoveToGenJnl must copy values of global dimension from FA Ledger Entry to Gen. Journal Line
+        Initialize();
+
+        // [GIVEN] FA Ledger Entry with
+        // [GIVEN] Global Dimension 1 Code = "GD1C"
+        // [GIVEN] Global Dimension 2 Code = "GD2C"
+        FALedgerEntry."Global Dimension 1 Code" := LibraryUtility.GenerateRandomCode20(
+            FALedgerEntry.FieldNo("Global Dimension 1 Code"), Database::"FA Ledger Entry");
+        FALedgerEntry."Global Dimension 2 Code" := LibraryUtility.GenerateRandomCode20(
+            FALedgerEntry.FieldNo("Global Dimension 2 Code"), Database::"FA Ledger Entry");
+
+        // [GIVEN] Gen. Journal Line
+        CreateGenJournalBatch(GenJournalBatch);
+        GenJournalLine."Journal Template Name" := GenJournalBatch."Journal Template Name";
+        GenJournalLine."Journal Batch Name" := GenJournalBatch.Name;
+
+        // [WHEN] Invoke "FA Ledger Entry".MoveToGenJnl
+        FALedgerEntry.MoveToGenJnl(GenJournalLine);
+
+        // [THEN] "Gen. Journal Line"."Shortcut Dimension 1 Code" = "GD1C"
+        GenJournalLine.TestField("Shortcut Dimension 1 Code", FALedgerEntry."Global Dimension 1 Code");
+
+        // [THEN] "Gen. Journal Line"."Shortcut Dimension 2 Code" = "GD2C"
+        GenJournalLine.TestField("Shortcut Dimension 2 Code", FALedgerEntry."Global Dimension 2 Code");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure FALedgerEntryMoveToFAJnlCopyGlobalDimensions()
+    var
+        FALedgerEntry: Record "FA Ledger Entry";
+        FAJournalLine: Record "FA Journal Line";
+        FAJournalBatch: Record "FA Journal Batch";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 376439] "FA Ledger Entry".MoveToFAJnl must copy values of global dimension from FA Ledger Entry to FA Journa Line
+        Initialize();
+
+        // [GIVEN] FA Ledger Entry with
+        // [GIVEN] Global Dimension 1 Code = "GD1C"
+        // [GIVEN] Global Dimension 2 Code = "GD2C"
+        FALedgerEntry."Global Dimension 1 Code" := LibraryUtility.GenerateRandomCode20(
+            FALedgerEntry.FieldNo("Global Dimension 1 Code"), Database::"FA Ledger Entry");
+        FALedgerEntry."Global Dimension 2 Code" := LibraryUtility.GenerateRandomCode20(
+            FALedgerEntry.FieldNo("Global Dimension 2 Code"), Database::"FA Ledger Entry");
+
+        // [GIVEN] FA Journal Line
+        CreateFAJournalBatch(FAJournalBatch);
+        FAJournalLine."Journal Template Name" := FAJournalBatch."Journal Template Name";
+        FAJournalLine."Journal Batch Name" := FAJournalBatch.Name;
+
+        // [WHEN] Invoke "FA Ledger Entry".MoveToFAJnl
+        FALedgerEntry.MoveToFAJnl(FAJournalLine);
+
+        // [THEN] "FA Journal Line"."Shortcut Dimension 1 Code" = "GD1C"
+        FAJournalLine.TestField("Shortcut Dimension 1 Code", FALedgerEntry."Global Dimension 1 Code");
+
+        // [THEN] "FA Journal Line"."Shortcut Dimension 2 Code" = "GD2C"
+        FAJournalLine.TestField("Shortcut Dimension 2 Code", FALedgerEntry."Global Dimension 2 Code");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
