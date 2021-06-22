@@ -192,7 +192,7 @@ page 1154 "COHUB My User Tasks"
 
     trigger OnOpenPage();
     begin
-        Rec.SetFilter("Assigned To", UserSecurityId());
+        Rec.SetRange("Assigned To", UserSecurityId());
         Rec.SetFilter("Percent Complete", '<%1', 100);
         if Rec.Count() > 0 then
             GoToCompanyIsEnabled := true;

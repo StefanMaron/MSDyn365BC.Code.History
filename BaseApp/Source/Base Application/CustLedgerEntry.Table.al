@@ -624,6 +624,9 @@ table 21 "Cust. Ledger Entry"
         key(Key22; "Salesperson Code")
         {
         }
+        key(Key23; SystemModifiedAt)
+        {
+        }
     }
 
     fieldgroups

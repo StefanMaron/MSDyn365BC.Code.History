@@ -1220,6 +1220,98 @@ codeunit 134159 "Test Price Calculation - V16"
     end;
 
     [Test]
+    procedure T070_JobPlanningLineTakeZeroJobItemDiscountOverItemDiscount()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        Job: Record Job;
+        JobPlanningLine: Record "Job Planning Line";
+        PriceCalculationSetup: Record "Price Calculation Setup";
+        PriceListLine: array[2] of Record "Price List Line";
+        PriceListHeader: array[2] of Record "Price List Header";
+    begin
+        Initialize();
+        PriceCalculationSetup.DeleteAll();
+        LibraryPriceCalculation.AddSetup(
+            PriceCalculationSetup, "Price Calculation Method"::"Lowest Price", "Price Type"::Sale,
+            "Price Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", true);
+
+        // [GIVEN] Item 'I'
+        LibraryInventory.CreateItem(Item);
+        // [GIVEN] Item 'I' Discount '1%' for Customer 'C'
+        LibrarySales.CreateCustomer(Customer);
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader[1], "Price Type"::Sale, "Price Source Type"::Customer, Customer."No.");
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine[1], PriceListHeader[1], "Price Amount Type"::Discount, "Price Asset Type"::Item, Item."No.");
+        PriceListLine[1].Status := PriceListLine[1].Status::Active;
+        PriceListLine[1].Modify();
+        // [GIVEN] Job 'J', where "Bill-to Customer No." is 'C', Item 'I' "Unit Price" is 'X', Discount is '0%' for Customer 'C'
+        LibraryJob.CreateJob(Job);
+        Job.Validate("Bill-to Customer No.", Customer."No.");
+        Job.Modify();
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader[2], "Price Type"::Sale, "Price Source Type"::Job, Job."No.");
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine[2], PriceListHeader[2], "Price Amount Type"::Any, "Price Asset Type"::Item, Item."No.");
+        PriceListLine[2]."Line Discount %" := 0;
+        PriceListLine[2].Status := PriceListLine[2].Status::Active;
+        PriceListLine[2].Modify();
+        // [GIVEN] Job Planning Line, wheer Job 'J', Customer 'C'
+        JobPlanningLine.Validate("Job No.", Job."No.");
+        JobPlanningLine.validate(Type, JobPlanningLine.Type::Item);
+        // [WHEN] Enter Item 'I' in the Job Planning Line
+        JobPlanningLine.Validate("No.", Item."No.");
+        // [THEN] "Unit Price" is 'X', "Line Discount" is 0
+        JobPlanningLine.TestField("Unit Price", PriceListLine[2]."Unit Price");
+        JobPlanningLine.TestField("Line Discount %", 0);
+    end;
+
+    [Test]
+    procedure T071_JobPlanningLineTakeZeroJobItemPriceOverItemPrice()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        Job: Record Job;
+        JobPlanningLine: Record "Job Planning Line";
+        PriceCalculationSetup: Record "Price Calculation Setup";
+        PriceListLine: array[2] of Record "Price List Line";
+        PriceListHeader: array[2] of Record "Price List Header";
+    begin
+        Initialize();
+        PriceCalculationSetup.DeleteAll();
+        LibraryPriceCalculation.AddSetup(
+            PriceCalculationSetup, "Price Calculation Method"::"Lowest Price", "Price Type"::Sale,
+            "Price Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", true);
+
+        // [GIVEN] Item 'I'
+        LibraryInventory.CreateItem(Item);
+        // [GIVEN] Item 'I' Price '100.00' for Customer 'C'
+        LibrarySales.CreateCustomer(Customer);
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader[1], "Price Type"::Sale, "Price Source Type"::Customer, Customer."No.");
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine[1], PriceListHeader[1], "Price Amount Type"::Price, "Price Asset Type"::Item, Item."No.");
+        PriceListLine[1].Status := PriceListLine[1].Status::Active;
+        PriceListLine[1].Modify();
+        // [GIVEN] Job 'J', where "Bill-to Customer No." is 'C', Item 'I' "Unit Price" is 0.00, Discount is '1%' for Customer 'C'
+        LibraryJob.CreateJob(Job);
+        Job.Validate("Bill-to Customer No.", Customer."No.");
+        Job.Modify();
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader[2], "Price Type"::Sale, "Price Source Type"::Job, Job."No.");
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine[2], PriceListHeader[2], "Price Amount Type"::Any, "Price Asset Type"::Item, Item."No.");
+        PriceListLine[2]."Unit Price" := 0;
+        PriceListLine[2].Status := PriceListLine[2].Status::Active;
+        PriceListLine[2].Modify();
+        // [GIVEN] Job Planning Line, wheer Job 'J', Customer 'C'
+        JobPlanningLine.Validate("Job No.", Job."No.");
+        JobPlanningLine.validate(Type, JobPlanningLine.Type::Item);
+        // [WHEN] Enter Item 'I' in the Job Planning Line
+        JobPlanningLine.Validate("No.", Item."No.");
+        // [THEN] "Unit Price" is 0.00, "Line Discount" is 1%
+        JobPlanningLine.TestField("Unit Price", 0);
+        JobPlanningLine.TestField("Line Discount %", PriceListLine[2]."Line Discount %");
+    end;
+
+    [Test]
     procedure T110_ApplyDiscountSalesLine()
     var
         Customer: Record Customer;

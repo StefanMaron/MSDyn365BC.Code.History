@@ -496,6 +496,23 @@ codeunit 5496 "Graph Mgt - Sales Order Buffer"
         end;
     end;
 
+    procedure DeleteOrphanedRecords()
+    var
+        SalesOrderEntityBuffer: Record "Sales Order Entity Buffer";
+        SalesHeader: Record "Sales Header";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if SalesOrderEntityBuffer.FindSet() then
+            repeat
+                if not SalesHeader.Get(SalesHeader."Document Type"::Order, SalesOrderEntityBuffer."No.") then
+                    SalesOrderEntityBuffer.Delete();
+            until SalesOrderEntityBuffer.Next() = 0;
+
+        if not UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetDeleteSalesOrdersOrphanedRecords()) then
+            UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetDeleteSalesOrdersOrphanedRecords());
+    end;
+
     local procedure VerifyCRUDIsPossibleForLine(var SalesInvoiceLineAggregate: Record "Sales Invoice Line Aggregate"; var SalesOrderEntityBuffer: Record "Sales Order Entity Buffer")
     var
         SearchSalesOrderEntityBuffer: Record "Sales Order Entity Buffer";

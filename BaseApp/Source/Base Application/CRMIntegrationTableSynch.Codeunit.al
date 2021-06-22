@@ -143,17 +143,19 @@ codeunit 5340 "CRM Integration Table Synch."
         exit(CRMRecordRef.FindSet());
     end;
 
-    local procedure FindFailedNotSkippedCRMRecords(var CRMRecordRef: RecordRef; IntegrationTableMapping: Record "Integration Table Mapping"; var TempCRMIntegrationRecord: Record "CRM Integration Record" temporary): Boolean
+    local procedure FindFailedNotSkippedCRMRecords(var TempCRMRecordRef: RecordRef; IntegrationTableMapping: Record "Integration Table Mapping"; var TempCRMIntegrationRecord: Record "CRM Integration Record" temporary; var CRMIDDictionary: Dictionary of [Guid, Boolean]): Boolean
     var
-        CheckCRMRecordRef: RecordRef;
+        CRMRecordRef: RecordRef;
         CRMTableView: Text;
         CRMIDFilter: Text;
+        Found: Boolean;
+        CRMIDFilterList: List of [Text];
     begin
         CRMTableView := IntegrationTableMapping.GetIntegrationTableFilter();
-        CheckCRMRecordRef.Open(IntegrationTableMapping."Integration Table ID");
-        CheckCRMRecordRef.SetView(CRMTableView);
-        CRMIDFilter := CheckCRMRecordRef.Field(IntegrationTableMapping."Integration Table UID Fld. No.").GetFilter();
-        CheckCRMRecordRef.Close();
+        CRMRecordRef.Open(IntegrationTableMapping."Integration Table ID");
+        CRMRecordRef.SetView(CRMTableView);
+        CRMIDFilter := CRMRecordRef.Field(IntegrationTableMapping."Integration Table UID Fld. No.").GetFilter();
+        CRMRecordRef.Close();
         if CRMIDFilter <> '' then
             exit(false); // Ignore failed not synched records if going to synch records selected by CRMID
 
@@ -162,20 +164,61 @@ codeunit 5340 "CRM Integration Table Synch."
         TempCRMIntegrationRecord.SetRange("Last Synch. Result", TempCRMIntegrationRecord."Last Synch. Result"::Failure);
         if TempCRMIntegrationRecord.FindSet() then begin
             repeat
-                CRMIDFilter += '|' + TempCRMIntegrationRecord."CRM ID";
+                if not CRMIDDictionary.ContainsKey(TempCRMIntegrationRecord."CRM ID") then
+                    CRMIDDictionary.Add(TempCRMIntegrationRecord."CRM ID", true);
             until TempCRMIntegrationRecord.Next() = 0;
-            CRMIDFilter := CRMIDFilter.TrimStart('|');
+            GetIdFilterList(CRMIDDictionary, CRMIDFilterList);
+            Found := CacheFilteredCRMRecords(CRMIDFilterList, IntegrationTableMapping, TempCRMRecordRef);
         end;
         TempCRMIntegrationRecord.SetRange(Skipped);
         TempCRMIntegrationRecord.SetRange("Table ID");
         TempCRMIntegrationRecord.SetRange("Last Synch. Result");
+        exit(Found);
+    end;
 
-        if CRMIDFilter = '' then
-            exit(false);
+    local procedure CacheFilteredCRMRecords(var CRMIDFilterList: List of [Text]; IntegrationTableMapping: Record "Integration Table Mapping"; var TempCRMRecordRef: RecordRef): Boolean
+    var
+        OutlookSynchNAVMgt: Codeunit "Outlook Synch. NAV Mgt";
+        CRMRecordRef: RecordRef;
+        CRMIDFilter: Text;
+        Cached: Boolean;
+    begin
+        foreach CRMIDFilter in CRMIDFilterList do
+            if CRMIDFilter <> '' then begin
+                CRMRecordRef.Open(IntegrationTableMapping."Integration Table ID");
+                CRMRecordRef.Field(IntegrationTableMapping."Integration Table UID Fld. No.").SetFilter(CRMIDFilter);
+                if CRMRecordRef.FindSet() then
+                    repeat
+                        OutlookSynchNAVMgt.CopyRecordReference(CRMRecordRef, TempCRMRecordRef, false);
+                        Cached := true;
+                    until CRMRecordRef.Next() = 0;
+                CRMRecordRef.Close();
+            end;
+        exit(Cached);
+    end;
 
-        CRMRecordRef.Open(IntegrationTableMapping."Integration Table ID");
-        CRMRecordRef.Field(IntegrationTableMapping."Integration Table UID Fld. No.").SetFilter(CRMIDFilter);
-        exit(CRMRecordRef.FindSet());
+    local procedure GetIdFilterList(var IdDictionary: Dictionary of [Guid, Boolean]; var IdFilterList: List of [Text]): Boolean
+    var
+        IdFilter: Text;
+        I: Integer;
+        Id: Guid;
+        MaxCount: Integer;
+    begin
+        MaxCount := GetMaxNumberOfConditions();
+        foreach Id in IdDictionary.Keys() do begin
+            IdFilter += '|' + Id;
+            I += 1;
+            if I = MaxCount then begin
+                IdFilter := IdFilter.TrimStart('|');
+                IdFilterList.Add(IdFilter);
+                IdFilter := '';
+                I := 0;
+            end;
+        end;
+        if IdFilter <> '' then begin
+            IdFilter := IdFilter.TrimStart('|');
+            IdFilterList.Add(IdFilter);
+        end;
     end;
 
     local procedure CacheFilteredCRMTable(var TempCRMRecordRef: RecordRef; IntegrationTableMapping: Record "Integration Table Mapping"; var TempCRMIntegrationRecord: Record "CRM Integration Record" temporary)
@@ -186,17 +229,7 @@ codeunit 5340 "CRM Integration Table Synch."
         FailedNotSkippedIdDictionary: Dictionary of [Guid, Boolean];
     begin
         TempCRMRecordRef.Open(IntegrationTableMapping."Integration Table ID", true);
-
-        if FindFailedNotSkippedCRMRecords(CRMRecordRef, IntegrationTableMapping, TempCRMIntegrationRecord) then
-            repeat
-                CRMID := CRMRecordRef.Field(IntegrationTableMapping."Integration Table UID Fld. No.").Value();
-                if not FailedNotSkippedIdDictionary.ContainsKey(CRMID) then begin
-                    FailedNotSkippedIdDictionary.Add(CRMID, true);
-                    OutlookSynchNAVMgt.CopyRecordReference(CRMRecordRef, TempCRMRecordRef, false);
-                end;
-            until CRMRecordRef.Next() = 0;
-        CRMRecordRef.Close();
-
+        FindFailedNotSkippedCRMRecords(TempCRMRecordRef, IntegrationTableMapping, TempCRMIntegrationRecord, FailedNotSkippedIdDictionary);
         if FindModifiedCRMRecords(CRMRecordRef, IntegrationTableMapping) then
             repeat
                 CRMID := CRMRecordRef.Field(IntegrationTableMapping."Integration Table UID Fld. No.").Value();
@@ -644,6 +677,12 @@ codeunit 5340 "CRM Integration Table Synch."
             TempCRMIntegrationRecord.Copy(CRMIntegrationRecord, false);
             TempCRMIntegrationRecord.Insert();
         until CRMIntegrationRecord.Next = 0;
+    end;
+
+    local procedure GetMaxNumberOfConditions(): Integer
+    begin
+        // CRM SDK allows max 499 conditions. A twice smaller limit is used to be on the safe side.
+        exit(499 DIV 2);
     end;
 
     [IntegrationEvent(false, false)]
