@@ -41,6 +41,7 @@ codeunit 134761 "Test Custom Reports"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
@@ -70,6 +71,8 @@ codeunit 134761 "Test Custom Reports"
     [Scope('OnPrem')]
     procedure TestDeletionOfVendor()
     begin
+        Initialize();
+
         LibraryPurchase.CreateVendor(Vendor);
 
         CreateCustomReportLayout(REPORT::"Standard Sales - Quote", CustomReportLayout.Type::Word, 'Quote Customer Full Mod');
@@ -153,7 +156,7 @@ codeunit 134761 "Test Custom Reports"
     [Scope('OnPrem')]
     procedure TestPrintQuotes()
     begin
-        Initialize;
+        Initialize();
 
         Usage := CustomReportSelection.Usage::"S.Quote";
 
@@ -172,7 +175,7 @@ codeunit 134761 "Test Custom Reports"
         CustomReportID: Integer;
         Usage: Option;
     begin
-        Initialize;
+        Initialize();
 
         Usage := CustomReportSelection.Usage::"S.Quote";
         Clear(CustomReportSelection);
@@ -204,7 +207,7 @@ codeunit 134761 "Test Custom Reports"
     [Scope('OnPrem')]
     procedure TestPrintOrders()
     begin
-        Initialize;
+        Initialize();
 
         Usage := CustomReportSelection.Usage::"S.Order";
         PrintCustomReportSelectionFullMod(OrderSalesHeaderFullMod, REPORT::"Standard Sales - Order Conf.");
@@ -222,7 +225,7 @@ codeunit 134761 "Test Custom Reports"
         CustomReportID: Integer;
         Usage: Option;
     begin
-        Initialize;
+        Initialize();
 
         Usage := CustomReportSelection.Usage::"S.Order";
         OrderSalesHeaderFullMod.SetRecFilter;
@@ -256,7 +259,7 @@ codeunit 134761 "Test Custom Reports"
         CustomReportID: Integer;
         Usage: Option;
     begin
-        Initialize;
+        Initialize();
 
         SalesInvoiceHeader.Get(InvoiceSalesHeaderFullMod."Last Posting No.");
 
@@ -287,7 +290,7 @@ codeunit 134761 "Test Custom Reports"
         CustomReportID: Integer;
         Usage: Option;
     begin
-        Initialize;
+        Initialize();
 
         SalesInvoiceHeader.Get(InvoiceSalesHeaderFullModEmail."Last Posting No.");
         SalesInvoiceHeader.SetRecFilter;
@@ -324,7 +327,7 @@ codeunit 134761 "Test Custom Reports"
         CustomReportID: Integer;
         Usage: Option;
     begin
-        Initialize;
+        Initialize();
 
         SalesCrMemoHeader.Get(CreditMemoSalesHeaderFullMod."Last Posting No.");
         Usage := CustomReportSelection.Usage::"S.Cr.Memo";
@@ -359,7 +362,7 @@ codeunit 134761 "Test Custom Reports"
         CustomReportID: Integer;
         Usage: Option;
     begin
-        Initialize;
+        Initialize();
 
         SalesCrMemoHeader.Get(CreditMemoSalesHeaderFullModEmail."Last Posting No.");
         SalesCrMemoHeader.SetRecFilter;
@@ -393,7 +396,7 @@ codeunit 134761 "Test Custom Reports"
     var
         StandardStatement: Report "Standard Statement";
     begin
-        Initialize;
+        Initialize();
 
         // Clear to avoid 'unused var' precal error
         Clear(StandardStatement);
@@ -408,7 +411,7 @@ codeunit 134761 "Test Custom Reports"
     var
         StandardStatement: Report "Standard Statement";
     begin
-        Initialize;
+        Initialize();
 
         // Clear to avoid 'unused var' precal error
         Clear(StandardStatement);
@@ -423,7 +426,7 @@ codeunit 134761 "Test Custom Reports"
     var
         CustomLayoutReporting: Codeunit "Custom Layout Reporting";
     begin
-        Initialize;
+        Initialize();
 
         // Ensure that the report path runs without errors. Suppress output.
         RunStatementReportWithStandardSelection(CustomerFullMod, CustomLayoutReporting, TemporaryPath, true, true);
@@ -436,7 +439,7 @@ codeunit 134761 "Test Custom Reports"
     var
         CustomLayoutReporting: Codeunit "Custom Layout Reporting";
     begin
-        Initialize;
+        Initialize();
 
         // Ensure that the report path runs without errors. Suppress output.
         RunStatementReport(CustomerFullMod, CustomLayoutReporting, TemporaryPath, true, true);
@@ -449,7 +452,7 @@ codeunit 134761 "Test Custom Reports"
     var
         CustomLayoutReporting: Codeunit "Custom Layout Reporting";
     begin
-        Initialize;
+        Initialize();
 
         // Ensure that the report path runs without errors. Suppress output.
         RunStatementReport(CustomerFullMod, CustomLayoutReporting, TemporaryPath, true, false);
@@ -472,7 +475,7 @@ codeunit 134761 "Test Custom Reports"
         OutputPath: Text;
     begin
         // Validate that running multiple statement reports generates a .zip file that contains reports.
-        Initialize;
+        Initialize();
         OutputPath := GetOutputFolder;
         BindSubscription(TestCustomReports);
         CustomLayoutReporting.SetTestModeWebClient(true);
@@ -513,7 +516,7 @@ codeunit 134761 "Test Custom Reports"
         TestPath: Text;
         OutputPath: Text;
     begin
-        Initialize;
+        Initialize();
         OutputPath := GetOutputFolder;
 
         AllReportsPath := FileManagement.CombinePath(OutputPath, 'AllReports.zip');
@@ -559,7 +562,7 @@ codeunit 134761 "Test Custom Reports"
     var
         CustomLayoutReporting: Codeunit "Custom Layout Reporting";
     begin
-        Initialize;
+        Initialize();
 
         CustomLayoutReporting.SetTestModeWebClient(true);
         RunStatementReportWithStandardSelection(CustomerFullMod, CustomLayoutReporting, TemporaryPath, true, true);
@@ -574,7 +577,7 @@ codeunit 134761 "Test Custom Reports"
         CustomLayoutReporting: Codeunit "Custom Layout Reporting";
         ErrorMessages: TestPage "Error Messages";
     begin
-        Initialize;
+        Initialize();
 
         CustomerLocal.Copy(CustomerFullMod);
         ErrorMessages.Trap;
@@ -592,7 +595,7 @@ codeunit 134761 "Test Custom Reports"
     var
         CustomLayoutReporting: Codeunit "Custom Layout Reporting";
     begin
-        Initialize;
+        Initialize();
 
         RunStatementReportWithStandardSelection(CustomerFullMod, CustomLayoutReporting, TemporaryPath, true, true);
     end;
@@ -607,7 +610,7 @@ codeunit 134761 "Test Custom Reports"
         TestPath: Text;
         OutputPath: Text;
     begin
-        Initialize;
+        Initialize();
         OutputPath := GetOutputFolder;
 
         RunStatementReportWithStandardSelection(CustomerFullMod, CustomLayoutReporting, OutputPath, false, true);
@@ -643,7 +646,7 @@ codeunit 134761 "Test Custom Reports"
         TestPath: Text;
         OutputPath: Text;
     begin
-        Initialize;
+        Initialize();
         OutputPath := GetOutputFolder;
 
         RunStatementReportWithStandardSelection(CustomerFullMod, CustomLayoutReporting, OutputPath, false, false);
@@ -674,7 +677,7 @@ codeunit 134761 "Test Custom Reports"
         CalculatedDate: Date;
         OutputPath: Text;
     begin
-        Initialize;
+        Initialize();
         OutputPath := GetOutputFolder;
 
         SetStandardStatementSelection;
@@ -726,7 +729,7 @@ codeunit 134761 "Test Custom Reports"
         TestPath: Text;
         OutputPath: Text;
     begin
-        Initialize;
+        Initialize();
         OutputPath := GetOutputFolder;
 
         RunStatementReportWithStandardSelection(CustomerFullMod, CustomLayoutReporting, OutputPath, false, true);
@@ -753,7 +756,7 @@ codeunit 134761 "Test Custom Reports"
         FileManagement: Codeunit "File Management";
         OutputPath: Text;
     begin
-        Initialize;
+        Initialize();
         OutputPath := GetOutputFolder;
 
         RunStatementReport(CustomerFullMod, CustomLayoutReporting, OutputPath, false, true);
@@ -771,7 +774,7 @@ codeunit 134761 "Test Custom Reports"
         FileManagement: Codeunit "File Management";
         OutputPath: Text;
     begin
-        Initialize;
+        Initialize();
         OutputPath := GetOutputFolder;
 
         RunStatementReport(CustomerFullMod, CustomLayoutReporting, OutputPath, false, true);
@@ -789,7 +792,7 @@ codeunit 134761 "Test Custom Reports"
         FileManagement: Codeunit "File Management";
         OutputPath: Text;
     begin
-        Initialize;
+        Initialize();
         OutputPath := GetOutputFolder;
 
         // Ensure that both reports run
@@ -812,7 +815,7 @@ codeunit 134761 "Test Custom Reports"
         FileManagement: Codeunit "File Management";
         OutputPath: Text;
     begin
-        Initialize;
+        Initialize();
         OutputPath := GetOutputFolder;
 
         // Ensure that both reports run
@@ -834,7 +837,7 @@ codeunit 134761 "Test Custom Reports"
         FileManagement: Codeunit "File Management";
         OutputPath: Text;
     begin
-        Initialize;
+        Initialize();
         OutputPath := GetOutputFolder;
 
         // Ensure that both reports run
@@ -860,7 +863,7 @@ codeunit 134761 "Test Custom Reports"
     var
         CustomLayoutReporting: Codeunit "Custom Layout Reporting";
     begin
-        Initialize;
+        Initialize();
 
         RunStatementReportWithStandardSelection(CustomerFullMod, CustomLayoutReporting, TemporaryPath, true, true);
 
@@ -961,7 +964,7 @@ codeunit 134761 "Test Custom Reports"
         FilterGroup: Integer;
     begin
         // Setup
-        Initialize;
+        Initialize();
         OutputPath := GetOutputFolder;
 
         // Execute
@@ -982,7 +985,7 @@ codeunit 134761 "Test Custom Reports"
         OutputPath: Text;
         FilterGroup: Integer;
     begin
-        Initialize;
+        Initialize();
         OutputPath := GetOutputFolder;
         FilterGroup := CustomerFullMod.FilterGroup;
 
@@ -1004,7 +1007,7 @@ codeunit 134761 "Test Custom Reports"
         FilterGroup: Integer;
         RecRefFilterGroup: Integer;
     begin
-        Initialize;
+        Initialize();
         OutputPath := GetOutputFolder;
 
         SetStandardStatementSelection;
@@ -1045,7 +1048,7 @@ codeunit 134761 "Test Custom Reports"
     begin
         // [FEATURE] [Standard Sales - Invoice] [Prices Excl. VAT]
         // [SCENARIO 203437] REP 1306 "Standard Sales - Invoice" prints total line as "Total GBP Incl. VAT" in case of "Prices Including VAT" = FALSE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted sales invoice with "Prices Including VAT" = FALSE, Unit Price = 4000, VAT Amount = 1000, Amount Incl. VAT = 5000
         CreateSalesInvoice(SalesHeader, SalesLine, false);
@@ -1075,7 +1078,7 @@ codeunit 134761 "Test Custom Reports"
     begin
         // [FEATURE] [Standard Sales - Invoice] [Prices Incl. VAT]
         // [SCENARIO 203437] REP 1306 "Standard Sales - Invoice" prints total line as "Total GBP Excl. VAT" in case of "Prices Including VAT" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted sales invoice with "Prices Including VAT" = TRUE, Unit Price = 5000, VAT Amount = 1000, Amount Excl. VAT = 4000
         CreateSalesInvoice(SalesHeader, SalesLine, true);
@@ -1105,7 +1108,7 @@ codeunit 134761 "Test Custom Reports"
     begin
         // [FEATURE] [Standard Sales - Invoice] [Prices Excl. VAT] [Invoice Discount]
         // [SCENARIO 203437] REP 1306 "Standard Sales - Invoice" prints subtotal discount line as "Total GBP Excl. VAT" in case of "Prices Including VAT" = FALSE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted sales invoice with "Prices Including VAT" = FALSE, Unit Price = 5000, Invoice Discount = 1000, VAT Amount = 1000, Amount Incl. VAT = 5000
         CreateSalesInvoice(SalesHeader, SalesLine, false);
@@ -1138,7 +1141,7 @@ codeunit 134761 "Test Custom Reports"
     begin
         // [FEATURE] [Standard Sales - Invoice] [Prices Incl. VAT] [Invoice Discount]
         // [SCENARIO 203437] REP 1306 "Standard Sales - Invoice" prints subtotal discount line as "Total GBP Incl. VAT" in case of "Prices Including VAT" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted sales invoice with "Prices Including VAT" = TRUE, Unit Price = 6000, Invoice Discount = 1000, VAT Amount = 1000, Amount Excl. VAT = 4000
         CreateSalesInvoice(SalesHeader, SalesLine, true);
@@ -1166,7 +1169,7 @@ codeunit 134761 "Test Custom Reports"
         OutputPath: Text;
     begin
         // [SCENARIO 208380] Standard Statement Aging totals must include only amounts that already overdue when Aging by Due Date.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "CUS".
         LibrarySales.CreateCustomer(Customer);
@@ -1198,7 +1201,7 @@ codeunit 134761 "Test Custom Reports"
         OutputPath: Text;
     begin
         // [SCENARIO 208380] Standard Statement Aging totals must include only amounts that already overdue when Aging by Due Date for a next month.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "CUS".
         LibrarySales.CreateCustomer(Customer);
@@ -1234,7 +1237,7 @@ codeunit 134761 "Test Custom Reports"
         OutputPath: Text;
     begin
         // [SCENARIO 213673] Standard Statement Aging totals must include all earlier entries amounts when Aging is set by the Posting Date.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "CUS".
         LibrarySales.CreateCustomer(Customer);
@@ -1267,7 +1270,7 @@ codeunit 134761 "Test Custom Reports"
         LineAmount: Decimal;
     begin
         // [SCENARIO 208380] Statement Aging totals must include only amounts that already overdue when Aging by Due Date.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "CUS".
         LibrarySales.CreateCustomer(Customer);
@@ -1301,7 +1304,7 @@ codeunit 134761 "Test Custom Reports"
         LineAmount: array[2] of Decimal;
     begin
         // [SCENARIO 208380] Statement Aging totals must include only amounts that already overdue when Aging by Due Date for a next month.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "CUS".
         LibrarySales.CreateCustomer(Customer);
@@ -1343,7 +1346,7 @@ codeunit 134761 "Test Custom Reports"
         LineAmount: array[2] of Decimal;
     begin
         // [SCENARIO 213673] Statement Aging totals must include all earlier entries amounts when Aging is set by the Posting Date.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "CUS".
         LibrarySales.CreateCustomer(Customer);
@@ -1381,7 +1384,7 @@ codeunit 134761 "Test Custom Reports"
         // [FEATURE] [Statement]
         // [SCENARIO 218263] An error has been thrown "No data was returned for the report using the selected data filters."
         // [SCENARIO 218263] in case of SaveAs PDF REP 116 "Statement" filtered by not existing customer "No."
-        Initialize;
+        Initialize();
 
         // [GIVEN] Report Selections setup: Usage = "C.Statement", Report ID = "Statement"
         LibraryERM.SetupReportSelection(ReportSelectionsUsage::"C.Statement", REPORT::Statement);
@@ -1411,7 +1414,7 @@ codeunit 134761 "Test Custom Reports"
         // [FEATURE] [Statement]
         // [SCENARIO 218263] An error has been thrown "No data was returned for the report using the selected data filters."
         // [SCENARIO 218263] in case of SaveAs PDF REP 1316 "Standard Statement" filtered by not existing customer "No."
-        Initialize;
+        Initialize();
 
         // [GIVEN] Report Selections setup: Usage = "C.Statement", Report ID = "Standard Statement"
         LibraryERM.SetupReportSelection(ReportSelectionsUsage::"C.Statement", REPORT::"Standard Statement");
@@ -1440,7 +1443,7 @@ codeunit 134761 "Test Custom Reports"
         // [FEATURE] [Statement]
         // [SCENARIO 218263] There is no output and no error
         // [SCENARIO 218263] in case of SaveAs PDF REP 116 "Statement" filtered by not existing customer "No." and suppress output
-        Initialize;
+        Initialize();
 
         // [GIVEN] Report Selections setup: Usage = "C.Statement", Report ID = "Statement"
         LibraryERM.SetupReportSelection(ReportSelectionsUsage::"C.Statement", REPORT::Statement);
@@ -1467,7 +1470,7 @@ codeunit 134761 "Test Custom Reports"
         // [FEATURE] [Statement]
         // [SCENARIO 218263] There is no output and no error
         // [SCENARIO 218263] in case of SaveAs PDF REP 1316 "Standard Statement" filtered by not existing customer "No." and suppress output
-        Initialize;
+        Initialize();
 
         // [GIVEN] Report Selections setup: Usage = "C.Statement", Report ID = "Standard Statement"
         LibraryERM.SetupReportSelection(ReportSelectionsUsage::"C.Statement", REPORT::"Standard Statement");
@@ -1495,7 +1498,7 @@ codeunit 134761 "Test Custom Reports"
         // [FEATURE] [Statement]
         // [SCENARIO 218263] An error has been thrown "Start Date must have a value."
         // [SCENARIO 218263] in case of SaveAs PDF REP 116 "Statement" with blanked "Start Date"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Report Selections setup: Usage = "C.Statement", Report ID = "Statement"
         LibraryERM.SetupReportSelection(ReportSelectionsUsage::"C.Statement", REPORT::Statement);
@@ -1526,7 +1529,7 @@ codeunit 134761 "Test Custom Reports"
         // [FEATURE] [Statement]
         // [SCENARIO 218263] An error has been thrown "Start Date must have a value."
         // [SCENARIO 218263] in case of SaveAs PDF REP 1316 "Standard Statement" with blanked "Start Date"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Report Selections setup: Usage = "C.Statement", Report ID = "Standard Statement"
         LibraryERM.SetupReportSelection(ReportSelectionsUsage::"C.Statement", REPORT::"Standard Statement");
@@ -1558,7 +1561,7 @@ codeunit 134761 "Test Custom Reports"
     begin
         // [FEATURE] [Statement]
         // [SCENARIO 218263] There is no error in case of SaveAs PDF two Statements (REP116 and REP1316) when only one has output
-        Initialize;
+        Initialize();
 
         // [GIVEN] Report Selections setup:
         // [GIVEN] Usage = "C.Statement", Sequence = 1, Report ID = "Standard Statement"
@@ -1591,7 +1594,7 @@ codeunit 134761 "Test Custom Reports"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 270795] User is unable to insert a line into the "Custom Report Selection" table with a blank "Report ID".
-        Initialize;
+        Initialize();
 
         CustomReportSelection.Init;
         CustomReportSelection.Validate("Report ID", 0);
@@ -1607,7 +1610,7 @@ codeunit 134761 "Test Custom Reports"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 270795] User is unable to change "Report ID" to blank in the "Custom Report Selection" table.
-        Initialize;
+        Initialize();
 
         CustomReportSelection.Init;
         CustomReportSelection.Validate("Report ID", LibraryRandom.RandIntInRange(20, 30));
@@ -1630,7 +1633,7 @@ codeunit 134761 "Test Custom Reports"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 319160] Clean "Email Body Layout Code" on "Report Id" field validation with new value
-        Initialize;
+        Initialize();
         ReportID[1] := Report::"Standard Statement";
         ReportID[2] := Report::"Statement";
 
@@ -1666,7 +1669,7 @@ codeunit 134761 "Test Custom Reports"
     begin
         // [FEATURE] [UT] [Format Document] [Sales]
         // [SCENARIO 278732] SetSalesLine in codeunit Format Document when Sales Line Type is <blank>
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Line with Type = <blank>
         SalesLine.Init;
@@ -1691,7 +1694,7 @@ codeunit 134761 "Test Custom Reports"
     begin
         // [FEATURE] [UT] [Format Document] [Sales] [Invoice]
         // [SCENARIO 278732] SetSalesInvoiceLine in codeunit Format Document when Sales Invoice Line Type is <blank>
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice Line with Type = <blank>
         SalesInvoiceLine.Init;
@@ -1716,7 +1719,7 @@ codeunit 134761 "Test Custom Reports"
     begin
         // [FEATURE] [UT] [Format Document] [Sales] [Credit Memo]
         // [SCENARIO 278732] SetSalesCrMemoLine in codeunit Format Document when Sales Cr. Memo Line Type is <blank>
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Cr. Memo Line with Type = <blank>
         SalesCrMemoLine.Init;
@@ -1739,7 +1742,7 @@ codeunit 134761 "Test Custom Reports"
     begin
         // [FEATURE] [UT] [Format Document] [Purchase]
         // [SCENARIO 278732] SetPurchaseLine in codeunit Format Document when Purchase Line Type is <blank>
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Line with Type = <blank>
         PurchaseLine.Init;
@@ -1760,8 +1763,8 @@ codeunit 134761 "Test Custom Reports"
     begin
         // [FEATURE] [UT] [Sales]
         // [SCENARIO 278732] HasTypeToFillMandatoryFields in Sales Line returns FALSE for <blank> Type and TRUE for all other Types
-        Initialize;
-        SalesLine.Init;
+        Initialize();
+        SalesLine.Init();
 
         SalesLine.Type := SalesLine.Type::" ";
         Assert.IsFalse(SalesLine.HasTypeToFillMandatoryFields, '');
@@ -1790,8 +1793,8 @@ codeunit 134761 "Test Custom Reports"
     begin
         // [FEATURE] [UT] [Sales] [Invoice]
         // [SCENARIO 278732] HasTypeToFillMandatoryFields in Sales Invoice Line returns FALSE for <blank> Type and TRUE for all other Types
-        Initialize;
-        SalesInvoiceLine.Init;
+        Initialize();
+        SalesInvoiceLine.Init();
 
         SalesInvoiceLine.Type := SalesInvoiceLine.Type::" ";
         Assert.IsFalse(SalesInvoiceLine.HasTypeToFillMandatoryFields, '');
@@ -1820,8 +1823,8 @@ codeunit 134761 "Test Custom Reports"
     begin
         // [FEATURE] [UT] [Sales] [Credit Memo]
         // [SCENARIO 278732] HasTypeToFillMandatoryFields in Sales Cr. Memo Line returns FALSE for <blank> Type and TRUE for all other Types
-        Initialize;
-        SalesCrMemoLine.Init;
+        Initialize();
+        SalesCrMemoLine.Init();
 
         SalesCrMemoLine.Type := SalesCrMemoLine.Type::" ";
         Assert.IsFalse(SalesCrMemoLine.HasTypeToFillMandatoryFields, '');
@@ -1850,8 +1853,8 @@ codeunit 134761 "Test Custom Reports"
     begin
         // [FEATURE] [UT] [Purchase]
         // [SCENARIO 278732] HasTypeToFillMandatoryFields in Purchase Line returns FALSE for <blank> Type and TRUE for all other Types
-        Initialize;
-        PurchaseLine.Init;
+        Initialize();
+        PurchaseLine.Init();
 
         PurchaseLine.Type := PurchaseLine.Type::" ";
         Assert.IsFalse(PurchaseLine.HasTypeToFillMandatoryFields, '');
@@ -1877,8 +1880,8 @@ codeunit 134761 "Test Custom Reports"
     begin
         // [FEATURE] [UT] [Purchase] [Invoice]
         // [SCENARIO 278732] HasTypeToFillMandatoryFields in Purch. Inv. Line returns FALSE for <blank> Type and TRUE for all other Types
-        Initialize;
-        PurchInvLine.Init;
+        Initialize();
+        PurchInvLine.Init();
 
         PurchInvLine.Type := PurchInvLine.Type::" ";
         Assert.IsFalse(PurchInvLine.HasTypeToFillMandatoryFields, '');
@@ -1904,8 +1907,8 @@ codeunit 134761 "Test Custom Reports"
     begin
         // [FEATURE] [UT] [Purchase] [Credit Memo]
         // [SCENARIO 278732] HasTypeToFillMandatoryFields in Purch. Cr. Memo Line returns FALSE for <blank> Type and TRUE for all other Types
-        Initialize;
-        PurchCrMemoLine.Init;
+        Initialize();
+        PurchCrMemoLine.Init();
 
         PurchCrMemoLine.Type := PurchCrMemoLine.Type::" ";
         Assert.IsFalse(PurchCrMemoLine.HasTypeToFillMandatoryFields, '');
@@ -1940,7 +1943,7 @@ codeunit 134761 "Test Custom Reports"
     begin
         // [FEATURE] [Customer]
         // [SCENARIO 319005] Run GetLayoutIteratorKeyFilter function of "Custom Layout Reporting" on consequtive Customer numbers.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customers C1, C2,...,C7, that are added both to database and temporary table "T1".
         for i := 1 to ArrayLen(CustomerNo) do begin
@@ -1993,7 +1996,7 @@ codeunit 134761 "Test Custom Reports"
     begin
         // [FEATURE] [Vendor]
         // [SCENARIO 319005] Run GetLayoutIteratorKeyFilter function of "Custom Layout Reporting" on consequitive Vendor numbers.
-        Initialize;
+        Initialize();
         LibraryERM.SetupReportSelection(ReportSelectionsUsage::"P.Invoice", REPORT::"Purchase - Invoice");
 
         // [GIVEN] Vendors V1, V2,...,V7, that are added both to database and temporary table "T1".
@@ -2040,11 +2043,13 @@ codeunit 134761 "Test Custom Reports"
         ReportLayoutSelection: Record "Report Layout Selection";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Test Custom Reports");
+
         LibraryVariableStorage.Clear;
         if IsInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibrarySales.SetInvoiceRounding(false);
 
         CompanyInformation.Get;
@@ -2060,7 +2065,7 @@ codeunit 134761 "Test Custom Reports"
         CustomReportSelection.DeleteAll;
         CustomReportLayout.DeleteAll;
 
-        InitReportSelections;
+        InitReportSelections();
 
         LibrarySales.CreateCustomer(CustomerFullMod);
         LibrarySales.CreateCustomer(CustomerPartialMod);

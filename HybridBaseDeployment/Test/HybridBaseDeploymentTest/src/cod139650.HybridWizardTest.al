@@ -7,11 +7,13 @@ codeunit 139650 "Hybrid Wizard Tests"
     local procedure InitializePage(var wizard: TestPage "Hybrid Cloud Setup Wizard"; IsSaas: Boolean; AgreePrivacy: Boolean)
     var
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
-        assistedSetupTestLibrary: Codeunit "Assisted Setup Test Library";
+        AssistedSetupTestLibrary: Codeunit "Assisted Setup Test Library";
     begin
         Initialize();
+
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(IsSaas);
-        assistedSetupTestLibrary.SetStatusToNotCompleted(Page::"Hybrid Cloud Setup Wizard");
+        AssistedSetupTestLibrary.CallOnRegister();
+        AssistedSetupTestLibrary.SetStatusToNotCompleted(Page::"Hybrid Cloud Setup Wizard");
         wizard.Trap();
 
         Page.Run(Page::"Hybrid Cloud Setup Wizard");

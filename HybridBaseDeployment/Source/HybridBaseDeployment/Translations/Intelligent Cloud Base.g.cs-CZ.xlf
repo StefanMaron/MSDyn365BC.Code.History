@@ -421,6 +421,36 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Post Migration Checklist - NamedType ResetupSalesConnectionTxt</note>
         </trans-unit>
+        <trans-unit id="Table 2408135808 - Field 2565378072 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Run ID</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Intelligent Cloud Table Status - Field Run ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2408135808 - Field 3808951907 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Table Name</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Intelligent Cloud Table Status - Field Table Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2408135808 - Field 3997336476 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Company Name</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Intelligent Cloud Table Status - Field Company Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2408135808 - Field 3463590698 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>New Version</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Intelligent Cloud Table Status - Field New Version - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2408135808 - Field 3676003639 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Error Code</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Intelligent Cloud Table Status - Field Error Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2408135808 - Field 2852966117 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Error Message</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Intelligent Cloud Table Status - Field Error Message - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 3234064634 - Field 3997336476 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Company Name</source>
           <target>Název společnosti</target>
@@ -472,6 +502,12 @@
           <source>IntelligentCloudService_%1</source>
           <note from="Developer" annotates="general" priority="2">%1 - The source product id</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Hybrid Cloud Management - NamedType ServiceSubscriptionFormatTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4272545970 - NamedType 2479714532" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Set up Cloud Migration</source>
+          <target>Nastavení migrace do cloudu</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Hybrid Cloud Management - NamedType DataSyncWizardPageNameTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 4272545970 - Method 3518468256 - NamedType 2684810677" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>https://businesscentral.dynamics.com/%1</source>
@@ -646,12 +682,6 @@
           <target>Chcete-li použít funkci migrace do cloudu, pak musí být v provozu minimálně verze 15.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Hybrid Message Management - NamedType UnsupportedVersionErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4202943371 - NamedType 248683348" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Failed to create company for the Data Migration setup. Error %1</source>
-          <target>Nepodařilo se vytvořit společnost pro nastavení migrace dat. Chyba %1</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Handle Create Company Failure - NamedType CompanyCreationFailedErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 594380566 - NamedType 585235238" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>An update is available for the Cloud Migration.</source>
@@ -1564,23 +1594,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Intelligent Cloud Insights - Control IntelligentEdgeKPIS - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 432782781 - Control 3958318543 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Intelligent Edge KPIs</source>
-          <target>Ukazatelé výkonu Intelligent Edge</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Intelligent Cloud Insights - Control IntelligentEdgeKPIS - Property ToolTip</note>
-        </trans-unit>
         <trans-unit id="Page 432782781 - Control 3835255931 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Insights</source>
           <target>Přehledy</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Intelligent Cloud Insights - Control IntelligentEdgeInsights - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 432782781 - Control 3835255931 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Intelligent Edge Insights</source>
-          <target>Přehled Intelligent Edge</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Intelligent Cloud Insights - Control IntelligentEdgeInsights - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 432782781 - Control 2109523570 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Power BI</source>
@@ -1594,23 +1612,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Intelligent Cloud Insights - Control PowerBIReportSpinnerPart - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 432782781 - Control 3786424220 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Power BI Report</source>
-          <target>Sestavy Power BI</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Intelligent Cloud Insights - Control PowerBIReportSpinnerPart - Property ToolTip</note>
-        </trans-unit>
         <trans-unit id="Page 432782781 - Control 151094470 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Power BI Report</source>
           <target>Sestavy Power BI</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Intelligent Cloud Insights - Control PowerBIReportSpinnerPart2 - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 432782781 - Control 151094470 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Power BI Report</source>
-          <target>Sestavy Power BI</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Intelligent Cloud Insights - Control PowerBIReportSpinnerPart2 - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 432782781 - Control 2699611539 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Azure ML</source>
@@ -1623,12 +1629,6 @@
           <target>Plán cash flow</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Intelligent Cloud Insights - Control CashFlowForecastChart - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 432782781 - Control 791597496 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Cash Flow Forecast</source>
-          <target>Plán cash flow</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Intelligent Cloud Insights - Control CashFlowForecastChart - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 872301191 - Control 1550718196 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Cash Available</source>

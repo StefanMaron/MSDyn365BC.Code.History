@@ -1263,10 +1263,10 @@
     procedure UpdateEditableOnRow()
     begin
         IsCommentLine := not HasTypeToFillMandatoryFields;
+        IsBlankNumber := IsCommentLine;
         UnitofMeasureCodeIsChangeable := not IsCommentLine;
 
         CurrPageIsEditable := CurrPage.Editable;
-        IsBlankNumber := ("No." = '') or IsCommentLine;
         InvDiscAmountEditable := CurrPageIsEditable and not SalesSetup."Calc. Inv. Discount";
     end;
 

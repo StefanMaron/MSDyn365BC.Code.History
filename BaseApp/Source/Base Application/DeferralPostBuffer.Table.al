@@ -4,6 +4,7 @@ table 1703 "Deferral Post. Buffer"
     ObsoleteReason = 'Replace with tab 1703 Deferral Posting Buffer';
     ObsoleteState = Pending;
     ReplicateData = false;
+    ObsoleteTag = '15.0';
 
     fields
     {

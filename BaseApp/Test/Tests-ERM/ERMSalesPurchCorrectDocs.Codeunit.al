@@ -20,6 +20,8 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         IsInitialized: Boolean;
         COGSAccountEmptyErr: Label 'COGS Account must have a value in General Posting Setup: Gen. Bus. Posting Group=%1, Gen. Prod. Posting Group=%2. It cannot be zero or empty.';
+        CannotCancelSalesInvInventoryPeriodClosedErr: Label 'You cannot cancel this posted sales invoice because the posting inventory period is already closed.';
+        CannotCancelPurchInvInventoryPeriodClosedErr: Label 'You cannot cancel this posted purchase invoice because the posting inventory period is already closed.';
 
     [Test]
     [Scope('OnPrem')]
@@ -358,6 +360,358 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         RestoreGenPostingSetup(GeneralPostingSetup);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestCorrectInvoiceIsAllowed_Sales_GLAccount_InventoryPeriod_Closed()
+    var
+        InventoryPeriod: Record "Inventory Period";
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesLine: Record "Sales Line";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+    begin
+        // [FEATURE] [Sales] [Invoice] [UT]
+        // [SCENARIO 341572] COD1303.TestCorrectInvoiceIsAllowed does not throw error for posted invoice with G/L Account only when Inventory Period is closed
+        Initialize();
+
+        InventoryPeriod.DeleteAll();
+
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(
+            SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        CreateInventoryPeriod(WorkDate + 1, true);
+
+        Commit();
+
+        CorrectPostedSalesInvoice.TestCorrectInvoiceIsAllowed(SalesInvoiceHeader, true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestCorrectInvoiceIsAllowed_Sales_GLAccount_InventoryPeriod_Open()
+    var
+        InventoryPeriod: Record "Inventory Period";
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesLine: Record "Sales Line";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+    begin
+        // [FEATURE] [Sales] [Invoice] [UT]
+        // [SCENARIO 341572] COD1303.TestCorrectInvoiceIsAllowed does not throw error for posted invoice with G/L Account only when Inventory Period is open
+        Initialize();
+
+        InventoryPeriod.DeleteAll();
+
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(
+            SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        CreateInventoryPeriod(WorkDate + 1, false);
+
+        Commit();
+
+        CorrectPostedSalesInvoice.TestCorrectInvoiceIsAllowed(SalesInvoiceHeader, true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestCorrectInvoiceIsAllowed_Sales_Item_InventoryPeriod_Closed()
+    var
+        InventoryPeriod: Record "Inventory Period";
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesLine: Record "Sales Line";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+    begin
+        // [FEATURE] [Sales] [Invoice] [UT]
+        // [SCENARIO 341572] COD1303.TestCorrectInvoiceIsAllowed does not throw error for posted invoice having Item when Inventory Period is closed
+        Initialize();
+
+        InventoryPeriod.DeleteAll();
+
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(
+            SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        CreateInventoryPeriod(WorkDate + 1, true);
+
+        Commit();
+
+        asserterror CorrectPostedSalesInvoice.TestCorrectInvoiceIsAllowed(SalesInvoiceHeader, true);
+
+        Assert.ExpectedError(CannotCancelSalesInvInventoryPeriodClosedErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestCorrectInvoiceIsAllowed_Sales_Item_InventoryPeriod_Open()
+    var
+        InventoryPeriod: Record "Inventory Period";
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesLine: Record "Sales Line";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+    begin
+        // [FEATURE] [Sales] [Invoice] [UT]
+        // [SCENARIO 341572] COD1303.TestCorrectInvoiceIsAllowed does not throw error for posted invoice having Item only when Inventory Period is open
+        Initialize();
+
+        InventoryPeriod.DeleteAll();
+
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(
+            SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        CreateInventoryPeriod(WorkDate + 1, false);
+
+        Commit();
+
+        CorrectPostedSalesInvoice.TestCorrectInvoiceIsAllowed(SalesInvoiceHeader, true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestCorrectInvoiceIsAllowed_Sales_ItemCharge_InventoryPeriod_Closed()
+    var
+        InventoryPeriod: Record "Inventory Period";
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesLine: Record "Sales Line";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+    begin
+        // [FEATURE] [Sales] [Invoice] [UT]
+        // [SCENARIO 341572] COD1303.TestCorrectInvoiceIsAllowed does not throw error for posted invoice having Item Charge only when Inventory Period is closed
+        Initialize();
+
+        InventoryPeriod.DeleteAll();
+
+        CreateSalesHeaderWithItemAndChargeItem(SalesHeader);
+
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        CreateInventoryPeriod(WorkDate + 1, true);
+
+        Commit();
+
+        asserterror CorrectPostedSalesInvoice.TestCorrectInvoiceIsAllowed(SalesInvoiceHeader, true);
+
+        Assert.ExpectedError(CannotCancelSalesInvInventoryPeriodClosedErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestCorrectInvoiceIsAllowed_Sales_ItemCharge_InventoryPeriod_Open()
+    var
+        InventoryPeriod: Record "Inventory Period";
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+    begin
+        // [FEATURE] [Sales] [Invoice] [UT]
+        // [SCENARIO 341572] COD1303.TestCorrectInvoiceIsAllowed does not throw error for posted invoice having Item Charge when Inventory Period is open
+        Initialize();
+
+        InventoryPeriod.DeleteAll();
+
+        CreateSalesHeaderWithItemAndChargeItem(SalesHeader);
+
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        CreateInventoryPeriod(WorkDate + 1, false);
+
+        Commit();
+
+        CorrectPostedSalesInvoice.TestCorrectInvoiceIsAllowed(SalesInvoiceHeader, true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestCorrectInvoiceIsAllowed_Purchase_GLAccount_InventoryPeriod_Closed()
+    var
+        InventoryPeriod: Record "Inventory Period";
+        PurchaseHeader: Record "Purchase Header";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchaseLine: Record "Purchase Line";
+        CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
+    begin
+        // [FEATURE] [Purchase] [Invoice] [UT]
+        // [SCENARIO 341572] COD1313.TestCorrectInvoiceIsAllowed does not throw error for posted invoice with G/L Account only when Inventory Period is closed
+        Initialize();
+
+        InventoryPeriod.DeleteAll();
+
+        LibraryPurchase.CreatePurchHeader(
+            PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(10, 20));
+        PurchaseLine.Modify(true);
+        PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+
+        CreateInventoryPeriod(WorkDate + 1, true);
+
+        Commit();
+
+        CorrectPostedPurchInvoice.TestCorrectInvoiceIsAllowed(PurchInvHeader, true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestCorrectInvoiceIsAllowed_Purchase_GLAccount_InventoryPeriod_Open()
+    var
+        InventoryPeriod: Record "Inventory Period";
+        PurchaseHeader: Record "Purchase Header";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchaseLine: Record "Purchase Line";
+        CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
+    begin
+        // [FEATURE] [Purchase] [Invoice] [UT]
+        // [SCENARIO 341572] COD1313.TestCorrectInvoiceIsAllowed does not throw error for posted invoice with G/L Account only when Inventory Period is open
+        Initialize();
+
+        InventoryPeriod.DeleteAll();
+
+        LibraryPurchase.CreatePurchHeader(
+            PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(10, 20));
+        PurchaseLine.Modify(true);
+        PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+
+        CreateInventoryPeriod(WorkDate + 1, false);
+
+        Commit();
+
+        CorrectPostedPurchInvoice.TestCorrectInvoiceIsAllowed(PurchInvHeader, true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestCorrectInvoiceIsAllowed_Purchase_Item_InventoryPeriod_Closed()
+    var
+        InventoryPeriod: Record "Inventory Period";
+        PurchaseHeader: Record "Purchase Header";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchaseLine: Record "Purchase Line";
+        CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
+    begin
+        // [FEATURE] [Purchase] [Invoice] [UT]
+        // [SCENARIO 341572] COD1313.TestCorrectInvoiceIsAllowed does not throw error for posted invoice having Item when Inventory Period is closed
+        Initialize();
+
+        InventoryPeriod.DeleteAll();
+
+        LibraryPurchase.CreatePurchHeader(
+            PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(10, 20));
+        PurchaseLine.Modify(true);
+        PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+
+        CreateInventoryPeriod(WorkDate + 1, true);
+
+        Commit();
+
+        asserterror CorrectPostedPurchInvoice.TestCorrectInvoiceIsAllowed(PurchInvHeader, true);
+
+        Assert.ExpectedError(CannotCancelPurchInvInventoryPeriodClosedErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestCorrectInvoiceIsAllowed_Purchase_Item_InventoryPeriod_Open()
+    var
+        InventoryPeriod: Record "Inventory Period";
+        PurchaseHeader: Record "Purchase Header";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchaseLine: Record "Purchase Line";
+        CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
+    begin
+        // [FEATURE] [Purchase] [Invoice] [UT]
+        // [SCENARIO 341572] COD1313.TestCorrectInvoiceIsAllowed does not throw error for posted invoice having Item when Inventory Period is open
+        Initialize();
+
+        InventoryPeriod.DeleteAll();
+
+        LibraryPurchase.CreatePurchHeader(
+            PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(10, 20));
+        PurchaseLine.Modify(true);
+        PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+
+        CreateInventoryPeriod(WorkDate + 1, false);
+
+        Commit();
+
+        CorrectPostedPurchInvoice.TestCorrectInvoiceIsAllowed(PurchInvHeader, true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestCorrectInvoiceIsAllowed_Purchase_ItemCharge_InventoryPeriod_Closed()
+    var
+        InventoryPeriod: Record "Inventory Period";
+        PurchaseHeader: Record "Purchase Header";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
+    begin
+        // [FEATURE] [Purchase] [Invoice] [UT]
+        // [SCENARIO 341572] COD1313.TestCorrectInvoiceIsAllowed does not throw error for posted invoice having Item Charge when Inventory Period is closed
+        Initialize();
+        InitializeSetupData();
+
+        InventoryPeriod.DeleteAll();
+
+        CreatePurchaseHeaderWithItemAndChargeItem(PurchaseHeader);
+
+        PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+        UpdateGLAccountsInGeneralPostingSetupFromPurchaseInvoiceLine(PurchInvHeader);
+
+        CreateInventoryPeriod(WorkDate + 1, true);
+
+        Commit();
+
+        asserterror CorrectPostedPurchInvoice.TestCorrectInvoiceIsAllowed(PurchInvHeader, true);
+
+        Assert.ExpectedError(CannotCancelPurchInvInventoryPeriodClosedErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestCorrectInvoiceIsAllowed_Purchase_ItemCharge_InventoryPeriod_Open()
+    var
+        InventoryPeriod: Record "Inventory Period";
+        PurchaseHeader: Record "Purchase Header";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
+    begin
+        // [FEATURE] [Purchase] [Invoice] [UT]
+        // [SCENARIO 341572] COD1313.TestCorrectInvoiceIsAllowed does not throw error for posted invoice having Item Charge when Inventory Period is open
+        Initialize();
+
+        InventoryPeriod.DeleteAll();
+
+        CreatePurchaseHeaderWithItemAndChargeItem(PurchaseHeader);
+
+        PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+        UpdateGLAccountsInGeneralPostingSetupFromPurchaseInvoiceLine(PurchInvHeader);
+
+        CreateInventoryPeriod(WorkDate + 1, false);
+
+        Commit();
+
+        CorrectPostedPurchInvoice.TestCorrectInvoiceIsAllowed(PurchInvHeader, true);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Sales/Purch. Correct. Docs");
@@ -367,19 +721,40 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Sales/Purch. Correct. Docs");
 
-        LibraryERMCountryData.CreateVATData();
+        InitializeSetupData();
+
+        LibrarySetupStorage.SaveSalesSetup();
+        LibrarySetupStorage.SavePurchasesSetup();
+
+        IsInitialized := true;
+        Commit();
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Sales/Purch. Correct. Docs");
+    end;
+
+    local procedure InitializeSetupData()
+    begin
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
-        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateVATPostingSetup();
+    end;
 
-        LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
-        LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
-
-        IsInitialized := true;
-        Commit;
-        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Sales/Purch. Correct. Docs");
+    local procedure UpdateGLAccountsInGeneralPostingSetupFromPurchaseInvoiceLine(PurchInvHeader: Record "Purch. Inv. Header")
+    var
+        PurchInvLine: Record "Purch. Inv. Line";
+        GeneralPostingSetup: Record "General Posting Setup";
+    begin
+        PurchInvLine.SetRange("Document No.", PurchInvHeader."No.");
+        PurchInvLine.FindSet();
+        repeat
+            GeneralPostingSetup.Get(PurchInvLine."Gen. Bus. Posting Group", PurchInvLine."Gen. Prod. Posting Group");
+            GeneralPostingSetup."Sales Credit Memo Account" := LibraryERM.CreateGLAccountNo();
+            GeneralPostingSetup."Purch. Credit Memo Account" := LibraryERM.CreateGLAccountNo();
+            GeneralPostingSetup.Modify();
+        until PurchInvLine.Next() = 0;
     end;
 
     local procedure CreateSalesHeaderWithItemWithType(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; ItemType: Option)
@@ -523,6 +898,74 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         GeneralPostingSetup."Sales Credit Memo Account" := OldGeneralPostingSetup."Sales Credit Memo Account";
         GeneralPostingSetup."Sales Account" := OldGeneralPostingSetup."Sales Account";
         GeneralPostingSetup.Modify();
+    end;
+
+    local procedure CreateSalesHeaderWithItemAndChargeItem(var SalesHeader: Record "Sales Header")
+    var
+        SalesLineItem: Record "Sales Line";
+        SalesLineChargeItem: Record "Sales Line";
+        ItemCharge: Record "Item Charge";
+        ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
+    begin
+        LibrarySales.CreateSalesHeader(
+            SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+
+        LibrarySales.CreateSalesLine(
+            SalesLineItem, SalesHeader, SalesLineItem.Type::Item, LibraryInventory.CreateItemNo(), 1);
+        SalesLineItem.Validate("Unit Price", LibraryRandom.RandIntInRange(10, 20));
+        SalesLineItem.Modify(true);
+
+        LibrarySales.CreateSalesLine(
+            SalesLineChargeItem, SalesHeader, SalesLineChargeItem.Type::"Charge (Item)",
+            LibraryInventory.CreateItemChargeNo(), 1);
+        SalesLineChargeItem.Validate("Unit Price", LibraryRandom.RandIntInRange(10, 20));
+        SalesLineChargeItem.Modify(true);
+
+        ItemCharge.Get(SalesLineChargeItem."No.");
+        LibrarySales.CreateItemChargeAssignment(
+            ItemChargeAssignmentSales, SalesLineChargeItem, ItemCharge,
+            SalesLineItem."Document Type"::Invoice, SalesLineItem."Document No.", SalesLineItem."Line No.",
+            SalesLineItem."No.", SalesLineChargeItem.Quantity, LibraryRandom.RandIntInRange(10, 20));
+        ItemChargeAssignmentSales.Insert(true);
+    end;
+
+    local procedure CreatePurchaseHeaderWithItemAndChargeItem(var PurchaseHeader: Record "Purchase Header")
+    var
+        PurchaseLineItem: Record "Purchase Line";
+        PurchaseLineChargeItem: Record "Purchase Line";
+        ItemCharge: Record "Item Charge";
+        ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
+    begin
+        LibraryPurchase.CreatePurchHeader(
+            PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
+
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLineItem, PurchaseHeader, PurchaseLineItem.Type::Item, LibraryInventory.CreateItemNo(), 1);
+        PurchaseLineItem.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(10, 20));
+        PurchaseLineItem.Modify(true);
+
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLineChargeItem, PurchaseHeader, PurchaseLineChargeItem.Type::"Charge (Item)",
+            LibraryInventory.CreateItemChargeNo(), 1);
+        PurchaseLineChargeItem.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(10, 20));
+        PurchaseLineChargeItem.Modify(true);
+
+        ItemCharge.Get(PurchaseLineChargeItem."No.");
+        LibraryPurchase.CreateItemChargeAssignment(
+            ItemChargeAssignmentPurch, PurchaseLineChargeItem, ItemCharge,
+            PurchaseLineItem."Document Type"::Invoice, PurchaseLineItem."Document No.", PurchaseLineItem."Line No.",
+            PurchaseLineItem."No.", PurchaseLineChargeItem.Quantity, LibraryRandom.RandIntInRange(10, 20));
+        ItemChargeAssignmentPurch.Insert(true);
+    end;
+
+    local procedure CreateInventoryPeriod(EndingDate: Date; IsClosed: Boolean)
+    var
+        InventoryPeriod: Record "Inventory Period";
+    begin
+        InventoryPeriod.Init();
+        InventoryPeriod."Ending Date" := EndingDate;
+        InventoryPeriod.Closed := IsClosed;
+        InventoryPeriod.Insert(true);
     end;
 }
 

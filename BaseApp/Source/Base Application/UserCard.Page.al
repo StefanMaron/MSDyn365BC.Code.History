@@ -99,6 +99,7 @@ page 9807 "User Card"
                     Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Desktop client is not supported in versions 15 and higher.';
+                    ObsoleteTag = '15.3';
                 }
             }
             group("ACS Authentication")

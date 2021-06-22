@@ -135,7 +135,7 @@ page 1279 "Service Connections"
     local procedure Refresh()
     begin
         ReloadServiceConnections;
-        CurrRecordNo := '';
+        CurrRecordNo := Format(CreateGuid());
         if Get(xRec."No.") then;
         CurrPage.Activate(true);
     end;

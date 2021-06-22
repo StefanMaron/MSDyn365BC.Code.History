@@ -32,6 +32,7 @@ codeunit 232 "Gen. Jnl.-Post+Print"
     var
         ConfirmManagement: Codeunit "Confirm Management";
         HideDialog: Boolean;
+        IsHandled: Boolean;
     begin
         HideDialog := false;
         with GenJnlLine do begin
@@ -50,6 +51,11 @@ codeunit 232 "Gen. Jnl.-Post+Print"
                     exit;
 
             TempJnlBatchName := "Journal Batch Name";
+
+            IsHandled := false;
+            OnAfterConfirmPostJournalBatch(GenJnlLine, IsHandled);
+            if IsHandled then
+                exit;
 
             GeneralLedgerSetup.Get();
             if GeneralLedgerSetup."Post & Print with Job Queue" then begin
@@ -96,6 +102,11 @@ codeunit 232 "Gen. Jnl.-Post+Print"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostJournalBatch(var GenJournalLine: Record "Gen. Journal Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterConfirmPostJournalBatch(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 

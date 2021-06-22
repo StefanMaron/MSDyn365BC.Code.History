@@ -14,6 +14,7 @@ codeunit 6223 "OpenXML Management"
         MissingXMLMapErr: Label 'The Excel workbook must contain an XML map.';
         VmlShapeAnchorTxt: Label '%1,15,%2,10,%3,31,%4,9', Locked = true;
         CommentVmlShapeXmlTxt: Label '<v:shape id="%1" type="#_x0000_t202" style=''position:absolute;  margin-left:59.25pt;margin-top:1.5pt;width:96pt;height:55.5pt;z-index:1;  visibility:hidden'' fillcolor="#ffffe1" o:insetmode="auto"><v:fill color2="#ffffe1"/><v:shadow color="black" obscured="t"/><v:path o:connecttype="none"/><v:textbox style=''mso-direction-alt:auto''><div style=''text-align:left''/></v:textbox><x:ClientData ObjectType="Note"><x:MoveWithCells/><x:SizeWithCells/><x:Anchor>%2</x:Anchor><x:AutoFill>False</x:AutoFill><x:Row>%3</x:Row><x:Column>%4</x:Column></x:ClientData></v:shape>', Locked = true;
+        CopyDataProgressTxt: Label 'Writing to Excel';
 
     [Scope('OnPrem')]
     procedure AddAndInitializeCommentsPart(WorksheetWriter: DotNet WorksheetWriter; var VmlDrawingPart: DotNet VmlDrawingPart)
@@ -263,19 +264,38 @@ codeunit 6223 "OpenXML Management"
         Clear(WrkBkWriter);
     end;
 
+    /// <summary>
+    /// A CopyDataToExcelTable function overload with HideDialog parameter set to true.
+    /// </summary>
     [Scope('OnPrem')]
     procedure CopyDataToExcelTable(WorksheetWriter: DotNet WorksheetWriter; DataTable: DotNet DataTable)
+    begin
+        CopyDataToExcelTable(WorksheetWriter, DataTable, true);
+    end;
+
+    [Scope('OnPrem')]
+    procedure CopyDataToExcelTable(WorksheetWriter: DotNet WorksheetWriter; DataTable: DotNet DataTable; HideDialog: Boolean)
     var
+        ConfigProgressBar: Codeunit "Config. Progress Bar";
         DataColumn: DotNet DataColumn;
         DataRow: DotNet DataRow;
         DataTableRowsCount: Integer;
         RowsCount: Integer;
         ColumnsCount: Integer;
         DataTableColumnsCount: Integer;
+        StepCount: Integer;
+        ShowDialog: Boolean;
     begin
-        DataTableRowsCount := DataTable.Rows.Count;
+        DataTableRowsCount := DataTable.Rows.Count();
         RowsCount := 0;
-        DataTableColumnsCount := DataTable.Columns.Count;
+        DataTableColumnsCount := DataTable.Columns.Count();
+
+        ShowDialog := (not HideDialog) and (DataTableRowsCount > 1000);
+        if ShowDialog then begin
+            StepCount := Round(DataTableRowsCount / 100, 1);
+            ConfigProgressBar.Init(DataTableRowsCount, StepCount, CopyDataProgressTxt);
+        end;
+
         repeat
             DataRow := DataTable.Rows.Item(RowsCount);
             ColumnsCount := 0;
@@ -285,7 +305,13 @@ codeunit 6223 "OpenXML Management"
                 ColumnsCount += 1;
             until ColumnsCount = DataTableColumnsCount - 1;
             RowsCount += 1;
+
+            if ShowDialog then
+                ConfigProgressBar.Update(StrSubstNo('%1: %2 records out of %3', WorksheetWriter.Name, RowsCount, DataTableRowsCount));
         until RowsCount = DataTableRowsCount;
+
+        if ShowDialog then
+            ConfigProgressBar.Close();
     end;
 
     [Scope('OnPrem')]

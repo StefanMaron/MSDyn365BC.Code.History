@@ -160,7 +160,7 @@ codeunit 8618 "Config. Excel Exchange"
                 AddPackageAndTableInformation(ConfigPackageTable, SingleXMLCells);
                 AddAndInitializeTableDefinitionPart(ConfigPackageTable, DataTableCounter, TableDefinitionPart, SkipData);
                 if not SkipData then
-                    OpenXMLManagement.CopyDataToExcelTable(WrkShtWriter, DataTable);
+                    OpenXMLManagement.CopyDataToExcelTable(WrkShtWriter, DataTable, HideDialog);
 
                 DataTableCounter += 2;
                 TableParts := WrkShtWriter.CreateTableParts(1);

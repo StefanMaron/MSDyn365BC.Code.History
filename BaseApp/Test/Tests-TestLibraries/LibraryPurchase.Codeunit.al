@@ -784,6 +784,13 @@ codeunit 130512 "Library - Purchase"
         PurchasesPayablesSetup.Modify(true);
     end;
 
+    procedure SetCreateItemFromItemNo(NewValue: Boolean)
+    begin
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Create Item from Item No.", NewValue);
+        PurchasesPayablesSetup.Modify(true);
+    end;
+
     procedure SetDefaultPostingDateWorkDate()
     begin
         PurchasesPayablesSetup.Get();

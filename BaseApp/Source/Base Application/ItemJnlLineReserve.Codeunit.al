@@ -271,6 +271,7 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
         OldReservEntry2: Record "Reservation Entry";
         Status: Option Reservation,Tracking,Surplus,Prospect;
         SkipThisRecord: Boolean;
+        IsHandled: Boolean;
     begin
         if not FindReservEntry(ItemJnlLine, OldReservEntry) then
             exit(false);
@@ -289,9 +290,10 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
                 exit(true);
             OldReservEntry.SetRange("Reservation Status", Status);
 
-            if OldReservEntry.FindSet then
+            if OldReservEntry.FindSet() then
                 repeat
                     OldReservEntry.TestField("Item No.", ItemJnlLine."Item No.");
+                    OnTransferItemJnlToItemLedgEntryOnBeforeTestVariantCode(OldReservEntry, ItemJnlLine, IsHandled);
                     OldReservEntry.TestField("Variant Code", ItemJnlLine."Variant Code");
 
                     if SkipInventory then
@@ -426,6 +428,11 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeVerifyQuantity(var NewItemJournalLine: Record "Item Journal Line"; OldItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferItemJnlToItemLedgEntryOnBeforeTestVariantCode(var OldReservEntry: Record "Reservation Entry"; var ItemJnlLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
 

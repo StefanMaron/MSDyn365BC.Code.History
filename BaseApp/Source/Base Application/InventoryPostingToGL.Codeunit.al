@@ -610,13 +610,13 @@ codeunit 5802 "Inventory Posting To G/L"
         SetAccNo(TempInvtPostBuf[PostBufDimNo], ValueEntry, AccType, BalAccType);
         SetPostBufAmounts(TempInvtPostBuf[PostBufDimNo], CostToPost, CostToPostACY, InterimAccount);
         TempInvtPostBuf[PostBufDimNo]."Dimension Set ID" := ValueEntry."Dimension Set ID";
-        OnAfterInitTempInvtPostBuf(TempInvtPostBuf, ValueEntry);
+        OnAfterInitTempInvtPostBuf(TempInvtPostBuf, ValueEntry, PostBufDimNo);
 
         PostBufDimNo := PostBufDimNo + 1;
         SetAccNo(TempInvtPostBuf[PostBufDimNo], ValueEntry, BalAccType, AccType);
         SetPostBufAmounts(TempInvtPostBuf[PostBufDimNo], -CostToPost, -CostToPostACY, InterimAccount);
         TempInvtPostBuf[PostBufDimNo]."Dimension Set ID" := ValueEntry."Dimension Set ID";
-        OnAfterInitTempInvtPostBuf(TempInvtPostBuf, ValueEntry);
+        OnAfterInitTempInvtPostBuf(TempInvtPostBuf, ValueEntry, PostBufDimNo);
 
         OnAfterInitInvtPostBuf(ValueEntry);
     end;
@@ -1195,7 +1195,7 @@ codeunit 5802 "Inventory Posting To G/L"
     end;
 
     [IntegrationEvent(TRUE, false)]
-    local procedure OnAfterInitTempInvtPostBuf(var TempInvtPostBuf: array[4] of Record "Invt. Posting Buffer" temporary; ValueEntry: Record "Value Entry")
+    local procedure OnAfterInitTempInvtPostBuf(var TempInvtPostBuf: array[4] of Record "Invt. Posting Buffer" temporary; ValueEntry: Record "Value Entry"; PostBufDimNo: Integer)
     begin
     end;
 

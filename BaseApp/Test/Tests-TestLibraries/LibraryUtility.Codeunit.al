@@ -525,6 +525,14 @@ codeunit 131000 "Library - Utility"
         exit(GenerateRandomAlphabeticText(20, 1) + '@' + GenerateRandomAlphabeticText(20, 1) + '.' + GenerateRandomAlphabeticText(3, 1));
     end;
 
+    procedure GenerateRandomEmails(): Text[80]
+    begin
+        exit(
+            StrSubstNo('%1@%2.%3; ', GenerateRandomXMLText(10), GenerateRandomXMLText(10), GenerateRandomXMLText(3)) +
+            StrSubstNo('%1@%2.%3; ', GenerateRandomXMLText(10), GenerateRandomXMLText(10), GenerateRandomXMLText(3)) +
+            StrSubstNo('%1@%2.%3', GenerateRandomXMLText(10), GenerateRandomXMLText(10), GenerateRandomXMLText(3)));
+    end;
+
     procedure GenerateRandomFraction(): Decimal
     begin
         exit(LibraryRandom.RandInt(99) / 100);  // Generate any fraction between 0.01 to .99.

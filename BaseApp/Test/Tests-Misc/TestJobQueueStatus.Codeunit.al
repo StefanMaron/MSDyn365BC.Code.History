@@ -13,6 +13,7 @@ codeunit 139033 "Test Job Queue Status"
         LibraryInventory: Codeunit "Library - Inventory";
         LibrarySales: Codeunit "Library - Sales";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         isInitialized: Boolean;
         UnsupportedDocTypeErr: Label 'Test does not support this document type.';
         JobQueueErrorMsg: Label 'This is error.';
@@ -26,7 +27,7 @@ codeunit 139033 "Test Job Queue Status"
     var
         DummySalesHeader: Record "Sales Header";
     begin
-        Initialize;
+        Initialize();
 
         LibraryVariableStorage.Enqueue(JobQueueErrorMsg);
         VerifySalesDocumentBackgroundPostingState(
@@ -40,7 +41,7 @@ codeunit 139033 "Test Job Queue Status"
     var
         DummySalesHeader: Record "Sales Header";
     begin
-        Initialize;
+        Initialize();
 
         LibraryVariableStorage.Enqueue(JobQueueErrorMsg);
         VerifySalesDocumentBackgroundPostingState(
@@ -54,7 +55,7 @@ codeunit 139033 "Test Job Queue Status"
     var
         DummySalesHeader: Record "Sales Header";
     begin
-        Initialize;
+        Initialize();
 
         LibraryVariableStorage.Enqueue(JobQueueErrorMsg);
         VerifySalesDocumentBackgroundPostingState(
@@ -68,7 +69,7 @@ codeunit 139033 "Test Job Queue Status"
     var
         DummySalesHeader: Record "Sales Header";
     begin
-        Initialize;
+        Initialize();
 
         LibraryVariableStorage.Enqueue(JobQueueErrorMsg);
         VerifySalesDocumentBackgroundPostingState(
@@ -82,7 +83,7 @@ codeunit 139033 "Test Job Queue Status"
     var
         DummySalesHeader: Record "Sales Header";
     begin
-        Initialize;
+        Initialize();
 
         LibraryVariableStorage.Enqueue(JobQueueScheduledMsg);
         VerifySalesDocumentBackgroundPostingState(
@@ -96,7 +97,7 @@ codeunit 139033 "Test Job Queue Status"
     var
         DummySalesHeader: Record "Sales Header";
     begin
-        Initialize;
+        Initialize();
 
         LibraryVariableStorage.Enqueue(JobQueueScheduledMsg);
         VerifySalesDocumentBackgroundPostingState(
@@ -110,7 +111,7 @@ codeunit 139033 "Test Job Queue Status"
     var
         DummySalesHeader: Record "Sales Header";
     begin
-        Initialize;
+        Initialize();
 
         LibraryVariableStorage.Enqueue(JobQueueScheduledMsg);
         VerifySalesDocumentBackgroundPostingState(
@@ -124,7 +125,7 @@ codeunit 139033 "Test Job Queue Status"
     var
         DummySalesHeader: Record "Sales Header";
     begin
-        Initialize;
+        Initialize();
 
         LibraryVariableStorage.Enqueue(JobQueueScheduledMsg);
         VerifySalesDocumentBackgroundPostingState(
@@ -138,7 +139,7 @@ codeunit 139033 "Test Job Queue Status"
     var
         DummySalesHeader: Record "Sales Header";
     begin
-        Initialize;
+        Initialize();
 
         LibraryVariableStorage.Enqueue(JobQueuePostingMsg);
         VerifySalesDocumentBackgroundPostingState(
@@ -152,7 +153,7 @@ codeunit 139033 "Test Job Queue Status"
     var
         DummySalesHeader: Record "Sales Header";
     begin
-        Initialize;
+        Initialize();
 
         LibraryVariableStorage.Enqueue(JobQueuePostingMsg);
         VerifySalesDocumentBackgroundPostingState(
@@ -166,7 +167,7 @@ codeunit 139033 "Test Job Queue Status"
     var
         DummySalesHeader: Record "Sales Header";
     begin
-        Initialize;
+        Initialize();
 
         LibraryVariableStorage.Enqueue(JobQueuePostingMsg);
         VerifySalesDocumentBackgroundPostingState(
@@ -180,7 +181,7 @@ codeunit 139033 "Test Job Queue Status"
     var
         DummySalesHeader: Record "Sales Header";
     begin
-        Initialize;
+        Initialize();
 
         LibraryVariableStorage.Enqueue(JobQueuePostingMsg);
         VerifySalesDocumentBackgroundPostingState(
@@ -194,7 +195,7 @@ codeunit 139033 "Test Job Queue Status"
     var
         DummyPurchaseHeader: Record "Purchase Header";
     begin
-        Initialize;
+        Initialize();
 
         LibraryVariableStorage.Enqueue(JobQueueErrorMsg);
         VerifyPurchaseDocumentBackgroundPostingState(
@@ -208,7 +209,7 @@ codeunit 139033 "Test Job Queue Status"
     var
         DummyPurchaseHeader: Record "Purchase Header";
     begin
-        Initialize;
+        Initialize();
 
         LibraryVariableStorage.Enqueue(JobQueueErrorMsg);
         VerifyPurchaseDocumentBackgroundPostingState(
@@ -222,7 +223,7 @@ codeunit 139033 "Test Job Queue Status"
     var
         DummyPurchaseHeader: Record "Purchase Header";
     begin
-        Initialize;
+        Initialize();
 
         LibraryVariableStorage.Enqueue(JobQueueErrorMsg);
         VerifyPurchaseDocumentBackgroundPostingState(
@@ -236,7 +237,7 @@ codeunit 139033 "Test Job Queue Status"
     var
         DummyPurchaseHeader: Record "Purchase Header";
     begin
-        Initialize;
+        Initialize();
 
         LibraryVariableStorage.Enqueue(JobQueueErrorMsg);
         VerifyPurchaseDocumentBackgroundPostingState(
@@ -250,7 +251,7 @@ codeunit 139033 "Test Job Queue Status"
     var
         DummyPurchaseHeader: Record "Purchase Header";
     begin
-        Initialize;
+        Initialize();
 
         LibraryVariableStorage.Enqueue(JobQueueScheduledMsg);
         VerifyPurchaseDocumentBackgroundPostingState(
@@ -264,7 +265,7 @@ codeunit 139033 "Test Job Queue Status"
     var
         DummyPurchaseHeader: Record "Purchase Header";
     begin
-        Initialize;
+        Initialize();
 
         LibraryVariableStorage.Enqueue(JobQueueScheduledMsg);
         VerifyPurchaseDocumentBackgroundPostingState(
@@ -278,7 +279,7 @@ codeunit 139033 "Test Job Queue Status"
     var
         DummyPurchaseHeader: Record "Purchase Header";
     begin
-        Initialize;
+        Initialize();
 
         LibraryVariableStorage.Enqueue(JobQueueScheduledMsg);
         VerifyPurchaseDocumentBackgroundPostingState(
@@ -292,7 +293,7 @@ codeunit 139033 "Test Job Queue Status"
     var
         DummyPurchaseHeader: Record "Purchase Header";
     begin
-        Initialize;
+        Initialize();
 
         LibraryVariableStorage.Enqueue(JobQueueScheduledMsg);
         VerifyPurchaseDocumentBackgroundPostingState(
@@ -306,7 +307,7 @@ codeunit 139033 "Test Job Queue Status"
     var
         DummyPurchaseHeader: Record "Purchase Header";
     begin
-        Initialize;
+        Initialize();
 
         LibraryVariableStorage.Enqueue(JobQueuePostingMsg);
         VerifyPurchaseDocumentBackgroundPostingState(
@@ -320,7 +321,7 @@ codeunit 139033 "Test Job Queue Status"
     var
         DummyPurchaseHeader: Record "Purchase Header";
     begin
-        Initialize;
+        Initialize();
 
         LibraryVariableStorage.Enqueue(JobQueuePostingMsg);
         VerifyPurchaseDocumentBackgroundPostingState(
@@ -334,7 +335,7 @@ codeunit 139033 "Test Job Queue Status"
     var
         DummyPurchaseHeader: Record "Purchase Header";
     begin
-        Initialize;
+        Initialize();
 
         LibraryVariableStorage.Enqueue(JobQueuePostingMsg);
         VerifyPurchaseDocumentBackgroundPostingState(
@@ -348,7 +349,7 @@ codeunit 139033 "Test Job Queue Status"
     var
         DummyPurchaseHeader: Record "Purchase Header";
     begin
-        Initialize;
+        Initialize();
 
         LibraryVariableStorage.Enqueue(JobQueuePostingMsg);
         VerifyPurchaseDocumentBackgroundPostingState(
@@ -357,17 +358,17 @@ codeunit 139033 "Test Job Queue Status"
 
     local procedure Initialize()
     begin
-        // These steps are executed once per test.
-        DeleteAllJobQueueEntries;
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Test Job Queue Status");
 
-        // Clear the library variables
-        LibraryVariableStorage.Clear;
-
-        // These steps are executed only once per codeunit.
+        DeleteAllJobQueueEntries();
+        LibraryVariableStorage.Clear();
         if isInitialized then
             exit;
-        SalesAndPurchSetup;
+
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Test Job Queue Status");
+        SalesAndPurchSetup();
         isInitialized := true;
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Test Job Queue Status");
     end;
 
     local procedure SalesAndPurchSetup()

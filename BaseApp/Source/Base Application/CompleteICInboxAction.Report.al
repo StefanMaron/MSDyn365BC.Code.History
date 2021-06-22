@@ -176,8 +176,8 @@ report 511 "Complete IC Inbox Action"
                     InboxTransaction2."Line Action"::Cancel:
                         HandledInboxTransaction2.Status := HandledInboxTransaction2.Status::Cancelled;
                 end;
-                OnBeforeHandledInboxTransactionInsert(HandledInboxTransaction2);
-                if not HandledInboxTransaction2.Insert then
+                OnBeforeHandledInboxTransactionInsert(HandledInboxTransaction2, InboxTransaction2);
+                if not HandledInboxTransaction2.Insert() then
                     Error(
                       Text001, InboxTransaction2.FieldCaption("Transaction No."),
                       InboxTransaction2."Transaction No.", InboxTransaction2."IC Partner Code",
@@ -192,10 +192,15 @@ report 511 "Complete IC Inbox Action"
             end;
 
             trigger OnPreDataItem()
+            var
+                IsHandled: Boolean;
             begin
                 if TempGenJnlLine."Journal Template Name" <> '' then begin
                     GenJnlTemplate.Get(TempGenJnlLine."Journal Template Name");
-                    GenJnlTemplate.TestField(Type, GenJnlTemplate.Type::Intercompany);
+                    IsHandled := false;
+                    OnBeforeTestGenJnlTemplateType(TempGenJnlLine, GenJnlTemplate, IsHandled);
+                    if not IsHandled then
+                        GenJnlTemplate.TestField(Type, GenJnlTemplate.Type::Intercompany);
                     TempGenJnlLine.SetRange("Journal Template Name", GenJnlTemplate.Name);
                     TempGenJnlLine.SetRange("Journal Batch Name", GenJnlBatch.Name);
                 end;
@@ -422,7 +427,12 @@ report 511 "Complete IC Inbox Action"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeHandledInboxTransactionInsert(var HandledICInboxTrans: Record "Handled IC Inbox Trans.")
+    local procedure OnBeforeHandledInboxTransactionInsert(var HandledICInboxTrans: Record "Handled IC Inbox Trans."; InboxTransaction: Record "IC Inbox Transaction")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestGenJnlTemplateType(var TempGenJnlLine: Record "Gen. Journal Line" temporary; GenJnlTemplate: Record "Gen. Journal Template"; var IsHandled: Boolean)
     begin
     end;
 }

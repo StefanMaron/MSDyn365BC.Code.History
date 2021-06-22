@@ -69,7 +69,7 @@ page 1523 "Workflow Response Options"
                     {
                         ApplicationArea = Suite;
                         Caption = 'Link Target Page';
-                        ToolTip = 'Specifies a specific page that opens when a user chooses the link in a notification. If you do not fill this field, the page showing the involved record will open.';
+                        ToolTip = 'Specifies a specific page that opens when a user chooses the link in a notification. If you do not fill this field, the page showing the involved record will open. The page must have the same source table as the record involved.';
                     }
                     field("Custom Link Approvals"; "Custom Link")
                     {
@@ -116,7 +116,7 @@ page 1523 "Workflow Response Options"
                     {
                         ApplicationArea = Suite;
                         Caption = 'Link Target Page';
-                        ToolTip = 'Specifies a specific page that opens when a user chooses the link in a notification. If you do not fill this field, the page showing the involved record will open.';
+                        ToolTip = 'Specifies a specific page that opens when a user chooses the link in a notification. If you do not fill this field, the page showing the involved record will open. The page must have the same source table as the record involved.';
                     }
                     field("Custom Link"; "Custom Link")
                     {

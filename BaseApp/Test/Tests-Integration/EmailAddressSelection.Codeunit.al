@@ -16,6 +16,7 @@ codeunit 136580 "Email Address Selection"
         SalesHeaderEmailTok: Label 'SalesHeader@consoto.com';
         LibraryMarketing: Codeunit "Library - Marketing";
         LibraryERM: Codeunit "Library - ERM";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
 
     [Test]
     [Scope('OnPrem')]
@@ -28,6 +29,7 @@ codeunit 136580 "Email Address Selection"
         TempPath: Text[250];
     begin
         // [GIVEN] A newly setup Customer with No email
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         Customer."E-Mail" := '';
         Customer.Modify;
@@ -53,6 +55,7 @@ codeunit 136580 "Email Address Selection"
         CustomorTemplateCode: Code[10];
     begin
         // [GIVEN] A newly setup Contact with email
+        Initialize();
         LibraryMarketing.CreateCompanyContact(Contact);
         Contact."E-Mail" := ContactEmailTok;
         Contact.Modify;
@@ -80,6 +83,7 @@ codeunit 136580 "Email Address Selection"
         TempPath: Text[250];
     begin
         // [GIVEN] A newly setup Customer with email
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         Customer."E-Mail" := CustomerEmailTok;
         Customer.Modify;
@@ -103,6 +107,7 @@ codeunit 136580 "Email Address Selection"
         TempPath: Text[250];
     begin
         // [GIVEN] A newly setup Customer with email and sales header specific email address
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
 
         // [WHEN] The Email Logging Setup Wizard is run to the end but not finished
@@ -113,6 +118,11 @@ codeunit 136580 "Email Address Selection"
         SalesHeader."Sell-to E-Mail" := SalesHeaderEmailTok;
         // [THEN] Status of assisted setup remains Not Completed
         Assert.IsTrue(SendToEmail = SalesHeaderEmailTok, 'Send to ' + SendToEmail + ' Expected ' + SalesHeaderEmailTok);
+    end;
+
+    local procedure Initialize();
+    begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Email Address Selection");
     end;
 
     local procedure GetOrderConfirmationId(): Integer

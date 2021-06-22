@@ -9,127 +9,127 @@
                  },
     "folders":  [
                     {
-                        "path":  ".\\APIV1\\Test\\APIV1Test"
+                        "path":  ".\\apiv1\\test\\APIV1Test"
                     },
                     {
-                        "path":  ".\\BaseApp\\Test\\Tests-Bank"
+                        "path":  ".\\BaseApp\\test\\Tests-Bank"
                     },
                     {
-                        "path":  ".\\BaseApp\\Test\\Tests-Cash Flow"
+                        "path":  ".\\BaseApp\\test\\Tests-Cash Flow"
                     },
                     {
-                        "path":  ".\\BaseApp\\Test\\Tests-Cost Accounting"
+                        "path":  ".\\BaseApp\\test\\Tests-Cost Accounting"
                     },
                     {
-                        "path":  ".\\BaseApp\\Test\\Tests-CRM integration"
+                        "path":  ".\\BaseApp\\test\\Tests-CRM integration"
                     },
                     {
-                        "path":  ".\\BaseApp\\Test\\Tests-Data Exchange"
+                        "path":  ".\\BaseApp\\test\\Tests-Data Exchange"
                     },
                     {
-                        "path":  ".\\BaseApp\\Test\\Tests-Dimension"
+                        "path":  ".\\BaseApp\\test\\Tests-Dimension"
                     },
                     {
-                        "path":  ".\\BaseApp\\Test\\Tests-ERM"
+                        "path":  ".\\BaseApp\\test\\Tests-ERM"
                     },
                     {
-                        "path":  ".\\BaseApp\\Test\\Tests-Fixed Asset"
+                        "path":  ".\\BaseApp\\test\\Tests-Fixed Asset"
                     },
                     {
-                        "path":  ".\\BaseApp\\Test\\Tests-General Journal"
+                        "path":  ".\\BaseApp\\test\\Tests-General Journal"
                     },
                     {
-                        "path":  ".\\BaseApp\\Test\\Tests-Graph"
+                        "path":  ".\\BaseApp\\test\\Tests-Graph"
                     },
                     {
-                        "path":  ".\\BaseApp\\Test\\Tests-Integration"
+                        "path":  ".\\BaseApp\\test\\Tests-Integration"
                     },
                     {
-                        "path":  ".\\BaseApp\\Test\\Tests-Invoicing"
+                        "path":  ".\\BaseApp\\test\\Tests-Invoicing"
                     },
                     {
-                        "path":  ".\\BaseApp\\Test\\Tests-Job"
+                        "path":  ".\\BaseApp\\test\\Tests-Job"
                     },
                     {
-                        "path":  ".\\BaseApp\\Test\\Tests-Local"
+                        "path":  ".\\BaseApp\\test\\Tests-Local"
                     },
                     {
-                        "path":  ".\\BaseApp\\Test\\Tests-Marketing"
+                        "path":  ".\\BaseApp\\test\\Tests-Marketing"
                     },
                     {
-                        "path":  ".\\BaseApp\\Test\\Tests-Misc"
+                        "path":  ".\\BaseApp\\test\\Tests-Misc"
                     },
                     {
-                        "path":  ".\\BaseApp\\Test\\Tests-Permissions"
+                        "path":  ".\\BaseApp\\test\\Tests-Permissions"
                     },
                     {
-                        "path":  ".\\BaseApp\\Test\\Tests-Physical Inventory"
+                        "path":  ".\\BaseApp\\test\\Tests-Physical Inventory"
                     },
                     {
-                        "path":  ".\\BaseApp\\Test\\Tests-Prepayment"
+                        "path":  ".\\BaseApp\\test\\Tests-Prepayment"
                     },
                     {
-                        "path":  ".\\BaseApp\\Test\\Tests-Rapid Start"
+                        "path":  ".\\BaseApp\\test\\Tests-Rapid Start"
                     },
                     {
-                        "path":  ".\\BaseApp\\Test\\Tests-Report"
+                        "path":  ".\\BaseApp\\test\\Tests-Report"
                     },
                     {
-                        "path":  ".\\BaseApp\\Test\\Tests-Resource"
+                        "path":  ".\\BaseApp\\test\\Tests-Resource"
                     },
                     {
-                        "path":  ".\\BaseApp\\Test\\Tests-Reverse"
+                        "path":  ".\\BaseApp\\test\\Tests-Reverse"
                     },
                     {
-                        "path":  ".\\BaseApp\\Test\\Tests-SCM"
+                        "path":  ".\\BaseApp\\test\\Tests-SCM"
                     },
                     {
-                        "path":  ".\\BaseApp\\Test\\Tests-SINGLESERVER"
+                        "path":  ".\\BaseApp\\test\\Tests-SINGLESERVER"
                     },
                     {
-                        "path":  ".\\BaseApp\\Test\\Tests-SMB"
+                        "path":  ".\\BaseApp\\test\\Tests-SMB"
                     },
                     {
-                        "path":  ".\\BaseApp\\Test\\Tests-SMTP"
+                        "path":  ".\\BaseApp\\test\\Tests-SMTP"
                     },
                     {
-                        "path":  ".\\BaseApp\\Test\\Tests-TestLibraries"
+                        "path":  ".\\BaseApp\\test\\Tests-TestLibraries"
                     },
                     {
-                        "path":  ".\\BaseApp\\Test\\Tests-Upgrade"
+                        "path":  ".\\BaseApp\\test\\Tests-Upgrade"
                     },
                     {
-                        "path":  ".\\BaseApp\\Test\\Tests-User"
+                        "path":  ".\\BaseApp\\test\\Tests-User"
                     },
                     {
-                        "path":  ".\\BaseApp\\Test\\Tests-VAT"
+                        "path":  ".\\BaseApp\\test\\Tests-VAT"
                     },
                     {
-                        "path":  ".\\BaseApp\\Test\\Tests-Workflow"
+                        "path":  ".\\BaseApp\\test\\Tests-Workflow"
                     },
                     {
-                        "path":  ".\\EssentialBusinessHeadlines\\Test\\EssentialBusinessHeadlinesTest"
+                        "path":  ".\\essentialbusinessheadlines\\test\\EssentialBusinessHeadlinesTest"
                     },
                     {
-                        "path":  ".\\HybridBaseDeployment\\Test\\HybridBaseDeploymentTest"
+                        "path":  ".\\hybridbasedeployment\\test\\HybridBaseDeploymentTest"
                     },
                     {
-                        "path":  ".\\HybridBC\\Test\\HybridBCTest"
+                        "path":  ".\\hybridbc\\test\\HybridBCTest"
                     },
                     {
-                        "path":  ".\\PayPalPaymentsStandard\\Test\\PayPalPaymentsStandardTest"
+                        "path":  ".\\paypalpaymentsstandard\\test\\PayPalPaymentsStandardTest"
                     },
                     {
-                        "path":  ".\\SalesAndInventoryForecast\\Test\\SalesAndInventoryForecastTest"
+                        "path":  ".\\salesandinventoryforecast\\test\\SalesAndInventoryForecastTest"
                     },
                     {
-                        "path":  ".\\System Application\\Test\\System Application Test"
+                        "path":  ".\\system application\\test\\System Application Test"
                     },
                     {
-                        "path":  ".\\System Application\\Test\\System Application Test Library"
+                        "path":  ".\\system application\\test\\System Application Test Library"
                     },
                     {
-                        "path":  ".\\System Application\\Test\\System Application Test\\Extension Management\\testArtifacts"
+                        "path":  ".\\system application\\test\\System Application Test\\Extension Management\\testArtifacts"
                     },
                     {
                         "path":  ".\\TestFramework\\TestLibraries"

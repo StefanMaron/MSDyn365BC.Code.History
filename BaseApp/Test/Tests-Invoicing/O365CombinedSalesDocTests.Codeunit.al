@@ -13,6 +13,7 @@ codeunit 138905 "O365 Combined Sales Doc. Tests"
         CustomerNotFoundErr: Label 'Customer %1 cannot be found.\\To send the invoice, you must recreate the customer.';
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         UnexpectedDocumentOpenedTxt: Label 'Unexpected document is opened';
         EventSubscriberInvoicingApp: Codeunit "EventSubscriber Invoicing App";
         IsInitialized: Boolean;
@@ -26,7 +27,7 @@ codeunit 138905 "O365 Combined Sales Doc. Tests"
         SalesHeader: Record "Sales Header";
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // Execute
@@ -52,7 +53,7 @@ codeunit 138905 "O365 Combined Sales Doc. Tests"
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
         SalesHeader.DeleteAll; // remove drafts
 
@@ -77,7 +78,7 @@ codeunit 138905 "O365 Combined Sales Doc. Tests"
         O365SalesDocument: Record "O365 Sales Document";
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
         TargetSalesHeader.Get(TargetSalesHeader."Document Type"::Invoice, CreateDraftInvoice);
 
@@ -100,7 +101,7 @@ codeunit 138905 "O365 Combined Sales Doc. Tests"
         O365SalesDocument: Record "O365 Sales Document";
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
         TargetSalesInvoiceHeader.Get(CreateSentInvoice);
 
@@ -123,7 +124,7 @@ codeunit 138905 "O365 Combined Sales Doc. Tests"
         SalesHeader: Record "Sales Header";
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
         Assert.IsTrue(O365SalesDocument.OnFind(FindParamTxt), 'Could not find a document');
 
@@ -150,7 +151,7 @@ codeunit 138905 "O365 Combined Sales Doc. Tests"
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
         Assert.IsTrue(O365SalesDocument.OnFind(FindParamTxt), 'Could not find a document');
         SalesHeader.DeleteAll;
@@ -177,7 +178,7 @@ codeunit 138905 "O365 Combined Sales Doc. Tests"
         SalesHeader: Record "Sales Header";
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
         Assert.IsTrue(O365SalesDocument.OnFind(FindParamTxt), 'Could not find a document');
         SalesHeader.DeleteAll;
@@ -196,7 +197,7 @@ codeunit 138905 "O365 Combined Sales Doc. Tests"
         O365SalesDocument: Record "O365 Sales Document";
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
         TargetSalesHeader.Get(TargetSalesHeader."Document Type"::Invoice, CreateDraftInvoice);
 
@@ -222,7 +223,7 @@ codeunit 138905 "O365 Combined Sales Doc. Tests"
         TargetSalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
         TargetSalesInvoiceHeader.Get(CreateSentInvoice);
 
@@ -249,7 +250,7 @@ codeunit 138905 "O365 Combined Sales Doc. Tests"
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
         Assert.IsTrue(O365SalesDocument.OnFind(FindParamTxt), 'Could not find a document');
 
@@ -269,7 +270,7 @@ codeunit 138905 "O365 Combined Sales Doc. Tests"
         SalesHeader: Record "Sales Header";
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         GetFirstDraftDocument(SalesHeader, O365SalesDocument);
@@ -295,7 +296,7 @@ codeunit 138905 "O365 Combined Sales Doc. Tests"
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         GetLastDraftDocument(SalesHeader, O365SalesDocument);
@@ -322,7 +323,7 @@ codeunit 138905 "O365 Combined Sales Doc. Tests"
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         GetFirstSentDocument(SalesInvoiceHeader, O365SalesDocument);
@@ -348,7 +349,7 @@ codeunit 138905 "O365 Combined Sales Doc. Tests"
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         GetLastDraftDocument(SalesHeader, O365SalesDocument);
@@ -368,7 +369,7 @@ codeunit 138905 "O365 Combined Sales Doc. Tests"
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         GetLastSentDocument(SalesInvoiceHeader, O365SalesDocument);
@@ -387,7 +388,7 @@ codeunit 138905 "O365 Combined Sales Doc. Tests"
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         GetFirstDraftDocument(SalesHeader, O365SalesDocument);
@@ -408,7 +409,7 @@ codeunit 138905 "O365 Combined Sales Doc. Tests"
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         GetFirstSentDocument(SalesInvoiceHeader, O365SalesDocument);
@@ -428,7 +429,7 @@ codeunit 138905 "O365 Combined Sales Doc. Tests"
         SalesHeader: Record "Sales Header";
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         GetLastDraftDocument(SalesHeader, O365SalesDocument);
@@ -454,7 +455,7 @@ codeunit 138905 "O365 Combined Sales Doc. Tests"
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         GetFirstSentDocument(SalesInvoiceHeader, O365SalesDocument);
@@ -480,7 +481,7 @@ codeunit 138905 "O365 Combined Sales Doc. Tests"
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         GetLastSentDocument(SalesInvoiceHeader, O365SalesDocument);
@@ -508,7 +509,7 @@ codeunit 138905 "O365 Combined Sales Doc. Tests"
         SalesInvoiceNo: Code[20];
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
         SalesInvoiceNo := CreateDraftInvoice;
         SalesHeader.Get(SalesHeader."Document Type"::Invoice, SalesInvoiceNo);
@@ -535,7 +536,7 @@ codeunit 138905 "O365 Combined Sales Doc. Tests"
         SalesInvoiceNo: Code[20];
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
         SalesInvoiceNo := CreateDraftInvoice;
         SalesHeader.Get(SalesHeader."Document Type"::Invoice, SalesInvoiceNo);
@@ -560,7 +561,7 @@ codeunit 138905 "O365 Combined Sales Doc. Tests"
         InvoiceNo: Code[20];
     begin
         // [SCENARIO 197381] O365 Sales Document page opened for draft invoice from O365 Invoicing Sales Doc. List
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] Draft (not posted) sales invoice INV
@@ -587,7 +588,7 @@ codeunit 138905 "O365 Combined Sales Doc. Tests"
         InvoiceNo: Code[20];
     begin
         // [SCENARIO 197381] O365 Posted Sales Document page opened for sent invoice from O365 Invoicing Sales Doc. List
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] Sent (posted) sales invoice INV
@@ -614,7 +615,7 @@ codeunit 138905 "O365 Combined Sales Doc. Tests"
         O365CustomerLookup: TestPage "O365 Customer Lookup";
     begin
         // [SCENARIO 197381] O365 Customer Sales Documents page opened for draft invoices field from O365 Sales Hist.Sell-toFactBox
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] Draft sales invoice INV
@@ -639,7 +640,7 @@ codeunit 138905 "O365 Combined Sales Doc. Tests"
         O365CustomerLookup: TestPage "O365 Customer Lookup";
     begin
         // [SCENARIO 197381] O365 Posted Sales Document page opened for sent invoice from O365 Sales Hist.Sell-toFactBox
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] Sent (posted) sales invoice INV
@@ -662,6 +663,8 @@ codeunit 138905 "O365 Combined Sales Doc. Tests"
         O365C2GraphEventSettings: Record "O365 C2Graph Event Settings";
         TotalInvoices: Integer;
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"O365 Combined Sales Doc. Tests");
+
         LibraryVariableStorage.Clear;
         SalesHeader.DeleteAll;
         SalesInvoiceHeader.DeleteAll;
@@ -673,18 +676,22 @@ codeunit 138905 "O365 Combined Sales Doc. Tests"
         O365C2GraphEventSettings.Modify;
 
         for TotalInvoices := 1 to 3 do begin
-            CreateDraftInvoice;
-            CreateSentInvoice;
+            CreateDraftInvoice();
+            CreateSentInvoice();
         end;
 
-        EventSubscriberInvoicingApp.Clear;
+        EventSubscriberInvoicingApp.Clear();
 
         if IsInitialized then
             exit;
 
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"O365 Combined Sales Doc. Tests");
+
         EventSubscriberInvoicingApp.SetAppId('INV');
         BindSubscription(EventSubscriberInvoicingApp);
         IsInitialized := true;
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"O365 Combined Sales Doc. Tests");
     end;
 
     local procedure CreateDraftInvoice(): Code[20]

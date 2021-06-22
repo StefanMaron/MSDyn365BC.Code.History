@@ -15,6 +15,7 @@ codeunit 139058 "Office OCR Test"
         LibraryOfficeHostProvider: Codeunit "Library - Office Host Provider";
         LibraryWorkflow: Codeunit "Library - Workflow";
         LibraryJournals: Codeunit "Library - Journals";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         OfficeHostType: DotNet OfficeHostType;
         IsInitialized: Boolean;
         SendToOCRActionNotVisibleMsg: Label 'SendToOCR Action is not visible when OCR set up is Disabled';
@@ -431,10 +432,12 @@ codeunit 139058 "Office OCR Test"
         LibraryApplicationArea: Codeunit "Library - Application Area";
         CryptographyManagement: Codeunit "Cryptography Management";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Office OCR Test");
+
         LibraryApplicationArea.EnableFoundationSetup;
         if CryptographyManagement.IsEncryptionEnabled then
-		    DeleteEncryptionKey;
-        ResetOCRSetup;
+            DeleteEncryptionKey();
+        ResetOCRSetup();
         InitializeWithHostType(HostType);
     end;
 

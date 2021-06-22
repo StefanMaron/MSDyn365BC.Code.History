@@ -416,7 +416,7 @@ page 6306 "Power BI Report FactBox"
             // update last loaded report
             SetLastOpenedReportID(TempPowerBiReportBuffer.ReportID);
             // Hides both filters and tabs for embedding in small spaces where navigation is unnecessary.
-            exit(TempPowerBiReportBuffer.EmbedUrl + '&filterPaneEnabled=false&navContentPaneEnabled=false');
+            exit(TempPowerBiReportBuffer.ReportEmbedUrl + '&filterPaneEnabled=false&navContentPaneEnabled=false');
         end;
     end;
 
@@ -630,7 +630,7 @@ page 6306 "Power BI Report FactBox"
         // update last loaded report
         SetLastOpenedReportID(TempPowerBiReportBuffer.ReportID);
         // Shows filters and shows navigation tabs.
-        exit(TempPowerBiReportBuffer.EmbedUrl);
+        exit(TempPowerBiReportBuffer.ReportEmbedUrl);
     end;
 
     local procedure SelectReports()

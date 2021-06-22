@@ -4,6 +4,7 @@ table 7350 "Lot Numbers by Bin Buffer"
     ObsoleteReason = 'Replaced by table 7351 due to change of primary key';
     ObsoleteState = Pending;
     ReplicateData = false;
+    ObsoleteTag = '15.0';
 
     fields
     {

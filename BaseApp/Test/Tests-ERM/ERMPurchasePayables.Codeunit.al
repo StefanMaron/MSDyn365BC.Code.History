@@ -2041,18 +2041,20 @@ codeunit 134331 "ERM Purchase Payables"
     [Scope('OnPrem')]
     procedure VendorListHasDefaultDateFilterUntilWorkDate()
     var
+        Vendor: Record Vendor;
         VendorList: TestPage "Vendor List";
     begin
         // [FEATURE] [UI] [Vendor List] [Purchase]
 
         Initialize;
         // [GIVEN] Work date is 10.01.2018
+        Vendor.SetRange("Date Filter", 0D, WorkDate());
 
         // [WHEN] Open "Customer List" page
         VendorList.OpenView;
 
         // [THEN] "Date Filter" is "..10.01.2018"
-        Assert.AreEqual(StrSubstNo('..%1', WorkDate), VendorList.FILTER.GetFilter("Date Filter"), 'Incorrect default date filter');
+        Assert.AreEqual(Vendor.GetFilter("Date Filter"), VendorList.FILTER.GetFilter("Date Filter"), 'Incorrect default date filter');
 
         VendorList.Close;
     end;

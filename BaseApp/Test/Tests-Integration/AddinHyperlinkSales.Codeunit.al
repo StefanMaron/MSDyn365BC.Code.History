@@ -12,6 +12,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
     var
         SMBOfficePages: Codeunit "SMB Office Pages";
         LibraryOfficeHostProvider: Codeunit "Library - Office Host Provider";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryRandom: Codeunit "Library - Random";
         OfficeHostType: DotNet OfficeHostType;
         DocNo: Code[20];
@@ -33,7 +34,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
         OfficeAddinContext: Record "Office Add-in Context";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // [FEATURE] [Quote]
         // [SCENARIO 147201] Stan can view Sales Quote from a hyperlink where the doc type and doc number were derived from the Outlook email.
@@ -69,7 +70,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
     begin
         // [FEATURE] [Quote]
         // [SCENARIO 147201] Stan can view Sales Quote from a hyperlink in the Outlook email that contained the Document Window Title
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Quote has been created
         CreateGLAccount(GLAccount);
@@ -105,7 +106,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
     begin
         // [FEATURE] [Quote]
         // [SCENARIO 147201] Stan can view Sales Quote from a hyperlink in the Outlook email that contained the 'quote' keyword
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Quote has been created
         KeyWord := UpperCase(Format(DocType::Quote));
@@ -139,7 +140,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
     begin
         // [FEATURE] [Order]
         // [SCENARIO 147201] Stan can view Sales Order from a hyperlink where the doc type and doc number were derived from the Outlook email.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order has been created
         CreateGLAccount(GLAccount);
@@ -171,7 +172,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
     begin
         // [FEATURE] [Order]
         // [SCENARIO 147201] Stan can view Sales Order from a hyperlink in the Outlook email that contained the Document Window Title
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order has been created
         CreateGLAccount(GLAccount);
@@ -240,7 +241,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
     begin
         // [FEATURE] [Invoice]
         // [SCENARIO 147201] Stan can view Sales Invoice from a hyperlink where the doc type and doc number were derived from the Outlook email.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice has been created
         CreateGLAccount(GLAccount);
@@ -272,7 +273,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
     begin
         // [FEATURE] [Invoice]
         // [SCENARIO 147201] Stan can view Sales Invoice from a hyperlink in the Outlook email that contained the Document Window Title
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice has been created
         CreateGLAccount(GLAccount);
@@ -308,7 +309,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
     begin
         // [FEATURE] [Invoice]
         // [SCENARIO 147201] Stan can view Sales Invoice from a hyperlink in the Outlook email that contained the 'invoice' keyword
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice has been created
         KeyWord := UpperCase(Format(DocType::Invoice));
@@ -346,7 +347,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
     begin
         // [FEATURE] [Invoice]
         // [SCENARIO 147201] Stan can view sales invoices from a hyperlink in the Outlook email that contained the 'invoice' keyword
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three sales invoices have been created.
         CreateGLAccount(GLAccount);
@@ -397,7 +398,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
     begin
         // [FEATURE] [Invoice]
         // [SCENARIO 147201] Stan can view sales invoices from a hyperlink in the Outlook email that contained only the document no. based on no. series.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Several sales invoices have been created.
         CreateGLAccount(GLAccount);
@@ -438,7 +439,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
         // [SCENARIO 147201] Stan can view Posted Sales Invoice from a hyperlink where the doc type and doc number were derived from the Outlook email.
 
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post the Sales Invoice
         CreateandPostSalesInvoice(SalesInvoiceHeader);
@@ -466,7 +467,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
         // [SCENARIO 147201] Stan can view Posted Sales Invoice from a hyperlink in the Outlook email that contained the Document Window Title
 
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post the Sales Invoice
         CreateandPostSalesInvoice(SalesInvoiceHeader);
@@ -497,7 +498,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
         // [SCENARIO 147201] Stan can view Posted Sales Invoice from a hyperlink in the Outlook email that contained the 'invoice' keyword
 
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post the Sales Invoice
         CreateandPostSalesInvoice(SalesInvoiceHeader);
@@ -528,7 +529,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
         // [SCENARIO 147201] Stan can view Sales Credit Memo from a hyperlink where the doc type and doc number were derived from the Outlook email.
 
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Credit Memo has been created
         CreateGLAccount(GLAccount);
@@ -561,7 +562,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
         // [SCENARIO 147201] Stan can view Sales Credit Memo from a hyperlink in the Outlook email that contained the Document Window Title
 
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Credit Memo has been created
         CreateGLAccount(GLAccount);
@@ -598,7 +599,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
         // [SCENARIO 147201] Stan can view Sales Credit Memo from a hyperlink in the Outlook email that contained the 'credit memo' keyword
 
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Credit Memo has been created
         KeyWord := UpperCase(Format(DocType::"Credit Memo"));
@@ -631,7 +632,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
         // [SCENARIO 147201] Stan can view Posted Sales Credit Memo from a hyperlink where the doc type and doc number were derived from the Outlook email.
 
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post the Sales Credit Memo
         CreateandPostSalesCrMemo(SalesCrMemoHeader);
@@ -659,7 +660,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
         // [SCENARIO 147201] Stan can view Posted Sales Credit Memo from a hyperlink in the Outlook email that contained the Document Window Title
 
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post the Sales Credit Memo
         CreateandPostSalesCrMemo(SalesCrMemoHeader);
@@ -690,7 +691,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
         // [SCENARIO 147201] Stan can view Posted Sales Credit Memo from a hyperlink in the Outlook email that contained the 'credit memo' keyword
 
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post the Sales Credit Memo
         CreateandPostSalesCrMemo(SalesCrMemoHeader);
@@ -931,6 +932,8 @@ codeunit 139051 "Add-in Hyperlink Sales"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Add-in Hyperlink Sales");
+
         LibraryVariableStorage.Clear;
         LibrarySetupStorage.Restore;
         LibraryRandom.Init;
@@ -942,6 +945,8 @@ codeunit 139051 "Add-in Hyperlink Sales"
 
         if isInitialized then
             exit;
+
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Add-in Hyperlink Sales");
 
         AddinManifestManagement.CreateDefaultAddins(OfficeAddin);
         SetNoSeries(DocType::Invoice);
@@ -957,7 +962,9 @@ codeunit 139051 "Add-in Hyperlink Sales"
         SalesHeader.DeleteAll; // tests do not expect existing Sales Header
         SMBOfficePages.SetupMarketing;
         isInitialized := true;
-        Commit;
+        Commit();
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Add-in Hyperlink Sales");
     end;
 
     local procedure InitializeOfficeHostProvider(HostType: Text)

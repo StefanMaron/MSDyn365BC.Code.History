@@ -619,7 +619,8 @@ table 7326 "Whse. Worksheet Line"
                         Validate("Qty. to Handle", "Qty. Outstanding");
                         if "Qty. to Handle" <> xRec."Qty. to Handle" then begin
                             OnAutofillQtyToHandleOnbeforeModift(WhseWkshLine);
-                            Modify;
+                            OnAutofillQtyToHandleOnbeforeModify(WhseWkshLine);
+                            Modify();
                             if not NotEnough then
                                 if "Qty. to Handle" < "Qty. Outstanding" then
                                     NotEnough := true;
@@ -689,6 +690,7 @@ table 7326 "Whse. Worksheet Line"
         QtyAssgndOnWkshBase: Decimal;
         QtyReservedOnPickShip: Decimal;
         QtyReservedForCurrLine: Decimal;
+        QtyOnDedicatedBins: Decimal;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -718,9 +720,11 @@ table 7326 "Whse. Worksheet Line"
                 WhseAvailMgt.CalcLineReservedQtyOnInvt(
                   "Source Type", "Source Subtype", "Source No.", "Source Line No.", "Source Subline No.", true, '', '', TempWhseActivLine));
 
+            QtyOnDedicatedBins := WhseAvailMgt.CalcQtyOnDedicatedBins("Location Code", "Item No.", "Variant Code", '', '');
+
             AvailQtyBase :=
               WhseAvailMgt.CalcInvtAvailQty(Item, Location, "Variant Code", TempWhseActivLine) +
-              QtyReservedOnPickShip + QtyReservedForCurrLine;
+              QtyReservedOnPickShip + QtyReservedForCurrLine - QtyOnDedicatedBins;
         end;
 
         AvailableQty := AvailQtyBase - QtyAssgndOnWkshBase + AssignedQtyOnReservedLines;
@@ -1489,8 +1493,14 @@ table 7326 "Whse. Worksheet Line"
     begin
     end;
 
+    [Obsolete('Replaced by OnAutofillQtyToHandleOnBeforeModify.')]
     [IntegrationEvent(false, false)]
     local procedure OnAutofillQtyToHandleOnbeforeModift(var WhseWorksheetLine: Record "Whse. Worksheet Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAutofillQtyToHandleOnBeforeModify(var WhseWorksheetLine: Record "Whse. Worksheet Line")
     begin
     end;
 

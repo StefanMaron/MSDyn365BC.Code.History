@@ -783,6 +783,8 @@
             SalesLine."Document Type" := SalesHeader."Document Type";
             SalesLine."Document No." := SalesHeader."No.";
             SalesLine."Line No." := "Line No.";
+
+            OnCreateSalesLinesOnBeforefterAssignTypeAndNo(SalesLine, ICInboxSalesLine);
             case "IC Partner Ref. Type" of
                 "IC Partner Ref. Type"::"Common Item No.":
                     begin
@@ -819,7 +821,10 @@
                         SalesLine.Type := SalesLine.Type::"Charge (Item)";
                         SalesLine.Validate("No.", "IC Partner Reference");
                     end;
+                else
+                    OnCreateSalesLinesOnICPartnerRefTypeCaseElse(SalesLine, SalesHeader, ICInboxSalesLine);
             end;
+
             SalesLine."Currency Code" := SalesHeader."Currency Code";
             SalesLine.Description := Description;
             SalesLine."Description 2" := "Description 2";
@@ -972,12 +977,16 @@
         with ICInboxPurchLine do begin
             PurchLine.Init;
             PurchLine.TransferFields(ICInboxPurchLine);
+            OnCreatePurchLinesOnAfterTransferFields(PurchLine, ICInboxPurchLine);
+
             PurchLine."Document Type" := PurchHeader."Document Type";
             PurchLine."Document No." := PurchHeader."No.";
             PurchLine."Line No." := "Line No.";
             PurchLine.Insert(true);
             PurchLine."Receipt No." := '';
             PurchLine."Return Shipment No." := '';
+
+            OnCreatePurchLinesOnBeforeAssignTypeAndNo(PurchLine, ICInboxPurchLine);
             case "IC Partner Ref. Type" of
                 "IC Partner Ref. Type"::"Common Item No.":
                     begin
@@ -1014,6 +1023,8 @@
                         PurchLine.Validate(Type, PurchLine.Type::Item);
                         PurchLine.Validate("Cross-Reference No.", "IC Partner Reference");
                     end;
+                else
+                    OnCreatePurchLinesOnICPartnerRefTypeCaseElse(PurchLine, PurchHeader, ICInboxPurchLine);
             end;
             PurchLine."Currency Code" := PurchHeader."Currency Code";
             PurchLine.Description := Description;
@@ -1059,6 +1070,8 @@
             PurchLine."Shortcut Dimension 1 Code" := '';
             PurchLine."Shortcut Dimension 2 Code" := '';
 
+            OnCreatePurchLinesOnAfterAssignPurchLineFields(PurchLine, ICInboxPurchLine);
+
             DimMgt.SetICDocDimFilters(
               ICDocDim, DATABASE::"IC Inbox Purchase Line", "IC Transaction No.", "IC Partner Code", "Transaction Source", "Line No.");
             DimensionSetIDArr[1] := PurchLine."Dimension Set ID";
@@ -1069,9 +1082,12 @@
             DimMgt.UpdateGlobalDimFromDimSetID(
               PurchLine."Dimension Set ID", PurchLine."Shortcut Dimension 1 Code", PurchLine."Shortcut Dimension 2 Code");
 
-            OnAfterCreatePurchLines(ICInboxPurchLine, PurchLine);
-            PurchLine.Modify;
+            OnCreatePurchLinesOnBeforeModify(PurchLine, ICInboxPurchLine);
+            PurchLine.Modify();
+            OnCreatePurchLinesOnAfterModify(PurchLine, ICInboxPurchLine);
         end;
+
+        OnAfterCreatePurchLines(ICInboxPurchLine, PurchLine);
     end;
 
     procedure CreateHandledInbox(InboxTransaction: Record "IC Inbox Transaction")
@@ -2084,9 +2100,10 @@
                         HandledICOutboxSalesLine.Insert;
 
                         MoveICDocDimToHandled(
-                          DATABASE::"IC Outbox Sales Line", DATABASE::"Handled IC Outbox Sales Line", ICOutboxSalesHdr."IC Transaction No.",
-                          ICOutboxSalesHdr."IC Partner Code", ICOutboxSalesHdr."Transaction Source", ICOutboxSalesLine."Line No.");
-                        ICOutboxSalesLine.Delete;
+                            DATABASE::"IC Outbox Sales Line", DATABASE::"Handled IC Outbox Sales Line", ICOutboxSalesHdr."IC Transaction No.",
+                            ICOutboxSalesHdr."IC Partner Code", ICOutboxSalesHdr."Transaction Source", ICOutboxSalesLine."Line No.");
+                        OnMoveOutboxTransToHandledOutboxOnBeforeICOutboxSalesLineDelete(ICOutboxSalesLine, HandledICOutboxSalesLine);
+                        ICOutboxSalesLine.Delete();
                     until ICOutboxSalesLine.Next = 0;
                 ICOutboxSalesHdr.Delete;
             until ICOutboxSalesHdr.Next = 0;
@@ -2763,6 +2780,46 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCreateSalesLinesOnBeforefterAssignTypeAndNo(var SalesLine: Record "Sales Line"; ICInboxSalesLine: Record "IC Inbox Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreatePurchLinesOnBeforeAssignTypeAndNo(var PurchaseLine: Record "Purchase Line"; ICInboxPurchLine: Record "IC Inbox Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreatePurchLinesOnAfterTransferFields(var PurchaseLine: Record "Purchase Line"; ICInboxPurchLine: Record "IC Inbox Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreatePurchLinesOnAfterAssignPurchLineFields(var PurchaseLine: Record "Purchase Line"; ICInboxPurchLine: Record "IC Inbox Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreatePurchLinesOnAfterModify(var PurchaseLine: Record "Purchase Line"; ICInboxPurchLine: Record "IC Inbox Purchase Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreatePurchLinesOnBeforeModify(var PurchaseLine: Record "Purchase Line"; ICInboxPurchLine: Record "IC Inbox Purchase Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreatePurchLinesOnICPartnerRefTypeCaseElse(var PurchaseLine: Record "Purchase Line"; PurchHeader: Record "Purchase Header"; ICInboxPurchLine: Record "IC Inbox Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateSalesLinesOnICPartnerRefTypeCaseElse(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; ICInboxSalesLine: Record "IC Inbox Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnMoveOutboxTransToHandledOutboxOnAfterHandledICOutboxTransTransferFields(var HandledICOutboxTrans: Record "Handled IC Outbox Trans."; var ICOutboxTrans: Record "IC Outbox Transaction")
     begin
     end;
@@ -2774,6 +2831,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnMoveOutboxTransToHandledOutboxOnBeforeHandledICOutboxTransTransferFields(var HandledICOutboxTrans: Record "Handled IC Outbox Trans."; var ICOutboxTrans: Record "IC Outbox Transaction")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMoveOutboxTransToHandledOutboxOnBeforeICOutboxSalesLineDelete(ICOutboxSalesLine: Record "IC Outbox Sales Line"; HandledICOutboxSalesLine: Record "Handled IC Outbox Sales Line")
     begin
     end;
 

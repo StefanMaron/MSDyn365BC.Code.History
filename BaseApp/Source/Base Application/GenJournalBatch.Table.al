@@ -158,6 +158,7 @@ table 232 "Gen. Journal Batch"
             Caption = 'Id';
             ObsoleteState = Pending;
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
+            ObsoleteTag = '15.0';
         }
         field(8001; "Last Modified DateTime"; DateTime)
         {

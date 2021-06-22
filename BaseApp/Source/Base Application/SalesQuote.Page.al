@@ -929,7 +929,8 @@
                     Promoted = true;
                     PromotedCategory = Category11;
                     RunObject = Page "Customer Card";
-                    RunPageLink = "No." = FIELD("Sell-to Customer No.");
+                    RunPageLink = "No." = FIELD("Sell-to Customer No."),
+                                  "Date Filter" = FIELD("Date Filter");
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View or edit detailed information about the customer on the sales document.';
                 }
@@ -1546,6 +1547,8 @@
             SetRange("Responsibility Center", UserMgt.GetSalesFilter);
             FilterGroup(0);
         end;
+
+        SetRange("Date Filter", 0D, WorkDate());
 
         ActivateFields;
 

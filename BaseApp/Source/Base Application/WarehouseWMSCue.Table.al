@@ -139,21 +139,28 @@ table 9051 "Warehouse WMS Cue"
     {
     }
 
-    procedure GetEmployeeLocation(UserID: Code[50]): Text[1024]
+    procedure GetEmployeeLocation(UserID: Code[50]) LocationString: Text[1024]
     var
         WhseEmployee: Record "Warehouse Employee";
-        LocationString: Text[1024];
+        Location: Record Location;
+        SelectionFilterManagement: Codeunit SelectionFilterManagement;
     begin
         LocationString := '';
         if UserID <> '' then begin
             WhseEmployee.SetRange("User ID", UserID);
             if WhseEmployee.FindSet then
                 repeat
-                    LocationString += WhseEmployee."Location Code" + '|';
+                    if WhseEmployee."Location Code" <> '' then begin
+                        Location.Get(WhseEmployee."Location Code");
+                        Location.Mark(true);
+                    end else
+                        LocationString := '''''' + '|';
                 until WhseEmployee.Next = 0;
-
-            LocationString := DelChr(LocationString, '>', '|');
+            Location.MarkedOnly(true);
+            LocationString +=
+              CopyStr(SelectionFilterManagement.GetSelectionFilterForLocation(Location), 1, MaxStrLen(LocationString));
         end;
+        LocationString := DelChr(LocationString, '>', '|');
         if LocationString = '' then
             LocationString := '''''';
         exit(LocationString);

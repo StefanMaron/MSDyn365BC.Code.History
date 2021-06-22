@@ -3,6 +3,7 @@ table 1447 "Headline RC Prod. Planner"
     Caption = 'Headline RC Prod. Planner';
     ObsoleteState = Removed;
     ObsoleteReason = 'Replaced with "RC Headlines User Data" table';
+    ObsoleteTag = '15.0';
 
     fields
     {

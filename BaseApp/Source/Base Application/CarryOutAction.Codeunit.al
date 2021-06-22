@@ -531,6 +531,8 @@ codeunit 99000813 "Carry Out Action"
         if FindTempProdOrder(ReqLine) then
             HeaderExist := ProdOrder.Get(TempProductionOrder.Status, TempProductionOrder."No.");
 
+        OnInsertProdOrderOnAfterFindTempProdOrder(ReqLine, ProdOrder, HeaderExist);
+
         if not HeaderExist then begin
             case ProdOrderChoice of
                 ProdOrderChoice::Planned:
@@ -1442,6 +1444,11 @@ codeunit 99000813 "Carry Out Action"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertProdOrderLineOnAfterTransferRouting(var ProdOrderLine: Record "Prod. Order Line"; var RefreshProdOrderLine: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertProdOrderOnAfterFindTempProdOrder(ReqLine: Record "Requisition Line"; ProdOrder: Record "Production Order"; var HeaderExists: Boolean)
     begin
     end;
 

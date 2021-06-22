@@ -902,6 +902,24 @@ codeunit 130509 "Library - Sales"
         SalesReceivablesSetup.Modify(true);
     end;
 
+    procedure SetCreateItemFromItemNo(NewValue: Boolean)
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Create Item from Item No.", NewValue);
+        SalesReceivablesSetup.Modify(true);
+    end;
+
+    procedure SetCreateItemFromDescription(NewValue: Boolean)
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Create Item from Description", NewValue);
+        SalesReceivablesSetup.Modify(true);
+    end;
+
     procedure SetDiscountPosting(DiscountPosting: Option)
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";

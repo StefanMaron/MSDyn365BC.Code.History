@@ -403,32 +403,52 @@ table 5896 "Inventory Adjmt. Entry (Order)"
 
     procedure AddSingleLvlMaterialCost(CostAmtLCY: Decimal; CostAmtACY: Decimal)
     begin
+        OnBeforeAddSingleLvlMaterialCost(Rec, CostAmtLCY, CostAmtACY);
+
         "Single-Level Material Cost" += CostAmtLCY;
         "Single-Lvl Material Cost (ACY)" += CostAmtACY;
+
+        OnAfterAddSingleLvlMaterialCost(Rec, CostAmtLCY, CostAmtACY);
     end;
 
     procedure AddSingleLvlCapacityCost(CostAmtLCY: Decimal; CostAmtACY: Decimal)
     begin
+        OnBeforeAddSingleLvlCapacityCost(Rec, CostAmtLCY, CostAmtACY);
+
         "Single-Level Capacity Cost" += CostAmtLCY;
         "Single-Lvl Capacity Cost (ACY)" += CostAmtACY;
+
+        OnAfterAddSingleLvlCapacityCost(Rec, CostAmtLCY, CostAmtACY);
     end;
 
     procedure AddSingleLvlSubcontrdCost(CostAmtLCY: Decimal; CostAmtACY: Decimal)
     begin
+        OnBeforeAddSingleLvlSubcontrdCost(Rec, CostAmtLCY, CostAmtACY);
+
         "Single-Level Subcontrd. Cost" += CostAmtLCY;
         "Single-Lvl Subcontrd Cost(ACY)" += CostAmtACY;
+
+        OnAfterAddSingleLvlSubcontrdCost(Rec, CostAmtLCY, CostAmtACY);
     end;
 
     procedure AddSingleLvlCapOvhdCost(CostAmtLCY: Decimal; CostAmtACY: Decimal)
     begin
+        OnBeforeAddSingleLvlCapOvhdCost(Rec, CostAmtLCY, CostAmtACY);
+
         "Single-Level Cap. Ovhd Cost" += CostAmtLCY;
         "Single-Lvl Cap. Ovhd Cost(ACY)" += CostAmtACY;
+
+        OnAfterAddSingleLvlCapOvhdCost(Rec, CostAmtLCY, CostAmtACY);
     end;
 
     procedure AddSingleLvlMfgOvhdCost(CostAmtLCY: Decimal; CostAmtACY: Decimal)
     begin
+        OnBeforeAddSingleLvlMfgOvhdCost(Rec, CostAmtLCY, CostAmtACY);
+
         "Single-Level Mfg. Ovhd Cost" += CostAmtLCY;
         "Single-Lvl Mfg. Ovhd Cost(ACY)" += CostAmtACY;
+
+        OnAfterAddSingleLvlMfgOvhdCost(Rec, CostAmtLCY, CostAmtACY);
     end;
 
     local procedure GetRoundingPrecision(var AmtRndingPrecLCY: Decimal; var AmtRndingPrecACY: Decimal)
@@ -489,5 +509,56 @@ table 5896 "Inventory Adjmt. Entry (Order)"
     local procedure OnAfterSetProdOrderLineTransferFields(var InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; ProdOrderLine: Record "Prod. Order Line")
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAddSingleLvlMaterialCost(var InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; var CostAmtLCY: Decimal; var CostAmtACY: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAddSingleLvlMaterialCost(var InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; var CostAmtLCY: Decimal; var CostAmtACY: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAddSingleLvlCapacityCost(var InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; var CostAmtLCY: Decimal; var CostAmtACY: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAddSingleLvlCapacityCost(var InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; var CostAmtLCY: Decimal; var CostAmtACY: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAddSingleLvlSubcontrdCost(var InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; var CostAmtLCY: Decimal; var CostAmtACY: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAddSingleLvlSubcontrdCost(var InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; var CostAmtLCY: Decimal; var CostAmtACY: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAddSingleLvlCapOvhdCost(var InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; var CostAmtLCY: Decimal; var CostAmtACY: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAddSingleLvlCapOvhdCost(var InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; var CostAmtLCY: Decimal; var CostAmtACY: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAddSingleLvlMfgOvhdCost(var InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; var CostAmtLCY: Decimal; var CostAmtACY: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAddSingleLvlMfgOvhdCost(var InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; var CostAmtLCY: Decimal; var CostAmtACY: Decimal)
+    begin
+    end;
+
 }
 

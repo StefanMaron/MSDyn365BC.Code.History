@@ -168,6 +168,7 @@ page 1190 "Create Payment"
         PostingDateNotFilledErr: Label 'You must fill the Posting Date field.';
         SpecifyStartingDocNumErr: Label 'In the Starting Document No. field, specify the first document number to be used.';
         MessageToRecipientMsg: Label 'Payment of %1 %2 ', Comment = '%1 document type, %2 Document No.';
+        EarlierPostingDateErr: Label 'You cannot create a payment with an earlier posting date for %1 %2.', Comment = '%1 - Document Type, %2 - Document No.. You cannot create a payment with an earlier posting date for Invoice INV-001.';
 
     procedure GetPostingDate(): Date
     begin
@@ -197,22 +198,20 @@ page 1190 "Create Payment"
     procedure MakeGenJnlLines(var VendorLedgerEntry: Record "Vendor Ledger Entry")
     var
         GenJnlLine: Record "Gen. Journal Line";
-        GenJournalBatch: Record "Gen. Journal Batch";
-        GenJournalTemplate: Record "Gen. Journal Template";
         Vendor: Record Vendor;
         TempPaymentBuffer: Record "Payment Buffer" temporary;
         PaymentAmt: Decimal;
-        BalAccType: Option "G/L Account",Customer,Vendor,"Bank Account";
-        LastLineNo: Integer;
         SummarizePerVend: Boolean;
     begin
-        TempPaymentBuffer.Reset;
-        TempPaymentBuffer.DeleteAll;
+        TempPaymentBuffer.Reset();
+        TempPaymentBuffer.DeleteAll();
 
         if VendorLedgerEntry.Find('-') then
             repeat
+                if PostingDate < VendorLedgerEntry."Posting Date" then
+                    Error(EarlierPostingDateErr, VendorLedgerEntry."Document Type", VendorLedgerEntry."Document No.");
                 VendorLedgerEntry.CalcFields("Remaining Amount");
-                if (VendorLedgerEntry."Applies-to ID" = '') and (VendorLedgerEntry."Remaining Amount" < 0) then begin
+                if VendorLedgerEntry."Applies-to ID" = '' then begin
                     TempPaymentBuffer."Vendor No." := VendorLedgerEntry."Vendor No.";
                     TempPaymentBuffer."Currency Code" := VendorLedgerEntry."Currency Code";
 
@@ -237,17 +236,17 @@ page 1190 "Create Payment"
                     else
                         PaymentAmt := -VendorLedgerEntry."Remaining Amount";
 
-                    TempPaymentBuffer.Reset;
+                    TempPaymentBuffer.Reset();
                     TempPaymentBuffer.SetRange("Vendor No.", VendorLedgerEntry."Vendor No.");
                     if TempPaymentBuffer.Find('-') then begin
-                        TempPaymentBuffer.Amount := TempPaymentBuffer.Amount + PaymentAmt;
+                        TempPaymentBuffer.Amount += PaymentAmt;
                         SummarizePerVend := true;
-                        TempPaymentBuffer.Modify;
+                        TempPaymentBuffer.Modify();
                     end else begin
                         TempPaymentBuffer."Document No." := NextDocNo;
                         NextDocNo := IncStr(NextDocNo);
                         TempPaymentBuffer.Amount := PaymentAmt;
-                        TempPaymentBuffer.Insert;
+                        TempPaymentBuffer.Insert();
                     end;
                     VendorLedgerEntry."Applies-to ID" := TempPaymentBuffer."Document No.";
 
@@ -256,17 +255,28 @@ page 1190 "Create Payment"
                 end;
             until VendorLedgerEntry.Next = 0;
 
-        GenJnlLine.LockTable;
-        GenJournalTemplate.Get(JournalTemplateName);
+        CopyTempPaymentBufferToGenJournalLines(TempPaymentBuffer, GenJnlLine, SummarizePerVend);
+    end;
+
+    local procedure CopyTempPaymentBufferToGenJournalLines(var TempPaymentBuffer: Record "Payment Buffer" temporary; var GenJnlLine: Record "Gen. Journal Line"; SummarizePerVend: Boolean)
+    var
+        Vendor: Record Vendor;
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        BalAccType: Option "G/L Account",Customer,Vendor,"Bank Account";
+        LastLineNo: Integer;
+    begin
+        GenJnlLine.LockTable();
         GenJournalBatch.Get(JournalTemplateName, JournalBatchName);
+        GenJournalTemplate.Get(JournalTemplateName);
         GenJnlLine.SetRange("Journal Template Name", JournalTemplateName);
         GenJnlLine.SetRange("Journal Batch Name", JournalBatchName);
         if GenJnlLine.FindLast then begin
             LastLineNo := GenJnlLine."Line No.";
-            GenJnlLine.Init;
+            GenJnlLine.Init();
         end;
 
-        TempPaymentBuffer.Reset;
+        TempPaymentBuffer.Reset();
         TempPaymentBuffer.SetCurrentKey("Document No.");
         TempPaymentBuffer.SetFilter(
           "Vendor Ledg. Entry Doc. Type", '<>%1&<>%2', TempPaymentBuffer."Vendor Ledg. Entry Doc. Type"::Refund,
@@ -277,9 +287,12 @@ page 1190 "Create Payment"
                     Init;
                     Validate("Journal Template Name", JournalTemplateName);
                     Validate("Journal Batch Name", JournalBatchName);
-                    LastLineNo := LastLineNo + 10000;
+                    LastLineNo += 10000;
                     "Line No." := LastLineNo;
-                    "Document Type" := "Document Type"::Payment;
+                    if "Document Type" = "Document Type"::Invoice then
+                        "Document Type" := "Document Type"::Payment
+                    else
+                        "Document Type" := "Document Type"::Refund;
                     "Posting No. Series" := GenJournalBatch."Posting No. Series";
                     "Document No." := TempPaymentBuffer."Document No.";
                     "Account Type" := "Account Type"::Vendor;
@@ -288,7 +301,8 @@ page 1190 "Create Payment"
                     Validate("Posting Date", PostingDate);
                     Validate("Account No.", TempPaymentBuffer."Vendor No.");
 
-                    Vendor.Get(TempPaymentBuffer."Vendor No.");
+                    if Vendor."No." <> TempPaymentBuffer."Vendor No." then
+                        Vendor.Get(TempPaymentBuffer."Vendor No.");
                     Description := Vendor.Name;
 
                     "Bal. Account Type" := BalAccType::"Bank Account";
@@ -299,16 +313,18 @@ page 1190 "Create Payment"
                     "Bank Payment Type" := BankPaymentType;
                     "Applies-to ID" := "Document No.";
 
+                    "Source Code" := GenJournalTemplate."Source Code";
+                    "Reason Code" := GenJournalBatch."Reason Code";
                     "Source Line No." := TempPaymentBuffer."Vendor Ledg. Entry No.";
                     "Shortcut Dimension 1 Code" := TempPaymentBuffer."Global Dimension 1 Code";
                     "Shortcut Dimension 2 Code" := TempPaymentBuffer."Global Dimension 2 Code";
                     "Dimension Set ID" := TempPaymentBuffer."Dimension Set ID";
 
-                    "Source Code" := GenJournalTemplate."Source Code";
-                    "Reason Code" := GenJournalBatch."Reason Code";
                     Validate(Amount, TempPaymentBuffer.Amount);
+
                     "Applies-to Doc. Type" := TempPaymentBuffer."Vendor Ledg. Entry Doc. Type";
                     "Applies-to Doc. No." := TempPaymentBuffer."Vendor Ledg. Entry Doc. No.";
+
                     Validate("Payment Method Code", TempPaymentBuffer."Payment Method Code");
 
                     TempPaymentBuffer.CopyFieldsToGenJournalLine(GenJnlLine);
@@ -334,8 +350,8 @@ page 1190 "Create Payment"
             if "Dimension Set ID" = 0 then begin
                 NewDimensionID := "Dimension Set ID";
 
-                DimBuf.Reset;
-                DimBuf.DeleteAll;
+                DimBuf.Reset();
+                DimBuf.DeleteAll();
                 DimBufMgt.GetDimensions(TempPaymentBuffer."Dimension Entry No.", DimBuf);
                 if DimBuf.FindSet then
                     repeat
@@ -343,7 +359,7 @@ page 1190 "Create Payment"
                         TempDimSetEntry."Dimension Code" := DimBuf."Dimension Code";
                         TempDimSetEntry."Dimension Value Code" := DimBuf."Dimension Value Code";
                         TempDimSetEntry."Dimension Value ID" := DimVal."Dimension Value ID";
-                        TempDimSetEntry.Insert;
+                        TempDimSetEntry.Insert();
                     until DimBuf.Next = 0;
                 NewDimensionID := DimMgt.GetDimensionSetID(TempDimSetEntry);
                 "Dimension Set ID" := NewDimensionID;
@@ -418,7 +434,7 @@ page 1190 "Create Payment"
         CompanyInformation: Record "Company Information";
     begin
         if SummarizePerVend then begin
-            CompanyInformation.Get;
+            CompanyInformation.Get();
             exit(CompanyInformation.Name);
         end;
 

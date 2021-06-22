@@ -11,9 +11,16 @@ report 5899 "Calculate Inventory Value"
             RequestFilterFields = "No.", "Costing Method", "Location Filter", "Variant Filter";
 
             trigger OnAfterGetRecord()
+            var
+                SkipItem: Boolean;
             begin
                 if ShowDialog then
                     Window.Update;
+
+                SkipItem := false;
+                OnBeforeOnAfterGetRecord(Item, SkipItem);
+                if SkipItem then
+                    CurrReport.Skip();
 
                 if (CalculatePer = CalculatePer::Item) and ("Costing Method" = "Costing Method"::Average) then begin
                     CalendarPeriod."Period Start" := PostingDate;
@@ -183,7 +190,7 @@ report 5899 "Calculate Inventory Value"
                     Clear(CalculateStdCost);
                 end;
 
-                OnAfterOnPreDataItem();
+                OnAfterOnPreDataItem(Item);
             end;
         }
     }
@@ -666,7 +673,12 @@ report 5899 "Calculate Inventory Value"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterOnPreDataItem()
+    local procedure OnAfterOnPreDataItem(var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnAfterGetRecord(var Item: Record Item; var SkipItem: Boolean)
     begin
     end;
 

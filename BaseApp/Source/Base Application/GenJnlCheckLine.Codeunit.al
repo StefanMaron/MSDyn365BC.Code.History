@@ -562,6 +562,9 @@ codeunit 11 "Gen. Jnl.-Check Line"
             No[4] := "Salespers./Purch. Code";
             TableID[5] := DATABASE::Campaign;
             No[5] := "Campaign No.";
+
+            OnCheckDimensionsOnAfterAssignDimTableIDs(GenJnlLine, TableID, No);
+
             if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
                 ThrowGenJnlLineError(GenJnlLine, Text012, DimMgt.GetDimValuePostingErr);
         end;
@@ -718,6 +721,11 @@ codeunit 11 "Gen. Jnl.-Check Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckPostingDateInFiscalYear(GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckDimensionsOnAfterAssignDimTableIDs(var GenJournalLine: Record "Gen. Journal Line"; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
     end;
 }

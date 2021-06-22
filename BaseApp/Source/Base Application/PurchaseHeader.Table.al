@@ -2196,6 +2196,7 @@ table 38 "Purchase Header"
             Caption = 'Id';
             ObsoleteState = Pending;
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
+            ObsoleteTag = '15.0';
         }
         field(9000; "Assigned User ID"; Code[50])
         {
@@ -3684,7 +3685,7 @@ table 38 "Purchase Header"
         end
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem','15.1')]
     procedure GetPstdDocLinesToRevere()
     var
         PurchPostedDocLines: Page "Posted Purchase Document Lines";
@@ -3711,7 +3712,7 @@ table 38 "Purchase Header"
             FilterGroup(0);
         end;
 
-        SetRange("Date Filter", 0D, WorkDate - 1);
+        SetRange("Date Filter", 0D, WorkDate());
     end;
 
     procedure CalcInvDiscForHeader()
@@ -3742,18 +3743,20 @@ table 38 "Purchase Header"
                     Error(Text052, FieldCaption("Ship-to Address 2"), "No.", SalesHeader."No.");
                 if "Ship-to Post Code" <> SalesHeader."Ship-to Post Code" then
                     Error(Text052, FieldCaption("Ship-to Post Code"), "No.", SalesHeader."No.");
+                if "Ship-to Country/Region Code" <> SalesHeader."Ship-to Country/Region Code" then
+                    Error(Text052, FieldCaption("Ship-to Country/Region Code"), "No.", SalesHeader."No.");
+                if "Ship-to County" <> SalesHeader."Ship-to County" then
+                    Error(Text052, FieldCaption("Ship-to County"), "No.", SalesHeader."No.");
                 if "Ship-to City" <> SalesHeader."Ship-to City" then
                     Error(Text052, FieldCaption("Ship-to City"), "No.", SalesHeader."No.");
                 if "Ship-to Contact" <> SalesHeader."Ship-to Contact" then
                     Error(Text052, FieldCaption("Ship-to Contact"), "No.", SalesHeader."No.");
             end else begin
                 // no purchase line exists
-                "Ship-to Name" := SalesHeader."Ship-to Name";
-                "Ship-to Name 2" := SalesHeader."Ship-to Name 2";
-                "Ship-to Address" := SalesHeader."Ship-to Address";
-                "Ship-to Address 2" := SalesHeader."Ship-to Address 2";
-                "Ship-to Post Code" := SalesHeader."Ship-to Post Code";
-                "Ship-to City" := SalesHeader."Ship-to City";
+                SetShipToAddress(
+                    SalesHeader."Ship-to Name", SalesHeader."Ship-to Name 2", SalesHeader."Ship-to Address",
+                    SalesHeader."Ship-to Address 2", SalesHeader."Ship-to City", SalesHeader."Ship-to Post Code",
+                    SalesHeader."Ship-to County", SalesHeader."Ship-to Country/Region Code");
                 "Ship-to Contact" := SalesHeader."Ship-to Contact";
             end;
         end;
@@ -4043,7 +4046,7 @@ table 38 "Purchase Header"
     end;
 
     [IntegrationEvent(TRUE, false)]
-    [Obsolete('Function scope will be changed to OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem','15.1')]
     procedure OnCheckPurchasePostRestrictions()
     begin
     end;

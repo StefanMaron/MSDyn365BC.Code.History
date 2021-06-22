@@ -10,18 +10,21 @@ codeunit 138900 "O365 Test Email Setup"
     var
         Assert: Codeunit Assert;
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         PassWordTxt: Label 'pAssWord1';
         EventSubscriberInvoicingApp: Codeunit "EventSubscriber Invoicing App";
         MailManagement: Codeunit "Mail Management";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         IsInitialized: Boolean;
 
-    local procedure Init()
+    local procedure Initialize()
     var
         SMTPMailSetup: Record "SMTP Mail Setup";
         O365C2GraphEventSettings: Record "O365 C2Graph Event Settings";
     begin
-        SMTPMailSetup.DeleteAll;
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"O365 Test Email Setup");
+
+        SMTPMailSetup.DeleteAll();
 
         if not O365C2GraphEventSettings.Get then
             O365C2GraphEventSettings.Insert(true);
@@ -35,9 +38,13 @@ codeunit 138900 "O365 Test Email Setup"
         if IsInitialized then
             exit;
 
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"O365 Test Email Setup");
+
         EventSubscriberInvoicingApp.SetAppId('INV');
         BindSubscription(EventSubscriberInvoicingApp);
         IsInitialized := true;
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"O365 Test Email Setup");
     end;
 
     [Test]
@@ -50,7 +57,7 @@ codeunit 138900 "O365 Test Email Setup"
         O365EmailAccountSettings: TestPage "O365 Email Account Settings";
     begin
         // [GIVEN] No prior email setup (smtp)
-        Init;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [WHEN] User opens settings page and closes it
@@ -75,7 +82,7 @@ codeunit 138900 "O365 Test Email Setup"
         O365EmailAccountSettings: TestPage "O365 Email Account Settings";
     begin
         // [GIVEN] Existing email setup (smtp)
-        Init;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
         SMTPMailSetup.Init;
         SMTPMail.ApplyOffice365Smtp(SMTPMailSetup);
@@ -114,7 +121,7 @@ codeunit 138900 "O365 Test Email Setup"
         O365SalesInvoice: TestPage "O365 Sales Invoice";
     begin
         // [GIVEN] Standard invoicing SMTP setup with empty email and password
-        Init;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
         O365EmailAccountSettings.OpenEdit;
         O365EmailAccountSettings."User ID".SetValue('');
@@ -143,7 +150,7 @@ codeunit 138900 "O365 Test Email Setup"
         O365SalesInvoice: TestPage "O365 Sales Invoice";
     begin
         // [GIVEN] Standard invoicing SMTP setup with non-empty email a password
-        Init;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
         O365EmailAccountSettings.OpenEdit;
         O365EmailAccountSettings."User ID".SetValue('test@test.test');
@@ -171,7 +178,7 @@ codeunit 138900 "O365 Test Email Setup"
         BCO365SalesInvoice: TestPage "BC O365 Sales Invoice";
     begin
         // [GIVEN] Standard invoicing SMTP setup with empty email and password
-        Init;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
         O365EmailAccountSettings.OpenEdit;
         O365EmailAccountSettings."User ID".SetValue('');
@@ -204,7 +211,7 @@ codeunit 138900 "O365 Test Email Setup"
         BCO365SalesInvoice: TestPage "BC O365 Sales Invoice";
     begin
         // [GIVEN] Standard invoicing SMTP setup with non-empty email a password
-        Init;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
         O365EmailAccountSettings.OpenEdit;
         O365EmailAccountSettings."User ID".SetValue('test@test.test');
@@ -234,7 +241,7 @@ codeunit 138900 "O365 Test Email Setup"
         SMTPMailSetup: Record "SMTP Mail Setup";
     begin
         LibraryLowerPermissions.SetOutsideO365Scope; // Data set up by sync-daemon
-        Init;
+        Initialize();
 
         // [GIVEN] User setup has been created with an email
         UserSetup."User ID" := UserId;
@@ -273,6 +280,7 @@ codeunit 138900 "O365 Test Email Setup"
         O365SalesEmailDialogTestPage: TestPage "O365 Sales Email Dialog";
         DummyVar: Variant;
     begin
+        Initialize();
         LibraryLowerPermissions.SetO365Basic;
         O365SalesEmailDialogTestPage.Trap;
         O365SalesEmailDialog.HideBody;
@@ -300,6 +308,7 @@ codeunit 138900 "O365 Test Email Setup"
         O365SalesEmailDialogTestPage: TestPage "O365 Sales Email Dialog";
         DummyVar: Variant;
     begin
+        Initialize();
         LibraryLowerPermissions.SetO365Basic;
         O365SalesEmailDialogTestPage.Trap;
         TempEmailItem.SetBodyText('<html>this is a test</html>');

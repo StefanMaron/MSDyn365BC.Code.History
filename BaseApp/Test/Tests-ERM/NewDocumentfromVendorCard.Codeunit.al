@@ -11,7 +11,9 @@ codeunit 134770 "New Document from Vendor Card"
     var
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Assert: Codeunit Assert;
+        isInitialized: Boolean;
 
     [Test]
     [Scope('OnPrem')]
@@ -22,6 +24,7 @@ codeunit 134770 "New Document from Vendor Card"
         BlanketPurchaseOrder: TestPage "Blanket Purchase Order";
     begin
         // Setup
+        Initialize();
         LibraryPurchase.CreateVendorWithAddress(Vendor);
 
         // Execute
@@ -50,6 +53,7 @@ codeunit 134770 "New Document from Vendor Card"
         PurchaseQuote: TestPage "Purchase Quote";
     begin
         // Setup
+        Initialize();
         LibraryPurchase.CreateVendorWithAddress(Vendor);
 
         // Execute
@@ -77,6 +81,7 @@ codeunit 134770 "New Document from Vendor Card"
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
         // Setup
+        Initialize();
         LibraryPurchase.CreateVendorWithAddress(Vendor);
 
         // Execute
@@ -118,6 +123,7 @@ codeunit 134770 "New Document from Vendor Card"
         PurchaseOrder: TestPage "Purchase Order";
     begin
         // Setup
+        Initialize();
         LibraryPurchase.CreateVendorWithAddress(Vendor);
 
         // Execute
@@ -144,6 +150,7 @@ codeunit 134770 "New Document from Vendor Card"
         PurchaseCreditMemo: TestPage "Purchase Credit Memo";
     begin
         // Setup
+        Initialize();
         LibraryPurchase.CreateVendorWithAddress(Vendor);
 
         // Execute
@@ -170,6 +177,7 @@ codeunit 134770 "New Document from Vendor Card"
         PurchaseReturnOrder: TestPage "Purchase Return Order";
     begin
         // Setup
+        Initialize();
         LibraryPurchase.CreateVendorWithAddress(Vendor);
 
         // Execute
@@ -187,6 +195,21 @@ codeunit 134770 "New Document from Vendor Card"
           'Vendor postcode is not carried over to the document');
         Assert.AreEqual(
           Vendor.Contact, PurchaseReturnOrder."Buy-from Contact".Value, 'Vendor contact is not carried over to the document');
+    end;
+
+    local procedure Initialize()
+    begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"New Document from Vendor Card");
+
+        if isInitialized then
+            exit;
+
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"New Document from Vendor Card");
+
+        Commit();
+        isInitialized := true;
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"New Document from Vendor Card");
     end;
 }
 

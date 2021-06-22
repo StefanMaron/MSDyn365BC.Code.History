@@ -17,12 +17,19 @@ table 6302 "Power BI Report Buffer"
         }
         field(3; EmbedUrl; Text[250])
         {
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The field has been extended to a bigger field. Use ReportEmbedUrl field instead.';
             Caption = 'EmbedUrl';
             DataClassification = SystemMetadata;
         }
         field(4; Enabled; Boolean)
         {
             Caption = 'Enabled';
+            DataClassification = SystemMetadata;
+        }
+        field(10; ReportEmbedUrl; Text[2048])
+        {
+            Caption = 'ReportEmbedUrl';
             DataClassification = SystemMetadata;
         }
     }

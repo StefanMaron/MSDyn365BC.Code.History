@@ -1353,6 +1353,12 @@
           <note from="Developer" annotates="general" priority="2">%1 = Assisted Setup Name</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Assisted Setup Impl. - NamedType RunSetupAgainQst</note>
         </trans-unit>
+        <trans-unit id="Codeunit 3023760489 - NamedType 982580043" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The page with ID %1 entered does not exist.</source>
+          <target>De pagina met ingevoerde id %1 bestaat niet.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = The ID of the assisted setup guide page</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Assisted Setup Impl. - NamedType BadPageErr</note>
+        </trans-unit>
         <trans-unit id="Codeunit 1645891195 - NamedType 3503770226" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
           <source>User Setup</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -2653,6 +2659,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Plans - Control Name - Property ToolTip</note>
         </trans-unit>
+        <trans-unit id="Page 232331644 - Control 494050113 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Users in Plan</source>
+          <target>Gebruikers in plan</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Plans - Control Users in the Plan - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 862534927 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Plans</source>
           <target>Plannen</target>
@@ -3254,7 +3266,6 @@
         </trans-unit>
         <trans-unit id="Page 3970971575 - NamedType 3247921854" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
           <source>https://go.microsoft.com/fwlink/?linkid=869249</source>
-          <target>https://go.microsoft.com/fwlink/?linkid=869249</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Data Classification Wizard - NamedType HelpUrlTxt</note>
         </trans-unit>
@@ -4892,6 +4903,48 @@
           <source> </source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Satisfaction Survey - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1919691214 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Table Information</source>
+          <target>Tabelinformatie</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Table Information - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1919691214 - Control 3997336476 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The name of the company the table belongs to</source>
+          <target>De naam van het bedrijf waartoe de tabel behoort</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Table Information - Control Company Name - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1919691214 - Control 3808951907 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The name of the table</source>
+          <target>De naam van de tabel</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Table Information - Control Table Name - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1919691214 - Control 3017471043 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The ID number for the table</source>
+          <target>Het id-nummer van de tabel</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Table Information - Control Table No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1919691214 - Control 2065755396 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The number of records in the table</source>
+          <target>Het aantal records in de tabel.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Table Information - Control No. of Records - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1919691214 - Control 2499764284 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>A value expressing the average size of a record, calculated as 1024 x Size (KB)/Records</source>
+          <target>Een waarde waarmee de gemiddelde grootte van een record wordt uitgedrukt, berekend als 1024 x grootte (KB)/records</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Table Information - Control Record Size - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1919691214 - Control 3391158951 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>How much space the table occupies in the database (in kilobytes)</source>
+          <target>Hoeveel ruimte de tabel inneemt in de database (in KB)</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Table Information - Control Size (KB</note>
         </trans-unit>
         <trans-unit id="Page 383217645 - Control 129688762 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>User Name</source>

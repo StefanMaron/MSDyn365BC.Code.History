@@ -53,12 +53,12 @@ codeunit 424 "Export Analysis View"
         ServerFileName: Text;
         SkipDownload: Boolean;
 
-    procedure ExportData(var Rec: Record "Analysis View Entry"; Sign: Boolean; ShowInAddCurr: Boolean; AmountField: Option; ShowName: Boolean; DateFilter: Text; AccFilter: Text; BudgetFilter: Text; Dim1Filter: Text; Dim2Filter: Text; Dim3Filter: Text; Dim4Filter: Text; AmountType: Option; ClosingEntryFilter: Option; Show: Option; OtherFilter: Text)
+    procedure ExportData(var AnalysisViewEntry: Record "Analysis View Entry"; Sign: Boolean; ShowInAddCurr: Boolean; AmountField: Option; ShowName: Boolean; DateFilter: Text; AccFilter: Text; BudgetFilter: Text; Dim1Filter: Text; Dim2Filter: Text; Dim3Filter: Text; Dim4Filter: Text; AmountType: Option; ClosingEntryFilter: Option; Show: Option; OtherFilter: Text)
     var
         BusUnitFilter: Text;
         CashFlowFilter: Text;
     begin
-        GLAccountSource := Rec."Account Source" = Rec."Account Source"::"G/L Account";
+        GLAccountSource := AnalysisViewEntry."Account Source" = AnalysisViewEntry."Account Source"::"G/L Account";
 
         CheckCombination(Show, AmountField);
 
@@ -72,23 +72,25 @@ codeunit 424 "Export Analysis View"
         ServerFileName := FileMgt.ServerTempFileName('xlsx');
 
         CreateFillGeneralInfoSheet(
-          Rec, Sign, AmountType, DateFilter, AccFilter, BudgetFilter,
+          AnalysisViewEntry, Sign, AmountType, DateFilter, AccFilter, BudgetFilter,
           Dim1Filter, Dim2Filter, Dim3Filter, Dim4Filter, ClosingEntryFilter, ShowInAddCurr, CashFlowFilter);
 
-        TempExcelBuffer.CreateBook(ServerFileName, StrSubstNo('%1%2', Text002, Rec."Analysis View Code"));
-        TempExcelBuffer.WriteSheet(StrSubstNo('%1%2', Text002, Rec."Analysis View Code"), CompanyName, UserId);
+        TempExcelBuffer.CreateBook(ServerFileName, StrSubstNo('%1%2', Text002, AnalysisViewEntry."Analysis View Code"));
+        TempExcelBuffer.WriteSheet(StrSubstNo('%1%2', Text002, AnalysisViewEntry."Analysis View Code"), CompanyName, UserId);
 
         CreateDataSheet(
-          Rec, Sign, ShowInAddCurr, ShowName, AccFilter, Dim1Filter, Dim2Filter,
+          AnalysisViewEntry, Sign, ShowInAddCurr, ShowName, AccFilter, Dim1Filter, Dim2Filter,
           Dim3Filter, Dim4Filter, ClosingEntryFilter, DateFilter, BusUnitFilter, BudgetFilter, AmountType, CashFlowFilter);
 
-        TempExcelBuffer.SelectOrAddSheet(StrSubstNo('%1%2', Text031, Rec."Analysis View Code"));
+        TempExcelBuffer.SelectOrAddSheet(StrSubstNo('%1%2', Text031, AnalysisViewEntry."Analysis View Code"));
         TempExcelBuffer.WriteAllToCurrentSheet(TempExcelBuffer);
 
         TempExcelBuffer.CloseBook;
 
         if not SkipDownload then
             TempExcelBuffer.OpenExcel;
+
+        OnAfterExportData(TempExcelBuffer, AnalysisViewEntry);
     end;
 
     local procedure CreateDataSheet(var AnalysisViewEntry: Record "Analysis View Entry"; Sign: Boolean; ShowInAddCurr: Boolean; ShowName: Boolean; AccFilter: Text; Dim1Filter: Text; Dim2Filter: Text; Dim3Filter: Text; Dim4Filter: Text; ClosingEntryFilter: Option; DateFilter: Text; BusUnitFilter: Text; BudgetFilter: Text; AmountType: Option; CFFilter: Text)
@@ -938,6 +940,11 @@ codeunit 424 "Export Analysis View"
     procedure SetSkipDownload()
     begin
         SkipDownload := true;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterExportData(varTempExcelBuffer: Record "Excel Buffer" temporary; var AnalysisViewEntry: Record "Analysis View Entry")
+    begin
     end;
 }
 

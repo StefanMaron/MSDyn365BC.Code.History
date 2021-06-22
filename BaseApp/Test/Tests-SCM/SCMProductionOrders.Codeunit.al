@@ -2547,6 +2547,54 @@ codeunit 137069 "SCM Production Orders"
 
     [Test]
     [Scope('OnPrem')]
+    procedure ConsumptionQtyOfFlushedCompNormalAfterOutputFullyPosted()
+    var
+        ProdItem: Record Item;
+        CompItem: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ItemJournalLine: Record "Item Journal Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Flushing]
+        // [SCENARIO 340342] Flushed consumption quantity is calculated straight on actual output in case of over-consumption.
+        Initialize();
+        Qty := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Production item "P" with a component "C".
+        // [GIVEN] In order to produce 1 kg of "P", it is required to consume 1 kg of "C".
+        // [GIVEN] Set "Rounding Precision" on the item "C" = 2.
+        // [GIVEN] Item "C" is on stock.
+        CreateProductionItemWithComponentAndRouting(ProdItem, CompItem, 1, 2);
+        MakeItemStock(CompItem."No.", LibraryRandom.RandIntInRange(100, 200));
+
+        // [GIVEN] Released production order for 10 kg of item "P".
+        // [GIVEN] The component "C" is set up for backward flushing.
+        CreateAndRefreshReleasedProdOrderWithFlushedComponent(ProductionOrder, ProdItem."No.", CompItem."No.", Qty);
+        FindProductionOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.");
+
+        // [GIVEN] Post the output for 10 kg. That flushes 20 kg of component "C".
+        CreateOutputJournalLine(ItemJournalLine, ProdOrderLine, 0, 0, Qty);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Revert posting the output. That doesn't cause any flushing.
+        FindItemLedgerEntry(ItemLedgerEntry, ProdOrderLine."Prod. Order No.", ProdItem."No.", ItemLedgerEntry."Entry Type"::Output);
+        CreateOutputJournalLine(ItemJournalLine, ProdOrderLine, 0, 0, -Qty);
+        ItemJournalLine.Validate("Applies-to Entry", ItemLedgerEntry."Entry No.");
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [WHEN] Post the output for 10 kg again.
+        CreateOutputJournalLine(ItemJournalLine, ProdOrderLine, 0, 0, Qty);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [THEN] That flushes 20 kg again. The total flushed amount is 40 kg.
+        VerifyQuantityOnItemLedgerEntries(ItemLedgerEntry."Entry Type"::Consumption, CompItem."No.", -4 * Qty);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure DeleteQltyMeasureCodeWhenRtngExists()
     var
         RoutingHeader: Record "Routing Header";

@@ -516,7 +516,7 @@ page 6303 "Power BI Report Spinner Part"
             // update last loaded report
             SetLastOpenedReportID(TempPowerBiReportBuffer.ReportID);
             // Hides both filters and tabs for embedding in small spaces where navigation is unnecessary.
-            exit(TempPowerBiReportBuffer.EmbedUrl + '&filterPaneEnabled=false&navContentPaneEnabled=false');
+            exit(TempPowerBiReportBuffer.ReportEmbedUrl + '&filterPaneEnabled=false&navContentPaneEnabled=false');
         end;
     end;
 
@@ -525,7 +525,7 @@ page 6303 "Power BI Report Spinner Part"
         // update last loaded report
         SetLastOpenedReportID(TempPowerBiReportBuffer.ReportID);
         // Hides filters and shows tabs for embedding in large spaces where navigation is necessary.
-        exit(TempPowerBiReportBuffer.EmbedUrl + '&filterPaneEnabled=false');
+        exit(TempPowerBiReportBuffer.ReportEmbedUrl + '&filterPaneEnabled=false');
     end;
 
     local procedure LoadContent()

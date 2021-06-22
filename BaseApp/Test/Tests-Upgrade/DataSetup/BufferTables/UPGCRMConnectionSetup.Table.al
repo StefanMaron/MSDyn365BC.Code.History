@@ -1,4 +1,4 @@
-table 128002 "UPG - CRM Connection Setup"
+table 132802 "UPG - CRM Connection Setup"
 {
     fields
     {

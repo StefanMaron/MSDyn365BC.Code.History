@@ -1,4 +1,4 @@
-codeunit 128001 "Upgrade Codeunit - Data Setup"
+codeunit 132801 "Upgrade Codeunit - Data Setup"
 {
     Subtype = Upgrade;
 

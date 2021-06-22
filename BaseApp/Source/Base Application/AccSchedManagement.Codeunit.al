@@ -1575,26 +1575,8 @@ codeunit 8 AccSchedManagement
             case ColumnLayout."Ledger Entry Type" of
                 ColumnLayout."Ledger Entry Type"::Entries:
                     begin
-                        with CostEntry do begin
-                            if UseDimFilter then
-                                SetCurrentKey("Cost Type No.", "Cost Center Code", "Cost Object Code")
-                            else
-                                SetCurrentKey("Cost Type No.", "Posting Date");
-                            if CostType.Totaling = '' then
-                                SetRange("Cost Type No.", CostType."No.")
-                            else
-                                SetFilter("Cost Type No.", CostType.Totaling);
-                            CostType.CopyFilter("Date Filter", "Posting Date");
-                            AccSchedLine.CopyFilter("Cost Center Filter", "Cost Center Code");
-                            AccSchedLine.CopyFilter("Cost Object Filter", "Cost Object Code");
-                            FilterGroup(2);
-                            SetFilter("Cost Center Code", GetDimTotalingFilter(5, AccSchedLine."Cost Center Totaling"));
-                            SetFilter("Cost Object Code", GetDimTotalingFilter(6, AccSchedLine."Cost Object Totaling"));
-                            FilterGroup(8);
-                            SetFilter("Cost Center Code", GetDimTotalingFilter(5, ColumnLayout."Cost Center Totaling"));
-                            SetFilter("Cost Object Code", GetDimTotalingFilter(6, ColumnLayout."Cost Object Totaling"));
-                            FilterGroup(0);
-                        end;
+                        SetCostEntryFilters(CostType, CostEntry, AccSchedLine, ColumnLayout, UseDimFilter);
+
                         case AmountType of
                             AmountType::"Net Amount":
                                 begin
@@ -1639,24 +1621,7 @@ codeunit 8 AccSchedManagement
                     end;
                 ColumnLayout."Ledger Entry Type"::"Budget Entries":
                     begin
-                        with CostBudgEntry do begin
-                            SetCurrentKey("Budget Name", "Cost Type No.", "Cost Center Code", "Cost Object Code", Date);
-                            if CostType.Totaling = '' then
-                                SetRange("Cost Type No.", CostType."No.")
-                            else
-                                SetFilter("Cost Type No.", CostType.Totaling);
-                            CostType.CopyFilter("Date Filter", Date);
-                            AccSchedLine.CopyFilter("Cost Budget Filter", "Budget Name");
-                            AccSchedLine.CopyFilter("Cost Center Filter", "Cost Center Code");
-                            AccSchedLine.CopyFilter("Cost Object Filter", "Cost Object Code");
-                            FilterGroup(2);
-                            SetFilter("Cost Center Code", GetDimTotalingFilter(5, AccSchedLine."Cost Center Totaling"));
-                            SetFilter("Cost Object Code", GetDimTotalingFilter(6, AccSchedLine."Cost Object Totaling"));
-                            FilterGroup(8);
-                            SetFilter("Cost Center Code", GetDimTotalingFilter(5, ColumnLayout."Cost Center Totaling"));
-                            SetFilter("Cost Object Code", GetDimTotalingFilter(6, ColumnLayout."Cost Object Totaling"));
-                            FilterGroup(0);
-                        end;
+                        SetCostBudgetEntryFilters(CostType, CostBudgEntry, AccSchedLine, ColumnLayout);
 
                         CostBudgEntry.CalcSums(Amount);
 
@@ -1686,6 +1651,56 @@ codeunit 8 AccSchedManagement
             end;
         end;
         exit(ColValue);
+    end;
+
+    local procedure SetCostEntryFilters(var CostType: Record "Cost Type"; var CostEntry: Record "Cost Entry"; var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; UseDimFilter: Boolean)
+    begin
+        with CostEntry do begin
+            if UseDimFilter then
+                SetCurrentKey("Cost Type No.", "Cost Center Code", "Cost Object Code")
+            else
+                SetCurrentKey("Cost Type No.", "Posting Date");
+            if CostType.Totaling = '' then
+                SetRange("Cost Type No.", CostType."No.")
+            else
+                SetFilter("Cost Type No.", CostType.Totaling);
+            CostType.CopyFilter("Date Filter", "Posting Date");
+            AccSchedLine.CopyFilter("Cost Center Filter", "Cost Center Code");
+            AccSchedLine.CopyFilter("Cost Object Filter", "Cost Object Code");
+            FilterGroup(2);
+            SetFilter("Cost Center Code", GetDimTotalingFilter(5, AccSchedLine."Cost Center Totaling"));
+            SetFilter("Cost Object Code", GetDimTotalingFilter(6, AccSchedLine."Cost Object Totaling"));
+            FilterGroup(8);
+            SetFilter("Cost Center Code", GetDimTotalingFilter(5, ColumnLayout."Cost Center Totaling"));
+            SetFilter("Cost Object Code", GetDimTotalingFilter(6, ColumnLayout."Cost Object Totaling"));
+            FilterGroup(0);
+        end;
+
+        OnAfterSetCostEntryFilters(CostType, CostEntry, AccSchedLine, ColumnLayout, UseDimFilter);
+    end;
+
+    local procedure SetCostBudgetEntryFilters(var CostType: Record "Cost Type"; var CostBudgetEntry: Record "Cost Budget Entry"; var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout")
+    begin
+        with CostBudgetEntry do begin
+            SetCurrentKey("Budget Name", "Cost Type No.", "Cost Center Code", "Cost Object Code", Date);
+            if CostType.Totaling = '' then
+                SetRange("Cost Type No.", CostType."No.")
+            else
+                SetFilter("Cost Type No.", CostType.Totaling);
+            CostType.CopyFilter("Date Filter", Date);
+            AccSchedLine.CopyFilter("Cost Budget Filter", "Budget Name");
+            AccSchedLine.CopyFilter("Cost Center Filter", "Cost Center Code");
+            AccSchedLine.CopyFilter("Cost Object Filter", "Cost Object Code");
+            FilterGroup(2);
+            SetFilter("Cost Center Code", GetDimTotalingFilter(5, AccSchedLine."Cost Center Totaling"));
+            SetFilter("Cost Object Code", GetDimTotalingFilter(6, AccSchedLine."Cost Object Totaling"));
+            FilterGroup(8);
+            SetFilter("Cost Center Code", GetDimTotalingFilter(5, ColumnLayout."Cost Center Totaling"));
+            SetFilter("Cost Object Code", GetDimTotalingFilter(6, ColumnLayout."Cost Object Totaling"));
+            FilterGroup(0);
+        end;
+
+        OnAfterSetCostBudgetEntryFilters(CostType, CostBudgetEntry, AccSchedLine, ColumnLayout);
     end;
 
     procedure SetCostTypeRowFilters(var CostType: Record "Cost Type"; var AccSchedLine2: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout")
@@ -2146,6 +2161,16 @@ codeunit 8 AccSchedManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetGLAccAnalysisViewBudgetEntries(var GLAcc: Record "G/L Account"; var AnalysisViewBudgetEntry: Record "Analysis View Budget Entry"; var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetCostEntryFilters(var CostType: Record "Cost Type"; var CostEntry: Record "Cost Entry"; var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; UseDimFilter: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetCostBudgetEntryFilters(var CostType: Record "Cost Type"; var CostBudgetEntry: Record "Cost Budget Entry"; var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout")
     begin
     end;
 

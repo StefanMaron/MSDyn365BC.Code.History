@@ -45,6 +45,8 @@ table 6307 "Power BI Report Uploads"
         }
         field(7; "Embed Url"; Text[250])
         {
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The field has been extended to a bigger field. Use "Report Embed Url" field instead.';
             Caption = 'Embed Url';
             DataClassification = CustomerContent;
             Description = 'URL to cache when selecting the reporting.';
@@ -72,6 +74,12 @@ table 6307 "Power BI Report Uploads"
             Caption = 'IsGP';
             DataClassification = CustomerContent;
             Description = 'Specifies whether a report uses GP or Business Central datasets.';
+        }
+        field(20; "Report Embed Url"; Text[2048])
+        {
+            Caption = 'Report Embed Url';
+            DataClassification = CustomerContent;
+            Description = 'URL to cache when selecting the reporting.';
         }
     }
 

@@ -216,6 +216,169 @@ codeunit 139653 "Replication Mgt Page Tests"
     end;
 
     [Test]
+    procedure ManageCustomTablesIsNotVisibleIfUnsupported()
+    var
+        ReplicationManagementPage: TestPage "Intelligent Cloud Management";
+        ExpectedRunId: Text;
+        ExpectedSource: Text;
+    begin
+        // [SCENARIO] User doesn't have ability to manage custom tables for unsupported products
+
+        // [GIVEN] The intelligent cloud is set up for a product that doesn't support custom table mapping
+        Initialize(true);
+        SetupIntelligentCloud(ExpectedRunId, ExpectedSource);
+        LibraryHybridManagement.SetTableMappingEnabled(false);
+
+        // [WHEN] User Opens up the Hybrid Replication Management Page.
+        ReplicationManagementPage.Trap();
+        Page.Run(Page::"Intelligent Cloud Management");
+
+        // [THEN] The manage custom tables action is not visible
+        Assert.IsFalse(ReplicationManagementPage.ManageCustomTables.Visible(), 'Manage Custom Tables should not be visible.');
+    end;
+
+    [Test]
+    procedure TestOpenManageCustomTables()
+    var
+        HybridReplicationSummary: Record "Hybrid Replication Summary";
+        ReplicationManagementPage: TestPage "Intelligent Cloud Management";
+        MigrationTableMapping: TestPage "Migration Table Mapping";
+        ExpectedRunId: Text;
+        ExpectedSource: Text;
+    begin
+        // [SCENARIO] User can manage custom table mappings to use in the migration
+
+        // [GIVEN] The intelligent cloud is set up
+        Initialize(true);
+        HybridReplicationSummary.DeleteAll();
+        SetupIntelligentCloud(ExpectedRunId, ExpectedSource);
+        LibraryHybridManagement.SetTableMappingEnabled(true);
+
+        // [WHEN] User Opens up the Hybrid Replication Management Page.
+        ReplicationManagementPage.Trap();
+        Page.Run(Page::"Intelligent Cloud Management");
+
+        // [WHEN] User chooses to manage custom tables
+        MigrationTableMapping.Trap();
+        ReplicationManagementPage.ManageCustomTables.Invoke();
+
+        // [THEN] The migration table mapping page is opened in edit mode
+        Assert.IsTrue(MigrationTableMapping.Editable(), 'Page should be editable');
+    end;
+
+    [Test]
+    procedure ManageCustomTablesFailsForInvalidApp()
+    var
+        MigrationTableMappingRec: Record "Migration Table Mapping";
+        MigrationTableMapping: TestPage "Migration Table Mapping";
+    begin
+        // [SCENARIO] User is not allowed to specify tables from apps that don't exist
+
+        // [GIVEN] The intelligent cloud is set up
+        Initialize(true);
+        MigrationTableMappingRec.DeleteAll();
+
+        // [WHEN] User chooses to manage custom tables
+        MigrationTableMapping.Trap();
+        Page.Run(Page::"Migration Table Mapping", MigrationTableMappingRec);
+
+        // [WHEN] User enters bogus app name
+        // [THEN] The page gives them an error because the app doesn't exist
+        asserterror MigrationTableMapping."Extension Name".SetValue('My Nonexistent App');
+    end;
+
+    [Test]
+    procedure ManageCustomTablesPreventsInvalidAppAndTableNames()
+    var
+        MigrationTableMappingRec: Record "Migration Table Mapping";
+    begin
+        // [SCENARIO] UI prevents user from entering non-existent app and table name values
+
+        // [GIVEN] The intelligent cloud is set up
+        Initialize(true);
+        MigrationTableMappingRec.DeleteAll();
+
+        // [WHEN] User attempts to set invalid extension
+        // [THEN] They get a validation error
+        asserterror MigrationTableMappingRec.Validate("App ID", CreateGuid());
+
+        // [WHEN] User attempts to set invalid table name
+        // [THEN] They get a validation error
+        MigrationTableMappingRec."App ID" := CreateGuid();
+        asserterror MigrationTableMappingRec.Validate("Table Name", 'Foobar Table');
+    end;
+
+    [Test]
+    procedure ManageCustomTablesHidesLockedRecords()
+    var
+        MigrationTableMappingRec: Record "Migration Table Mapping";
+        MigrationTableMapping: TestPage "Migration Table Mapping";
+    begin
+        // [SCENARIO] Page filter hides any locked records
+
+        // [GIVEN] The intelligent cloud is set up
+        Initialize(true);
+        MigrationTableMappingRec.DeleteAll();
+
+        // [GIVEN] A few mappings already exist but are locked
+        MigrationTableMappingRec.Init();
+        MigrationTableMappingRec."App ID" := CreateGuid();
+        MigrationTableMappingRec."Table ID" := 139653;
+        MigrationTableMappingRec.Locked := true;
+        MigrationTableMappingRec.Insert(false);
+
+        MigrationTableMappingRec.Init();
+        MigrationTableMappingRec."App ID" := CreateGuid();
+        MigrationTableMappingRec."Table ID" := 139654;
+        MigrationTableMappingRec.Locked := true;
+        MigrationTableMappingRec.Insert(false);
+
+        // [WHEN] User chooses to manage custom tables
+        MigrationTableMapping.Trap();
+        Page.Run(Page::"Migration Table Mapping", MigrationTableMappingRec);
+
+        // [THEN] The list appears empty
+        Assert.IsFalse(MigrationTableMapping.First(), 'No records expected in the page view.');
+    end;
+
+    [Test]
+    procedure ManageCustomTablesDeleteAllForApp()
+    var
+        MigrationTableMappingRec: Record "Migration Table Mapping";
+        MigrationTableMapping: TestPage "Migration Table Mapping";
+        AppId: Guid;
+    begin
+        // [SCENARIO] User can choose to delete all mapping records for a given extension
+
+        // [GIVEN] The intelligent cloud is set up
+        Initialize(true);
+        MigrationTableMappingRec.DeleteAll();
+        AppId := CreateGuid();
+
+        // [GIVEN] A few mappings already exist
+        MigrationTableMappingRec.Init();
+        MigrationTableMappingRec."App ID" := AppId;
+        MigrationTableMappingRec."Table ID" := 139653;
+        MigrationTableMappingRec.Insert(false);
+
+        MigrationTableMappingRec.Init();
+        MigrationTableMappingRec."App ID" := AppId;
+        MigrationTableMappingRec."Table ID" := 139654;
+        MigrationTableMappingRec.Insert(false);
+
+        // [WHEN] User chooses to manage custom tables
+        MigrationTableMapping.Trap();
+        Page.Run(Page::"Migration Table Mapping", MigrationTableMappingRec);
+
+        // [WHEN] User chooses to delete all mappings for an extension
+        MigrationTableMapping.First();
+        MigrationTableMapping.DeleteAllForExtension.Invoke();
+
+        // [THEN] The records are removed from the table
+        Assert.IsTrue(MigrationTableMappingRec.IsEmpty(), 'Mapping table should be empty.');
+    end;
+
+    [Test]
     [HandlerFunctions('SendNotificationHandler')]
     procedure TestIntelligentCloudManagementPagewithUpdateNotification()
     var

@@ -210,7 +210,7 @@ codeunit 134155 "ERM Table Fields UT"
     begin
         // [FEATURE] [General Journal] [Customer]
         // [SCENARIO 271769] System shows confirmation dialog when Cassies tries to specify balance customer with different customer in "Bill-to Customer No."
-        GenJournalLine.Init;
+        GenJournalLine.Init();
 
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("Bill-to Customer No.", LibrarySales.CreateCustomerNo);
@@ -238,7 +238,7 @@ codeunit 134155 "ERM Table Fields UT"
         // [FEATURE] [General Journal] [Customer]
         // [SCENARIO 271769] System does not show confirmation dialog when validation dialog are disabled and
         // [SCENARIO 271769] Cassies tries to specify balance customer with different customer in "Bill-to Customer No."
-        GenJournalLine.Init;
+        GenJournalLine.Init();
 
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("Bill-to Customer No.", LibrarySales.CreateCustomerNo);
@@ -261,7 +261,7 @@ codeunit 134155 "ERM Table Fields UT"
     begin
         // [FEATURE] [General Journal] [Vendor]
         // [SCENARIO 271769] System shows confirmation dialog when Cassies tries to specify balance vendor with different vendor in "Pay-to Vendor No."
-        GenJournalLine.Init;
+        GenJournalLine.Init();
 
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Validate("Pay-to Vendor No.", LibraryPurchase.CreateVendorNo);
@@ -289,7 +289,7 @@ codeunit 134155 "ERM Table Fields UT"
         // [FEATURE] [General Journal] [Vendor]
         // [SCENARIO 271769] System does not show confirmation dialog when validation dialog are disabled and
         // [SCENARIO 271769] Cassies tries to specify balance vendor with different customer in "Pay-to Vendor No."
-        GenJournalLine.Init;
+        GenJournalLine.Init();
 
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Validate("Pay-to Vendor No.", LibraryPurchase.CreateVendorNo);
@@ -404,7 +404,7 @@ codeunit 134155 "ERM Table Fields UT"
         MockValueEntry(Item."No.", AccountingPeriod."Starting Date" + 1);
 
         // [WHEN] Rename the accounting period by changing the starting date from 01-01-2020 to 02-01-2020
-        Commit;
+        Commit();
         AccountingPeriod.Rename(AccountingPeriod."Starting Date" + 1);
 
         // [THEN] "Cost is Adjusted" in the item card is FALSE
@@ -486,11 +486,11 @@ codeunit 134155 "ERM Table Fields UT"
         // [SCENARIO 277076] Bal. Account Type has option Employee in Bank Account Ledger Entry
 
         // [GIVEN] Bank Account Ledger Entry with "Bal. Account Type" = Employee
-        BankAccountLedgerEntry.Init;
+        BankAccountLedgerEntry.Init();
         BankAccountLedgerEntry."Entry No." :=
           LibraryUtility.GetNewRecNo(BankAccountLedgerEntry, BankAccountLedgerEntry.FieldNo("Entry No."));
         BankAccountLedgerEntry."Bal. Account Type" := BankAccountLedgerEntry."Bal. Account Type"::Employee;
-        BankAccountLedgerEntry.Insert;
+        BankAccountLedgerEntry.Insert();
 
         // [GIVEN] FieldRef to "Bal. Account Type" field
         RecRef.GetTable(BankAccountLedgerEntry);
@@ -517,9 +517,9 @@ codeunit 134155 "ERM Table Fields UT"
         LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
         LibraryERM.CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name);
         IntrastatJnlLine.Validate("Item No.", LibraryInventory.CreateItemNo);
-        TariffNumber.Init;
+        TariffNumber.Init();
         TariffNumber."No." := LibraryUtility.GenerateRandomCode20(TariffNumber.FieldNo("No."), DATABASE::"Tariff Number");
-        TariffNumber.Insert;
+        TariffNumber.Insert();
 
         IntrastatJnlLine.Validate("Tariff No.", TariffNumber."No.");
 
@@ -614,11 +614,68 @@ codeunit 134155 "ERM Table Fields UT"
         LibraryTablesUT.AssertTableRelation(Field, DATABASE::Vendor, Vendor.FieldNo(Name));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckGenPostingSetupSalesAccountForBlankGenProdPostGrp()
+    var
+        GenBusinessPostingGroup: Record "Gen. Business Posting Group";
+        GeneralPostingSetup: Record "General Posting Setup";
+        PostingSetupManagement: Codeunit PostingSetupManagement;
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 338465] CheckGenPostingSetupSalesAccount does not create "Gen. Posting Setup" with blank "Gen. Product Posting Group".
+        LibraryERM.CreateGenBusPostingGroup(GenBusinessPostingGroup);
+
+        PostingSetupManagement.CheckGenPostingSetupSalesAccount(GenBusinessPostingGroup.Code, '');
+
+        GeneralPostingSetup.SetRange("Gen. Bus. Posting Group", GenBusinessPostingGroup.Code);
+        GeneralPostingSetup.SetRange("Gen. Prod. Posting Group", '');
+        Assert.RecordIsEmpty(GeneralPostingSetup);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckGenPostingSetupPurchAccountForBlankGenProdPostGrp()
+    var
+        GenBusinessPostingGroup: Record "Gen. Business Posting Group";
+        GeneralPostingSetup: Record "General Posting Setup";
+        PostingSetupManagement: Codeunit PostingSetupManagement;
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 338465] CheckGenPostingSetupPurchAccount does not create "Gen. Posting Setup" with blank "Gen. Product Posting Group".
+        LibraryERM.CreateGenBusPostingGroup(GenBusinessPostingGroup);
+
+        PostingSetupManagement.CheckGenPostingSetupPurchAccount(GenBusinessPostingGroup.Code, '');
+
+        GeneralPostingSetup.SetRange("Gen. Bus. Posting Group", GenBusinessPostingGroup.Code);
+        GeneralPostingSetup.SetRange("Gen. Prod. Posting Group", '');
+        Assert.RecordIsEmpty(GeneralPostingSetup);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckGenPostingSetupCOGSAccountForBlankGenProdPostGrp()
+    var
+        GenBusinessPostingGroup: Record "Gen. Business Posting Group";
+        GeneralPostingSetup: Record "General Posting Setup";
+        PostingSetupManagement: Codeunit PostingSetupManagement;
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 338465] CheckGenPostingSetupCOGSAccount does not create "Gen. Posting Setup" with blank "Gen. Product Posting Group".
+        LibraryERM.CreateGenBusPostingGroup(GenBusinessPostingGroup);
+
+        PostingSetupManagement.CheckGenPostingSetupCOGSAccount(GenBusinessPostingGroup.Code, '');
+
+        GeneralPostingSetup.SetRange("Gen. Bus. Posting Group", GenBusinessPostingGroup.Code);
+        GeneralPostingSetup.SetRange("Gen. Prod. Posting Group", '');
+        Assert.RecordIsEmpty(GeneralPostingSetup);
+    end;
+
     local procedure CreateAccountingPeriod(var AccountingPeriod: Record "Accounting Period"; StartingDate: Date; IsNewFiscalYear: Boolean)
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         AccountingPeriod."Starting Date" := StartingDate;
         AccountingPeriod."New Fiscal Year" := IsNewFiscalYear;
         AccountingPeriod."Average Cost Calc. Type" := InventorySetup."Average Cost Calc. Type";
@@ -668,7 +725,7 @@ codeunit 134155 "ERM Table Fields UT"
         Item."No." := NoSeriesManagement.GetNextNo(LibraryUtility.GetGlobalNoSeriesCode, WorkDate, true);
         Item."Costing Method" := Item."Costing Method"::Average;
         Item."Cost is Adjusted" := true;
-        Item.Insert;
+        Item.Insert();
     end;
 
     local procedure MockValueEntry(ItemNo: Code[20]; ValuationDate: Date)
@@ -678,7 +735,7 @@ codeunit 134155 "ERM Table Fields UT"
         ValueEntry."Entry No." := LibraryUtility.GetNewRecNo(ValueEntry, ValueEntry.FieldNo("Entry No."));
         ValueEntry."Item No." := ItemNo;
         ValueEntry."Valuation Date" := ValuationDate;
-        ValueEntry.Insert;
+        ValueEntry.Insert();
     end;
 
     local procedure VerifyAvgCostAdjmtEntryPoint(ItemNo: Code[20]; ValuationDate: Date)

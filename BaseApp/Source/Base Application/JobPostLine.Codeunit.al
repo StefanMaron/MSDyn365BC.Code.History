@@ -260,7 +260,7 @@ codeunit 1001 "Job Post-Line"
     var
         JobJnlLine: Record "Job Journal Line";
         Job: Record Job;
-        JT: Record "Job Task";
+        JobTask: Record "Job Task";
         SourceCodeSetup: Record "Source Code Setup";
         JobTransferLine: Codeunit "Job Transfer Line";
     begin
@@ -273,20 +273,21 @@ codeunit 1001 "Job Post-Line"
             exit;
         GenJnlLine.TestField("Job Task No.");
         GenJnlLine.TestField("Job Quantity");
-        Job.LockTable;
-        JT.LockTable;
+        Job.LockTable();
+        JobTask.LockTable();
         Job.Get(GenJnlLine."Job No.");
         GenJnlLine.TestField("Job Currency Code", Job."Currency Code");
-        JT.Get(GenJnlLine."Job No.", GenJnlLine."Job Task No.");
-        JT.TestField("Job Task Type", JT."Job Task Type"::Posting);
+        JobTask.Get(GenJnlLine."Job No.", GenJnlLine."Job Task No.");
+        JobTask.TestField("Job Task Type", JobTask."Job Task Type"::Posting);
         JobTransferLine.FromGenJnlLineToJnlLine(GenJnlLine, JobJnlLine);
+        OnPostGenJnlLineOnAfterTransferToJnlLine(JobJnlLine, GenJnlLine, JobJnlPostLine);
 
         JobJnlPostLine.SetGLEntryNo(GLEntry."Entry No.");
         JobJnlPostLine.RunWithCheck(JobJnlLine);
         JobJnlPostLine.SetGLEntryNo(0);
     end;
 
-    procedure PostJobOnPurchaseLine(var PurchHeader: Record "Purchase Header"; var PurchInvHeader: Record "Purch. Inv. Header"; var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; PurchLine: Record "Purchase Line"; Sourcecode: Code[10])
+    procedure PostJobOnPurchaseLine(var PurchHeader: Record "Purchase Header"; var PurchInvHeader: Record "Purch. Inv. Header"; var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; PurchLine: Record "Purchase Line"; SourceCode: Code[10])
     var
         JobJnlLine: Record "Job Journal Line";
         Job: Record Job;
@@ -294,7 +295,9 @@ codeunit 1001 "Job Post-Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforePostJobOnPurchaseLine(PurchHeader, PurchInvHeader, PurchCrMemoHdr, PurchLine, JobJnlLine, IsHandled);
+        OnBeforePostJobOnPurchaseLine(
+            PurchHeader, PurchInvHeader, PurchCrMemoHdr, PurchLine, JobJnlLine, IsHandled,
+            TempPurchaseLineJob, TempJobJournalLine, SourceCode);
         if IsHandled then
             exit;
 
@@ -486,7 +489,7 @@ codeunit 1001 "Job Post-Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostJobOnPurchaseLine(var PurchHeader: Record "Purchase Header"; var PurchInvHeader: Record "Purch. Inv. Header"; var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; var PurchLine: Record "Purchase Line"; var JobJnlLine: Record "Job Journal Line"; var IsHandled: Boolean)
+    local procedure OnBeforePostJobOnPurchaseLine(var PurchHeader: Record "Purchase Header"; var PurchInvHeader: Record "Purch. Inv. Header"; var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; var PurchLine: Record "Purchase Line"; var JobJnlLine: Record "Job Journal Line"; var IsHandled: Boolean; var TempPurchaseLineJob: Record "Purchase Line"; var TempJobJournalLine: Record "Job Journal Line"; var Sourcecode: Code[10])
     begin
     end;
 
@@ -497,6 +500,11 @@ codeunit 1001 "Job Post-Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterJobPlanningLineModify(var JobPlanningLine: Record "Job Planning Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostGenJnlLineOnAfterTransferToJnlLine(var JobJnlLine: Record "Job Journal Line"; GenJnlLine: Record "Gen. Journal Line"; var JobJnlPostLine: Codeunit "Job Jnl.-Post Line")
     begin
     end;
 

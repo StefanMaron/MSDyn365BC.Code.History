@@ -11,6 +11,7 @@ codeunit 135515 "Customer Payments E2E Test"
     var
         LibraryGraphMgt: Codeunit "Library - Graph Mgt";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Assert: Codeunit Assert;
         GraphMgtCustomerPayments: Codeunit "Graph Mgt - Customer Payments";
         ServiceNameTxt: Label 'customerPaymentJournals';
@@ -25,6 +26,7 @@ codeunit 135515 "Customer Payments E2E Test"
         CustomerNoNameTxt: Label 'customerNumber';
         GraphMgtJournal: Codeunit "Graph Mgt - Journal";
         BalAccountNoNameTxt: Label 'balancingAccountNumber';
+        isInitialized: Boolean;
 
     [Test]
     [Scope('OnPrem')]
@@ -45,7 +47,8 @@ codeunit 135515 "Customer Payments E2E Test"
         ResponseText: Text;
     begin
         // [SCENARIO] Create a customer payment through a POST method and check if it was created
-        LibraryGraphJournalLines.Initialize;
+        Initialize();
+        LibraryGraphJournalLines.Initialize();
 
         // [GIVEN] a journal
         JournalName := LibraryGraphJournalLines.CreateCustomerPaymentsJournal;
@@ -106,7 +109,8 @@ codeunit 135515 "Customer Payments E2E Test"
         ResponseText: Text;
     begin
         // [SCENARIO] Create a customer payment through a POST method without Document No and see if it was filled
-        LibraryGraphJournalLines.Initialize;
+        Initialize();
+        LibraryGraphJournalLines.Initialize();
 
         // [GIVEN] a journal
         JournalName := LibraryGraphJournalLines.CreateCustomerPaymentsJournal;
@@ -144,7 +148,8 @@ codeunit 135515 "Customer Payments E2E Test"
         LineNo: Integer;
     begin
         // [SCENARIO] Create a customer payment through a POST method with Document Id and see if the No is set correctly.
-        LibraryGraphJournalLines.Initialize;
+        Initialize();
+        LibraryGraphJournalLines.Initialize();
 
         // [GIVEN] a journal
         JournalName := LibraryGraphJournalLines.CreateCustomerPaymentsJournal;
@@ -195,7 +200,8 @@ codeunit 135515 "Customer Payments E2E Test"
         RandomId: Guid;
     begin
         // [SCENARIO] Create a customer payment through a POST method with Applies-to Invoice Id of something that is not a Sales Invoice.
-        LibraryGraphJournalLines.Initialize;
+        Initialize();
+        LibraryGraphJournalLines.Initialize();
 
         // [GIVEN] a journal
         JournalName := LibraryGraphJournalLines.CreateCustomerPaymentsJournal;
@@ -231,7 +237,8 @@ codeunit 135515 "Customer Payments E2E Test"
         TargetURL: Text;
     begin
         // [SCENARIO] Create a line and use a GET method with an ID specified to retrieve it
-        LibraryGraphJournalLines.Initialize;
+        Initialize();
+        LibraryGraphJournalLines.Initialize();
 
         // [GIVEN] a journal
         JournalName := LibraryGraphJournalLines.CreateCustomerPaymentsJournal;
@@ -277,7 +284,8 @@ codeunit 135515 "Customer Payments E2E Test"
         NewAppliesToDocNo: Code[20];
     begin
         // [SCENARIO] Create a customer payment, use a PATCH method to change it and then verify the changes
-        LibraryGraphJournalLines.Initialize;
+        Initialize();
+        LibraryGraphJournalLines.Initialize();
 
         // [GIVEN] a journal
         JournalName := LibraryGraphJournalLines.CreateCustomerPaymentsJournal;
@@ -333,7 +341,8 @@ codeunit 135515 "Customer Payments E2E Test"
         LineNo: Integer;
     begin
         // [SCENARIO] Create a customer payment through a POST method with Document No. Then PATCH it with a random Document No. and verify that the Document Id is blanked.
-        LibraryGraphJournalLines.Initialize;
+        Initialize();
+        LibraryGraphJournalLines.Initialize();
 
         // [GIVEN] a journal
         JournalName := LibraryGraphJournalLines.CreateCustomerPaymentsJournal;
@@ -391,7 +400,8 @@ codeunit 135515 "Customer Payments E2E Test"
         ResponseText: Text;
     begin
         // [SCENARIO] Create a customer payment, use a DELETE method to remove it and then verify the deletion
-        LibraryGraphJournalLines.Initialize;
+        Initialize();
+        LibraryGraphJournalLines.Initialize();
 
         // [GIVEN] a journal
         JournalName := LibraryGraphJournalLines.CreateCustomerPaymentsJournal;
@@ -433,7 +443,8 @@ codeunit 135515 "Customer Payments E2E Test"
         ResponseText: Text;
     begin
         // [SCENARIO] Create a line with graph contact Id and use a GET method with an ID specified to retrieve it
-        LibraryGraphJournalLines.Initialize;
+        Initialize();
+        LibraryGraphJournalLines.Initialize();
 
         // [GIVEN] a journal
         JournalName := LibraryGraphJournalLines.CreateCustomerPaymentsJournal;
@@ -473,7 +484,8 @@ codeunit 135515 "Customer Payments E2E Test"
         ResponseText: Text;
     begin
         // [SCENARIO] Post a customer payment with graph contact Id
-        LibraryGraphJournalLines.Initialize;
+        Initialize();
+        LibraryGraphJournalLines.Initialize();
 
         // [GIVEN] a journal
         JournalName := LibraryGraphJournalLines.CreateCustomerPaymentsJournal;
@@ -515,7 +527,8 @@ codeunit 135515 "Customer Payments E2E Test"
         ResponseText: Text;
     begin
         // [SCENARIO] Patch a customer payment with a contact with graph id
-        LibraryGraphJournalLines.Initialize;
+        Initialize();
+        LibraryGraphJournalLines.Initialize();
 
         // [GIVEN] a journal
         JournalName := LibraryGraphJournalLines.CreateCustomerPaymentsJournal;
@@ -566,7 +579,8 @@ codeunit 135515 "Customer Payments E2E Test"
         ResponseText: Text;
     begin
         // [SCENARIO] Patch a customer payment with a contact with graph id to blank the contact
-        LibraryGraphJournalLines.Initialize;
+        Initialize();
+        LibraryGraphJournalLines.Initialize();
 
         // [GIVEN] a journal
         JournalName := LibraryGraphJournalLines.CreateCustomerPaymentsJournal;
@@ -610,7 +624,8 @@ codeunit 135515 "Customer Payments E2E Test"
         ResponseText: Text;
     begin
         // [SCENARIO] Create a customer payment through a POST method and check if the Customer was Auto-filled
-        LibraryGraphJournalLines.Initialize;
+        Initialize();
+        LibraryGraphJournalLines.Initialize();
 
         // [GIVEN] a journal
         JournalName := LibraryGraphJournalLines.CreateCustomerPaymentsJournal;
@@ -654,7 +669,8 @@ codeunit 135515 "Customer Payments E2E Test"
         ResponseText: Text;
     begin
         // [SCENARIO] Create a customer payment through a POST method and check if the Customer was Auto-filled
-        LibraryGraphJournalLines.Initialize;
+        Initialize();
+        LibraryGraphJournalLines.Initialize();
 
         // [GIVEN] a journal
         JournalName := LibraryGraphJournalLines.CreateCustomerPaymentsJournal;
@@ -702,7 +718,8 @@ codeunit 135515 "Customer Payments E2E Test"
     begin
         // [SCENARIO] Create a customer payment through a POST method and check if the Customer No and Id are filled correctly
         // [GIVEN] an empty journal
-        LibraryGraphJournalLines.Initialize;
+        Initialize();
+        LibraryGraphJournalLines.Initialize();
 
         // [GIVEN] a journal
         JournalName := LibraryGraphJournalLines.CreateCustomerPaymentsJournal;
@@ -774,7 +791,8 @@ codeunit 135515 "Customer Payments E2E Test"
     begin
         // [SCENARIO] Create a customer payment through a POST method and check if the Customer Id and the Customer No Sync throws the errors
         // [GIVEN] an empty journal
-        LibraryGraphJournalLines.Initialize;
+        Initialize();
+        LibraryGraphJournalLines.Initialize();
 
         // [GIVEN] a journal
         JournalName := LibraryGraphJournalLines.CreateCustomerPaymentsJournal;
@@ -817,7 +835,8 @@ codeunit 135515 "Customer Payments E2E Test"
     begin
         // [SCENARIO] Create a customer payment through a POST method and check if the AppliesToInvoice No and Id are filled correctly
         // [GIVEN] an empty journal
-        LibraryGraphJournalLines.Initialize;
+        Initialize();
+        LibraryGraphJournalLines.Initialize();
 
         // [GIVEN] a journal
         JournalName := LibraryGraphJournalLines.CreateCustomerPaymentsJournal;
@@ -899,7 +918,8 @@ codeunit 135515 "Customer Payments E2E Test"
     begin
         // [SCENARIO] Create a customer payment through a POST method and check if the AppliesToInvoiceNo Sync throws the errors
         // [GIVEN] an empty journal
-        LibraryGraphJournalLines.Initialize;
+        Initialize();
+        LibraryGraphJournalLines.Initialize();
 
         // [GIVEN] a journal
         JournalName := LibraryGraphJournalLines.CreateCustomerPaymentsJournal;
@@ -924,6 +944,16 @@ codeunit 135515 "Customer Payments E2E Test"
           LibraryGraphMgt.CreateTargetURLWithSubpage(
             GetJournalID(JournalName), PAGE::"Customer Paym. Journal Entity", ServiceNameTxt, ServiceSubpageNameTxt);
         asserterror LibraryGraphMgt.PostToWebService(TargetURL, LineJSON, ResponseText);
+    end;
+
+    local procedure Initialize()
+    begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Customer Payments E2E Test");
+
+        if not isInitialized then
+            isInitialized := true;
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Customer Payments E2E Test");
     end;
 
     local procedure CreateCustomerPaymentWithGraphContactId(JournalName: Code[10]; var CustomerNo: Code[20]; var GraphIntegrationRecord: Record "Graph Integration Record"): Integer

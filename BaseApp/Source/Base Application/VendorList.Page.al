@@ -990,7 +990,7 @@
     var
         SocialListeningSetup: Record "Social Listening Setup";
     begin
-        SetFilter("Date Filter", '..%1', WorkDate);
+        SetRange("Date Filter", 0D, WorkDate());
         with SocialListeningSetup do
             SocialListeningSetupVisible := Get and "Show on Customers" and "Accept License Agreement" and ("Solution ID" <> '');
         ResyncVisible := ReadSoftOCRMasterDataSync.IsSyncEnabled;

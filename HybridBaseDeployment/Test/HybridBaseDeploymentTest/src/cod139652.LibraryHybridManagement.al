@@ -10,6 +10,7 @@ codeunit 139652 "Library - Hybrid Management"
         ExpectedErrors: Text;
         ExpectedStatus: Text;
         DiagnosticRunsEnabled: Boolean;
+        TableMappingEnabled: Boolean;
         ActualReplicationType: Integer;
         TestRuntimeNameTxt: Label 'TestRuntimeName';
         TestPrimaryKeyTxt: Label 'TestPrimaryKey';
@@ -269,9 +270,20 @@ codeunit 139652 "Library - Hybrid Management"
         DiagnosticRunsEnabled := Enabled;
     end;
 
+    procedure SetTableMappingEnabled(Enabled: Boolean)
+    begin
+        TableMappingEnabled := Enabled;
+    end;
+
     [EventSubscriber(ObjectType::Page, Page::"Intelligent Cloud Management", 'CanRunDiagnostic', '', false, false)]
     local procedure CanRunDiagnostic(var CanRun: Boolean)
     begin
-        CanRun := DiagnosticRunsEnabled;
+        CanRun := CanRun or DiagnosticRunsEnabled;
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"Intelligent Cloud Management", 'CanMapCustomTables', '', false, false)]
+    local procedure CanMapTables(var Enabled: Boolean)
+    begin
+        Enabled := Enabled or TableMappingEnabled;
     end;
 }

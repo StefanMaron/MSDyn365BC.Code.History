@@ -248,6 +248,8 @@ codeunit 99000833 "Req. Line-Reserve"
         NewReqLine.TestField("Variant Code", OldReqLine."Variant Code");
         NewReqLine.TestField("Location Code", OldReqLine."Location Code");
 
+        OnTransferReqLineToReqLineOnBeforeTransfer(OldReservEntry, OldReqLine, NewReqLine);
+
         if TransferAll then begin
             OldReservEntry.SetRange("Source Subtype", 0);
             OldReservEntry.TransferReservations(
@@ -300,6 +302,8 @@ codeunit 99000833 "Req. Line-Reserve"
         PurchLine.TestField("Variant Code", OldReqLine."Variant Code");
         PurchLine.TestField("Location Code", OldReqLine."Location Code");
 
+        OnTransferReqLineToPurchLineOnBeforeTransfer(OldReservEntry, OldReqLine, PurchLine);
+
         OldReservEntry.TransferReservations(
           OldReservEntry, OldReqLine."No.", OldReqLine."Variant Code", OldReqLine."Location Code",
           TransferAll, TransferQty, PurchLine."Qty. per Unit of Measure",
@@ -317,10 +321,12 @@ codeunit 99000833 "Req. Line-Reserve"
         NewProdOrderLine.TestField("Variant Code", OldReqLine."Variant Code");
         NewProdOrderLine.TestField("Location Code", OldReqLine."Location Code");
 
+        OnTransferReqLineToPOLineOnBeforeTransfer(OldReservEntry, OldReqLine, NewProdOrderLine);
+
         OldReservEntry.TransferReservations(
-          OldReservEntry, OldReqLine."No.", OldReqLine."Variant Code", OldReqLine."Location Code",
-          TransferAll, TransferQty, NewProdOrderLine."Qty. per Unit of Measure",
-          DATABASE::"Prod. Order Line", NewProdOrderLine.Status, NewProdOrderLine."Prod. Order No.", '', NewProdOrderLine."Line No.", 0);
+            OldReservEntry, OldReqLine."No.", OldReqLine."Variant Code", OldReqLine."Location Code",
+            TransferAll, TransferQty, NewProdOrderLine."Qty. per Unit of Measure",
+            DATABASE::"Prod. Order Line", NewProdOrderLine.Status, NewProdOrderLine."Prod. Order No.", '', NewProdOrderLine."Line No.", 0);
     end;
 
     procedure TransferPlanningLineToAsmHdr(var OldReqLine: Record "Requisition Line"; var NewAsmHeader: Record "Assembly Header"; TransferQty: Decimal; TransferAll: Boolean)
@@ -334,10 +340,12 @@ codeunit 99000833 "Req. Line-Reserve"
         NewAsmHeader.TestField("Variant Code", OldReqLine."Variant Code");
         NewAsmHeader.TestField("Location Code", OldReqLine."Location Code");
 
+        OnTransferReqLineToAsmHdrOnBeforeTransfer(OldReservEntry, OldReqLine, NewAsmHeader);
+
         OldReservEntry.TransferReservations(
-          OldReservEntry, OldReqLine."No.", OldReqLine."Variant Code", OldReqLine."Location Code",
-          TransferAll, TransferQty, NewAsmHeader."Qty. per Unit of Measure",
-          DATABASE::"Assembly Header", NewAsmHeader."Document Type", NewAsmHeader."No.", '', 0, 0);
+            OldReservEntry, OldReqLine."No.", OldReqLine."Variant Code", OldReqLine."Location Code",
+            TransferAll, TransferQty, NewAsmHeader."Qty. per Unit of Measure",
+            DATABASE::"Assembly Header", NewAsmHeader."Document Type", NewAsmHeader."No.", '', 0, 0);
     end;
 
     procedure TransferReqLineToTransLine(var ReqLine: Record "Requisition Line"; var TransLine: Record "Transfer Line"; TransferQty: Decimal; TransferAll: Boolean)
@@ -540,6 +548,26 @@ codeunit 99000833 "Req. Line-Reserve"
 
         if NewReqLine."Line No." <> OldReqLine."Line No." then
             HasError := true;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferReqLineToAsmHdrOnBeforeTransfer(var OldReservEntry: Record "Reservation Entry"; var OldReqLine: Record "Requisition Line"; var AssemblyHeader: Record "Assembly Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferReqLineToPurchLineOnBeforeTransfer(var OldReservEntry: Record "Reservation Entry"; var OldReqLine: Record "Requisition Line"; var PurchLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferReqLineToPOLineOnBeforeTransfer(var OldReservEntry: Record "Reservation Entry"; var OldReqLine: Record "Requisition Line"; var ProdOrderLine: Record "Prod. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferReqLineToReqLineOnBeforeTransfer(var OldReservEntry: Record "Reservation Entry"; var OldReqLine: Record "Requisition Line"; var NewReqLine: Record "Requisition Line")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

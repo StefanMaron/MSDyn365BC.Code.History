@@ -30,6 +30,7 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
         NoSeriesMgt2: array[10] of Codeunit NoSeriesManagement;
         WMSMgt: Codeunit "WMS Management";
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
+        ItemTrackingMgt: Codeunit "Item Tracking Management";
         UOMMgt: Codeunit "Unit of Measure Management";
         Window: Dialog;
         WhseRegNo: Integer;
@@ -50,7 +51,6 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
         TempHandlingSpecification: Record "Tracking Specification" temporary;
         TempWhseJnlLine2: Record "Warehouse Journal Line" temporary;
         ItemJnlLine: Record "Item Journal Line";
-        ItemTrackingMgt: Codeunit "Item Tracking Management";
         WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line";
         PhysInvtCountMgt: Codeunit "Phys. Invt. Count.-Management";
         WhseSNRequired: Boolean;
@@ -58,7 +58,6 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
         HideDialog: Boolean;
         SuppressCommit: Boolean;
         IsHandled: Boolean;
-        IncrBatchName: Boolean;
     begin
         HideDialog := false;
         SuppressCommit := false;
@@ -180,46 +179,8 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
             "Line No." := WhseRegNo;
 
             // Update/delete lines
-            if WhseRegNo <> 0 then begin
-                // Not a recurring journal
-                WhseJnlLine2.CopyFilters(WhseJnlLine);
-                WhseJnlLine2.SetFilter("Item No.", '<>%1', '');
-                if WhseJnlLine2.FindLast then; // Remember the last line
+            UpdateDeleteLines();
 
-                if Find('-') then begin
-                    repeat
-                        ItemTrackingMgt.DeleteWhseItemTrkgLines(
-                          DATABASE::"Warehouse Journal Line", 0, "Journal Batch Name",
-                          "Journal Template Name", 0, "Line No.", "Location Code", true);
-                    until Next = 0;
-                    DeleteAll;
-                end;
-
-                WhseJnlLine3.SetRange("Journal Template Name", "Journal Template Name");
-                WhseJnlLine3.SetRange("Journal Batch Name", "Journal Batch Name");
-                WhseJnlLine3.SetRange("Location Code", "Location Code");
-                if not WhseJnlLine3.FindLast then
-                    IncrBatchName := IncStr("Journal Batch Name") <> '';
-                OnBeforeIncrBatchName(WhseJnlLine3, IncrBatchName);
-                if IncrBatchName then begin
-                    WhseJnlBatch.Delete;
-                    WhseJnlBatch.Name := IncStr("Journal Batch Name");
-                    if WhseJnlBatch.Insert then;
-                    "Journal Batch Name" := WhseJnlBatch.Name;
-                end;
-
-                WhseJnlLine3.SetRange("Journal Batch Name", "Journal Batch Name");
-                if (WhseJnlBatch."No. Series" = '') and not WhseJnlLine3.FindLast then begin
-                    WhseJnlLine3.Init;
-                    WhseJnlLine3."Journal Template Name" := "Journal Template Name";
-                    WhseJnlLine3."Journal Batch Name" := "Journal Batch Name";
-                    WhseJnlLine3."Location Code" := "Location Code";
-                    WhseJnlLine3."Line No." := 10000;
-                    WhseJnlLine3.Insert;
-                    WhseJnlLine3.SetUpNewLine(WhseJnlLine2);
-                    WhseJnlLine3.Modify;
-                end;
-            end;
             if WhseJnlBatch."No. Series" <> '' then
                 NoSeriesMgt.SaveNoSeries;
             if NoSeries.Find('-') then
@@ -245,7 +206,7 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
 
     local procedure CheckLines(var TempTrackingSpecification: Record "Tracking Specification" temporary; var WhseSNRequired: Boolean; var WhseLNRequired: Boolean; HideDialog: Boolean)
     var
-        ItemTrackingMgt: Codeunit "Item Tracking Management";
+        IsHandled: Boolean;
     begin
         with WhseJnlLine do begin
             LineCount := 0;
@@ -255,7 +216,10 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
                 LineCount := LineCount + 1;
                 if not HideDialog then
                     Window.Update(2, LineCount);
-                WMSMgt.CheckWhseJnlLine(WhseJnlLine, 4, "Qty. (Absolute, Base)", false);
+                IsHandled := false;
+                OnCheckLinesOnBeforeCheckWhseJnlLine(WhseJnlLine, IsHandled);
+                if not IsHandled then
+                    WMSMgt.CheckWhseJnlLine(WhseJnlLine, 4, "Qty. (Absolute, Base)", false);
                 if "Entry Type" in ["Entry Type"::"Positive Adjmt.", "Entry Type"::Movement] then
                     UpdateTempBinContentBuffer(WhseJnlLine, "To Bin Code", true);
                 if "Entry Type" in ["Entry Type"::"Negative Adjmt.", "Entry Type"::Movement] then
@@ -286,12 +250,63 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
         end;
     end;
 
+    local procedure UpdateDeleteLines()
+    var
+        IncrBatchName: Boolean;
+        SkipUpdate: Boolean;
+    begin
+        SkipUpdate := WhseRegNo = 0;
+        OnBeforeUpdateDeleteLines(WhseJnlLine, WhseRegNo, SkipUpdate);
+        if SkipUpdate then
+            exit;
+
+        with WhseJnlLine do begin
+            // Not a recurring journal
+            WhseJnlLine2.CopyFilters(WhseJnlLine);
+            WhseJnlLine2.SetFilter("Item No.", '<>%1', '');
+            if WhseJnlLine2.FindLast then; // Remember the last line
+
+            if Find('-') then begin
+                repeat
+                    ItemTrackingMgt.DeleteWhseItemTrkgLines(
+                        DATABASE::"Warehouse Journal Line", 0, "Journal Batch Name",
+                        "Journal Template Name", 0, "Line No.", "Location Code", true);
+                until Next = 0;
+                DeleteAll();
+            end;
+
+            WhseJnlLine3.SetRange("Journal Template Name", "Journal Template Name");
+            WhseJnlLine3.SetRange("Journal Batch Name", "Journal Batch Name");
+            WhseJnlLine3.SetRange("Location Code", "Location Code");
+            if not WhseJnlLine3.FindLast then
+                IncrBatchName := IncStr("Journal Batch Name") <> '';
+            OnBeforeIncrBatchName(WhseJnlLine3, IncrBatchName);
+            if IncrBatchName then begin
+                WhseJnlBatch.Delete();
+                WhseJnlBatch.Name := IncStr("Journal Batch Name");
+                if WhseJnlBatch.Insert() then;
+                "Journal Batch Name" := WhseJnlBatch.Name;
+            end;
+
+            WhseJnlLine3.SetRange("Journal Batch Name", "Journal Batch Name");
+            if (WhseJnlBatch."No. Series" = '') and not WhseJnlLine3.FindLast then begin
+                WhseJnlLine3.Init();
+                WhseJnlLine3."Journal Template Name" := "Journal Template Name";
+                WhseJnlLine3."Journal Batch Name" := "Journal Batch Name";
+                WhseJnlLine3."Location Code" := "Location Code";
+                WhseJnlLine3."Line No." := 10000;
+                WhseJnlLine3.Insert();
+                WhseJnlLine3.SetUpNewLine(WhseJnlLine2);
+                WhseJnlLine3.Modify();
+            end;
+        end;
+    end;
+
     local procedure CreateTrackingSpecification(WhseJnlLine: Record "Warehouse Journal Line"; var TempHandlingSpecification: Record "Tracking Specification" temporary)
     var
         WhseItemTrkgLine: Record "Whse. Item Tracking Line";
         BinContent: Record "Bin Content";
         Location: Record Location;
-        ItemTrackingMgt: Codeunit "Item Tracking Management";
         WhseSNRequired: Boolean;
         WhseLNRequired: Boolean;
     begin
@@ -641,7 +656,17 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateDeleteLines(var WarehouseJournalLine: Record "Warehouse Journal Line"; WhseRegNo: Integer; var SkipUpdate: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeWhseJnlRegisterLineRun(var TempWarehouseJournalLine: Record "Warehouse Journal Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckLinesOnBeforeCheckWhseJnlLine(WarehouseJournalLine: Record "Warehouse Journal Line"; var IsHandled: Boolean)
     begin
     end;
 }

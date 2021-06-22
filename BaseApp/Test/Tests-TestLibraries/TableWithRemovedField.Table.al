@@ -12,12 +12,14 @@ table 136603 "Table With Removed Field"
             DataClassification = SystemMetadata;
             ObsoleteState = Removed;
             TableRelation = "G/L Entry";
+            ObsoleteTag = '15.0';
         }
         field(3; "Obsolete Field Pending"; Integer)
         {
             DataClassification = SystemMetadata;
             ObsoleteState = Pending;
             TableRelation = "Cust. Ledger Entry";
+            ObsoleteTag = '15.0';
         }
         field(4; "Normal Field"; Integer)
         {
@@ -35,10 +37,12 @@ table 136603 "Table With Removed Field"
         key(Key2; "Obsolete Field Pending", "Key")
         {
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         key(Key3; "Normal Field")
         {
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         key(Key4; "Obsolete Field Pending", "Normal Field")
         {

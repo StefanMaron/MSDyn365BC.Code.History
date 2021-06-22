@@ -4,7 +4,7 @@
     "publisher":  "Microsoft",
     "brief":  "Tests for the Sales and Inventory Forecast extension.",
     "description":  "Tests for the Sales and Inventory Forecast extension.",
-    "version":  "15.3.40074.40822",
+    "version":  "15.4.41023.41345",
     "privacyStatement":  "",
     "EULA":  "",
     "help":  "",
@@ -15,13 +15,13 @@
                              "appId":  "c526b3e9-b8ca-4683-81ba-fcd5f6b1472a",
                              "name":  "Sales and Inventory Forecast",
                              "publisher":  "Microsoft",
-                             "version":  "15.3.0.0"
+                             "version":  "15.4.0.0"
                          },
                          {
                              "appId":  "5d86850b-0d76-4eca-bd7b-951ad998e997",
                              "name":  "Tests-TestLibraries",
                              "publisher":  "Microsoft",
-                             "version":  "15.3.0.0"
+                             "version":  "15.4.0.0"
                          }
                      ],
     "screenshots":  [
@@ -40,5 +40,5 @@
                  ],
     "target":  "OnPrem",
     "showMyCode":  false,
-    "application":  "15.3.0.0"
+    "application":  "15.4.0.0"
 }

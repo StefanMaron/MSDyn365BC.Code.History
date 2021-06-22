@@ -38,6 +38,7 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeStandardVendorPurchaseCode();
         MoveLastUpdateInvoiceEntryNoValue();
         CopyIncomingDocumentURLsIntoOneFiled();
+        UpgradePowerBiEmbedUrl();
 
         UpgradeAPIs();
     end;
@@ -730,6 +731,44 @@ codeunit 104000 "Upgrade - BaseApp"
             UNTIL StandardPurchaseCode.NEXT = 0;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetStandardPurchaseCodeUpgradeTag());
+    end;
+
+    local procedure UpgradePowerBiEmbedUrl()
+    var
+        PowerBIReportUploads: Record "Power BI Report Uploads";
+        PowerBIReportConfiguration: Record "Power BI Report Configuration";
+        PowerBIReportBuffer: Record "Power BI Report Buffer";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetPowerBiEmbedUrlTooShortUpgradeTag()) then
+            exit;
+
+        if PowerBIReportUploads.FindSet(true, false) then
+            repeat
+                if PowerBIReportUploads."Report Embed Url" = '' then begin
+                    PowerBIReportUploads."Report Embed Url" := PowerBIReportUploads."Embed Url";
+                    PowerBIReportUploads.Modify();
+                end;
+            until PowerBIReportUploads.Next() = 0;
+
+        if PowerBIReportConfiguration.FindSet(true, false) then
+            repeat
+                if PowerBIReportConfiguration.ReportEmbedUrl = '' then begin
+                    PowerBIReportConfiguration.ReportEmbedUrl := PowerBIReportConfiguration.EmbedUrl;
+                    PowerBIReportConfiguration.Modify();
+                end;
+            until PowerBIReportConfiguration.Next() = 0;
+
+        if PowerBIReportBuffer.FindSet(true, false) then
+            repeat
+                if PowerBIReportBuffer.ReportEmbedUrl = '' then begin
+                    PowerBIReportBuffer.ReportEmbedUrl := PowerBIReportBuffer.EmbedUrl;
+                    PowerBIReportBuffer.Modify();
+                end;
+            until PowerBIReportBuffer.Next() = 0;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetPowerBiEmbedUrlTooShortUpgradeTag());
     end;
 
     local procedure AddDeviceISVEmbPlan()

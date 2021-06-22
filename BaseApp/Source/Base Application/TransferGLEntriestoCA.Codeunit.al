@@ -3,8 +3,15 @@ codeunit 1105 "Transfer GL Entries to CA"
     Permissions = TableData "G/L Entry" = rm;
 
     trigger OnRun()
+    var
+        IsHandled: Boolean;
     begin
-        ConfirmTransferGLtoCA;
+        IsHandled := false;
+        OnBeforeRun(IsHandled);
+        if IsHandled then
+            exit;
+
+        ConfirmTransferGLtoCA();
     end;
 
     var
@@ -301,6 +308,11 @@ codeunit 1105 "Transfer GL Entries to CA"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSkipGLEntry(GLEntry: Record "G/L Entry"; var ReturnValue: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRun(var IsHandled: Boolean)
     begin
     end;
 }

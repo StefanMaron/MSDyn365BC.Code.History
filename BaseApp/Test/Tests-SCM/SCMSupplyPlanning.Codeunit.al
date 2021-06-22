@@ -65,7 +65,7 @@ codeunit 137054 "SCM Supply Planning"
     procedure DemandSupplyOutsideReschedPeriodWeekReplenishProdOrder()
     begin
         // [FEATURE] [Resheduling Period]
-        Initialize;
+        Initialize();
         DemandSupplyReschedulingPeriodWeek('<1W>', false);  // Rescheduling Period, Action Message Reschedule -False.
     end;
 
@@ -74,7 +74,7 @@ codeunit 137054 "SCM Supply Planning"
     procedure DemandSupplyPartialInReschedPeriodTwoWeekReplenishProdOrder()
     begin
         // [FEATURE] [Resheduling Period]
-        Initialize;
+        Initialize();
         DemandSupplyReschedulingPeriodWeek('<2W>', true);  // Rescheduling Period, Action Message Reschedule -True.
     end;
 
@@ -129,7 +129,7 @@ codeunit 137054 "SCM Supply Planning"
     procedure DemandSupplyOutsideReschedPeriodWithoutReserveFlexibilityNoneReplenishProdOrder()
     begin
         // [FEATURE] [Resheduling Period]
-        Initialize;
+        Initialize();
         DemandSupplyOutsideReschedulingPeriodFlexibilityNone(false);  // Reserve -False;
     end;
 
@@ -139,7 +139,7 @@ codeunit 137054 "SCM Supply Planning"
     procedure DemandSupplyOutsideReschedPeriodWithReserveFlexibilityNoneReplenishProdOrder()
     begin
         // [FEATURE] [Resheduling Period]
-        Initialize;
+        Initialize();
         DemandSupplyOutsideReschedulingPeriodFlexibilityNone(true);  // Reserve -True;
     end;
 
@@ -197,7 +197,7 @@ codeunit 137054 "SCM Supply Planning"
     procedure DemandSupplyInReschedPeriodTwoMonthWithProdOrderReplenishProdOrder()
     begin
         // [FEATURE] [Resheduling Period] [Lot Accumulation Period]
-        Initialize;
+        Initialize();
         DemandSupplyInReschedulingPeriodMonth(true);  // Production -True.
     end;
 
@@ -206,7 +206,7 @@ codeunit 137054 "SCM Supply Planning"
     procedure DemandSupplyInReschedPeriodTwoMonthWithoutProdOrderReplenishProdOrder()
     begin
         // [FEATURE] [Resheduling Period] [Lot Accumulation Period]
-        Initialize;
+        Initialize();
         DemandSupplyInReschedulingPeriodMonth(false);  // Production -False.
     end;
 
@@ -261,7 +261,7 @@ codeunit 137054 "SCM Supply Planning"
         // [FEATURE] [Resheduling Period] [Lot Accumulation Period]
 
         // Setup: Create Item with Planning parameters.
-        Initialize;
+        Initialize();
         CreateLFLItem(Item, Item."Replenishment System"::"Prod. Order", '<1W>', '<1W>', true, 0, 0);  // Rescheduling Period, Lot Accumulation Period, Include Inventory, Safety Stock, Dampener Qty.
 
         // Create Demand - Supply setup with Random Values taking Global Variable for Sales, Purchase and Production.
@@ -288,7 +288,7 @@ codeunit 137054 "SCM Supply Planning"
     procedure DemandSupplyOutsideReschedPeriodWeekReplenishPurchase()
     begin
         // [FEATURE] [Resheduling Period] [Lot Accumulation Period]
-        Initialize;
+        Initialize();
         DemandSupplyReschedulingPeriodForReplenishmentPurchase('<1W>', false);  // Action Message Reschedule -False.
     end;
 
@@ -297,7 +297,7 @@ codeunit 137054 "SCM Supply Planning"
     procedure DemandSupplyPartialInReschedPeriodYearReplenishPurchase()
     begin
         // [FEATURE] [Resheduling Period] [Lot Accumulation Period]
-        Initialize;
+        Initialize();
         DemandSupplyReschedulingPeriodForReplenishmentPurchase('<1Y>', true);  // Action Message Reschedule -True.
     end;
 
@@ -347,7 +347,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Resheduling Period] [Lot Accumulation Period]
 
-        Initialize;
+        Initialize();
         DemandSupplyInReschedulingPeriodMonthFlexibilityNone(
           ReservationOption::"No Reservation", DemandTypeOption::"Sales Order", SupplyTypeOption::Purchase, '');
     end;
@@ -359,7 +359,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Available - Sales Lines] [Sales] [Purchase] [Reservation]
         // [SCENARIO] Item can be reserved from "Available - Sales Lines" page when demand is Sales Order, and supply - Purchase Order
-        Initialize;
+        Initialize();
         DemandSupplyInReschedulingPeriodMonthFlexibilityNone(
           ReservationOption::"Reserve from Supply", DemandTypeOption::"Sales Order", SupplyTypeOption::Purchase, '');
     end;
@@ -410,7 +410,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Available - Sales Lines] [Sales] [Production] [Reservation]
         // [SCENARIO] Item can be reserved from "Available - Sales Lines" page when demand is Sales Order, and supply - Production Order
-        Initialize;
+        Initialize();
         DemandSupplyInReschedulingPeriodMonthFlexibilityNone(
           ReservationOption::"Reserve from Supply", DemandTypeOption::"Sales Order", SupplyTypeOption::Released, '');
     end;
@@ -422,7 +422,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Available - Sales Lines] [Sales] [Sales Return] [Reservation]
         // [SCENARIO] Item can be reserved from "Available - Sales Lines" page when demand is Sales Order, and supply - Sales Return Order
-        Initialize;
+        Initialize();
         DemandSupplyInReschedulingPeriodMonthFlexibilityNone(
           ReservationOption::"Reserve from Supply", DemandTypeOption::"Sales Order", SupplyTypeOption::"Sales Return", '');
     end;
@@ -436,7 +436,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Available - Sales Lines] [Sales] [Transfer] [Reservation]
         // [SCENARIO] Item can be reserved from "Available - Sales Lines" page when demand is Sales Order, and supply - Transfer Order
-        Initialize;
+        Initialize();
         LibraryWarehouse.CreateLocation(Location);
         DemandSupplyInReschedulingPeriodMonthFlexibilityNone(
           ReservationOption::"Reserve from Supply", DemandTypeOption::"Sales Order", SupplyTypeOption::Transfer, Location.Code);
@@ -507,7 +507,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Available - Transfer Lines] [Purchase] [Transfer] [Reservation]
         // [SCENARIO] Item can be reserved from "Available - Transfer Lines" page when demand is Transfer Order, and supply - Purchase Order
-        Initialize;
+        Initialize();
         LibraryWarehouse.CreateLocation(Location);
         DemandSupplyInReschedulingPeriodMonthFlexibilityNone(
           ReservationOption::"Reserve from Supply", DemandTypeOption::"Transfer Order", SupplyTypeOption::Purchase, Location.Code);
@@ -522,7 +522,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Available - Transfer Lines] [Sales Return] [Transfer] [Reservation]
         // [SCENARIO] Item can be reserved from "Available - Transfer Lines" page when demand is Transfer Order, and supply - Sales Return Order
-        Initialize;
+        Initialize();
         LibraryWarehouse.CreateLocation(Location);
         DemandSupplyInReschedulingPeriodMonthFlexibilityNone(
           ReservationOption::"Reserve from Supply", DemandTypeOption::"Transfer Order", SupplyTypeOption::"Sales Return", Location.Code);
@@ -537,7 +537,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Available - Transfer Lines] [Transfer] [Assembly] [Reservation]
         // [SCENARIO] Item can be reserved from "Available - Transfer Lines" page when demand is Transfer Order, and supply - Assembly Order
-        Initialize;
+        Initialize();
         LibraryWarehouse.CreateLocation(Location);
         DemandSupplyInReschedulingPeriodMonthFlexibilityNone(
           ReservationOption::"Reserve from Supply", DemandTypeOption::"Transfer Order", SupplyTypeOption::Assembly, Location.Code);
@@ -552,7 +552,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Available - Assembly Lines] [Transfer] [Assembly] [Reservation]
         // [SCENARIO] Item can be reserved from "Available - Assembly Lines" page when demand is Transfer Order, and supply - Assembly Order
-        Initialize;
+        Initialize();
         LibraryWarehouse.CreateLocation(Location);
         DemandSupplyInReschedulingPeriodMonthFlexibilityNone(
           ReservationOption::"Reserve from Demand", DemandTypeOption::"Transfer Order", SupplyTypeOption::Assembly, Location.Code);
@@ -567,7 +567,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Available - Transfer Lines] [Transfer] [Production] [Reservation]
         // [SCENARIO] Item can be reserved from "Available - Transfer Lines" page when demand is Transfer Order, and supply - Production Order
-        Initialize;
+        Initialize();
         LibraryWarehouse.CreateLocation(Location);
         DemandSupplyInReschedulingPeriodMonthFlexibilityNone(
           ReservationOption::"Reserve from Supply", DemandTypeOption::"Transfer Order", SupplyTypeOption::Released, Location.Code);
@@ -580,7 +580,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Available - Sales Lines] [Sales] [Assembly] [Reservation]
         // [SCENARIO] Item can be reserved from "Available - Sales Lines" page when demand is Sales Order, and supply - Assembly Order
-        Initialize;
+        Initialize();
         DemandSupplyInReschedulingPeriodMonthFlexibilityNone(
           ReservationOption::"Reserve from Supply", DemandTypeOption::"Sales Order", SupplyTypeOption::Assembly, '');
     end;
@@ -592,7 +592,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Available - Assembly Lines] [Sales Return] [Assembly] [Reservation]
         // [SCENARIO] Item can be reserved from "Available - Assembly Lines" page when demand is Assembly Order, and supply - Sales Return Order
-        Initialize;
+        Initialize();
         DemandSupplyInReschedulingPeriodMonthFlexibilityNone(
           ReservationOption::"Reserve from Supply", DemandTypeOption::Assembly, SupplyTypeOption::"Sales Return", '');
     end;
@@ -604,7 +604,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Available - Prod. Order Lines] [Purchase] [Production] [Reservation]
         // [SCENARIO] Item can be reserved from "Available - Prod. Order Lines" page when demand is Production Order, and supply - Purchase Order
-        Initialize;
+        Initialize();
         DemandSupplyInReschedulingPeriodMonthFlexibilityNone(
           ReservationOption::"Reserve from Supply", DemandTypeOption::"Released Prod. Order", SupplyTypeOption::Purchase, '');
     end;
@@ -616,7 +616,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Available - Purchase Lines] [Purchase] [Production] [Reservation]
         // [SCENARIO] Item can be reserved from "Available - Purchase Lines" page when demand is Production Order, and supply - Purchase Order
-        Initialize;
+        Initialize();
         DemandSupplyInReschedulingPeriodMonthFlexibilityNone(
           ReservationOption::"Reserve from Demand", DemandTypeOption::"Released Prod. Order", SupplyTypeOption::Purchase, '');
     end;
@@ -628,7 +628,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Available - Prod. Order Lines] [Sales Return] [Production] [Reservation]
         // [SCENARIO] Item can be reserved from "Available - Prod. Order Lines" page when demand is Production Order, and supply - Sales Return Order
-        Initialize;
+        Initialize();
         DemandSupplyInReschedulingPeriodMonthFlexibilityNone(
           ReservationOption::"Reserve from Supply", DemandTypeOption::"Released Prod. Order", SupplyTypeOption::"Sales Return", '');
     end;
@@ -640,7 +640,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Available - Prod. Order Lines] [Sales] [Production] [Reservation]
         // [SCENARIO] Item can be reserved from "Available - Prod. Order Lines" page when demand is Sales Order, and supply - Production Order
-        Initialize;
+        Initialize();
         DemandSupplyInReschedulingPeriodMonthFlexibilityNone(
           ReservationOption::"Reserve from Demand", DemandTypeOption::"Sales Order", SupplyTypeOption::Released, '');
     end;
@@ -652,7 +652,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Available - Purchase Lines] [Purchase] [Purchase Return] [Reservation]
         // [SCENARIO] Item can be reserved from "Available - Purchase Lines" page when demand is Purchase Return Order, and supply - Purchase Order
-        Initialize;
+        Initialize();
         DemandSupplyInReschedulingPeriodMonthFlexibilityNone(
           ReservationOption::"Reserve from Demand", DemandTypeOption::"Purchase Return", SupplyTypeOption::Purchase, '');
     end;
@@ -664,7 +664,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Available - Prod. Order Lines] [Purchase Return] [Production] [Reservation]
         // [SCENARIO] Item can be reserved from "Available - Prod. Order Lines" page when demand is Purchase Return Order, and supply - Production Order
-        Initialize;
+        Initialize();
         DemandSupplyInReschedulingPeriodMonthFlexibilityNone(
           ReservationOption::"Reserve from Demand", DemandTypeOption::"Purchase Return", SupplyTypeOption::Released, '');
     end;
@@ -683,7 +683,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Resheduling Period] [Lot Accumulation Period] [Carry Out Action Message]
         // Setup: Create Item with planning parameters.
-        Initialize;
+        Initialize();
         CreateLFLItem(Item, Item."Replenishment System"::Purchase, '<1Y>', '<1Y>', true, 0, 0);  // Rescheduling Period, Lot Accumulation Period, Include Inventory, Safety Stock, Dampener Qty.
 
         // Create Demand - Supply Scenario with Random Value taking Global Variable for Sales and Purchase.
@@ -718,7 +718,7 @@ codeunit 137054 "SCM Supply Planning"
         // [FEATURE] [Resheduling Period] [Lot Accumulation Period]
 
         // Setup: Create Item with Planning parameters.
-        Initialize;
+        Initialize();
         CreateLFLItem(Item, Item."Replenishment System"::"Prod. Order", '<1Y>', '<1Y>', true, 0, 0);  // Rescheduling Period, Lot Accumulation Period, Include Inventory, Safety Stock, Dampener Qty.
 
         // Create Supply and Demand with Random Value taking Global Variable for Sales and Production and different locations- Blue and Red.
@@ -763,7 +763,7 @@ codeunit 137054 "SCM Supply Planning"
         // [FEATURE] [Resheduling Period] [Lot Accumulation Period]
 
         // Setup: Create Item with Planning parameters.
-        Initialize;
+        Initialize();
         CreateLFLItem(Item, Item."Replenishment System"::"Prod. Order", '<1Y>', '<1Y>', true, 0, 0);  // Rescheduling Period, Lot Accumulation Period, Include Inventory, Safety Stock, Dampener Qty.
 
         // Create Supply and Demand with Random Value taking Global Variable for Sales and Production and different locations- Blue and Red.
@@ -807,7 +807,7 @@ codeunit 137054 "SCM Supply Planning"
         // [FEATURE] [Resheduling Period] [Lot Accumulation Period]
 
         // Setup: Create Item with Planning parameters.
-        Initialize;
+        Initialize();
         CreateLFLItem(Item, Item."Replenishment System"::"Prod. Order", '<1Y>', '<1Y>', true, 0, 0);  // Rescheduling Period, Lot Accumulation Period, Include Inventory, Safety Stock, Dampener Qty.
 
         // Create Supply and Demand with Random Value taking Global Variable for Sales and Production and different locations- Blue and Red.
@@ -852,7 +852,7 @@ codeunit 137054 "SCM Supply Planning"
         // [FEATURE] [Resheduling Period] [Lot Accumulation Period] [Variant]
 
         // Setup: Create Item with Planning parameters.
-        Initialize;
+        Initialize();
         CreateLFLItem(Item, Item."Replenishment System"::"Prod. Order", '<1Y>', '<1Y>', true, 0, 0);  // Rescheduling Period, Lot Accumulation Period, Include Inventory, Safety Stock, Dampener Qty.
 
         // Create Supply and Demand with Random Value taking Global Variable for Sales and Production and different locations with Variant.
@@ -898,7 +898,7 @@ codeunit 137054 "SCM Supply Planning"
         // [FEATURE] [Resheduling Period] [Lot Accumulation Period] [Carry Out Action Message]
 
         // Setup: Create Item with Planning parameters.
-        Initialize;
+        Initialize();
         CreateLFLItem(Item, Item."Replenishment System"::"Prod. Order", '<1Y>', '<1Y>', true, 0, 0);  // Rescheduling Period, Lot Accumulation Period, Include Inventory, Safety Stock, Dampener Qty.
 
         // Create Supply and Demand with Random Value taking Global Variable for Sales and Production and different locations.
@@ -933,7 +933,7 @@ codeunit 137054 "SCM Supply Planning"
         // [FEATURE] [Safety Stock]
 
         // Setup: Create Item with Safety Stock without supply or demand.
-        Initialize;
+        Initialize();
         CreateLFLItem(Item, Item."Replenishment System"::"Prod. Order", '<1Y>', '<1Y>', true, LibraryRandom.RandDec(5, 2) + 10, 0);  // Rescheduling Period, Lot Accumulation Period, Include Inventory, Safety Stock, Dampener Qty.
 
         // Exercise: Calculate Regenerative Plan.
@@ -958,7 +958,7 @@ codeunit 137054 "SCM Supply Planning"
         // [FEATURE] [Safety Stock]
 
         // Setup: Create Item with Planning parameters.
-        Initialize;
+        Initialize();
         CreateLFLItem(Item, Item."Replenishment System"::"Prod. Order", '<1Y>', '<1Y>', true, LibraryRandom.RandDec(5, 2) + 10, 0);  // Rescheduling Period, Lot Accumulation Period, Include Inventory, Safety Stock, Dampener Qty.
 
         // Create Demand - Supply Scenario With Random Value taking Global Variable for Sales and Purchase.
@@ -999,7 +999,7 @@ codeunit 137054 "SCM Supply Planning"
         // [FEATURE] [Safety Stock]
 
         // Setup: Create Item with Planning parameters.
-        Initialize;
+        Initialize();
         SafetyStockQty := LibraryRandom.RandDec(5, 2) + 5;
         CreateLFLItem(Item, Item."Replenishment System"::"Prod. Order", '<1Y>', '<1Y>', true, SafetyStockQty, 0);  // Rescheduling Period, Lot Accumulation Period, Include Inventory, Safety Stock, Dampener Qty.
 
@@ -1039,7 +1039,7 @@ codeunit 137054 "SCM Supply Planning"
         // [FEATURE] [Resheduling Period] [Lot Accumulation Period]
 
         // Setup: Create Item with Planning parameters.
-        Initialize;
+        Initialize();
         CreateLFLItem(Item, Item."Replenishment System"::"Prod. Order", '<1Y>', '<1Y>', false, 0, 0);  // Rescheduling Period, Lot Accumulation Period, Include Inventory, Safety Stock, Dampener Qty.
 
         // Create Demand - Supply Scenario with random values taking Global Variable for Sales and Purchase.
@@ -1075,7 +1075,7 @@ codeunit 137054 "SCM Supply Planning"
         // [FEATURE] [Resheduling Period] [Lot Accumulation Period] [Safety Stock]
 
         // Setup: Create Item with Planning parameters.
-        Initialize;
+        Initialize();
         CreateLFLItem(Item, Item."Replenishment System"::"Prod. Order", '<2W>', '<2W>', true, LibraryRandom.RandDec(5, 2) + 10, 0);  // Rescheduling Period, Lot Accumulation Period, Include Inventory, Safety Stock, Dampener Qty.
 
         // Create Demand only  with random values taking Global Variable for Sales.
@@ -1109,7 +1109,7 @@ codeunit 137054 "SCM Supply Planning"
         // [FEATURE] [Resheduling Period] [Lot Accumulation Period]
 
         // Setup: Create Item with Planning parameters.
-        Initialize;
+        Initialize();
         CreateLFLItem(Item, Item."Replenishment System"::"Prod. Order", '<2W>', '<2W>', false, 0, 0);  // Rescheduling Period, Lot Accumulation Period, Include Inventory, Safety Stock, Dampener Qty.
 
         // Create Supply only  with random values taking Global Variable for Purchase.
@@ -1141,7 +1141,7 @@ codeunit 137054 "SCM Supply Planning"
         // [FEATURE] [Carry Out Action Message]
 
         // Setup: Create Item with Planning parameters.
-        Initialize;
+        Initialize();
         CreateLFLItem(Item, Item."Replenishment System"::"Prod. Order", '<1Y>', '<1Y>', true, LibraryRandom.RandDec(5, 2) + 10, 0);  // Rescheduling Period, Lot Accumulation Period, Include Inventory, Safety Stock, Dampener Qty.
 
         // Create Demand - Supply Scenario with random values taking Global Variable for Sales and Purchase.
@@ -1169,7 +1169,7 @@ codeunit 137054 "SCM Supply Planning"
     procedure SupplyLessThanDampenerWithoutActionMessage()
     begin
         // [FEATURE] [Dampener Quantity]
-        Initialize;
+        Initialize();
         SupplyWithDampenerQuantity(LibraryRandom.RandDec(10, 2) + 50, LibraryRandom.RandDec(5, 2) + 5, false);  // Dampener quantity greater than Purchase Qty.
     end;
 
@@ -1178,7 +1178,7 @@ codeunit 137054 "SCM Supply Planning"
     procedure SupplyMoreThanDampenerWithActionMessage()
     begin
         // [FEATURE] [Dampener Quantity]
-        Initialize;
+        Initialize();
         SupplyWithDampenerQuantity(LibraryRandom.RandDec(10, 2) + 50, LibraryRandom.RandDec(5, 2) + 100, true);  // Dampener quantity less than Purchase Qty.
     end;
 
@@ -1219,7 +1219,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Resheduling Period]
 
-        Initialize;
+        Initialize();
         DemandSupplyWithReschedulingOnly('<1Y>');
     end;
 
@@ -1229,7 +1229,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Resheduling Period]
 
-        Initialize;
+        Initialize();
         DemandSupplyWithReschedulingOnly('<1W>');
     end;
 
@@ -1271,7 +1271,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Lot Accumulation Period]
 
-        Initialize;
+        Initialize();
         DemandSupplyWithLotAccumulationOnly('<1W>');
     end;
 
@@ -1281,7 +1281,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Lot Accumulation Period]
 
-        Initialize;
+        Initialize();
         DemandSupplyWithLotAccumulationOnly('<1Y>');
     end;
 
@@ -1330,7 +1330,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Resheduling Period] [Lot Accumulation Period]
         // Setup: Create Item with Planning parameters.
-        Initialize;
+        Initialize();
         CreateLFLItem(Item, Item."Replenishment System"::Purchase, '<1W>', '<1Y>', true, 0, 0);  // Rescheduling Period, Lot Accumulation Period, Include Inventory, Safety Stock, Dampener Qty.
 
         // Create Demand - Supply Scenario with random values taking Global Variable for Sales and Purchase.
@@ -1363,7 +1363,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Planning Worksheet] [Sales Order] [Production Order] [Reservation]
         // [SCENARIO 379964] The sequence of supply and demand documents, in which the earliest demand is reserved from the earliest supply, should provide continious Item availability after the supplies are rescheduled.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with Lot-for-Lot Reordering Policy and Rescheduling Period.
         // [GIVEN] Two Sales Orders "S1", "S2" (sorted by Shipment Date) within the Rescheduling Period.
@@ -1389,7 +1389,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Planning Worksheet] [Sales Order] [Production Order] [Reservation]
         // [SCENARIO 379964] The sequence of supply and demand documents, in which the earliest demand is reserved from the latest supply, should provide continious Item availability after the supplies are rescheduled.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with Lot-for-Lot Reordering Policy and Rescheduling Period.
         // [GIVEN] Two Sales Orders "S1", "S2" (sorted by Shipment Date) within the Rescheduling Period.
@@ -1415,7 +1415,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Planning Worksheet] [Sales Order] [Production Order] [Reservation]
         // [SCENARIO 379964] The sequence of supply and demand documents, in which the latest demand is reserved from the earliest supply, should provide continious Item availability after the supplies are rescheduled.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with Lot-for-Lot Reordering Policy and Rescheduling Period.
         // [GIVEN] Two Sales Orders "S1", "S2" (sorted by Shipment Date) within the Rescheduling Period.
@@ -1441,7 +1441,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Planning Worksheet] [Sales Order] [Production Order] [Reservation]
         // [SCENARIO 379964] The sequence of supply and demand documents, in which the latest demand is reserved from the latest supply, should provide continious Item availability after the supplies are rescheduled.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with Lot-for-Lot Reordering Policy and Rescheduling Period.
         // [GIVEN] Two Sales Orders "S1", "S2" (sorted by Shipment Date) within the Rescheduling Period.
@@ -1470,7 +1470,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Resheduling Period] [Lot Accumulation Period]
         // Setup: Create Item with Planning parameters.
-        Initialize;
+        Initialize();
         CreateLFLItem(Item, Item."Replenishment System"::"Prod. Order", '<1W>', '<1W>', true, 0, 0);  // Rescheduling Period, Lot Accumulation Period, Include Inventory, Safety Stock, Dampener Qty.
 
         // Create Demand - Supply Scenario with random values taking Global Variable for Sales and Production.
@@ -1507,7 +1507,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Resheduling Period] [Lot Accumulation Period]
         // Setup: Create Item with Planning parameters.
-        Initialize;
+        Initialize();
         CreateLFLItem(Item, Item."Replenishment System"::"Prod. Order", '<1W>', '<1W>', true, 0, 0);  // Rescheduling Period, Lot Accumulation Period, Include Inventory, Safety Stock, Dampener Qty.
 
         // Create Demand - Supply Scenario with random values taking Global Variable for Sales and Production.
@@ -1547,7 +1547,7 @@ codeunit 137054 "SCM Supply Planning"
         // [FEATURE] [Resheduling Period] [Lot Accumulation Period] [Variant]
         // Setup: Create Item with Planning parameters.
 
-        Initialize;
+        Initialize();
         CreateLFLItem(Item, Item."Replenishment System"::"Prod. Order", '<1W>', '<1W>', true, 0, 0);  // Rescheduling Period, Lot Accumulation Period, Include Inventory, Safety Stock, Dampener Qty.
         LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
 
@@ -1591,7 +1591,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Resheduling Period] [Lot Accumulation Period] [Variant]
         // Setup: Create Item with Planning parameters.
-        Initialize;
+        Initialize();
         CreateLFLItem(Item, Item."Replenishment System"::"Prod. Order", '<1W>', '<1W>', true, 0, 0);  // Rescheduling Period, Lot Accumulation Period, Include Inventory, Safety Stock, Dampener Qty.
         LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
 
@@ -1628,7 +1628,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Resheduling Period] [Production BOM]
 
-        Initialize;
+        Initialize();
         DemandSupplyWithProdBOM(false);  // ChildItem -False.
     end;
 
@@ -1638,7 +1638,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Resheduling Period] [Production BOM]
 
-        Initialize;
+        Initialize();
         DemandSupplyWithProdBOM(true);  // ChildItem -True.
     end;
 
@@ -1690,7 +1690,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Resheduling Period] [Production BOM]
 
-        Initialize;
+        Initialize();
         DemandSupplyWithProdComponentAndProdBOM(false);  // ProductionComponent -True;
     end;
 
@@ -1700,7 +1700,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Resheduling Period] [Production BOM]
 
-        Initialize;
+        Initialize();
         DemandSupplyWithProdComponentAndProdBOM(true);  // ProductionComponent -True;
     end;
 
@@ -1754,7 +1754,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Resheduling Period] [Production BOM]
 
-        Initialize;
+        Initialize();
         DemandSupplyWithParentAndChildItem('<1W>', true);  // ReschedulingPeriod - One Week and Reschedule as True.
     end;
 
@@ -1764,7 +1764,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Resheduling Period] [Production BOM]
 
-        Initialize;
+        Initialize();
         DemandSupplyWithParentAndChildItem('<1Y>', false);  // ReschedulingPeriod - One Year and Reschedule as False.
     end;
 
@@ -1837,7 +1837,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Resheduling Period] [Production BOM] [Carry Out Action Message]
 
-        Initialize;
+        Initialize();
         DemandSupplyCarryOutActionMessageParentAndChildItem(false);  // CarryOutActionMsgForChild -False.
     end;
 
@@ -1847,7 +1847,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Resheduling Period] [Production BOM] [Carry Out Action Message]
 
-        Initialize;
+        Initialize();
         DemandSupplyCarryOutActionMessageParentAndChildItem(true);  // CarryOutActionMsgForChild -True.
     end;
 
@@ -1917,7 +1917,7 @@ codeunit 137054 "SCM Supply Planning"
         // [FEATURE] [Resheduling Period] [Production BOM]
 
         // Setup: Create Item with Planning parameters.
-        Initialize;
+        Initialize();
         CreateLFLItem(Item, Item."Replenishment System"::"Prod. Order", '<1Y>', '<1Y>', true, 0, 0);  // Rescheduling Period, Lot Accumulation Period, Include Inventory, Safety Stock, Dampener Qty.
         CreateChildItemSetup(Item2, Item."Base Unit of Measure", ProductionBOMHeader, '<1Y>');  // Rescheduling Period
         UpdateItem(Item, Item.FieldNo("Production BOM No."), ProductionBOMHeader."No.");
@@ -1960,8 +1960,8 @@ codeunit 137054 "SCM Supply Planning"
 
         // Calculate Regenerative Plan (LFL Item) with Base Calender. Modify "Due Date" and verify "Ending Date" in Requisition line.
         // Have a dependency on DemandSupplyWithChildItemOnRequisitionWorksheetNewBatch,DemandSupplyWithParentItemOnRequisitionWorksheetNewBatch running together.
-        Initialize;
-        ManufacturingSetup.Get;
+        Initialize();
+        ManufacturingSetup.Get();
 
         // Setup: Create Base Calendar, set Sunday as working day, other days as non-working day, create Vendor, bind the calendar
         // to the Vendor, create a Lot-For-Lot Item, set the vendor as the supplier. Create a Sales Order, set the shipment date
@@ -1995,7 +1995,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Production BOM]
 
-        Initialize;
+        Initialize();
         DemandSupplyOnRequisitionWorksheetNewBatch(false);  // Child Item -False.
     end;
 
@@ -2006,7 +2006,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Production BOM]
 
-        Initialize;
+        Initialize();
         DemandSupplyOnRequisitionWorksheetNewBatch(true);  // Child Item -True.
     end;
 
@@ -2076,7 +2076,7 @@ codeunit 137054 "SCM Supply Planning"
         // [FEATURE] [Production BOM] [Rescheduling Period] [Lot Accumulation Period]
 
         // Setup: Create Item with Planning parameters.
-        Initialize;
+        Initialize();
         DemandSupplyWithChildAndParentItemDefaultDampenerPeriod(false);  // Dampener Period -False.
     end;
 
@@ -2087,7 +2087,7 @@ codeunit 137054 "SCM Supply Planning"
         // [FEATURE] [Production BOM] [Rescheduling Period] [Lot Accumulation Period] [Dampener Period]
 
         // Setup: Create Item with Planning parameters.
-        Initialize;
+        Initialize();
         DemandSupplyWithChildAndParentItemDefaultDampenerPeriod(true);  // Dampener Period -True.
     end;
 
@@ -2170,7 +2170,7 @@ codeunit 137054 "SCM Supply Planning"
         // [FEATURE] [Production BOM] [Rescheduling Period] [Lot Accumulation Period] [Carry Out Action Message]
 
         // Setup: Create Item with Planning parameters.
-        Initialize;
+        Initialize();
         CreateLFLItem(Item, Item."Replenishment System"::"Prod. Order", '<1Y>', '<1Y>', true, 0, 0);  // Rescheduling Period, Lot Accumulation Period, Include Inventory, Safety Stock, Dampener Qty.
         CreateChildItemSetup(Item2, Item."Base Unit of Measure", ProductionBOMHeader, '<1Y>');  // Rescheduling Period
         UpdateItem(Item, Item.FieldNo("Production BOM No."), ProductionBOMHeader."No.");
@@ -2206,7 +2206,7 @@ codeunit 137054 "SCM Supply Planning"
         RequisitionLine2: Record "Requisition Line";
     begin
         // Setup: Create Item with Planning parameters.
-        Initialize;
+        Initialize();
         CreateLFLItem(Item, Item."Replenishment System"::"Prod. Order", '<1W>', '<1W>', true, 0, 0);  // Rescheduling Period, Lot Accumulation Period, Include Inventory, Safety Stock, Dampener Qty.
         UpdateItemInventory(Item."No.", LibraryRandom.RandDec(5, 2));
 
@@ -2224,7 +2224,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Rescheduling Period] [Lot Accumulation Period] [Carry Out Action Message]
 
-        Initialize;
+        Initialize();
         DemandWithPositiveAdjustmentAndCarryOutActionMessage(false) // Change Quantity on Demand as False.
     end;
 
@@ -2234,7 +2234,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Rescheduling Period] [Lot Accumulation Period] [Carry Out Action Message]
 
-        Initialize;
+        Initialize();
         DemandWithPositiveAdjustmentAndCarryOutActionMessage(true) // Change Quantity on Demand as True.
     end;
 
@@ -2288,7 +2288,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Rescheduling Period] [Lot Accumulation Period] [Carry Out Action Message]
 
-        Initialize;
+        Initialize();
         DemandWithMultipleChangeQtyAndCarryOutActionMessage(false);  // Carry Out Action Message as False.
     end;
 
@@ -2298,7 +2298,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Rescheduling Period] [Lot Accumulation Period] [Carry Out Action Message]
 
-        Initialize;
+        Initialize();
         DemandWithMultipleChangeQtyAndCarryOutActionMessage(true);  // Carry Out Action Message as True.
     end;
 
@@ -2365,8 +2365,8 @@ codeunit 137054 "SCM Supply Planning"
         // [FEATURE] [Rescheduling Period] [Lot Accumulation Period] [Production Forecast]
 
         // Setup: Create Item with Planning parameters.
-        Initialize;
-        ManufacturingSetup.Get;
+        Initialize();
+        ManufacturingSetup.Get();
         CreateLFLItem(Item, Item."Replenishment System"::"Prod. Order", '<1W>', '<1W>', true, 0, 0);  // Rescheduling Period, Lot Accumulation Period, Include Inventory, Safety Stock, Dampener Qty.
         GlobalItemNo := Item."No.";  // Assign Global Variable for Page Handler.
         CreateProductionForecastSetup(ProductionForecastEntry, Item."No.", false);
@@ -2397,7 +2397,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Rescheduling Period] [Lot Accumulation Period] [Production Forecast]
 
-        Initialize;
+        Initialize();
         DemandSupplyWithForecast(false);  // Post Sales Order as False.
     end;
 
@@ -2408,7 +2408,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Rescheduling Period] [Lot Accumulation Period] [Production Forecast]
 
-        Initialize;
+        Initialize();
         DemandSupplyWithForecast(true);  // Post Sales Order as True.
     end;
 
@@ -2486,7 +2486,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Rescheduling Period] [Lot Accumulation Period] [Production Forecast]
 
-        Initialize;
+        Initialize();
         DemandSupplyWithForecastChangeReschedPeriod(false);  // Post Purchase Order as False.
     end;
 
@@ -2497,7 +2497,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Rescheduling Period] [Lot Accumulation Period] [Production Forecast]
 
-        Initialize;
+        Initialize();
         DemandSupplyWithForecastChangeReschedPeriod(true);  // Post Purchase Order as True.
     end;
 
@@ -2592,8 +2592,8 @@ codeunit 137054 "SCM Supply Planning"
         // [FEATURE] [Rescheduling Period] [Lot Accumulation Period] [Production Forecast] [Carry Out Action Message]
 
         // Setup: Create Item with Planning parameters.
-        Initialize;
-        ManufacturingSetup.Get;
+        Initialize();
+        ManufacturingSetup.Get();
         CreateLFLItem(Item, Item."Replenishment System"::"Prod. Order", '<1W>', '<1W>', true, 0, 0);  // Rescheduling Period, Lot Accumulation Period, Include Inventory, Safety Stock, Dampener Qty.
         GlobalItemNo := Item."No.";  // Assign Global Variable for Page Handler.
         CreateProductionForecastSetup(ProductionForecastEntry, Item."No.", true);
@@ -2635,7 +2635,7 @@ codeunit 137054 "SCM Supply Planning"
     procedure DemandWithMultipleUOMReschedPeriodWeek()
     begin
         // [FEATURE] [Rescheduling Period] [Lot Accumulation Period] [Item Unit of Measure]
-        Initialize;
+        Initialize();
         DemandSupplyWithMultipleUOM(false);  // Supply as False.
     end;
 
@@ -2644,7 +2644,7 @@ codeunit 137054 "SCM Supply Planning"
     procedure DemandSupplyWithMultipleUOMReschedPeriodWeek()
     begin
         // [FEATURE] [Rescheduling Period] [Lot Accumulation Period] [Item Unit of Measure]
-        Initialize;
+        Initialize();
         DemandSupplyWithMultipleUOM(true);  // Supply as True.
     end;
 
@@ -2711,7 +2711,7 @@ codeunit 137054 "SCM Supply Planning"
     procedure DemandSupplyWithMultipleUOMCarryOutActionMessage()
     begin
         // [FEATURE] [Rescheduling Period] [Lot Accumulation Period] [Item Unit of Measure] [Carry Out Action Message]
-        Initialize;
+        Initialize();
         DemandSupplyWithMultipleUOMWithCarryOutActionMessage(false);  // Calculate Regenerative Plan After Carry Out Action Message - FALSE.
     end;
 
@@ -2720,7 +2720,7 @@ codeunit 137054 "SCM Supply Planning"
     procedure DemandSupplyWithMultipleUOMCarryOutActionMessageAndRerunRegenerativePlan()
     begin
         // [FEATURE] [Rescheduling Period] [Lot Accumulation Period] [Item Unit of Measure] [Carry Out Action Message]
-        Initialize;
+        Initialize();
         DemandSupplyWithMultipleUOMWithCarryOutActionMessage(true);  // Calculate Regenerative Plan After Carry Out Action Message - TRUE.
     end;
 
@@ -2791,7 +2791,7 @@ codeunit 137054 "SCM Supply Planning"
         // [FEATURE] [Rescheduling Period] [Lot Accumulation Period] [Maximum Order Quantity]
 
         // Setup: Create Item with Planning parameters.
-        Initialize;
+        Initialize();
         CreateLFLItem(Item, Item."Replenishment System"::"Prod. Order", '<2W>', '<2W>', true, 0, 0);  // Rescheduling Period, Lot Accumulation Period, Include Inventory, Safety Stock, Dampener Qty.
         UpdateItem(Item, Item.FieldNo("Maximum Order Quantity"), LibraryRandom.RandDec(5, 2) + 9);  // Maximum Order Quantity.
 
@@ -2815,7 +2815,7 @@ codeunit 137054 "SCM Supply Planning"
     procedure DemandWithMaximumOrderQuantityAndChangeQtyOnDemand()
     begin
         // [FEATURE] [Rescheduling Period] [Lot Accumulation Period] [Maximum Order Quantity]
-        Initialize;
+        Initialize();
         DemandSupplyWithMaximumOrderQuantityAndChangeQty(false);  // Supply as False.
     end;
 
@@ -2824,7 +2824,7 @@ codeunit 137054 "SCM Supply Planning"
     procedure DemandSupplyWithMaximumOrderQuantityAndChangeQtyOnDemand()
     begin
         // [FEATURE] [Rescheduling Period] [Lot Accumulation Period] [Maximum Order Quantity]
-        Initialize;
+        Initialize();
         DemandSupplyWithMaximumOrderQuantityAndChangeQty(true);  // Supply as True.
     end;
 
@@ -2893,7 +2893,7 @@ codeunit 137054 "SCM Supply Planning"
     procedure DemandSupplyWithMaximumOrderQuantityAndCarryOutActionMessage()
     begin
         // [FEATURE] [Rescheduling Period] [Lot Accumulation Period] [Maximum Order Quantity] [Carry Out Action Message]
-        Initialize;
+        Initialize();
         DemandSupplyWithMaximumOrderQuantityWithCarryOutActionMessage(false);  // Change Quantity on Purchase as False.
     end;
 
@@ -2902,7 +2902,7 @@ codeunit 137054 "SCM Supply Planning"
     procedure DemandSupplyWithMaximumOrderQuantityCarryOutActionMessageAndChangeQtyOnSupply()
     begin
         // [FEATURE] [Rescheduling Period] [Lot Accumulation Period] [Maximum Order Quantity] [Carry Out Action Message]
-        Initialize;
+        Initialize();
         DemandSupplyWithMaximumOrderQuantityWithCarryOutActionMessage(true);  // Change Quantity on Purchase as True.
     end;
 
@@ -2960,7 +2960,7 @@ codeunit 137054 "SCM Supply Planning"
     procedure DemandAfterSupplyForFRQItem()
     begin
         // [FEATURE] [Fixed Reorder Quantity]
-        Initialize;
+        Initialize();
         DemandSupplyForItemWithReorderPointPolicy(true, false);  // FRQ Item, Carry out action message - FALSE,  Calculate regenerative plan only.
     end;
 
@@ -2969,7 +2969,7 @@ codeunit 137054 "SCM Supply Planning"
     procedure DemandSupplyForFRQItemCarryOutActionMessage()
     begin
         // [FEATURE] [Fixed Reorder Quantity] [Carry Out Action Message]
-        Initialize;
+        Initialize();
         DemandSupplyForItemWithReorderPointPolicy(true, true);  // FRQ Item, Carry out action message.
     end;
 
@@ -2978,7 +2978,7 @@ codeunit 137054 "SCM Supply Planning"
     procedure DemandAfterSupplyForMQItem()
     begin
         // [FEATURE] [Maximum Order Quantity]
-        Initialize;
+        Initialize();
         DemandSupplyForItemWithReorderPointPolicy(false, false);  // MQ Item, Carry out action message - FALSE,  Calculate regenerative plan only.
     end;
 
@@ -2987,7 +2987,7 @@ codeunit 137054 "SCM Supply Planning"
     procedure DemandSupplyForMQItemCarryOutActionMessage()
     begin
         // [FEATURE] [Maximum Order Quantity] [Carry Out Action Message]
-        Initialize;
+        Initialize();
         DemandSupplyForItemWithReorderPointPolicy(false, true);  // MQ Item, Carry out action message.
     end;
 
@@ -3048,7 +3048,7 @@ codeunit 137054 "SCM Supply Planning"
     procedure DemandLessThanReorderQtyAndBeforeSupplyForFRQItem()
     begin
         // [FEATURE] [Fixed Reorder Quantity]
-        Initialize;
+        Initialize();
         DemandLessThanReorderQtyAndBeforeSupply(true);  // FRQ Item.
     end;
 
@@ -3057,7 +3057,7 @@ codeunit 137054 "SCM Supply Planning"
     procedure DemandLessThanReorderQtyAndBeforeSupplyForMQItem()
     begin
         // [FEATURE] [Maximum Order Quantity]
-        Initialize;
+        Initialize();
         DemandLessThanReorderQtyAndBeforeSupply(false);  // MQ Item.
     end;
 
@@ -3103,7 +3103,7 @@ codeunit 137054 "SCM Supply Planning"
     procedure DemandMoreThanReorderQtyForFRQItem()
     begin
         // [FEATURE] [Fixed Reorder Quantity]
-        Initialize;
+        Initialize();
         DemandMoreThanReorderAndMaxInventory(true);  // FRQ Item.
     end;
 
@@ -3112,7 +3112,7 @@ codeunit 137054 "SCM Supply Planning"
     procedure DemandMoreThanMaximumInventoryForMQItem()
     begin
         // [FEATURE] [Maximum Order Quantity]
-        Initialize;
+        Initialize();
         DemandMoreThanReorderAndMaxInventory(false);  // MQ Item.
     end;
 
@@ -3154,7 +3154,7 @@ codeunit 137054 "SCM Supply Planning"
     procedure DemandSupplyForFRQItemWithReorderPoint()
     begin
         // [FEATURE] [Fixed Reorder Quantity] [Reorder Point]
-        Initialize;
+        Initialize();
         DemandSupplyWithReorderPoint(true);  // FRQ Item.
     end;
 
@@ -3163,7 +3163,7 @@ codeunit 137054 "SCM Supply Planning"
     procedure DemandSupplyForMQItemWithReorderPoint()
     begin
         // [FEATURE] [Maximum Order Quantity] [Reorder Point]
-        Initialize;
+        Initialize();
         DemandSupplyWithReorderPoint(false);  // MQ Item.
     end;
 
@@ -3215,7 +3215,7 @@ codeunit 137054 "SCM Supply Planning"
     procedure DemandOnlyForFRQItemWithReorderPointAndSafetyStock()
     begin
         // [FEATURE] [Fixed Reorder Quantity] [Reorder Point] [Safety Stock]
-        Initialize;
+        Initialize();
         DemandOnlyForWithReorderPointAndSafetyStock(true);  // FRQ Item.
     end;
 
@@ -3224,7 +3224,7 @@ codeunit 137054 "SCM Supply Planning"
     procedure DemandOnlyForMQItemWithReorderPointAndSafetyStock()
     begin
         // [FEATURE] [Maximum Order Quantity] [Reorder Point] [Safety Stock]
-        Initialize;
+        Initialize();
         DemandOnlyForWithReorderPointAndSafetyStock(false);  // MQ Item.
     end;
 
@@ -3266,7 +3266,7 @@ codeunit 137054 "SCM Supply Planning"
         Item: Record Item;
     begin
         // [FEATURE] [Maximum Order Quantity] [Reorder Point] [Maximum Inventory]
-        Initialize;
+        Initialize();
         CreateMQItem(
           Item, Item."Replenishment System"::Purchase, LibraryRandom.RandInt(10) + 50, LibraryRandom.RandInt(10) + 20, 0);  // Item Maximum Inventory greater than Item Reorder Point. Safety Stock is Zero.
         DemandWithReorderPointAndMaxInventory(Item, Item."Reorder Point" + 1);  // Sales Quantity greater than Reorder Point but Less than Maximum Inventory.
@@ -3279,7 +3279,7 @@ codeunit 137054 "SCM Supply Planning"
         Item: Record Item;
     begin
         // [FEATURE] [Maximum Order Quantity] [Reorder Point] [Maximum Inventory]
-        Initialize;
+        Initialize();
         CreateMQItem(
           Item, Item."Replenishment System"::Purchase, LibraryRandom.RandInt(10) + 50, LibraryRandom.RandInt(10) + 20, 0);  // Item Maximum Inventory greater than Item Reorder Point. Safety Stock is Zero.
         DemandWithReorderPointAndMaxInventory(Item, Item."Maximum Inventory");  // Sales Qty equals Maximum Inventory.
@@ -3292,7 +3292,7 @@ codeunit 137054 "SCM Supply Planning"
         Item: Record Item;
     begin
         // [FEATURE] [Maximum Order Quantity] [Reorder Point] [Maximum Inventory]
-        Initialize;
+        Initialize();
         CreateMQItem(
           Item, Item."Replenishment System"::Purchase, LibraryRandom.RandInt(10) + 50, LibraryRandom.RandInt(10) + 20, 0);  // Item Maximum Inventory greater than Item Reorder Point. Safety Stock is Zero.
         DemandWithReorderPointAndMaxInventory(Item, Item."Maximum Inventory" + Item."Reorder Point");  // Sales Qty equals Sum of Maximum Inventory and Reorder Point.
@@ -3305,7 +3305,7 @@ codeunit 137054 "SCM Supply Planning"
         Item: Record Item;
     begin
         // [FEATURE] [Maximum Order Quantity] [Reorder Point] [Maximum Inventory]
-        Initialize;
+        Initialize();
         CreateMQItem(
           Item, Item."Replenishment System"::Purchase, LibraryRandom.RandInt(10) + 50, LibraryRandom.RandInt(10) + 20, 0);  // Item Maximum Inventory greater than Item Reorder Point. Safety Stock is Zero.
         DemandWithReorderPointAndMaxInventory(Item, Item."Maximum Inventory" + Item."Reorder Point" + 1);  // Sales Qty greater than Sum of Maximum Inventory and Reorder Point.
@@ -3340,7 +3340,7 @@ codeunit 137054 "SCM Supply Planning"
         Item: Record Item;
     begin
         // [FEATURE] [Maximum Order Quantity] [Reorder Point] [Maximum Inventory]
-        Initialize;
+        Initialize();
         CreateMQItem(
           Item, Item."Replenishment System"::Purchase, LibraryRandom.RandInt(10) + 50, LibraryRandom.RandInt(10) + 20, 0);  // Item Maximum Inventory greater than Item Reorder Point. Safety Stock is Zero.
         DemandWithReorderPointMaxInventoryAndExistingInventory(Item, true, Item."Maximum Inventory" - 1, Item."Reorder Point" + 1);  // Boolean - Existing Inventory More than Sales Quantity.
@@ -3353,7 +3353,7 @@ codeunit 137054 "SCM Supply Planning"
         Item: Record Item;
     begin
         // [FEATURE] [Maximum Order Quantity] [Reorder Point] [Maximum Inventory]
-        Initialize;
+        Initialize();
         CreateMQItem(
           Item, Item."Replenishment System"::Purchase, LibraryRandom.RandInt(10) + 50, LibraryRandom.RandInt(10) + 20, 0);  // Item Maximum Inventory greater than Item Reorder Point. Safety Stock is Zero.
         DemandWithReorderPointMaxInventoryAndExistingInventory(Item, false, Item."Reorder Point" - 1, Item."Reorder Point" + 1);  // Boolean - Existing Inventory less than Sales Qty and less than Maximum Inventory.
@@ -3406,7 +3406,7 @@ codeunit 137054 "SCM Supply Planning"
         PlanningWorksheetQuantity: Decimal;
     begin
         // [FEATURE] [Maximum Order Quantity] [Reorder Point] [Maximum Inventory]
-        Initialize;
+        Initialize();
 
         // Create Maximum Quantity Item with planning parameters - Max. Inventory.
         CreateMQItem(Item, Item."Replenishment System"::Purchase, LibraryRandom.RandDec(5, 2) + 100, 0, 0);
@@ -3434,7 +3434,7 @@ codeunit 137054 "SCM Supply Planning"
         Item: Record Item;
     begin
         // [FEATURE] [Maximum Order Quantity] [Reorder Point] [Maximum Inventory] [Carry Out Action Message]
-        Initialize;
+        Initialize();
         DemandWithMaximumInventory(Item."Replenishment System"::Purchase);
     end;
 
@@ -3445,7 +3445,7 @@ codeunit 137054 "SCM Supply Planning"
         Item: Record Item;
     begin
         // [FEATURE] [Maximum Order Quantity] [Reorder Point] [Maximum Inventory] [Carry Out Action Message]
-        Initialize;
+        Initialize();
         DemandWithMaximumInventory(Item."Replenishment System"::"Prod. Order");
     end;
 
@@ -3462,7 +3462,7 @@ codeunit 137054 "SCM Supply Planning"
         // [FEATURE] [Planning Worksheet] [Production]
         // [SCENARIO 378897] Carry Out Action Message should not delete requisition line and give warning if production order was deleted after creating from Carry Out Action Message.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Sales Order and connected Product Order by using Carry Out Action Message.
         // [GIVEN] Calculate Regenerative Plan after updating Sales Order.
@@ -3495,7 +3495,7 @@ codeunit 137054 "SCM Supply Planning"
         // [FEATURE] [Planning Worksheet] [Assembly]
         // [SCENARIO 378897] Carry Out Action Message should not delete requisition line and give warning if assembly order was deleted after creating from Carry Out Action Message.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Sales Order and connected Assembly Order by using Carry Out Action Message.
         // [GIVEN] Calculate Regenerative Plan after updating Sales Order.
@@ -3528,7 +3528,7 @@ codeunit 137054 "SCM Supply Planning"
         // [FEATURE] [Planning Worksheet] [Purchase]
         // [SCENARIO 378897] Carry Out Action Message should not delete requisition line and give warning if purchase order was deleted after creating from Carry Out Action Message.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Sales Order and connected Purchase Order by using Carry Out Action Message.
         // [GIVEN] Calculate Regenerative Plan after updating Sales Order.
@@ -3586,7 +3586,7 @@ codeunit 137054 "SCM Supply Planning"
         Item: Record Item;
     begin
         // [FEATURE] [Maximum Order Quantity] [Carry Out Action Message]
-        Initialize;
+        Initialize();
         DemandForMQItemCarryOutAMWithFlexibilityNone(Item."Replenishment System"::Purchase)
     end;
 
@@ -3597,7 +3597,7 @@ codeunit 137054 "SCM Supply Planning"
         Item: Record Item;
     begin
         // [FEATURE] [Maximum Order Quantity] [Carry Out Action Message]
-        Initialize;
+        Initialize();
         DemandForMQItemCarryOutAMWithFlexibilityNone(Item."Replenishment System"::"Prod. Order")
     end;
 
@@ -3644,7 +3644,7 @@ codeunit 137054 "SCM Supply Planning"
         // [FEATURE] [Maximum Order Quantity]
 
         // Setup: Create Item, create Purchase Order, update Item Inventory.
-        Initialize;
+        Initialize();
 
         // Create Lot For Lot Item and demand on Production Forecast.
         // First TRUE: create a Purchase Order, second TRUE: update Item Inventory.
@@ -3677,7 +3677,7 @@ codeunit 137054 "SCM Supply Planning"
         // [FEATURE] [Maximum Order Quantity]
 
         // Setup: Create Item, create Purchase Order.
-        Initialize;
+        Initialize();
 
         // Create Lot For Lot Item and demand on Production Forecast.
         // TRUE: create a Purchase Order,FALSE: no Item Inventory.
@@ -3710,7 +3710,7 @@ codeunit 137054 "SCM Supply Planning"
         // [FEATURE] [Maximum Order Quantity]
 
         // Setup: Create Item, update Item Inventory.
-        Initialize;
+        Initialize();
 
         // Create Lot For Lot Item and demand on Production Forecast.
         // FALSE: do not create a Purchase Order, TRUE: update Item Inventory.
@@ -3743,7 +3743,7 @@ codeunit 137054 "SCM Supply Planning"
         // [FEATURE] [Maximum Order Quantity]
 
         // Setup: Create Item.
-        Initialize;
+        Initialize();
 
         // Create Lot For Lot Item and demand on Production Forecast.
         // First FALSE: do not create a Purchase Order, second FALSE: no Item Inventory.
@@ -3776,8 +3776,8 @@ codeunit 137054 "SCM Supply Planning"
 
         // Calculate Regenerative Plan (LFL Item) with Base Calender and Carry out Action Message.
         // Verify "Expected Receipt Date" in Purchase order is consistent with "Shipment Date" of the Sales Demand.
-        Initialize;
-        ManufacturingSetup.Get;
+        Initialize();
+        ManufacturingSetup.Get();
 
         // Setup: Create Base Calendar, set Sunday as working day, other days as non-working day, Create Vendor, bind the calendar
         // to the Vendor, create a Lot-For-Lot Item, set the vendor as the supplier. Create a Sales Order, set the shipment date
@@ -3822,8 +3822,8 @@ codeunit 137054 "SCM Supply Planning"
 
         // Calculate Order Planning with Base Calender and Make to Order.
         // Verify "Expected Receipt Date" in Purchase order is consistent with "Shipment Date" of the Sales Demand.
-        Initialize;
-        ManufacturingSetup.Get;
+        Initialize();
+        ManufacturingSetup.Get();
 
         // Setup: Create Base Calendar, set Sunday as working day, other days as non-working day, Create Vendor, bind the calendar
         // to the Vendor, create a Lot-For-Lot Item, set the vendor as the supplier. Create a Sales Order, set the shipment date
@@ -3866,8 +3866,8 @@ codeunit 137054 "SCM Supply Planning"
         // [FEATURE] [Base Calendar]
 
         // Calculate Regenerative Plan (Maximum Qty. Item) with Base Calender. Verify "Due Date" in Requisition line.
-        Initialize;
-        ManufacturingSetup.Get;
+        Initialize();
+        ManufacturingSetup.Get();
 
         // Setup: Create Base Calendar, set Sunday as working day, other days as non-working day, create Vendor, bind the calendar
         // to the Vendor, create an Item with Reordering Policy = Maximum Qty., set the vendor as the supplier. Create a Sales Order, set the shipment date
@@ -3902,8 +3902,8 @@ codeunit 137054 "SCM Supply Planning"
 
         // Calculate Regenerative Plan (LFL Item) with Base Calender and carry out Purchase Order.
         // Verify "Order Date" in Requisition line is consistent with the "Order Date" on carried out Purchase Line.
-        Initialize;
-        ManufacturingSetup.Get;
+        Initialize();
+        ManufacturingSetup.Get();
 
         // Setup: Create Base Calendar, set Sunday as working day, other days as non-working day, create Vendor, bind the calendar
         // to the Vendor, create a Lot-For-Lot Item with setting Lead Time Calculation, set the vendor as the supplier. Create a Sales Order, set the shipment date
@@ -3937,7 +3937,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Planning Worksheet] [Sales Order]
         // [SCENARIO 379231] Calculate Regenerative Plan should suggest correct quantity if supply with Source Type = "Item Ledger Entry" and Source Type = "Prod. Order Line" exists.
-        Initialize;
+        Initialize();
 
         PositiveAdjustmentQuantity := LibraryRandom.RandInt(10);
         MaxOrderQuantity := LibraryRandom.RandIntInRange(PositiveAdjustmentQuantity, 100);
@@ -3972,7 +3972,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Planning Worksheet] [Production]
         // [SCENARIO 378897] Changing Production Order Status should pass successfully if connected requisition line in Planning Worksheet exists.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Sales Order and connected Product Order by using Carry Out Action Message.
         // [GIVEN] Calculate Regenerative Plan after updating Sales Order.
@@ -4080,9 +4080,9 @@ codeunit 137054 "SCM Supply Planning"
         // [FEATURE] [Base Calendar] [Order Planning]
 
         // Calculate Order Planning (LFL Item) with Base Calender. Verify "Ending Date" in Requisition line.
-        Initialize;
-        ManufacturingSetup.Get;
-        OrderPromisingSetup.Get;
+        Initialize();
+        ManufacturingSetup.Get();
+        OrderPromisingSetup.Get();
         ReqWkshTemplate.Get(OrderPromisingSetup."Order Promising Template");
         if ReqWkshTemplate.Type <> ReqWkshTemplate.Type::Planning then begin
             OldReqTemplateType := ReqWkshTemplate.Type;
@@ -4149,7 +4149,7 @@ codeunit 137054 "SCM Supply Planning"
         // Create a Purchase Line for Item and Quantity greater than Item's Reorder Point.
         // Exercise: Calculate Plan for Item with Starting Date = Ending Date = PurchaseLine."Order Date".
         // Verify: Verify no error pops up.
-        Initialize;
+        Initialize();
         CreatePurchOrdWithFRQItemAndCalculatePlan(Item, OrderDate, false); // FALSE indicates no location code on Purchase Line
 
         // Verify: No Requisition Line calculated since the Quantity on Purchase Line is greater than Item's Reorder Point.
@@ -4174,7 +4174,7 @@ codeunit 137054 "SCM Supply Planning"
         // Create a Purchase Line with Location Code for Item and Quantity greater than Item's Reorder Point.
         // Exercise: Calculate Plan for Item with Starting Date = Ending Date = PurchaseLine."Order Date".
         // Verify: Verify no error pops up.
-        Initialize;
+        Initialize();
         CreatePurchOrdWithFRQItemAndCalculatePlan(Item, OrderDate, true); // TRUE indicates filling location code on Purchase Line
 
         // Verify: 1 Requisition Line for blank Location with New Action Message is calculated.
@@ -4201,7 +4201,7 @@ codeunit 137054 "SCM Supply Planning"
         // Verify Order Multiple should not be respected for the Exception Line.
 
         // Setup: Create FRQ Item. Update Order Multiple. Create Sales Order.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandIntInRange(30, 35);
         CreateAndUpdateFRQItem(
           Item, Item."Replenishment System"::Purchase, LibraryRandom.RandInt(20),
@@ -4232,7 +4232,7 @@ codeunit 137054 "SCM Supply Planning"
 
         // Setup: Create Item. Create SKU.
         // Item Maximum Inventory is greater than Item Reorder Point. Safety Stock is Zero.
-        Initialize;
+        Initialize();
         CreateMQItem(
           Item, Item."Replenishment System"::Purchase, LibraryRandom.RandInt(10) + 20,
           LibraryRandom.RandInt(10) + 10, 0);
@@ -4262,7 +4262,7 @@ codeunit 137054 "SCM Supply Planning"
         // Verify no message pops up and the count of Requistion Lines.
 
         // Setup: Create Item with Planning parameters and BOM. Create a Sales Order.
-        Initialize;
+        Initialize();
         CreateDemandDate(DemandDateValue, GetRandomDateUsingWorkDate(10), GetRandomDateUsingWorkDate(20), 0D);
         CreateItemWithPlanningParametersAndBOM(Item, Item2, '<1M>', '<' + Format(LibraryRandom.RandInt(10)) + 'D>', true);
         CreateSalesOrder(SalesHeader, Item."No.", LibraryRandom.RandInt(5), DemandDateValue[1]);
@@ -4295,7 +4295,7 @@ codeunit 137054 "SCM Supply Planning"
         // Test an error pops up when updating Replenishment to Prod. Order in Req. Worksheet.
 
         // Setup: Create Item. Item Maximum Inventory is greater than Item Reorder Point. Safety Stock is Zero.
-        Initialize;
+        Initialize();
         CreateMQItem(
           Item, Item."Replenishment System"::Purchase, LibraryRandom.RandInt(10) + 20,
           LibraryRandom.RandInt(10) + 10, 0);
@@ -4345,7 +4345,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Calculate Regenerative Plan]
         // [SCENARIO 377525] Calculate Regenerative Plan should process correctly if "Reorder Point" and "Maximum Inventory" are less than 1
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with Maximum Inventory "M" and Reorder Point "R". "R" < "M" < 1
         ReorderPoint := LibraryRandom.RandDecInDecimalRange(0, 0.5, 2);
@@ -4385,7 +4385,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Calculate Regenerative Plan] [Dampener Quantity]
         // [SCENARIO 381346] Purchases for Lot-for-Lot component Items should be rescheduled to supply production, if "cancel"+"new" actions are not permitted by Dampener Quantity larger than quantity of the purchases.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchased component Item with Lot-for-Lot reordering policy and Dampener Quantity = "DQ".
         // [GIVEN] Production Item with BOM containing the component Item.
@@ -4426,7 +4426,7 @@ codeunit 137054 "SCM Supply Planning"
         SCMSupplyPlanning: Codeunit "SCM Supply Planning";
     begin
         // [SCENARIO 381886] Stan can increase "Starting date" in assembly order when it has related reservation entries.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Assembly Order having two reservation entries created via Planning Worksheet.
         CreateMQItemAssembly(Item);
@@ -4458,7 +4458,7 @@ codeunit 137054 "SCM Supply Planning"
         SCMSupplyPlanning: Codeunit "SCM Supply Planning";
     begin
         // [SCENARIO 381886] Stan can increase "Ending date" in assembly order when it has related reservation entries.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Assembly Order having two reservation entries created via Planning Worksheet.
         CreateMQItemAssembly(Item);
@@ -4490,7 +4490,7 @@ codeunit 137054 "SCM Supply Planning"
         SCMSupplyPlanning: Codeunit "SCM Supply Planning";
     begin
         // [SCENARIO 381886] Stan can increase "Due date" in assembly order when it has related reservation entries.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Assembly Order having two reservation entries created via Planning Worksheet.
         CreateMQItemAssembly(Item);
@@ -4518,7 +4518,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Planning Worksheet] [Dampener Quantity] [Safety Stock]
         // [SCENARIO 205829] Supply that exceeds demand by more than Dampener Qty. should not be replanned if with the consideration of safety stock it makes that difference less or equal than the Dampener Qty.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with Lot-for-Lot reordering policy. Dampener Qty. = "D". Safety stock qty. = "S" (e.g. "D" = 10, "S" = 5).
         // [GIVEN] Two purchases of the item for "QP1" and "QP2" pcs correspondently (e.g. "QP1" = 40, "QP2" = 50).
@@ -4545,7 +4545,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Planning Worksheet] [Dampener Quantity] [Safety Stock]
         // [SCENARIO 205829] Supply that exceeds demand plus safety stock for more than Dampener Qty. should be replanned.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with Lot-for-Lot reordering policy. Dampener Qty. = "D". Safety stock qty. = "S" (e.g. "D" = 10, "S" = 5).
         // [GIVEN] Two purchases of the item for "QP1" and "QP2" pcs correspondently (e.g. "QP1" = 40, "QP2" = 50).
@@ -4575,7 +4575,7 @@ codeunit 137054 "SCM Supply Planning"
         // [FEATURE] [UI] [Item Availability]
         // [SCENARIO 210915] Date Filter is filter from the beginning of month to the end of month when open "Item Availability By Location" page with "Item Period Length" = Month
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Work date is 01.01.2017
         // [GIVEN] Item Card is opened
@@ -4605,7 +4605,7 @@ codeunit 137054 "SCM Supply Planning"
         // [FEATURE] [UI] [Item Availability]
         // [SCENARIO 210915] Date Filter is next period when press "Next Period" on "Item Availability By Location" page
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Work date is 01.01.2017
         // [GIVEN] Item Card is opened
@@ -4636,7 +4636,7 @@ codeunit 137054 "SCM Supply Planning"
         // [FEATURE] [UI] [Item Availability]
         // [SCENARIO 210915] Date Filter is previous period when press "Previous Period" on "Item Availability By Location" page
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Work date is 01.01.2017
         // [GIVEN] Item Card is opened
@@ -4667,7 +4667,7 @@ codeunit 137054 "SCM Supply Planning"
         // [FEATURE] [UI] [Item Availability]
         // [SCENARIO 210915] Date Filter is filter from the beginning of month to the end of month when open "Item Availability By Variant" page with "Item Period Length" = Month
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Work date is 01.01.2017
         // [GIVEN] Item Card is opened
@@ -4697,7 +4697,7 @@ codeunit 137054 "SCM Supply Planning"
         // [FEATURE] [UI] [Item Availability]
         // [SCENARIO 210915] Date Filter is next period when press "Next Period" on "Item Availability By Variant" page
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Work date is 01.01.2017
         // [GIVEN] Item Card is opened
@@ -4728,7 +4728,7 @@ codeunit 137054 "SCM Supply Planning"
         // [FEATURE] [UI] [Item Availability]
         // [SCENARIO 210915] Date Filter is previous period when press "Previous Period" on "Item Availability By Variant" page
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Work date is 01.01.2017
         // [GIVEN] Item Card is opened
@@ -4762,7 +4762,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         // [FEATURE] [Assembly]
         // [SCENARIO 213101] For each requisition line replesenting an assembled item, should be created its own requisition line for the component item, if the component has Reordering Policy = Order.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Assembled item "I" with Reordering Policy = Order.
         CreateItem(AsmItem, AsmItem."Replenishment System"::Assembly);
@@ -4798,22 +4798,22 @@ codeunit 137054 "SCM Supply Planning"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Supply Planning");
-        ClearGlobals;
-        LibraryVariableStorage.Clear;
+        ClearGlobals();
+        LibraryVariableStorage.Clear();
 
         // Lazy Setup.
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Supply Planning");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        NoSeriesSetup;
-        LocationSetup;
-        ItemJournalSetup;
-        OutputJournalSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        NoSeriesSetup();
+        LocationSetup();
+        ItemJournalSetup();
+        OutputJournalSetup();
         isInitialized := true;
         Commit;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Supply Planning");
@@ -4883,8 +4883,8 @@ codeunit 137054 "SCM Supply Planning"
         SalesHeader: Record "Sales Header";
         DefaultSafetyLeadTime: Integer;
     begin
-        Initialize;
-        ManufacturingSetup.Get;
+        Initialize();
+        ManufacturingSetup.Get();
 
         // Setup: Create Base Calendar, set Sunday as working day, other days as non-working day, create Vendor, bind the calendar
         // to the Vendor, create an Item. Create a Sales Order, set the shipment date of the sales line as Saturday,
@@ -4918,7 +4918,7 @@ codeunit 137054 "SCM Supply Planning"
         PlanningLinesCountBeforeCarryOut: Integer;
     begin
         // Setup: Create and update Item. Create Sales Order.
-        Initialize;
+        Initialize();
         CreateAndUpdateOrderItem(Item);
         CreateSalesOrder(SalesHeader, Item."No.", LibraryRandom.RandIntInRange(20, 30), WorkDate);
 

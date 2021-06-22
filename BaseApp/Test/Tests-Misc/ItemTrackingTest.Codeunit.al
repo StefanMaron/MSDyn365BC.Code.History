@@ -14,6 +14,7 @@ codeunit 133008 "Item Tracking Test"
         LibraryItemTracking: Codeunit "Library - Item Tracking";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryUtility: Codeunit "Library - Utility";
+        LibrarytestInitialize: Codeunit "Library - Test Initialize";
         Assert: Codeunit Assert;
         ItemTrackingTest: Codeunit "Item Tracking Test";
         ConfirmHandlerReply: Boolean;
@@ -30,6 +31,7 @@ codeunit 133008 "Item Tracking Test"
         ExpirationDateFormula: DateFormula;
     begin
         // [SCENARIO] It is not possible to assign a tracking code that ignores expiration date, if the item has expiration date calculation set
+        Initialize();
 
         // [GIVEN] A tracking code that ignores expiration date, and an item with an Expiration calculation
         CreateTrackingCodeNoExp(ItemTrackingCodeNoExp);
@@ -57,6 +59,7 @@ codeunit 133008 "Item Tracking Test"
         ItemCard: TestPage "Item Card";
     begin
         // [SCENARIO] It is not possible to edit Item Calculation Date, if the item tracking code ignores expiration date
+        Initialize();
 
         // [GIVEN] A tracking code that ignores expiration date, and an item
         CreateTrackingCodeNoExp(ItemTrackingCodeNoExp);
@@ -92,6 +95,7 @@ codeunit 133008 "Item Tracking Test"
         ItemTrackingCodeCard: TestPage "Item Tracking Code Card";
     begin
         // [SCENARIO] It is not possible to ignore expiration date, if "manual exp date reqd" is set
+        Initialize();
 
         // [GIVEN] An item tracking code with "manual expiration date required" set
         CreateTrackingCodeWithExp(ItemTrackingCode);
@@ -117,6 +121,7 @@ codeunit 133008 "Item Tracking Test"
         ItemTrackingCodeCard: TestPage "Item Tracking Code Card";
     begin
         // [SCENARIO] It is not possible to ignore expiration date, if strict expiration posting is set
+        Initialize();
 
         // [GIVEN] An item tracking code with "string expiration posting" set
         CreateTrackingCodeWithExp(ItemTrackingCode);
@@ -143,6 +148,7 @@ codeunit 133008 "Item Tracking Test"
     begin
         // [SCENARIO] It is not possible to set strict expiration date or manual expiration date, if we ignore expiration dates
         // [GIVEN] A regular item tracking code
+        Initialize();
         CreateTrackingCodeWithExp(ItemTrackingCode);
 
         // [WHEN] the user opens the item tracking code card
@@ -183,6 +189,7 @@ codeunit 133008 "Item Tracking Test"
         ItemTrackingCode: Record "Item Tracking Code";
     begin
         // [SCENARIO] Post a purchase order with an item with ignore expiration date
+        Initialize();
 
         // [GIVEN] An item tracking code with ignore expiraiton date, an item using this tracking code, and a purchase order using this item
         CreateTrackingCodeNoExp(ItemTrackingCode);
@@ -210,6 +217,7 @@ codeunit 133008 "Item Tracking Test"
         ItemTrackingCodeCard: TestPage "Item Tracking Code Card";
     begin
         // [SCENARIO] It is not possible to ignore expiration date, if some posted items with this tracking code have expiration date
+        Initialize();
 
         // [GIVEN] An item with an expiration date, posted in a purchase order
         CreateTrackingCodeWithExp(ItemTrackingCode);
@@ -273,6 +281,7 @@ codeunit 133008 "Item Tracking Test"
         ItemTrackingCodeCard: TestPage "Item Tracking Code Card";
     begin
         // [SCENARIO] It is not possible to ignore expiration date, if some items using this tracking code have expiration calculation set. User doesn't fix case.
+        Initialize();
 
         // [GIVEN] 2 items with the same item tracking code
         CreateTrackingCodeWithExp(ItemTrackingCode);
@@ -302,6 +311,7 @@ codeunit 133008 "Item Tracking Test"
         ItemTrackingCodeCard: TestPage "Item Tracking Code Card";
     begin
         // [SCENARIO] It is not possible to ignore expiration date, if some items using this tracking code have expiration calculation set. User fixes case.
+        Initialize();
 
         // [GIVEN] 2 items with the same item tracking code
         CreateTrackingCodeWithExp(ItemTrackingCode);
@@ -316,6 +326,11 @@ codeunit 133008 "Item Tracking Test"
         ItemTrackingCodeCard."Use Expiration Dates".Value := 'No';
 
         // [THEN] No error occurs
+    end;
+
+    local procedure Initialize()
+    begin
+        LibrarytestInitialize.OnTestInitialize(Codeunit::"Item Tracking Test");
     end;
 
     local procedure CreateTrackingCodeWithExp(var ItemTrackingCode: Record "Item Tracking Code")

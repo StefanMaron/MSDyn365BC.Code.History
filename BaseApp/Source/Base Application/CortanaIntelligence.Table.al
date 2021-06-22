@@ -3,6 +3,7 @@ table 851 "Cortana Intelligence"
     Caption = 'Cortana Intelligence';
     ObsoleteState = Removed;
     ObsoleteReason = 'Renamed to Cash Flow Azure AI Buffer';
+    ObsoleteTag = '15.0';
 
     fields
     {

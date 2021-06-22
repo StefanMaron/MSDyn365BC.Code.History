@@ -103,6 +103,9 @@ codeunit 99000787 "Create Prod. Order Lines"
         if not ProcessProdOrderLines(Direction, LetDueDateDecrease) then
             ErrorOccured := true;
         CheckMultiLevelStructure(Direction, true, LetDueDateDecrease);
+
+        OnAfterCopy(ProdOrder, ErrorOccured);
+
         exit(not ErrorOccured);
     end;
 
@@ -545,6 +548,16 @@ codeunit 99000787 "Create Prod. Order Lines"
 
         Item.Get(ItemNo);
         exit(Item."Replenishment System" = Item."Replenishment System"::"Prod. Order");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopy(var ProdOrder: Record "Production Order"; var ErrorOccured: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateProdOrderLine(ProdOrder: Record "Production Order"; VariantCode: Code[10]; var ErrorOccured: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

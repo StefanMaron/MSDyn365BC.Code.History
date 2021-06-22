@@ -3,6 +3,7 @@ table 5723 "Product Group"
     Caption = 'Product Group';
     ObsoleteReason = 'Product Groups became first level children of Item Categories.';
     ObsoleteState = Removed;
+    ObsoleteTag = '15.0';
 
     fields
     {

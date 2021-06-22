@@ -421,6 +421,7 @@ table 156 Resource
             ObsoleteReason = 'Replaced by Image field';
             ObsoleteState = Pending;
             SubType = Bitmap;
+            ObsoleteTag = '15.0';
         }
         field(53; "Post Code"; Code[20])
         {

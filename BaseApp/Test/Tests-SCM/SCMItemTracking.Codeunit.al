@@ -52,6 +52,7 @@ codeunit 137405 "SCM Item Tracking"
         HandlingTypeStr: Option "Init Tracking","Double Quantities","Align Quantities","QtyToHandle < Qty";
         FieldNotFoundErr: Label 'The field with ID';
         FieldNotFoundCodeErr: Label 'TestFieldNotFound';
+        BeforeExpirationDateShortErr: Label 'Expiration Date is before the posting date';
 
     [Test]
     [HandlerFunctions('ItemTrackingLinesHandler,EnterQuantityToCreateHandler')]
@@ -2291,6 +2292,44 @@ codeunit 137405 "SCM Item Tracking"
         TempTrackingSpecification.TestField("Expiration Date", WorkDate);
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesHandler,EnterQuantityToCreateHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure InventoryPutAwayPostAfterExpirationDate()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        Item: Record Item;
+        Location: Record Location;
+    begin
+        // [FEATURE] [Inventory Put-Away] [Expiration Date]
+        // [SCENARIO 340313] Posting Warehouse Activity Line with Expiration Date before the Posting Date fails
+        Initialize;
+
+        // [GIVEN] Item with Serial Number Item Tracking Code with "Strict Expiration Posting" and "SN Warehouse Tracking"
+        CreateItem(
+          Item, CreateItemTrackingCodeSerialSpecificWhseTracking(true, true), LibraryUtility.GetGlobalNoSeriesCode, '');
+
+        // [GIVEN] Location with "Require Put-Away"
+        LibraryWarehouse.CreateLocationWMS(Location, false, true, false, false, false);
+
+        // [GIVEN] Released Purchase Order with Expiration Date before the Posting Date
+        CreatePurchOrderExpirationDateBeforePosting(PurchaseHeader, PurchaseLine, Item."No.", Location.Code);
+
+        // [GIVEN] Inventory Put-Away created
+        CreateInvtPutAwayPurchOrder(WarehouseActivityHeader, PurchaseHeader."No.");
+        LibraryWarehouse.AutoFillQtyHandleWhseActivity(WarehouseActivityHeader);
+
+        // [WHEN] Post Inventory Put-Away
+        asserterror LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, false);
+
+        // [THEN] Posting fails with a field error "Expiration Date is before the posting date..."
+        Assert.ExpectedErrorCode('TableError');
+        Assert.ExpectedError(BeforeExpirationDateShortErr);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2672,6 +2711,11 @@ codeunit 137405 "SCM Item Tracking"
     end;
 
     local procedure CreateItemTrackingCodeSerialSpecific(StrictExpirationPosting: Boolean): Code[10]
+    begin
+        exit(CreateItemTrackingCodeSerialSpecificWhseTracking(StrictExpirationPosting, false));
+    end;
+
+    local procedure CreateItemTrackingCodeSerialSpecificWhseTracking(StrictExpirationPosting: Boolean; SNWarehouseTracking: Boolean): Code[10]
     var
         ItemTrackingCode: Record "Item Tracking Code";
     begin
@@ -2679,6 +2723,7 @@ codeunit 137405 "SCM Item Tracking"
         ItemTrackingCode.Validate("Use Expiration Dates", StrictExpirationPosting);
         ItemTrackingCode.Validate("Man. Expir. Date Entry Reqd.", StrictExpirationPosting);
         ItemTrackingCode.Validate("Strict Expiration Posting", StrictExpirationPosting);
+        ItemTrackingCode.Validate("SN Warehouse Tracking", SNWarehouseTracking);
         ItemTrackingCode.Modify(true);
         exit(ItemTrackingCode.Code);
     end;
@@ -2830,6 +2875,21 @@ codeunit 137405 "SCM Item Tracking"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
         PurchaseHeader.Validate("Posting Date", PostingDate);
         PurchaseHeader.Modify(true);
+    end;
+
+    local procedure CreatePurchOrderExpirationDateBeforePosting(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20]; LocationCode: Code[10])
+    var
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, ItemNo);
+        PurchaseLine.Validate("Location Code", LocationCode);
+        PurchaseLine.Modify(true);
+
+        AssignSerialNo := true;
+        PurchaseLine.OpenItemTrackingLines;
+
+        UpdateReservationEntry(ItemNo, CalcDate('<-1W>', WorkDate()));
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
     end;
 
     local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ItemNo: Code[20]; ItemQty: Decimal)
@@ -2999,9 +3059,20 @@ codeunit 137405 "SCM Item Tracking"
 
     local procedure CreateInvtPickOutboundTransfer(var WarehouseActivityHeader: Record "Warehouse Activity Header"; SourceNo: Code[20])
     begin
+        CreateInvtPickPutAwayWithSourceDocument(WarehouseActivityHeader, SourceNo, WarehouseActivityHeader."Source Document"::"Outbound Transfer", false, true);
+    end;
+
+    local procedure CreateInvtPutAwayPurchOrder(var WarehouseActivityHeader: Record "Warehouse Activity Header"; SourceNo: Code[20])
+    begin
+        CreateInvtPickPutAwayWithSourceDocument(
+            WarehouseActivityHeader, SourceNo, WarehouseActivityHeader."Source Document"::"Purchase Order", true, false);
+    end;
+
+    local procedure CreateInvtPickPutAwayWithSourceDocument(var WarehouseActivityHeader: Record "Warehouse Activity Header"; SourceNo: Code[20]; SourceDocument: Option; PutAway: Boolean; Pick: Boolean)
+    begin
         LibraryWarehouse.CreateInvtPutPickMovement(
-          WarehouseActivityHeader."Source Document"::"Outbound Transfer", SourceNo, false, true, false);
-        WarehouseActivityHeader.SetRange("Source Document", WarehouseActivityHeader."Source Document"::"Outbound Transfer");
+          SourceDocument, SourceNo, PutAway, Pick, false);
+        WarehouseActivityHeader.SetRange("Source Document", SourceDocument);
         WarehouseActivityHeader.SetRange("Source No.", SourceNo);
         WarehouseActivityHeader.FindFirst;
     end;

@@ -156,6 +156,7 @@ table 133 "Incoming Document Attachment"
             Caption = 'Id';
             ObsoleteState = Pending;
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
+            ObsoleteTag = '15.0';
         }
     }
 
@@ -372,7 +373,7 @@ table 133 "Incoming Document Attachment"
     end;
 
     [IntegrationEvent(TRUE, false)]
-    [Obsolete('Function scope will be changed to OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem','15.1')]
     procedure OnAttachBinaryFile()
     begin
     end;

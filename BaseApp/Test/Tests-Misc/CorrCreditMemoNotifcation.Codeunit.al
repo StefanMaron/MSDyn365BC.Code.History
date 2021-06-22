@@ -14,6 +14,7 @@ codeunit 135302 "Corr. Credit Memo Notifcation"
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         InvoicePartiallyPaidMsg: Label 'Invoice %1 is partially paid or credited. The corrective credit memo may not be fully closed by the invoice.', Comment = '%1 - invoice no.';
         InvoiceClosedMsg: Label 'Invoice %1 is closed. The corrective credit memo will not be applied to the invoice.', Comment = '%1 - invoice no.';
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
@@ -30,7 +31,7 @@ codeunit 135302 "Corr. Credit Memo Notifcation"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO] 'Skip' notification action does not create corrective credit memo for partially paid invoice from invoice card page.
-        Initialize;
+        Initialize();
         // [GIVEN] posted Invoice, of amount 300
         PostSalesInvoice(SalesInvoiceHeader);
         // [GIVEN] Invoice is partially applied to Payment of 100, so "Remaining Amount" is 200
@@ -70,7 +71,7 @@ codeunit 135302 "Corr. Credit Memo Notifcation"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO] 'Create Anyway' notification action does create corrective credit memo for partially paid invoice from invoice card page.
-        Initialize;
+        Initialize();
         // [GIVEN] posted Invoice '101033', of amount 300
         PostSalesInvoice(SalesInvoiceHeader);
         // [GIVEN] Invoice is partially applied to Payment of 100
@@ -112,7 +113,7 @@ codeunit 135302 "Corr. Credit Memo Notifcation"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO] 'Show Entries' notification action opens "Applied Entries" page for partially paid invoice from invoices list page.
-        Initialize;
+        Initialize();
         // [GIVEN] posted Invoice '101033'
         PostSalesInvoice(SalesInvoiceHeader);
         // [GIVEN] Invoice is partially paid by two Payments
@@ -151,7 +152,7 @@ codeunit 135302 "Corr. Credit Memo Notifcation"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO] 'Create Anyway' notification action does create corrective credit memo for closed invoice from invoices list page.
-        Initialize;
+        Initialize();
         // [GIVEN] posted Invoice '101033'
         PostSalesInvoice(SalesInvoiceHeader);
         // [GIVEN] Invoice is closed by Payment
@@ -195,7 +196,7 @@ codeunit 135302 "Corr. Credit Memo Notifcation"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO] 'Skip' notification action does not create corrective credit memo for partially paid invoice from invoice card page.
-        Initialize;
+        Initialize();
         // [GIVEN] posted Invoice, of amount 300
         PostPurchInvoice(PurchInvHeader);
         // [GIVEN] Invoice is partially applied to Payment of 100, so "Remaining Amount" is 200
@@ -235,7 +236,7 @@ codeunit 135302 "Corr. Credit Memo Notifcation"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO] 'Create Anyway' notification action does create corrective credit memo for partially paid invoice from invoice card page.
-        Initialize;
+        Initialize();
         // [GIVEN] posted Invoice '101033', of amount 300
         PostPurchInvoice(PurchInvHeader);
         // [GIVEN] Invoice is partially applied to Payment of 100
@@ -277,7 +278,7 @@ codeunit 135302 "Corr. Credit Memo Notifcation"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO] 'Show Entries' notification action opens "Applied Entries" page for partially paid invoice from invoices list page.
-        Initialize;
+        Initialize();
         // [GIVEN] posted Invoice '101033'
         PostPurchInvoice(PurchInvHeader);
         // [GIVEN] Invoice is partially paid by two Payments
@@ -316,7 +317,7 @@ codeunit 135302 "Corr. Credit Memo Notifcation"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO] 'Create Anyway' notification action does create corrective credit memo for closed invoice from invoices list page.
-        Initialize;
+        Initialize();
         // [GIVEN] posted Invoice '101033'
         PostPurchInvoice(PurchInvHeader);
         // [GIVEN] Invoice is closed by Payment
@@ -350,7 +351,9 @@ codeunit 135302 "Corr. Credit Memo Notifcation"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Corr. Credit Memo Notifcation");
+
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure ApplyPaymentToInvoice(InvoiceNo: Code[20]; AccountType: Option; AccountNo: Code[20]; PaymentAmount: Decimal): Code[20]

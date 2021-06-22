@@ -593,6 +593,106 @@ codeunit 134824 "UT Vendor Table"
         Assert.AreEqual(Vendor[4]."No.", Vendor[1].GetVendorNo(RandomText2), '');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateEmailFieldMultipleEmailAddressesWithSemicolon()
+    var
+        Vendor: Record Vendor;
+    begin
+        // [SCENARIO 341841] Validate E-Mail field of Vendor table in case it contains multiple e-mail addresses, separated by ;
+
+        // [WHEN] Validate E-Mail field of Vendor table, when it contains multiple email addresses in cases, separated by ;
+        Vendor.Validate("E-Mail", 'test1@test.com; test2@test.com; test3@test.com');
+
+        // [THEN] String is validated without errors.
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateEmailFieldOnEmptyEmailAddress()
+    var
+        Vendor: Record Vendor;
+    begin
+        // [SCENARIO 341841] Validate E-Mail field of Vendor table in case it's empty.
+
+        // [WHEN] Validate E-Mail field of Vendor table on empty value.
+        Vendor.Validate("E-Mail", '');
+
+        // [THEN] String is validated without errors.
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateEmailFieldMultipleEmailAddressesWithComma()
+    var
+        Vendor: Record Vendor;
+        MultipleAddressesTxt: Text;
+    begin
+        // [SCENARIO 341841] Validate E-Mail field of Vendor table in case it contains multiple e-mail addresses, separated by ,
+        MultipleAddressesTxt := 'test1@test.com, test2@test.com, test3@test.com';
+
+        // [WHEN] Validate E-Mail field of Vendor table, when it contains multiple email addresses, separated by ,
+        asserterror Vendor.Validate("E-Mail", MultipleAddressesTxt);
+
+        // [THEN] The error "The email address is not valid." is thrown.
+        Assert.ExpectedError(StrSubstNo('The email address "%1" is not valid.', MultipleAddressesTxt));
+        Assert.ExpectedErrorCode('Dialog');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateEmailFieldMultipleEmailAddressesWithVerticalBar()
+    var
+        Vendor: Record Vendor;
+        MultipleAddressesTxt: Text;
+    begin
+        // [SCENARIO 341841] Validate E-Mail field of Vendor table in case it contains multiple e-mail addresses, separated by |
+        MultipleAddressesTxt := 'test1@test.com| test2@test.com| test3@test.com';
+
+        // [WHEN] Validate E-Mail field of Vendor table, when it contains multiple email addresses, separated by |
+        asserterror Vendor.Validate("E-Mail", MultipleAddressesTxt);
+
+        // [THEN] The error "The email address is not valid." is thrown.
+        Assert.ExpectedError(StrSubstNo('The email address "%1" is not valid.', MultipleAddressesTxt));
+        Assert.ExpectedErrorCode('Dialog');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateEmailFieldMultipleEmailAddressesWithSpace()
+    var
+        Vendor: Record Vendor;
+        MultipleAddressesTxt: Text;
+    begin
+        // [SCENARIO 341841] Validate E-Mail field of Vendor table in case it contains multiple e-mail addresses, separated by space.
+        MultipleAddressesTxt := 'test1@test.com test2@test.com test3@test.com';
+
+        // [WHEN] Validate E-Mail field of Vendor table, when it contains multiple email addresses, separated by space.
+        asserterror Vendor.Validate("E-Mail", MultipleAddressesTxt);
+
+        // [THEN] The error "The email address is not valid." is thrown.
+        Assert.ExpectedError(StrSubstNo('The email address "%1" is not valid.', MultipleAddressesTxt));
+        Assert.ExpectedErrorCode('Dialog');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateEmailFieldMultipleEmailAddressesWithInvalidEmail()
+    var
+        Vendor: Record Vendor;
+        MultipleAddressesTxt: Text;
+    begin
+        // [SCENARIO 341841] Validate E-Mail field of Vendor table in case it contains multiple e-mail addresses; one of them is not valid.
+        MultipleAddressesTxt := 'test1@test.com; test2.com; test3@test.com';
+
+        // [WHEN] Validate E-Mail field of Vendor table, when it contains multiple email addresses, one of them is not a valid email address.
+        asserterror Vendor.Validate("E-Mail", MultipleAddressesTxt);
+
+        // [THEN] The error "The email address is not valid." is thrown.
+        Assert.ExpectedError('The email address "test2.com" is not valid.');
+        Assert.ExpectedErrorCode('Dialog');
+    end;
+
     local procedure Initialize()
     var
         Vendor: Record Vendor;

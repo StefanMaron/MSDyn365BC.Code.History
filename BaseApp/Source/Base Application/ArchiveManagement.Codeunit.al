@@ -122,8 +122,14 @@ codeunit 5063 ArchiveManagement
         SalesLine: Record "Sales Line";
         SalesHeaderArchive: Record "Sales Header Archive";
         SalesLineArchive: Record "Sales Line Archive";
+        IsHandled: Boolean;
     begin
-        SalesHeaderArchive.Init;
+        IsHandled := false;
+        OnBeforeStoreSalesDocument(SalesHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        SalesHeaderArchive.Init();
         SalesHeaderArchive.TransferFields(SalesHeader);
         SalesHeaderArchive."Archived By" := UserId;
         SalesHeaderArchive."Date Archived" := WorkDate;
@@ -780,6 +786,11 @@ codeunit 5063 ArchiveManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePurchLineArchiveInsert(var PurchaseLineArchive: Record "Purchase Line Archive"; PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeStoreSalesDocument(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 

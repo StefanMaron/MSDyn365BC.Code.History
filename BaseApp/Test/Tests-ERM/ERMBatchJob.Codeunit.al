@@ -2371,6 +2371,38 @@ codeunit 134900 "ERM Batch Job"
         VerifyPurchaseJobQueueCategoryCode(JobQueueEntryId);
     end;
 
+    [Test]
+    [HandlerFunctions('SalesListPageHandler')]
+    [Scope('OnPrem')]
+    procedure PurchOrderGetDropShipWithCustomAddress()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [FEATURE] [Drop Shipment] [Purchase]
+        // [SCENARIO 339552] Address fields are copied to Purchase Order from drop shipment sales with custom address
+        Initialize;
+
+        // [GIVEN] Sales Order of Drop Shipment for Customer "CU01"
+        CreateSalesOrderWithPurchasingCode(
+          SalesHeader, SalesLine, LibrarySales.CreateCustomerNo, CreatePurchasingCodeWithDropShipment, LibraryPurchase.CreateVendorNo);
+
+        // [GIVEN] 'Ship-to' fields updated on Sales Order:
+        // [GIVEN] Address, Address 2, Post Code, City, Contact, County, Country/Region
+        UpdateShipToAddressOnSalesHeader(SalesHeader);
+
+        // [GIVEN] Create Purchase Header with "Sell-to Customer No." = "CU01"
+        CreatePurchHeader(PurchaseHeader, SalesHeader."Sell-to Customer No.", '');
+
+        // [WHEN] Get Drop Shipment for the Purchase Header
+        LibraryPurchase.GetDropShipment(PurchaseHeader);
+
+        // [THEN] Purchase Order updated with 'Ship-to' fields matching to values from Sales Order
+        GetPurchHeader(PurchaseHeader, SalesLine."No.");
+        VerifyPurchHeaderAddress(PurchaseHeader, SalesHeader);
+    end;
+
     local procedure Initialize()
     var
         WarehouseEmployee: Record "Warehouse Employee";

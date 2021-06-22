@@ -37,13 +37,8 @@ page 5733 "Item Category Card"
                     ToolTip = 'Specifies the item category that this item category belongs to. Item attributes that are assigned to a parent item category also apply to the child item category.';
 
                     trigger OnValidate()
-                    var
-                        ItemCategory: Record "Item Category";
                     begin
-                        if Code <> '' then begin
-                            ItemCategory.Get(Code);
-                            if "Parent Category" <> ItemCategory."Parent Category" then
-                                Modify;
+                        if (Code <> '') and ("Parent Category" <> xRec."Parent Category") then begin
                             PersistCategoryAttributes;
                             UpdateItemCategoriesPresentationOrder := true;
                         end;

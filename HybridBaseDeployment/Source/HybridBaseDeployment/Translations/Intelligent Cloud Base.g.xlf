@@ -353,6 +353,121 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Post Migration Checklist - NamedType ResetupSalesConnectionTxt</note>
         </trans-unit>
+        <trans-unit id="Table 2364229666 - Field 2766253784 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>App ID</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Migration Table Mapping - Field App ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2364229666 - Field 3135334477 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Table ID</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Migration Table Mapping - Field Table ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2364229666 - Field 3808951907 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Table Name</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Migration Table Mapping - Field Table Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2364229666 - Field 2311163528 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Source Table Name</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Migration Table Mapping - Field Source Table Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2364229666 - Field 944264468 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Data Per Company</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Migration Table Mapping - Field Data Per Company - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2364229666 - Field 3846472926 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Locked</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Migration Table Mapping - Field Locked - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2364229666 - Field 2515772770 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Extension Name</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Migration Table Mapping - Field Extension Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2364229666 - Field 4023146010 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Extension Package ID</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Migration Table Mapping - Field Extension Package ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2364229666 - NamedType 1272031509" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Extensions from the specified publisher (%1) are not enabled for custom table mapping.</source>
+          <note from="Developer" annotates="general" priority="2">%1 - The publisher of the extension they tried to select.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Migration Table Mapping - NamedType InvalidExtensionPublisherErr</note>
+        </trans-unit>
+        <trans-unit id="Table 2364229666 - NamedType 4224791215" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This table does not exist in the specified extension.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Migration Table Mapping - NamedType InvalidTableNameErr</note>
+        </trans-unit>
+        <trans-unit id="Table 2364229666 - NamedType 1538903795" size-unit="char" translate="yes" xml:space="preserve">
+          <source>To choose %1, you must install it first.</source>
+          <note from="Developer" annotates="general" priority="2">%1 - The name of the extension they tried to select.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Migration Table Mapping - NamedType ExtensionNotInstalledErr</note>
+        </trans-unit>
+        <trans-unit id="Table 2364229666 - NamedType 3180966121" size-unit="char" translate="no" xml:space="preserve">
+          <source>Microsoft</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Migration Table Mapping - NamedType InvalidPublisherTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 2364229666 - Control 2515772770 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Extension Name</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Migration Table Mapping - Control Extension Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2364229666 - Control 2515772770 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the name of the extension for the mapping.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Migration Table Mapping - Control Extension Name - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2364229666 - Control 3808951907 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Table Name</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Migration Table Mapping - Control Table Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2364229666 - Control 3808951907 - Property 2001309823" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the name of the table for the mapping.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Migration Table Mapping - Control Table Name - Property Tooltip</note>
+        </trans-unit>
+        <trans-unit id="Page 2364229666 - Control 2311163528 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Source Table Name</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Migration Table Mapping - Control Source Table Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2364229666 - Control 2311163528 - Property 2001309823" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the name of the source table for the mapping. This is used in the case that the name of the table differs between the source and destination databases.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Migration Table Mapping - Control Source Table Name - Property Tooltip</note>
+        </trans-unit>
+        <trans-unit id="Page 2364229666 - Action 2108379467 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Populate From Extension</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Migration Table Mapping - Action PopulateFromExtension - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2364229666 - Action 2108379467 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Populate the list with all tables from an existing extension.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Migration Table Mapping - Action PopulateFromExtension - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2364229666 - Action 1532468774 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Delete All For Extension</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Migration Table Mapping - Action DeleteAllForExtension - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2364229666 - Action 1532468774 - Property 2001309823" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Deletes all records belonging to this extension.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Migration Table Mapping - Action DeleteAllForExtension - Property Tooltip</note>
+        </trans-unit>
+        <trans-unit id="Page 2364229666 - NamedType 3054663037" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No tables exist in the specified extension.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Migration Table Mapping - NamedType NoTablesInExtensionMsg</note>
+        </trans-unit>
         <trans-unit id="Table 2408135808 - Field 2565378072 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Run ID</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -427,6 +542,11 @@
           <source>IntelligentCloudService_%1</source>
           <note from="Developer" annotates="general" priority="2">%1 - The source product id</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Hybrid Cloud Management - NamedType ServiceSubscriptionFormatTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4272545970 - NamedType 2479714532" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Set up Cloud Migration</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Hybrid Cloud Management - NamedType DataSyncWizardPageNameTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 4272545970 - Method 3518468256 - NamedType 2684810677" size-unit="char" translate="yes" xml:space="preserve">
           <source>https://businesscentral.dynamics.com/%1</source>
@@ -574,8 +694,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Hybrid Message Management - NamedType UnsupportedVersionErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 4202943371 - NamedType 248683348" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Failed to create company for the Data Migration setup. Error %1</source>
-          <note from="Developer" annotates="general" priority="2"></note>
+          <source>Failed to create company for the Data Migration setup.\\\\%1</source>
+          <note from="Developer" annotates="general" priority="2">%1 - Error message</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Handle Create Company Failure - NamedType CompanyCreationFailedErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 594380566 - NamedType 585235238" size-unit="char" translate="yes" xml:space="preserve">
@@ -607,6 +727,11 @@
           <source>Data Migration Setup</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Hybrid Cloud Setup Wizard - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2532438947 - Property 3863440606" size-unit="char" translate="yes" xml:space="preserve">
+          <source>migration,data migration,cloud migration,intelligent,cloud,sync,replication</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Hybrid Cloud Setup Wizard - Property AdditionalSearchTerms</note>
         </trans-unit>
         <trans-unit id="Page 2532438947 - Control 3724241072 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Welcome to the on-premises to Business Central cloud Data Migration Setup</source>
@@ -1098,6 +1223,16 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Intelligent Cloud Management - Action UpdateReplicationCompanies - Property ToolTip</note>
         </trans-unit>
+        <trans-unit id="Page 1208606375 - Action 2819242017 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Manage Custom Tables</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Intelligent Cloud Management - Action ManageCustomTables - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1208606375 - Action 2819242017 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Manage custom table mappings for the migration.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Intelligent Cloud Management - Action ManageCustomTables - Property ToolTip</note>
+        </trans-unit>
         <trans-unit id="Page 1208606375 - NamedType 2374652963" size-unit="char" translate="yes" xml:space="preserve">
           <source>Are you sure you want to trigger migration?</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -1358,20 +1493,10 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Intelligent Cloud Insights - Control IntelligentEdgeKPIS - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 432782781 - Control 3958318543 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Intelligent Edge KPIs</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Intelligent Cloud Insights - Control IntelligentEdgeKPIS - Property ToolTip</note>
-        </trans-unit>
         <trans-unit id="Page 432782781 - Control 3835255931 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Insights</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Intelligent Cloud Insights - Control IntelligentEdgeInsights - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 432782781 - Control 3835255931 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Intelligent Edge Insights</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Intelligent Cloud Insights - Control IntelligentEdgeInsights - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 432782781 - Control 2109523570 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Power BI</source>
@@ -1383,20 +1508,10 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Intelligent Cloud Insights - Control PowerBIReportSpinnerPart - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 432782781 - Control 3786424220 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Power BI Report</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Intelligent Cloud Insights - Control PowerBIReportSpinnerPart - Property ToolTip</note>
-        </trans-unit>
         <trans-unit id="Page 432782781 - Control 151094470 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Power BI Report</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Intelligent Cloud Insights - Control PowerBIReportSpinnerPart2 - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 432782781 - Control 151094470 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Power BI Report</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Intelligent Cloud Insights - Control PowerBIReportSpinnerPart2 - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 432782781 - Control 2699611539 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Azure ML</source>
@@ -1407,11 +1522,6 @@
           <source>Cash Flow Forecast</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Intelligent Cloud Insights - Control CashFlowForecastChart - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 432782781 - Control 791597496 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Cash Flow Forecast</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Intelligent Cloud Insights - Control CashFlowForecastChart - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 872301191 - Control 1550718196 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Cash Available</source>

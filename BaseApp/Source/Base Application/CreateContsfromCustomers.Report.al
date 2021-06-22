@@ -27,6 +27,7 @@ report 5195 "Create Conts. from Customers"
                 Cont.Init;
                 Cont.TransferFields(Customer);
                 Cont."No." := '';
+                OnBeforeSetSkipDefaults(Customer, Cont);
                 Cont.SetSkipDefault;
                 OnBeforeContactInsert(Customer, Cont);
                 Cont.Insert(true);
@@ -103,6 +104,11 @@ report 5195 "Create Conts. from Customers"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeContactInsert(Customer: Record Customer; var Contact: Record Contact)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetSkipDefaults(var Customer: Record Customer; var Contact: Record Contact)
     begin
     end;
 }

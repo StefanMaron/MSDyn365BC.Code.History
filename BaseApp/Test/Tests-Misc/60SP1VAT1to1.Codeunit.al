@@ -25,6 +25,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         isInitialized: Boolean;
         LinePrice1: Decimal;
         LinePrice2: Decimal;
@@ -77,17 +78,21 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
 
     local procedure Initialize()
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"6.0SP1 - VAT 1 to 1");
+
         // Lazy Setup.
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if isInitialized then
             exit;
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGenProdPostingGroup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"6.0SP1 - VAT 1 to 1");
+
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGenProdPostingGroup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         // Prepare specific country setup for Reverse Charge VAT Calculation type
-        SetupReverseChargeVAT;
+        SetupReverseChargeVAT();
 
         LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup;
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(false);
@@ -96,6 +101,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         Commit;
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"6.0SP1 - VAT 1 to 1");
     end;
 
     [Test]
@@ -103,7 +109,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
     procedure S_58502_Sales()
     begin
         // TFS DynamicsNAV60 Test Case ID 58502 : line discount-Post to same sales GL account
-        Initialize;
+        Initialize();
         GeneralSetup(true);
         DataSetup_Sales('Invoice', true, 15, 0, Item1, Item2);
 
@@ -118,7 +124,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
     procedure S_58502_Purch()
     begin
         // TFS DynamicsNAV60 Test Case ID 58502 : line discount-Post to same sales GL account
-        Initialize;
+        Initialize();
         GeneralSetup(true);
         DataSetup_Purch('Invoice', true, 15, 0, Item1, Item2);
 
@@ -141,7 +147,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         // [THEN] G/L Entry (COUNT=5,"G/L Account No.",Amount); VAT Entry (COUNT=2,Base,Amount);
         // [THEN] "G/L Entry - VAT Entry Link": amounts are equal in linked entries
 
-        Initialize;
+        Initialize();
         GeneralSetup(true);
         DataSetup_Service('Invoice', true, 15, 0, Item1, Item2);
 
@@ -174,7 +180,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         TotalLineDiscVAT1 := TotalLineDisc1 * VATPercent1;
         TotalLineDiscVAT2 := TotalLineDisc2 * VATPercent2;
 
-        GLRegister.FindLast;
+        GLRegister.FindLast();
 
         // Validate No of GL entries
         GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
@@ -199,7 +205,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
     procedure S_58503_Sales()
     begin
         // TFS DynamicsNAV60 Test Case ID 58503 :  line discount-Post to different sales GL account
-        Initialize;
+        Initialize();
         GeneralSetup(true);
         DataSetup_Sales('Credit Memo', false, 15, 0, Item1, Item3);
 
@@ -224,7 +230,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
     procedure S_58503_Purch()
     begin
         // TFS DynamicsNAV60 Test Case ID 58503 :  line discount-Post to different sales GL account
-        Initialize;
+        Initialize();
         GeneralSetup(true);
         DataSetup_Purch('Credit Memo', false, 15, 0, Item1, Item3);
 
@@ -256,7 +262,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         // [WHEN] Post the Service Credit Memo
         // [THEN] G/L Entry (COUNT=9,"G/L Account No.",Amount); VAT Entry (COUNT=4,Base,Amount);
         // [THEN] "G/L Entry - VAT Entry Link": amounts are equal in linked entries
-        Initialize;
+        Initialize();
         GeneralSetup(true);
         DataSetup_Service('Credit Memo', false, 15, 0, Item1, Item3);
 
@@ -295,7 +301,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         TotalLineDiscVAT1 := TotalLineDisc1 * VATPercent1;
         TotalLineDiscVAT2 := TotalLineDisc2 * VATPercent2;
 
-        GLRegister.FindLast;
+        GLRegister.FindLast();
 
         // Validate No of GL entries
         GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
@@ -327,7 +333,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
     procedure S_58504_Sales()
     begin
         // TFS DynamicsNAV60 Test Case ID 58504 :  invoice discount-Post to same sales GL account
-        Initialize;
+        Initialize();
         GeneralSetup(true);
         DataSetup_Sales('Invoice', true, 0, 15, Item1, Item2);
 
@@ -342,7 +348,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
     procedure S_58504_Purch()
     begin
         // TFS DynamicsNAV60 Test Case ID 58504 :  invoice discount-Post to same sales GL account
-        Initialize;
+        Initialize();
         GeneralSetup(true);
         DataSetup_Purch('Invoice', true, 0, 15, Item1, Item2);
 
@@ -364,7 +370,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         // [WHEN] Post the Service Invoice
         // [THEN] G/L Entry (COUNT=5,"G/L Account No.",Amount); VAT Entry (COUNT=2,Base,Amount);
         // [THEN] "G/L Entry - VAT Entry Link": amounts are equal in linked entries
-        Initialize;
+        Initialize();
         GeneralSetup(true);
         DataSetup_Service('Invoice', true, 0, 15, Item1, Item2);
 
@@ -393,7 +399,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         TotalInvDiscount := (TotalLineAmtExclVAT1 + TotalLineAmtExclVAT2) * InvDiscount;
         TotalInvDiscountVAT := TotalLineAmtExclVAT1 * InvDiscount * VATPercent1 + TotalLineAmtExclVAT2 * InvDiscount * VATPercent2;
 
-        GLRegister.FindLast;
+        GLRegister.FindLast();
 
         // Validate No of GL entries
         GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
@@ -433,7 +439,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         LineDimSetID2: Integer;
     begin
         // TFS DynamicsNAV60 Test Case ID 58505 : invoice discount + line discount - different GL account - different sales GL account
-        Initialize;
+        Initialize();
         GeneralSetup(true);
         // Create Addtional reporting currency
         S_58505_Create_ACY(Currency);
@@ -529,7 +535,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         LineDimSetID2: Integer;
     begin
         // TFS DynamicsNAV60 Test Case ID 58505 : invoice discount + line discount - different GL account - different sales GL account
-        Initialize;
+        Initialize();
         GeneralSetup(true);
         // Create Addtional reporting currency
         S_58505_Create_ACY(Currency);
@@ -634,7 +640,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         // [THEN] G/L Entry (COUNT=13,"G/L Account No.",Amount,"Additional-Currency Amount","Dimension Set ID");
         // [THEN] VAT Entry (COUNT=6,Base,Amount,"Additional-Currency Base","Additional-Currency Amount");
         // [THEN] "G/L Entry - VAT Entry Link": amounts are equal in linked entries
-        Initialize;
+        Initialize();
         GeneralSetup(true);
         // Create Addtional reporting currency
         S_58505_Create_ACY(Currency);
@@ -735,7 +741,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         TotalInvDiscountVAT1 := TotalInvDiscount1 * VATPercent1;
         TotalInvDiscountVAT2 := TotalInvDiscount2 * VATPercent2;
 
-        GLRegister.FindLast;
+        GLRegister.FindLast();
 
         // Validate No of GL entries
         GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
@@ -914,7 +920,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         DiffSalesInvAcc: Text[20];
     begin
         // TFS DynamicsNAV60 Test Case ID 58506 :  invoice discount + line discount - different GL account - same sales GL account
-        Initialize;
+        Initialize();
         GeneralSetup(true);
         LibraryERM.CreateGLAccount(GLAccount);
         DiffSalesInvAcc := GLAccount."No.";
@@ -956,7 +962,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         DiffPurchInvAcc: Code[20];
     begin
         // TFS DynamicsNAV60 Test Case ID 58506 :  invoice discount + line discount - different GL account - same sales GL account
-        Initialize;
+        Initialize();
         GeneralSetup(true);
         LibraryERM.CreateGLAccount(GLAccount);
         DiffPurchInvAcc := GLAccount."No.";
@@ -1007,7 +1013,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         // [WHEN] Post the Service Credit Memo
         // [THEN] G/L Entry (COUNT=7,"G/L Account No.",Amount); VAT Entry (COUNT=3,Base,Amount);
         // [THEN] "G/L Entry - VAT Entry Link": amounts are equal in linked entries
-        Initialize;
+        Initialize();
         GeneralSetup(true);
         LibraryERM.CreateGLAccount(GLAccount);
         DiffSalesInvAcc := GLAccount."No.";
@@ -1068,7 +1074,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         TotalInvDiscountVAT1 := TotalInvDiscount1 * VATPercent1;
         TotalInvDiscountVAT2 := TotalInvDiscount2 * VATPercent2;
 
-        GLRegister.FindLast;
+        GLRegister.FindLast();
 
         // Validate No of GL entries
         GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
@@ -1105,7 +1111,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
     procedure S_58507_Sales()
     begin
         // TFS DynamicsNAV60 Test Case ID 58507 :  invoice discount + line discount - same GL account -different sales GL account
-        Initialize;
+        Initialize();
         GeneralSetup(true);
         // Set Invoice discount and line discount to same account
         GenPostingSetup1.Validate("Sales Inv. Disc. Account", SalesLineDiscAcc1);
@@ -1157,7 +1163,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
     begin
         // TFS DynamicsNAV60 Test Case ID 58507 :
         // invoice discount + line discount - same GL account -different sales GL account(+ prepayment)
-        Initialize;
+        Initialize();
         GeneralSetup(true);
         // Set Invoice discount and line discount to same account
         GenPostingSetup1.Validate("Sales Inv. Disc. Account", SalesLineDiscAcc1);
@@ -1234,7 +1240,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
     procedure S_58507_Purch()
     begin
         // TFS DynamicsNAV60 Test Case ID 58507 :  invoice discount + line discount - same GL account -different sales GL account
-        Initialize;
+        Initialize();
         GeneralSetup(true);
         // Set Invoice discount and line discount to same account
         GenPostingSetup1.Validate("Purch. Inv. Disc. Account", PurchLineDiscAcc1);
@@ -1286,7 +1292,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
     begin
         // TFS DynamicsNAV60 Test Case ID 58507 :
         // invoice discount + line discount - same GL account -different sales GL account(+ prepayment)
-        Initialize;
+        Initialize();
         GeneralSetup(true);
         // Set Invoice discount and line discount to same account
         GenPostingSetup1.Validate("Purch. Inv. Disc. Account", PurchLineDiscAcc1);
@@ -1372,7 +1378,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         // [WHEN] Post the Service Invoice
         // [THEN] G/L Entry (COUNT=9,"G/L Account No.",Amount); VAT Entry (COUNT=4,Base,Amount);
         // [THEN] "G/L Entry - VAT Entry Link": amounts are equal in linked entries
-        Initialize;
+        Initialize();
         GeneralSetup(true);
         // Set Invoice discount and line discount to same account
         GenPostingSetup1.Validate("Sales Inv. Disc. Account", SalesLineDiscAcc1);
@@ -1436,7 +1442,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         TotalInvDiscountVAT1 := TotalInvDiscount1 * VATPercent1;
         TotalInvDiscountVAT2 := TotalInvDiscount2 * VATPercent2;
 
-        GLRegister.FindLast;
+        GLRegister.FindLast();
 
         // Validate No of GL entries
         GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
@@ -1555,7 +1561,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
     procedure S_58508_Sales()
     begin
         // TFS DynamicsNAV60 Test Case ID 58508 :  invoice discount + line discount - same GL account -same sales GL account
-        Initialize;
+        Initialize();
         GeneralSetup(true);
         // Set Invoice discount and line discount to same account
         GenPostingSetup1.Validate("Sales Inv. Disc. Account", SalesLineDiscAcc1);
@@ -1591,7 +1597,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
     procedure S_58508_Purch()
     begin
         // TFS DynamicsNAV60 Test Case ID 58508 :  invoice discount + line discount - same GL account -same sales GL account
-        Initialize;
+        Initialize();
         GeneralSetup(true);
         // Set Invoice discount and line discount to same account
         GenPostingSetup1.Validate("Purch. Inv. Disc. Account", PurchLineDiscAcc1);
@@ -1635,7 +1641,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         // [WHEN] Post the Service Invoice
         // [THEN] G/L Entry (COUNT=5,"G/L Account No.",Amount); VAT Entry (COUNT=2,Base,Amount);
         // [THEN] "G/L Entry - VAT Entry Link": amounts are equal in linked entries
-        Initialize;
+        Initialize();
         GeneralSetup(true);
         // Set Invoice discount and line discount to same account
         GenPostingSetup1.Validate("Sales Inv. Disc. Account", SalesLineDiscAcc1);
@@ -1697,7 +1703,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         TotalInvDiscountVAT1 := TotalInvDiscount1 * VATPercent1;
         TotalInvDiscountVAT2 := TotalInvDiscount2 * VATPercent2;
 
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         // Validate No of GL entries
         GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
         Assert.IsTrue(GLEntry.Count = 5, StrSubstNo(TotalEntryNumberError, GLEntry.TableName, 5, GLEntry.Count));
@@ -1723,7 +1729,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
     procedure S_58509_Sales()
     begin
         // TFS DynamicsNAV60 Test Case ID 58509 :  invoice discount-Post to different sales GL account
-        Initialize;
+        Initialize();
         GeneralSetup(true);
         DataSetup_Sales('Credit Memo', false, 0, 15, Item1, Item3);
 
@@ -1748,7 +1754,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
     procedure S_58509_Purch()
     begin
         // TFS DynamicsNAV60 Test Case ID 58509 :  invoice discount-Post to different sales GL account
-        Initialize;
+        Initialize();
         GeneralSetup(true);
         DataSetup_Purch('Credit Memo', false, 0, 15, Item1, Item3);
 
@@ -1780,7 +1786,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         // [WHEN] Post the Service Invoice
         // [THEN] G/L Entry (COUNT=9,"G/L Account No.",Amount); VAT Entry (COUNT=4,Base,Amount);
         // [THEN] "G/L Entry - VAT Entry Link": amounts are equal in linked entries
-        Initialize;
+        Initialize();
         GeneralSetup(true);
         DataSetup_Service('Credit Memo', false, 0, 15, Item1, Item3);
 
@@ -1819,7 +1825,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         TotalInvDiscountVAT1 := TotalInvDiscount1 * VATPercent1;
         TotalInvDiscountVAT2 := TotalInvDiscount2 * VATPercent2;
 
-        GLRegister.FindLast;
+        GLRegister.FindLast();
 
         // Validate No of GL entries
         GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
@@ -1878,7 +1884,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         PmtDiscountDate: Date;
     begin
         // TFS DynamicsNAV60 Test Case ID 58848 :  Reverse Charge VAT- - Pmt. Disc.Excl VAT(Yes) - Adjust for Payment Disc.(No)
-        Initialize;
+        Initialize();
         GeneralSetup(false);
         BankSetup(BankAcc, GLBankAccNo);
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
@@ -1929,7 +1935,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         PayAmount := TotalInvAmount - PmtDiscAmount;
 
         // Validate No of GL entries
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
         Assert.IsTrue(GLEntry.Count = 4, StrSubstNo(TotalEntryNumberError, GLEntry.TableName, 4, GLEntry.Count));
         // Validate account and amount on GL entries
@@ -1949,7 +1955,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         // Step 2: post payment and apply to invoice
         Post_Payment_And_Apply(JournalTemplate, JournalBatch, 'Customer', Customer."No.", -PayAmount, 'Payment', BankAcc, PmtDiscountDate);
 
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         // Validate No of GL entries
         GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
         Assert.IsTrue(GLEntry.Count = 3, StrSubstNo(TotalEntryNumberError, GLEntry.TableName, 3, GLEntry.Count));
@@ -2002,7 +2008,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         PmtDiscountDate: Date;
     begin
         // TFS DynamicsNAV60 Test Case ID 58848 :  Reverse Charge VAT- - Pmt. Disc.Excl VAT(Yes) - Adjust for Payment Disc.(No)
-        Initialize;
+        Initialize();
         GeneralSetup(false);
         BankSetup(BankAcc, GLBankAccNo);
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
@@ -2058,7 +2064,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         PmtDiscAmount := Round(TotalInvAmount * PmtDiscount / 100, 1 / 100, '=');
         PayAmount := TotalInvAmount - PmtDiscAmount;
 
-        GLRegister.FindLast;
+        GLRegister.FindLast();
 
         // Validate No of GL entries
         GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
@@ -2086,7 +2092,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         // step 2: create payment and apply to invoice
         Post_Payment_And_Apply(JournalTemplate, JournalBatch, 'Vendor', Vendor."No.", PayAmount, 'Payment', BankAcc, PmtDiscountDate);
 
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         // Validate No of GL entries
         GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
         Assert.IsTrue(GLEntry.Count = 3, StrSubstNo(TotalEntryNumberError, GLEntry.TableName, 3, GLEntry.Count));
@@ -2138,7 +2144,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         PmtDiscountDate: Date;
     begin
         // TFS DynamicsNAV60 Test Case ID 59013 :  Reverse Charge VAT - Pmt. Disc.Excl VAT(No) - Adjust for Payment Disc.(Yes)
-        Initialize;
+        Initialize();
         GeneralSetup(false);
         BankSetup(BankAcc, GLBankAccNo);
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
@@ -2194,7 +2200,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         PmtDiscAmount := Round(TotalInvAmount * PmtDiscount / 100, 1 / 100, '=');
         PayAmount := TotalInvAmount - PmtDiscAmount;
 
-        GLRegister.FindLast;
+        GLRegister.FindLast();
 
         // Validate No of GL entries
         GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
@@ -2217,7 +2223,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         Post_Payment_And_Apply(JournalTemplate, JournalBatch, 'Customer', Customer."No.", -PayAmount, 'Payment', BankAcc, PmtDiscountDate);
         PmtDiscount := PmtDiscount / 100;
 
-        GLRegister.FindLast;
+        GLRegister.FindLast();
 
         // Validate No of GL entries
         GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
@@ -2286,7 +2292,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         PmtDiscountDate: Date;
     begin
         // TFS DynamicsNAV60 Test Case ID 59013 :  Reverse Charge VAT - Pmt. Disc.Excl VAT(No) - Adjust for Payment Disc.(Yes)
-        Initialize;
+        Initialize();
         GeneralSetup(false);
         BankSetup(BankAcc, GLBankAccNo);
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
@@ -2353,7 +2359,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         PmtDiscAmount := Round(TotalInvAmount * PmtDiscount / 100, 1 / 100, '=');
         PayAmount := TotalInvAmount - PmtDiscAmount;
 
-        GLRegister.FindLast;
+        GLRegister.FindLast();
 
         // Validate No of GL entries
         GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
@@ -2382,7 +2388,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         Post_Payment_And_Apply(JournalTemplate, JournalBatch, 'Vendor', Vendor."No.", PayAmount, 'Payment', BankAcc, PmtDiscountDate);
         PmtDiscount := PmtDiscount / 100;
 
-        GLRegister.FindLast;
+        GLRegister.FindLast();
 
         // Validate No of GL entries
         GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
@@ -2444,7 +2450,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         AcquisitionCostAcc: Code[20];
     begin
         // TFS DynamicsNAV60 Test Case ID 58822 :  invoice discount + line discount - Purchase Fixed Asset
-        Initialize;
+        Initialize();
         GeneralSetup(false);
         S_58822_FASetup(AssetNo, AcquisitionCostAcc);
 
@@ -2468,7 +2474,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         // Post
         LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
 
-        GLRegister.FindLast;
+        GLRegister.FindLast();
 
         LineDisc := LineDisc / 100;
         LineAmt := LineCost * Quantity;
@@ -2525,7 +2531,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         AcquisitionCostAcc: Code[20];
     begin
         // TFS DynamicsNAV60 Test Case ID 58822 :  invoice discount + line discount - Purchase Fixed Asset
-        Initialize;
+        Initialize();
         GeneralSetup(false);
         S_58822_FASetup(AssetNo, AcquisitionCostAcc);
 
@@ -2549,7 +2555,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
 
         // Validate No of GL entries
-        GLRegister.FindLast;
+        GLRegister.FindLast();
 
         LineDisc := LineDisc / 100;
         LineAmt := LineCost * Quantity;
@@ -2610,7 +2616,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         JournalBatch: Code[10];
     begin
         // TFS DynamicsNAV60 Test Case ID 58849 :  Full VAT
-        Initialize;
+        Initialize();
         GeneralSetup(false);
         JournalSetup(JournalTemplate, JournalBatch);
 
@@ -2646,7 +2652,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
           GenJournalLine."Document Type"::Invoice, LineAmt, GenJournalLine."Bal. Account Type"::Vendor, Vendor."No.");
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         // Validate No of GL entries
         GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
         Assert.IsTrue(GLEntry.Count = 3, StrSubstNo(TotalEntryNumberError, GLEntry.TableName, 3, GLEntry.Count));
@@ -2696,7 +2702,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         GLBankAccNo: Code[20];
     begin
         // TFS DynamicsNAV60 Test Case ID 58849 :  Full VAT
-        Initialize;
+        Initialize();
         GeneralSetup(false);
         BankSetup(BankAcc, GLBankAccNo);
         JournalSetup(JournalTemplate, JournalBatch);
@@ -2747,7 +2753,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
           GenJournalLine."Document Type"::Invoice, LineAmt, GenJournalLine."Bal. Account Type"::Vendor, Vendor."No.");
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         // Get register Entry No. for later reversal
         RegisterNo := GLRegister."No.";
 
@@ -2775,13 +2781,13 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
           JournalTemplate, JournalBatch, GenJournalLine."Account Type"::Vendor, Vendor."No.", WorkDate,
           GenJournalLine."Document Type"::Payment, LineAmt, GenJournalLine."Bal. Account Type"::"Bank Account", BankAcc);
         VendLedgerEntry.SetRange("Vendor No.", Vendor."No.");
-        VendLedgerEntry.FindLast;
+        VendLedgerEntry.FindLast();
         GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
         GenJournalLine.Validate("Applies-to Doc. No.", VendLedgerEntry."Document No.");
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
-        GLRegister.FindLast;
+        GLRegister.FindLast();
 
         // Validate No of GL entries
         GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
@@ -2800,14 +2806,14 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
 
         // Step3: Unapply payment and Invoice
         VendLedgerEntry.SetRange("Vendor No.", Vendor."No.");
-        VendLedgerEntry.FindLast;
+        VendLedgerEntry.FindLast();
         DtldVendLedgEntry.SetRange("Vendor Ledger Entry No.", VendLedgerEntry."Entry No.");
         DtldVendLedgEntry.SetRange("Entry Type", DtldVendLedgEntry."Entry Type"::Application);
-        DtldVendLedgEntry.FindLast;
+        DtldVendLedgEntry.FindLast();
         VendEntryApplyPostedEntries.PostUnApplyVendor(DtldVendLedgEntry, VendLedgerEntry."Document No.",
           VendLedgerEntry."Posting Date");
 
-        GLRegister.FindLast;
+        GLRegister.FindLast();
 
         // Validate No of GL entries
         GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
@@ -2826,7 +2832,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         ReversalEntry.SetHideDialog(true);
         ReversalEntry.ReverseRegister(RegisterNo);
 
-        GLRegister.FindLast;
+        GLRegister.FindLast();
 
         // Validate No of GL entries
         GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
@@ -2867,7 +2873,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         PmtDiscountDate: Date;
     begin
         // TFS DynamicsNAV60 Test Case ID 58923 :  Normal VAT - Payment discount + Pmt. Disc. Excl. VAT( Yes)
-        Initialize;
+        Initialize();
         GeneralSetup(true);
         BankSetup(BankAcc, GLBankAccNo);
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(false);
@@ -2910,7 +2916,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         PmtDiscountDate: Date;
     begin
         // TFS DynamicsNAV60 Test Case ID 58923 :  Normal VAT - Payment discount + Pmt. Disc. Excl. VAT( Yes)
-        Initialize;
+        Initialize();
         GeneralSetup(true);
         BankSetup(BankAcc, GLBankAccNo);
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(false);
@@ -2939,7 +2945,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         VATEntry: Record "VAT Entry";
         GLRegister: Record "G/L Register";
     begin
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         // Validate No of GL entries
         GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
         Assert.IsTrue(GLEntry.Count = 3, StrSubstNo(TotalEntryNumberError, GLEntry.TableName, 3, GLEntry.Count));
@@ -2972,7 +2978,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
     begin
         // TFS DynamicsNAV60 Test Case ID 58931 :
         // Normal VAT - Payment discount + Pmt. Disc. Excl. VAT( No) + Adjust for Payment Disc(No).
-        Initialize;
+        Initialize();
         GeneralSetup(true);
         BankSetup(BankAcc, GLBankAccNo);
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(false);
@@ -3012,7 +3018,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
     begin
         // TFS DynamicsNAV60 Test Case ID 58931 :
         // Normal VAT - Payment discount + Pmt. Disc. Excl. VAT( No) + Adjust for Payment Disc(No).
-        Initialize;
+        Initialize();
         GeneralSetup(true);
         BankSetup(BankAcc, GLBankAccNo);
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(false);
@@ -3039,7 +3045,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         VATEntry: Record "VAT Entry";
         GLRegister: Record "G/L Register";
     begin
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         // Validate No of GL entries
         GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
         Assert.IsTrue(GLEntry.Count = 3, StrSubstNo(TotalEntryNumberError, GLEntry.TableName, 3, GLEntry.Count));
@@ -3548,7 +3554,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
                   JournalTemplate, JournalBatch, GenJournalLine."Account Type"::Customer, AccNo, WorkDate,
                   GenJournalLine."Document Type"::Refund, 0, GenJournalLine."Bal. Account Type"::"Bank Account", BankAcc);
                 CustLedgerEntry.SetRange("Customer No.", AccNo);
-                CustLedgerEntry.FindLast;
+                CustLedgerEntry.FindLast();
                 GenJournalLine.Validate("Posting Date", CalcDate('<-1D>', PmtDiscountDate));
                 GenJournalLine.Validate(Amount, Amount);
                 GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::"Credit Memo");
@@ -3560,7 +3566,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
                   JournalTemplate, JournalBatch, GenJournalLine."Account Type"::Customer, AccNo, WorkDate,
                   GenJournalLine."Document Type"::Payment, 0, GenJournalLine."Bal. Account Type"::"Bank Account", BankAcc);
                 CustLedgerEntry.SetRange("Customer No.", AccNo);
-                CustLedgerEntry.FindLast;
+                CustLedgerEntry.FindLast();
                 GenJournalLine.Validate("Posting Date", CalcDate('<-1D>', PmtDiscountDate));
                 GenJournalLine.Validate(Amount, Amount);
                 GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
@@ -3575,7 +3581,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
                   JournalTemplate, JournalBatch, GenJournalLine."Account Type"::Vendor, AccNo, WorkDate,
                   GenJournalLine."Document Type"::Refund, 0, GenJournalLine."Bal. Account Type"::"Bank Account", BankAcc);
                 VendorLedgerentry.SetRange("Vendor No.", AccNo);
-                VendorLedgerentry.FindLast;
+                VendorLedgerentry.FindLast();
                 GenJournalLine.Validate("Posting Date", CalcDate('<-1D>', PmtDiscountDate));
                 GenJournalLine.Validate(Amount, Amount);
                 GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::"Credit Memo");
@@ -3587,7 +3593,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
                   JournalTemplate, JournalBatch, GenJournalLine."Account Type"::Vendor, AccNo, WorkDate,
                   GenJournalLine."Document Type"::Payment, 0, GenJournalLine."Bal. Account Type"::"Bank Account", BankAcc);
                 VendorLedgerentry.SetRange("Vendor No.", AccNo);
-                VendorLedgerentry.FindLast;
+                VendorLedgerentry.FindLast();
                 GenJournalLine.Validate("Posting Date", CalcDate('<-1D>', PmtDiscountDate));
                 GenJournalLine.Validate(Amount, Amount);
                 GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);

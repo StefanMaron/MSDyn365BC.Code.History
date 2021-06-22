@@ -1,4 +1,4 @@
-codeunit 249 "VAT Registration Log Mgt."
+﻿codeunit 249 "VAT Registration Log Mgt."
 {
     Permissions = TableData "VAT Registration Log" = rimd;
 
@@ -158,6 +158,8 @@ codeunit 249 "VAT Registration Log Mgt."
             "User ID" := UserId;
             Insert(true);
         end;
+
+        OnAfterInsertVATRegistrationLog(VATRegistrationLog);
     end;
 
     procedure DeleteCustomerLog(Customer: Record Customer)
@@ -419,6 +421,11 @@ codeunit 249 "VAT Registration Log Mgt."
             exit(false);
 
         exit(true);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInsertVATRegistrationLog(var VATRegistrationLog: Record "VAT Registration Log")
+    begin
     end;
 }
 

@@ -52,31 +52,40 @@ codeunit 408 DimensionManagement
         SourceCodeSetup.Get;
         case TableID of
             DATABASE::"Sales Header",
-          DATABASE::"Sales Line":
+            DATABASE::"Sales Line":
                 SourceCode := SourceCodeSetup.Sales;
             DATABASE::"Purchase Header",
-          DATABASE::"Purchase Line",
-          DATABASE::"Requisition Line":
+            DATABASE::"Purchase Line",
+            DATABASE::"Requisition Line":
                 SourceCode := SourceCodeSetup.Purchases;
             DATABASE::"Bank Acc. Reconciliation",
-          DATABASE::"Bank Acc. Reconciliation Line":
+            DATABASE::"Bank Acc. Reconciliation Line":
                 SourceCode := SourceCodeSetup."Payment Reconciliation Journal";
             DATABASE::"Reminder Header":
                 SourceCode := SourceCodeSetup.Reminder;
             DATABASE::"Finance Charge Memo Header":
                 SourceCode := SourceCodeSetup."Finance Charge Memo";
             DATABASE::"Assembly Header",
-          DATABASE::"Assembly Line":
+            DATABASE::"Assembly Line":
                 SourceCode := SourceCodeSetup.Assembly;
             DATABASE::"Transfer Line":
                 SourceCode := SourceCodeSetup.Transfer;
             DATABASE::"Service Header",
-          DATABASE::"Service Item Line",
-          DATABASE::"Service Line",
-          DATABASE::"Service Contract Header",
-          DATABASE::"Standard Service Line":
+            DATABASE::"Service Item Line",
+            DATABASE::"Service Line",
+            DATABASE::"Service Contract Header",
+            DATABASE::"Standard Service Line":
                 SourceCode := SourceCodeSetup."Service Management";
         end;
+    end;
+
+    procedure SetSourceCode(TableID: Integer; RecordVar: Variant)
+    var
+        RecRef: RecordRef;
+    begin
+        SetSourceCode(TableID);
+
+        OnAfterSetSourceCodeWithVar(TableID, RecordVar, SourceCode);
     end;
 
     procedure GetSourceCode(): Code[10]
@@ -1678,16 +1687,20 @@ codeunit 408 DimensionManagement
         JobTaskDimension: Record "Job Task Dimension";
         JobTask: Record "Job Task";
         ConfirmManagement: Codeunit "Confirm Management";
+        IsHandled: Boolean;
     begin
         if DefaultDimension."Table ID" <> DATABASE::Job then
             exit;
 
         JobTask.SetRange("Job No.", DefaultDimension."No.");
-        if JobTask.IsEmpty then
+        if JobTask.IsEmpty() then
             exit;
 
-        if not ConfirmManagement.GetResponseOrDefault(Text019, true) then
-            exit;
+        IsHandled := false;
+        OnUpdateJobTaskDimOnBeforConfirm(DefaultDimension, IsHandled);
+        if not IsHandled then
+            if not ConfirmManagement.GetResponseOrDefault(Text019, true) then
+                exit;
 
         JobTaskDimension.SetRange("Job No.", DefaultDimension."No.");
         JobTaskDimension.SetRange("Dimension Code", DefaultDimension."Dimension Code");
@@ -1699,7 +1712,7 @@ codeunit 408 DimensionManagement
         then
             exit;
 
-        if JobTask.FindSet then
+        if JobTask.FindSet() then
             repeat
                 Clear(JobTaskDimension);
                 JobTaskDimension."Job No." := JobTask."Job No.";
@@ -1707,7 +1720,7 @@ codeunit 408 DimensionManagement
                 JobTaskDimension."Dimension Code" := DefaultDimension."Dimension Code";
                 JobTaskDimension."Dimension Value Code" := DefaultDimension."Dimension Value Code";
                 JobTaskDimension.Insert(true);
-            until JobTask.Next = 0;
+            until JobTask.Next() = 0;
     end;
 
     procedure DeleteJobTaskTempDim()
@@ -2313,6 +2326,11 @@ codeunit 408 DimensionManagement
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetSourceCodeWithVar(TableID: Integer; RecordVar: Variant; var SourceCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimValues(FieldNumber: Integer; var ShortcutDimCode: Code[20]; var DimSetID: Integer)
     begin
     end;
@@ -2419,6 +2437,11 @@ codeunit 408 DimensionManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnGetDefaultDimIDOnBeforeFindNewDimSetID(var TempDimensionBuffer: Record "Dimension Buffer" temporary; TableID: array[10] of Integer; No: array[10] of Code[20]; var GlobalDim1Code: Code[20]; var GlobalDim2Code: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateJobTaskDimOnBeforConfirm(DefaultDimension: Record "Default Dimension"; var IsHandled: Boolean)
     begin
     end;
 }
