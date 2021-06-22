@@ -46,7 +46,7 @@ codeunit 135543 "Pictures E2E Tests"
 
         // [GIVEN] a customer with image attached
         CreateTestCustomerWithImage(Customer, TempBlobExpected);
-        Commit;
+        Commit();
 
         // [WHEN] A request for the image is executed
         TargetURL := GeneratePictureValueURL(CustomerAPINameTxt, PAGE::"Customer Entity", Customer.Id);
@@ -70,7 +70,7 @@ codeunit 135543 "Pictures E2E Tests"
 
         // [GIVEN] a customer with image attached
         CreateTestCustomerWithImage(Customer, TempBlobExpected);
-        Commit;
+        Commit();
 
         // [WHEN] A request for the image is executed
         TargetURL := GeneratePictureSubPageURL(CustomerAPINameTxt, PAGE::"Customer Entity", Customer.Id, '');
@@ -93,7 +93,7 @@ codeunit 135543 "Pictures E2E Tests"
 
         // [GIVEN] a customer without image
         LibrarySales.CreateCustomer(Customer);
-        Commit;
+        Commit();
 
         // [WHEN] A request for the image is executed
         // [THEN] 204 - No body is returned
@@ -114,7 +114,7 @@ codeunit 135543 "Pictures E2E Tests"
 
         // [GIVEN] a customer with image attached
         LibrarySales.CreateCustomer(Customer);
-        Commit;
+        Commit();
 
         // [WHEN] A request for the image is executed
         TargetURL := GeneratePictureSubPageURL(CustomerAPINameTxt, PAGE::"Customer Entity", Customer.Id, '');
@@ -140,7 +140,7 @@ codeunit 135543 "Pictures E2E Tests"
         // [GIVEN] a customer with image attached
         LibrarySales.CreateCustomer(Customer);
         GetRedImageTempBlob(TempBlobExpected);
-        Commit;
+        Commit();
 
         // [WHEN] A request to patch the image is executed
         TargetURL := GeneratePictureValueURL(CustomerAPINameTxt, PAGE::"Customer Entity", Customer.Id);
@@ -172,7 +172,7 @@ codeunit 135543 "Pictures E2E Tests"
         // [GIVEN] a customer with image attached
         CreateTestCustomerWithImage(Customer, TempBlobOriginal);
         GetBlueImageTempBlob(TempBlobExpected);
-        Commit;
+        Commit();
 
         // [WHEN] A request to replace the image is executed
         TargetURL := GeneratePictureValueURL(CustomerAPINameTxt, PAGE::"Customer Entity", Customer.Id);
@@ -203,7 +203,7 @@ codeunit 135543 "Pictures E2E Tests"
         // [GIVEN] a customer with image attached
         CreateTestCustomerWithImage(Customer, TempBlobOriginal);
         GetBlueImageTempBlob(TempBlobExpected);
-        Commit;
+        Commit();
 
         // [WHEN] A request to delete the image is executed
         TargetURL := GeneratePictureSubPageURL(CustomerAPINameTxt, PAGE::"Customer Entity", Customer.Id, Customer.Id);
@@ -229,7 +229,7 @@ codeunit 135543 "Pictures E2E Tests"
 
         // [GIVEN] a Vendor with image attached
         CreateTestVendorWithImage(Vendor, TempBlobExpected);
-        Commit;
+        Commit();
 
         // [WHEN] A request for the image is executed
         TargetURL := GeneratePictureValueURL(VendorAPINameTxt, PAGE::"Vendor Entity", Vendor.Id);
@@ -253,7 +253,7 @@ codeunit 135543 "Pictures E2E Tests"
 
         // [GIVEN] a Vendor with image attached
         CreateTestVendorWithImage(Vendor, TempBlobExpected);
-        Commit;
+        Commit();
 
         // [WHEN] A request for the image is executed
         TargetURL := GeneratePictureSubPageURL(VendorAPINameTxt, PAGE::"Vendor Entity", Vendor.Id, '');
@@ -276,7 +276,7 @@ codeunit 135543 "Pictures E2E Tests"
 
         // [GIVEN] a Vendor without image
         LibraryPurchase.CreateVendor(Vendor);
-        Commit;
+        Commit();
 
         // [WHEN] A request for the image is executed
         // [THEN] 204 - No body is returned
@@ -297,7 +297,7 @@ codeunit 135543 "Pictures E2E Tests"
 
         // [GIVEN] a Vendor with image attached
         LibraryPurchase.CreateVendor(Vendor);
-        Commit;
+        Commit();
 
         // [WHEN] A request for the image is executed
         TargetURL := GeneratePictureSubPageURL(VendorAPINameTxt, PAGE::"Vendor Entity", Vendor.Id, '');
@@ -323,7 +323,7 @@ codeunit 135543 "Pictures E2E Tests"
         // [GIVEN] a Vendor with image attached
         LibraryPurchase.CreateVendor(Vendor);
         GetRedImageTempBlob(TempBlobExpected);
-        Commit;
+        Commit();
 
         // [WHEN] A request to patch the image is executed
         TargetURL := GeneratePictureValueURL(VendorAPINameTxt, PAGE::"Vendor Entity", Vendor.Id);
@@ -355,7 +355,7 @@ codeunit 135543 "Pictures E2E Tests"
         // [GIVEN] a Vendor with image attached
         CreateTestVendorWithImage(Vendor, TempBlobOriginal);
         GetBlueImageTempBlob(TempBlobExpected);
-        Commit;
+        Commit();
 
         // [WHEN] A request to replace the image is executed
         TargetURL := GeneratePictureValueURL(VendorAPINameTxt, PAGE::"Vendor Entity", Vendor.Id);
@@ -386,7 +386,7 @@ codeunit 135543 "Pictures E2E Tests"
         // [GIVEN] a Vendor with image attached
         CreateTestVendorWithImage(Vendor, TempBlobOriginal);
         GetBlueImageTempBlob(TempBlobExpected);
-        Commit;
+        Commit();
 
         // [WHEN] A request to delete the image is executed
         TargetURL := GeneratePictureSubPageURL(VendorAPINameTxt, PAGE::"Vendor Entity", Vendor.Id, Vendor.Id);
@@ -412,7 +412,7 @@ codeunit 135543 "Pictures E2E Tests"
 
         // [GIVEN] an Employee with image attached
         CreateTestEmployeeWithImage(Employee, TempBlobExpected);
-        Commit;
+        Commit();
 
         // [WHEN] A request for the image is executed
         TargetURL := GeneratePictureValueURL(EmployeeAPINameTxt, PAGE::"Employee Entity", Employee.Id);
@@ -436,7 +436,7 @@ codeunit 135543 "Pictures E2E Tests"
 
         // [GIVEN] a Employee with image attached
         CreateTestEmployeeWithImage(Employee, TempBlobExpected);
-        Commit;
+        Commit();
 
         // [WHEN] A request for the image is executed
         TargetURL := GeneratePictureSubPageURL(EmployeeAPINameTxt, PAGE::"Employee Entity", Employee.Id, '');
@@ -459,7 +459,7 @@ codeunit 135543 "Pictures E2E Tests"
 
         // [GIVEN] a Employee without image
         LibraryHumanResource.CreateEmployee(Employee);
-        Commit;
+        Commit();
 
         // [WHEN] A request for the image is executed
         // [THEN] 204 - No body is returned
@@ -480,7 +480,7 @@ codeunit 135543 "Pictures E2E Tests"
 
         // [GIVEN] a Employee with image attached
         LibraryHumanResource.CreateEmployee(Employee);
-        Commit;
+        Commit();
 
         // [WHEN] A request for the image is executed
         TargetURL := GeneratePictureSubPageURL(EmployeeAPINameTxt, PAGE::"Employee Entity", Employee.Id, '');
@@ -506,7 +506,7 @@ codeunit 135543 "Pictures E2E Tests"
         // [GIVEN] a Employee with image attached
         LibraryHumanResource.CreateEmployee(Employee);
         GetRedImageTempBlob(TempBlobExpected);
-        Commit;
+        Commit();
 
         // [WHEN] A request to patch the image is executed
         TargetURL := GeneratePictureValueURL(EmployeeAPINameTxt, PAGE::"Employee Entity", Employee.Id);
@@ -538,7 +538,7 @@ codeunit 135543 "Pictures E2E Tests"
         // [GIVEN] a Employee with image attached
         CreateTestEmployeeWithImage(Employee, TempBlobOriginal);
         GetBlueImageTempBlob(TempBlobExpected);
-        Commit;
+        Commit();
 
         // [WHEN] A request to replace the image is executed
         TargetURL := GeneratePictureValueURL(EmployeeAPINameTxt, PAGE::"Employee Entity", Employee.Id);
@@ -569,7 +569,7 @@ codeunit 135543 "Pictures E2E Tests"
         // [GIVEN] a Employee with image attached
         CreateTestEmployeeWithImage(Employee, TempBlobOriginal);
         GetBlueImageTempBlob(TempBlobExpected);
-        Commit;
+        Commit();
 
         // [WHEN] A request to delete the image is executed
         TargetURL := GeneratePictureSubPageURL(EmployeeAPINameTxt, PAGE::"Employee Entity", Employee.Id, Employee.Id);
@@ -595,7 +595,7 @@ codeunit 135543 "Pictures E2E Tests"
 
         // [GIVEN] a Item with image attached
         CreateTestItemWithImage(Item, TempBlobExpected);
-        Commit;
+        Commit();
 
         // [WHEN] A request for the image is executed
         TargetURL := GeneratePictureValueURL(ItemAPINameTxt, PAGE::"Item Entity", Item.Id);
@@ -619,7 +619,7 @@ codeunit 135543 "Pictures E2E Tests"
 
         // [GIVEN] a Item with image attached
         CreateTestItemWithImage(Item, TempBlobExpected);
-        Commit;
+        Commit();
 
         // [WHEN] A request for the image is executed
         TargetURL := GeneratePictureSubPageURL(ItemAPINameTxt, PAGE::"Item Entity", Item.Id, '');
@@ -642,7 +642,7 @@ codeunit 135543 "Pictures E2E Tests"
 
         // [GIVEN] a Item without image
         LibraryInventory.CreateItem(Item);
-        Commit;
+        Commit();
 
         // [WHEN] A request for the image is executed
         // [THEN] 204 - No body is returned
@@ -663,7 +663,7 @@ codeunit 135543 "Pictures E2E Tests"
 
         // [GIVEN] a Item with image attached
         LibraryInventory.CreateItem(Item);
-        Commit;
+        Commit();
 
         // [WHEN] A request for the image is executed
         TargetURL := GeneratePictureSubPageURL(ItemAPINameTxt, PAGE::"Item Entity", Item.Id, '');
@@ -689,7 +689,7 @@ codeunit 135543 "Pictures E2E Tests"
         // [GIVEN] a Item with image attached
         LibraryInventory.CreateItem(Item);
         GetRedImageTempBlob(TempBlobExpected);
-        Commit;
+        Commit();
 
         // [WHEN] A request to patch the image is executed
         TargetURL := GeneratePictureValueURL(ItemAPINameTxt, PAGE::"Item Entity", Item.Id);
@@ -721,7 +721,7 @@ codeunit 135543 "Pictures E2E Tests"
         // [GIVEN] a Item with image attached
         CreateTestItemWithImage(Item, TempBlobOriginal);
         GetBlueImageTempBlob(TempBlobExpected);
-        Commit;
+        Commit();
 
         // [WHEN] A request to replace the image is executed
         TargetURL := GeneratePictureValueURL(ItemAPINameTxt, PAGE::"Item Entity", Item.Id);
@@ -752,7 +752,7 @@ codeunit 135543 "Pictures E2E Tests"
         // [GIVEN] a Item with image attached
         CreateTestItemWithImage(Item, TempBlobOriginal);
         GetBlueImageTempBlob(TempBlobExpected);
-        Commit;
+        Commit();
 
         // [WHEN] A request to delete the image is executed
         TargetURL := GeneratePictureSubPageURL(ItemAPINameTxt, PAGE::"Item Entity", Item.Id, Item.Id);
@@ -901,7 +901,7 @@ codeunit 135543 "Pictures E2E Tests"
         ExpectedInStream: InStream;
     begin
         TempBlobExpected.CreateInStream(ImageInStream);
-        Customer.Init;
+        Customer.Init();
         Customer.Image.ImportStream(ImageInStream, '');
         TempBlobExpected.CreateOutStream(ImageOutStream);
         Customer.Image.ExportStream(ImageOutStream);

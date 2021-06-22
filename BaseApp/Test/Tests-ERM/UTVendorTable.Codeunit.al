@@ -275,7 +275,7 @@ codeunit 134824 "UT Vendor Table"
         // Setup
         NoneExistingVendorNo := LibraryPurchase.CreateVendorNo;
         Vendor.Get(NoneExistingVendorNo);
-        Vendor.Delete;
+        Vendor.Delete();
 
         // Exercise and Verify None Existing Vendor
         asserterror Vendor.GetVendorNo(NoneExistingVendorNo);
@@ -449,7 +449,7 @@ codeunit 134824 "UT Vendor Table"
         LibraryPurchase.CreateVendor(Vendor);
         Vendor."Primary Contact No." := ExpectedPrimaryContactNo;
         Vendor.Contact := '';
-        Vendor.Modify;
+        Vendor.Modify();
 
         // [GIVEN] Text[50] = "XX"
         ExpectedContact := CopyStr(LibraryUtility.GenerateRandomText(50), 1, 50);
@@ -699,7 +699,7 @@ codeunit 134824 "UT Vendor Table"
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"UT Vendor Table");
-        Vendor.DeleteAll;
+        Vendor.DeleteAll();
         LibraryApplicationArea.EnableFoundationSetup;
         LibrarySetupStorage.Restore;
 
@@ -711,7 +711,7 @@ codeunit 134824 "UT Vendor Table"
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"UT Vendor Table");
     end;
 

@@ -13,9 +13,9 @@ report 6002 "Delete Service Document Log"
             trigger OnAfterGetRecord()
             begin
                 if not ProcessDeletedOnly then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
-                ServHeader.Reset;
+                ServHeader.Reset();
                 if (("Document Type" = "Document Type"::Order) or
                     ("Document Type" = "Document Type"::Invoice) or
                     ("Document Type" = "Document Type"::"Credit Memo") or
@@ -24,14 +24,14 @@ report 6002 "Delete Service Document Log"
                    ("Document Type" = "Document Type"::"Posted Invoice") and not ServInvHeader.Get("Document No.") or
                    ("Document Type" = "Document Type"::"Posted Credit Memo") and not ServCrMemoHeader.Get("Document No.")
                 then begin
-                    ServOrdLog.Reset;
+                    ServOrdLog.Reset();
                     ServOrdLog.SetRange("Document Type", "Document Type");
                     ServOrdLog.SetRange("Document No.", "Document No.");
-                    LogEntryFiltered := ServOrdLog.Count;
+                    LogEntryFiltered := ServOrdLog.Count();
 
                     LogEntryDeleted := LogEntryDeleted + LogEntryFiltered;
                     LogEntryProcessed := LogEntryProcessed + LogEntryFiltered;
-                    ServOrdLog.DeleteAll;
+                    ServOrdLog.DeleteAll();
 
                     Window.Update(2, LogEntryDeleted)
                 end else
@@ -58,14 +58,14 @@ report 6002 "Delete Service Document Log"
                 if ProcessDeletedOnly then begin
                     if not HideConfirmationDlg then
                         if not ConfirmManagement.GetResponseOrDefault(Text006, true) then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     Window.Open(Text007 + Text008 + Text009);
                     exit;
                 end;
                 if CounterTotal = 0 then begin
                     if not HideConfirmationDlg then
                         Message(Text000);
-                    CurrReport.Break;
+                    CurrReport.Break();
                 end;
                 if not HideConfirmationDlg then
                     if not ConfirmManagement.GetResponseOrDefault(
@@ -73,7 +73,7 @@ report 6002 "Delete Service Document Log"
                     then
                         Error(Text003);
 
-                DeleteAll;
+                DeleteAll();
                 LogEntryDeleted := CounterTotal;
             end;
         }

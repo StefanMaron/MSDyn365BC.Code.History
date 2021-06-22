@@ -229,7 +229,7 @@ codeunit 9033 "Invite External Accountant"
                 AzureADGraph.GetUserAssignedPlans(GuestGraphUser, UserAssignedPlans);
 
                 if (not IsNull(UserAssignedPlans)) then
-                    NumberOfAssignedPlan := UserAssignedPlans.Count;
+                    NumberOfAssignedPlan := UserAssignedPlans.Count();
             end;
         until (NumberOfAssignedPlan > 1) or (Count = 10);
 
@@ -238,6 +238,18 @@ codeunit 9033 "Invite External Accountant"
             AzureADUserManagement.CreateNewUserFromGraphUser(GuestGraphUser);
         end else
             OnInvitationCreateNewUser(false);
+    end;
+
+    [Scope('OnPrem')]
+    procedure IsLicenseAlreadyAssigned(GuestGraphUser: DotNet UserInfo): Boolean
+    var
+        AzureADGraph: Codeunit "Azure AD Graph";
+        UserAssignedPlans: DotNet GenericList1;
+    begin
+        AzureADGraph.GetUserAssignedPlans(GuestGraphUser, UserAssignedPlans);
+        if IsNull(UserAssignedPlans) then
+            exit(false);
+        exit(UserAssignedPlans.Count() > 0);
     end;
 
     [Scope('OnPrem')]

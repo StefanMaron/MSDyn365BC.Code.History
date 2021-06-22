@@ -18,11 +18,11 @@ report 7310 "Calculate Bins"
                     trigger OnAfterGetRecord()
                     begin
                         if IncStr(Level) = Level then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         if Level > ToLevel then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         if StrLen(Level) > StrLen(ToLevel) then
-                            CurrReport.Break;
+                            CurrReport.Break();
 
                         BinCreateWksh;
 
@@ -43,11 +43,11 @@ report 7310 "Calculate Bins"
                 trigger OnAfterGetRecord()
                 begin
                     if IncStr(Section) = Section then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     if Section > ToSection then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     if StrLen(Section) > StrLen(ToSection) then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     if (FromLevel = '') and (ToLevel = '') then
                         BinCreateWksh;
@@ -67,11 +67,11 @@ report 7310 "Calculate Bins"
             trigger OnAfterGetRecord()
             begin
                 if IncStr(Rack) = Rack then
-                    CurrReport.Break;
+                    CurrReport.Break();
                 if Rack > ToRack then
-                    CurrReport.Break;
+                    CurrReport.Break();
                 if StrLen(Rack) > StrLen(ToRack) then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 if (FromSection = '') and (ToSection = '') then
                     BinCreateWksh;
@@ -289,7 +289,7 @@ report 7310 "Calculate Bins"
             LineNo := BinCreationWkshLine."Line No." + 10000
         else
             LineNo := 10000;
-        BinCreationWkshLine.Init;
+        BinCreationWkshLine.Init();
         with BinCreationWkshLine do begin
             "Worksheet Template Name" := CurrTemplateName;
             Name := CurrWorksheetName;

@@ -15,10 +15,10 @@ codeunit 131310 "Library - ERM Customer Watch"
     procedure Init()
     begin
         Tolerance := 0.0;
-        WatchCustomer.Reset;
-        WatchCustomer.DeleteAll;
-        WatchCustLedgerEntry.Reset;
-        WatchCustLedgerEntry.DeleteAll;
+        WatchCustomer.Reset();
+        WatchCustomer.DeleteAll();
+        WatchCustLedgerEntry.Reset();
+        WatchCustLedgerEntry.DeleteAll();
     end;
 
     [Scope('OnPrem')]
@@ -280,7 +280,7 @@ codeunit 131310 "Library - ERM Customer Watch"
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        CustLedgerEntry.Reset;
+        CustLedgerEntry.Reset();
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
         if CustLedgerEntry.FindFirst then
             exit(CustLedgerEntry.Count);
@@ -291,7 +291,7 @@ codeunit 131310 "Library - ERM Customer Watch"
     var
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
-        DtldCustLedgEntry.Reset;
+        DtldCustLedgEntry.Reset();
         DtldCustLedgEntry.SetRange("Customer No.", CustomerNo);
         if DtldCustLedgEntry.FindFirst then
             exit(DtldCustLedgEntry.Count);
@@ -328,7 +328,7 @@ codeunit 131310 "Library - ERM Customer Watch"
     var
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
-        DtldCustLedgEntry.Reset;
+        DtldCustLedgEntry.Reset();
         DtldCustLedgEntry.SetRange("Customer No.", CustomerNo);
         DtldCustLedgEntry.SetRange("Entry Type", LineType);
         if DtldCustLedgEntry.FindFirst then
@@ -340,7 +340,7 @@ codeunit 131310 "Library - ERM Customer Watch"
     var
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
-        DtldCustLedgEntry.Reset;
+        DtldCustLedgEntry.Reset();
         DtldCustLedgEntry.SetRange("Customer No.", CustomerNo);
         DtldCustLedgEntry.SetRange("Entry Type", LineType);
         if DtldCustLedgEntry.FindSet then

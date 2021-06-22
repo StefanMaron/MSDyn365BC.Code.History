@@ -53,34 +53,35 @@ codeunit 424 "Export Analysis View"
         ServerFileName: Text;
         SkipDownload: Boolean;
 
-    procedure ExportData(var AnalysisViewEntry: Record "Analysis View Entry"; Sign: Boolean; ShowInAddCurr: Boolean; AmountField: Option; ShowName: Boolean; DateFilter: Text; AccFilter: Text; BudgetFilter: Text; Dim1Filter: Text; Dim2Filter: Text; Dim3Filter: Text; Dim4Filter: Text; AmountType: Option; ClosingEntryFilter: Option; Show: Option; OtherFilter: Text)
+    [Obsolete('Replaced by ExportData with AnalysisByDimParameters.','16.0')]
+    procedure ExportData(var Rec: Record "Analysis View Entry"; Sign: Boolean; ShowInAddCurr: Boolean; AmountField: Option; ShowName: Boolean; DateFilter: Text; AccFilter: Text; BudgetFilter: Text; Dim1Filter: Text; Dim2Filter: Text; Dim3Filter: Text; Dim4Filter: Text; AmountType: Option; ClosingEntryFilter: Option; Show: Option; OtherFilter: Text)
+    begin
+    end;
+
+    procedure ExportData(var AnalysisViewEntry: Record "Analysis View Entry"; AnalysisByDimParameters: Record "Analysis by Dim. Parameters")
     var
         BusUnitFilter: Text;
         CashFlowFilter: Text;
     begin
         GLAccountSource := AnalysisViewEntry."Account Source" = AnalysisViewEntry."Account Source"::"G/L Account";
 
-        CheckCombination(Show, AmountField);
+        CheckCombination(AnalysisByDimParameters."Show Actual/Budgets", AnalysisByDimParameters."Show Amount Field");
 
         BusUnitFilter := '';
         CashFlowFilter := '';
 
-        SetOtherFilterToCorrectFilter(OtherFilter, BusUnitFilter, CashFlowFilter);
+        SetOtherFilterToCorrectFilter(AnalysisByDimParameters."Bus. Unit Filter", BusUnitFilter, CashFlowFilter);
 
         HasBusinessUnits := not BusUnit.IsEmpty;
 
         ServerFileName := FileMgt.ServerTempFileName('xlsx');
 
-        CreateFillGeneralInfoSheet(
-          AnalysisViewEntry, Sign, AmountType, DateFilter, AccFilter, BudgetFilter,
-          Dim1Filter, Dim2Filter, Dim3Filter, Dim4Filter, ClosingEntryFilter, ShowInAddCurr, CashFlowFilter);
+        CreateFillGeneralInfoSheet(AnalysisViewEntry, AnalysisByDimParameters);
 
         TempExcelBuffer.CreateBook(ServerFileName, StrSubstNo('%1%2', Text002, AnalysisViewEntry."Analysis View Code"));
         TempExcelBuffer.WriteSheet(StrSubstNo('%1%2', Text002, AnalysisViewEntry."Analysis View Code"), CompanyName, UserId);
 
-        CreateDataSheet(
-          AnalysisViewEntry, Sign, ShowInAddCurr, ShowName, AccFilter, Dim1Filter, Dim2Filter,
-          Dim3Filter, Dim4Filter, ClosingEntryFilter, DateFilter, BusUnitFilter, BudgetFilter, AmountType, CashFlowFilter);
+        CreateDataSheet(AnalysisViewEntry, AnalysisByDimParameters);
 
         TempExcelBuffer.SelectOrAddSheet(StrSubstNo('%1%2', Text031, AnalysisViewEntry."Analysis View Code"));
         TempExcelBuffer.WriteAllToCurrentSheet(TempExcelBuffer);
@@ -93,7 +94,7 @@ codeunit 424 "Export Analysis View"
         OnAfterExportData(TempExcelBuffer, AnalysisViewEntry);
     end;
 
-    local procedure CreateDataSheet(var AnalysisViewEntry: Record "Analysis View Entry"; Sign: Boolean; ShowInAddCurr: Boolean; ShowName: Boolean; AccFilter: Text; Dim1Filter: Text; Dim2Filter: Text; Dim3Filter: Text; Dim4Filter: Text; ClosingEntryFilter: Option; DateFilter: Text; BusUnitFilter: Text; BudgetFilter: Text; AmountType: Option; CFFilter: Text)
+    local procedure CreateDataSheet(var AnalysisViewEntry: Record "Analysis View Entry"; AnalysisByDimParameters: Record "Analysis by Dim. Parameters")
     var
         AnalysisViewEntry2: Record "Analysis View Entry";
         AnalysisView: Record "Analysis View";
@@ -105,31 +106,28 @@ codeunit 424 "Export Analysis View"
         SignValue: Integer;
         NoOfLeadingColumns: Integer;
     begin
-        TempExcelBuffer.DeleteAll;
+        TempExcelBuffer.DeleteAll();
 
         AnalysisViewEntry2.Copy(AnalysisViewEntry);
         AnalysisView.Get(AnalysisViewEntry2."Analysis View Code");
-        PopulateTempAccountTable(AccFilter);
+        PopulateTempAccountTable(AnalysisByDimParameters."Account Filter");
 
-        FindDimLevel(AnalysisView."Dimension 1 Code", Dim1Filter, 1);
-        FindDimLevel(AnalysisView."Dimension 2 Code", Dim2Filter, 2);
-        FindDimLevel(AnalysisView."Dimension 3 Code", Dim3Filter, 3);
-        FindDimLevel(AnalysisView."Dimension 4 Code", Dim4Filter, 4);
+        FindDimLevel(AnalysisView."Dimension 1 Code", AnalysisByDimParameters."Dimension 1 Filter", 1);
+        FindDimLevel(AnalysisView."Dimension 2 Code", AnalysisByDimParameters."Dimension 2 Filter", 2);
+        FindDimLevel(AnalysisView."Dimension 3 Code", AnalysisByDimParameters."Dimension 3 Filter", 3);
+        FindDimLevel(AnalysisView."Dimension 4 Code", AnalysisByDimParameters."Dimension 4 Filter", 4);
 
         SignValue := 1;
-        if Sign then
+        if AnalysisByDimParameters."Show Opposite Sign" then
             SignValue := -1;
 
         CreateRowWithColumnsCaptions(AnalysisViewEntry2, AnalysisView);
 
         CreateAnalysisViewEntryPart(
-          AnalysisViewEntry2, AnalysisView, StartDate, EndDate, SignValue, ShowInAddCurr, ShowName,
-          ClosingEntryFilter, DateFilter, AmountType, CFFilter);
+          AnalysisViewEntry2, AnalysisView, StartDate, EndDate, SignValue, AnalysisByDimParameters);
 
         CreateAnalysisViewBudgetEntryPart(
-          AnalysisView, StartDate, EndDate, SignValue, ShowInAddCurr, ShowName, AccFilter,
-          Dim1Filter, Dim2Filter, Dim3Filter, Dim4Filter, ClosingEntryFilter, DateFilter,
-          BusUnitFilter, BudgetFilter, AmountType);
+          AnalysisView, StartDate, EndDate, SignValue, AnalysisByDimParameters);
 
         NoOfLeadingColumns := 0;
         if GLAccountSource then begin
@@ -137,21 +135,21 @@ codeunit 424 "Export Analysis View"
             if TempGLAcc2.Find('-') then
                 repeat
                     if not TempGLAcc2.Mark then begin
-                        FillOutGLAcc(TempGLAcc2."No.", ShowName);
+                        FillOutGLAcc(TempGLAcc2."No.", AnalysisByDimParameters."Show Column Name");
                         StartNewRow;
                     end;
                 until TempGLAcc2.Next = 0;
         end else begin
             TempCFAccount2.SetRange("Account Type", TempCFAccount2."Account Type"::Entry);
             if TempCFAccount2.Find('-') then
-                ProcessMarkedTempCFAccountRec(ShowName);
+                ProcessMarkedTempCFAccountRec(AnalysisByDimParameters."Show Column Name");
         end;
         NoOfLeadingColumns := MaxLevel + 1;
         if HasBusinessUnits then begin
             if BusUnit.Find('-') then
                 repeat
                     if not BusUnit.Mark then begin
-                        FillOutBusUnit(BusUnit.Code, ShowName);
+                        FillOutBusUnit(BusUnit.Code, AnalysisByDimParameters."Show Column Name");
                         StartNewRow;
                     end;
                 until BusUnit.Next = 0;
@@ -160,19 +158,19 @@ codeunit 424 "Export Analysis View"
         end;
 
         if AnalysisView."Dimension 1 Code" <> '' then
-            WriteDimLine(1, Dim1Filter, AnalysisView."Dimension 1 Code", NoOfLeadingColumns, ShowName);
+            WriteDimLine(1, AnalysisByDimParameters."Dimension 1 Filter", AnalysisView."Dimension 1 Code", NoOfLeadingColumns, AnalysisByDimParameters."Show Column Name");
         NoOfLeadingColumns := NoOfLeadingColumns + MaxLevelDim[1] + 1;
 
         if AnalysisView."Dimension 2 Code" <> '' then
-            WriteDimLine(2, Dim2Filter, AnalysisView."Dimension 2 Code", NoOfLeadingColumns, ShowName);
+            WriteDimLine(2, AnalysisByDimParameters."Dimension 2 Filter", AnalysisView."Dimension 2 Code", NoOfLeadingColumns, AnalysisByDimParameters."Show Column Name");
         NoOfLeadingColumns := NoOfLeadingColumns + MaxLevelDim[2] + 1;
 
         if AnalysisView."Dimension 3 Code" <> '' then
-            WriteDimLine(3, Dim3Filter, AnalysisView."Dimension 3 Code", NoOfLeadingColumns, ShowName);
+            WriteDimLine(3, AnalysisByDimParameters."Dimension 3 Filter", AnalysisView."Dimension 3 Code", NoOfLeadingColumns, AnalysisByDimParameters."Show Column Name");
         NoOfLeadingColumns := NoOfLeadingColumns + MaxLevelDim[3] + 1;
 
         if AnalysisView."Dimension 4 Code" <> '' then
-            WriteDimLine(4, Dim4Filter, AnalysisView."Dimension 4 Code", NoOfLeadingColumns, ShowName);
+            WriteDimLine(4, AnalysisByDimParameters."Dimension 4 Filter", AnalysisView."Dimension 4 Code", NoOfLeadingColumns, AnalysisByDimParameters."Show Column Name");
         NoOfLeadingColumns := NoOfLeadingColumns + MaxLevelDim[4] + 1;
 
         WeekNo := Date2DWY(StartDate, 2);
@@ -192,24 +190,24 @@ codeunit 424 "Export Analysis View"
         end;
     end;
 
-    local procedure CreateAnalysisViewEntryPart(var AnalysisViewEntry: Record "Analysis View Entry"; AnalysisView: Record "Analysis View"; var StartDate: Date; var EndDate: Date; SignValue: Integer; ShowInAddCurr: Boolean; ShowName: Boolean; ClosingEntryFilter: Option; DateFilter: Text; AmountType: Option; CFFilter: Text)
+    local procedure CreateAnalysisViewEntryPart(var AnalysisViewEntry: Record "Analysis View Entry"; AnalysisView: Record "Analysis View"; var StartDate: Date; var EndDate: Date; SignValue: Integer; AnalysisByDimParameters: Record "Analysis by Dim. Parameters")
     var
         AnalysisViewEntry2: Record "Analysis View Entry";
         MaxDate: Date;
     begin
         with AnalysisViewEntry do begin
             StartDate := "Posting Date";
-            AnalysisViewEntry2.SetFilter("Posting Date", DateFilter);
-            if (DateFilter <> '') and (AmountType = 1) then begin
+            AnalysisViewEntry2.SetFilter("Posting Date", AnalysisByDimParameters."Date Filter");
+            if (AnalysisByDimParameters."Date Filter" <> '') and (AnalysisByDimParameters."Amount Type" = 1) then begin
                 MaxDate := AnalysisViewEntry2.GetRangeMax("Posting Date");
                 SetFilter("Posting Date", '<=%1', MaxDate);
             end;
-            if CFFilter <> '' then
-                SetFilter("Cash Flow Forecast No.", CFFilter);
+            if AnalysisByDimParameters."Cash Flow Forecast Filter" <> '' then
+                SetFilter("Cash Flow Forecast No.", AnalysisByDimParameters."Cash Flow Forecast Filter");
 
             if FindSet then
                 repeat
-                    if (ClosingEntryFilter = 0) or ("Posting Date" = NormalDate("Posting Date")) then begin
+                    if (AnalysisByDimParameters."Closing Entries" = 0) or ("Posting Date" = NormalDate("Posting Date")) then begin
                         if "Posting Date" >= EndDate then
                             EndDate := "Posting Date"
                         else
@@ -219,28 +217,28 @@ codeunit 424 "Export Analysis View"
                         if GLAccountSource then begin
                             if TempGLAcc2.Get("Account No.") then
                                 TempGLAcc2.Mark(true);
-                            FillOutGLAcc("Account No.", ShowName);
+                            FillOutGLAcc("Account No.", AnalysisByDimParameters."Show Column Name");
                         end else begin
                             if TempCFAccount2.Get("Account No.") then
                                 TempCFAccount2.Mark(true);
-                            FillOutCFAccount("Account No.", ShowName);
+                            FillOutCFAccount("Account No.", AnalysisByDimParameters."Show Column Name");
                         end;
 
                         if HasBusinessUnits then
-                            FillOutBusUnit("Business Unit Code", ShowName);
+                            FillOutBusUnit("Business Unit Code", AnalysisByDimParameters."Show Column Name");
                         if AnalysisView."Dimension 1 Code" <> '' then
-                            FillOutDim("Dimension 1 Value Code", AnalysisView."Dimension 1 Code", 1, ShowName);
+                            FillOutDim("Dimension 1 Value Code", AnalysisView."Dimension 1 Code", 1, AnalysisByDimParameters."Show Column Name");
 
                         if AnalysisView."Dimension 2 Code" <> '' then
-                            FillOutDim("Dimension 2 Value Code", AnalysisView."Dimension 2 Code", 2, ShowName);
+                            FillOutDim("Dimension 2 Value Code", AnalysisView."Dimension 2 Code", 2, AnalysisByDimParameters."Show Column Name");
 
                         if AnalysisView."Dimension 3 Code" <> '' then
-                            FillOutDim("Dimension 3 Value Code", AnalysisView."Dimension 3 Code", 3, ShowName);
+                            FillOutDim("Dimension 3 Value Code", AnalysisView."Dimension 3 Code", 3, AnalysisByDimParameters."Show Column Name");
 
                         if AnalysisView."Dimension 4 Code" <> '' then
-                            FillOutDim("Dimension 4 Value Code", AnalysisView."Dimension 4 Code", 4, ShowName);
+                            FillOutDim("Dimension 4 Value Code", AnalysisView."Dimension 4 Code", 4, AnalysisByDimParameters."Show Column Name");
 
-                        if not ShowInAddCurr then begin
+                        if not AnalysisByDimParameters."Show In Add. Currency" then begin
                             FillNextCellInRow(CalculatePeriodStart(NormalDate("Posting Date"), -1));
                             FillNextCellInRow(CalculatePeriodStart(NormalDate("Posting Date"), 0));
                             FillNextCellInRow(CalculatePeriodStart(NormalDate("Posting Date"), 1));
@@ -267,7 +265,7 @@ codeunit 424 "Export Analysis View"
         end;
     end;
 
-    local procedure CreateAnalysisViewBudgetEntryPart(AnalysisView: Record "Analysis View"; var StartDate: Date; var EndDate: Date; SignValue: Integer; ShowInAddCurr: Boolean; ShowName: Boolean; AccFilter: Text; Dim1Filter: Text; Dim2Filter: Text; Dim3Filter: Text; Dim4Filter: Text; ClosingEntryFilter: Option; DateFilter: Text; BusUnitFilter: Text; BudgetFilter: Text; AmountType: Option)
+    local procedure CreateAnalysisViewBudgetEntryPart(AnalysisView: Record "Analysis View"; var StartDate: Date; var EndDate: Date; SignValue: Integer; AnalysisByDimParameters: Record "Analysis by Dim. Parameters")
     var
         Currency: Record Currency;
         GLSetup: Record "General Ledger Setup";
@@ -280,21 +278,21 @@ codeunit 424 "Export Analysis View"
     begin
         with AnalysisViewBudgetEntry do begin
             SetFilter("Analysis View Code", AnalysisView.Code);
-            SetFilter("Posting Date", DateFilter);
-            if (DateFilter <> '') and (AmountType = 1) then begin
+            SetFilter("Posting Date", AnalysisByDimParameters."Date Filter");
+            if (AnalysisByDimParameters."Date Filter" <> '') and (AnalysisByDimParameters."Amount Type" = 1) then begin
                 MaxDate := GetRangeMax("Posting Date");
                 SetFilter("Posting Date", '<= %1', MaxDate);
             end;
-            SetFilter("G/L Account No.", AccFilter);
-            SetFilter("Business Unit Code", BusUnitFilter);
-            SetFilter("Budget Name", BudgetFilter);
-            SetFilter("Dimension 1 Value Code", Dim1Filter);
-            SetFilter("Dimension 2 Value Code", Dim2Filter);
-            SetFilter("Dimension 3 Value Code", Dim3Filter);
-            SetFilter("Dimension 4 Value Code", Dim4Filter);
+            SetFilter("G/L Account No.", AnalysisByDimParameters."Account Filter");
+            SetFilter("Business Unit Code", AnalysisByDimParameters."Bus. Unit Filter");
+            SetFilter("Budget Name", AnalysisByDimParameters."Budget Filter");
+            SetFilter("Dimension 1 Value Code", AnalysisByDimParameters."Dimension 1 Filter");
+            SetFilter("Dimension 2 Value Code", AnalysisByDimParameters."Dimension 2 Filter");
+            SetFilter("Dimension 3 Value Code", AnalysisByDimParameters."Dimension 3 Filter");
+            SetFilter("Dimension 4 Value Code", AnalysisByDimParameters."Dimension 4 Filter");
             if FindSet then
                 repeat
-                    if (ClosingEntryFilter = 1) or ("Posting Date" = NormalDate("Posting Date")) then begin
+                    if (AnalysisByDimParameters."Closing Entries" = 1) or ("Posting Date" = NormalDate("Posting Date")) then begin
                         if "Posting Date" >= EndDate then
                             EndDate := "Posting Date";
                         if ("Posting Date" <= StartDate) or (StartDate = 0D) then
@@ -304,22 +302,22 @@ codeunit 424 "Export Analysis View"
 
                         if TempGLAcc2.Get("G/L Account No.") then
                             TempGLAcc2.Mark(true);
-                        FillOutGLAcc("G/L Account No.", ShowName);
+                        FillOutGLAcc("G/L Account No.", AnalysisByDimParameters."Show Column Name");
                         if HasBusinessUnits then
-                            FillOutBusUnit("Business Unit Code", ShowName);
+                            FillOutBusUnit("Business Unit Code", AnalysisByDimParameters."Show Column Name");
                         if AnalysisView."Dimension 1 Code" <> '' then
-                            FillOutDim("Dimension 1 Value Code", AnalysisView."Dimension 1 Code", 1, ShowName);
+                            FillOutDim("Dimension 1 Value Code", AnalysisView."Dimension 1 Code", 1, AnalysisByDimParameters."Show Column Name");
 
                         if AnalysisView."Dimension 2 Code" <> '' then
-                            FillOutDim("Dimension 2 Value Code", AnalysisView."Dimension 2 Code", 2, ShowName);
+                            FillOutDim("Dimension 2 Value Code", AnalysisView."Dimension 2 Code", 2, AnalysisByDimParameters."Show Column Name");
 
                         if AnalysisView."Dimension 3 Code" <> '' then
-                            FillOutDim("Dimension 3 Value Code", AnalysisView."Dimension 3 Code", 3, ShowName);
+                            FillOutDim("Dimension 3 Value Code", AnalysisView."Dimension 3 Code", 3, AnalysisByDimParameters."Show Column Name");
 
                         if AnalysisView."Dimension 4 Code" <> '' then
-                            FillOutDim("Dimension 4 Value Code", AnalysisView."Dimension 4 Code", 4, ShowName);
+                            FillOutDim("Dimension 4 Value Code", AnalysisView."Dimension 4 Code", 4, AnalysisByDimParameters."Show Column Name");
 
-                        if not ShowInAddCurr then begin
+                        if not AnalysisByDimParameters."Show In Add. Currency" then begin
                             FillNextCellInRow(CalculatePeriodStart(NormalDate("Posting Date"), -1));
                             FillNextCellInRow(CalculatePeriodStart(NormalDate("Posting Date"), 0));
                             FillNextCellInRow(CalculatePeriodStart(NormalDate("Posting Date"), 1));
@@ -335,8 +333,8 @@ codeunit 424 "Export Analysis View"
                                 CurrExchDate := WorkDate
                             else
                                 CurrExchDate := GetRangeMin("Posting Date");
-                            GLSetup.Get;
-                            if ShowInAddCurr and Currency.Get(GLSetup."Additional Reporting Currency") then
+                            GLSetup.Get();
+                            if AnalysisByDimParameters."Show In Add. Currency" and Currency.Get(GLSetup."Additional Reporting Currency") then
                                 AddRepCurrAmount :=
                                   Round(
                                     CurrExchRate.ExchangeAmtLCYToFCY(
@@ -407,15 +405,15 @@ codeunit 424 "Export Analysis View"
         exit(PostingDate);
     end;
 
-    local procedure CreateFillGeneralInfoSheet(var AnalysisViewEntry: Record "Analysis View Entry"; Sign: Boolean; AmountType: Option; DateFilter: Text; AccFilter: Text; BudgetFilter: Text; Dim1Filter: Text; Dim2Filter: Text; Dim3Filter: Text; Dim4Filter: Text; ClosingEntryFilter: Option; ShowInAddCurr: Boolean; CashFlowFilter: Text)
+    local procedure CreateFillGeneralInfoSheet(var AnalysisViewEntry: Record "Analysis View Entry"; AnalysisByDimParameters: Record "Analysis by Dim. Parameters")
     var
         GLSetup: Record "General Ledger Setup";
         AnalysisView: Record "Analysis View";
         AnalysisViewFilter: Record "Analysis View Filter";
         RowNoCount: Integer;
     begin
-        TempExcelBuffer.Reset;
-        TempExcelBuffer.DeleteAll;
+        TempExcelBuffer.Reset();
+        TempExcelBuffer.DeleteAll();
 
         with AnalysisViewEntry do begin
             FillCell(1, 1, AnalysisView.TableCaption);
@@ -467,56 +465,56 @@ codeunit 424 "Export Analysis View"
             FillCell(RowNoCount, 1, Text011);
             RowNoCount := RowNoCount + 1;
             FillCell(RowNoCount, 2, Text012);
-            case AmountType of
+            case AnalysisByDimParameters."Amount Type" of
                 0:
                     FillCell(RowNoCount, 3, Text013);
                 1:
                     FillCell(RowNoCount, 3, Text014);
             end;
-            if DateFilter <> '' then begin
+            if AnalysisByDimParameters."Date Filter" <> '' then begin
                 RowNoCount := RowNoCount + 1;
                 FillCell(RowNoCount, 2, Text015);
-                FillCell(RowNoCount, 3, DateFilter);
+                FillCell(RowNoCount, 3, AnalysisByDimParameters."Date Filter");
             end;
-            if AccFilter <> '' then begin
+            if AnalysisByDimParameters."Account Filter" <> '' then begin
                 RowNoCount := RowNoCount + 1;
                 FillCell(RowNoCount, 2, AnalysisView.FieldCaption("Account Filter"));
-                FillCell(RowNoCount, 3, AccFilter);
+                FillCell(RowNoCount, 3, AnalysisByDimParameters."Account Filter");
             end;
-            if BudgetFilter <> '' then begin
+            if AnalysisByDimParameters."Budget Filter" <> '' then begin
                 RowNoCount := RowNoCount + 1;
                 FillCell(RowNoCount, 2, Text016);
-                FillCell(RowNoCount, 3, BudgetFilter);
+                FillCell(RowNoCount, 3, AnalysisByDimParameters."Budget Filter");
             end;
-            if CashFlowFilter <> '' then begin
+            if AnalysisByDimParameters."Cash Flow Forecast Filter" <> '' then begin
                 RowNoCount := RowNoCount + 1;
                 FillCell(RowNoCount, 2, Text116);
-                FillCell(RowNoCount, 3, CashFlowFilter);
+                FillCell(RowNoCount, 3, AnalysisByDimParameters."Cash Flow Forecast Filter");
             end;
-            if Dim1Filter <> '' then begin
+            if AnalysisByDimParameters."Dimension 1 Filter" <> '' then begin
                 RowNoCount := RowNoCount + 1;
                 FillCell(RowNoCount, 2, AnalysisView."Dimension 1 Code");
-                FillCell(RowNoCount, 3, Dim1Filter);
+                FillCell(RowNoCount, 3, AnalysisByDimParameters."Dimension 1 Filter");
             end;
-            if Dim2Filter <> '' then begin
+            if AnalysisByDimParameters."Dimension 2 Filter" <> '' then begin
                 RowNoCount := RowNoCount + 1;
                 FillCell(RowNoCount, 2, AnalysisView."Dimension 2 Code");
-                FillCell(RowNoCount, 3, Dim2Filter);
+                FillCell(RowNoCount, 3, AnalysisByDimParameters."Dimension 2 Filter");
             end;
-            if Dim3Filter <> '' then begin
+            if AnalysisByDimParameters."Dimension 3 Filter" <> '' then begin
                 RowNoCount := RowNoCount + 1;
                 FillCell(RowNoCount, 2, AnalysisView."Dimension 3 Code");
-                FillCell(RowNoCount, 3, Dim3Filter);
+                FillCell(RowNoCount, 3, AnalysisByDimParameters."Dimension 3 Filter");
             end;
-            if Dim4Filter <> '' then begin
+            if AnalysisByDimParameters."Dimension 4 Filter" <> '' then begin
                 RowNoCount := RowNoCount + 1;
                 FillCell(RowNoCount, 2, AnalysisView."Dimension 4 Code");
-                FillCell(RowNoCount, 3, Dim4Filter);
+                FillCell(RowNoCount, 3, AnalysisByDimParameters."Dimension 4 Filter");
             end;
             if GLAccountSource then begin
                 RowNoCount := RowNoCount + 1;
                 FillCell(RowNoCount, 2, Text024);
-                case ClosingEntryFilter of
+                case AnalysisByDimParameters."Closing Entries" of
                     0:
                         FillCell(RowNoCount, 3, Text025);
                     1:
@@ -524,8 +522,8 @@ codeunit 424 "Export Analysis View"
                 end;
                 RowNoCount := RowNoCount + 1;
                 FillCell(RowNoCount, 2, Text027);
-                GLSetup.Get;
-                if ShowInAddCurr then
+                GLSetup.Get();
+                if AnalysisByDimParameters."Show In Add. Currency" then
                     FillCell(RowNoCount, 3, GLSetup."Additional Reporting Currency")
                 else
                     FillCell(RowNoCount, 3, GLSetup."LCY Code");
@@ -533,7 +531,7 @@ codeunit 424 "Export Analysis View"
 
             RowNoCount := RowNoCount + 1;
             FillCell(RowNoCount, 2, Text028);
-            if Sign then
+            if AnalysisByDimParameters."Show Opposite Sign" then
                 FillCell(RowNoCount, 3, Text029)
             else
                 FillCell(RowNoCount, 3, Text030);
@@ -619,9 +617,9 @@ codeunit 424 "Export Analysis View"
         if DimValue.Find('-') then
             repeat
                 TempDimValue2.Copy(DimValue);
-                TempDimValue2.Insert;
+                TempDimValue2.Insert();
                 TempDimValue3.Copy(DimValue);
-                TempDimValue3.Insert;
+                TempDimValue3.Insert();
             until DimValue.Next = 0;
         TempDimValue2.SetFilter(Code, DimFilter);
         if TempDimValue2.Find('-') then
@@ -633,7 +631,7 @@ codeunit 424 "Export Analysis View"
 
     local procedure FindDimParent(var Account: Code[20]; DimensionCode: Code[20])
     begin
-        TempDimValue3.Reset;
+        TempDimValue3.Reset();
         TempDimValue3.SetRange("Dimension Code", DimensionCode);
         TempDimValue3.Get(DimensionCode, Account);
         if TempDimValue3.Indentation <> 0 then begin
@@ -655,7 +653,7 @@ codeunit 424 "Export Analysis View"
             if TempDimValue2.Get(DimCode, DimValueCode) then
                 TempDimValue2.Mark(true)
             else
-                TempDimValue2.Init;
+                TempDimValue2.Init();
             DimValueCode2 := DimValueCode;
             Indent := TempDimValue2.Indentation;
             if (Indent <> 0) and (DimValueCode2 <> '') then
@@ -805,7 +803,7 @@ codeunit 424 "Export Analysis View"
         RowNo: Integer;
     begin
         RowNo := TempExcelBuffer."Row No." + 1;
-        TempExcelBuffer.Init;
+        TempExcelBuffer.Init();
         TempExcelBuffer.Validate("Row No.", RowNo);
         TempExcelBuffer.Validate("Column No.", 0);
     end;
@@ -832,11 +830,11 @@ codeunit 424 "Export Analysis View"
 
     local procedure AddParentToBuffer(var NameValueBuffer: Record "Name/Value Buffer"; id: Integer; AccountNumber: Text[250]; AccountName: Text[250])
     begin
-        NameValueBuffer.Init;
+        NameValueBuffer.Init();
         NameValueBuffer.ID := id;
         NameValueBuffer.Name := AccountNumber;
         NameValueBuffer.Value := AccountName;
-        NameValueBuffer.Insert;
+        NameValueBuffer.Insert();
     end;
 
     local procedure GetPivotFieldAccountIndexValue(Level: Integer): Text[250]
@@ -875,14 +873,14 @@ codeunit 424 "Export Analysis View"
             if GLAcc.Find('-') then
                 repeat
                     TempGLAcc3.Copy(GLAcc);
-                    TempGLAcc3.Insert;
+                    TempGLAcc3.Insert();
                 until GLAcc.Next = 0;
 
             TempGLAcc3.SetFilter("No.", AccFilter);
             if TempGLAcc3.Find('-') then
                 repeat
                     TempGLAcc2.Copy(TempGLAcc3);
-                    TempGLAcc2.Insert;
+                    TempGLAcc2.Insert();
                     if MaxLevel < TempGLAcc2.Indentation then
                         MaxLevel := TempGLAcc2.Indentation;
                 until TempGLAcc3.Next = 0;
@@ -891,14 +889,14 @@ codeunit 424 "Export Analysis View"
             if CFAccount.Find('-') then
                 repeat
                     TempCFAccount3.Copy(CFAccount);
-                    TempCFAccount3.Insert;
+                    TempCFAccount3.Insert();
                 until CFAccount.Next = 0;
 
             TempCFAccount3.SetFilter("No.", AccFilter);
             if TempCFAccount3.Find('-') then
                 repeat
                     TempCFAccount2.Copy(TempCFAccount3);
-                    TempCFAccount2.Insert;
+                    TempCFAccount2.Insert();
                     if MaxLevel < TempCFAccount2.Indentation then
                         MaxLevel := TempCFAccount2.Indentation;
                 until TempCFAccount3.Next = 0;

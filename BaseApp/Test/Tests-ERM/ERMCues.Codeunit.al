@@ -250,7 +250,7 @@ codeunit 134924 "ERM Cues"
         OldNumberOfDelayedOrders := SalesCue.CountOrders(SalesCue.FieldNo(Delayed));
 
         // [GIVEN] Sales Order "S2" is deleted.
-        SalesHeader[2].Delete;
+        SalesHeader[2].Delete();
 
         // [WHEN] Count the number of delayed orders again.
         NewNumberOfDelayedOrders := SalesCue.CountOrders(SalesCue.FieldNo(Delayed));
@@ -547,16 +547,16 @@ codeunit 134924 "ERM Cues"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Cues");
-        SalesHeader.DeleteAll;
-        SalesLine.DeleteAll;
-        PurchaseHeader.DeleteAll;
-        PurchaseLine.DeleteAll;
-        ServiceHeader.DeleteAll;
-        ServiceLine.DeleteAll;
-        ServiceContractHeader.DeleteAll;
-        ServiceContractLine.DeleteAll;
-        PostedWhseShipmentHeader.DeleteAll;
-        VendorLedgerEntry.DeleteAll;
+        SalesHeader.DeleteAll();
+        SalesLine.DeleteAll();
+        PurchaseHeader.DeleteAll();
+        PurchaseLine.DeleteAll();
+        ServiceHeader.DeleteAll();
+        ServiceLine.DeleteAll();
+        ServiceContractHeader.DeleteAll();
+        ServiceContractLine.DeleteAll();
+        PostedWhseShipmentHeader.DeleteAll();
+        VendorLedgerEntry.DeleteAll();
 
         if IsInitialized then
             exit;

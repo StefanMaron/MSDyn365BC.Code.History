@@ -170,7 +170,7 @@ codeunit 135517 "Currency Entity E2E Test"
         Currency: Record Currency;
     begin
         LibraryERM.CreateCurrency(Currency);
-        Commit;
+        Commit();
 
         exit(Currency.Code);
     end;

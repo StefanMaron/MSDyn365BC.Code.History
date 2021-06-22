@@ -180,8 +180,8 @@ page 9068 "Project Manager Activities"
                             if O365GettingStarted.Get(UserId, ClientTypeManagement.GetCurrentClientType) then begin
                                 O365GettingStarted."Tour in Progress" := false;
                                 O365GettingStarted."Current Page" := 1;
-                                O365GettingStarted.Modify;
-                                Commit;
+                                O365GettingStarted.Modify();
+                                Commit();
                             end;
 
                             O365GettingStartedMgt.LaunchWizard(true, false);

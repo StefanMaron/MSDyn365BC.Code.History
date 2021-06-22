@@ -10,7 +10,7 @@ codeunit 5434 "Automation - Failure RSPackage"
             if "Apply Status" in ["Apply Status"::InProgress, "Apply Status"::Scheduled] then
                 Validate("Apply Status", "Apply Status"::Error);
         Modify(true);
-        Commit;
+        Commit();
     end;
 }
 

@@ -14,7 +14,7 @@ table 5965 "Service Contract Header"
             trigger OnValidate()
             begin
                 if "Contract No." <> xRec."Contract No." then begin
-                    ServMgtSetup.Get;
+                    ServMgtSetup.Get();
                     NoSeriesMgt.TestManual(ServMgtSetup."Service Contract Nos.");
                     "No. Series" := '';
                 end;
@@ -48,8 +48,7 @@ table 5965 "Service Contract Header"
                 AnyServItemInOtherContract: Boolean;
             begin
                 if Status <> xRec.Status then begin
-                    if not SuspendChangeStatus then
-                        TestField("Change Status", "Change Status"::Open);
+                    CheckChangeStatus();
                     case "Contract Type" of
                         "Contract Type"::Contract:
                             begin
@@ -75,7 +74,7 @@ table 5965 "Service Contract Header"
                                         end;
                                 end;
 
-                                ServMgtSetup.Get;
+                                ServMgtSetup.Get();
                                 if ServMgtSetup."Use Contract Cancel Reason" then
                                     TestField("Cancel Reason Code");
 
@@ -98,12 +97,12 @@ table 5965 "Service Contract Header"
                             case Status of
                                 Status::" ":
                                     if xRec.Status = xRec.Status::Canceled then begin
-                                        ServContractLine.Reset;
+                                        ServContractLine.Reset();
                                         ServContractLine.SetRange("Contract Type", "Contract Type");
                                         ServContractLine.SetRange("Contract No.", "Contract No.");
                                         if ServContractLine.Find('-') then
                                             repeat
-                                                ServContractLine2.Reset;
+                                                ServContractLine2.Reset();
                                                 ServContractLine2.SetCurrentKey("Service Item No.");
                                                 ServContractLine2.SetRange("Service Item No.", ServContractLine."Service Item No.");
                                                 ServContractLine2.SetRange("Contract Type", "Contract Type"::Contract);
@@ -136,7 +135,7 @@ table 5965 "Service Contract Header"
                     end;
                     if Status = Status::Canceled then
                         "Change Status" := "Change Status"::Locked;
-                    ServContractLine.Reset;
+                    ServContractLine.Reset();
                     ServContractLine.SetRange("Contract Type", "Contract Type");
                     ServContractLine.SetRange("Contract No.", "Contract No.");
                     ServContractLine.ModifyAll("Contract Status", Status);
@@ -314,6 +313,7 @@ table 5965 "Service Contract Header"
                     if Cust.Get("Bill-to Customer No.") then begin
                         "Currency Code" := Cust."Currency Code";
                         "Payment Terms Code" := Cust."Payment Terms Code";
+                        Validate("Payment Method Code", Cust."Payment Method Code");
                         "Language Code" := Cust."Language Code";
                         SetSalespersonCode(Cust."Salesperson Code", "Salesperson Code");
                         if not SkipBillToContact then
@@ -436,11 +436,9 @@ table 5965 "Service Contract Header"
             Caption = 'Serv. Contract Acc. Gr. Code';
             TableRelation = "Service Contract Account Group";
         }
-        field(32; "Invoice Period"; Option)
+        field(32; "Invoice Period"; Enum "Service Contract Header Invoice Period")
         {
             Caption = 'Invoice Period';
-            OptionCaption = 'Month,Two Months,Quarter,Half Year,Year,None';
-            OptionMembers = Month,"Two Months",Quarter,"Half Year",Year,"None";
 
             trigger OnValidate()
             begin
@@ -450,7 +448,7 @@ table 5965 "Service Contract Header"
                 then
                     Error(Text065, FieldCaption("Invoice Period"), FieldCaption("Price Update Period"));
 
-                TestField("Change Status", "Change Status"::Open);
+                CheckChangeStatus();
                 if ("Invoice Period" = "Invoice Period"::None) and
                    ("Last Invoice Date" <> 0D)
                 then
@@ -465,23 +463,24 @@ table 5965 "Service Contract Header"
                     "Next Invoice Period Start" := 0D;
                     "Next Invoice Period End" := 0D;
                 end else
-                    if Prepaid then begin
-                        if "Next Invoice Date" = 0D then begin
-                            if "Last Invoice Date" = 0D then begin
-                                TestField("Starting Date");
-                                if "Starting Date" = CalcDate('<-CM>', "Starting Date") then
-                                    Validate("Next Invoice Date", "Starting Date")
-                                else
-                                    Validate("Next Invoice Date", CalcDate('<-CM+1M>', "Starting Date"));
+                    if IsInvoicePeriodInTimeSegment then
+                        if Prepaid then begin
+                            if "Next Invoice Date" = 0D then begin
+                                if "Last Invoice Date" = 0D then begin
+                                    TestField("Starting Date");
+                                    if "Starting Date" = CalcDate('<-CM>', "Starting Date") then
+                                        Validate("Next Invoice Date", "Starting Date")
+                                    else
+                                        Validate("Next Invoice Date", CalcDate('<-CM+1M>', "Starting Date"));
+                                end else
+                                    if "Last Invoice Date" = CalcDate('<-CM>', "Last Invoice Date") then
+                                        Validate("Next Invoice Date", CalcDate('<CM+1D>', "Last Invoice Period End"))
+                                    else
+                                        Validate("Next Invoice Date", CalcDate('<-CM+1M>', "Last Invoice Date"));
                             end else
-                                if "Last Invoice Date" = CalcDate('<-CM>', "Last Invoice Date") then
-                                    Validate("Next Invoice Date", CalcDate('<CM+1D>', "Last Invoice Period End"))
-                                else
-                                    Validate("Next Invoice Date", CalcDate('<-CM+1M>', "Last Invoice Date"));
+                                Validate("Next Invoice Date");
                         end else
-                            Validate("Next Invoice Date");
-                    end else
-                        Validate("Last Invoice Date");
+                            Validate("Last Invoice Date");
             end;
         }
         field(33; "Last Invoice Date"; Date)
@@ -619,7 +618,7 @@ table 5965 "Service Contract Header"
                 if "Starting Date" = 0D then begin
                     Validate("Next Invoice Date", 0D);
                     "First Service Date" := 0D;
-                    ServContractLine.Reset;
+                    ServContractLine.Reset();
                     ServContractLine.SetRange("Contract Type", "Contract Type");
                     ServContractLine.SetRange("Contract No.", "Contract No.");
                     ServContractLine.SetRange("New Line", true);
@@ -627,14 +626,14 @@ table 5965 "Service Contract Header"
                         repeat
                             ServContractLine."Starting Date" := 0D;
                             ServContractLine."Next Planned Service Date" := 0D;
-                            ServContractLine.Modify;
+                            ServContractLine.Modify();
                         until ServContractLine.Next = 0;
                         Modify(true);
                     end;
                 end else begin
                     if "Starting Date" > "First Service Date" then
                         "First Service Date" := "Starting Date";
-                    ServContractLine.Reset;
+                    ServContractLine.Reset();
                     ServContractLine.SetRange("Contract Type", "Contract Type");
                     ServContractLine.SetRange("Contract No.", "Contract No.");
                     ServContractLine.SetRange("New Line", true);
@@ -643,13 +642,13 @@ table 5965 "Service Contract Header"
                             ServContractLine.SuspendStatusCheck(true);
                             ServContractLine."Starting Date" := "Starting Date";
                             ServContractLine."Next Planned Service Date" := "First Service Date";
-                            ServContractLine.Modify;
+                            ServContractLine.Modify();
                         until ServContractLine.Next = 0;
                         Modify(true);
                     end;
                     if "Next Price Update Date" = 0D then
                         "Next Price Update Date" := CalcDate("Price Update Period", "Starting Date");
-                    if "Invoice Period" <> "Invoice Period"::None then
+                    if IsInvoicePeriodInTimeSegment then
                         if Prepaid then begin
                             if "Starting Date" = CalcDate('<-CM>', "Starting Date") then
                                 Validate("Next Invoice Date", "Starting Date")
@@ -681,7 +680,7 @@ table 5965 "Service Contract Header"
                                   Text023, FieldCaption("Expiration Date"), FieldCaption("Last Invoice Date"));
                     end;
 
-                    ServContractLine.Reset;
+                    ServContractLine.Reset();
                     ServContractLine.SetRange("Contract Type", "Contract Type");
                     ServContractLine.SetRange("Contract No.", "Contract No.");
                     ServContractLine.SetRange(Credited, false);
@@ -691,13 +690,16 @@ table 5965 "Service Contract Header"
                     then begin
                         if "Contract Type" = "Contract Type"::Contract then begin
                             ServContractLine.SetFilter("Contract Expiration Date", '>%1', "Expiration Date");
-                            if ServContractLine.Find('-') then
-                                if not ConfirmManagement.GetResponseOrDefault(
-                                     StrSubstNo(
-                                       Text056, FieldCaption("Expiration Date"),
-                                       TableCaption, "Expiration Date"), true)
-                                then
+                            if ServContractLine.Find('-') then begin
+                                if HideValidationDialog then
+                                    Confirmed := true
+                                else
+                                    Confirmed :=
+                                        ConfirmManagement.GetResponseOrDefault(
+                                            StrSubstNo(Text056, FieldCaption("Expiration Date"), TableCaption, "Expiration Date"), true);
+                                if not Confirmed then
                                     Error('');
+                            end;
                             ServContractLine.SetFilter("Contract Expiration Date", '>%1 | %2', "Expiration Date", 0D);
                         end;
 
@@ -705,7 +707,7 @@ table 5965 "Service Contract Header"
                             repeat
                                 ServContractLine."Contract Expiration Date" := "Expiration Date";
                                 ServContractLine."Credit Memo Date" := "Expiration Date";
-                                ServContractLine.Modify;
+                                ServContractLine.Modify();
                             until ServContractLine.Next = 0;
                             Modify(true);
                         end;
@@ -767,8 +769,8 @@ table 5965 "Service Contract Header"
 
             trigger OnValidate()
             begin
-                TestField("Change Status", "Change Status"::Open);
-                ServMgtSetup.Get;
+                CheckChangeStatus();
+                ServMgtSetup.Get();
                 DistributeAmounts;
                 Validate("Invoice Period");
             end;
@@ -811,10 +813,11 @@ table 5965 "Service Contract Header"
                         if "Invoice Period" = "Invoice Period"::None then
                             Validate("Next Invoice Date", 0D)
                         else
-                            if "Starting Date" = CalcDate('<-CM>', "Starting Date") then
-                                Validate("Next Invoice Date", "Starting Date")
-                            else
-                                Validate("Next Invoice Date", CalcDate('<-CM+1M>', "Starting Date"));
+                            if IsInvoicePeriodInTimeSegment then
+                                if "Starting Date" = CalcDate('<-CM>', "Starting Date") then
+                                    Validate("Next Invoice Date", "Starting Date")
+                                else
+                                    Validate("Next Invoice Date", CalcDate('<-CM+1M>', "Starting Date"));
                     end else
                         Validate("Last Invoice Date");
                 end;
@@ -874,7 +877,7 @@ table 5965 "Service Contract Header"
                 CheckChangeStatus;
 
                 if "Response Time (Hours)" <> xRec."Response Time (Hours)" then begin
-                    ServContractLine.Reset;
+                    ServContractLine.Reset();
                     ServContractLine.SetRange("Contract Type", "Contract Type");
                     ServContractLine.SetRange("Contract No.", "Contract No.");
                     ServContractLine.SetFilter("Response Time (Hours)", '>%1', "Response Time (Hours)");
@@ -928,7 +931,7 @@ table 5965 "Service Contract Header"
                               FieldCaption("Service Period"));
                     end;
                     if ContractLinesExist and (Format("Service Period") <> '') then begin
-                        ServContractLine.Reset;
+                        ServContractLine.Reset();
                         ServContractLine.SetRange("Contract Type", "Contract Type");
                         ServContractLine.SetRange("Contract No.", "Contract No.");
                         if ServContractLine.Find('-') then
@@ -937,7 +940,7 @@ table 5965 "Service Contract Header"
                                    (ServContractLine."Service Period" = xRec."Service Period")
                                 then begin
                                     ServContractLine."Service Period" := "Service Period";
-                                    ServContractLine.Modify;
+                                    ServContractLine.Modify();
                                 end;
                             until ServContractLine.Next = 0;
                     end;
@@ -980,8 +983,8 @@ table 5965 "Service Contract Header"
 
             trigger OnValidate()
             begin
-                TestField("Change Status", "Change Status"::Open);
-                ServMgtSetup.Get;
+                CheckChangeStatus();
+                ServMgtSetup.Get();
                 if "Allow Unbalanced Amounts" <> xRec."Allow Unbalanced Amounts" then
                     DistributeAmounts;
             end;
@@ -1348,6 +1351,26 @@ table 5965 "Service Contract Header"
             FieldClass = FlowFilter;
             TableRelation = Item;
         }
+        field(204; "Payment Method Code"; Code[10])
+        {
+            Caption = 'Payment Method Code';
+            TableRelation = "Payment Method";
+
+            trigger OnValidate()
+            var
+                PaymentMethod: Record "Payment Method";
+                SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate";
+            begin
+                if PaymentMethod.Get("Payment Method Code") then begin
+                    if PaymentMethod."Direct Debit" then begin
+                        "Direct Debit Mandate ID" := SEPADirectDebitMandate.GetDefaultMandate("Bill-to Customer No.", "Expiration Date");
+                        if "Payment Terms Code" = '' then
+                            "Payment Terms Code" := PaymentMethod."Direct Debit Pmt. Terms Code";
+                    end else
+                        "Direct Debit Mandate ID" := '';
+                end;
+            end;
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
@@ -1363,6 +1386,14 @@ table 5965 "Service Contract Header"
             begin
                 DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
             end;
+        }
+        field(1200; "Direct Debit Mandate ID"; Code[35])
+        {
+            Caption = 'Direct Debit Mandate ID';
+            TableRelation = "SEPA Direct Debit Mandate" WHERE("Customer No." = FIELD("Bill-to Customer No."),
+                                                               Closed = CONST(false),
+                                                               Blocked = CONST(false));
+            DataClassification = SystemMetadata;
         }
         field(5050; "Contact No."; Code[20])
         {
@@ -1551,17 +1582,17 @@ table 5965 "Service Contract Header"
                 then
                     Error(Text053);
         end;
-        ServContractLine.Reset;
+        ServContractLine.Reset();
         ServContractLine.SetRange("Contract Type", "Contract Type");
         ServContractLine.SetRange("Contract No.", "Contract No.");
-        ServContractLine.DeleteAll;
+        ServContractLine.DeleteAll();
 
         ServCommentLine.SetRange("Table Name", ServCommentLine."Table Name"::"Service Contract");
         ServCommentLine.SetRange("Table Subtype", "Contract Type");
         ServCommentLine.SetRange("No.", "Contract No.");
-        ServCommentLine.DeleteAll;
+        ServCommentLine.DeleteAll();
 
-        ServHour.Reset;
+        ServHour.Reset();
         case "Contract Type" of
             "Contract Type"::Quote:
                 ServHour.SetRange("Service Contract Type", ServHour."Service Contract Type"::Quote);
@@ -1569,9 +1600,9 @@ table 5965 "Service Contract Header"
                 ServHour.SetRange("Service Contract Type", ServHour."Service Contract Type"::Contract);
         end;
         ServHour.SetRange("Service Contract No.", "Contract No.");
-        ServHour.DeleteAll;
+        ServHour.DeleteAll();
 
-        FiledServContract.Reset;
+        FiledServContract.Reset();
         FiledServContract.SetCurrentKey("Contract Type Relation", "Contract No. Relation");
         FiledServContract.SetRange("Contract Type Relation", "Contract Type");
         FiledServContract.SetRange("Contract No. Relation", "Contract No.");
@@ -1585,7 +1616,7 @@ table 5965 "Service Contract Header"
         ConfirmManagement: Codeunit "Confirm Management";
         IsHandled: Boolean;
     begin
-        ServMgtSetup.Get;
+        ServMgtSetup.Get();
         if "Contract No." = '' then begin
             ServMgtSetup.TestField("Service Contract Nos.");
             NoSeriesMgt.InitSeries(ServMgtSetup."Service Contract Nos.", xRec."No. Series", 0D,
@@ -1597,10 +1628,10 @@ table 5965 "Service Contract Header"
         IsHandled := false;
         OnBeforeApplyServiceContractQuoteTemplate(Rec, IsHandled);
         if not IsHandled then begin
-            ServiceContractTemplate.Reset;
+            ServiceContractTemplate.Reset();
             if ServiceContractTemplate.FindFirst then
                 if ConfirmManagement.GetResponseOrDefault(Text000, false) then begin
-                    Commit;
+                    Commit();
                     Clear(ServContractQuoteTmplUpd);
                     ServContractQuoteTmplUpd.Run(Rec);
                 end;
@@ -1613,7 +1644,7 @@ table 5965 "Service Contract Header"
     begin
         CheckChangeStatus;
         if ("Contract Type" = "Contract Type"::Contract) and ("Contract No." <> '') then begin
-            ServMgtSetup.Get;
+            ServMgtSetup.Get();
             if ServMgtSetup."Register Contract Changes" then
                 UpdContractChangeLog(xRec);
 
@@ -1864,6 +1895,16 @@ table 5965 "Service Contract Header"
               "Contract No.", 0, FieldCaption("Payment Terms Code"), 0,
               Format(OldServContractHeader."Payment Terms Code"), Format("Payment Terms Code"),
               '', 0);
+        if "Payment Method Code" <> OldServContractHeader."Payment Method Code" then
+            ContractChangeLog.LogContractChange(
+              "Contract No.", 0, FieldCaption("Payment Method Code"), 0,
+              Format(OldServContractHeader."Payment Method Code"), Format("Payment Method Code"),
+              '', 0);
+        if "Direct Debit Mandate ID" <> OldServContractHeader."Direct Debit Mandate ID" then
+            ContractChangeLog.LogContractChange(
+              "Contract No.", 0, FieldCaption("Direct Debit Mandate ID"), 0,
+              Format(OldServContractHeader."Direct Debit Mandate ID"), Format("Direct Debit Mandate ID"),
+              '', 0);
         if "Contract Group Code" <> OldServContractHeader."Contract Group Code" then
             ContractChangeLog.LogContractChange(
               "Contract No.", 0, FieldCaption("Contract Group Code"), 0,
@@ -1932,7 +1973,7 @@ table 5965 "Service Contract Header"
     begin
         with ServContractHeader do begin
             ServContractHeader := Rec;
-            ServMgtSetup.Get;
+            ServMgtSetup.Get();
             ServMgtSetup.TestField("Service Contract Nos.");
             if NoSeriesMgt.SelectSeries(ServMgtSetup."Service Contract Nos.", OldServContract."No. Series", "No. Series") then begin
                 NoSeriesMgt.SetSeries("Contract No.");
@@ -1990,6 +2031,8 @@ table 5965 "Service Contract Header"
                     TempDate2 := CalcDate('<12M-1D>', NextInvDate);
                 "Invoice Period"::None:
                     TempDate2 := 0D;
+                else
+                    OnCalculateEndPeriodDateOnPrepaidCaseElse(Rec, TempDate2);
             end;
             exit(TempDate2);
         end;
@@ -2006,6 +2049,8 @@ table 5965 "Service Contract Header"
                 TempDate2 := CalcDate('<-CM-11M>', NextInvDate);
             "Invoice Period"::None:
                 TempDate2 := 0D;
+            else
+                OnCalculateEndPeriodDateCaseElse(Rec, TempDate2);
         end;
         exit(TempDate2);
     end;
@@ -2025,7 +2070,7 @@ table 5965 "Service Contract Header"
 
     local procedure ContractLinesExist(): Boolean
     begin
-        ServContractLine.Reset;
+        ServContractLine.Reset();
         ServContractLine.SetRange("Contract Type", "Contract Type");
         ServContractLine.SetRange("Contract No.", "Contract No.");
         exit(ServContractLine.Find('-'));
@@ -2108,7 +2153,7 @@ table 5965 "Service Contract Header"
         if "Change Status" <> "Change Status"::Open then
             exit;
 
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         TableID[1] := Type1;
         No[1] := No1;
         TableID[2] := Type2;
@@ -2262,16 +2307,16 @@ table 5965 "Service Contract Header"
         OldServContractLine: Record "Service Contract Line";
         AmountToAdjust: Decimal;
     begin
-        ServContractLine2.LockTable;
+        ServContractLine2.LockTable();
         CalcFields("Calcd. Annual Amount");
-        AmountToAdjust := ("Annual Amount" - "Calcd. Annual Amount") / ServContractLine2.Count;
+        AmountToAdjust := ("Annual Amount" - "Calcd. Annual Amount") / ServContractLine2.Count();
         if ServContractLine2.Find('-') then
             repeat
                 OldServContractLine := ServContractLine2;
                 ServContractLine2.Validate(
                   "Line Amount",
                   Round(ServContractLine2."Line Amount" + AmountToAdjust, Currency."Amount Rounding Precision"));
-                ServContractLine2.Modify;
+                ServContractLine2.Modify();
                 if ServMgtSetup."Register Contract Changes" then
                     ServContractLine2.LogContractLineChanges(OldServContractLine);
             until ServContractLine2.Next = 0;
@@ -2282,7 +2327,7 @@ table 5965 "Service Contract Header"
         OldServContractLine: Record "Service Contract Line";
         TotalProfit: Decimal;
     begin
-        ServContractLine2.LockTable;
+        ServContractLine2.LockTable();
         ServContractLine2.CalcSums(Profit);
         TotalProfit := ServContractLine2.Profit;
         if TotalProfit = 0 then
@@ -2297,7 +2342,7 @@ table 5965 "Service Contract Header"
                     ServContractLine."Line Amount" +
                     ("Annual Amount" - "Calcd. Annual Amount") *
                     (ServContractLine2.Profit / TotalProfit), Currency."Amount Rounding Precision"));
-                ServContractLine2.Modify;
+                ServContractLine2.Modify();
                 if ServMgtSetup."Register Contract Changes" then
                     ServContractLine2.LogContractLineChanges(OldServContractLine);
             until ServContractLine2.Next = 0;
@@ -2307,7 +2352,7 @@ table 5965 "Service Contract Header"
     var
         OldServContractLine: Record "Service Contract Line";
     begin
-        ServContractLine2.LockTable;
+        ServContractLine2.LockTable();
         CalcFields("Calcd. Annual Amount");
         if "Calcd. Annual Amount" = 0 then
             Error(Text060);
@@ -2321,7 +2366,7 @@ table 5965 "Service Contract Header"
                     ("Annual Amount" - "Calcd. Annual Amount") *
                     (ServContractLine2."Line Amount" / "Calcd. Annual Amount"),
                     Currency."Amount Rounding Precision"));
-                ServContractLine2.Modify;
+                ServContractLine2.Modify();
                 if ServMgtSetup."Register Contract Changes" then
                     ServContractLine2.LogContractLineChanges(OldServContractLine);
             until ServContractLine2.Next = 0;
@@ -2334,7 +2379,7 @@ table 5965 "Service Contract Header"
         Result: Integer;
     begin
         if not "Allow Unbalanced Amounts" then begin
-            ServContractLine.Reset;
+            ServContractLine.Reset();
             ServContractLine.SetRange("Contract Type", "Contract Type");
             ServContractLine.SetRange("Contract No.", "Contract No.");
             if not ServContractLine.Find('-') and ("Annual Amount" <> 0) then
@@ -2364,7 +2409,7 @@ table 5965 "Service Contract Header"
                             ServContractLine.Validate(
                               "Line Amount",
                               ServContractLine."Line Amount" + "Annual Amount" - "Calcd. Annual Amount");
-                            ServContractLine.Modify;
+                            ServContractLine.Modify();
                         end;
                         ServContractLine.SetFilter("Line Amount", '<=0');
                         if ServContractLine.Find('-') then
@@ -2374,7 +2419,7 @@ table 5965 "Service Contract Header"
                 end else begin
                     OldServContractLine := ServContractLine;
                     ServContractLine.Validate("Line Amount", "Annual Amount");
-                    ServContractLine.Modify;
+                    ServContractLine.Modify();
                     if ServMgtSetup."Register Contract Changes" then
                         ServContractLine.LogContractLineChanges(OldServContractLine);
                 end;
@@ -2420,6 +2465,8 @@ table 5965 "Service Contract Header"
                     Evaluate(InvPeriodDuration, '<6M>');
                 "Invoice Period"::Year:
                     Evaluate(InvPeriodDuration, '<1Y>');
+                else
+                    OnCalcInvPeriodDurationCaseElse(Rec, InvPeriodDuration);
             end;
     end;
 
@@ -2451,6 +2498,13 @@ table 5965 "Service Contract Header"
                     if not IsTransaction then
                         Error(Salesperson.GetPrivacyBlockedGenericText(Salesperson, true));
                 end;
+    end;
+
+    procedure IsInvoicePeriodInTimeSegment() InvoicePeriodInTimeSegment: Boolean
+    begin
+        InvoicePeriodInTimeSegment :=
+            "Invoice Period" in ["Invoice Period"::Month, "Invoice Period"::"Two Months", "Invoice Period"::Quarter, "Invoice Period"::"Half Year", "Invoice Period"::Year];
+        OnIsInvoicePeriodInTimeSegment(Rec, InvoicePeriodInTimeSegment);
     end;
 
     [IntegrationEvent(false, false)]
@@ -2495,6 +2549,26 @@ table 5965 "Service Contract Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateNextInvoiceDateOnBeforeCheck(ServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateEndPeriodDateOnPrepaidCaseElse(ServiceContractHeader: Record "Service Contract Header"; var EndPeriodDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateEndPeriodDateCaseElse(ServiceContractHeader: Record "Service Contract Header"; var EndPeriodDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcInvPeriodDurationCaseElse(ServiceContractHeader: Record "Service Contract Header"; InvPeriodDuration: DateFormula)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnIsInvoicePeriodInTimeSegment(ServiceContractHeader: Record "Service Contract Header"; var InvoicePeriodInTimeSegment: Boolean)
     begin
     end;
 }

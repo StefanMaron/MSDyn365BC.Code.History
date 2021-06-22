@@ -32,7 +32,7 @@ page 5898 "Posted Phys. Invt. Order Stat."
 
                             trigger OnDrillDown()
                             begin
-                                PstdPhysInvtOrderLine2.Reset;
+                                PstdPhysInvtOrderLine2.Reset();
                                 PstdPhysInvtOrderLine2.SetCurrentKey("Document No.", "Entry Type", "Without Difference");
                                 PstdPhysInvtOrderLine2.SetRange("Document No.", "No.");
                                 PstdPhysInvtOrderLine2.SetRange("Entry Type", PstdPhysInvtOrderLine2."Entry Type"::"Positive Adjmt.");
@@ -48,7 +48,7 @@ page 5898 "Posted Phys. Invt. Order Stat."
 
                             trigger OnDrillDown()
                             begin
-                                PstdPhysInvtOrderLine2.Reset;
+                                PstdPhysInvtOrderLine2.Reset();
                                 PstdPhysInvtOrderLine2.SetCurrentKey("Document No.", "Entry Type", "Without Difference");
                                 PstdPhysInvtOrderLine2.SetRange("Document No.", "No.");
                                 PstdPhysInvtOrderLine2.SetRange("Entry Type", PstdPhysInvtOrderLine2."Entry Type"::"Positive Adjmt.");
@@ -64,7 +64,7 @@ page 5898 "Posted Phys. Invt. Order Stat."
 
                             trigger OnDrillDown()
                             begin
-                                PstdPhysInvtOrderLine2.Reset;
+                                PstdPhysInvtOrderLine2.Reset();
                                 PstdPhysInvtOrderLine2.SetCurrentKey("Document No.", "Entry Type", "Without Difference");
                                 PstdPhysInvtOrderLine2.SetRange("Document No.", "No.");
                                 PstdPhysInvtOrderLine2.SetRange("Entry Type", PstdPhysInvtOrderLine2."Entry Type"::"Negative Adjmt.");
@@ -159,7 +159,7 @@ page 5898 "Posted Phys. Invt. Order Stat."
 
         ClearAll;
 
-        PstdPhysInvtOrderLine.Reset;
+        PstdPhysInvtOrderLine.Reset();
         PstdPhysInvtOrderLine.SetRange("Document No.", "No.");
         if PstdPhysInvtOrderLine.Find('-') then
             repeat

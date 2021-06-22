@@ -107,7 +107,7 @@ report 99000784 "Machine Center Load"
                                 CapacityEfficiency := 0;
 
                         if CapacityEfficiency < MinCapEfficToPrint then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                     end;
 
                     trigger OnPostDataItem()
@@ -125,7 +125,7 @@ report 99000784 "Machine Center Load"
                 begin
                     i := i + 1;
                     if i > NoOfPeriods then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     PeriodEndingDate := CalcDate(PeriodLength, PeriodStartingDate) - 1;
                 end;

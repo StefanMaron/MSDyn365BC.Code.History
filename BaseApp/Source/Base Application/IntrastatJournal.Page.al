@@ -328,7 +328,7 @@ page 311 "Intrastat Journal"
                         CODEUNIT.Run(VATReportsConfiguration."Validate Codeunit ID", Rec);
                         if ErrorsExistOnCurrentBatch(true) then
                             Error('');
-                        Commit;
+                        Commit();
 
                         CODEUNIT.Run(VATReportsConfiguration."Content Codeunit ID", Rec);
                         exit;
@@ -337,7 +337,7 @@ page 311 "Intrastat Journal"
                     ReportPrint.PrintIntrastatJnlLine(Rec);
                     if ErrorsExistOnCurrentBatch(true) then
                         Error('');
-                    Commit;
+                    Commit();
 
                     IntrastatJnlLine.CopyFilters(Rec);
                     IntrastatJnlLine.SetRange("Journal Template Name", "Journal Template Name");
@@ -378,7 +378,8 @@ page 311 "Intrastat Journal"
                     PromotedIsBig = true;
                     PromotedOnly = true;
                     ToolTip = 'Send the data in the journal to an Excel file for analysis or editing.';
-                    Visible = IsSaasExcelAddinEnabled;
+                    Visible = IsSaaSExcelAddinEnabled;
+                    AccessByPermission = System "Allow Action Export To Excel" = X;
 
                     trigger OnAction()
                     var
@@ -408,7 +409,7 @@ page 311 "Intrastat Journal"
         ServerSetting: Codeunit "Server Setting";
         JnlSelected: Boolean;
     begin
-        IsSaasExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled;
+        IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
         if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::ODataV4 then
             exit;
 
@@ -439,7 +440,7 @@ page 311 "Intrastat Journal"
         ShowTotalStatisticalValue: Boolean;
         [InDataSet]
         StatisticalValueVisible: Boolean;
-        IsSaasExcelAddinEnabled: Boolean;
+        IsSaaSExcelAddinEnabled: Boolean;
 
     local procedure UpdateStatisticalValue()
     begin

@@ -109,7 +109,7 @@ codeunit 134139 "ERM Reverse Blocked Vendor"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Reverse Blocked Vendor");
     end;
 

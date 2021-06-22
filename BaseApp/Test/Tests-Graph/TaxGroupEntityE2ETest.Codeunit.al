@@ -24,7 +24,7 @@ codeunit 135509 "Tax Group Entity E2E Test"
             exit;
 
         IsInitialized := true;
-        Commit;
+        Commit();
     end;
 
     [Test]
@@ -42,7 +42,7 @@ codeunit 135509 "Tax Group Entity E2E Test"
         // [GIVEN] a new Tax Group
         Initialize;
         CreateTaxGroup(TaxGroupCode, TaxGroupGUID);
-        Commit;
+        Commit();
 
         // [THEN] the Tax Group should have an integration id and last date time modified
         Assert.IsTrue(IntegrationRecord.Get(TaxGroupGUID), 'Could not find the integration record with Code ' + TaxGroupCode);
@@ -67,7 +67,7 @@ codeunit 135509 "Tax Group Entity E2E Test"
         Initialize;
         CreateTaxGroup(TaxGroupCode[1], TaxGroupId);
         CreateTaxGroup(TaxGroupCode[2], TaxGroupId);
-        Commit;
+        Commit();
 
         // [WHEN] we GET all the Tax Groups from the web service
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Tax Group Entity", ServiceNameTxt);
@@ -91,7 +91,7 @@ codeunit 135509 "Tax Group Entity E2E Test"
 
         // [GIVEN] A Tax Group exists in the Tax Group Table
         CreateTaxGroup(TaxGroupCode, TaxGroupId);
-        Commit;
+        Commit();
 
         // [WHEN] A GET request is made to the Tax Group API.
         TargetURL := LibraryGraphMgt.CreateTargetURL(TaxGroupId, PAGE::"Tax Group Entity", ServiceNameTxt);
@@ -115,11 +115,11 @@ codeunit 135509 "Tax Group Entity E2E Test"
         Initialize;
 
         // [GIVEN] The user has constructed a Tax Group JSON object to send to the service.
-        TaxGroupBuffer.Init;
+        TaxGroupBuffer.Init();
         TaxGroupBuffer.Code := LibraryUtility.GenerateRandomCode(TaxGroupBuffer.FieldNo(Code), DATABASE::"Tax Group Buffer");
         TaxGroupBuffer.Description := Format(CreateGuid);
         TaxGroupJSON := GetTaxGroupJSON(TaxGroupBuffer);
-        Commit;
+        Commit();
 
         // [WHEN] The user posts the JSON to the service.
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Tax Group Entity", ServiceNameTxt);
@@ -150,7 +150,7 @@ codeunit 135509 "Tax Group Entity E2E Test"
         TaxGroupBuffer.Id := TaxGroupId;
         TaxGroupBuffer.Description := Format(CreateGuid);
         TaxGroupJSON := GetTaxGroupJSON(TaxGroupBuffer);
-        Commit;
+        Commit();
 
         // [WHEN] The user makes a patch request to the service.
         TargetURL := LibraryGraphMgt.CreateTargetURL(TaxGroupId, PAGE::"Tax Group Entity", ServiceNameTxt);
@@ -177,7 +177,7 @@ codeunit 135509 "Tax Group Entity E2E Test"
 
         // [GIVEN] A Tax Group exists.
         CreateTaxGroup(TaxGroupCode, TaxGroupId);
-        Commit;
+        Commit();
 
         // [WHEN] The user makes a DELETE request to the endpoint for the Tax Group.
         TargetURL := LibraryGraphMgt.CreateTargetURL(TaxGroupId, PAGE::"Tax Group Entity", ServiceNameTxt);

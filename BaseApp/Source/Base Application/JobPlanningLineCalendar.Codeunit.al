@@ -34,6 +34,7 @@ codeunit 1034 "Job Planning Line - Calendar"
         ProdIDTxt: Label '//Microsoft Corporation//Dynamics 365//EN', Locked = true;
         Resource: Record Resource;
         NoPlanningLinesMsg: Label 'There are no applicable planning lines for this action.';
+        SendToCalendarTelemetryTxt: Label 'Sending job planning line to calendar.', Locked = true;
 
     procedure SetPlanningLine(NewJobPlanningLine: Record "Job Planning Line")
     begin
@@ -47,6 +48,7 @@ codeunit 1034 "Job Planning Line - Calendar"
     procedure CreateAndSend()
     var
         TempEmailItem: Record "Email Item" temporary;
+        OfficeMgt: Codeunit "Office Management";
     begin
         if JobPlanningLine."No." = '' then
             Error(SetPlanningLineErr);
@@ -56,8 +58,11 @@ codeunit 1034 "Job Planning Line - Calendar"
                 TempEmailItem.Send(true);
 
         if JobPlanningLineCalendar.ShouldSendRequest(JobPlanningLine) then
-            if CreateRequest(TempEmailItem) then
+            if CreateRequest(TempEmailItem) then begin
+                SendTraceTag('0000ACX', OfficeMgt.GetOfficeAddinTelemetryCategory(), Verbosity::Normal,
+                    SendToCalendarTelemetryTxt, DataClassification::SystemMetadata);
                 TempEmailItem.Send(true);
+            end;
     end;
 
     [Scope('OnPrem')]
@@ -91,7 +96,7 @@ codeunit 1034 "Job Planning Line - Calendar"
         Email := GetResourceEmail(JobPlanningLineCalendar."Resource No.");
         if Email <> '' then begin
             GenerateEmail(TempEmailItem, Email, true);
-            JobPlanningLineCalendar.Delete;
+            JobPlanningLineCalendar.Delete();
             exit(true);
         end;
     end;

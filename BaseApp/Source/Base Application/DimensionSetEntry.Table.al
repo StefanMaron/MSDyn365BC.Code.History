@@ -128,7 +128,7 @@ table 480 "Dimension Set Entry"
             if Found then
                 if not DimSetTreeNode.Get(DimSetTreeNode."Dimension Set ID", DimSetEntry."Dimension Value ID") then begin
                     Found := false;
-                    DimSetTreeNode.LockTable;
+                    DimSetTreeNode.LockTable();
                 end;
             OnGetDimensionSetIDOnBeforeInsertTreeNode(DimSetEntry, Found);
             if not Found then begin
@@ -142,11 +142,11 @@ table 480 "Dimension Set Entry"
         until DimSetEntry.Next = 0;
         if not DimSetTreeNode."In Use" then begin
             if Found then begin
-                DimSetTreeNode.LockTable;
+                DimSetTreeNode.LockTable();
                 DimSetTreeNode.Get(DimSetTreeNode."Parent Dimension Set ID", DimSetTreeNode."Dimension Value ID");
             end;
             DimSetTreeNode."In Use" := true;
-            DimSetTreeNode.Modify;
+            DimSetTreeNode.Modify();
             InsertDimSetEntries(DimSetEntry, DimSetTreeNode."Dimension Set ID");
         end;
 
@@ -159,12 +159,12 @@ table 480 "Dimension Set Entry"
     var
         DimSetEntry2: Record "Dimension Set Entry";
     begin
-        DimSetEntry2.LockTable;
+        DimSetEntry2.LockTable();
         if DimSetEntry.FindSet then
             repeat
                 DimSetEntry2 := DimSetEntry;
                 DimSetEntry2."Dimension Set ID" := NewID;
-                DimSetEntry2.Insert;
+                DimSetEntry2.Insert();
             until DimSetEntry.Next = 0;
     end;
 

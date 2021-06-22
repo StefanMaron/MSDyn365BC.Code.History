@@ -15,7 +15,7 @@ report 2502 "Day Book Vendor Ledger Entry"
 
             trigger OnPreDataItem()
             begin
-                CurrReport.Break;
+                CurrReport.Break();
             end;
         }
         dataitem(Date; Date)
@@ -263,7 +263,7 @@ report 2502 "Day Book Vendor Ledger Entry"
                     begin
                         if "G/L Account No." <> GLAcc."No." then
                             if not GLAcc.Get("G/L Account No.") then
-                                GLAcc.Init;
+                                GLAcc.Init();
 
                         AmountLCY1 := "Vendor Ledger Entry"."Amount (LCY)";
                         PmtDiscRcd1 := PmtDiscRcd;
@@ -285,7 +285,7 @@ report 2502 "Day Book Vendor Ledger Entry"
                         if not PrintGLDetails then
                             CurrReport.Break
                             ;
-                        DtldVendLedgEntry.Reset;
+                        DtldVendLedgEntry.Reset();
                         DtldVendLedgEntry.SetRange("Vendor Ledger Entry No.", "Vendor Ledger Entry"."Entry No.");
                         DtldVendLedgEntry.SetFilter("Entry Type", '<>%1', DtldVendLedgEntry."Entry Type"::Application);
                         if DtldVendLedgEntry.FindSet then begin
@@ -314,7 +314,7 @@ report 2502 "Day Book Vendor Ledger Entry"
 
                     if "Vendor No." <> Vendor."No." then
                         if not Vendor.Get("Vendor No.") then
-                            Vendor.Init;
+                            Vendor.Init();
 
                     VATAmount := 0;
                     VATBase := 0;
@@ -428,7 +428,7 @@ report 2502 "Day Book Vendor Ledger Entry"
     trigger OnPreReport()
     begin
         VendLedgFilter := ReqVendLedgEntry.GetFilters;
-        GLSetup.Get;
+        GLSetup.Get();
     end;
 
     var

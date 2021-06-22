@@ -34,10 +34,10 @@ codeunit 197 "Update Acc. Sched. KPI Data"
         Window: Dialog;
         i: Integer;
     begin
-        AccSchedKPIWebSrvSetup.LockTable;
+        AccSchedKPIWebSrvSetup.LockTable();
         if not AccSchedKPIWebSrvSetup.Get then begin
-            AccSchedKPIWebSrvSetup.Init;
-            AccSchedKPIWebSrvSetup.Insert;
+            AccSchedKPIWebSrvSetup.Init();
+            AccSchedKPIWebSrvSetup.Insert();
         end;
         if AccSchedKPIWebSrvSetup."Data Time To Live (hours)" < 1 then
             AccSchedKPIWebSrvSetup."Data Time To Live (hours)" := 24;
@@ -59,13 +59,13 @@ codeunit 197 "Update Acc. Sched. KPI Data"
             WorkDate := LogInManagement.GetDefaultWorkDate;
 
         if AccSchedKPIWebSrvSetup."Last G/L Entry Included" = 0 then begin
-            AccSchedKPIBuffer.DeleteAll;
+            AccSchedKPIBuffer.DeleteAll();
             UpdateFromDate := 0D;
         end else begin
             UpdateFromDate := GLEntry."Posting Date";
             AccSchedKPIBuffer.SetFilter(Date, '>=%1', UpdateFromDate);
-            AccSchedKPIBuffer.DeleteAll;
-            AccSchedKPIBuffer.Reset;
+            AccSchedKPIBuffer.DeleteAll();
+            AccSchedKPIBuffer.Reset();
             if AccSchedKPIBuffer.FindLast then
                 LastLineNo := AccSchedKPIBuffer."No.";
         end;
@@ -81,7 +81,7 @@ codeunit 197 "Update Acc. Sched. KPI Data"
                     NoOfActiveAccSchedLines += 1;
                     TempAccScheduleLine := AccScheduleLine;
                     TempAccScheduleLine."Line No." := NoOfActiveAccSchedLines;
-                    TempAccScheduleLine.Insert;
+                    TempAccScheduleLine.Insert();
                 until AccScheduleLine.Next = 0;
         until AccSchedKPIWebSrvLine.Next = 0;
 
@@ -110,9 +110,6 @@ codeunit 197 "Update Acc. Sched. KPI Data"
         NoOfLines *= NoOfActiveAccSchedLines;
         LastClosedDate := AccSchedKPIWebSrvSetup.GetLastClosedAccDate;
 
-        GLEntry.Reset;
-        GLEntry.FindLast;
-
         for i := 0 to NoOfLines - 1 do begin
             if i mod 10 = 0 then
                 Window.Update(1, 10000 * i div NoOfLines);
@@ -120,9 +117,10 @@ codeunit 197 "Update Acc. Sched. KPI Data"
         end;
 
         AccSchedKPIWebSrvSetup."Data Last Updated" := CurrentDateTime;
-        AccSchedKPIWebSrvSetup."Last G/L Entry Included" := GLEntry."Entry No.";
-        AccSchedKPIWebSrvSetup.Modify;
-        Commit;
+        GLEntry.Reset();
+        AccSchedKPIWebSrvSetup."Last G/L Entry Included" := GLEntry.GetLastEntryNo();
+        AccSchedKPIWebSrvSetup.Modify();
+        Commit();
         Window.Close;
     end;
 
@@ -158,7 +156,7 @@ codeunit 197 "Update Acc. Sched. KPI Data"
         TempAccScheduleLine.SetRange("G/L Budget Filter", AccSchedKPIWebSrvSetup."G/L Budget Name");
 
         LastLineNo += 1;
-        AccSchedKPIBuffer.Init;
+        AccSchedKPIBuffer.Init();
         AccSchedKPIBuffer."No." := LastLineNo;
         AccSchedKPIBuffer.Date := Date;
         AccSchedKPIBuffer."Closed Period" := Date <= LastClosedDate;
@@ -209,7 +207,7 @@ codeunit 197 "Update Acc. Sched. KPI Data"
                 AccSchedKPIBuffer."Net Change Forecast" := AccSchedKPIBuffer."Net Change Actual"; // Net Change Actual
                 AccSchedKPIBuffer."Balance at Date Forecast" := AccSchedKPIBuffer."Balance at Date Actual"; // Balance at Date Actual
             end;
-        AccSchedKPIBuffer.Insert;
+        AccSchedKPIBuffer.Insert();
     end;
 
     [IntegrationEvent(false, false)]

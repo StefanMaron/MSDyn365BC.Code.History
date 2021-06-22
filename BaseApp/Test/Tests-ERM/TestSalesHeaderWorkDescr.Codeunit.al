@@ -20,7 +20,7 @@ codeunit 134112 "Test Sales Header Work Descr."
         SalesHeader: Record "Sales Header";
     begin
         // Init
-        SalesHeader.Init;
+        SalesHeader.Init();
 
         // Execute + Verify
         Assert.AreEqual('', SalesHeader.GetWorkDescription, '');
@@ -40,7 +40,7 @@ codeunit 134112 "Test Sales Header Work Descr."
 
         // Execute
         SalesHeader.SetWorkDescription(Text);
-        SalesHeader.Modify;
+        SalesHeader.Modify();
         SalesHeader2.Get(SalesHeader."Document Type", SalesHeader."No.");
 
         // Verify
@@ -68,7 +68,7 @@ codeunit 134112 "Test Sales Header Work Descr."
 
         // Execute
         SalesHeader.SetWorkDescription(Text);
-        SalesHeader.Modify;
+        SalesHeader.Modify();
         SalesHeader2.Get(SalesHeader."Document Type", SalesHeader."No.");
         TempBlob.FromRecord(SalesHeader2, SalesHeader2.FieldNo("Work Description"));
         // Verify
@@ -97,7 +97,7 @@ codeunit 134112 "Test Sales Header Work Descr."
         // execute
         SalesQuote.WorkDescription.SetValue('Hello World!');
         SalesQuote.Close;
-        Commit;
+        Commit();
         SalesQuote.OpenView;
         SalesQuote.Last;
 
@@ -129,7 +129,7 @@ codeunit 134112 "Test Sales Header Work Descr."
         SalesOrder.WorkDescription.SetValue(ExpectedResult);
         SalesOrderNo := SalesOrder."No.".Value;
         SalesOrder.Close;
-        Commit;
+        Commit();
         SalesOrder.OpenView;
         SalesOrder.GotoKey(SalesHeader."Document Type"::Order, SalesOrderNo);
 

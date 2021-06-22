@@ -54,12 +54,12 @@ report 812 "Assembly BOM - End Items"
 
             trigger OnAfterGetRecord()
             begin
-                BOMComp.Reset;
+                BOMComp.Reset();
                 BOMComp.SetCurrentKey(Type, "No.");
                 BOMComp.SetRange(Type, BOMComp.Type::Item);
                 BOMComp.SetRange("No.", "No.");
                 if BOMComp.FindFirst then // Part of a BOM
-                    CurrReport.Skip;
+                    CurrReport.Skip();
             end;
         }
     }

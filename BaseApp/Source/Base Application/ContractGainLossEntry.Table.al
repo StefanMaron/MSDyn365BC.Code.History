@@ -109,8 +109,8 @@ table 5969 "Contract Gain/Loss Entry"
         ServContract: Record "Service Contract Header";
         NextLine: Integer;
     begin
-        ContractGainLossEntry.Reset;
-        ContractGainLossEntry.LockTable;
+        ContractGainLossEntry.Reset();
+        ContractGainLossEntry.LockTable();
         if ContractGainLossEntry.FindLast then
             NextLine := ContractGainLossEntry."Entry No." + 1
         else
@@ -121,7 +121,7 @@ table 5969 "Contract Gain/Loss Entry"
         else
             Clear(ServContract);
 
-        ContractGainLossEntry.Init;
+        ContractGainLossEntry.Init();
         ContractGainLossEntry."Entry No." := NextLine;
         ContractGainLossEntry."Contract No." := ContractNo;
         ContractGainLossEntry."Contract Group Code" := ServContract."Contract Group Code";
@@ -133,7 +133,7 @@ table 5969 "Contract Gain/Loss Entry"
         ContractGainLossEntry."User ID" := UserId;
         ContractGainLossEntry.Amount := ChangeAmount;
         ContractGainLossEntry."Reason Code" := ReasonCode;
-        ContractGainLossEntry.Insert;
+        ContractGainLossEntry.Insert();
     end;
 }
 

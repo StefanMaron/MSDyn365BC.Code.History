@@ -29,16 +29,16 @@ codeunit 1305 "Sales-Quote to Invoice"
 
         SalesInvoiceHeader := Rec;
 
-        SalesInvoiceLine.LockTable;
+        SalesInvoiceLine.LockTable();
 
         CreateSalesInvoiceHeader(SalesInvoiceHeader, Rec);
         CreateSalesInvoiceLines(SalesInvoiceHeader, Rec);
         OnAfterInsertAllSalesInvLines(SalesInvoiceLine, Rec);
 
-        SalesSetup.Get;
+        SalesSetup.Get();
         if SalesSetup."Default Posting Date" = SalesSetup."Default Posting Date"::"No Date" then begin
             SalesInvoiceHeader."Posting Date" := 0D;
-            SalesInvoiceHeader.Modify;
+            SalesInvoiceHeader.Modify();
         end;
         UpdateEmailParameters(SalesInvoiceHeader);
         UpdateCouponClaims(SalesInvoiceHeader);
@@ -48,7 +48,7 @@ codeunit 1305 "Sales-Quote to Invoice"
         DeleteLinks;
         Delete;
 
-        Commit;
+        Commit();
         Clear(CustCheckCrLimit);
 
         OnAfterOnRun(Rec, SalesInvoiceHeader);
@@ -82,7 +82,7 @@ codeunit 1305 "Sales-Quote to Invoice"
                 SalesInvoiceHeader."Posting Date" := WorkDate;
             SalesInvoiceHeader.InitFromSalesHeader(SalesQuoteHeader);
             OnBeforeInsertSalesInvoiceHeader(SalesInvoiceHeader, SalesQuoteHeader);
-            SalesInvoiceHeader.Modify;
+            SalesInvoiceHeader.Modify();
         end;
     end;
 
@@ -93,7 +93,7 @@ codeunit 1305 "Sales-Quote to Invoice"
         IsHandled: Boolean;
     begin
         with SalesQuoteHeader do begin
-            SalesQuoteLine.Reset;
+            SalesQuoteLine.Reset();
             SalesQuoteLine.SetRange("Document Type", "Document Type");
             SalesQuoteLine.SetRange("Document No.", "No.");
             OnAfterSalesQuoteLineSetFilters(SalesQuoteLine);
@@ -109,14 +109,14 @@ codeunit 1305 "Sales-Quote to Invoice"
                             SalesInvoiceLine.DefaultDeferralCode;
                         SalesInvoiceLine.InitQtyToShip;
                         OnBeforeInsertSalesInvoiceLine(SalesQuoteLine, SalesQuoteHeader, SalesInvoiceLine, SalesInvoiceHeader);
-                        SalesInvoiceLine.Insert;
+                        SalesInvoiceLine.Insert();
                         OnAfterInsertSalesInvoiceLine(SalesQuoteLine, SalesQuoteHeader, SalesInvoiceLine, SalesInvoiceHeader);
                     end;
                 until SalesQuoteLine.Next = 0;
 
             MoveLineCommentsToSalesInvoice(SalesInvoiceHeader, SalesQuoteHeader);
 
-            SalesQuoteLine.DeleteAll;
+            SalesQuoteLine.DeleteAll();
         end;
     end;
 
@@ -136,7 +136,7 @@ codeunit 1305 "Sales-Quote to Invoice"
     begin
         EmailParameter.SetRange("Document No", SalesHeader."Quote No.");
         EmailParameter.SetRange("Document Type", SalesHeader."Document Type"::Quote);
-        EmailParameter.DeleteAll;
+        EmailParameter.DeleteAll();
     end;
 
     local procedure UpdateCouponClaims(SalesHeader: Record "Sales Header")

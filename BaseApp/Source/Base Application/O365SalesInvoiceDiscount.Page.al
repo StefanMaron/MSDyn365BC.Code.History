@@ -103,7 +103,7 @@ page 2155 "O365 Sales Invoice Discount"
 
     trigger OnInit()
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
     end;
 
     trigger OnOpenPage()

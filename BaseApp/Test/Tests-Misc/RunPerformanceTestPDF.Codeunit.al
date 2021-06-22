@@ -19,7 +19,7 @@ codeunit 132499 RunPerformanceTestPDF
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
-        SalesInvoiceHeader.Init;
+        SalesInvoiceHeader.Init();
         SalesInvoiceHeader.SetFilter("No.", '103001');
         SetPdfFileName;
         REPORT.SaveAsPdf(REPORT::"Sales - Invoice", fileName, SalesInvoiceHeader);
@@ -31,7 +31,7 @@ codeunit 132499 RunPerformanceTestPDF
     var
         SalesHeader: Record "Sales Header";
     begin
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader.SetFilter("No.", '101005');
         SetPdfFileName;
         REPORT.SaveAsPdf(REPORT::"Order Confirmation", fileName, SalesHeader);

@@ -13,26 +13,26 @@ report 24 "Sales Taxes Collected"
             trigger OnAfterGetRecord()
             begin
                 if "Report-to Jurisdiction" = '' then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 if "Report-to Jurisdiction" <> TempTaxJurisdiction.Code then begin
                     TempTaxJurisdiction.Code := "Report-to Jurisdiction";
                     if LookupTaxJurisdiction.Get("Report-to Jurisdiction") then
                         TempTaxJurisdiction.Description := LookupTaxJurisdiction.Description
                     else
                         TempTaxJurisdiction.Description := Text003;
-                    TempTaxJurisdiction.Insert;
+                    TempTaxJurisdiction.Insert();
                 end;
             end;
 
             trigger OnPostDataItem()
             begin
-                NumReportTo := TempTaxJurisdiction.Count;
+                NumReportTo := TempTaxJurisdiction.Count();
             end;
 
             trigger OnPreDataItem()
             begin
-                TempTaxJurisdiction.DeleteAll;
-                TempTaxJurisdiction.Init;
+                TempTaxJurisdiction.DeleteAll();
+                TempTaxJurisdiction.Init();
                 SetFilter("Report-to Jurisdiction", ReportToFilter);
             end;
         }
@@ -193,13 +193,13 @@ report 24 "Sales Taxes Collected"
                             else
                                 TaxableSalesAmount := Base;
                         end else
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                         if ReportType <> ReportType::Summary then
                             if "Tax Group Used" <> '' then
                                 TaxGroup.Get("Tax Group Used")
                             else
-                                TaxGroup.Init;
+                                TaxGroup.Init();
                         UseTaxtxt := Format("Use Tax");
                     end;
                 }
@@ -275,7 +275,7 @@ report 24 "Sales Taxes Collected"
 
     trigger OnPreReport()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         ReportToFilter := "Tax Jurisdiction".GetFilter("Report-to Jurisdiction");
         "Tax Jurisdiction".SetRange("Report-to Jurisdiction");
         JurisFilters := "Tax Jurisdiction".GetFilters;

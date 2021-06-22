@@ -14,7 +14,8 @@ codeunit 1655 "Office Add-In Sample Emails"
         OutlookHeaderTxt: Label 'In Outlook:';
         OutlookParagraphTxt: Label 'In the %1 section of the ribbon, choose Contact Insights.', Comment = '%1 = Application Name';
         OWAHeaderTxt: Label 'In the Outlook Web App:';
-        OWAParagraphTxt: Label 'Choose the %1 button immediately above the body of the email message.', Comment = '%1 = Application Name';
+        OWAParagraph1Txt: Label 'Choose ''More actions'' ', Comment = 'Trailing space is required. More actions is the text used in OWA - it''s not clear how this would be translated.';
+        OWAParagraph2Txt: Label ' in the upper-right corner of the email and choose %1.', Comment = '%1 = Application Name; Opening space is required.';
         SalesQuoteHdrTxt: Label 'Create a sales quote';
         SalesQuoteInst1Txt: Label 'On the app bar, choose Sales Quote from the New menu';
         SalesQuoteInst2Txt: Label 'On the lines of the quote, enter the items that Adatum Corporation wants and how many of each.';
@@ -394,15 +395,19 @@ codeunit 1655 "Office Add-In Sample Emails"
           '  <p class=MsoListParagraph style=''margin-left:.25in''><span style=''font-size:' +
           '  10.0pt;font-family:"Segoe UI",sans-serif;color:#0070C0''>' + OWAHeaderTxt + '</span></p>' +
           '  <p class=MsoListParagraph style=''margin-left:.25in''><span style=''font-size:' +
-          '  10.0pt;font-family:"Segoe UI",sans-serif;color:#595959''>' + StrSubstNo(OWAParagraphTxt, PRODUCTNAME.Short) + '</span><span' +
+          '  10.0pt;font-family:"Segoe UI",sans-serif;color:#595959''>' + OWAParagraph1Txt + OpenParenTxt +
+          '  <span style=''mso-no-proof:yes''></v:shape><![endif]--><![if !vml]><img width=21 height=14' +
+          '  src="' + AddinManifestManagement.GetImageUrl(BrandingFolderTxt + 'OutlookEllipse.png') + '"' +
+          '  alt="cid:OutlookEllipse.png@01D1838A.7FBEA0E0" v:shapes="Picture_x0020_1058"><![endif]></span><span' +
+          '  style=''mso-spacerun:yes''> </span>' + CloseParenTxt + StrSubstNo(OWAParagraph2Txt, PRODUCTNAME.Short) + '</span><span' +
           '  style=''font-size:10.0pt;font-family:"Segoe UI",sans-serif''> <o:p></o:p></span></p>' +
           '  <p class=MsoListParagraph style=''margin-left:.25in''><span style=''font-size:' +
           '  10.0pt;font-family:"Segoe UI",sans-serif''><o:p>&nbsp;</o:p></span></p>' +
           '  <p class=MsoNormal align=center style=''text-align:center''><span' +
           '  style=''font-size:10.0pt;font-family:"Segoe UI",sans-serif;mso-no-proof:yes''>' +
-          '  </v:shape><![endif]--><![if !vml]><img width=225 height=50' +
-          '  src="' + AddinManifestManagement.GetImageUrl(BrandingFolderTxt + 'OutlookOWA.jpg') + '"' +
-          '  alt="cid:OutlookOWA.jpg@01D1709E.B113E5F0" v:shapes="Picture_x0020_20"><![endif]></span><span' +
+          '  </v:shape><![endif]--><![if !vml]><img width=196 height=50' +
+          '  src="' + AddinManifestManagement.GetImageUrl(BrandingFolderTxt + 'OutlookOWA.png') + '"' +
+          '  alt="cid:OutlookOWA.png@01D1709E.B113E5F0" v:shapes="Picture_x0020_20"><![endif]></span><span' +
           '  style=''font-size:10.0pt;font-family:"Segoe UI",sans-serif;color:#595959''><o:p></o:p></span></p>' +
           '  </td>' +
           ' </tr>' +

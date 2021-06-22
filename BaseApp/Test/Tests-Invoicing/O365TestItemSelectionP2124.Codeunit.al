@@ -147,7 +147,7 @@ codeunit 138901 "O365 Test Item Selection P2124"
         SalesLine.Get(SalesHeader."Document Type", SalesHeader."No.", 10000);
         SalesLine.Description := 'abc';
         SalesLine.Validate(Quantity, 2); // To avoid it from being deleted when basket is reduced by 1.
-        SalesLine.Modify;
+        SalesLine.Modify();
         Item2.Get(SalesLine."No.");
         LibraryLowerPermissions.SetSalesDocsCreate;
         LibraryLowerPermissions.AddItemCreate;
@@ -184,7 +184,7 @@ codeunit 138901 "O365 Test Item Selection P2124"
             O365C2GraphEventSettings.Insert(true);
 
         O365C2GraphEventSettings.SetEventsEnabled(false);
-        O365C2GraphEventSettings.Modify;
+        O365C2GraphEventSettings.Modify();
     end;
 
     [PageHandler]

@@ -250,7 +250,7 @@ codeunit 5626 "FA General Report"
         Window: Dialog;
     begin
         Window.Open(Text006);
-        FA.LockTable;
+        FA.LockTable();
         FA.Copy(FA2);
         FA.SetRange("FA Posting Group");
         if FA.Find('-') then
@@ -258,10 +258,10 @@ codeunit 5626 "FA General Report"
                 if FADeprBook.Get(FA."No.", DeprBookCode) then
                     if FA."FA Posting Group" <> FADeprBook."FA Posting Group" then begin
                         FA."FA Posting Group" := FADeprBook."FA Posting Group";
-                        FA.Modify;
+                        FA.Modify();
                     end;
             until FA.Next = 0;
-        Commit;
+        Commit();
         Window.Close;
     end;
 

@@ -17,7 +17,7 @@ codeunit 5336 "Integration Record Synch."
     procedure SetFieldMapping(var TempIntegrationFieldMapping: Record "Temp Integration Field Mapping" temporary)
     begin
         if TempParameterTempIntegrationFieldMapping.IsEmpty then
-            TempParameterTempIntegrationFieldMapping.Reset;
+            TempParameterTempIntegrationFieldMapping.Reset();
         TempParameterTempIntegrationFieldMapping.Copy(TempIntegrationFieldMapping, true);
     end;
 
@@ -38,7 +38,7 @@ codeunit 5336 "Integration Record Synch."
         ConstantOptionIndex: Integer;
         CurrentOptionIndex: Integer;
     begin
-        if Format(DestinationFieldRef.Type) = 'Option' then begin
+        if DestinationFieldRef.Type = FieldType::Option then begin
             ConstantOptionIndex := OutlookSynchTypeConv.TextToOptionValue(ConstantValue, DestinationFieldRef.OptionCaption);
             CurrentOptionIndex :=
               OutlookSynchTypeConv.TextToOptionValue(Format(DestinationFieldRef.Value), DestinationFieldRef.OptionCaption);
@@ -49,7 +49,7 @@ codeunit 5336 "Integration Record Synch."
 
     local procedure IsFieldModified(var SourceFieldRef: FieldRef; var DestinationFieldRef: FieldRef): Boolean
     begin
-        if Format(DestinationFieldRef.Type) = 'Code' then
+        if DestinationFieldRef.Type = FieldType::Code then
             exit(Format(DestinationFieldRef.Value) <> UpperCase(DelChr(Format(SourceFieldRef.Value), '<>')));
 
         if DestinationFieldRef.Length <> SourceFieldRef.Length then begin
@@ -86,7 +86,7 @@ codeunit 5336 "Integration Record Synch."
                 exit(OutlookSynchTypeConv.EvaluateTextToFieldRef(ConstantValue, DestinationFieldRef, true));
         end else begin
             SourceFieldRef := ParameterSourceRecordRef.Field(SourceFieldNo);
-            if Format(SourceFieldRef.Class, 0, 9) = 'FlowField' then
+            if SourceFieldRef.Class = FieldClass::FlowField then
                 SourceFieldRef.CalcField;
             if (not ParameterOnlyModified) or IsFieldModified(SourceFieldRef, DestinationFieldRef) then
                 exit(TransferFieldData(SourceFieldRef, DestinationFieldRef, ValidateDestinationField, SkipNullValue));

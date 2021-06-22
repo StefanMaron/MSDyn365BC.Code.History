@@ -55,7 +55,7 @@ page 9652 "Report Layout Selection"
                     trigger OnValidate()
                     begin
                         UpdateRec;
-                        Commit;
+                        Commit();
                         LookupCustomLayout;
                     end;
                 }
@@ -214,7 +214,7 @@ page 9652 "Report Layout Selection"
             ReportLayoutSelection."Report Name" := '';
             ReportLayoutSelection."Company Name" := SelectedCompany;
             OnUpdateRecOnBeforeModify(ReportLayoutSelection, Rec, SelectedCompany);
-            ReportLayoutSelection.Modify;
+            ReportLayoutSelection.Modify();
         end else begin
             Clear(ReportLayoutSelection);
             ReportLayoutSelection := Rec;
@@ -230,7 +230,7 @@ page 9652 "Report Layout Selection"
         if not Get("Report ID", '') then
             exit;
         if not ReportLayoutSelection.Get("Report ID", SelectedCompany) then begin
-            ReportLayoutSelection.Init;
+            ReportLayoutSelection.Init();
             ReportLayoutSelection.Type := GetDefaultType("Report ID");
         end;
         Type := ReportLayoutSelection.Type;

@@ -33,6 +33,7 @@ codeunit 137269 "SCM Transfer Reservation"
         DummyQst: Label 'Dummy Dialog Question?';
         ConfirmDialogOccursErr: Label 'Confirm Dialog occurs.';
         ExpectedDateConfclictErr: Label 'The change leads to a date conflict with existing reservations';
+        CannotMatchItemTrackingErr: Label 'Cannot match item tracking.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1247,7 +1248,7 @@ codeunit 137269 "SCM Transfer Reservation"
         TrackedQty: Decimal;
     begin
         // [FEATURE] [Item Tracking] [Inventory Pick]
-        // [SCENARIO 271087] When you set item tracking on inventory pick greater than you earlier set on the transfer line, the posting succeeds for the tracked quantity.
+        // [SCENARIO 271087] When you set item tracking on inventory pick greater than you earlier set on the transfer line, the posting fails with "Cannot match item tracking" error message.
         Initialize;
 
         // [GIVEN] Lot-tracked item.
@@ -1291,11 +1292,10 @@ codeunit 137269 "SCM Transfer Reservation"
         end;
 
         // [WHEN] Post the inventory pick in order to ship the transfer.
-        LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, false);
+        asserterror LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, false);
 
-        // [THEN] 161 pcs on the transfer line are shipped.
-        TransferLine.Find;
-        TransferLine.TestField("Quantity Shipped", TrackedQty + 1);
+        // [THEN] "Cannot match item tracking" error message is raised.
+        Assert.ExpectedError(CannotMatchItemTrackingErr);
     end;
 
     [Test]
@@ -1704,7 +1704,7 @@ codeunit 137269 "SCM Transfer Reservation"
 
         isInitialized := true;
 
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Transfer Reservation");
     end;
 
@@ -1959,11 +1959,11 @@ codeunit 137269 "SCM Transfer Reservation"
     begin
         LibraryJob.CreateJob(Job);
         Job.Validate("Apply Usage Link", true);
-        Job.Modify;
+        Job.Modify();
 
         // Job Task Line:
         LibraryJob.CreateJobTask(Job, JobTaskLine);
-        JobTaskLine.Modify;
+        JobTaskLine.Modify();
 
         // Job Planning Line:
         LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Budget,
@@ -1975,7 +1975,7 @@ codeunit 137269 "SCM Transfer Reservation"
         JobPlanningLine.Validate("No.", ItemNo);
         JobPlanningLine.Validate("Location Code", LocationCode);
         JobPlanningLine.Validate(Quantity, 1);
-        JobPlanningLine.Modify;
+        JobPlanningLine.Modify();
     end;
 
     local procedure CreateSKUWithPlanningParameters(var SKU: Record "Stockkeeping Unit"; ItemNo: Code[20]; LocationCode: Code[10]; ReplenishmentSystem: Option; TransferFromCode: Code[10]; ReorderingPolicy: Option)
@@ -2159,7 +2159,7 @@ codeunit 137269 "SCM Transfer Reservation"
     begin
         QtyOfLines := LibraryRandom.RandIntInRange(5, 10);
         for i := 1 to QtyOfLines do begin
-            TempTrackingSpecification.Init;
+            TempTrackingSpecification.Init();
             if SNSpecific then begin
                 QtyInLine := 1;
                 TempTrackingSpecification."Serial No." := LibraryUtility.GenerateRandomCode(
@@ -2172,7 +2172,7 @@ codeunit 137269 "SCM Transfer Reservation"
             TempTrackingSpecification."Quantity (Base)" := QtyInLine;
             TotQty += QtyInLine;
             TempTrackingSpecification."Entry No." := i;
-            TempTrackingSpecification.Insert;
+            TempTrackingSpecification.Insert();
         end;
     end;
 
@@ -2302,7 +2302,7 @@ codeunit 137269 "SCM Transfer Reservation"
         PurchaseLine."Planned Receipt Date" := PlannedReceiptDate;
         PurchaseLine.Type := PurchaseLine.Type::Item;
         PurchaseLine."No." := ItemNo;
-        PurchaseLine.Insert;
+        PurchaseLine.Insert();
     end;
 
     local procedure MockSalesLine(var SalesLine: Record "Sales Line"; ShipmentDate: Date; ItemNo: Code[20])
@@ -2312,7 +2312,7 @@ codeunit 137269 "SCM Transfer Reservation"
         SalesLine."Shipment Date" := ShipmentDate;
         SalesLine.Type := SalesLine.Type::Item;
         SalesLine."No." := ItemNo;
-        SalesLine.Insert;
+        SalesLine.Insert();
     end;
 
     local procedure MockTransferLine(var TransferLine: Record "Transfer Line"; ItemNo: Code[20]; ShipmentDate: Date; ReceiptDate: Date)
@@ -2322,7 +2322,7 @@ codeunit 137269 "SCM Transfer Reservation"
         TransferLine."Shipment Date" := ShipmentDate;
         TransferLine."Receipt Date" := ReceiptDate;
         TransferLine."Item No." := ItemNo;
-        TransferLine.Insert;
+        TransferLine.Insert();
     end;
 
     local procedure MockReservationEntry(var ReservationEntry: Record "Reservation Entry"; ItemNo: Code[20]; IsPositive: Boolean; SourceType: Integer; SourceSubtype: Option; SourceID: Code[20]; SourceRefNo: Integer; Qty: Decimal; ReservationStatus: Option; ShipmentDate: Date)
@@ -2336,7 +2336,7 @@ codeunit 137269 "SCM Transfer Reservation"
         ReservationEntry.Quantity := Qty;
         ReservationEntry."Reservation Status" := ReservationStatus;
         ReservationEntry."Shipment Date" := ShipmentDate;
-        ReservationEntry.Insert;
+        ReservationEntry.Insert();
     end;
 
     local procedure UpdateTrackedInventory(LocationCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20]; LotNo: Code[20]; Qty: Decimal)

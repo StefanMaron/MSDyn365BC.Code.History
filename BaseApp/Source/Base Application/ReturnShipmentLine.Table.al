@@ -22,11 +22,9 @@ table 6651 "Return Shipment Line"
         {
             Caption = 'Line No.';
         }
-        field(5; Type; Option)
+        field(5; Type; Enum "Purchase Line Type")
         {
             Caption = 'Type';
-            OptionCaption = ' ,G/L Account,Item,,Fixed Asset,Charge (Item)';
-            OptionMembers = " ","G/L Account",Item,,"Fixed Asset","Charge (Item)";
         }
         field(6; "No."; Code[20])
         {
@@ -37,7 +35,9 @@ table 6651 "Return Shipment Line"
             ELSE
             IF (Type = CONST("Fixed Asset")) "Fixed Asset"
             ELSE
-            IF (Type = CONST("Charge (Item)")) "Item Charge";
+            IF (Type = CONST("Charge (Item)")) "Item Charge"
+            else
+            if (Type = const(Resource)) Resource;
         }
         field(7; "Location Code"; Code[10])
         {
@@ -181,11 +181,9 @@ table 6651 "Return Shipment Line"
             Caption = 'Gen. Prod. Posting Group';
             TableRelation = "Gen. Product Posting Group";
         }
-        field(77; "VAT Calculation Type"; Option)
+        field(77; "VAT Calculation Type"; Enum "Tax Calculation Type")
         {
             Caption = 'VAT Calculation Type';
-            OptionCaption = 'Normal VAT,Reverse Charge VAT,Full VAT,Sales Tax';
-            OptionMembers = "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
         }
         field(78; "Transaction Type"; Code[10])
         {
@@ -677,7 +675,7 @@ table 6651 "Return Shipment Line"
         until (Next = 0) or ("Attached to Line No." = 0);
     end;
 
-    local procedure GetPurchCrMemoLines(var TempPurchCrMemoLine: Record "Purch. Cr. Memo Line" temporary)
+    procedure GetPurchCrMemoLines(var TempPurchCrMemoLine: Record "Purch. Cr. Memo Line" temporary)
     var
         PurchCrMemoLine: Record "Purch. Cr. Memo Line";
         ItemLedgEntry: Record "Item Ledger Entry";

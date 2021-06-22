@@ -51,7 +51,7 @@ codeunit 132472 "Payment Service Extension Mock"
     begin
         Assert.AreEqual(LibraryVariableStorage.DequeueText, PaymentServiceSetup.Name, 'Name was not set correctly');
         Assert.AreEqual(LibraryVariableStorage.DequeueText, PaymentServiceSetup.Description, 'Name was not set correctly');
-        TempAccountPaymentServiceSetup.Reset;
+        TempAccountPaymentServiceSetup.Reset();
         LastNo := TestServiceTemplateKeyTok;
 
         if TempAccountPaymentServiceSetup.FindLast then
@@ -72,7 +72,7 @@ codeunit 132472 "Payment Service Extension Mock"
     begin
         PaymentServiceSetup.SetFilter("Management Codeunit ID", '=%1', CODEUNIT::"Payment Service Extension Mock");
 
-        TempAccountPaymentServiceSetup.Reset;
+        TempAccountPaymentServiceSetup.Reset();
         if not TempAccountPaymentServiceSetup.FindSet then
             exit;
 
@@ -126,7 +126,7 @@ codeunit 132472 "Payment Service Extension Mock"
 
     local procedure SetPaymentServiceTempTable(var TempPaymentServiceSetup: Record "Payment Service Setup" temporary; var TempBufferPaymentServiceSetup: Record "Payment Service Setup" temporary)
     begin
-        TempBufferPaymentServiceSetup.DeleteAll;
+        TempBufferPaymentServiceSetup.DeleteAll();
         if not TempPaymentServiceSetup.FindSet then
             exit;
 
@@ -140,11 +140,11 @@ codeunit 132472 "Payment Service Extension Mock"
 
     procedure EmptyTempPaymentServiceTables()
     begin
-        TempAccountPaymentServiceSetup.Reset;
-        TempTemplatePaymentServiceSetup.Reset;
+        TempAccountPaymentServiceSetup.Reset();
+        TempTemplatePaymentServiceSetup.Reset();
 
-        TempAccountPaymentServiceSetup.DeleteAll;
-        TempTemplatePaymentServiceSetup.DeleteAll;
+        TempAccountPaymentServiceSetup.DeleteAll();
+        TempTemplatePaymentServiceSetup.DeleteAll();
     end;
 
     local procedure GenerateHyperlink(var PaymentReportingArgument: Record "Payment Reporting Argument")

@@ -287,7 +287,7 @@ codeunit 136141 "Service Order Release validate"
     begin
         Initialize;
         CreateAndReleaseServOrder(ServHeader, ServiceLine, ServiceItemLine);
-        Commit;
+        Commit();
         asserterror ServiceLine.Validate(Type, ServiceLine.Type::Resource);
         asserterror ServiceLine.Validate(Type, ServiceLine.Type::Cost);
         asserterror ServiceLine.Validate(Type, ServiceLine.Type::"G/L Account");
@@ -303,7 +303,7 @@ codeunit 136141 "Service Order Release validate"
     begin
         Initialize;
         CreateWhsShpReopenOrder(ServHeader, ServiceItemLine, ServiceLine);
-        Commit;
+        Commit();
         asserterror ServiceLine.Validate(Type, ServiceLine.Type::Resource);
         asserterror ServiceLine.Validate(Type, ServiceLine.Type::Cost);
         asserterror ServiceLine.Validate(Type, ServiceLine.Type::"G/L Account");
@@ -508,7 +508,7 @@ codeunit 136141 "Service Order Release validate"
 
         LibraryService.SetupServiceMgtNoSeries;
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, GetWhiteLocation, false);
-        Commit;
+        Commit();
         isInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Order Release validate");
     end;

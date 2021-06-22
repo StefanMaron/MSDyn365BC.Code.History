@@ -351,14 +351,14 @@ table 1103 "Cost Type"
             Error(Text000);
 
         // Renumber to entries to no. 0
-        CostEntry.Reset;
+        CostEntry.Reset();
         CostEntry.SetCurrentKey("Cost Type No.");
         CostEntry.SetRange("Cost Type No.", "No.");
         CostEntry.ModifyAll("Cost Type No.", '');
 
         CostBudgetEntry.SetCurrentKey("Budget Name", "Cost Type No.");
         CostBudgetEntry.SetRange("Cost Type No.", "No.");
-        CostBudgetEntry.DeleteAll;
+        CostBudgetEntry.DeleteAll();
 
         GLAccount.SetRange("Cost Type No.", "No.");
         GLAccount.ModifyAll("Cost Type No.", '');

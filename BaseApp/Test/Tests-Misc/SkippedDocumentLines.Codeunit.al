@@ -47,11 +47,11 @@ codeunit 134346 "Skipped Document Lines"
         // [GIVEN] Item 'X' is Blocked
         LibraryInventory.CreateItem(Item);
         Item.Blocked := true;
-        Item.Modify;
+        Item.Modify();
 
         // [THEN] IsEntityBlocked() returns 'Yes', error message 'Item is blocked' is logged
         ErrorMessageMgt.Activate(ErrorMessageHandler);
-        Assert.IsTrue(CopyDocumentMgt.IsEntityBlocked(Database::"Sales Line", LineType::Item, Item."No."), 'line should be skipped');
+        Assert.IsTrue(CopyDocumentMgt.IsEntityBlocked(Database::"Sales Line", false, LineType::Item, Item."No."), 'line should be skipped');
         Assert.AreEqual(1, ErrorMessageMgt.GetLastError(ActualErrorMgs), 'error message not found');
         Assert.AreEqual(StrSubstNo(IsBlockedErr, 'Item', Item."No."), ActualErrorMgs, 'wrong error message');
     end;
@@ -74,7 +74,7 @@ codeunit 134346 "Skipped Document Lines"
 
         // [THEN] IsEntityBlocked() returns 'No'
         ErrorMessageMgt.Activate(ErrorMessageHandler);
-        Assert.IsFalse(CopyDocumentMgt.IsEntityBlocked(Database::"Sales Line", LineType::Item, Item."No."), 'line should not be skipped');
+        Assert.IsFalse(CopyDocumentMgt.IsEntityBlocked(Database::"Sales Line", false, LineType::Item, Item."No."), 'line should not be skipped');
         Assert.AreEqual(0, ErrorMessageMgt.GetLastError(ActualErrorMgs), 'error message should not be found');
     end;
 
@@ -94,11 +94,11 @@ codeunit 134346 "Skipped Document Lines"
         // [GIVEN] Item 'X' is "Sales Blocked"
         LibraryInventory.CreateItem(Item);
         Item."Sales Blocked" := true;
-        Item.Modify;
+        Item.Modify();
 
         // [THEN] IsEntityBlocked() returns 'Yes', error message 'Item is blocked' for the field "Sales Blocked" is logged
         ErrorMessageMgt.Activate(ErrorMessageHandler);
-        Assert.IsTrue(CopyDocumentMgt.IsEntityBlocked(Database::"Sales Line", LineType::Item, Item."No."), 'line should be skipped');
+        Assert.IsTrue(CopyDocumentMgt.IsEntityBlocked(Database::"Sales Line", false, LineType::Item, Item."No."), 'line should be skipped');
         Assert.IsTrue(ErrorMessageMgt.GetErrors(TempErrorMessage), 'not found errors');
         TempErrorMessage.TestField("Field Number", Item.FieldNo("Sales Blocked"));
         Assert.ExpectedMessage(StrSubstNo(IsSalesBlockedItemErr, Item."No."), TempErrorMessage.Description);
@@ -123,7 +123,7 @@ codeunit 134346 "Skipped Document Lines"
 
         // [THEN] IsEntityBlocked() returns 'No'
         ErrorMessageMgt.Activate(ErrorMessageHandler);
-        Assert.IsFalse(CopyDocumentMgt.IsEntityBlocked(Database::"Sales Line", LineType::Item, Item."No."), 'line should not be skipped');
+        Assert.IsFalse(CopyDocumentMgt.IsEntityBlocked(Database::"Sales Line", false, LineType::Item, Item."No."), 'line should not be skipped');
         Assert.AreEqual(0, ErrorMessageMgt.GetLastError(ActualErrorMgs), 'error message should not be found');
     end;
 
@@ -143,11 +143,11 @@ codeunit 134346 "Skipped Document Lines"
         // [GIVEN] Item 'X' is "Purchasing Blocked"
         LibraryInventory.CreateItem(Item);
         Item."Purchasing Blocked" := true;
-        Item.Modify;
+        Item.Modify();
 
         // [THEN] IsEntityBlocked() returns 'Yes', error message 'Item is blocked' for the field "Purchasing Blocked" is logged
         ErrorMessageMgt.Activate(ErrorMessageHandler);
-        Assert.IsTrue(CopyDocumentMgt.IsEntityBlocked(Database::"Purchase Line", LineType::Item, Item."No."), 'line should be skipped');
+        Assert.IsTrue(CopyDocumentMgt.IsEntityBlocked(Database::"Purchase Line", false, LineType::Item, Item."No."), 'line should be skipped');
         Assert.IsTrue(ErrorMessageMgt.GetErrors(TempErrorMessage), 'not found errors');
         TempErrorMessage.TestField("Field Number", Item.FieldNo("Purchasing Blocked"));
         Assert.ExpectedMessage(StrSubstNo(IsPurchBlockedItemErr, Item."No."), TempErrorMessage.Description);
@@ -172,7 +172,7 @@ codeunit 134346 "Skipped Document Lines"
 
         // [THEN] IsEntityBlocked() returns 'No'
         ErrorMessageMgt.Activate(ErrorMessageHandler);
-        Assert.IsFalse(CopyDocumentMgt.IsEntityBlocked(Database::"Purchase Line", LineType::Item, Item."No."), 'line should not be skipped');
+        Assert.IsFalse(CopyDocumentMgt.IsEntityBlocked(Database::"Purchase Line", false, LineType::Item, Item."No."), 'line should not be skipped');
         Assert.AreEqual(0, ErrorMessageMgt.GetLastError(ActualErrorMgs), 'error message should not be found');
     end;
 
@@ -192,11 +192,11 @@ codeunit 134346 "Skipped Document Lines"
         // [GIVEN] Resource 'X' is Blocked
         LibraryResource.CreateResource(Resource, '');
         Resource.Blocked := true;
-        Resource.Modify;
+        Resource.Modify();
 
         // [THEN] IsEntityBlocked() returns 'Yes', error message 'Resource is blocked' is logged
         ErrorMessageMgt.Activate(ErrorMessageHandler);
-        Assert.IsTrue(CopyDocumentMgt.IsEntityBlocked(0, LineType::Resource, Resource."No."), 'line should be skipped');
+        Assert.IsTrue(CopyDocumentMgt.IsEntityBlocked(0, false, LineType::Resource, Resource."No."), 'line should be skipped');
         Assert.AreEqual(1, ErrorMessageMgt.GetLastError(ActualErrorMgs), 'error message not found');
         Assert.AreEqual(StrSubstNo(IsBlockedErr, 'Resource', Resource."No."), ActualErrorMgs, 'wrong error message');
     end;
@@ -219,7 +219,7 @@ codeunit 134346 "Skipped Document Lines"
 
         // [THEN] IsEntityBlocked() returns 'No'
         ErrorMessageMgt.Activate(ErrorMessageHandler);
-        Assert.IsFalse(CopyDocumentMgt.IsEntityBlocked(0, LineType::Resource, Resource."No."), 'line should not be skipped');
+        Assert.IsFalse(CopyDocumentMgt.IsEntityBlocked(0, false, LineType::Resource, Resource."No."), 'line should not be skipped');
         Assert.AreEqual(0, ErrorMessageMgt.GetLastError(ActualErrorMgs), 'error message should not be found');
     end;
 
@@ -238,11 +238,11 @@ codeunit 134346 "Skipped Document Lines"
         // [GIVEN] G/L Account 'X', where "Blocked" is 'Yes'
         GLAccount."No." := LibraryERM.CreateGLAccountNoWithDirectPosting;
         GLAccount.Blocked := true;
-        GLAccount.Modify;
+        GLAccount.Modify();
 
         // [THEN] IsEntityBlocked() returns 'Yes', error message 'G/L Account is blocked' is logged
         ErrorMessageMgt.Activate(ErrorMessageHandler);
-        Assert.IsTrue(CopyDocumentMgt.IsEntityBlocked(0, LineType::"G/L Account", GLAccount."No."), 'line should be skipped');
+        Assert.IsTrue(CopyDocumentMgt.IsEntityBlocked(0, false, LineType::"G/L Account", GLAccount."No."), 'line should be skipped');
         Assert.AreEqual(1, ErrorMessageMgt.GetLastError(ActualErrorMgs), 'error message not found');
         Assert.AreEqual(StrSubstNo(IsBlockedErr, 'G/L Account', GLAccount."No."), ActualErrorMgs, 'wrong error message');
     end;
@@ -264,7 +264,7 @@ codeunit 134346 "Skipped Document Lines"
 
         // [THEN] IsEntityBlocked() returns 'No'
         ErrorMessageMgt.Activate(ErrorMessageHandler);
-        Assert.IsFalse(CopyDocumentMgt.IsEntityBlocked(0, LineType::"G/L Account", GLAccount."No."), 'line should not be skipped');
+        Assert.IsFalse(CopyDocumentMgt.IsEntityBlocked(0, false, LineType::"G/L Account", GLAccount."No."), 'line should not be skipped');
         Assert.AreEqual(0, ErrorMessageMgt.GetLastError(ActualErrorMgs), 'error message should not be found');
     end;
 
@@ -283,11 +283,11 @@ codeunit 134346 "Skipped Document Lines"
         // [GIVEN] G/L Account 'X', where "Direct Posting" is 'No'
         LibraryERM.CreateGLAccount(GLAccount);
         GLAccount."Direct Posting" := false;
-        GLAccount.Modify;
+        GLAccount.Modify();
 
         // [THEN] IsEntityBlocked() returns 'Yes', error message 'G/L Account does not allow direct posting' is logged
         ErrorMessageMgt.Activate(ErrorMessageHandler);
-        Assert.IsTrue(CopyDocumentMgt.IsEntityBlocked(0, LineType::"G/L Account", GLAccount."No."), 'line should be skipped');
+        Assert.IsTrue(CopyDocumentMgt.IsEntityBlocked(0, false, LineType::"G/L Account", GLAccount."No."), 'line should be skipped');
         Assert.AreEqual(1, ErrorMessageMgt.GetLastError(ActualErrorMgs), 'error message not found');
         Assert.AreEqual(StrSubstNo(DirectPostingErr, GLAccount."No."), ActualErrorMgs, 'wrong error message');
     end;
@@ -309,7 +309,7 @@ codeunit 134346 "Skipped Document Lines"
 
         // [THEN] IsEntityBlocked() returns 'No'
         ErrorMessageMgt.Activate(ErrorMessageHandler);
-        Assert.IsFalse(CopyDocumentMgt.IsEntityBlocked(0, LineType::"G/L Account", GLAccount."No."), 'line should not be skipped');
+        Assert.IsFalse(CopyDocumentMgt.IsEntityBlocked(0, false, LineType::"G/L Account", GLAccount."No."), 'line should not be skipped');
         Assert.AreEqual(0, ErrorMessageMgt.GetLastError(ActualErrorMgs), 'error message should not be found');
     end;
 
@@ -328,11 +328,11 @@ codeunit 134346 "Skipped Document Lines"
         // [GIVEN] Fixed Asset 'X' is Blocked
         LibraryFixedAsset.CreateFixedAsset(FixedAsset);
         FixedAsset.Blocked := true;
-        FixedAsset.Modify;
+        FixedAsset.Modify();
 
         // [THEN] IsEntityBlocked() returns 'Yes', error message 'Fixed Asset is blocked' is logged
         ErrorMessageMgt.Activate(ErrorMessageHandler);
-        Assert.IsTrue(CopyDocumentMgt.IsEntityBlocked(0, LineType::"Fixed Asset", FixedAsset."No."), 'line should be skipped');
+        Assert.IsTrue(CopyDocumentMgt.IsEntityBlocked(0, false, LineType::"Fixed Asset", FixedAsset."No."), 'line should be skipped');
         Assert.AreEqual(1, ErrorMessageMgt.GetLastError(ActualErrorMgs), 'error message not found');
         Assert.AreEqual(StrSubstNo(IsBlockedErr, 'Fixed Asset', FixedAsset."No."), ActualErrorMgs, 'wrong error message');
     end;
@@ -355,7 +355,7 @@ codeunit 134346 "Skipped Document Lines"
 
         // [THEN] IsEntityBlocked() returns 'No'
         ErrorMessageMgt.Activate(ErrorMessageHandler);
-        Assert.IsFalse(CopyDocumentMgt.IsEntityBlocked(0, LineType::"Fixed Asset", FixedAsset."No."), 'line should not be skipped');
+        Assert.IsFalse(CopyDocumentMgt.IsEntityBlocked(0, false, LineType::"Fixed Asset", FixedAsset."No."), 'line should not be skipped');
         Assert.AreEqual(0, ErrorMessageMgt.GetLastError(ActualErrorMgs), 'error message should not be found');
     end;
 
@@ -374,11 +374,11 @@ codeunit 134346 "Skipped Document Lines"
         // [GIVEN] Fixed Asset 'X' is Inactive
         LibraryFixedAsset.CreateFixedAsset(FixedAsset);
         FixedAsset.Inactive := true;
-        FixedAsset.Modify;
+        FixedAsset.Modify();
 
         // [THEN] IsEntityBlocked() returns 'Yes', error message 'Fixed Asset is inactive' is logged
         ErrorMessageMgt.Activate(ErrorMessageHandler);
-        Assert.IsTrue(CopyDocumentMgt.IsEntityBlocked(0, LineType::"Fixed Asset", FixedAsset."No."), 'line should be skipped');
+        Assert.IsTrue(CopyDocumentMgt.IsEntityBlocked(0, false, LineType::"Fixed Asset", FixedAsset."No."), 'line should be skipped');
         Assert.AreEqual(1, ErrorMessageMgt.GetLastError(ActualErrorMgs), 'error message not found');
         Assert.AreEqual(StrSubstNo(FAIsInactiveErr, FixedAsset."No."), ActualErrorMgs, 'wrong error message');
     end;
@@ -401,9 +401,68 @@ codeunit 134346 "Skipped Document Lines"
 
         // [THEN] IsEntityBlocked() returns 'No'
         ErrorMessageMgt.Activate(ErrorMessageHandler);
-        Assert.IsFalse(CopyDocumentMgt.IsEntityBlocked(0, LineType::"Fixed Asset", FixedAsset."No."), 'line should not be skipped');
+        Assert.IsFalse(CopyDocumentMgt.IsEntityBlocked(0, false, LineType::"Fixed Asset", FixedAsset."No."), 'line should not be skipped');
         Assert.AreEqual(0, ErrorMessageMgt.GetLastError(ActualErrorMgs), 'error message should not be found');
     end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure T040_IsEntityBlockedNoForSalesBlockedItemInReturnDoc()
+    var
+        Item: Record Item;
+        SalesLine: Record "Sales Line";
+        TempErrorMessage: Record "Error Message" temporary;
+        CopyDocumentMgt: Codeunit "Copy Document Mgt.";
+        ErrorMessageMgt: Codeunit "Error Message Management";
+        ErrorMessageHandler: Codeunit "Error Message Handler";
+        ActualErrorMgs: Text[250];
+    begin
+        // [FEATURE] [Sales] [Credit Memo] [Item] [UT]
+        Initialize();
+        // [GIVEN] Item 'X' is "Sales Blocked"
+        LibraryInventory.CreateItem(Item);
+        Item."Sales Blocked" := true;
+        Item.Modify();
+        // [GIVEN] Copy to Sales Line, where "Document Type is 'Credit Memo'
+        SalesLine."Document Type" := SalesLine."Document Type"::"Credit Memo";
+
+        // [THEN] IsEntityBlocked() returns 'No', if document type is 'Credit Memo'
+        ErrorMessageMgt.Activate(ErrorMessageHandler);
+        Assert.IsFalse(
+            CopyDocumentMgt.IsEntityBlocked(Database::"Sales Line", SalesLine.IsCreditDocType(), LineType::Item, Item."No."),
+            'line should not be skipped');
+        Assert.AreEqual(0, ErrorMessageMgt.GetLastError(ActualErrorMgs), 'error message should not be found');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure T041_IsEntityBlockedNoForPurchBlockedItemInReturnDoc()
+    var
+        Item: Record Item;
+        PurchaseLine: Record "Purchase Line";
+        TempErrorMessage: Record "Error Message" temporary;
+        CopyDocumentMgt: Codeunit "Copy Document Mgt.";
+        ErrorMessageMgt: Codeunit "Error Message Management";
+        ErrorMessageHandler: Codeunit "Error Message Handler";
+        ActualErrorMgs: Text[250];
+    begin
+        // [FEATURE] [Purchase] [Return Order] [Item] [UT]
+        Initialize();
+        // [GIVEN] Item 'X' is "Purchasing Blocked"
+        LibraryInventory.CreateItem(Item);
+        Item."Purchasing Blocked" := true;
+        Item.Modify();
+        // [GIVEN] Copy to Purchase Line, where "Document Type is 'Return Order'
+        PurchaseLine."Document Type" := PurchaseLine."Document Type"::"Return Order";
+
+        // [THEN] IsEntityBlocked() returns 'No'
+        ErrorMessageMgt.Activate(ErrorMessageHandler);
+        Assert.IsFalse(
+            CopyDocumentMgt.IsEntityBlocked(Database::"Purchase Line", PurchaseLine.IsCreditDocType(), LineType::Item, Item."No."),
+            'line should not be skipped');
+        Assert.AreEqual(0, ErrorMessageMgt.GetLastError(ActualErrorMgs), 'error message should not be found');
+    end;
+
 
     [Test]
     [HandlerFunctions('ShowErrorsNotificationHandler')]
@@ -589,7 +648,7 @@ codeunit 134346 "Skipped Document Lines"
 
         NamedForwardLink.Load();
         IsInitialized := true;
-        Commit;
+        Commit();
 
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Skipped Document Lines");
     end;

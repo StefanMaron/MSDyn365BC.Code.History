@@ -27,6 +27,7 @@ codeunit 136309 "Job Posting"
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
         TargetJobNo: Code[20];
         JournalTemplateName: Code[10];
         SerialNo: array[15] of Code[50];
@@ -819,7 +820,7 @@ codeunit 136309 "Job Posting"
         // Verify Program allows to post the Purchase Return Order should be posted with Job after executing the Get Posted Document Lines to Reverse function.
 
         // 1. Setup: Update Exact Cost Reversing checkbox on Purchase & Payable Setup.
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         UpdatePurchasesAndPayablesSetup(true);
         LibraryERM.CreateGLAccount(GLAccount);
         CreateJobWithJobTask(JobTask);
@@ -914,6 +915,7 @@ codeunit 136309 "Job Posting"
         JobTask: Record "Job Task";
         JobPlanningLine: Record "Job Planning Line";
         SalesPrice: Record "Sales Price";
+        PriceListLine: Record "Price List Line";
     begin
         // Verify correct Unit Price for an Item is updated on Job Planning Line when Sales Price are defined on the Item.
 
@@ -925,6 +927,7 @@ codeunit 136309 "Job Posting"
         LibrarySales.CreateSalesPrice(
           SalesPrice, Item."No.", SalesPrice."Sales Type"::Customer, Job."Bill-to Customer No.", WorkDate, '', '',
           Item."Base Unit of Measure", 1 + LibraryRandom.RandInt(10), Item."Unit Price" - LibraryRandom.RandInt(10));
+        CopyFromToPriceListLine.CopyFrom(SalesPrice, PriceListLine);
 
         // 2. Exercise: Create Job Planning Line.
         CreateAndUpdateJobPlanningLine(JobPlanningLine, JobTask, JobPlanningLine."Line Type"::Budget,
@@ -1020,8 +1023,8 @@ codeunit 136309 "Job Posting"
 
         // 1. Setup: Set Automatic Cost Posting as TRUE and Automatic Cost Adjustment to Always, Create Item, Create and Post Item Journal Lines, Create Job with Job Task, Create Job Journal line.
         Initialize;
-        InventorySetup.Get;
-        GeneralLedgerSetup.Get;
+        InventorySetup.Get();
+        GeneralLedgerSetup.Get();
         Item.Get(CreateItemWithInventoryAdjustmentAccount);
         LibraryERM.SetUseLegacyGLEntryLocking(true);
         UpdateInventorySetup(true, InventorySetup."Automatic Cost Adjustment"::Always);
@@ -1707,13 +1710,13 @@ codeunit 136309 "Job Posting"
         // [WHEN] Job with Job Task, Resource and Job Journal Line is created.
         Initialize;
         CreateJobWithJobTask(JobTask);
-        Commit;
+        Commit();
 
-        MyJob.Init;
+        MyJob.Init();
         MyJob."User ID" := UserId;
         MyJob."Job No." := JobTask."Job No.";
-        MyJob.Insert;
-        Commit;
+        MyJob.Insert();
+        Commit();
 
         // [THEN] Job charts are can be created without errors.
         JobChartMgt.CreateJobChart(BusinessChartBuffer, TempJob, ChartType::Column, JobChartType::"Actual to Budget Cost");
@@ -1947,12 +1950,12 @@ codeunit 136309 "Job Posting"
 
         NoSeries.Get(LibraryJob.GetJobTestNoSeries);
         NoSeries."Manual Nos." := true;
-        NoSeries.Modify;
+        NoSeries.Modify();
 
         DummyJobsSetup."Allow Sched/Contract Lines Def" := false;
         DummyJobsSetup."Apply Usage Link by Default" := false;
         DummyJobsSetup."Job Nos." := LibraryJob.GetJobTestNoSeries;
-        DummyJobsSetup.Modify;
+        DummyJobsSetup.Modify();
 
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
@@ -1984,7 +1987,7 @@ codeunit 136309 "Job Posting"
     var
         JobJournal: TestPage "Job Journal";
     begin
-        Commit;
+        Commit();
         JobJournal.OpenEdit;
         JobJournal.CurrentJnlBatchName.SetValue(JobJournalLine."Journal Batch Name");
         JobJournal.ItemTrackingLines.Invoke;
@@ -2007,7 +2010,7 @@ codeunit 136309 "Job Posting"
     var
         JobCreateInvoice: Codeunit "Job Create-Invoice";
     begin
-        Commit;
+        Commit();
         JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, false);
         PostSalesInvoice(CustomerNo);
     end;
@@ -2069,7 +2072,7 @@ codeunit 136309 "Job Posting"
         ItemJournalTemplate.SetRange(Type, ItemJournalTemplate.Type::Item);
         LibraryInventory.FindItemJournalTemplate(ItemJournalTemplate);
         LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
-        Commit;
+        Commit();
     end;
 
     local procedure CreateItemWithNewUOM(var ItemUnitOfMeasure: Record "Item Unit of Measure")
@@ -2682,7 +2685,7 @@ codeunit 136309 "Job Posting"
         ItemForBlocking.Modify(true);
 
         // Exercise: Create Sales Document After Blocking the Item.
-        Commit;
+        Commit();
         asserterror JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, SalesDocumentType);
 
         // Verify: Verify Error Message and Sales Document should not be Created with Customer No.
@@ -2714,7 +2717,7 @@ codeunit 136309 "Job Posting"
           JobPlanningLine, JobTask, JobPlanningLine."Line Type"::Billable, Item."No.", LibraryRandom.RandInt(10));
 
         // Exercise: Create Sales Document.
-        Commit;
+        Commit();
         JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, SalesDocumentType);
 
         // Verify: Verify Extended Text exist on Sales Line Description.
@@ -2728,7 +2731,7 @@ codeunit 136309 "Job Posting"
         ItemJournalLine.FindSet;
         repeat
             TempItemJournalLine := ItemJournalLine;
-            TempItemJournalLine.Insert;
+            TempItemJournalLine.Insert();
         until ItemJournalLine.Next = 0;
     end;
 
@@ -2763,7 +2766,7 @@ codeunit 136309 "Job Posting"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         SourceJob.Validate("Global Dimension 1 Code", FindDimensionValue(GeneralLedgerSetup."Global Dimension 1 Code"));
         SourceJob.Validate("Global Dimension 2 Code", FindDimensionValue(GeneralLedgerSetup."Global Dimension 2 Code"));
         SourceJob.Modify(true);
@@ -2773,7 +2776,7 @@ codeunit 136309 "Job Posting"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.Validate("Automatic Cost Posting", AutomaticCostPosting);
         InventorySetup.Validate("Automatic Cost Adjustment", AutomaticCostAdjustment);
         InventorySetup.Modify(true);
@@ -2783,7 +2786,7 @@ codeunit 136309 "Job Posting"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.Validate("Automatic Cost Posting", NewAutomaticCostPosting);
         InventorySetup.Validate("Expected Cost Posting to G/L", NewExpectedCostPosting);
         InventorySetup.Modify(true);
@@ -2801,7 +2804,7 @@ codeunit 136309 "Job Posting"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Exact Cost Reversing Mandatory", ExactCostReversingMandatory);
         PurchasesPayablesSetup.Modify(true);
     end;
@@ -2828,10 +2831,10 @@ codeunit 136309 "Job Posting"
         JobsSetup: Record "Jobs Setup";
         NoSeries: Record "No. Series";
     begin
-        JobsSetup.Get;
+        JobsSetup.Get();
         NoSeries.Get(JobsSetup."Job Nos.");
         NoSeries."Manual Nos." := ManualNos;
-        NoSeries.Modify;
+        NoSeries.Modify();
     end;
 
     local procedure AttachJobTaskToPurchLine(var PurchLine: Record "Purchase Line")

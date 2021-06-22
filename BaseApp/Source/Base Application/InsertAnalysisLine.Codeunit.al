@@ -15,7 +15,7 @@ codeunit 7111 "Insert Analysis Line"
         ItemList.LookupMode(true);
         if ItemList.RunModal = ACTION::LookupOK then begin
             ItemList.SetSelection(Item);
-            ItemCount := Item.Count;
+            ItemCount := Item.Count();
             if ItemCount > 0 then begin
                 MoveAnalysisLines(AnalysisLine, AnalysisLineNo, ItemCount);
 
@@ -39,7 +39,7 @@ codeunit 7111 "Insert Analysis Line"
         CustList.LookupMode(true);
         if CustList.RunModal = ACTION::LookupOK then begin
             CustList.SetSelection(Cust);
-            CustCount := Cust.Count;
+            CustCount := Cust.Count();
             if CustCount > 0 then begin
                 MoveAnalysisLines(AnalysisLine, AnalysisLineNo, CustCount);
 
@@ -63,7 +63,7 @@ codeunit 7111 "Insert Analysis Line"
         VendList.LookupMode(true);
         if VendList.RunModal = ACTION::LookupOK then begin
             VendList.SetSelection(Vend);
-            VendCount := Vend.Count;
+            VendCount := Vend.Count();
             if VendCount > 0 then begin
                 MoveAnalysisLines(AnalysisLine, AnalysisLineNo, VendCount);
 
@@ -81,7 +81,7 @@ codeunit 7111 "Insert Analysis Line"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.TestField("Item Group Dimension Code");
         InsertGroup(
           AnalysisLine,
@@ -93,7 +93,7 @@ codeunit 7111 "Insert Analysis Line"
     var
         SalesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup.TestField("Customer Group Dimension Code");
         InsertGroup(
           AnalysisLine,
@@ -105,7 +105,7 @@ codeunit 7111 "Insert Analysis Line"
     var
         SalesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup.TestField("Salesperson Dimension Code");
         InsertGroup(
           AnalysisLine,
@@ -127,7 +127,7 @@ codeunit 7111 "Insert Analysis Line"
         DimValList.LookupMode(true);
         if DimValList.RunModal = ACTION::LookupOK then begin
             DimValList.SetSelection(DimVal);
-            DimValCount := DimVal.Count;
+            DimValCount := DimVal.Count();
             if DimValCount > 0 then begin
                 MoveAnalysisLines(AnalysisLine, AnalysisLineNo, DimValCount);
 

@@ -86,6 +86,11 @@ page 459 "Sales & Receivables Setup"
                     Importance = Additional;
                     ToolTip = 'Specifies the position of your company logo on business letters and documents.';
                 }
+                field("Freight G/L Acc. No."; "Freight G/L Acc. No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the general ledger account that must be used for freight charges.';
+                }
                 field("Default Posting Date"; "Default Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
@@ -131,6 +136,13 @@ page 459 "Sales & Receivables Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether to allow the manual adjustment of VAT amounts in sales documents.';
+                }
+                field("Price Calculation Method"; "Price Calculation Method")
+                {
+                    // Visibility should be turned on by an extension for Price Calculation
+                    Visible = false;
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the price calculation method that will be default for sales transactions.';
                 }
                 field("Calc. Inv. Discount"; "Calc. Inv. Discount")
                 {
@@ -382,11 +394,6 @@ page 459 "Sales & Receivables Setup"
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of the item or resource depending on the write-in product type that will be used for Dynamics 365 Sales.';
-                }
-                field("Freight G/L Acc. No."; "Freight G/L Acc. No.")
-                {
-                    ApplicationArea = Suite;
-                    ToolTip = 'Specifies the general ledger account that must be used to handle freight charges from Dynamics 365 Sales.';
                 }
             }
         }

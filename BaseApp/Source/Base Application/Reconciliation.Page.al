@@ -55,7 +55,7 @@ page 345 Reconciliation
     begin
         GenJnlLine.Copy(NewGenJnlLine);
         Heading := GenJnlLine."Journal Batch Name";
-        DeleteAll;
+        DeleteAll();
         GLAcc.SetCurrentKey("Reconciliation Account");
         GLAcc.SetRange("Reconciliation Account", true);
         if GLAcc.Find('-') then
@@ -108,7 +108,7 @@ page 345 Reconciliation
         Modify;
     end;
 
-    local procedure InsertGLAccNetChange()
+    procedure InsertGLAccNetChange()
     begin
         GLAcc.CalcFields("Balance at Date");
         Init;
@@ -126,9 +126,9 @@ page 345 Reconciliation
         OldGLAccountNetChange := Rec;
         FindSet;
         repeat
-            GLAccountNetChange.Init;
+            GLAccountNetChange.Init();
             GLAccountNetChange := Rec;
-            GLAccountNetChange.Insert;
+            GLAccountNetChange.Insert();
         until Next = 0;
 
         Rec := OldGLAccountNetChange;

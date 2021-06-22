@@ -47,7 +47,7 @@ report 86 "Adjust Add. Reporting Currency"
                 if Count > 0 then
                     VATEntryStep := 10000 * 100000 div Count;
 
-                GLSetup.Get;
+                GLSetup.Get();
                 if not GLSetup."Unrealized VAT" then
                     SetRange(Closed, false);
             end;
@@ -89,12 +89,12 @@ report 86 "Adjust Add. Reporting Currency"
                     end;
 
                 if "Entry No." = LastEntryNo then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 if "Posting Date" = ClosingDate("Posting Date") then begin
                     TmpCloseIncomeStatementBuffer."Closing Date" := "Posting Date";
                     TmpCloseIncomeStatementBuffer."G/L Account No." := "G/L Account No.";
-                    if TmpCloseIncomeStatementBuffer.Insert then;
+                    if TmpCloseIncomeStatementBuffer.Insert() then;
                 end;
             end;
 
@@ -110,10 +110,10 @@ report 86 "Adjust Add. Reporting Currency"
                             Clear(TmpCloseIncomeStatementBuffer3);
                             TmpCloseIncomeStatementBuffer3."Closing Date" := "Posting Date";
                             TmpCloseIncomeStatementBuffer3."G/L Account No." := Currency."Residual Gains Account";
-                            if TmpCloseIncomeStatementBuffer3.Insert then;
+                            if TmpCloseIncomeStatementBuffer3.Insert() then;
                             TmpCloseIncomeStatementBuffer3."Closing Date" := "Posting Date";
                             TmpCloseIncomeStatementBuffer3."G/L Account No." := Currency."Residual Losses Account";
-                            if TmpCloseIncomeStatementBuffer3.Insert then;
+                            if TmpCloseIncomeStatementBuffer3.Insert() then;
                         end;
                     until TmpCloseIncomeStatementBuffer.Next = 0;
 
@@ -123,7 +123,7 @@ report 86 "Adjust Add. Reporting Currency"
                     until TmpCloseIncomeStatementBuffer3.Next = 0;
 
                 if GLReg."To Entry No." <> 0 then
-                    GLReg.Insert;
+                    GLReg.Insert();
                 Window.Close;
             end;
 
@@ -324,7 +324,7 @@ report 86 "Adjust Add. Reporting Currency"
     trigger OnInitReport()
     begin
         if GLSetup."Additional Reporting Currency" = '' then
-            GLSetup.Get;
+            GLSetup.Get();
     end;
 
     trigger OnPostReport()
@@ -347,7 +347,7 @@ report 86 "Adjust Add. Reporting Currency"
         ResidualGLAcc.Get(Currency."Residual Losses Account");
         ResidualGLAcc.TestField(Blocked, false);
         ResidualGLAcc.TestField("Account Type", ResidualGLAcc."Account Type"::Posting);
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         SourceCodeSetup.TestField("Adjust Add. Reporting Currency");
 
         if DocumentNo = '' then
@@ -493,21 +493,19 @@ report 86 "Adjust Add. Reporting Currency"
         AccountingPeriodMgt: Codeunit "Accounting Period Mgt.";
     begin
         if NextEntryNo = 0 then begin
-            if GLEntry2.FindLast then begin
-                LastEntryNo := GLEntry2."Entry No.";
-                NextEntryNo := GLEntry2."Entry No." + 1;
-                NextTransactionNo := GLEntry2."Transaction No." + 1;
-            end;
+            GLEntry2.GetLastEntry(LastEntryNo, NextTransactionNo);
+            NextEntryNo := LastEntryNo + 1;
+            NextTransactionNo += 1;
 
             FiscalYearStartDate := AccountingPeriodMgt.GetPeriodStartingDate;
 
-            GLReg.LockTable;
+            GLReg.LockTable();
             if GLReg.FindLast then;
             GLReg.Initialize(GLReg."No." + 1, 0, 0, SourceCodeSetup."Adjust Add. Reporting Currency", JnlBatchName, '');
         end else
             NextEntryNo := NextEntryNo + 1;
 
-        GLEntry2.Init;
+        GLEntry2.Init();
         GLEntry2."Posting Date" := PostingDate;
         GLEntry2."Document Date" := DocumentDate;
         GLEntry2."Document Type" := DocumentType;
@@ -542,7 +540,7 @@ report 86 "Adjust Add. Reporting Currency"
             GLEntry2."Add.-Currency Debit Amount" := 0;
             GLEntry2."Add.-Currency Credit Amount" := -GLEntry2."Additional-Currency Amount";
         end;
-        GLEntry2.Insert;
+        GLEntry2.Insert();
 
         GLReg."To Entry No." := GLEntry2."Entry No.";
     end;

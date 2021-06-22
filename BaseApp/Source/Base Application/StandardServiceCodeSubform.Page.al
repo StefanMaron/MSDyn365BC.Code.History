@@ -1,4 +1,4 @@
-﻿page 5956 "Standard Service Code Subform"
+page 5956 "Standard Service Code Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';

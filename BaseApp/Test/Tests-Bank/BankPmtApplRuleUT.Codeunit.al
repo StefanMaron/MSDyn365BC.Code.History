@@ -26,7 +26,7 @@ codeunit 134260 "Bank Pmt. Appl. Rule UT"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Bank Pmt. Appl. Rule UT");
         // Lazy Setup.
-        BankPmtApplRule.DeleteAll;
+        BankPmtApplRule.DeleteAll();
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Bank Pmt. Appl. Rule UT");
@@ -122,7 +122,7 @@ codeunit 134260 "Bank Pmt. Appl. Rule UT"
         PriorityToSet: Integer;
     begin
         Initialize;
-        BankPmtApplRule.Init;
+        BankPmtApplRule.Init();
         PriorityToSet := LibraryRandom.RandIntInRange(MinPriority, MaxPriority);
 
         BankPmtApplRule.Validate(Priority, PriorityToSet);
@@ -520,7 +520,7 @@ codeunit 134260 "Bank Pmt. Appl. Rule UT"
 
         // Verify call can remove values
         Clear(BankPmtApplRule);
-        BankPmtApplRule.DeleteAll;
+        BankPmtApplRule.DeleteAll();
         TempBankPmtApplRule.LoadRules;
 
         Assert.IsTrue(TempBankPmtApplRule.IsEmpty, 'Rules table should be empty');
@@ -627,7 +627,7 @@ codeunit 134260 "Bank Pmt. Appl. Rule UT"
 
     local procedure InsertRuleWithPriority(var BankPmtApplRule: Record "Bank Pmt. Appl. Rule"; MatchConfidence: Option; Priority: Integer)
     begin
-        BankPmtApplRule.Init;
+        BankPmtApplRule.Init();
         BankPmtApplRule."Match Confidence" := MatchConfidence;
         BankPmtApplRule.Priority := Priority;
         BankPmtApplRule.Insert(true);

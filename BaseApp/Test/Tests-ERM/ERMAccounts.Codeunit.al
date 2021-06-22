@@ -78,7 +78,7 @@ codeunit 134020 "ERM Accounts"
 
         // Setup: Create Multiple Dimension Value.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         DimensionValueCode2 := CreateDimensionValue(GeneralLedgerSetup."Global Dimension 1 Code");  // Global Variavle used for Page Handler.
         DimensionValueCode3 := CreateDimensionValue(GeneralLedgerSetup."Global Dimension 1 Code");  // Global Variavle used for Page Handler.
 
@@ -111,7 +111,7 @@ codeunit 134020 "ERM Accounts"
 
         // Setup: Create Dimension Value with Different Dimension.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         DimensionValueCode2 := CreateDimensionValue(GeneralLedgerSetup."Global Dimension 1 Code");  // Global Variavle used for Page Handler.
         DimensionValueCode3 := CreateDimensionValue(GeneralLedgerSetup."Global Dimension 2 Code");  // Global Variavle used for Page Handler.
 
@@ -139,7 +139,7 @@ codeunit 134020 "ERM Accounts"
 
         // Setup: Create Dimension Value.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         DimensionValueCode2 := CreateDimensionValue(GeneralLedgerSetup."Global Dimension 1 Code");  // Global Variavle used for Page Handler.
 
         // Exercise: Post General Line With Dimensions and Set filter on G/L Balance by Dimension Page With Amount Field as Debit Amount.
@@ -167,7 +167,7 @@ codeunit 134020 "ERM Accounts"
 
         // Setup: Create Dimension Value.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         DimensionValueCode2 := CreateDimensionValue(GeneralLedgerSetup."Global Dimension 1 Code");  // Global Variavle used for Page Handler.
 
         // Exercise: Post General Lines With Different Dimensions and Set filter on G/L Balance by Dimension Page With Amount Field as Debit Amount.
@@ -430,7 +430,7 @@ codeunit 134020 "ERM Accounts"
 
         // Setup: Create Dimension Value. Create and Post General Journal Line with Dimension.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         SelectGeneralJournalBatch(GenJournalBatch);
         CreateGeneralJnlLineWithDimension(
           GenJournalLine, GenJournalBatch, CreateDimensionValue(GeneralLedgerSetup."Global Dimension 1 Code"));
@@ -443,23 +443,6 @@ codeunit 134020 "ERM Accounts"
         GLEntriesDimensionOverview.ShowMatrix.Invoke;
 
         // Verify: Verify Total Amount on G/L Entries Dimension Overview Matrix Page Handler.
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure GLBalanceByDimensionWithClosingEntryFilter()
-    begin
-        // Verify G/L Balance by Dimension when Closing Entry Filter set as Exclude.
-
-        // 1. Setup: Create Accounting Periods.
-        Initialize;
-        CreateAccountingPeriods;
-
-        // 2. Exercise: Update Closing Entry Filter.
-        UpdateClosingEntryFilterOnGLBalanceByDimesion;
-
-        // 3. Verify: Verify value in GL By Dimension Closing Entry Filter.
-        VerifyClosingEntryFilterOnGLBalanceByDimension;
     end;
 
     [Test]
@@ -658,7 +641,7 @@ codeunit 134020 "ERM Accounts"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Accounts");
     end;
 
@@ -809,21 +792,11 @@ codeunit 134020 "ERM Accounts"
         FindPostingAccount(Account, Customer);
 
         // Setup contract that account must change by +Delta and balancing account by -Delta.
-        DeltaAssert.Init;
+        DeltaAssert.Init();
         with Account do
             DeltaAssert.AddWatch(DATABASE::"G/L Account", GetPosition, FieldNo(Balance), Delta);
         with BalAccount do
             DeltaAssert.AddWatch(DATABASE::"G/L Account", GetPosition, FieldNo(Balance), -Delta);
-    end;
-
-    local procedure UpdateClosingEntryFilterOnGLBalanceByDimesion()
-    var
-        GLBalanceByDimension: TestPage "G/L Balance by Dimension";
-        ClosingEntryFilter: Option Include,Exclude;
-    begin
-        GLBalanceByDimension.OpenEdit;
-        GLBalanceByDimension.ClosingEntryFilter.SetValue(ClosingEntryFilter::Exclude);
-        GLBalanceByDimension.OK.Invoke;
     end;
 
     local procedure FindPostingAccount(var Account: Record "G/L Account"; Customer: Record Customer)
@@ -905,15 +878,6 @@ codeunit 134020 "ERM Accounts"
         GLBalancebyDimMatrix.TotalAmount.AssertEquals(TotalAmount3);
     end;
 
-    local procedure VerifyClosingEntryFilterOnGLBalanceByDimension()
-    var
-        GLBalanceByDimension: TestPage "G/L Balance by Dimension";
-        ClosingEntryFilter: Option Include,Exclude;
-    begin
-        GLBalanceByDimension.OpenEdit;
-        GLBalanceByDimension.ClosingEntryFilter.AssertEquals(ClosingEntryFilter::Exclude);
-    end;
-
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GLBalancebyDimMatrixHandler(var GLBalancebyDimMatrix: TestPage "G/L Balance by Dim. Matrix")
@@ -952,7 +916,7 @@ codeunit 134020 "ERM Accounts"
     [Scope('OnPrem')]
     procedure AnalysisByDimensionsHandler(var AnalysisbyDimensions: TestPage "Analysis by Dimensions")
     begin
-        Commit;
+        Commit();
         AnalysisbyDimensions.ShowMatrix.Invoke;
     end;
 

@@ -369,7 +369,7 @@ report 37 "Balance Comp. - Prev. Year"
         Text002: Label 'Fiscal Year Starting Date: %1';
         Text004: Label 'Enter the starting date for the first period.';
         Text005: Label 'Enter the ending date for the first period.';
-        Text006: Label '<-1Y>';
+        Text006: Label '<-1Y>', Locked = true;
         Text011: Label 'Amounts are rounded to 1';
         Text012: Label 'Amounts are in whole 1000s.';
         Text013: Label 'Amounts are in whole 1000000s.';
@@ -395,7 +395,7 @@ report 37 "Balance Comp. - Prev. Year"
 
     procedure SetEndingDate()
     begin
-        AccountingPeriod.Reset;
+        AccountingPeriod.Reset();
         AccountingPeriod.SetFilter("Starting Date", '>%1', PeriodStartingDate);
         AccountingPeriod.FindFirst;
         PeriodEndingDate := AccountingPeriod."Starting Date" - 1;
@@ -423,8 +423,8 @@ report 37 "Balance Comp. - Prev. Year"
         if AccountingPeriod2."Starting Date" <> AccountingPeriod3."Starting Date" then
             Error(Text014, PeriodStartingDate, PeriodEndingDate);
 
-        AccountingPeriod2.Reset;
-        AccountingPeriod3.Reset;
+        AccountingPeriod2.Reset();
+        AccountingPeriod3.Reset();
 
         AccountingPeriod2.SetRange("New Fiscal Year", true);
         AccountingPeriod2.SetFilter("Starting Date", '<=%1', PreviousStartingDate);
@@ -474,7 +474,7 @@ report 37 "Balance Comp. - Prev. Year"
 
     local procedure CheckIndent()
     begin
-        GLIndent.Reset;
+        GLIndent.Reset();
         MaxIndent := '';
         if GLIndent.FindSet then
             repeat

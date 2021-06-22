@@ -73,7 +73,7 @@ codeunit 136218 "Marketing Log Interact. Perm."
 
         LibrarySetupStorage.Save(DATABASE::"Interaction Template Setup");
         IsInitialized := true;
-        Commit;
+        Commit();
 
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Marketing Log Interact. Perm.");
     end;
@@ -82,12 +82,12 @@ codeunit 136218 "Marketing Log Interact. Perm."
     var
         InteractionTemplateSetup: Record "Interaction Template Setup";
     begin
-        InteractionTemplateSetup.Get;
+        InteractionTemplateSetup.Get();
         InteractionTemplateSetup."Sales Invoices" :=
           CopyStr(
             LibraryRandom.RandText(MaxStrLen(InteractionTemplateSetup."Sales Invoices")),
             1, MaxStrLen(InteractionTemplateSetup."Sales Invoices"));
-        InteractionTemplateSetup.Modify;
+        InteractionTemplateSetup.Modify();
         exit(InteractionTemplateSetup."Sales Invoices");
     end;
 }

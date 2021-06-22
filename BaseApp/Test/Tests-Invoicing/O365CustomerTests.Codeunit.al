@@ -20,7 +20,7 @@ codeunit 138909 "O365 Customer Tests"
         CountryRegion: Record "Country/Region";
     begin
         CountryRegion.SetFilter(Code, '*WAY');
-        CountryRegion.DeleteAll;
+        CountryRegion.DeleteAll();
 
         if IsInitialized then
             exit;

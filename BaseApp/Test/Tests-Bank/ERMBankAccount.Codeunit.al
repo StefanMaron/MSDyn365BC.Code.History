@@ -222,7 +222,7 @@ codeunit 134231 "ERM Bank Account"
         VendorBankAccount.Delete(true);
 
         // [THEN] Closed entries are not deleted
-        VendorLedgerEntry.Init;
+        VendorLedgerEntry.Init();
         VendorLedgerEntry.SetRange("Vendor No.", Vendor."No.");
         VendorLedgerEntry.SetRange("Recipient Bank Account", VendorBankAccountCode);
         VendorLedgerEntry.SetRange(Open, false);
@@ -254,7 +254,7 @@ codeunit 134231 "ERM Bank Account"
         CustomerBankAccount.Delete(true);
 
         // [THEN] Closed entries are not deleted
-        CustLedgerEntry.Init;
+        CustLedgerEntry.Init();
         CustLedgerEntry.SetRange("Customer No.", Customer."No.");
         CustLedgerEntry.SetRange("Recipient Bank Account", CustomerBankAccountCode);
         CustLedgerEntry.SetRange(Open, false);
@@ -332,7 +332,7 @@ codeunit 134231 "ERM Bank Account"
         Initialize();
 
         // [GIVEN] Company Information
-        CompanyInformation.Get;
+        CompanyInformation.Get();
 
         // [WHEN] Succesfully assign when existing code to field "Bank Account"."SWIFT Code"
         CreateSWIFTCode(SWIFTCode);
@@ -453,7 +453,7 @@ codeunit 134231 "ERM Bank Account"
         IBANNumber: Code[50];
         OldIBAN: Code[50];
     begin
-        BankAccount.Init;
+        BankAccount.Init();
         OldIBAN := BankAccount.IBAN;
         IBANNumber := LibraryUtility.GenerateGUID;
         LibraryVariableStorage.Enqueue(StrSubstNo(IBANConfirmationMsg, IBANNumber));
@@ -476,7 +476,7 @@ codeunit 134231 "ERM Bank Account"
         IBANNumber: Code[50];
         OldIBAN: Code[50];
     begin
-        VendBankAccount.Init;
+        VendBankAccount.Init();
         OldIBAN := VendBankAccount.IBAN;
         IBANNumber := LibraryUtility.GenerateGUID;
         LibraryVariableStorage.Enqueue(StrSubstNo(IBANConfirmationMsg, IBANNumber));

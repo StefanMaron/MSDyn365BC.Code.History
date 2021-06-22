@@ -87,7 +87,7 @@ report 5872 "BOM Cost Share Distribution"
                 trigger OnAfterGetRecord()
                 begin
                     if not FindNextRecord(TempBOMBuffer, Number) then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     MaterialCost := TempBOMBuffer."Rolled-up Material Cost";
                     CapacityCost := TempBOMBuffer."Rolled-up Capacity Cost";
@@ -101,20 +101,20 @@ report 5872 "BOM Cost Share Distribution"
                        (CapOvhdCost = 0) and
                        (MfgOvhdCost = 0)
                     then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
             }
 
             trigger OnAfterGetRecord()
             begin
                 if not GenerateAvailTrend then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
             end;
 
             trigger OnPreDataItem()
             begin
                 ItemFilters := GetFilters;
-                BOMBuffer.DeleteAll;
+                BOMBuffer.DeleteAll();
             end;
         }
     }

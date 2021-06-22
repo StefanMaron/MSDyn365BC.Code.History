@@ -119,7 +119,7 @@ codeunit 134017 "ERM Payment Tolerance Sales"
         LibraryPmtDiscSetup.SetPmtTolerance(5);
         CreateSalesDocument(SalesHeader, '', SalesHeader."Document Type"::Invoice);
         SalesInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader.Validate("Document Type", SalesHeader."Document Type"::"Credit Memo");
         SalesHeader.Insert(true);
 
@@ -187,7 +187,7 @@ codeunit 134017 "ERM Payment Tolerance Sales"
         CreateSalesDocument(SalesHeader, '', SalesHeader."Document Type"::Invoice);
         SalesHeader.Validate("Payment Discount %", LibraryRandom.RandInt(5)); // Use Random value for Payment Discount.
         SalesHeader.Modify(true);
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader.Validate("Document Type", SalesHeader."Document Type"::"Credit Memo");
         SalesHeader.Insert(true);
 
@@ -220,7 +220,7 @@ codeunit 134017 "ERM Payment Tolerance Sales"
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         isInitialized := true;
-        Commit;
+        Commit();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Payment Tolerance Sales");
     end;
@@ -326,7 +326,7 @@ codeunit 134017 "ERM Payment Tolerance Sales"
         GeneralLedgerSetup: Record "General Ledger Setup";
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         SalesInvoiceHeader.Get(DocumentNo);
         SalesInvoiceHeader.CalcFields("Amount Including VAT");
         exit(SalesInvoiceHeader."Amount Including VAT" * GeneralLedgerSetup."Payment Tolerance %" / 100);
@@ -337,7 +337,7 @@ codeunit 134017 "ERM Payment Tolerance Sales"
         GeneralLedgerSetup: Record "General Ledger Setup";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         SalesCrMemoHeader.Get(DocumentNo);
         SalesCrMemoHeader.CalcFields("Amount Including VAT");
         exit(SalesCrMemoHeader."Amount Including VAT" * GeneralLedgerSetup."Payment Tolerance %" / 100);
@@ -348,7 +348,7 @@ codeunit 134017 "ERM Payment Tolerance Sales"
         CustLedgerEntry: Record "Cust. Ledger Entry";
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         FindCustomerLedgerEntry(CustLedgerEntry, DocumentNo);
         Assert.AreNearlyEqual(-Amount, CustLedgerEntry.Amount, GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(AmountErrorMessage, CustLedgerEntry.FieldCaption(Amount), Amount, CustLedgerEntry.TableCaption,
@@ -360,7 +360,7 @@ codeunit 134017 "ERM Payment Tolerance Sales"
         CustLedgerEntry: Record "Cust. Ledger Entry";
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         FindCustomerLedgerEntry(CustLedgerEntry, DocumentNo);
         Assert.AreNearlyEqual(ExpectedPmtTolAmount, CustLedgerEntry."Max. Payment Tolerance",
           GeneralLedgerSetup."Amount Rounding Precision", StrSubstNo(AmountErrorMessage, CustLedgerEntry.FieldCaption(Amount),
@@ -372,7 +372,7 @@ codeunit 134017 "ERM Payment Tolerance Sales"
         CustLedgerEntry: Record "Cust. Ledger Entry";
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         FindCustomerLedgerEntry(CustLedgerEntry, DocumentNo);
         Assert.AreNearlyEqual(-ExpectedPmtTolAmount, CustLedgerEntry."Max. Payment Tolerance",
           GeneralLedgerSetup."Amount Rounding Precision", StrSubstNo(AmountErrorMessage, CustLedgerEntry.FieldCaption(Amount),

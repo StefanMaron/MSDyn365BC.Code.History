@@ -43,7 +43,7 @@ codeunit 134625 "Graph Subscription Tests"
         Initialize(DATABASE::Contact);
 
         // [WHEN] Empty contact record is passed
-        Contact.Init;
+        Contact.Init();
         RecordRef.GetTable(Contact);
 
         // [THEN] Result of CanSyncRecord is false
@@ -133,7 +133,7 @@ codeunit 134625 "Graph Subscription Tests"
         GraphSubscription.FindFirst;
         BeforeRefresh := CurrentDateTime + 10000;
         GraphSubscription.ExpirationDateTime := BeforeRefresh;
-        GraphSubscription.Modify;
+        GraphSubscription.Modify();
 
         // Excersice
         CODEUNIT.Run(CODEUNIT::"Graph Subscription Management");
@@ -166,7 +166,7 @@ codeunit 134625 "Graph Subscription Tests"
         SetDefaultTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, SubscriptionConnectionName, true);
         GraphSubscription.FindFirst;
         ExistingSubscriptionId := GraphSubscription.Id;
-        GraphSubscription.Delete;
+        GraphSubscription.Delete();
 
         // Excersice
         CODEUNIT.Run(CODEUNIT::"Graph Subscription Management");
@@ -268,14 +268,14 @@ codeunit 134625 "Graph Subscription Tests"
         LibraryGraphSync.CreateGraphBusinessProfile(GraphBusinessProfile, SynchronizeConnectionName);
 
         SyncBusinessProfile(IntegrationTableMapping);
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation.TestField(Name, GraphBusinessProfile.Name);
 
         // Exercise
         LibraryGraphSync.EditGraphBusinessProfileBasicDetails(GraphBusinessProfile);
         SetDefaultTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, InboundConnectionName, true);
         SyncBusinessProfile(IntegrationTableMapping);
-        CompanyInformation.Get;
+        CompanyInformation.Get();
 
         // Verify
         AssertCompanyInformationDetailsEqualGraphBusinessProfileDetails(GraphBusinessProfile, CompanyInformation);
@@ -633,7 +633,7 @@ codeunit 134625 "Graph Subscription Tests"
         DeleteAllSubscriptionTasks;
 
         // [WHEN] A contact is inserted
-        Contact.Init;
+        Contact.Init();
         Contact.Name := CreateGuid;
         Contact.Insert(true);
         Sleep(10);
@@ -660,7 +660,7 @@ codeunit 134625 "Graph Subscription Tests"
         DeleteAllSubscriptionTasks;
 
         // [WHEN] A contact is inserted
-        Contact.Init;
+        Contact.Init();
         Contact.Insert(true);
         Sleep(10);
 
@@ -685,14 +685,14 @@ codeunit 134625 "Graph Subscription Tests"
         DeleteAllSubscriptionTasks;
 
         // [WHEN] A contact is inserted
-        Contact.Init;
+        Contact.Init();
         Contact.Name := CreateGuid;
         Contact.Insert(true);
         Sleep(1000);
 
         // [WHEN] Another contact is inserted
         Clear(Contact);
-        Contact.Init;
+        Contact.Init();
         Contact.Name := CreateGuid;
         Contact.Insert(true);
         Sleep(10);
@@ -720,7 +720,7 @@ codeunit 134625 "Graph Subscription Tests"
         Initialize(DATABASE::Contact);
 
         // [GIVEN] A contact exists.
-        Contact.Init;
+        Contact.Init();
         Contact."No." := LibraryUtility.GenerateGUID;
         Contact.Name := CreateGuid;
         Contact.Insert(false);
@@ -757,7 +757,7 @@ codeunit 134625 "Graph Subscription Tests"
 
         // [GIVEN] Multiple contacts exist.
         for i := 1 to 3 do begin
-            Contact[i].Init;
+            Contact[i].Init();
             Contact[i]."No." := LibraryUtility.GenerateGUID;
             Contact[i].Name := CreateGuid;
             Contact[i].Insert(false);
@@ -795,7 +795,7 @@ codeunit 134625 "Graph Subscription Tests"
         Initialize(DATABASE::Contact);
 
         // [GIVEN] A contact exists
-        Contact.Init;
+        Contact.Init();
         Contact."No." := LibraryUtility.GenerateGUID;
         Contact.Name := CreateGuid;
         Contact.Insert(false);
@@ -985,7 +985,7 @@ codeunit 134625 "Graph Subscription Tests"
         // [FEATURE] [SaaS] [Event]
         // [SCENARIO 278062] Telemetry event subscribers from COD1351 do not work on non-SaaS
         Initialize(DATABASE::Contact);
-        NameValueBuffer.DeleteAll;
+        NameValueBuffer.DeleteAll();
         BindSubscription(GraphSubscriptionTests);
 
         // [GIVEN] System setup as non-saas
@@ -1008,7 +1008,7 @@ codeunit 134625 "Graph Subscription Tests"
         // [FEATURE] [SaaS] [Event]
         // [SCENARIO 278062] Telemetry event subscribers from COD1351 work on SaaS
         Initialize(DATABASE::Contact);
-        NameValueBuffer.DeleteAll;
+        NameValueBuffer.DeleteAll();
         BindSubscription(GraphSubscriptionTests);
 
         // [GIVEN] System setup as saas
@@ -1020,7 +1020,7 @@ codeunit 134625 "Graph Subscription Tests"
         // [THEN] Subscription runs and tries to create a task
         // OnBeforeTelemetryScheduleTaskHandler runs
         Assert.RecordIsNotEmpty(NameValueBuffer);
-        NameValueBuffer.DeleteAll;
+        NameValueBuffer.DeleteAll();
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
     end;
 
@@ -1054,19 +1054,19 @@ codeunit 134625 "Graph Subscription Tests"
 
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
 
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation."Demo Company" := false;
-        CompanyInformation.Modify;
+        CompanyInformation.Modify();
 
         Company.Get(CompanyName);
         Company."Evaluation Company" := true;
-        Company.Modify;
+        Company.Modify();
 
         if not O365C2GraphEventSettings.Get then
             O365C2GraphEventSettings.Insert(true);
 
         O365C2GraphEventSettings.SetEventsEnabled(false);
-        O365C2GraphEventSettings.Modify;
+        O365C2GraphEventSettings.Modify();
 
         BindSubscription(GraphBackgroundSyncSubscr);
         BindSubscription(TelemetryBackgroundScheduler);
@@ -1082,13 +1082,13 @@ codeunit 134625 "Graph Subscription Tests"
         i: Integer;
     begin
         for i := 1 to Count do begin
-            ScheduledTask.Init;
+            ScheduledTask.Init();
             ScheduledTask.ID := CreateGuid;
             ScheduledTask.Company := CompanyName;
             ScheduledTask."Run Codeunit" := CODEUNIT::"Graph Subscription Management";
             ScheduledTask."Failure Codeunit" := CODEUNIT::"Graph Delta Sync";
             ScheduledTask."Not Before" := CreateDateTime(Today + i, 0T);
-            ScheduledTask.Insert;
+            ScheduledTask.Insert();
         end;
     end;
 
@@ -1097,7 +1097,7 @@ codeunit 134625 "Graph Subscription Tests"
         ScheduledTask: Record "Scheduled Task";
     begin
         ScheduledTask.SetRange("Run Codeunit", CODEUNIT::"Graph Subscription Management");
-        ScheduledTask.DeleteAll;
+        ScheduledTask.DeleteAll();
     end;
 
     local procedure FilterAndSortSubscriptionTasks(var ScheduledTask: Record "Scheduled Task"; "Ascending": Boolean)
@@ -1116,7 +1116,7 @@ codeunit 134625 "Graph Subscription Tests"
         FilterAndSortSubscriptionTasks(ScheduledTask, true);
         for i := 1 to TasksToRun do begin
             ScheduledTask.FindLast;
-            ScheduledTask.Delete;
+            ScheduledTask.Delete();
         end;
     end;
 
@@ -1293,9 +1293,9 @@ codeunit 134625 "Graph Subscription Tests"
     begin
         // Make sure a record exists in O365 Getting Started so that the
         // system warmup doesn't run (not allowed in test runner).
-        O365GettingStarted.Init;
+        O365GettingStarted.Init();
         O365GettingStarted."User ID" := UserId;
-        if not O365GettingStarted.Insert then;
+        if not O365GettingStarted.Insert() then;
 
         LogInManagement.CompanyOpen;
     end;
@@ -1305,7 +1305,7 @@ codeunit 134625 "Graph Subscription Tests"
     procedure OnBeforeTelemetryScheduleTaskHandler(var DoNotScheduleTask: Boolean)
     begin
         NameValueBuffer.ID := LibraryUtility.GetNewRecNo(NameValueBuffer, NameValueBuffer.FieldNo(ID));
-        NameValueBuffer.Insert;
+        NameValueBuffer.Insert();
         DoNotScheduleTask := true;
     end;
 }

@@ -30,18 +30,18 @@ codeunit 880 "OCR - Send to Service"
             Window.Open(SendMsg);
 
         // Find Document Count and lock records
-        IncomingDocument.LockTable;
-        IncomingDocumentAttachment.LockTable;
+        IncomingDocument.LockTable();
+        IncomingDocumentAttachment.LockTable();
         while IncDocAttsReadyforOCR.Read do begin
             NoOfDocuments += 1;
             IncomingDocumentAttachment.Get(IncDocAttsReadyforOCR.Incoming_Document_Entry_No, IncDocAttsReadyforOCR.Line_No);
             IncomingDocument.Get(IncomingDocumentAttachment."Incoming Document Entry No.");  // lock
             TempIncomingDocumentAttachment := IncomingDocumentAttachment;
-            TempIncomingDocumentAttachment.Insert;
+            TempIncomingDocumentAttachment.Insert();
         end;
         IncDocAttsReadyforOCR.Close;
         // Release locks
-        Commit;
+        Commit();
 
         if NoOfDocuments = 0 then
             exit;
@@ -58,7 +58,7 @@ codeunit 880 "OCR - Send to Service"
             IncomingDocument.SendToOCR(false);
         until TempIncomingDocumentAttachment.Next = 0;
 
-        Commit;
+        Commit();
 
         if GuiAllowed then begin
             Window.Close;

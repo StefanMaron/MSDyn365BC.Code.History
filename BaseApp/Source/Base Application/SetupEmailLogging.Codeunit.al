@@ -203,8 +203,8 @@ codeunit 1641 "Setup Email Logging"
             IsolatedStorageManagement.Delete(MarketingSetup."Exchange Account Password Key", DATASCOPE::Company);
         Clear(MarketingSetup."Exchange Account Password Key");
 
-        MarketingSetup.Modify;
-        Commit;
+        MarketingSetup.Modify();
+        Commit();
     end;
 
     [Scope('OnPrem')]

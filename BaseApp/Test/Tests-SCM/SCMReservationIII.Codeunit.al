@@ -401,10 +401,10 @@ codeunit 137270 "SCM Reservation III"
 
         // Setup: Create and post Warehouse Receipt, create Warehouse Shipment and create Pick from Pick Worksheet after Get Warehouse Documents.
         Initialize;
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         DocumentNo := PostWhseRcptAndCreateWhseShpt(PurchaseLine);
         GetWhseDocFromPickWksh;
-        Commit;
+        Commit();
         PickNo := NoSeriesManagement.GetNextNo(WarehouseSetup."Whse. Pick Nos.", WorkDate, false);
         LibraryVariableStorage.Enqueue(StrSubstNo(PickActivityMessage, PickNo));  // Enqueue for Message Handler.
 
@@ -598,7 +598,7 @@ codeunit 137270 "SCM Reservation III"
 
         // Setup: Create Sales Order with Item Tracking and Reservation, find Zone, find Bin, create Warehouse Internal Pick.
         Initialize;
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         No := CreateWhseInternalPickLine(SalesLine);
         PickNo := NoSeriesManagement.GetNextNo(WarehouseSetup."Whse. Pick Nos.", WorkDate, false);
         LibraryVariableStorage.Enqueue(StrSubstNo(PickActivityMessage, PickNo));  // Enqueue for Message Handler.
@@ -654,7 +654,7 @@ codeunit 137270 "SCM Reservation III"
         // Setup: Create Sales Order with Item Tracking and Reservation, find Zone, find Bin, create Warehouse Internal Put Away.
         Initialize;
         BinCode := CreateWhseInternalPutAwayLine(SalesLine);
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         PutAwayNo := NoSeriesManagement.GetNextNo(WarehouseSetup."Whse. Put-away Nos.", WorkDate, false);
         LibraryVariableStorage.Enqueue(StrSubstNo(PutAwayActivityMessage, PutAwayNo));  // Enqueue for Message Handler.
 
@@ -1407,7 +1407,7 @@ codeunit 137270 "SCM Reservation III"
         LibraryERMCountryData.CreateGeneralPostingSetupData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Reservation III");
     end;
 

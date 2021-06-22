@@ -21,8 +21,8 @@ codeunit 744 "VAT Report Validate"
 
     local procedure ClearErrorLog()
     begin
-        TempVATReportErrorLog.Reset;
-        TempVATReportErrorLog.DeleteAll;
+        TempVATReportErrorLog.Reset();
+        TempVATReportErrorLog.DeleteAll();
     end;
 
     local procedure InsertErrorLog(ErrorMessage: Text[250])
@@ -32,10 +32,10 @@ codeunit 744 "VAT Report Validate"
         else
             ErrorID := 1;
 
-        TempVATReportErrorLog.Init;
+        TempVATReportErrorLog.Init();
         TempVATReportErrorLog."Entry No." := ErrorID;
         TempVATReportErrorLog."Error Message" := ErrorMessage;
-        TempVATReportErrorLog.Insert;
+        TempVATReportErrorLog.Insert();
     end;
 
     local procedure ShowErrorLog()

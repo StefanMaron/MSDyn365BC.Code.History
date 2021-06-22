@@ -34,7 +34,7 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.CreateVATData;
         LibraryWorkflow.DisableAllWorkflows;
-        UserSetup.DeleteAll;
+        UserSetup.DeleteAll();
         if IsInitialized then
             exit;
         IsInitialized := true;
@@ -117,7 +117,7 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
         VerifyPurchaseDocumentStatus(PurchHeader, PurchHeader.Status::"Pending Approval");
 
         // Exercise
-        Commit;
+        Commit();
         BlanketPurchaseOrder.OpenView;
         BlanketPurchaseOrder.GotoRecord(PurchHeader);
         asserterror BlanketPurchaseOrder.Release.Invoke;
@@ -422,7 +422,7 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
 
         // [WHEN] Purchase Header card is opened.
         CreatePurchDocument(PurchHeader, LibraryRandom.RandIntInRange(5000, 10000));
-        Commit;
+        Commit();
         BlanketPurchaseOrder.OpenEdit;
         BlanketPurchaseOrder.GotoRecord(PurchHeader);
 
@@ -504,7 +504,7 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
 
         // [WHEN] PurchHeader card is opened.
         CreatePurchDocument(PurchHeader, LibraryRandom.RandIntInRange(5000, 10000));
-        Commit;
+        Commit();
         BlanketPurchaseOrders.OpenEdit;
         BlanketPurchaseOrders.GotoRecord(PurchHeader);
 
@@ -596,7 +596,7 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
 
         // Verify - Approval requests and their data
         VerifyPurchaseDocumentStatus(PurchaseHeader, PurchaseHeader.Status::"Pending Approval");
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, PurchaseHeader.RecordId);
         VerifyApprovalEntry(ApprovalEntry, IntermediateApproverUserSetup."Approver ID", UserId, ApprovalEntry.Status::Approved);
         CheckCommentsForDocumentOnApprovalEntriesPage(ApprovalEntry, 1);
@@ -655,7 +655,7 @@ codeunit 134183 "WF Demo Purch BOrder Approvals"
 
         // Verify - Approval requests and their data
         VerifyPurchaseDocumentStatus(PurchaseHeader, PurchaseHeader.Status::Open);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, PurchaseHeader.RecordId);
         VerifyApprovalEntry(ApprovalEntry, IntermediateApproverUserSetup."Approver ID", UserId, ApprovalEntry.Status::Canceled);
     end;

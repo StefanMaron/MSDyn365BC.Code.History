@@ -136,6 +136,8 @@ table 7311 "Warehouse Journal Line"
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
+            var
+                WhseItemTrackingSetup: Record "Item Tracking Setup";
             begin
                 if not PhysInvtEntered then
                     TestField("Phys. Inventory", false);
@@ -150,8 +152,7 @@ table 7311 "Warehouse Journal Line"
                 end;
 
                 "Qty. (Base)" :=
-                  UOMMgt.CalcBaseQty(
-                    "Item No.", "Variant Code", "Unit of Measure Code", Quantity, "Qty. per Unit of Measure");
+                    UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", Quantity, "Qty. per Unit of Measure");
 
                 "Qty. (Absolute)" := Abs(Quantity);
                 "Qty. (Absolute, Base)" := Abs("Qty. (Base)");
@@ -173,8 +174,8 @@ table 7311 "Warehouse Journal Line"
                     CheckBin("Location Code", "To Bin Code", true);
                 end;
 
-                ItemTrackingMgt.CheckWhseItemTrkgSetup("Item No.", SNRequired, LNRequired, false);
-                if SNRequired and not "Phys. Inventory" and
+                ItemTrackingMgt.GetWhseItemTrkgSetup("Item No.", WhseItemTrackingSetup);
+                if WhseItemTrackingSetup."Serial No. Required" and not "Phys. Inventory" and
                    ("Serial No." <> '') and ((Quantity < 0) or (Quantity > 1))
                 then
                     Error(Text006, FieldCaption(Quantity));
@@ -202,8 +203,7 @@ table 7311 "Warehouse Journal Line"
                     TestField("Phys. Inventory", false);
 
                 "Qty. (Absolute, Base)" :=
-                  UOMMgt.CalcBaseQty(
-                    "Item No.", "Variant Code", "Unit of Measure Code", "Qty. (Absolute)", "Qty. per Unit of Measure");
+                    UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", "Qty. (Absolute)", "Qty. per Unit of Measure");
 
                 if Quantity > 0 then
                     WMSMgt.CalcCubageAndWeight(
@@ -312,13 +312,11 @@ table 7311 "Warehouse Journal Line"
             Caption = 'Source Subline No.';
             Editable = false;
         }
-        field(25; "Source Document"; Option)
+        field(25; "Source Document"; Enum "Warehouse Journal Source Document")
         {
             BlankZero = true;
             Caption = 'Source Document';
             Editable = false;
-            OptionCaption = ',S. Order,S. Invoice,S. Credit Memo,S. Return Order,P. Order,P. Invoice,P. Credit Memo,P. Return Order,Inb. Transfer,Outb. Transfer,Prod. Consumption,Item Jnl.,Phys. Invt. Jnl.,Reclass. Jnl.,Consumption Jnl.,Output Jnl.,BOM Jnl.,Serv Order,Job Jnl.,Assembly Consumption,Assembly Order';
-            OptionMembers = ,"S. Order","S. Invoice","S. Credit Memo","S. Return Order","P. Order","P. Invoice","P. Credit Memo","P. Return Order","Inb. Transfer","Outb. Transfer","Prod. Consumption","Item Jnl.","Phys. Invt. Jnl.","Reclass. Jnl.","Consumption Jnl.","Output Jnl.","BOM Jnl.","Serv Order","Job Jnl.","Assembly Consumption","Assembly Order";
         }
         field(26; "Source Code"; Code[10])
         {
@@ -557,7 +555,7 @@ table 7311 "Warehouse Journal Line"
             trigger OnValidate()
             begin
                 if "Serial No." <> '' then
-                    ItemTrackingMgt.CheckWhseItemTrkgSetup("Item No.", SNRequired, LNRequired, true);
+                    ItemTrackingMgt.CheckWhseItemTrkgSetup("Item No.");
 
                 if (Quantity < 0) or (Quantity > 1) then
                     Error(Text006, FieldCaption(Quantity));
@@ -575,7 +573,7 @@ table 7311 "Warehouse Journal Line"
             trigger OnValidate()
             begin
                 if "Lot No." <> '' then
-                    ItemTrackingMgt.CheckWhseItemTrkgSetup("Item No.", SNRequired, LNRequired, true);
+                    ItemTrackingMgt.CheckWhseItemTrkgSetup("Item No.");
             end;
         }
         field(6502; "Warranty Date"; Date)
@@ -695,8 +693,6 @@ table 7311 "Warehouse Journal Line"
         Text003: Label 'Default Journal';
         Text005: Label 'The location %1 of warehouse journal batch %2 is not enabled for user %3.';
         Text006: Label '%1 must be 0 or 1 for an Item tracked by Serial Number.';
-        SNRequired: Boolean;
-        LNRequired: Boolean;
         OpenFromBatch: Boolean;
         StockProposal: Boolean;
 
@@ -934,7 +930,7 @@ table 7311 "Warehouse Journal Line"
     begin
         JnlSelected := true;
 
-        WhseJnlTemplate.Reset;
+        WhseJnlTemplate.Reset();
         if not OpenFromBatch then
             WhseJnlTemplate.SetRange("Page ID", PageID);
         WhseJnlTemplate.SetRange(Type, PageTemplate);
@@ -942,13 +938,13 @@ table 7311 "Warehouse Journal Line"
         case WhseJnlTemplate.Count of
             0:
                 begin
-                    WhseJnlTemplate.Init;
+                    WhseJnlTemplate.Init();
                     WhseJnlTemplate.Validate(Type, PageTemplate);
                     WhseJnlTemplate.Validate("Page ID");
                     WhseJnlTemplate.Name := Format(WhseJnlTemplate.Type, MaxStrLen(WhseJnlTemplate.Name));
                     WhseJnlTemplate.Description := StrSubstNo(Text001, WhseJnlTemplate.Type);
-                    WhseJnlTemplate.Insert;
-                    Commit;
+                    WhseJnlTemplate.Insert();
+                    Commit();
                 end;
             1:
                 WhseJnlTemplate.FindFirst;
@@ -1003,14 +999,14 @@ table 7311 "Warehouse Journal Line"
         if FindExistingBatch(CurrentJnlTemplateName, CurrentLocationCode, CurrentJnlBatchName) then
             exit;
 
-        WhseJnlBatch.Init;
+        WhseJnlBatch.Init();
         WhseJnlBatch."Journal Template Name" := CurrentJnlTemplateName;
         WhseJnlBatch.SetupNewBatch;
         WhseJnlBatch."Location Code" := CurrentLocationCode;
         WhseJnlBatch.Name := Text002;
         WhseJnlBatch.Description := Text003;
         WhseJnlBatch.Insert(true);
-        Commit;
+        Commit();
         CurrentJnlBatchName := WhseJnlBatch.Name;
     end;
 
@@ -1044,7 +1040,7 @@ table 7311 "Warehouse Journal Line"
     var
         WhseJnlBatch: Record "Warehouse Journal Batch";
     begin
-        Commit;
+        Commit();
         WhseJnlBatch."Journal Template Name" := WhseJnlLine.GetRangeMax("Journal Template Name");
         WhseJnlBatch.Name := WhseJnlLine.GetRangeMax("Journal Batch Name");
         WhseJnlBatch.SetRange("Journal Template Name", WhseJnlBatch."Journal Template Name");
@@ -1064,7 +1060,7 @@ table 7311 "Warehouse Journal Line"
 
         TestField("Item No.");
         TestField("Qty. (Base)");
-        WhseWkshLine.Init;
+        WhseWkshLine.Init();
         WhseWkshLine."Worksheet Template Name" := "Journal Template Name";
         WhseWkshLine.Name := "Journal Batch Name";
         WhseWkshLine."Location Code" := "Location Code";
@@ -1089,12 +1085,9 @@ table 7311 "Warehouse Journal Line"
 
         with WhseItemTrkgLine do begin
             if ItemTrackingMgt.WhseItemTrackingLineExists(TemplateName, BatchName, LocationCode, LineNo, WhseItemTrkgLine) then begin
-                FindSet;
+                FindSet();
                 repeat
-                    if ("Lot No." <> "New Lot No.") or
-                       ("Serial No." <> "New Serial No.") or
-                       ("Expiration Date" <> "New Expiration Date")
-                    then
+                    if not HasSameNewTracking() or ("Expiration Date" <> "New Expiration Date") then
                         exit(true);
                 until Next = 0;
             end;
@@ -1235,6 +1228,40 @@ table 7311 "Warehouse Journal Line"
         exit(false);
     end;
 
+    procedure CheckTrackingIfRequired(WhseItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        if WhseItemTrackingSetup."Serial No. Required" then
+            TestField("Serial No.");
+        if WhseItemTrackingSetup."Lot No. Required" then
+            TestField("Lot No.");
+
+        OnAfterCheckTrackingIfRequired(Rec, WhseItemTrackingSetup);
+    end;
+
+    procedure CopyTrackingFromItemLedgEntry(ItemLedgEntry: Record "Item Ledger Entry")
+    begin
+        "Serial No." := ItemLedgEntry."Serial No.";
+        "Lot No." := ItemLedgEntry."Lot No.";
+
+        OnAfterCopyTrackingFromItemLedgEntry(Rec, ItemLedgEntry);
+    end;
+
+    procedure CopyTrackingFromWhseActivityLine(WhseActivityLine: Record "Warehouse Activity Line")
+    begin
+        "Serial No." := WhseActivityLine."Serial No.";
+        "Lot No." := WhseActivityLine."Lot No.";
+
+        OnAfterCopyTrackingFromWhseActivityLine(Rec, WhseActivityLine);
+    end;
+
+    procedure CopyTrackingFromWhseEntry(WhseEntry: Record "Warehouse Entry")
+    begin
+        "Serial No." := WhseEntry."Serial No.";
+        "Lot No." := WhseEntry."Lot No.";
+
+        OnAfterCopyTrackingFromWhseEntry(Rec, WhseEntry);
+    end;
+
     procedure SetSource(SourceType: Integer; SourceSubtype: Integer; SourceNo: Code[20]; SourceLineNo: Integer; SourceSublineNo: Integer)
     begin
         "Source Type" := SourceType;
@@ -1254,11 +1281,24 @@ table 7311 "Warehouse Journal Line"
         "Expiration Date" := ExpirationDate;
     end;
 
+    procedure SetTrackingFilterFromBinContent(var BinContent: Record "Bin Content")
+    begin
+        SetFilter("Serial No.", BinContent.GetFilter("Serial No. Filter"));
+        SetFilter("Lot No.", BinContent.GetFilter("Lot No. Filter"));
+
+        OnAfterSetTrackingFilterFromBinContent(Rec, BinContent);
+    end;
+
     procedure SetWhseDoc(DocType: Option; DocNo: Code[20]; DocLineNo: Integer)
     begin
         "Whse. Document Type" := DocType;
         "Whse. Document No." := DocNo;
         "Whse. Document Line No." := DocLineNo;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckTrackingIfRequired(var WhseJnlLine: Record "Warehouse Journal Line"; WhseItemTrackingSetup: Record "Item Tracking Setup")
+    begin
     end;
 
     [IntegrationEvent(false, false)]
@@ -1278,6 +1318,11 @@ table 7311 "Warehouse Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetupNewLine(var WarehouseJournalLine: Record "Warehouse Journal Line"; var LastWhseJnlLine: Record "Warehouse Journal Line"; WarehouseJournalTemplate: Record "Warehouse Journal Template");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromBinContent(var WarehouseJournalLine: Record "Warehouse Journal Line"; var BinContent: Record "Bin Content")
     begin
     end;
 

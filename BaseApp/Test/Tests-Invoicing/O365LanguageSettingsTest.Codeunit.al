@@ -133,7 +133,7 @@ codeunit 138917 "O365 Language Settings Test"
     begin
         UserPersonalization.Get(UserSecurityId);
         UserPersonalization."Language ID" := ID;
-        UserPersonalization.Modify;
+        UserPersonalization.Modify();
     end;
 
     [SendNotificationHandler(true)]

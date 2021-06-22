@@ -1,6 +1,9 @@
 table 202 "Resource Cost"
 {
     Caption = 'Resource Cost';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+    ObsoleteTag = '16.0';
 
     fields
     {

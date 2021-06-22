@@ -27,7 +27,7 @@ codeunit 132567 "Catch DotNet Exception"
         ConfigureMasterDataSetup(ServerFileName);
 
         // Pre-Exercise
-        Commit;
+        Commit();
 
         // Exercise
         ReadMasterDataFromCache.Run;
@@ -60,7 +60,7 @@ codeunit 132567 "Catch DotNet Exception"
         MasterDataSetupSample: Record "Master Data Setup Sample";
         FileMgt: Codeunit "File Management";
     begin
-        MasterDataSetupSample.DeleteAll;
+        MasterDataSetupSample.DeleteAll();
 
         with MasterDataSetupSample do begin
             Name := CopyStr(FileMgt.GetFileName(FileName), 1, MaxStrLen(Name));
@@ -90,7 +90,7 @@ codeunit 132567 "Catch DotNet Exception"
         ConfigureMasterDataSetup(ClientFileName);
 
         // Pre-Exercise
-        Commit;
+        Commit();
 
         // Exercise
         asserterror CODEUNIT.Run(CODEUNIT::"Read Master Data from Cache");

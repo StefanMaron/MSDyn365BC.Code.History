@@ -1918,7 +1918,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
-        Commit;
+        Commit();
 
         Initialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM WMS Item Unit of Measure");
@@ -1947,7 +1947,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         LibraryWarehouse.SelectWhseJournalTemplateName(WarehouseJournalTemplate, WarehouseJournalTemplate.Type::"Physical Inventory");
         LibraryWarehouse.SelectWhseJournalBatchName(
           WarehouseJournalBatch, WarehouseJournalTemplate.Type, WarehouseJournalTemplate.Name, LocationCode);
-        WarehouseJournalLine.Init;
+        WarehouseJournalLine.Init();
         WarehouseJournalLine.Validate("Journal Template Name", WarehouseJournalBatch."Journal Template Name");
         WarehouseJournalLine.Validate("Journal Batch Name", WarehouseJournalBatch.Name);
         WarehouseJournalLine.Validate("Location Code", LocationCode);
@@ -2012,7 +2012,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
 
         WarehouseJournalLine.SetRange("Journal Template Name", WarehouseJournalTemplate.Name);
         WarehouseJournalLine.SetRange("Journal Batch Name", WarehouseJournalBatch.Name);
-        WarehouseJournalLine.DeleteAll;
+        WarehouseJournalLine.DeleteAll();
 
         CreateWhseJournalLineWithLotTrackingOnNewBin(
           WarehouseJournalLine, WarehouseJournalTemplate.Name, WarehouseJournalBatch.Name, Item."No.", Item."Purch. Unit of Measure",
@@ -2200,7 +2200,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         WarehouseEmployee: Record "Warehouse Employee";
     begin
         WarehouseEmployee.SetRange(Default, true);
-        WarehouseEmployee.DeleteAll;
+        WarehouseEmployee.DeleteAll();
 
         LibraryWarehouse.CreateFullWMSLocation(Location, 2);
         Location.Validate("Pick According to FEFO", FEFO);

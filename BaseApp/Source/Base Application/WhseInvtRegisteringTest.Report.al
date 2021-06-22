@@ -283,8 +283,8 @@ report 7302 "Whse. Invt.-Registering - Test"
     trigger OnPreReport()
     begin
         WhseJnlLineFilter := "Warehouse Journal Line".GetFilters;
-        GLSetup.Get;
-        InvtSetup.Get;
+        GLSetup.Get();
+        InvtSetup.Get();
     end;
 
     var

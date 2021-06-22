@@ -27,11 +27,9 @@ table 380 "Detailed Vendor Ledg. Entry"
         {
             Caption = 'Posting Date';
         }
-        field(5; "Document Type"; Option)
+        field(5; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(6; "Document No."; Code[20])
         {
@@ -158,11 +156,9 @@ table 380 "Detailed Vendor Ledg. Entry"
             Caption = 'VAT Prod. Posting Group';
             TableRelation = "VAT Product Posting Group";
         }
-        field(35; "Initial Document Type"; Option)
+        field(35; "Initial Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Initial Document Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(36; "Applied Vend. Ledger Entry No."; Integer)
         {
@@ -264,6 +260,13 @@ table 380 "Detailed Vendor Ledg. Entry"
         SetLedgerEntryAmount;
     end;
 
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
+    end;
+
     procedure UpdateDebitCredit(Correction: Boolean)
     begin
         if ((Amount > 0) or ("Amount (LCY)" > 0)) and not Correction or
@@ -293,7 +296,7 @@ table 380 "Detailed Vendor Ledg. Entry"
             repeat
                 DtldVendLedgEntry."Transaction No." := 0;
                 DtldVendLedgEntry."Application No." := ApplicationNo;
-                DtldVendLedgEntry.Modify;
+                DtldVendLedgEntry.Modify();
             until DtldVendLedgEntry.Next = 0;
         end;
     end;

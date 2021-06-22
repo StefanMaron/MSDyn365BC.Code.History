@@ -2,7 +2,7 @@
     "id":  "437dbf0e-84ff-417a-965d-ed2bb9650972",
     "name":  "Base Application",
     "publisher":  "Microsoft",
-    "version":  "15.5.41926.0",
+    "version":  "16.0.11240.12076",
     "logo":  "ExtensionLogo.png",
     "privacyStatement":  "https://go.microsoft.com/fwlink/?LinkId=724009",
     "EULA":  "https://go.microsoft.com/fwlink/?linkid=2009120",
@@ -10,13 +10,25 @@
     "url":  "https://go.microsoft.com/fwlink/?LinkId=724011",
     "dependencies":  [
                          {
-                             "appId":  "63ca2fa4-4f03-4f2b-a480-172fef340d3f",
+                             "id":  "63ca2fa4-4f03-4f2b-a480-172fef340d3f",
                              "name":  "System Application",
                              "publisher":  "Microsoft",
-                             "version":  "15.5.0.0"
+                             "version":  "16.0.0.0"
                          }
                      ],
-    "platform":  "15.0.0.0",
+    "internalsVisibleTo":  [
+                               {
+                                   "id":  "c49d9d39-1c94-46d2-8bf7-3cce15ba54dc",
+                                   "name":  "Tests-SMTP",
+                                   "publisher":  "Microsoft"
+                               },
+                               {
+                                   "id":  "8c9fc75f-dc51-40de-a6fa-55e7bbe0c0c2",
+                                   "name":  "Tests-What\u0027s New Notifier Test",
+                                   "publisher":  "Microsoft"
+                               }
+                           ],
+    "platform":  "16.0.0.0",
     "target":  "OnPrem",
     "showMyCode":  true,
     "brief":  "Base Application (W1)"

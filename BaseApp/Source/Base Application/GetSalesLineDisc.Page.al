@@ -4,6 +4,9 @@ page 7009 "Get Sales Line Disc."
     Editable = false;
     PageType = List;
     SourceTable = "Sales Line Discount";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+    ObsoleteTag = '16.0';
 
     layout
     {

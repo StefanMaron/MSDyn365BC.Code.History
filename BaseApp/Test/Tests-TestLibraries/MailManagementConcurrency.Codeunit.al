@@ -32,8 +32,8 @@ codeunit 139029 "Mail Management Concurrency"
         if NameValueBuffer.FindLast then;
         NameValueBuffer.ID += 1;
         NameValueBuffer.Name := Format(NameValueBuffer.Count);
-        NameValueBuffer.Insert;
-        Commit;
+        NameValueBuffer.Insert();
+        Commit();
     end;
 }
 

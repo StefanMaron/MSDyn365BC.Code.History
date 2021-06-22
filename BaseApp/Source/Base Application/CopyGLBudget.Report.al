@@ -245,10 +245,10 @@ report 96 "Copy G/L Budget"
                 if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text005, ToGLBudgetName), true) then
                     Continue := false;
             if Continue then begin
-                GLBudgetName.Init;
+                GLBudgetName.Init();
                 GLBudgetName.Name := ToGLBudgetName;
-                GLBudgetName.Insert;
-                Commit;
+                GLBudgetName.Insert();
+                Commit();
             end;
         end else begin
             BudgetDim1Code := GLBudgetName."Budget Dimension 1 Code";
@@ -269,16 +269,16 @@ report 96 "Copy G/L Budget"
                     if TempSelectedDim."Dimension Value Filter" <> '' then
                         if FilterIncludesBlanks(TempSelectedDim."Dimension Value Filter") then
                             TempSelectedDim.Level := 1;
-                    TempSelectedDim.Modify;
+                    TempSelectedDim.Modify();
                 until TempSelectedDim.Next = 0;
 
-            ToGLBudgetEntry.LockTable;
+            ToGLBudgetEntry.LockTable();
             if ToGLBudgetEntry.FindLast then
                 GLBudgetEntryNo := ToGLBudgetEntry."Entry No." + 1
             else
                 GLBudgetEntryNo := 1;
 
-            GLSetup.Get;
+            GLSetup.Get();
             GlobalDim1Code := GLSetup."Global Dimension 1 Code";
             GlobalDim2Code := GLSetup."Global Dimension 2 Code";
         end else
@@ -391,10 +391,10 @@ report 96 "Copy G/L Budget"
 
         if TempGLBudgetEntry.FindFirst then begin
             TempGLBudgetEntry.Amount := TempGLBudgetEntry.Amount + Amount;
-            TempGLBudgetEntry.Modify;
-            TempGLBudgetEntry.Reset;
+            TempGLBudgetEntry.Modify();
+            TempGLBudgetEntry.Reset();
         end else begin
-            TempGLBudgetEntry.Reset;
+            TempGLBudgetEntry.Reset();
             if TempGLBudgetEntry.FindLast then
                 TempGLBudgetEntry."Entry No." := TempGLBudgetEntry."Entry No." + 1
             else
@@ -405,7 +405,7 @@ report 96 "Copy G/L Budget"
             TempGLBudgetEntry.Amount := Amount;
             TempGLBudgetEntry.Description := Description;
             TempGLBudgetEntry."Business Unit Code" := BUCode;
-            TempGLBudgetEntry.Insert;
+            TempGLBudgetEntry.Insert();
         end;
     end;
 
@@ -448,7 +448,7 @@ report 96 "Copy G/L Budget"
                               ToGLBudgetEntry.Amount + Sign * RoundingMethod."Amount Added After";
                         end;
                     end;
-                    DimSetEntry.Reset;
+                    DimSetEntry.Reset();
                     DimSetEntry.SetRange("Dimension Set ID", TempGLBudgetEntry."Dimension Set ID");
                     if DimSetEntry.Find('-') then begin
                         repeat
@@ -466,12 +466,12 @@ report 96 "Copy G/L Budget"
                                 ToGLBudgetEntry."Budget Dimension 4 Code" := DimSetEntry."Dimension Value Code";
                         until DimSetEntry.Next = 0;
                     end;
-                    ToGLBudgetEntry.Insert;
+                    ToGLBudgetEntry.Insert();
                 end;
             until TempGLBudgetEntry.Next = 0;
         end;
-        TempGLBudgetEntry.Reset;
-        TempGLBudgetEntry.DeleteAll;
+        TempGLBudgetEntry.Reset();
+        TempGLBudgetEntry.DeleteAll();
     end;
 
     procedure Initialize(FromSource2: Option; FromGLBudgetName2: Code[10]; FromGLAccountNo2: Code[250]; FromDate2: Text[30]; ToGlBudgetName2: Code[10]; ToGLAccountNo2: Code[20]; ToBUCode2: Code[20]; AmountAdjustFactor2: Decimal; RoundingMethod2: Code[10]; DateAdjustExpression2: DateFormula; NoMessage2: Boolean)
@@ -531,7 +531,7 @@ report 96 "Copy G/L Budget"
         TempDimBuf2: Record "Dimension Buffer" temporary;
     begin
         with TempDimBuf2 do begin
-            DeleteAll; // Necessary because of C/SIDE error
+            DeleteAll(); // Necessary because of C/SIDE error
             Init;
             Insert;
             SetFilter("Dimension Code", TheFilter);
@@ -551,11 +551,11 @@ report 96 "Copy G/L Budget"
 
         IncludeEntry := true;
         DimSetEntry.SetRange("Dimension Set ID", DimSetID);
-        TempDimSetEntry.Reset;
-        TempDimSetEntry.DeleteAll;
+        TempDimSetEntry.Reset();
+        TempDimSetEntry.DeleteAll();
         if TempSelectedDim.Find('-') then
             repeat
-                DimSetEntry.Init;
+                DimSetEntry.Init();
                 DimSetEntry.SetRange("Dimension Code", TempSelectedDim."Dimension Code");
                 if TempSelectedDim."Dimension Value Filter" <> '' then
                     DimSetEntry.SetFilter("Dimension Value Code", TempSelectedDim."Dimension Value Filter");
@@ -585,7 +585,7 @@ report 96 "Copy G/L Budget"
         if IncludeEntry then begin
             DimSetID := DimMgt.GetDimensionSetID(TempDimSetEntry);
             TempDimEntryBuffer."Dimension Entry No." := DimSetID;
-            TempDimEntryBuffer.Insert;
+            TempDimEntryBuffer.Insert();
             exit(true);
         end;
         exit(false);

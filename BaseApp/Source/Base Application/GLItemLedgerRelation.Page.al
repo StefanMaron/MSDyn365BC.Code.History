@@ -1,4 +1,4 @@
-﻿page 5823 "G/L - Item Ledger Relation"
+page 5823 "G/L - Item Ledger Relation"
 {
     Caption = 'G/L - Item Ledger Relation';
     DataCaptionExpression = GetCaption;
@@ -387,7 +387,7 @@
     trigger OnAfterGetRecord()
     begin
         if not ValueEntry.Get("Value Entry No.") then
-            ValueEntry.Init;
+            ValueEntry.Init();
     end;
 
     var

@@ -56,7 +56,7 @@ codeunit 139025 "Test Email Logging on Exchange"
         Status := TryInitializeEWS(ExchangeWebServicesClient);
         Assert.IsTrue(Status, 'Initialization of ExchangeWebServicesClient failed');
 
-        ExchangeFolder.Init;
+        ExchangeFolder.Init();
         Status := ExchangeWebServicesClient.ReadBuffer(ExchangeFolder);
         Assert.IsFalse(Status, 'ReadBuffer is not supposed to return TRUE with empty ExchangeFolder');
     end;
@@ -72,7 +72,7 @@ codeunit 139025 "Test Email Logging on Exchange"
         Status := TryInitializeEWS(ExchangeWebServicesClient);
         Assert.IsTrue(Status, 'Initialization of ExchangeWebServicesClient failed');
 
-        ExchangeFolder.Init;
+        ExchangeFolder.Init();
         ExchangeFolder.Cached := true;
         Status := ExchangeWebServicesClient.GetPublicFolders(ExchangeFolder);
         Assert.IsFalse(Status, 'GetPublicFolders with cached folder should not fail');
@@ -99,7 +99,7 @@ codeunit 139025 "Test Email Logging on Exchange"
     begin
         ExchangeWebServicesClient.InvalidateService;
 
-        ExchangeFolder.Init;
+        ExchangeFolder.Init();
         asserterror ExchangeWebServicesClient.GetPublicFolders(ExchangeFolder);
         Assert.ExpectedError('Connection to the Exchange server failed.');
     end;

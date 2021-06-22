@@ -53,7 +53,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
         if not SalesCrMemoEntityBuffer.Get(Rec."No.") then
             exit;
 
-        SalesCrMemoEntityBuffer.Delete;
+        SalesCrMemoEntityBuffer.Delete();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 56, 'OnAfterResetRecalculateInvoiceDisc', '', false, false)]
@@ -154,7 +154,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
         if not SalesCrMemoEntityBuffer.Get(Rec."No.", true) then
             exit;
 
-        SalesCrMemoEntityBuffer.Delete;
+        SalesCrMemoEntityBuffer.Delete();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 60, 'OnAfterCalcSalesDiscount', '', false, false)]
@@ -385,7 +385,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
         SalesCrMemoEntityBuffer: Record "Sales Cr. Memo Entity Buffer";
         RecordExists: Boolean;
     begin
-        SalesCrMemoEntityBuffer.LockTable;
+        SalesCrMemoEntityBuffer.LockTable();
         RecordExists := SalesCrMemoEntityBuffer.Get(SalesHeader."No.", false);
 
         SalesCrMemoEntityBuffer.TransferFields(SalesHeader, true);
@@ -429,7 +429,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
         SalesCrMemoEntityBuffer: Record "Sales Cr. Memo Entity Buffer";
         RecordExists: Boolean;
     begin
-        SalesCrMemoEntityBuffer.LockTable;
+        SalesCrMemoEntityBuffer.LockTable();
         RecordExists := SalesCrMemoEntityBuffer.Get(SalesCrMemoHeader."No.", true);
         SalesCrMemoEntityBuffer.TransferFields(SalesCrMemoHeader, true);
         SalesCrMemoEntityBuffer.Id := GetSalesCrMemoHeaderId(SalesCrMemoHeader);
@@ -618,7 +618,7 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
 
         SalesCrMemoEntityBuffer.Amount := 0;
         SalesCrMemoEntityBuffer."Amount Including VAT" := 0;
-        SalesCrMemoEntityBuffer.Modify;
+        SalesCrMemoEntityBuffer.Modify();
     end;
 
     local procedure CheckValidRecord(var SalesHeader: Record "Sales Header"): Boolean

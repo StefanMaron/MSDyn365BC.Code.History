@@ -65,17 +65,17 @@ codeunit 137095 "SCM Kitting - Reservations"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Vendor Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchasesPayablesSetup.Modify(true);
 
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         WorkDate2 := CalcDate(ManufacturingSetup."Default Safety Lead Time", WorkDate); // to avoid Due Date Before Work Date message.
         LibraryAssembly.UpdateAssemblySetup(
           AssemblySetup, '', AssemblySetup."Copy Component Dimensions from"::"Order Header", LibraryUtility.GetGlobalNoSeriesCode);
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Kitting - Reservations");
     end;
 
@@ -265,7 +265,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, TestAutoReserve(Item.Reserve::Optional, 0, false, false, 0));
         AssemblyHeader.Validate("Quantity to Assemble (Base)", AssemblyHeader."Quantity (Base)" - 1);
         AssemblyHeader.Modify(true);
-        AssemblyLine.Reset;
+        AssemblyLine.Reset();
         AssemblyLine.SetRange("Document Type", AssemblyLine."Document Type"::Order);
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
         AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
@@ -290,7 +290,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
 
         // Validate: Reservations are eliminated.
-        ReservationEntry.Reset;
+        ReservationEntry.Reset();
         ReservationEntry.SetRange(Positive, false);
         ReservationEntry.SetRange("Source Type", 901);
         ReservationEntry.SetRange("Source ID", AssemblyHeader."No.");
@@ -356,7 +356,7 @@ codeunit 137095 "SCM Kitting - Reservations"
                       TempReservationEntry.Quantity,
                       TempReservationEntry."Quantity (Base)",
                       '', '');
-                Commit;
+                Commit();
             until TempReservationEntry.Next = 0;
 
         // Validate: Reservation entries and Reserved Qty on Assembly Line.
@@ -572,7 +572,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         // No action is expected in this test for Items with Reserve <> Always.
         if Reserve <> Item.Reserve::Always then begin
             AvailToReserve := 0;
-            TempReservationEntry.DeleteAll;
+            TempReservationEntry.DeleteAll();
         end else
             AssemblyLine.Delete(true);
 
@@ -1041,8 +1041,8 @@ codeunit 137095 "SCM Kitting - Reservations"
         // Validate: Reservation entries and Reserved Qty on Assembly Line.
         // If no eligible supply was created initially, we don't expect any reservation to be made after the line change.
         if Multiplicity = 0 then begin
-            TempReservationEntry.Reset;
-            TempReservationEntry.DeleteAll;
+            TempReservationEntry.Reset();
+            TempReservationEntry.DeleteAll();
             AvailToReserve := 0;
         end;
 
@@ -1248,7 +1248,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         // Exercise: Update Assembly Line.
         AssemblyLine.Delete(true);
         AvailToReserve := 0;
-        TempReservationEntry.DeleteAll;
+        TempReservationEntry.DeleteAll();
 
         // Validate: Reservation entries and Reserved Qty on Assembly Line.
         AssemblyLine.CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
@@ -1306,8 +1306,8 @@ codeunit 137095 "SCM Kitting - Reservations"
         // Update TempReservationEntry based one the new line, using SetQtyToReserve.
         if (Multiplicity = 0) or (AssemblyHeaderFieldNo = AssemblyHeader.FieldNo("Item No."))
         then begin
-            TempReservationEntry.Reset;
-            TempReservationEntry.DeleteAll;
+            TempReservationEntry.Reset();
+            TempReservationEntry.DeleteAll();
             AvailToReserve := 0;
         end
         else
@@ -1709,8 +1709,8 @@ codeunit 137095 "SCM Kitting - Reservations"
 
         // Validate: Reservation entries and Reserved Qty on Assembly Line.
         if Reserve <> Item.Reserve::Always then begin
-            TempReservationEntry.Reset;
-            TempReservationEntry.DeleteAll;
+            TempReservationEntry.Reset();
+            TempReservationEntry.DeleteAll();
             AvailToReserve := 0;
         end;
 
@@ -2043,7 +2043,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         else
             QtyFactor := 1;
 
-        TempReservationEntry.DeleteAll;
+        TempReservationEntry.DeleteAll();
         CreateSupplyLines(TempReservationEntry, AvailToReserve, AssemblyLine, AssemblyLine."Variant Code", AssemblyLine."Location Code",
           AssemblyLine."Due Date", Round((AssemblyLine."Quantity (Base)" + ExcessSupply) / QtyFactor, 1, '>'), Multiplicity);
 
@@ -2137,7 +2137,7 @@ codeunit 137095 "SCM Kitting - Reservations"
     var
         QtyToReserve: Decimal;
     begin
-        TempReservationEntry.Reset;
+        TempReservationEntry.Reset();
         TempReservationEntry.SetRange("Source Type", SourceType);
         if TempReservationEntry.FindSet then
             repeat
@@ -2183,7 +2183,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         ItemVariant: Record "Item Variant";
     begin
         // Positive test: Extract expected reservation entry that will drive the line update.
-        TempReservationEntry.Reset;
+        TempReservationEntry.Reset();
         if PositiveTest then
             case AssemblyLineFieldNo of
                 AssemblyLine.FieldNo("Location Code"):
@@ -2243,7 +2243,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         ItemVariant: Record "Item Variant";
     begin
         // Positive test: Extract expected reservation entry that will drive the header update.
-        TempReservationEntry.Reset;
+        TempReservationEntry.Reset();
         if PositiveTest then
             case AssemblyHeaderFieldNo of
                 AssemblyHeader.FieldNo("Location Code"):
@@ -2300,7 +2300,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         ItemVariant: Record "Item Variant";
     begin
         // Positive test: Extract expected reservation entry that will drive the line update.
-        TempReservationEntry.Reset;
+        TempReservationEntry.Reset();
         if PositiveTest then
             case SalesLineFieldNo of
                 SalesLine.FieldNo("Location Code"):
@@ -2387,7 +2387,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         AssemblyOrder.Close;
 
         // Fetch the line from the database for validation.
-        AssemblyLine.Reset;
+        AssemblyLine.Reset();
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
         AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
@@ -2455,7 +2455,7 @@ codeunit 137095 "SCM Kitting - Reservations"
     [Normal]
     local procedure FindReservationEntries(var ReservationEntry: Record "Reservation Entry"; Positive: Boolean; ItemNo: Code[20]; SourceType: Integer; SourceID: Code[20])
     begin
-        ReservationEntry.Reset;
+        ReservationEntry.Reset();
         ReservationEntry.SetRange(Positive, Positive);
         ReservationEntry.SetRange("Item No.", ItemNo);
         ReservationEntry.SetRange("Source Type", SourceType);
@@ -2492,9 +2492,9 @@ codeunit 137095 "SCM Kitting - Reservations"
         VerifyReservedQty(TempReservationEntry, 900);
 
         // Check the number of reservation entries.
-        TempReservationEntry.Reset;
+        TempReservationEntry.Reset();
         TempReservationEntry.SetFilter("Quantity (Base)", '<>%1', 0);
-        ReservationEntry.Reset;
+        ReservationEntry.Reset();
         ReservationEntry.SetRange(Positive, true);
         ReservationEntry.SetRange("Item No.", AssemblyLine."No.");
         ReservationEntry.SetRange("Location Code", AssemblyLine."Location Code");
@@ -2525,7 +2525,7 @@ codeunit 137095 "SCM Kitting - Reservations"
     begin
         TempReservationEntry.SetRange("Source Type", SourceType);
         if TempReservationEntry.FindSet then begin
-            ReservationEntry.Reset;
+            ReservationEntry.Reset();
             ReservationEntry.SetRange(Positive, true);
             ReservationEntry.SetRange("Source Type", TempReservationEntry."Source Type");
             ReservationEntry.SetRange("Item No.", TempReservationEntry."Item No.");
@@ -2604,7 +2604,7 @@ codeunit 137095 "SCM Kitting - Reservations"
         if TempReservationEntry.FindLast then
             LastEntryNo := TempReservationEntry."Entry No.";
 
-        TempReservationEntry.Init;
+        TempReservationEntry.Init();
         TempReservationEntry.Validate("Entry No.", LastEntryNo + 1);
         TempReservationEntry.Validate(Positive, true);
         TempReservationEntry.Validate("Item No.", ItemNo);
@@ -2720,7 +2720,7 @@ codeunit 137095 "SCM Kitting - Reservations"
     var
         AvailableSupply: Decimal;
     begin
-        TempReservationEntry.Reset;
+        TempReservationEntry.Reset();
         TempReservationEntry.SetRange("Location Code", LocationCode);
         TempReservationEntry.SetRange("Variant Code", VariantCode);
         if SourceType <> 0 then

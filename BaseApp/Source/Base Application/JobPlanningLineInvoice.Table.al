@@ -25,12 +25,10 @@ table 1022 "Job Planning Line Invoice"
             TableRelation = "Job Planning Line"."Line No." WHERE("Job No." = FIELD("Job No."),
                                                                   "Job Task No." = FIELD("Job Task No."));
         }
-        field(4; "Document Type"; Option)
+        field(4; "Document Type"; Enum "Job Planning Line Invoice Document Type")
         {
             Caption = 'Document Type';
             Editable = false;
-            OptionCaption = ' ,Invoice,Credit Memo,Posted Invoice,Posted Credit Memo';
-            OptionMembers = " ",Invoice,"Credit Memo","Posted Invoice","Posted Credit Memo";
         }
         field(5; "Document No."; Code[20])
         {
@@ -83,6 +81,11 @@ table 1022 "Job Planning Line Invoice"
         }
         key(Key2; "Document Type", "Document No.", "Job Ledger Entry No.")
         {
+        }
+        key(Key3; "Job No.", "Job Planning Line No.", "Job Task No.", "Document Type")
+        {
+            MaintainSqlIndex = false;
+            SumIndexFields = "Quantity Transferred", "Invoiced Amount (LCY)", "Invoiced Cost Amount (LCY)";
         }
     }
 

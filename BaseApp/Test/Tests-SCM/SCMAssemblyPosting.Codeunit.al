@@ -9,7 +9,7 @@ codeunit 137915 "SCM Assembly Posting"
     begin
         // [FEATURE] [SCM] [Assembly]
         Initialized := false;
-        MfgSetup.Get;
+        MfgSetup.Get();
         WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate); // to avoid Due Date Before Work Date message.
     end;
 
@@ -49,7 +49,7 @@ codeunit 137915 "SCM Assembly Posting"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         Initialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Assembly Posting");
     end;
 
@@ -161,7 +161,7 @@ codeunit 137915 "SCM Assembly Posting"
         ItemJournalTemplate.FindFirst;
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalTemplate.Name);
         ItemJournalLine.SetRange("Journal Batch Name", DefaultBatch);
-        ItemJournalLine.DeleteAll;
+        ItemJournalLine.DeleteAll();
         LibraryInventory.CreateItemJournalLine(ItemJournalLine, ItemJournalTemplate.Name, DefaultBatch,
           ItemJournalLine."Entry Type"::"Positive Adjmt.", CompItem."No.", 20);
         LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, DefaultBatch);
@@ -363,7 +363,7 @@ codeunit 137915 "SCM Assembly Posting"
     begin
         Initialize;
         // set the no series of Assembly order to accept manual nos.
-        AssemblySetup.Get;
+        AssemblySetup.Get();
         NoSeries.Get(AssemblySetup."Assembly Order Nos.");
         OriginalManualNo := NoSeries."Manual Nos.";
         NoSeries.Validate("Manual Nos.", true);
@@ -389,7 +389,7 @@ codeunit 137915 "SCM Assembly Posting"
         asserterror B231812_CreateAssemblyOrder(AssemblyHeader, DocumentNo);
         Assert.IsTrue(StrPos(GetLastErrorText, ErrOrderAlreadyExists) > 0, '');
         // deleted posted order from 1st posting
-        PostedAssemblyHeader.Reset;
+        PostedAssemblyHeader.Reset();
         PostedAssemblyHeader.SetRange("Order No.", DocumentNo);
         PostedAssemblyHeader.FindLast;
         PostedAssemblyHeader.Delete(true);
@@ -476,7 +476,7 @@ codeunit 137915 "SCM Assembly Posting"
         ItemJournalTemplate.FindFirst;
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalTemplate.Name);
         ItemJournalLine.SetRange("Journal Batch Name", DefaultBatch);
-        ItemJournalLine.DeleteAll;
+        ItemJournalLine.DeleteAll();
         LibraryInventory.CreateItemJournalLine(ItemJournalLine, ItemJournalTemplate.Name, DefaultBatch,
           ItemJournalLine."Entry Type"::"Positive Adjmt.", CompItem."No.", 200); // put in more than enough qty.
         LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, DefaultBatch);
@@ -493,18 +493,18 @@ codeunit 137915 "SCM Assembly Posting"
         TempDimSetEntryAsmHeader."Dimension Code" := Dimension.Code;
         TempDimSetEntryAsmHeader."Dimension Value Code" := DimensionValue.Code;
         TempDimSetEntryAsmHeader."Dimension Value ID" := DimensionValue."Dimension Value ID";
-        TempDimSetEntryAsmHeader.Insert;
+        TempDimSetEntryAsmHeader.Insert();
         AssemblyHeader.Validate("Dimension Set ID", DimMgt.GetDimensionSetID(TempDimSetEntryAsmHeader));
-        AssemblyHeader.Modify;
+        AssemblyHeader.Modify();
         // - on resource line
         LibraryDimension.CreateDimension(Dimension);
         LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
         TempDimSetEntryAsmResLine."Dimension Code" := Dimension.Code;
         TempDimSetEntryAsmResLine."Dimension Value Code" := DimensionValue.Code;
         TempDimSetEntryAsmResLine."Dimension Value ID" := DimensionValue."Dimension Value ID";
-        TempDimSetEntryAsmResLine.Insert;
+        TempDimSetEntryAsmResLine.Insert();
         AssemblyLineResource.Validate("Dimension Set ID", DimMgt.GetDimensionSetID(TempDimSetEntryAsmResLine));
-        AssemblyLineResource.Modify;
+        AssemblyLineResource.Modify();
         // post assembly
         LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
         // verify dimensions
@@ -587,7 +587,7 @@ codeunit 137915 "SCM Assembly Posting"
         // put other than default UOM
         ResourceUnitOfMeasure.SetRange("Resource No.", Resource."No.");
         ResourceUnitOfMeasure.FindFirst;
-        ResourceUnitOfMeasure.Delete;
+        ResourceUnitOfMeasure.Delete();
         UnitOfMeasure.FindLast;
         LibraryResource.CreateResourceUnitOfMeasure(ResourceUnitOfMeasure, Resource."No.", UnitOfMeasure.Code, 1);
         Resource.Validate("Base Unit of Measure", ResourceUnitOfMeasure.Code);
@@ -694,7 +694,7 @@ codeunit 137915 "SCM Assembly Posting"
         ItemJournalTemplate.FindFirst;
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalTemplate.Name);
         ItemJournalLine.SetRange("Journal Batch Name", DefaultBatch);
-        ItemJournalLine.DeleteAll;
+        ItemJournalLine.DeleteAll();
         LibraryInventory.CreateItemJournalLine(ItemJournalLine, ItemJournalTemplate.Name, DefaultBatch,
           ItemJournalLine."Entry Type"::"Positive Adjmt.", CompItem."No.", 200); // put in more than enough qty.
         ItemJournalLine.Validate("Variant Code", ItemVariant.Code);
@@ -797,7 +797,7 @@ codeunit 137915 "SCM Assembly Posting"
         Assert.AreEqual(AssemblyHeader."Unit of Measure Code", PostedAssemblyHeader."Unit of Measure Code", '');
         Assert.AreEqual(AssemblyHeader."Qty. per Unit of Measure", PostedAssemblyHeader."Qty. per Unit of Measure", '');
         Assert.AreEqual(AssemblyHeader."Dimension Set ID", PostedAssemblyHeader."Dimension Set ID", '');
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         Assert.AreEqual(SourceCodeSetup.Assembly, PostedAssemblyHeader."Source Code", '');
         // verify header comment
         VerifyPostedCommentLine(PostedAssemblyHeader."No.", 0, 10000, AssemblyCommentLineHeader1);
@@ -980,7 +980,7 @@ codeunit 137915 "SCM Assembly Posting"
         UnitCost: Decimal;
         Identifier: Text[250];
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Identifier := 'Document no: ' + PostedAssemblyDocumentNo + ', Line no.: ' + Format(PostedAssemblyLineNo);
         PostedAssemblyHeader.Get(PostedAssemblyDocumentNo);
         if PostedAssemblyLineNo <> 0 then begin
@@ -994,7 +994,7 @@ codeunit 137915 "SCM Assembly Posting"
             Assert.AreEqual(PostedAssemblyHeader."No.", "Document No.", Identifier);
             Assert.AreEqual("Source Type"::Item, "Source Type", Identifier);
             Assert.AreEqual(PostedAssemblyHeader."Posting Date", "Document Date", Identifier);
-            AssemblySetup.Get;
+            AssemblySetup.Get();
             Assert.AreEqual(AssemblySetup."Posted Assembly Order Nos.", "No. Series", Identifier);
             Assert.AreEqual("Document Type"::"Posted Assembly", "Document Type", Identifier);
             Assert.AreEqual("Order Type"::Assembly, "Order Type", Identifier);
@@ -1099,7 +1099,7 @@ codeunit 137915 "SCM Assembly Posting"
         SourceCodeSetup: Record "Source Code Setup";
         Identifier: Text[250];
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Identifier := 'Document no: ' + PostedAssemblyDocumentNo + ', Line no.: ' + Format(PostedAssemblyLineNo);
         PostedAssemblyHeader.Get(PostedAssemblyDocumentNo);
         if PostedAssemblyLineNo <> 0 then begin
@@ -1226,7 +1226,7 @@ codeunit 137915 "SCM Assembly Posting"
             // "Salespers./Purch. Code"
             // "Discount Amount"
             Assert.AreEqual(UpperCase(UserId), "User ID", Identifier);
-            SourceCodeSetup.Get;
+            SourceCodeSetup.Get();
             Assert.AreEqual(SourceCodeSetup.Assembly, "Source Code", Identifier);
             // "Applies-to Entry"
             Assert.AreEqual("Source Type"::Item, "Source Type", Identifier);
@@ -1376,7 +1376,7 @@ codeunit 137915 "SCM Assembly Posting"
             Assert.AreEqual(PostedAssemblyLine."Shortcut Dimension 1 Code", "Global Dimension 1 Code", Identifier);
             Assert.AreEqual(PostedAssemblyLine."Shortcut Dimension 2 Code", "Global Dimension 2 Code", Identifier);
             Assert.AreEqual(UpperCase(UserId), "User ID", Identifier);
-            SourceCodeSetup.Get;
+            SourceCodeSetup.Get();
             Assert.AreEqual(SourceCodeSetup.Assembly, "Source Code", Identifier);
             Assert.AreEqual(true, Chargeable, Identifier);
             Assert.AreEqual('', "Journal Batch Name", Identifier);
@@ -1385,7 +1385,7 @@ codeunit 137915 "SCM Assembly Posting"
             Assert.AreEqual(PostedAssemblyLine."Gen. Prod. Posting Group", "Gen. Prod. Posting Group", Identifier);
             Assert.AreEqual(PostedAssemblyHeader."Posting Date", "Document Date", Identifier);
             Assert.AreEqual('', "External Document No.", Identifier);
-            AssemblySetup.Get;
+            AssemblySetup.Get();
             Assert.AreEqual(AssemblySetup."Posted Assembly Order Nos.", "No. Series", Identifier);
             Assert.AreEqual("Source Type"::" ", "Source Type", Identifier);
             Assert.AreEqual('', "Source No.", Identifier);
@@ -1413,7 +1413,7 @@ codeunit 137915 "SCM Assembly Posting"
         ItemRegister.SetRange("From Entry No.", ItemLedgEntry."Entry No.");
         ItemLedgEntry.FindLast;
         ItemRegister.SetRange("To Entry No.", ItemLedgEntry."Entry No.");
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         ItemRegister.SetRange("Source Code", SourceCodeSetup.Assembly);
         Assert.AreEqual(1, ItemRegister.Count, 'The entire posting should create only one register.');
     end;

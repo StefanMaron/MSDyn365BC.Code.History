@@ -1,4 +1,4 @@
-﻿page 6644 "Purchase Return Order Archive"
+page 6644 "Purchase Return Order Archive"
 {
     Caption = 'Purchase Return Order Archive';
     DeleteAllowed = false;

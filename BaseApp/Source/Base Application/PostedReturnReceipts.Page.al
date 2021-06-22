@@ -1,4 +1,4 @@
-﻿page 6662 "Posted Return Receipts"
+page 6662 "Posted Return Receipts"
 {
     ApplicationArea = SalesReturnOrder;
     Caption = 'Posted Return Receipt';

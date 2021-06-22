@@ -50,7 +50,7 @@ page 8700 "Table Information"
                     ToolTip = 'The number of records in the table';
                 }
 
-                field("Record Size"; "Record Size")
+                field("Record Size (Byte)"; "Record Size")
                 {
                     ApplicationArea = All;
                     ToolTip = 'A value expressing the average size of a record, calculated as 1024 x Size (KB)/Records';
@@ -64,4 +64,16 @@ page 8700 "Table Information"
             }
         }
     }
+
+    trigger OnInit()
+    var
+        UserPermissions: codeunit "User Permissions";
+    begin
+        FilterGroup(2);
+        if UserPermissions.IsSuper(UserSecurityId()) then
+            SetFilter("Company Name", '=%1|%2', CompanyName, '')
+        else
+            SetRange("Company Name", CompanyName);
+        FilterGroup(0);
+    end;
 }

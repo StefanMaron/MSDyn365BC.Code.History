@@ -47,7 +47,7 @@ codeunit 134627 "Graph Collect Mgt Item UT"
         // Setup
         CreateTestItem(Item);
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
-        UnitOfMeasure.Delete;
+        UnitOfMeasure.Delete();
 
         // Execute
         ItemUOMJSON := GraphCollectionMgtItem.ItemUnitOfMeasureToJSON(Item, UnitOfMeasure.Code);
@@ -68,7 +68,7 @@ codeunit 134627 "Graph Collect Mgt Item UT"
         // Setup
         CreateTestItem(Item);
         Item."Base Unit of Measure" := '';
-        Item.Modify;
+        Item.Modify();
 
         // Execute
         ItemUOMJSON := GraphCollectionMgtItem.ItemUnitOfMeasureToJSON(Item, Item."Base Unit of Measure");
@@ -428,7 +428,7 @@ codeunit 134627 "Graph Collect Mgt Item UT"
         JSONManagement.GetStringPropertyValueFromJObjectByName(JsonObject, GraphCollectionMgtItem.UOMComplexTypeSymbol, UnitSymbol);
         JSONManagement.GetStringPropertyValueFromJObjectByName(JsonObject, GraphCollectionMgtItem.UOMComplexTypeUnitName, UnitName);
 
-        UnitOfMeasure.Init;
+        UnitOfMeasure.Init();
         if ExpectedUOMCode <> '' then
             UnitOfMeasure.Get(ExpectedUOMCode);
 

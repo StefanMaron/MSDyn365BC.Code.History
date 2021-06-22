@@ -27,14 +27,13 @@ codeunit 135401 "Fixed Assets Plan-based E2E"
         FixedAsset: Record "Fixed Asset";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        AzureADPlanTestLibrary: Codeunit "Azure AD Plan Test Library";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Fixed Assets Plan-based E2E");
 
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential));
 
         DeleteAllAssetGeneralJournalLines;
-        FixedAsset.DeleteAll;
+        FixedAsset.DeleteAll();
 
         // Lazy Setup
         if IsInitialized then
@@ -45,12 +44,9 @@ codeunit 135401 "Fixed Assets Plan-based E2E"
         CreateDefaultDepretiationBook;
 
         IsInitialized := true;
-        Commit;
+        Commit();
 
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Fixed Assets Plan-based E2E");
-
-        // Populate table Plan if empty
-        AzureADPlanTestLibrary.PopulatePlanTable();
     end;
 
     [Test]
@@ -131,7 +127,7 @@ codeunit 135401 "Fixed Assets Plan-based E2E"
         // [GIVEN] A user with a Team Member Plan
         Initialize;
         CreateFAPostingGroupClassAndSubclass(FASubclass);
-        Commit;
+        Commit();
 
         // [WHEN] Create a Fixed Asset
         LibraryE2EPlanPermissions.SetTeamMemberPlan;
@@ -140,13 +136,13 @@ codeunit 135401 "Fixed Assets Plan-based E2E"
         Assert.ExpectedError(MissingPermissionsErr);
         LibraryE2EPlanPermissions.SetBusinessManagerPlan;
         CreateFixedAsset(FixedAsset, FASubclass.Code);
-        Commit;
+        Commit();
 
         // [WHEN] Edit a Fixed Asset
         LibraryE2EPlanPermissions.SetTeamMemberPlan;
         // [THEN] No error is thrown
         ModifyFixedAsset(FixedAsset);
-        Commit;
+        Commit();
 
         // [WHEN] Acquire a Fixed Asset
         LibraryE2EPlanPermissions.SetTeamMemberPlan;
@@ -155,7 +151,7 @@ codeunit 135401 "Fixed Assets Plan-based E2E"
         Assert.ExpectedError(MissingPermissionsErr);
         LibraryE2EPlanPermissions.SetBusinessManagerPlan;
         AcquireFixedAsset(FixedAsset);
-        Commit;
+        Commit();
 
         // [WHEN] Depreciate a Fixed Asset
         LibraryE2EPlanPermissions.SetTeamMemberPlan;
@@ -163,7 +159,7 @@ codeunit 135401 "Fixed Assets Plan-based E2E"
         asserterror DepreciateFixedAsset(FixedAsset);
         Assert.ExpectedError(MissingPermissionsErr);
         LibraryE2EPlanPermissions.SetBusinessManagerPlan;
-        Commit;
+        Commit();
         DepreciateFixedAsset(FixedAsset);
 
         // [WHEN] Dispose a Fixed Asset
@@ -224,7 +220,7 @@ codeunit 135401 "Fixed Assets Plan-based E2E"
         // [GIVEN] A user with a Team Member ISV Emb Plan
         Initialize;
         CreateFAPostingGroupClassAndSubclass(FASubclass);
-        Commit;
+        Commit();
 
         // [WHEN] Create a Fixed Asset
         LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
@@ -235,13 +231,13 @@ codeunit 135401 "Fixed Assets Plan-based E2E"
 
         LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
         CreateFixedAsset(FixedAsset, FASubclass.Code);
-        Commit;
+        Commit();
 
         // [WHEN] Edit a Fixed Asset
         LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
         // [THEN] No error is thrown
         ModifyFixedAsset(FixedAsset);
-        Commit;
+        Commit();
 
         // [WHEN] Acquire a Fixed Asset
         // [THEN] A permission error is thrown
@@ -250,7 +246,7 @@ codeunit 135401 "Fixed Assets Plan-based E2E"
 
         LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
         AcquireFixedAsset(FixedAsset);
-        Commit;
+        Commit();
 
         // [WHEN] Depreciate a Fixed Asset
         LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
@@ -259,7 +255,7 @@ codeunit 135401 "Fixed Assets Plan-based E2E"
         Assert.ExpectedError(MissingPermissionsErr);
 
         LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
-        Commit;
+        Commit();
         DepreciateFixedAsset(FixedAsset);
 
         // [WHEN] Dispose a Fixed Asset
@@ -425,7 +421,7 @@ codeunit 135401 "Fixed Assets Plan-based E2E"
     var
         FASetup: Record "FA Setup";
     begin
-        FASetup.Get;
+        FASetup.Get();
         FASetup.Validate("Default Depr. Book", DepreciationBookCode);
         FASetup.Modify(true);
     end;
@@ -483,7 +479,7 @@ codeunit 135401 "Fixed Assets Plan-based E2E"
         FixedAssetAcquisitionWizard.NextPage.Invoke;
         FixedAssetAcquisitionWizard.OpenFAGLJournal.SetValue(false);
         // COMMIT is enforced because the Finish action is invoking a codeunit and uses the return value.
-        Commit;
+        Commit();
         FixedAssetAcquisitionWizard.Finish.Invoke;
     end;
 
@@ -494,7 +490,7 @@ codeunit 135401 "Fixed Assets Plan-based E2E"
     begin
         GenJournalLine.SetRange("Journal Template Name", FAJournalTemplateNameTok);
         if not GenJournalLine.IsEmpty then
-            GenJournalLine.DeleteAll;
+            GenJournalLine.DeleteAll();
     end;
 
     [RequestPageHandler]

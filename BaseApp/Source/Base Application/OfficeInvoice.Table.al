@@ -50,7 +50,7 @@ table 1606 "Office Invoice"
     begin
         OfficeInvoice.SetRange("Document No.", DocumentNo);
         OfficeInvoice.SetRange(Posted, IsPosted);
-        OfficeInvoice.DeleteAll;
+        OfficeInvoice.DeleteAll();
     end;
 }
 

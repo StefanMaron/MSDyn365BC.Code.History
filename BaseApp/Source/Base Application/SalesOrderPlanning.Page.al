@@ -217,7 +217,7 @@ page 99000883 "Sales Order Planning"
 
                         LastShipmentDate := WorkDate;
 
-                        SalesHeader.LockTable;
+                        SalesHeader.LockTable();
                         SalesHeader.Get(SalesHeader."Document Type"::Order, SalesHeader."No.");
 
                         if Choice = 1 then begin
@@ -227,10 +227,10 @@ page 99000883 "Sales Order Planning"
                                         LastShipmentDate := "Expected Delivery Date";
                                 until Next = 0;
                             SalesHeader.Validate("Shipment Date", LastShipmentDate);
-                            SalesHeader.Modify;
+                            SalesHeader.Modify();
                         end
                         else begin
-                            SalesLine.LockTable;
+                            SalesLine.LockTable();
                             if Find('-') then
                                 repeat
                                     SalesLine.Get(
@@ -238,7 +238,7 @@ page 99000883 "Sales Order Planning"
                                       "Sales Order No.",
                                       "Sales Order Line No.");
                                     SalesLine."Shipment Date" := "Expected Delivery Date";
-                                    SalesLine.Modify;
+                                    SalesLine.Modify();
                                 until Next = 0;
                         end;
                         BuildForm;
@@ -302,8 +302,6 @@ page 99000883 "Sales Order Planning"
         Text001: Label 'There is nothing to plan.';
         SalesHeader: Record "Sales Header";
         ReservEntry: Record "Reservation Entry";
-        ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
-        ReserveSalesline: Codeunit "Sales Line-Reserve";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         NewStatus: Option Simulated,Planned,"Firm Planned",Released,Finished;
         NewOrderType: Option ItemOrder,ProjectOrder;
@@ -346,8 +344,8 @@ page 99000883 "Sales Order Planning"
                 "Planning Status" := "Planning Status"::None;
                 SalesLine.CalcFields("Reserved Qty. (Base)");
                 "Planned Quantity" := SalesLine."Reserved Qty. (Base)";
-                ReservEngineMgt.InitFilterAndSortingLookupFor(ReservEntry, false);
-                ReserveSalesline.FilterReservFor(ReservEntry, SalesLine);
+                ReservEntry.InitSortingAndFilters(false);
+                SalesLine.SetReservationFilters(ReservEntry);
                 ReservEntry.SetRange("Reservation Status", ReservEntry."Reservation Status"::Reservation);
                 if ReservEntry.Find('-') then
                     repeat

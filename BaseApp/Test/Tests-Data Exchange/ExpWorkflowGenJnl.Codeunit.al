@@ -54,7 +54,7 @@ codeunit 134660 "Exp. Workflow Gen. Jnl."
           GenJnlBatch."Journal Template Name", GenJnlBatch.Name, GenJnlLine."Document Type"::Payment,
           GenJnlLine."Account Type"::Vendor, Vendor."No.", LibraryRandom.RandDec(1000, 2));
         GenJnlLine."Bank Payment Type" := GenJnlLine."Bank Payment Type"::"Electronic Payment";
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
 
         // Pre-Exercise
         GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
@@ -108,7 +108,7 @@ codeunit 134660 "Exp. Workflow Gen. Jnl."
           GenJnlLine."Account Type"::Employee, Employee."No.", LibraryRandom.RandDec(1000, 2));
         GenJnlLine."Payment Method Code" := PaymentMethodCode;
         GenJnlLine."Bank Payment Type" := GenJnlLine."Bank Payment Type"::"Electronic Payment";
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
 
         // Pre-Exercise
         GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
@@ -160,7 +160,7 @@ codeunit 134660 "Exp. Workflow Gen. Jnl."
           GenJnlBatch."Journal Template Name", GenJnlBatch.Name, GenJnlLine."Document Type"::Payment,
           GenJnlLine."Account Type"::Vendor, Vendor."No.", LibraryRandom.RandDec(1000, 2));
         GenJnlLine."Bank Payment Type" := GenJnlLine."Bank Payment Type"::"Electronic Payment";
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
 
         // Pre-Exercise
         GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
@@ -214,7 +214,7 @@ codeunit 134660 "Exp. Workflow Gen. Jnl."
           GenJnlLine."Account Type"::Employee, Employee."No.", LibraryRandom.RandDec(1000, 2));
         GenJnlLine."Payment Method Code" := PaymentMethodCode;
         GenJnlLine."Bank Payment Type" := GenJnlLine."Bank Payment Type"::"Electronic Payment";
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
 
         // Pre-Exercise
         GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
@@ -317,7 +317,7 @@ codeunit 134660 "Exp. Workflow Gen. Jnl."
           GenJnlBatch."Journal Template Name", GenJnlBatch.Name, GenJnlLine."Document Type"::Payment,
           GenJnlLine."Account Type"::Employee, Employee."No.", LibraryRandom.RandDec(1000, 2));
         GenJnlLine."Payment Method Code" := PaymentMethodCode;
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
 
         // Pre-Exercise
         GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
@@ -392,7 +392,7 @@ codeunit 134660 "Exp. Workflow Gen. Jnl."
         CreateBankAccountWithExportFormat(BankAccount, CreatePaymentExportFormatWithMinSetup(LibraryUtility.GenerateGUID));
         BankExportImportSetup.Get(BankAccount."Payment Export Format");
         BankExportImportSetup."Data Exch. Def. Code" := '';
-        BankExportImportSetup.Modify;
+        BankExportImportSetup.Modify();
         CreateExportGenJournalBatch(GenJournalBatch, BankAccount."No.");
 
         LibraryERM.CreateGeneralJnlLine(
@@ -428,7 +428,7 @@ codeunit 134660 "Exp. Workflow Gen. Jnl."
         BankExportImportSetup.Get(BankAccount."Payment Export Format");
         DataExchDef.Get(BankExportImportSetup."Data Exch. Def. Code");
         DataExchDef.Type := DataExchDef.Type::"Bank Statement Import";
-        DataExchDef.Modify;
+        DataExchDef.Modify();
 
         // [WHEN] Run function GetDataExchDefPaymentExport from "Bank Account" table.
         asserterror BankAccount.GetDataExchDefPaymentExport(DataExchDef);

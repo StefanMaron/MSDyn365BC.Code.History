@@ -23,7 +23,7 @@ codeunit 5638 FAJnlManagement
     begin
         JnlSelected := true;
 
-        FAJnlTemplate.Reset;
+        FAJnlTemplate.Reset();
         if not OpenFromBatch then
             FAJnlTemplate.SetRange("Page ID", PageID);
         FAJnlTemplate.SetRange(Recurring, RecurringJnl);
@@ -31,7 +31,7 @@ codeunit 5638 FAJnlManagement
         case FAJnlTemplate.Count of
             0:
                 begin
-                    FAJnlTemplate.Init;
+                    FAJnlTemplate.Init();
                     FAJnlTemplate.Recurring := RecurringJnl;
                     if not RecurringJnl then begin
                         FAJnlTemplate.Name := Text000;
@@ -41,8 +41,8 @@ codeunit 5638 FAJnlManagement
                         FAJnlTemplate.Description := Text003;
                     end;
                     FAJnlTemplate.Validate("Page ID");
-                    FAJnlTemplate.Insert;
-                    Commit;
+                    FAJnlTemplate.Insert();
+                    Commit();
                 end;
             1:
                 FAJnlTemplate.FindFirst;
@@ -153,7 +153,7 @@ codeunit 5638 FAJnlManagement
     var
         FAJnlBatch: Record "FA Journal Batch";
     begin
-        Commit;
+        Commit();
         FAJnlBatch."Journal Template Name" := FAJnlLine.GetRangeMax("Journal Template Name");
         FAJnlBatch.Name := FAJnlLine.GetRangeMax("Journal Batch Name");
         FAJnlBatch.FilterGroup(2);
@@ -172,13 +172,13 @@ codeunit 5638 FAJnlManagement
         if not FAJnlBatch.Get(CurrentJnlTemplateName, CurrentJnlBatchName) then begin
             FAJnlBatch.SetRange("Journal Template Name", CurrentJnlTemplateName);
             if not FAJnlBatch.FindFirst then begin
-                FAJnlBatch.Init;
+                FAJnlBatch.Init();
                 FAJnlBatch."Journal Template Name" := CurrentJnlTemplateName;
                 FAJnlBatch.SetupNewBatch;
                 FAJnlBatch.Name := Text004;
                 FAJnlBatch.Description := Text005;
                 FAJnlBatch.Insert(true);
-                Commit;
+                Commit();
             end;
             CurrentJnlBatchName := FAJnlBatch.Name;
         end;

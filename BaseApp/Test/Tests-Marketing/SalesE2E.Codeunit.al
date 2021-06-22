@@ -149,7 +149,7 @@ codeunit 134640 "Sales E2E"
         DummyGenJournalLine: Record "Gen. Journal Line";
         CashReceiptJournal: TestPage "Cash Receipt Journal";
     begin
-        Commit;
+        Commit();
         CashReceiptJournal.OpenEdit;
         CashReceiptJournal."Posting Date".SetValue(WorkDate + 60);
         CashReceiptJournal."Document Type".SetValue(DummyGenJournalLine."Document Type"::Payment);
@@ -201,7 +201,7 @@ codeunit 134640 "Sales E2E"
     local procedure PrintCustomerStatement(CustomerNo: Code[20])
     begin
         LibraryVariableStorage.Enqueue(CustomerNo);
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Standard Statement");
     end;
 

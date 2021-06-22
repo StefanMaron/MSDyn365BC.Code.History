@@ -7,7 +7,7 @@ codeunit 7153 "Item Analysis Management"
 
     var
         Text000: Label 'Period';
-        Text001: Label '<Sign><Integer Thousand><Decimals,2>';
+        Text001: Label '<Sign><Integer Thousand><Decimals,2>, Locked = true';
         Text003: Label '%1 is not a valid line definition.';
         Text004: Label '%1 is not a valid column definition.';
         Text005: Label '1,6,,Dimension 1 Filter';
@@ -218,7 +218,7 @@ codeunit 7153 "Item Analysis Management"
             ItemAnalysisView.SetRange("Analysis Area", CurrentAnalysisArea);
             ItemAnalysisView.FilterGroup := 0;
             if not ItemAnalysisView.Find('-') then begin
-                ItemAnalysisView.Init;
+                ItemAnalysisView.Init();
                 ItemAnalysisView."Analysis Area" := CurrentAnalysisArea;
                 ItemAnalysisView.Code := Text008;
                 ItemAnalysisView.Name := Text009;

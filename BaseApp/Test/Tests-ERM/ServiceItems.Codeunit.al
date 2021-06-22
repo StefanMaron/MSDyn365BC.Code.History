@@ -2,6 +2,7 @@ codeunit 136103 "Service Items"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     begin
@@ -45,6 +46,9 @@ codeunit 136103 "Service Items"
         CheckIfCanBeDeletedServiceItemOpenErr: Label 'You cannot delete %1 %2 because there are one or more open ledger entries.', Comment = '.';
         ParentServiceItemNoMustHaveValueErr: Label 'Parent Service Item No. must have a value in Service Item Component';
         IncorrectValueErr: Label 'Incorrect value of %1.%2.';
+        GlobalVendorNo: Code[20];
+        GlobalCustomerNo: Code[20];
+        GlobalItemNo: Code[20];
 
     [Test]
     [Scope('OnPrem')]
@@ -1167,7 +1171,7 @@ codeunit 136103 "Service Items"
         // [SCENARIO] Test Service Order No is incremented automatically as per the setup.
 
         // 1. Setup: Get next Service Order No from No Series.
-        ServiceMgtSetup.Get;
+        ServiceMgtSetup.Get();
         if ServiceMgtSetup."Service Order Nos." = '' then
             ServiceMgtSetup."Service Order Nos." := LibraryUtility.GetGlobalNoSeriesCode;
         NextServiceOrderNo := NoSeriesManagement.GetNextNo(ServiceMgtSetup."Service Order Nos.", WorkDate, false);
@@ -2107,7 +2111,7 @@ codeunit 136103 "Service Items"
         ItemCard."Troubleshooting Setup".Invoke;
 
         // [THEN] Troubleshooting Setup inserted for "III"
-        TroubleshootingSetupRec.Init;
+        TroubleshootingSetupRec.Init();
         TroubleshootingSetupRec.SetRange("No.", Item."No.");
         TroubleshootingSetupRec.SetRange("Troubleshooting No.", TroubleshootingHeader."No.");
         Assert.RecordIsNotEmpty(TroubleshootingSetupRec);
@@ -2267,6 +2271,106 @@ codeunit 136103 "Service Items"
         Assert.ExpectedError(ParentServiceItemNoMustHaveValueErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ServiceItemUpdateOnVendorDelete()
+    var
+        Vendor: Record Vendor;
+        ServiceItem: Record "Service Item";
+        ServiceItems: Codeunit "Service Items";
+        NewVendorNo: Code[20];
+    begin
+        // [FEATURE] [Service Item] [UT]
+        // [SCENARIO 322232] Service item Vendor No. could be updated during the vendor deletion
+        Initialize;
+
+        // [GIVEN] Vendor "V1"
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Service Item with Vendor No. = "V1"
+        CreateServiceItem(ServiceItem);
+        ServiceItem.Validate("Vendor No.", Vendor."No.");
+        ServiceItem.Modify();
+
+        // [GIVEN] Subsribe to OnBeforeMoveVendEntries to change Vendor No. to "V2"
+        NewVendorNo := LibraryUtility.GenerateRandomCode20(Vendor.FieldNo("No."), Database::Vendor);
+        BindSubscription(ServiceItems);
+        ServiceItems.SetGlobalVendorNo(NewVendorNo);
+
+        // [WHEN] Vendor "V1" is being deleted
+        Vendor.delete(true);
+
+        // [THEN] Service Item has Vendor No. = "V2"
+        ServiceItem.Find();
+        ServiceItem.TestField("Vendor No.", NewVendorNo);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerFalse')]
+    [Scope('OnPrem')]
+    procedure ServiceContractUpdateOnCustomerDelete()
+    var
+        Customer: Record Customer;
+        ServiceContractHeader: Record "Service Contract Header";
+        ServiceItems: Codeunit "Service Items";
+        NewCustomerNo: Code[20];
+    begin
+        // [FEATURE] [Service Contract] [UT]
+        // [SCENARIO 322232] Cancelled service contract Customer No. could be updated during the customer deletion
+        Initialize;
+
+        // [GIVEN] Cancelled Service Contract with Customer No. = "C1"
+        CreateServiceContractHeader(ServiceContractHeader, LibrarySales.CreateCustomerNo());
+        ServiceContractHeader.Status := ServiceContractHeader.Status::Canceled;
+        ServiceContractHeader.Modify();
+
+        // [GIVEN] Subsribe to OnBeforeMoveVendEntries to change Customer No. to "C2"
+        NewCustomerNo := LibraryUtility.GenerateRandomCode20(Customer.FieldNo("No."), Database::Customer);
+        BindSubscription(ServiceItems);
+        ServiceItems.SetGlobalCustomerNo(NewCustomerNo);
+
+        // [WHEN] Customer "C1" is being deleted
+        Customer.Get(ServiceContractHeader."Customer No.");
+        Customer.delete(true);
+
+        // [THEN] Service Contract has Customer No. = "C2"
+        ServiceContractHeader.Find();
+        ServiceContractHeader.TestField("Customer No.", NewCustomerNo);
+        ServiceContractHeader.TestField("Bill-to Customer No.", NewCustomerNo);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ServiceItemUpdateOnItemDelete()
+    var
+        Item: Record Item;
+        ServiceItem: Record "Service Item";
+        ServiceItems: Codeunit "Service Items";
+        NewItemNo: Code[20];
+    begin
+        // [FEATURE] [Service Item] [UT]
+        // [SCENARIO 322232] Service item Item No. could be updated during the Item deletion
+        Initialize;
+
+        // [GIVEN] Service Item with Item No. = "I1"
+        CreateServiceItem(ServiceItem);
+        ServiceItem."Item No." := LibraryInventory.CreateItemNo();
+        ServiceItem.Modify();
+
+        // [GIVEN] Subsribe to OnBeforeMoveVendEntries to change Item No. to "I2"
+        NewItemNo := LibraryUtility.GenerateRandomCode20(Item.FieldNo("No."), Database::Item);
+        BindSubscription(ServiceItems);
+        ServiceItems.SetGlobalItemNo(NewItemNo);
+
+        // [WHEN] Item "I1" is being deleted
+        Item.Get(ServiceItem."Item No.");
+        Item.delete(true);
+
+        // [THEN] Service Item has Item No. = "I2"
+        ServiceItem.Find();
+        ServiceItem.TestField("Item No.", NewItemNo);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Service Items");
@@ -2282,7 +2386,7 @@ codeunit 136103 "Service Items"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Items");
     end;
 
@@ -2300,7 +2404,7 @@ codeunit 136103 "Service Items"
     var
         ItemJournal: TestPage "Item Journal";
     begin
-        Commit;  // Commit required to avoid rollback of write transaction before opening Item Journal Item Tracking Lines.
+        Commit();  // Commit required to avoid rollback of write transaction before opening Item Journal Item Tracking Lines.
         ItemJournal.OpenEdit;
         ItemJournal.CurrentJnlBatchName.SetValue(ItemJournalLineBatchName);
         LibraryVariableStorage.Enqueue(ItemTrackingLinesAssignment::AssignSerialNo);
@@ -2354,7 +2458,7 @@ codeunit 136103 "Service Items"
         ServiceMgtSetup: Record "Service Mgt. Setup";
     begin
         // Setup the fields Contract Value Calc. Method and Contract Value % of the Service Management Setup.
-        ServiceMgtSetup.Get;
+        ServiceMgtSetup.Get();
         ContractValueCalcMethodOld := ServiceMgtSetup."Contract Value Calc. Method";
         ServiceMgtSetup.Validate("Contract Value Calc. Method", ContractValueCalcMethod);
         ServiceMgtSetup.Validate("Contract Value %", ContractValuePercentage);
@@ -2368,7 +2472,7 @@ codeunit 136103 "Service Items"
         RecRef: RecordRef;
     begin
         // Create BOM Component with random Unit of Measure.
-        ItemUnitOfMeasure.Init;
+        ItemUnitOfMeasure.Init();
         ItemUnitOfMeasure.SetRange("Item No.", ItemNo);
         RecRef.GetTable(ItemUnitOfMeasure);
         LibraryUtility.FindRecord(RecRef);
@@ -2802,7 +2906,7 @@ codeunit 136103 "Service Items"
           CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandInt(5)), WorkDate), ItemUnitOfMeasure.Code, ItemUnitOfMeasure."Item No.",
           LibraryRandom.RandDecInRange(1, 10, 2));
         LibraryVariableStorage.Enqueue(AssignedValue);
-        Commit;
+        Commit();
         AssignTrackingOnItemJournalLines(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
 
         // [WHEN] Post Item Journal.
@@ -2849,7 +2953,7 @@ codeunit 136103 "Service Items"
         ServiceItemComponent."Line No." := LineNo;
         ServiceItemComponent.Validate(Type, ServiceItemComponent.Type::Item);
         ServiceItemComponent.Validate("No.", ItemNo);
-        ServiceItemComponent.Insert;
+        ServiceItemComponent.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -2975,10 +3079,10 @@ codeunit 136103 "Service Items"
 
     local procedure MockTroubleshootingHeader(var TroubleshootingHeader: Record "Troubleshooting Header")
     begin
-        TroubleshootingHeader.Init;
+        TroubleshootingHeader.Init();
         TroubleshootingHeader."No." :=
           LibraryUtility.GenerateRandomCode(TroubleshootingHeader.FieldNo("No."), DATABASE::"Troubleshooting Header");
-        TroubleshootingHeader.Insert;
+        TroubleshootingHeader.Insert();
     end;
 
     local procedure RetrveAndChckCompLnForServItem(ServiceItemNo: Code[20])
@@ -2998,6 +3102,21 @@ codeunit 136103 "Service Items"
         VerifyNoOfReplacedComponents(ServiceItemComponent, 0);
     end;
 
+    procedure SetGlobalVendorNo(NewGlobalVendorNo: code[20])
+    begin
+        GlobalVendorNo := NewGlobalVendorNo;
+    end;
+
+    procedure SetGlobalCustomerNo(NewGlobalCustomerNo: code[20])
+    begin
+        GlobalCustomerNo := NewGlobalCustomerNo;
+    end;
+
+    procedure SetGlobalItemNo(NewGlobalItemNo: code[20])
+    begin
+        GlobalItemNo := NewGlobalItemNo;
+    end;
+
     local procedure UpdateExpirationDateOnReservationEntry(ItemNo: Code[20])
     var
         ReservationEntry: Record "Reservation Entry";
@@ -3013,7 +3132,7 @@ codeunit 136103 "Service Items"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         NoSeries: Record "No. Series";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         NoSeries.Get(SalesReceivablesSetup."Return Order Nos.");
         NoSeries.Validate("Manual Nos.", true);
         NoSeries.Modify(true);
@@ -3442,6 +3561,24 @@ codeunit 136103 "Service Items"
     begin
         PostedPurchaseDocumentLines.PostedReceiptsBtn.SetValue(DocumentType::"Posted Receipts");
         PostedPurchaseDocumentLines.OK.Invoke;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::MoveEntries, 'OnBeforeMoveVendEntries', '', false, false)]
+    local procedure OnBeforeMoveVendEntries(Vendor: Record Vendor; var NewVendNo: Code[20])
+    begin
+        NewVendNo := GlobalVendorNo;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::MoveEntries, 'OnBeforeMoveCustEntries', '', false, false)]
+    local procedure OnBeforeMoveCustEntries(Customer: Record Customer; var NewCustNo: Code[20])
+    begin
+        NewCustNo := GlobalCustomerNo;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::MoveEntries, 'OnBeforeMoveItemEntries', '', false, false)]
+    local procedure OnBeforeMoveItemEntries(Item: Record Item; var NewItemNo: Code[20])
+    begin
+        NewItemNo := GlobalItemNo;
     end;
 }
 

@@ -238,7 +238,7 @@ codeunit 134420 "ERM Journal Posting"
         MinRange := 0;
         MiddleRange := 100;
         MaxRange := 200;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Journal Posting");
     end;
 
@@ -253,7 +253,7 @@ codeunit 134420 "ERM Journal Posting"
         GenJournalLine: Record "Gen. Journal Line";
         GLEntry: Record "G/L Entry";
     begin
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         CreateGenJrnLine(GenJournalLine, GenJournalBatch, GLAccount);
         LibraryLowerPermissions.SetJournalsPost;
         GenJournalLine.Validate(Quantity, Qty);
@@ -268,7 +268,7 @@ codeunit 134420 "ERM Journal Posting"
 
     local procedure CreateGenJrnLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; GLAccount: Record "G/L Account")
     begin
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine."Account Type" := GenJournalLine."Account Type"::"G/L Account";
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine,
@@ -302,7 +302,7 @@ codeunit 134420 "ERM Journal Posting"
         LibraryERM.CreateGLAccount(GLAccount);
         GLAccount.Name := 'Not Blank';
         GLAccount."Omit Default Descr. in Jnl." := OmitDesc;
-        GLAccount.Modify;
+        GLAccount.Modify();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 13, 'OnBeforeCode', '', false, false)]

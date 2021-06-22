@@ -3,7 +3,8 @@ page 6061 "Contract Trend Lines"
     Caption = 'Lines';
     LinksAllowed = false;
     PageType = ListPart;
-    SourceTable = Date;
+    SourceTable = "Contract Trend Buffer";
+    SourceTableTemporary = true;
 
     layout
     {
@@ -25,7 +26,7 @@ page 6061 "Contract Trend Lines"
                     Caption = 'Period Name';
                     ToolTip = 'Specifies the name of the period shown in the line.';
                 }
-                field("ServContract.""Contract Prepaid Amount"""; ServContract."Contract Prepaid Amount")
+                field("ServContract.""Contract Prepaid Amount"""; "Prepaid Income")
                 {
                     ApplicationArea = Prepayments;
                     Caption = 'Prepaid Income';
@@ -33,8 +34,8 @@ page 6061 "Contract Trend Lines"
 
                     trigger OnDrillDown()
                     begin
-                        SetDateFilter;
-                        ServLedgEntry.Reset;
+                        SetDateFilter();
+                        ServLedgEntry.Reset();
                         ServLedgEntry.SetCurrentKey(Type, "No.", "Entry Type", "Moved from Prepaid Acc.", "Posting Date");
                         ServLedgEntry.SetRange("Service Contract No.", ServContract."Contract No.");
                         ServLedgEntry.SetRange("Entry Type", ServLedgEntry."Entry Type"::Sale);
@@ -46,7 +47,7 @@ page 6061 "Contract Trend Lines"
                         PAGE.RunModal(0, ServLedgEntry);
                     end;
                 }
-                field("ServContract.""Contract Invoice Amount"""; ServContract."Contract Invoice Amount")
+                field("ServContract.""Contract Invoice Amount"""; "Posted Income")
                 {
                     ApplicationArea = Service;
                     Caption = 'Posted Income';
@@ -55,8 +56,8 @@ page 6061 "Contract Trend Lines"
 
                     trigger OnDrillDown()
                     begin
-                        SetDateFilter;
-                        ServLedgEntry.Reset;
+                        SetDateFilter();
+                        ServLedgEntry.Reset();
                         ServLedgEntry.SetCurrentKey(Type, "No.", "Entry Type", "Moved from Prepaid Acc.", "Posting Date");
                         ServLedgEntry.SetRange("Service Contract No.", ServContract."Contract No.");
                         ServLedgEntry.SetRange("Entry Type", ServLedgEntry."Entry Type"::Sale);
@@ -66,7 +67,7 @@ page 6061 "Contract Trend Lines"
                         PAGE.RunModal(0, ServLedgEntry);
                     end;
                 }
-                field("ServContract.""Contract Cost Amount"""; ServContract."Contract Cost Amount")
+                field("ServContract.""Contract Cost Amount"""; "Posted Cost")
                 {
                     ApplicationArea = Service;
                     Caption = 'Posted Cost';
@@ -74,7 +75,7 @@ page 6061 "Contract Trend Lines"
 
                     trigger OnDrillDown()
                     begin
-                        SetDateFilter;
+                        SetDateFilter();
                         Clear(ServLedgEntry);
                         ServLedgEntry.SetCurrentKey(Type, "No.", "Entry Type", "Moved from Prepaid Acc.", "Posting Date");
                         ServLedgEntry.SetRange("Entry Type", ServLedgEntry."Entry Type"::Usage);
@@ -85,7 +86,7 @@ page 6061 "Contract Trend Lines"
                         PAGE.RunModal(0, ServLedgEntry);
                     end;
                 }
-                field("ServContract.""Contract Discount Amount"""; ServContract."Contract Discount Amount")
+                field("ServContract.""Contract Discount Amount"""; "Discount Amount")
                 {
                     ApplicationArea = Service;
                     Caption = 'Discount Amount';
@@ -93,7 +94,7 @@ page 6061 "Contract Trend Lines"
 
                     trigger OnDrillDown()
                     begin
-                        SetDateFilter;
+                        SetDateFilter();
                         Clear(ServLedgEntry);
                         ServLedgEntry.SetCurrentKey("Service Contract No.");
                         ServLedgEntry.SetRange("Service Contract No.", ServContract."Contract No.");
@@ -104,14 +105,14 @@ page 6061 "Contract Trend Lines"
                         PAGE.RunModal(0, ServLedgEntry);
                     end;
                 }
-                field(ProfitAmount; ProfitAmount)
+                field(ProfitAmount; Profit)
                 {
                     ApplicationArea = Service;
                     AutoFormatType = 1;
                     Caption = 'Profit';
                     ToolTip = 'Specifies the profit (posted incom0e minus posted cost in LCY) for the service contract in the periods specified in the Period Start field.';
                 }
-                field(ProfitPct; ProfitPct)
+                field(ProfitPct; "Profit %")
                 {
                     ApplicationArea = Service;
                     Caption = 'Profit %';
@@ -127,33 +128,38 @@ page 6061 "Contract Trend Lines"
 
     trigger OnAfterGetRecord()
     begin
-        SetDateFilter;
-        ServContract.CalcFields(
-          "Contract Invoice Amount",
-          "Contract Discount Amount",
-          "Contract Cost Amount",
-          "Contract Prepaid Amount");
-        ProfitAmount := ServContract."Contract Invoice Amount" - ServContract."Contract Cost Amount";
-        if ServContract."Contract Invoice Amount" <> 0 then
-            ProfitPct := Round((ProfitAmount / ServContract."Contract Invoice Amount") * 100, 0.01)
-        else
-            ProfitPct := 0;
+        if DateRec.Get("Period Type", "Period Start") then;
+        CalcLine();
     end;
 
-    trigger OnFindRecord(Which: Text): Boolean
+    trigger OnFindRecord(Which: Text) FoundDate: Boolean
+    var
+        VariantRec: Variant;
     begin
-        exit(PeriodFormMgt.FindDate(Which, Rec, PeriodType));
+        VariantRec := Rec;
+        FoundDate := PeriodFormLinesMgt.FindDate(VariantRec, DateRec, Which, PeriodType);
+        Rec := VariantRec;
     end;
 
-    trigger OnNextRecord(Steps: Integer): Integer
+    trigger OnNextRecord(Steps: Integer) ResultSteps: Integer
+    var
+        VariantRec: Variant;
     begin
-        exit(PeriodFormMgt.NextDate(Steps, Rec, PeriodType));
+        VariantRec := Rec;
+        ResultSteps := PeriodFormLinesMgt.NextDate(VariantRec, DateRec, Steps, PeriodType);
+        Rec := VariantRec;
+    end;
+
+    trigger OnOpenPage()
+    begin
+        Reset();
     end;
 
     var
         ServContract: Record "Service Contract Header";
         ServLedgEntry: Record "Service Ledger Entry";
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        DateRec: Record Date;
+        PeriodFormLinesMgt: Codeunit "Period Form Lines Mgt.";
         PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
         AmountType: Option "Net Change","Balance at Date";
         ProfitAmount: Decimal;
@@ -162,6 +168,7 @@ page 6061 "Contract Trend Lines"
     procedure Set(var NewServContract: Record "Service Contract Header"; NewPeriodType: Integer; NewAmountType: Option "Net Change","Balance at Date")
     begin
         ServContract.Copy(NewServContract);
+        DeleteAll();
         PeriodType := NewPeriodType;
         AmountType := NewAmountType;
         CurrPage.Update(false);
@@ -173,6 +180,34 @@ page 6061 "Contract Trend Lines"
             ServContract.SetRange("Date Filter", "Period Start", "Period End")
         else
             ServContract.SetRange("Date Filter", 0D, "Period End");
+    end;
+
+    local procedure CalcLine()
+    begin
+        SetDateFilter();
+        ServContract.CalcFields(
+          "Contract Invoice Amount",
+          "Contract Discount Amount",
+          "Contract Cost Amount",
+          "Contract Prepaid Amount");
+
+        "Prepaid Income" := ServContract."Contract Prepaid Amount";
+        "Posted Income" := ServContract."Contract Invoice Amount";
+        "Posted Cost" := ServContract."Contract Cost Amount";
+        "Discount Amount" := ServContract."Contract Discount Amount";
+
+        Profit := ServContract."Contract Invoice Amount" - ServContract."Contract Cost Amount";
+        if ServContract."Contract Invoice Amount" <> 0 then
+            "Profit %" := Round((Profit / ServContract."Contract Invoice Amount") * 100, 0.01)
+        else
+            "Profit %" := 0;
+
+        OnAfterCalcLine(ServContract, Rec);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcLine(var ServiceContractHeader: Record "Service Contract Header"; var ServiceItemTrendBuffer: Record "Contract Trend Buffer")
+    begin
     end;
 }
 

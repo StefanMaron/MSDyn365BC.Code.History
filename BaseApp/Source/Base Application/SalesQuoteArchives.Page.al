@@ -1,4 +1,4 @@
-﻿page 9348 "Sales Quote Archives"
+page 9348 "Sales Quote Archives"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Sales Quote Archives';

@@ -174,11 +174,11 @@ codeunit 139184 "CRM Bus. Logic Simulator Test"
 
         // [GIVEN] the CRM Salesorder with one line
         CRMSalesorder.SalesOrderId := CreateGuid;
-        CRMSalesorder.Insert;
+        CRMSalesorder.Insert();
 
         CRMSalesorderdetail[1].SalesOrderDetailId := CreateGuid;
         CRMSalesorderdetail[1].SalesOrderId := CRMSalesorder.SalesOrderId;
-        CRMSalesorderdetail[1].Insert;
+        CRMSalesorderdetail[1].Insert();
 
         // [GIVEN] the line contains volume and manual discounts
         with CRMSalesorderdetail[1] do begin
@@ -197,7 +197,7 @@ codeunit 139184 "CRM Bus. Logic Simulator Test"
         // [GIVEN] added the second line
         CRMSalesorderdetail[2] := CRMSalesorderdetail[1];
         CRMSalesorderdetail[2].SalesOrderDetailId := CreateGuid;
-        CRMSalesorderdetail[2].Insert;
+        CRMSalesorderdetail[2].Insert();
 
         // [WHEN] Quantity, ManualDiscountAmount, and Tax are changed in the 2nd line
         with CRMSalesorderdetail[2] do begin
@@ -253,10 +253,10 @@ codeunit 139184 "CRM Bus. Logic Simulator Test"
         CRMInvoice.InvoiceId := CreateGuid;
         CRMInvoice.StateCode := CRMInvoice.StateCode::Paid;
         CRMInvoice.StatusCode := CRMInvoice.StatusCode::Partial;
-        CRMInvoice.Insert;
+        CRMInvoice.Insert();
 
         CRMInvoice.StatusCode := CRMInvoice.StatusCode::Complete;
-        asserterror CRMInvoice.Modify;
+        asserterror CRMInvoice.Modify();
 
         Assert.ExpectedError(ReadOnlyEntityCannotBeUpdatedErr);
     end;
@@ -274,11 +274,11 @@ codeunit 139184 "CRM Bus. Logic Simulator Test"
         CRMInvoice.InvoiceId := CreateGuid;
         CRMInvoice.StateCode := CRMInvoice.StateCode::Canceled;
         CRMInvoice.StatusCode := CRMInvoice.StatusCode::Canceled;
-        CRMInvoice.Insert;
+        CRMInvoice.Insert();
 
         CRMInvoice.StateCode := CRMInvoice.StateCode::Paid;
         CRMInvoice.StatusCode := CRMInvoice.StatusCode::Complete;
-        asserterror CRMInvoice.Modify;
+        asserterror CRMInvoice.Modify();
 
         Assert.ExpectedError(InactiveInvoiceCannotBePaidErr);
     end;
@@ -294,7 +294,7 @@ codeunit 139184 "CRM Bus. Logic Simulator Test"
         LibraryCRMIntegration.ResetEnvironment;
         LibraryCRMIntegration.ConfigureCRM;
 
-        CRMAccount.Init;
+        CRMAccount.Init();
         CRMAccount.AccountId := CreateGuid;
         // [WHEN] CRMAccount.INSERT(TRUE)
         CRMAccount.Insert(true);

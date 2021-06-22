@@ -91,7 +91,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
         InvtSetup(InventorySetup."Average Cost Period"::Day, InventorySetup."Average Cost Calc. Type"::Item);
         CreateItem(Item);
 
-        ItemJnlLine.Init;
+        ItemJnlLine.Init();
         ItemJnlLine.Validate("Document No.", 'my no');  // find a number
         ItemJnlLine.Validate("Posting Date", WorkDate);
         ItemJnlLine.Validate("Item No.", Item."No.");
@@ -102,7 +102,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
         ItemJnlPostLine.RunWithCheck(ItemJnlLine);
 
         for i := 1 to 3 do begin
-            ItemJnlLine.Init;
+            ItemJnlLine.Init();
             ItemJnlLine.Validate("Document No.", 'my no');
             ItemJnlLine.Validate("Posting Date", WorkDate);
             ItemJnlLine.Validate("Item No.", Item."No.");
@@ -325,7 +325,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
         // [FEATURE] [Average Cost] [UT]
         // [SCENARIO 380304] In case sum of Cost Amount for Item is equal to rounding precision of a local currency, the Average Cost is equal to precise remaining Cost divided by remaining Quantity.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryInventory.CreateItem(Item);
 
         // [GIVEN] Fully applied positive and negative Item entries "E1+" and "E1-".
@@ -403,7 +403,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
         // [FEATURE] [Average Cost] [UT]
         // [SCENARIO 380304] In case sum of Cost Amount for Item is greater than rounding precision of a local currency, the Average Cost is equal to the sum of cost divided by the sum of quantity of posted entries.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryInventory.CreateItem(Item);
 
         // [GIVEN] Fully applied positive and negative Item entries "E1+" and "E1-".
@@ -680,7 +680,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         IsInitialized := true;
 
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Avg. Cost Calc.");
     end;
 
@@ -688,7 +688,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.Validate("Average Cost Period", AverageCostPeriod);
         InventorySetup."Average Cost Calc. Type" := AverageCostCalcType;
         InventorySetup."Automatic Cost Posting" := false;
@@ -725,7 +725,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
         ItemJnlLine: Record "Item Journal Line";
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
     begin
-        ItemJnlLine.Init;
+        ItemJnlLine.Init();
         ItemJnlLine.Validate("Document No.", 'my no');
         ItemJnlLine.Validate("Posting Date", PostingDate);
         ItemJnlLine.Validate("Item No.", Item."No.");
@@ -742,7 +742,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
         ItemJnlLine: Record "Item Journal Line";
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
     begin
-        ItemJnlLine.Init;
+        ItemJnlLine.Init();
         ItemJnlLine.Validate("Document No.", 'my no');
         ItemJnlLine.Validate("Posting Date", WorkDate);
         ItemJnlLine.Validate("Item No.", Item."No.");
@@ -783,7 +783,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
     begin
         // Do revaluation of Item
         GetItemJournalBatch(ItemJournalBatch, ItemJournalBatch."Template Type"::Revaluation);
-        ItemJnlLine.Init;
+        ItemJnlLine.Init();
         ItemJnlLine."Journal Template Name" := ItemJournalBatch."Journal Template Name";
         ItemJnlLine."Journal Batch Name" := ItemJournalBatch.Name;
         LibraryCosting.CreateRevaluationJnlLines(Item, ItemJnlLine, LibraryUtility.GenerateGUID, 1, 0, false, false, false, PostingDate);
@@ -793,7 +793,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
         ItemJnlLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
         ItemJnlLine.FindFirst;
         ItemJnlLine.Validate("Unit Cost (Revalued)", UnitCostRevalued);
-        ItemJnlLine.Modify;
+        ItemJnlLine.Modify();
         QtyRevalued := ItemJnlLine.Quantity;
 
         // Post Revaluation
@@ -964,7 +964,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
             exit;
         end;
 
-        ItemJournalBatch.Init;
+        ItemJournalBatch.Init();
         ItemJournalBatch.Validate("Journal Template Name", GetItemJournalTemplate(TemplateType));
         ItemJournalBatch.Validate(
           Name, CopyStr(LibraryUtility.GenerateRandomCode(ItemJournalBatch.FieldNo(Name), DATABASE::"Item Journal Batch"), 1,
@@ -981,14 +981,14 @@ codeunit 137070 "SCM Avg. Cost Calc."
         if ItemJournalTemplate.FindFirst then
             exit(ItemJournalTemplate.Name);
 
-        ItemJournalTemplate.Init;
+        ItemJournalTemplate.Init();
         ItemJournalTemplate.Name :=
           CopyStr(
             LibraryUtility.GenerateRandomCode(ItemJournalTemplate.FieldNo(Name), DATABASE::"Item Journal Template"),
             1,
             LibraryUtility.GetFieldLength(DATABASE::"Item Journal Template", ItemJournalTemplate.FieldNo(Name)));
         ItemJournalTemplate.Type := TemplateType;
-        ItemJournalTemplate.Insert;
+        ItemJournalTemplate.Insert();
 
         exit(ItemJournalTemplate.Name);
     end;

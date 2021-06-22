@@ -21,7 +21,7 @@ codeunit 132530 "VAT Rounding Test - Bug 30865"
 
         LibraryERM.SetMaxVATDifferenceAllowed(1);
         LibraryERMCountryData.CreateVATData;
-        Commit;
+        Commit();
         Initialized := true
     end;
 
@@ -105,7 +105,7 @@ codeunit 132530 "VAT Rounding Test - Bug 30865"
         GenJnlLine.Validate("VAT Amount", 4002.28);
         GenJnlLine.TestField("VAT Difference", 0.01);
         GenJnlPost.Run(GenJnlLine);
-        Commit;
+        Commit();
 
         GLEntry.Find('+');
         GLEntry.TestField(Amount, -4002.27); // bal. vat amount
@@ -143,7 +143,7 @@ codeunit 132530 "VAT Rounding Test - Bug 30865"
         GenJnlLine.Validate("VAT Amount", 4002.27);
         GenJnlLine.TestField("VAT Difference", 0.01);
         GenJnlPost.Run(GenJnlLine);
-        Commit;
+        Commit();
 
         GLEntry.Find('+');
         GLEntry.TestField(Amount, -4002.26); // bal. vat amount
@@ -181,7 +181,7 @@ codeunit 132530 "VAT Rounding Test - Bug 30865"
         GenJnlLine.Validate("VAT Amount", 4002.27);
         GenJnlLine.TestField("VAT Difference", 0.02);
         GenJnlPost.Run(GenJnlLine);
-        Commit;
+        Commit();
 
         GLEntry.Find('+');
         GLEntry.TestField(Amount, -4002.25); // bal. vat amount

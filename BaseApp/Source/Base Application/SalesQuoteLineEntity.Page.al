@@ -438,7 +438,7 @@ page 5506 "Sales Quote Line Entity"
         TempFieldBuffer.Order := LastOrderNo;
         TempFieldBuffer."Table ID" := DATABASE::"Sales Invoice Line Aggregate";
         TempFieldBuffer."Field ID" := FieldNo;
-        TempFieldBuffer.Insert;
+        TempFieldBuffer.Insert();
     end;
 
     local procedure CheckIntegrationIdInUse()
@@ -459,7 +459,7 @@ page 5506 "Sales Quote Line Entity"
         if TempItemFieldSet.Get(DATABASE::Item, FieldNo) then
             exit;
 
-        TempItemFieldSet.Init;
+        TempItemFieldSet.Init();
         TempItemFieldSet.TableNo := DATABASE::Item;
         TempItemFieldSet.Validate("No.", FieldNo);
         TempItemFieldSet.Insert(true);
@@ -478,10 +478,10 @@ page 5506 "Sales Quote Line Entity"
 
     local procedure ClearCalculatedFields()
     begin
-        TempFieldBuffer.Reset;
-        TempFieldBuffer.DeleteAll;
-        TempItemFieldSet.Reset;
-        TempItemFieldSet.DeleteAll;
+        TempFieldBuffer.Reset();
+        TempFieldBuffer.DeleteAll();
+        TempItemFieldSet.Reset();
+        TempItemFieldSet.DeleteAll();
 
         Clear(Item);
         Clear(UnitOfMeasureJSON);

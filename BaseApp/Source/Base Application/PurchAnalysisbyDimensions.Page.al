@@ -446,7 +446,7 @@ page 7157 "Purch. Analysis by Dimensions"
 
         CurrentAnalysisArea := CurrentAnalysisArea::Purchase;
 
-        GLSetup.Get;
+        GLSetup.Get();
 
         ItemAnalysisMgt.AnalysisViewSelection(
           CurrentAnalysisArea, CurrentItemAnalysisViewCode, ItemAnalysisView, ItemStatisticsBuffer,

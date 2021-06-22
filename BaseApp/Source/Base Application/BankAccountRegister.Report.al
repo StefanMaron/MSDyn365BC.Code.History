@@ -136,7 +136,7 @@ report 1403 "Bank Account Register"
                 trigger OnAfterGetRecord()
                 begin
                     if not BankAcc.Get("Bank Account No.") then
-                        BankAcc.Init;
+                        BankAcc.Init();
 
                     if PrintAmountsInLCY then begin
                         BankAccAmount := "Amount (LCY)";

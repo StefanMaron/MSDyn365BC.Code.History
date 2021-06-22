@@ -52,7 +52,7 @@ codeunit 81 "Sales-Post (Yes/No)"
 
         OnAfterConfirmPost(SalesHeader);
 
-        SalesSetup.Get;
+        SalesSetup.Get();
         if SalesSetup."Post with Job Queue" and not PostAndSend then
             SalesPostViaJobQueue.EnqueueSalesDoc(SalesHeader)
         else

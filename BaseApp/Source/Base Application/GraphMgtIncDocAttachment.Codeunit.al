@@ -87,7 +87,7 @@ codeunit 5509 "Graph Mgt - Inc Doc Attachment"
         if not IntegrationManagement.IsIntegrationRecord(RelatedRecRef.Number) then
             exit;
 
-        RelatedRecRef.Modify;
+        RelatedRecRef.Modify();
     end;
 }
 

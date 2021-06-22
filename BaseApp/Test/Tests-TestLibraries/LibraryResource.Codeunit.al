@@ -19,7 +19,7 @@ codeunit 130511 "Library - Resource"
         UnitOfMeasure: Record "Unit of Measure";
         LibraryInventory: Codeunit "Library - Inventory";
     begin
-        Resource.Init;
+        Resource.Init();
         Resource.Validate("No.", LibraryUtility.GenerateRandomCode(Resource.FieldNo("No."), DATABASE::Resource));
         Resource.Insert(true);
 
@@ -76,7 +76,7 @@ codeunit 130511 "Library - Resource"
 
     procedure CreateResourceGroup(var ResourceGroup: Record "Resource Group")
     begin
-        ResourceGroup.Init;
+        ResourceGroup.Init();
         ResourceGroup.Validate("No.", LibraryUtility.GenerateRandomCode(ResourceGroup.FieldNo("No."), DATABASE::"Resource Group"));
         ResourceGroup.Validate(Name, ResourceGroup."No.");  // Validate Name as No. because value is not important.
         ResourceGroup.Insert(true);
@@ -84,7 +84,7 @@ codeunit 130511 "Library - Resource"
 
     procedure CreateResourcePrice(var ResourcePrice: Record "Resource Price"; Type: Option; "Code": Code[20]; WorkTypeCode: Code[10]; CurrencyCode: Code[10])
     begin
-        ResourcePrice.Init;
+        ResourcePrice.Init();
         ResourcePrice.Validate(Type, Type);
         ResourcePrice.Validate(Code, Code);
         ResourcePrice.Validate("Work Type Code", WorkTypeCode);
@@ -96,7 +96,7 @@ codeunit 130511 "Library - Resource"
     var
         RecRef: RecordRef;
     begin
-        ResJournalLine.Init;
+        ResJournalLine.Init();
         ResJournalLine.Validate("Journal Template Name", JournalTemplateName);
         ResJournalLine.Validate("Journal Batch Name", JournalBatchName);
         RecRef.GetTable(ResJournalLine);
@@ -106,7 +106,7 @@ codeunit 130511 "Library - Resource"
 
     procedure CreateResourceSkill(var ResourceSkill: Record "Resource Skill"; Type: Option; No: Code[20]; SkillCode: Code[10])
     begin
-        ResourceSkill.Init;
+        ResourceSkill.Init();
         ResourceSkill.Validate(Type, Type);
         ResourceSkill.Validate("No.", No);
         ResourceSkill.Validate("Skill Code", SkillCode);
@@ -115,7 +115,7 @@ codeunit 130511 "Library - Resource"
 
     procedure CreateResourceUnitOfMeasure(var ResourceUnitOfMeasure: Record "Resource Unit of Measure"; ResourceNo: Code[20]; UnitOfMeasureCode: Code[10]; QtyPerUoM: Decimal)
     begin
-        ResourceUnitOfMeasure.Init;
+        ResourceUnitOfMeasure.Init();
         ResourceUnitOfMeasure.Validate("Resource No.", ResourceNo);
         ResourceUnitOfMeasure.Validate(Code, UnitOfMeasureCode);
         if QtyPerUoM = 0 then
@@ -129,12 +129,12 @@ codeunit 130511 "Library - Resource"
         CreateResource(Resource, '');
         Resource."Time Sheet Owner User ID" := UserId;
         Resource."Time Sheet Approver User ID" := UserId;
-        Resource.Modify;
+        Resource.Modify();
     end;
 
     procedure CreateSkillCode(var SkillCode: Record "Skill Code")
     begin
-        SkillCode.Init;
+        SkillCode.Init();
         SkillCode.Validate(Code, LibraryUtility.GenerateRandomCode(SkillCode.FieldNo(Code), DATABASE::"Skill Code"));
         SkillCode.Insert(true);
         SkillCode.Validate(Description, SkillCode.Code);  // Validate Description as Code because value is not important.
@@ -143,7 +143,7 @@ codeunit 130511 "Library - Resource"
 
     procedure CreateResourceJournalTemplate(var ResJournalTemplate: Record "Res. Journal Template")
     begin
-        ResJournalTemplate.Init;
+        ResJournalTemplate.Init();
         ResJournalTemplate.Validate(
           Name,
           CopyStr(LibraryUtility.GenerateRandomCode(ResJournalTemplate.FieldNo(Name), DATABASE::"Res. Journal Template"),
@@ -155,7 +155,7 @@ codeunit 130511 "Library - Resource"
 
     procedure CreateResourceJournalBatch(var ResJournalBatch: Record "Res. Journal Batch"; JournalTemplateName: Code[10])
     begin
-        ResJournalBatch.Init;
+        ResJournalBatch.Init();
         ResJournalBatch.Validate("Journal Template Name", JournalTemplateName);
         ResJournalBatch.Validate(
           Name,
@@ -174,7 +174,7 @@ codeunit 130511 "Library - Resource"
     begin
         LibraryInventory.FindUnitOfMeasure(UnitOfMeasure);
 
-        WorkType.Init;
+        WorkType.Init();
         WorkType.Validate(
           Code,
           CopyStr(
@@ -190,7 +190,7 @@ codeunit 130511 "Library - Resource"
 
     procedure CreateWorkHourTemplate(var WorkHourTemplate: Record "Work-Hour Template")
     begin
-        WorkHourTemplate.Init;
+        WorkHourTemplate.Init();
         WorkHourTemplate.Validate(
           Code,
           CopyStr(
@@ -238,7 +238,7 @@ codeunit 130511 "Library - Resource"
         ResourcesSetup: Record "Resources Setup";
         NoSeriesCode: Code[20];
     begin
-        ResourcesSetup.Get;
+        ResourcesSetup.Get();
         NoSeriesCode := LibraryUtility.GetGlobalNoSeriesCode;
         if NoSeriesCode <> ResourcesSetup."Resource Nos." then begin
             ResourcesSetup.Validate("Resource Nos.", LibraryUtility.GetGlobalNoSeriesCode);

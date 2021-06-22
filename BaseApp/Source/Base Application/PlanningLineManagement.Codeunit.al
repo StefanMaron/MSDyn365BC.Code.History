@@ -101,7 +101,7 @@ codeunit 99000809 "Planning Line Management"
         if ReqLine."Production BOM No." = '' then
             exit;
 
-        PlanningComponent.LockTable;
+        PlanningComponent.LockTable();
 
         if Level > 50 then begin
             if PlanningResiliency then begin
@@ -121,7 +121,7 @@ codeunit 99000809 "Planning Line Management"
             PlanningComponent.SetRange("Worksheet Line No.", ReqLine."Line No.");
             if PlanningComponent.Find('+') then
                 NextPlanningCompLineNo := PlanningComponent."Line No.";
-            PlanningComponent.Reset;
+            PlanningComponent.Reset();
         end;
 
         BOMHeader.Get(ProdBOMNo);
@@ -173,20 +173,20 @@ codeunit 99000809 "Planning Line Management"
                                             CreatePlanningComponentFromProdBOM(
                                               PlanningComponent, ReqLine, ProdBOMLine[Level], CompSKU, LineQtyPerUOM, ItemQtyPerUOM);
                                         end else begin
-                                            PlanningComponent.Reset;
+                                            PlanningComponent.Reset();
                                             PlanningComponent.BlockDynamicTracking(Blocked);
                                             PlanningComponent.Validate(
                                               "Quantity per",
                                               PlanningComponent."Quantity per" + ProdBOMLine[Level]."Quantity per" * LineQtyPerUOM / ItemQtyPerUOM);
                                             PlanningComponent.Validate("Routing Link Code", ProdBOMLine[Level]."Routing Link Code");
                                             OnBeforeModifyPlanningComponent(ReqLine, ProdBOMLine[Level], PlanningComponent, LineQtyPerUOM, ItemQtyPerUOM);
-                                            PlanningComponent.Modify;
+                                            PlanningComponent.Modify();
                                         end;
 
                                         // A temporary list of Planning Components handled is sustained:
                                         TempPlanningComponent := PlanningComponent;
-                                        if not TempPlanningComponent.Insert then
-                                            TempPlanningComponent.Modify;
+                                        if not TempPlanningComponent.Insert() then
+                                            TempPlanningComponent.Modify();
                                     end;
                             end;
                         ProdBOMLine[Level].Type::"Production BOM":
@@ -211,7 +211,7 @@ codeunit 99000809 "Planning Line Management"
         Item2: Record Item;
         ReqQty: Decimal;
     begin
-        PlanningComponent.LockTable;
+        PlanningComponent.LockTable();
 
         if Level > 50 then begin
             if PlanningResiliency then begin
@@ -231,7 +231,7 @@ codeunit 99000809 "Planning Line Management"
             PlanningComponent.SetRange("Worksheet Line No.", ReqLine."Line No.");
             if PlanningComponent.Find('+') then
                 NextPlanningCompLineNo := PlanningComponent."Line No.";
-            PlanningComponent.Reset;
+            PlanningComponent.Reset();
         end;
 
         ParentItem.Get(ParentItemNo);
@@ -246,8 +246,8 @@ codeunit 99000809 "Planning Line Management"
                             if not IsPlannedAsmComp(PlanningComponent, ReqLine, AsmBOMComp[Level]) then begin
                                 NextPlanningCompLineNo := NextPlanningCompLineNo + 10000;
 
-                                PlanningComponent.Reset;
-                                PlanningComponent.Init;
+                                PlanningComponent.Reset();
+                                PlanningComponent.Init();
                                 PlanningComponent.BlockDynamicTracking(Blocked);
                                 PlanningComponent."Worksheet Template Name" := ReqLine."Worksheet Template Name";
                                 PlanningComponent."Worksheet Batch Name" := ReqLine."Journal Batch Name";
@@ -271,7 +271,6 @@ codeunit 99000809 "Planning Line Management"
                                 PlanningComponent.Validate("Routing Link Code");
                                 PlanningComponent.Validate("Scrap %", 0);
                                 PlanningComponent.Validate("Calculation Formula", PlanningComponent."Calculation Formula"::" ");
-
                                 GetPlanningParameters.AtSKU(
                                   CompSKU,
                                   PlanningComponent."Item No.",
@@ -285,9 +284,9 @@ codeunit 99000809 "Planning Line Management"
                                 PlanningComponent."Ref. Order Status" := ReqLine."Ref. Order Status";
                                 PlanningComponent."Ref. Order No." := ReqLine."Ref. Order No.";
                                 OnBeforeInsertAsmPlanningComponent(ReqLine, AsmBOMComp[Level], PlanningComponent);
-                                PlanningComponent.Insert;
+                                PlanningComponent.Insert();
                             end else begin
-                                PlanningComponent.Reset;
+                                PlanningComponent.Reset();
                                 PlanningComponent.BlockDynamicTracking(Blocked);
                                 PlanningComponent.Validate(
                                   "Quantity per",
@@ -295,13 +294,13 @@ codeunit 99000809 "Planning Line Management"
                                   Quantity *
                                   AsmBOMComp[Level]."Quantity per");
                                 PlanningComponent.Validate("Routing Link Code", '');
-                                PlanningComponent.Modify;
+                                PlanningComponent.Modify();
                             end;
 
                             // A temporary list of Planning Components handled is sustained:
                             TempPlanningComponent := PlanningComponent;
-                            if not TempPlanningComponent.Insert then
-                                TempPlanningComponent.Modify;
+                            if not TempPlanningComponent.Insert() then
+                                TempPlanningComponent.Modify();
                         end;
                 end;
             until AsmBOMComp[Level].Next = 0;
@@ -320,7 +319,7 @@ codeunit 99000809 "Planning Line Management"
                 PlanningComponent.BlockDynamicTracking(Blocked);
                 PlanningComponent.SetRequisitionLine(ReqLine);
                 PlanningComponent.Validate("Routing Link Code");
-                PlanningComponent.Modify;
+                PlanningComponent.Modify();
                 with PlanningComponent do
                     PlanningAssignment.ChkAssignOne("Item No.", "Variant Code", "Location Code", "Due Date");
             until PlanningComponent.Next = 0;
@@ -459,7 +458,7 @@ codeunit 99000809 "Planning Line Management"
 
         if IsLineModified then begin
             ReqLine2.UpdateDatetime;
-            ReqLine2.Modify;
+            ReqLine2.Modify();
         end;
     end;
 
@@ -486,14 +485,14 @@ codeunit 99000809 "Planning Line Management"
             PlanningRtngLine.SetRange("Worksheet Template Name", ReqLine."Worksheet Template Name");
             PlanningRtngLine.SetRange("Worksheet Batch Name", ReqLine."Journal Batch Name");
             PlanningRtngLine.SetRange("Worksheet Line No.", ReqLine."Line No.");
-            PlanningRtngLine.DeleteAll;
+            PlanningRtngLine.DeleteAll();
 
             ProdOrderCapNeed.SetCurrentKey(
               "Worksheet Template Name", "Worksheet Batch Name", "Worksheet Line No.");
             ProdOrderCapNeed.SetRange("Worksheet Template Name", ReqLine."Worksheet Template Name");
             ProdOrderCapNeed.SetRange("Worksheet Batch Name", ReqLine."Journal Batch Name");
             ProdOrderCapNeed.SetRange("Worksheet Line No.", ReqLine."Line No.");
-            ProdOrderCapNeed.DeleteAll;
+            ProdOrderCapNeed.DeleteAll();
             TransferRouting(ReqLine);
         end;
 
@@ -675,9 +674,9 @@ codeunit 99000809 "Planning Line Management"
         PlanningComp.SetFilter("Item No.", '<>%1', '');
         PlanningComp.SetFilter("Expected Quantity", '<>0');
         PlanningComp.SetFilter("Planning Level Code", '>0');
-        NoOfComponents := PlanningComp.Count;
+        NoOfComponents := PlanningComp.Count();
         if PlanningLevel = 0 then begin
-            ReqLine3.Reset;
+            ReqLine3.Reset();
             ReqLine3.SetRange("Worksheet Template Name", ReqLine."Worksheet Template Name");
             ReqLine3.SetRange("Journal Batch Name", ReqLine."Journal Batch Name");
             ReqLine3 := ReqLine2;
@@ -696,7 +695,7 @@ codeunit 99000809 "Planning Line Management"
                         TempPlanningErrorLog.SetError(Text015, DATABASE::"Requisition Line", ReqLine.GetPosition);
                     Error(Text002);
                 end;
-                ReqLine3.Init;
+                ReqLine3.Init();
                 ReqLine3.BlockDynamicTracking(Blocked);
                 ReqLine3."Worksheet Template Name" := ReqLine2."Worksheet Template Name";
                 ReqLine3."Journal Batch Name" := ReqLine2."Journal Batch Name";
@@ -750,16 +749,16 @@ codeunit 99000809 "Planning Line Management"
                   (ReqLine3.Quantity -
                    ReqLine3."Original Quantity") *
                   ReqLine3."Qty. per Unit of Measure";
-                ReqLine3.Modify;
+                ReqLine3.Modify();
                 PlngComponentReserve.BindToRequisition(
                   PlanningComp, ReqLine3, PlanningComp."Expected Quantity", PlanningComp."Expected Quantity (Base)");
                 PlanningComp."Supplied-by Line No." := ReqLine3."Line No.";
-                PlanningComp.Modify;
+                PlanningComp.Modify();
                 ReqLine3.Validate("Production BOM No.");
                 ReqLine3.Validate("Routing No.");
-                ReqLine3.Modify;
+                ReqLine3.Modify();
                 Calculate(ReqLine3, 1, CalcRouting, CalcComponents, PlanningLevel + 1);
-                ReqLine3.Modify;
+                ReqLine3.Modify();
             until PlanningComp.Next = 0;
     end;
 
@@ -798,10 +797,10 @@ codeunit 99000809 "Planning Line Management"
             if ReqLine2."Planning Level" < ReqLine."Planning Level" then
                 ReqLine2."Planning Level" := ReqLine."Planning Level";
 
-            ReqLine2.Modify;
+            ReqLine2.Modify();
             ReqLine := ReqLine2;
         end else
-            ReqLine.Insert;
+            ReqLine.Insert();
 
         OnAfterInsertPlanningLine(ReqLine);
     end;
@@ -817,9 +816,9 @@ codeunit 99000809 "Planning Line Management"
         if TempPlanningComponent.Find('-') then
             repeat
                 PlanningCompList := TempPlanningComponent;
-                if not PlanningCompList.Insert then
-                    PlanningCompList.Modify;
-                TempPlanningComponent.Delete;
+                if not PlanningCompList.Insert() then
+                    PlanningCompList.Modify();
+                TempPlanningComponent.Delete();
             until TempPlanningComponent.Next = 0;
     end;
 
@@ -916,7 +915,7 @@ codeunit 99000809 "Planning Line Management"
 
     procedure GetResiliencyError(var PlanningErrorLog: Record "Planning Error Log"): Boolean
     begin
-        TempPlanningComponent.DeleteAll;
+        TempPlanningComponent.DeleteAll();
         if CalcPlanningRtngLine.GetResiliencyError(PlanningErrorLog) then
             exit(true);
         exit(TempPlanningErrorLog.GetError(PlanningErrorLog));

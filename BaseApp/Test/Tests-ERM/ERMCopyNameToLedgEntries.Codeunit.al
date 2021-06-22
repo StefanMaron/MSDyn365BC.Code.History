@@ -737,7 +737,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
         SetCopyVendNameToLedgerEntriesSilent(false);
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Copy Name To Ledg. Entries");
     end;
 
@@ -752,9 +752,9 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
             FieldRef := RecRef.Field(EntryNoFieldNo);
             EntryNo := FieldRef.Value;
         end;
-        RecRef.Init;
+        RecRef.Init();
         FieldRef.Value(EntryNo + 1);
-        RecRef.Insert;
+        RecRef.Insert();
         RecRef.Close;
     end;
 
@@ -767,21 +767,21 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
         LibraryInventory.CreateItem(Item);
         ItemLedgerEntry."Entry No." := GetNextEntryNo(32);
         ItemLedgerEntry."Item No." := Item."No.";
-        ItemLedgerEntry.Insert;
+        ItemLedgerEntry.Insert();
         ItemLedgerEntry."Entry No." += 1;
-        ItemLedgerEntry.Insert;
+        ItemLedgerEntry.Insert();
 
         ValueEntry."Entry No." := GetNextEntryNo(5802);
         ValueEntry."Item No." := Item."No.";
-        ValueEntry.Insert;
+        ValueEntry.Insert();
         ValueEntry."Entry No." += 1;
-        ValueEntry.Insert;
+        ValueEntry.Insert();
 
         PhysInventoryLedgerEntry."Entry No." := GetNextEntryNo(281);
         PhysInventoryLedgerEntry."Item No." := Item."No.";
-        PhysInventoryLedgerEntry.Insert;
+        PhysInventoryLedgerEntry.Insert();
         PhysInventoryLedgerEntry."Entry No." += 1;
-        PhysInventoryLedgerEntry.Insert;
+        PhysInventoryLedgerEntry.Insert();
     end;
 
     local procedure CreateItemVariantWithEntries(var ItemVariant: Record "Item Variant")
@@ -796,23 +796,23 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
         ItemLedgerEntry."Entry No." := GetNextEntryNo(32);
         ItemLedgerEntry."Item No." := Item."No.";
         ItemLedgerEntry."Variant Code" := ItemVariant.Code;
-        ItemLedgerEntry.Insert;
+        ItemLedgerEntry.Insert();
         ItemLedgerEntry."Entry No." += 1;
-        ItemLedgerEntry.Insert;
+        ItemLedgerEntry.Insert();
 
         ValueEntry."Entry No." := GetNextEntryNo(5802);
         ValueEntry."Item No." := Item."No.";
         ValueEntry."Variant Code" := ItemVariant.Code;
-        ValueEntry.Insert;
+        ValueEntry.Insert();
         ValueEntry."Entry No." += 1;
-        ValueEntry.Insert;
+        ValueEntry.Insert();
 
         PhysInventoryLedgerEntry."Entry No." := GetNextEntryNo(281);
         PhysInventoryLedgerEntry."Item No." := Item."No.";
         PhysInventoryLedgerEntry."Variant Code" := ItemVariant.Code;
-        PhysInventoryLedgerEntry.Insert;
+        PhysInventoryLedgerEntry.Insert();
         PhysInventoryLedgerEntry."Entry No." += 1;
-        PhysInventoryLedgerEntry.Insert;
+        PhysInventoryLedgerEntry.Insert();
     end;
 
     local procedure FillCVNames(AddBlank: Boolean)
@@ -896,54 +896,54 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Copy Customer Name to Entries", SetCopy);
-        SalesReceivablesSetup.Modify;
+        SalesReceivablesSetup.Modify();
     end;
 
     local procedure SetCopyCustNameToLedgerEntriesSilent(SetCopy: Boolean)
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup."Copy Customer Name to Entries" := SetCopy;
-        SalesReceivablesSetup.Modify;
+        SalesReceivablesSetup.Modify();
     end;
 
     local procedure SetCopyVendNameToLedgerEntries(SetCopy: Boolean)
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Copy Vendor Name to Entries", SetCopy);
-        PurchasesPayablesSetup.Modify;
+        PurchasesPayablesSetup.Modify();
     end;
 
     local procedure SetCopyVendNameToLedgerEntriesSilent(SetCopy: Boolean)
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup."Copy Vendor Name to Entries" := SetCopy;
-        PurchasesPayablesSetup.Modify;
+        PurchasesPayablesSetup.Modify();
     end;
 
     local procedure SetCopyItemDescrToLedgerEntries(SetCopy: Boolean)
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.Validate("Copy Item Descr. to Entries", SetCopy);
-        InventorySetup.Modify;
+        InventorySetup.Modify();
     end;
 
     local procedure SetCopyItemDescrToLedgerEntriesSilent(SetCopy: Boolean)
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup."Copy Item Descr. to Entries" := SetCopy;
-        InventorySetup.Modify;
+        InventorySetup.Modify();
     end;
 
     local procedure VerifyCustLedgEntryDescription(CustNo: Code[20]; ExpectedDescription: Text[100])

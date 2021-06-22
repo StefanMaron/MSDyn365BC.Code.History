@@ -14,7 +14,7 @@ codeunit 5330 "CRM Integration Management"
         CouplingNotFoundErr: Label 'The record is not coupled to %1.', Comment = '%1 = CRM Product Name';
         NoCardPageActionDefinedForTableIdErr: Label 'The open page action is not supported for Table %1.', Comment = '%1 = Table ID';
         IntegrationTableMappingNotFoundErr: Label 'No %1 was found for table %2.', Comment = '%1 = Integration Table Mapping caption, %2 = Table caption for the table which is not mapped';
-        UpdateNowDirectionQst: Label 'Send data update to %1.,Get data update from %1.', Comment = 'String menu options separated by comma. %1 = CRM Product Name';
+        UpdateNowDirectionQst: Label 'Send data update to Common Data Service.,Get data update from Common Data Service.';
         UpdateOneNowTitleTxt: Label 'Synchronize data for %1?', Comment = '%1 = Table caption and value for the entity we want to synchronize now.';
         UpdateMultipleNowTitleTxt: Label 'Synchronize data for the selected records?';
         ManageCouplingQst: Label 'The %1 record is not coupled to %2. Do you want to create a coupling?', Comment = '%1=The record caption (type), %2 = CRM Product Name';
@@ -37,8 +37,8 @@ codeunit 5330 "CRM Integration Management"
         BothRecordsModifiedToCRMQst: Label 'Both %1 and the %4 %2 record have been changed since the last synchronization, or synchronization has never been performed. If you continue with synchronization, data in %4 will be overwritten with data from %3. Are you sure you want to synchronize?', Comment = '%1 is a formatted RecordID, such as ''Customer 1234''. %2 is the caption of a CRM table. %3 - product name, %4 = short CRM product name';
         BothRecordsModifiedToNAVQst: Label 'Both %1 and the %4 %2 record have been changed since the last synchronization, or synchronization has never been performed. If you continue with synchronization, data in %3 will be overwritten with data from %4. Are you sure you want to synchronize?', Comment = '%1 is a formatted RecordID, such as ''Customer 1234''. %2 is the caption of a CRM table. %3 - product name, %4 = short CRM product name';
         CRMProductName: Codeunit "CRM Product Name";
-        IsolatedStorageManagement: Codeunit "Isolated Storage Management";
         CRMIntegrationEnabledState: Option " ","Not Enabled",Enabled,"Enabled But Not For Current User";
+        CDSIntegrationEnabledState: Option " ","Not Enabled",Enabled,"Enabled But Not For Current User";
         NotEnabledForCurrentUserMsg: Label '%3 Integration is enabled.\However, because the %2 Users Must Map to %3 Users field is set, %3 integration is not enabled for %1.', Comment = '%1 = Current User Id %2 - product name, %3 = CRM product name';
         CRMIntegrationEnabledLastError: Text;
         ImportSolutionConnectStringTok: Label '%1api%2/XRMServices/2011/Organization.svc', Locked = true;
@@ -61,6 +61,14 @@ codeunit 5330 "CRM Integration Management"
         ConnectionDisabledNotificationMsg: Label 'Connection to Dynamics 365 is broken and that it has been disabled due to an error: %1', Comment = '%1 = Error text received from D365 for Sales';
         DoYouWantEnableWebServiceQst: Label 'Do you want to enable the Item Availability web service?';
         DoYouWantDisableWebServiceQst: Label 'Do you want to disable the Item Availability web service?';
+        CRMConnectionSetupTxt: Label 'Set up %1 connection', Comment = '%1 = CRM product name';
+        VideoUrlSetupCRMConnectionTxt: Label 'https://go.microsoft.com/fwlink/?linkid=843244', Locked = true;
+        ConnectionDisabledReasonTxt: Label 'The connection to %1 was disabled because integration user %2 has insufficient privileges to run the synchronization.', Comment = '%1 = a URL, %2 - an email address';
+        CannotAssignRoleToTeamErr: Label 'Cannot assign role %3 to team %1 for business unit %2.', Comment = '%1 = team name, %2 = business unit name, %3 = security role name';
+        CannotAssignRoleToTeamTxt: Label 'Cannot assign role to team.', Locked = true;
+        IntegrationRoleNotFoundErr: Label 'There is no integration role %1 for business unit %2.', Comment = '%1 = role name, %2 = business unit name';
+        RoleNotFoundForBusinessUnitTxt: Label 'Integration role is not found for business unit.', Locked = true;
+        CategoryTok: Label 'AL Common Data Service Integration', Locked = true;
 
     procedure IsCRMIntegrationEnabled(): Boolean
     var
@@ -93,8 +101,59 @@ codeunit 5330 "CRM Integration Management"
         exit(CRMIntegrationEnabledState = CRMIntegrationEnabledState::Enabled);
     end;
 
+    procedure IsCDSIntegrationEnabled(): Boolean
+    var
+        isEnabled: Boolean;
+        initConnectionHandled: Boolean;
+        ConnectionName: text;
+    begin
+        OnIsCDSIntegrationEnabled(isEnabled);
+        if isEnabled then begin
+            OnInitCDSConnection(ConnectionName, initConnectionHandled);
+            CDSIntegrationEnabledState := CDSIntegrationEnabledState::Enabled;
+        end else
+            CDSIntegrationEnabledState := CDSIntegrationEnabledState::"Not Enabled";
+
+        exit(isEnabled);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnIsCDSIntegrationEnabled(var isEnabled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    procedure OnInitCDSConnection(var ConnectionName: Text; var handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    procedure OnGetCDSIntegrationUserId(var IntegrationUserId: Guid; var handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    procedure OnGetCDSServerAddress(var CDSServerAddress: Text; var handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    procedure OnTestCDSConnection(var handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    procedure OnCloseCDSConnection(ConnectionName: Text; var handled: Boolean)
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCRMIntegrationEnabled()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenRecordCardPage(RecordID: RecordID; var IsHandled: Boolean)
     begin
     end;
 
@@ -123,7 +182,7 @@ codeunit 5330 "CRM Integration Management"
         NewConnection: Boolean;
     begin
         if not CRMNAVConnection.FindFirst then begin
-            CRMNAVConnection.Init;
+            CRMNAVConnection.Init();
             NewConnection := true;
         end;
 
@@ -132,7 +191,7 @@ codeunit 5330 "CRM Integration Management"
         if NewConnection then
             CRMNAVConnection.Insert
         else
-            CRMNAVConnection.Modify;
+            CRMNAVConnection.Modify();
     end;
 
     procedure SetCRMNAVODataUrlCredentials(ODataUrl: Text[250]; Username: Text[250]; Accesskey: Text[250])
@@ -141,7 +200,7 @@ codeunit 5330 "CRM Integration Management"
         NewConnection: Boolean;
     begin
         if not CRMNAVConnection.FindFirst then begin
-            CRMNAVConnection.Init;
+            CRMNAVConnection.Init();
             NewConnection := true;
         end;
 
@@ -152,7 +211,7 @@ codeunit 5330 "CRM Integration Management"
         if NewConnection then
             CRMNAVConnection.Insert
         else
-            CRMNAVConnection.Modify;
+            CRMNAVConnection.Modify();
     end;
 
     procedure UpdateMultipleNow(RecVariant: Variant)
@@ -176,9 +235,9 @@ codeunit 5330 "CRM Integration Management"
     local procedure UpdateCRMIntRecords(var RecRef: RecordRef; var RecordCounter: array[4] of Integer): Boolean
     var
         CRMIntegrationRecord: Record "CRM Integration Record";
-        IntegrationRecord: Record "Integration Record";
         IntegrationTableMapping: Record "Integration Table Mapping";
         SourceRecRef: RecordRef;
+        RecId: RecordId;
         SelectedDirection: Integer;
         Direction: Integer;
         Unused: Boolean;
@@ -186,8 +245,8 @@ codeunit 5330 "CRM Integration Management"
         if RecordCounter[NoOf::Total] = 1 then begin
             RecRef.SetTable(CRMIntegrationRecord);
             GetIntegrationTableMapping(IntegrationTableMapping, CRMIntegrationRecord."Table ID");
-            IntegrationRecord.Get(CRMIntegrationRecord."Integration ID");
-            SourceRecRef.Get(IntegrationRecord."Record ID");
+            CRMIntegrationRecord.FindRecordId(RecId);
+            SourceRecRef.Get(RecId);
             SelectedDirection :=
               GetSelectedSingleSyncDirection(IntegrationTableMapping, SourceRecRef, CRMIntegrationRecord."CRM ID", Unused)
         end else begin
@@ -204,10 +263,10 @@ codeunit 5330 "CRM Integration Management"
                 Direction := SelectedDirection
             else
                 Direction := IntegrationTableMapping.Direction;
-            IntegrationRecord.Get(CRMIntegrationRecord."Integration ID");
-            if EnqueueSyncJob(IntegrationTableMapping, IntegrationRecord."Record ID", CRMIntegrationRecord."CRM ID", Direction) then begin
+            CRMIntegrationRecord.FindRecordId(RecId);
+            if EnqueueSyncJob(IntegrationTableMapping, RecId, CRMIntegrationRecord."CRM ID", Direction) then begin
                 CRMIntegrationRecord.Skipped := false;
-                CRMIntegrationRecord.Modify;
+                CRMIntegrationRecord.Modify();
                 RecordCounter[NoOf::Scheduled] += 1;
             end else
                 RecordCounter[NoOf::Failed] += 1;
@@ -266,14 +325,14 @@ codeunit 5330 "CRM Integration Management"
 
     procedure UpdateSkippedNow(var CRMIntegrationRecord: Record "CRM Integration Record")
     var
-        IntegrationRecord: Record "Integration Record";
+        RecId: RecordId;
         RestoredRecCounter: Integer;
     begin
         if CRMIntegrationRecord.FindSet then
             repeat
-                if IntegrationRecord.Get(CRMIntegrationRecord."Integration ID") then begin
+                if CRMIntegrationRecord.FindRecordId(RecId) then begin
                     CRMIntegrationRecord.Skipped := false;
-                    CRMIntegrationRecord.Modify;
+                    CRMIntegrationRecord.Modify();
                     RestoredRecCounter += 1;
                 end;
             until CRMIntegrationRecord.Next = 0;
@@ -297,7 +356,10 @@ codeunit 5330 "CRM Integration Management"
 
     procedure CheckOrEnableCRMConnection()
     begin
-        if IsCRMIntegrationEnabled then
+        if IsCDSIntegrationEnabled() then
+            exit;
+
+        if IsCRMIntegrationEnabled() then
             exit;
 
         if CRMIntegrationEnabledLastError <> '' then
@@ -354,7 +416,7 @@ codeunit 5330 "CRM Integration Management"
                 RecordCounter[NoOf::Skipped] += 1
             else begin
                 if not IsNullGuid(CRMIntegrationRecord."CRM ID") then // found the corrupt coupling
-                    CRMIntegrationRecord.Delete;
+                    CRMIntegrationRecord.Delete();
                 if EnqueueSyncJob(IntegrationTableMapping, RecRef.RecordId, CRMID, IntegrationTableMapping.Direction::ToIntegrationTable) then
                     RecordCounter[NoOf::Scheduled] += 1
                 else
@@ -376,14 +438,15 @@ codeunit 5330 "CRM Integration Management"
         RecordCounter[NoOf::Total] := GetRecordRef(RecVariant, RecRef);
         if RecordCounter[NoOf::Total] = 0 then
             exit;
-        GetIntegrationTableMapping(IntegrationTableMapping, RecRef.Number);
+
         repeat
+            GetIntegrationTableMappingFromCRMRecord(IntegrationTableMapping, RecRef);
             CRMID := RecRef.Field(IntegrationTableMapping."Integration Table UID Fld. No.").Value;
             if CRMIntegrationRecord.FindValidByCRMID(CRMID) then
                 RecordCounter[NoOf::Skipped] += 1
             else begin
                 if not IsNullGuid(CRMIntegrationRecord."CRM ID") then // found the corrupt coupling
-                    CRMIntegrationRecord.Delete;
+                    CRMIntegrationRecord.Delete();
                 if EnqueueSyncJob(IntegrationTableMapping, RecRef.RecordId, CRMID, IntegrationTableMapping.Direction::FromIntegrationTable) then
                     RecordCounter[NoOf::Scheduled] += 1
                 else
@@ -421,6 +484,31 @@ codeunit 5330 "CRM Integration Management"
             Error(IntegrationTableMappingNotFoundErr, IntegrationTableMapping.TableCaption, GetTableCaption(TableID));
     end;
 
+    local procedure GetIntegrationTableMappingFromCRMRecord(var IntegrationTableMapping: Record "Integration Table Mapping"; RecRef: RecordRef)
+    var
+        CRMAccount: Record "CRM Account";
+        CustomerTypeCodeFieldRef: FieldRef;
+        CustomerTypeCode: Text;
+    begin
+        if RecRef.Number <> Database::"CRM Account" then begin
+            GetIntegrationTableMapping(IntegrationTableMapping, RecRef.Number);
+            exit;
+        end;
+
+        CustomerTypeCodeFieldRef := RecRef.Field(CRMAccount.FieldNo(CustomerTypeCode));
+        Evaluate(CustomerTypeCode, Format(CustomerTypeCodeFieldRef.Value));
+        IntegrationTableMapping.SetRange("Synch. Codeunit ID", CODEUNIT::"CRM Integration Table Synch.");
+        IntegrationTableMapping.SetRange("Delete After Synchronization", false);
+        IntegrationTableMapping.SetRange("Integration Table ID", RecRef.Number);
+        if CustomerTypeCode = Format(CRMAccount.CustomerTypeCode::Customer) then
+            IntegrationTableMapping.SetRange("Table ID", Database::Customer)
+        else
+            if CustomerTypeCode = Format(CRMAccount.CustomerTypeCode::Vendor) then
+                IntegrationTableMapping.SetRange("Table ID", Database::Vendor);
+        if not IntegrationTableMapping.FindFirst then
+            Error(IntegrationTableMappingNotFoundErr, IntegrationTableMapping.TableCaption, GetTableCaption(RecRef.Number));
+    end;
+
     local procedure GetTableCaption(TableID: Integer): Text
     var
         TableMetadata: Record "Table Metadata";
@@ -456,7 +544,7 @@ codeunit 5330 "CRM Integration Management"
         IntegrationTableMapping."Full Sync is Running" := true;
         IntegrationTableMapping.CalcFields("Table Filter", "Integration Table Filter");
         AddIntegrationTableMapping(IntegrationTableMapping);
-        Commit;
+        Commit();
         if CRMSetupDefaults.CreateJobQueueEntry(IntegrationTableMapping) then begin
             JobQueueEntry.SetRange("Record ID to Process", IntegrationTableMapping.RecordId);
             if JobQueueEntry.FindFirst then
@@ -474,7 +562,7 @@ codeunit 5330 "CRM Integration Management"
         else
             IntegrationTableMapping.SetTableFilter(GetTableViewForRecordID(RecordID));
         AddIntegrationTableMapping(IntegrationTableMapping);
-        Commit;
+        Commit();
         exit(CRMSetupDefaults.CreateJobQueueEntry(IntegrationTableMapping));
     end;
 
@@ -490,7 +578,7 @@ codeunit 5330 "CRM Integration Management"
         Clear(IntegrationTableMapping."Synch. Modified On Filter");
         Clear(IntegrationTableMapping."Synch. Int. Tbl. Mod. On Fltr.");
         Clear(IntegrationTableMapping."Last Full Sync Start DateTime");
-        IntegrationTableMapping.Insert;
+        IntegrationTableMapping.Insert();
 
         CloneIntegrationFieldMapping(SourceMappingName, IntegrationTableMapping.Name);
     end;
@@ -506,7 +594,7 @@ codeunit 5330 "CRM Integration Management"
                 NewIntegrationFieldMapping := IntegrationFieldMapping;
                 NewIntegrationFieldMapping."No." := 0; // Autoincrement
                 NewIntegrationFieldMapping."Integration Table Mapping Name" := DestinationMappingName;
-                NewIntegrationFieldMapping.Insert;
+                NewIntegrationFieldMapping.Insert();
             until IntegrationFieldMapping.Next = 0;
     end;
 
@@ -569,58 +657,99 @@ codeunit 5330 "CRM Integration Management"
     procedure GetCRMEntityUrlFromRecordID(TargetRecordID: RecordID): Text
     var
         CRMIntegrationRecord: Record "CRM Integration Record";
-        IntegrationRecord: Record "Integration Record";
         CRMId: Guid;
     begin
         if not CRMIntegrationRecord.FindIDFromRecordID(TargetRecordID, CRMId) then
             Error(CouplingNotFoundErr, CRMProductName.FULL);
 
-        IntegrationRecord.FindByRecordId(TargetRecordID);
-        exit(GetCRMEntityUrlFromCRMID(IntegrationRecord."Table ID", CRMId));
+        exit(GetCRMEntityUrlFromCRMID(TargetRecordID.TableNo, CRMId));
     end;
 
     procedure GetCRMEntityUrlFromCRMID(TableId: Integer; CRMId: Guid): Text
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
         CRMEntityUrl: Text;
+        CDSServerAddress: Text;
+        handled: Boolean;
     begin
-        CRMConnectionSetup.Get;
-        CRMEntityUrl := StrSubstNo(CRMEntityUrlTemplateTxt, CRMConnectionSetup."Server Address", GetCRMEntityTypeName(TableId), CRMId);
-        if CRMConnectionSetup."Use Newest UI" and (CRMConnectionSetup."Newest UI AppModuleId" <> '') then
-            CRMEntityUrl += StrSubstNo(NewestUIAppIdParameterTxt, CRMConnectionSetup."Newest UI AppModuleId");
+        OnGetCDSServerAddress(CDSServerAddress, handled);
+        if handled then
+            CRMEntityUrl := StrSubstNo(CRMEntityUrlTemplateTxt, CDSServerAddress, GetCRMEntityTypeName(TableId), CRMId)
+        else begin
+            CRMConnectionSetup.Get();
+            CRMEntityUrl := StrSubstNo(CRMEntityUrlTemplateTxt, CRMConnectionSetup."Server Address", GetCRMEntityTypeName(TableId), CRMId);
+            if CRMConnectionSetup."Use Newest UI" and (CRMConnectionSetup."Newest UI AppModuleId" <> '') then
+                CRMEntityUrl += StrSubstNo(NewestUIAppIdParameterTxt, CRMConnectionSetup."Newest UI AppModuleId")
+        end;
+
         exit(CRMEntityUrl);
     end;
 
     procedure OpenCoupledNavRecordPage(CRMID: Guid; CRMEntityTypeName: Text): Boolean
     var
-        CRMIntegrationRecord: Record "CRM Integration Record";
+        IntegrationTableMapping: Record "Integration Table Mapping";
         TempNameValueBuffer: Record "Name/Value Buffer" temporary;
         CRMSetupDefaults: Codeunit "CRM Setup Defaults";
-        RecordID: RecordID;
-        TableId: Integer;
+        RecordId: RecordId;
+        BCTableId: Integer;
     begin
         // Find the corresponding NAV record and type
         CRMSetupDefaults.GetTableIDCRMEntityNameMapping(TempNameValueBuffer);
+        TempNameValueBuffer.SetCurrentKey(Name);
         TempNameValueBuffer.SetRange(Name, LowerCase(CRMEntityTypeName));
-        if not TempNameValueBuffer.FindSet then
+
+        if TempNameValueBuffer.IsEmpty() then
             exit(false);
 
-        repeat
-            Evaluate(TableId, TempNameValueBuffer.Value);
-            if CRMIntegrationRecord.FindRecordIDFromID(CRMID, TableId, RecordID) then
-                break;
-        until TempNameValueBuffer.Next = 0;
+        FindRecordFromNameValueBuffer(TempNameValueBuffer, CRMID, RecordId, BCTableId, CRMEntityTypeName);
+        if RecordId.TableNo = 0 then begin
+            GetIntegrationTableMappingFromCRMID(IntegrationTableMapping, BcTableId, CRMID);
+            if (IntegrationTableMapping.Direction in [IntegrationTableMapping.Direction::Bidirectional, IntegrationTableMapping.Direction::FromIntegrationTable])
+              and (IntegrationTableMapping."Synch. Only Coupled Records" = false) then
+                SynchFromIntegrationTable(IntegrationTableMapping, CRMID)
+            else
+                exit(false);
+        end;
 
-        if RecordID.TableNo = 0 then
+        FindRecordFromNameValueBuffer(TempNameValueBuffer, CRMID, RecordId, BCTableId, CRMEntityTypeName);
+        if RecordId.TableNo = 0 then
             exit(false);
-
         OpenRecordCardPage(RecordID);
         exit(true);
+    end;
+
+    local procedure FindRecordFromNameValueBuffer(var TempNameValueBuffer: Record "Name/Value Buffer" temporary; CRMID: Guid; var RecordId: RecordId; var BCTableId: Integer; CRMEntityTypeName: Text)
+    var
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        TableId: Integer;
+    begin
+        TempNameValueBuffer.SetCurrentKey(Name);
+        TempNameValueBuffer.SetRange(Name, LowerCase(CRMEntityTypeName));
+        if TempNameValueBuffer.FindSet() then
+            repeat
+                Evaluate(TableId, TempNameValueBuffer.Value);
+                if not IsCRMTable(TableId) then
+                    BCTableId := TableId;
+                if CRMIntegrationRecord.FindRecordIDFromID(CRMID, TableId, RecordId) then
+                    break;
+            until TempNameValueBuffer.Next() = 0;
+    end;
+
+    local procedure SynchFromIntegrationTable(IntegrationTableMapping: Record "Integration Table Mapping"; CRMID: Guid)
+    begin
+        IntegrationTableMapping.SetIntegrationTableFilter(GetTableViewForGuid(IntegrationTableMapping."Integration Table ID", CRMID));
+        IntegrationTableMapping.Direction := IntegrationTableMapping.Direction::FromIntegrationTable;
+        AddIntegrationTableMapping(IntegrationTableMapping);
+        Commit();
+        Codeunit.Run(IntegrationTableMapping."Synch. Codeunit ID", IntegrationTableMapping);
+        IntegrationTableMapping.Delete(true);
+        Commit();
     end;
 
     local procedure OpenRecordCardPage(RecordID: RecordID)
     var
         Customer: Record Customer;
+        Vendor: Record Vendor;
         Contact: Record Contact;
         Currency: Record Currency;
         SalespersonPurchaser: Record "Salesperson/Purchaser";
@@ -630,8 +759,13 @@ codeunit 5330 "CRM Integration Management"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         CustomerPriceGroup: Record "Customer Price Group";
         RecordRef: RecordRef;
+        IsHandled: Boolean;
     begin
         // Open the right kind of card page
+        OnBeforeOpenRecordCardPage(RecordID, IsHandled);
+        If IsHandled then
+            exit;
+
         RecordRef := RecordID.GetRecord;
         case RecordID.TableNo of
             DATABASE::Contact:
@@ -648,6 +782,11 @@ codeunit 5330 "CRM Integration Management"
                 begin
                     RecordRef.SetTable(Customer);
                     PAGE.Run(PAGE::"Customer Card", Customer);
+                end;
+            DATABASE::Vendor:
+                begin
+                    RecordRef.SetTable(Vendor);
+                    PAGE.Run(PAGE::"Vendor Card", Vendor);
                 end;
             DATABASE::Item:
                 begin
@@ -882,7 +1021,7 @@ codeunit 5330 "CRM Integration Management"
         case AllowedDirection of
             IntegrationTableMapping.Direction::Bidirectional:
                 exit(
-                  StrMenu(StrSubstNo(UpdateNowDirectionQst, CRMProductName.SHORT), RecommendedDirection, UpdateMultipleNowTitleTxt));
+                  StrMenu(UpdateNowDirectionQst, RecommendedDirection, UpdateMultipleNowTitleTxt));
             IntegrationTableMapping.Direction::FromIntegrationTable:
                 SynchronizeNowQuestion := StrSubstNo(UpdateMultipleNowFromCRMQst, CRMProductName.SHORT);
             else
@@ -945,7 +1084,7 @@ codeunit 5330 "CRM Integration Management"
                         RecommendedDirection := IntegrationTableMapping.Direction::FromIntegrationTable;
                     SelectedDirection :=
                       StrMenu(
-                        StrSubstNo(UpdateNowDirectionQst, CRMProductName.SHORT), RecommendedDirection,
+                        UpdateNowDirectionQst, RecommendedDirection,
                         StrSubstNo(UpdateOneNowTitleTxt, RecordIDDescr));
                     RecommendedDirectionIgnored := SelectedDirection <> RecommendedDirection;
                     exit(SelectedDirection);
@@ -981,8 +1120,8 @@ codeunit 5330 "CRM Integration Management"
         if not CRMConnectionSetup.Get then begin
             if not CRMConnectionSetup.WritePermission then
                 exit;
-            CRMConnectionSetup.Init;
-            CRMConnectionSetup.Insert;
+            CRMConnectionSetup.Init();
+            CRMConnectionSetup.Insert();
         end;
 
         RecRef.GetTable(CRMConnectionSetup);
@@ -1000,6 +1139,28 @@ codeunit 5330 "CRM Integration Management"
               ServiceConnection, RecRef.RecordId, TableCaption, "Server Address", PAGE::"CRM Connection Setup",
               PAGE::"CRM Connection Setup Wizard");
         end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"CDS Integration Mgt.", 'OnGetIntegrationSolutions', '', false, false)]
+    local procedure HandleOnGetIntegrationSolutions(var SolutionUniqueNameList: List of [Text])
+    var
+        CRMConnectionSetup: Record "CRM Connection Setup";
+    begin
+        if CRMConnectionSetup.Get() then
+            if CRMConnectionSetup."Is Enabled" then
+                SolutionUniqueNameList.Add(CRMProductName.UNIQUE());
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"CDS Integration Mgt.", 'OnGetIntegrationRequiredRoles', '', false, false)]
+    local procedure HandleOnGetIntegrationRequiredRoles(var RequiredRoleIdList: List of [Guid])
+    var
+        CRMConnectionSetup: Record "CRM Connection Setup";
+    begin
+        if CRMConnectionSetup.Get() then
+            if CRMConnectionSetup."Is Enabled" then begin
+                RequiredRoleIdList.Add(GetIntegrationAdminRoleID());
+                RequiredRoleIdList.Add(GetIntegrationUserRoleID());
+            end;
     end;
 
     procedure ClearState()
@@ -1025,15 +1186,19 @@ codeunit 5330 "CRM Integration Management"
     [Scope('OnPrem')]
     procedure ImportCRMSolution(ServerAddress: Text; IntegrationUserEmail: Text; AdminUserEmail: Text; AdminUserPassword: Text; ProxyVersion: Integer)
     var
+        CDSConnectionSetup: Record "CDS Connection Setup";
+        CRMRole: Record "CRM Role";
+        CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
         CRMHelper: DotNet CrmHelper;
         UserGUID: Guid;
         IntegrationAdminRoleGUID: Guid;
         IntegrationUserRoleGUID: Guid;
+        DefaultOwningTeamGUID: Guid;
         TempConnectionString: Text;
     begin
         CheckConnectRequiredFields(ServerAddress, IntegrationUserEmail);
         TempConnectionString := StrSubstNo(
-            ConnectionStringFormatTok, ServerAddress, AdminUserEmail, GetPassword(AdminUserPassword), ProxyVersion, 'AuthType=Office365;');
+            ConnectionStringFormatTok, ServerAddress, AdminUserEmail, AdminUserPassword, ProxyVersion, 'AuthType=Office365;');
         if not InitializeCRMConnection(CRMHelper, TempConnectionString) then
             ProcessConnectionFailures;
 
@@ -1051,6 +1216,33 @@ codeunit 5330 "CRM Integration Management"
             CRMHelper.AssociateUserWithRole(UserGUID, IntegrationAdminRoleGUID);
         if not CRMHelper.CheckRoleAssignedToUser(UserGUID, IntegrationUserRoleGUID) then
             CRMHelper.AssociateUserWithRole(UserGUID, IntegrationUserRoleGUID);
+
+        if CDSIntegrationImpl.IsIntegrationEnabled() then begin
+            CDSIntegrationImpl.RegisterConnection();
+            CDSIntegrationImpl.ActivateConnection();
+            CDSConnectionSetup.Get();
+            DefaultOwningTeamGUID := CDSIntegrationImpl.GetOwningTeamId(CDSConnectionSetup);
+            CRMRole.SetRange(ParentRoleId, IntegrationAdminRoleGUID);
+            CRMRole.SetRange(BusinessUnitId, CDSIntegrationImpl.GetCoupledBusinessUnitId());
+            if not CRMRole.FindFirst() then begin
+                SendTraceTag('0000BKQ', CategoryTok, VERBOSITY::Normal, RoleNotFoundForBusinessUnitTxt, DataClassification::SystemMetadata);
+                Error(IntegrationRoleNotFoundErr, GetIntegrationAdminRoleID(), CDSIntegrationImpl.GetDefaultBusinessUnitName());
+            end;
+            if not CDSIntegrationImpl.AssignTeamRole(CrmHelper, DefaultOwningTeamGUID, CRMRole.RoleId) then begin
+                SendTraceTag('0000BKR', CategoryTok, VERBOSITY::Normal, CannotAssignRoleToTeamTxt, DataClassification::SystemMetadata);
+                Error(CannotAssignRoleToTeamErr, DefaultOwningTeamGUID, CDSIntegrationImpl.GetDefaultBusinessUnitName(), CRMRole.Name);
+            end;
+            CRMRole.SetRange(ParentRoleId, IntegrationUserRoleGUID);
+            CRMRole.SetRange(BusinessUnitId, CDSIntegrationImpl.GetCoupledBusinessUnitId());
+            if not CRMRole.FindFirst() then begin
+                SendTraceTag('0000BKS', CategoryTok, VERBOSITY::Normal, RoleNotFoundForBusinessUnitTxt, DataClassification::SystemMetadata);
+                Error(IntegrationRoleNotFoundErr, GetIntegrationUserRoleID(), CDSIntegrationImpl.GetDefaultBusinessUnitName());
+            end;
+            if not CDSIntegrationImpl.AssignTeamRole(CrmHelper, DefaultOwningTeamGUID, CRMRole.RoleId) then begin
+                SendTraceTag('0000BKT', CategoryTok, VERBOSITY::Normal, CannotAssignRoleToTeamTxt, DataClassification::SystemMetadata);
+                Error(CannotAssignRoleToTeamErr, DefaultOwningTeamGUID, CDSIntegrationImpl.GetDefaultBusinessUnitName(), CRMRole.Name);
+            end;
+        end;
     end;
 
     [TryFunction]
@@ -1147,7 +1339,7 @@ codeunit 5330 "CRM Integration Management"
         CRMConnectionSetup: Record "CRM Connection Setup";
     begin
         if ConnectionString = '' then begin
-            CRMConnectionSetup.Get;
+            CRMConnectionSetup.Get();
             CRMHelper := CRMHelper.CrmHelper(CRMConnectionSetup.GetConnectionStringWithPassword);
         end else
             CRMHelper := CRMHelper.CrmHelper(ConnectionString);
@@ -1181,6 +1373,40 @@ codeunit 5330 "CRM Integration Management"
                     Error(CRMConnectionURLWrongErr, CRMProductName.SHORT)
             end;
         DotNetExceptionHandler.Rethrow;
+    end;
+
+    local procedure GetIntegrationTableMappingFromCRMID(var IntegrationTableMapping: Record "Integration Table Mapping"; TableID: Integer; CRMID: Guid)
+    var
+        CRMAccount: Record "CRM Account";
+        CRMProduct: Record "CRM Product";
+    begin
+        IntegrationTableMapping.SetRange("Synch. Codeunit ID", CODEUNIT::"CRM Integration Table Synch.");
+        IntegrationTableMapping.SetRange("Delete After Synchronization", false);
+        if IsCRMTable(TableID) then
+            IntegrationTableMapping.SetRange("Integration Table ID", TableID)
+        else begin
+            if (TableID = DATABASE::Vendor) or (TableID = DATABASE::Customer) then begin
+                CRMAccount.SetRange(AccountId, CRMID);
+                if CRMAccount.FindFirst() then begin
+                    if CRMAccount.CustomerTypeCode = CRMAccount.CustomerTypeCode::Vendor then
+                        TableID := DATABASE::Vendor;
+                    if CRMAccount.CustomerTypeCode = CRMAccount.CustomerTypeCode::Customer then
+                        TableID := DATABASE::Customer;
+                end;
+            end;
+            if (TableID = DATABASE::Item) or (TableID = DATABASE::Resource) then begin
+                CRMProduct.SetRange(ProductId, CRMID);
+                if CRMProduct.FindFirst() then begin
+                    if CRMProduct.ProductTypeCode = CRMProduct.ProductTypeCode::Services then
+                        TableID := DATABASE::Resource;
+                    if CRMProduct.ProductTypeCode = CRMProduct.ProductTypeCode::SalesInventory then
+                        TableID := DATABASE::Item;
+                end;
+            end;
+            IntegrationTableMapping.SetRange("Table ID", TableID);
+        end;
+        if not IntegrationTableMapping.FindFirst() then
+            Error(IntegrationTableMappingNotFoundErr, IntegrationTableMapping.TableCaption, GetTableCaption(TableID));
     end;
 
     procedure SetupItemAvailabilityService()
@@ -1341,8 +1567,8 @@ codeunit 5330 "CRM Integration Management"
     begin
         CouplingRecordBuffer.Initialize(RecordID);
         CouplingRecordBuffer."CRM ID" := CRMID;
-        if not CouplingRecordBuffer.Insert then
-            CouplingRecordBuffer.Modify;
+        if not CouplingRecordBuffer.Insert() then
+            CouplingRecordBuffer.Modify();
         if not IsNullGuid(CouplingRecordBuffer."CRM ID") then begin
             CRMIntegrationRecord.CoupleRecordIdToCRMID(CouplingRecordBuffer."NAV Record ID", CouplingRecordBuffer."CRM ID");
             if CouplingRecordBuffer.GetPerformInitialSynchronization then begin
@@ -1353,17 +1579,6 @@ codeunit 5330 "CRM Integration Management"
         end else
             exit(false);
         exit(true);
-    end;
-
-    [Scope('OnPrem')]
-    local procedure GetPassword("Key": Guid): Text
-    var
-        Value: Text;
-    begin
-        Value := '';
-        if not IsNullGuid(Key) then
-            if IsolatedStorageManagement.Get(Key, DATASCOPE::Company, Value) then
-                exit(Value);
     end;
 
     [TryFunction]
@@ -1382,10 +1597,10 @@ codeunit 5330 "CRM Integration Management"
         ProxyCount: Integer;
     begin
         IList := CRMHelper.GetProxyIdList;
-        ProxyCount := IList.Count;
+        ProxyCount := IList.Count();
         for i := 0 to ProxyCount - 1 do begin
             TempStack.StackOrder := IList.Item(i);
-            TempStack.Insert;
+            TempStack.Insert();
         end;
     end;
 
@@ -1419,7 +1634,7 @@ codeunit 5330 "CRM Integration Management"
         Notification.Id := CRMIntegrationManagement.GetCRMDisabledErrorReasonNotificationId;
         Notification.Recall;
         Clear(CRMConnectionSetup."Disable Reason");
-        CRMConnectionSetup.Modify;
+        CRMConnectionSetup.Modify();
     end;
 
     procedure GetCRMDisabledErrorReasonNotificationId() CRMDisabledErrorReasonNotificationId: Guid
@@ -1448,7 +1663,7 @@ codeunit 5330 "CRM Integration Management"
             CRMConnectionSetup.Validate(
               "Disable Reason",
               CopyStr(LastError, 1, MaxStrLen(CRMConnectionSetup."Disable Reason")));
-            CRMConnectionSetup.Modify;
+            CRMConnectionSetup.Modify();
         end;
     end;
 
@@ -1482,7 +1697,7 @@ codeunit 5330 "CRM Integration Management"
         if not TenantWebService.Get(TenantWebService."Object Type"::Page, GetProductItemAvailabilityServiceName) then
             exit('');
         TempWebServiceAggregate.TransferFields(TenantWebService);
-        TempWebServiceAggregate.Insert;
+        TempWebServiceAggregate.Insert();
         exit(CopyStr(WebServiceManagement.GetWebServiceUrl(TempWebServiceAggregate, ClientType::ODataV3), 1, MaxStrLen(CRMConnectionSetup."Dynamics NAV OData URL")));
     end;
 
@@ -1493,10 +1708,10 @@ codeunit 5330 "CRM Integration Management"
         if Confirm(DoYouWantDisableWebServiceQst) then begin
             if TenantWebService.Get(TenantWebService."Object Type"::Page, GetProductItemAvailabilityServiceName) then begin
                 TenantWebService.Validate(Published, false);
-                TenantWebService.Modify;
+                TenantWebService.Modify();
             end;
             CRMConnectionSetup."Dynamics NAV OData URL" := '';
-            CRMConnectionSetup.Modify;
+            CRMConnectionSetup.Modify();
         end;
     end;
 
@@ -1511,7 +1726,7 @@ codeunit 5330 "CRM Integration Management"
         CRMConnectionSetup.Validate(
           "Dynamics NAV OData URL",
           CRMIntegrationManagement.GetItemAvailabilityWebServiceURL);
-        CRMConnectionSetup.Modify;
+        CRMConnectionSetup.Modify();
     end;
 
     local procedure GetProductItemAvailabilityServiceName(): Text[250]
@@ -1525,7 +1740,7 @@ codeunit 5330 "CRM Integration Management"
     begin
         if CRMSynchStatus.IsEmpty then begin
             CRMSynchStatus."Last Update Invoice Entry No." := 0;
-            CRMSynchStatus.Insert;
+            CRMSynchStatus.Insert();
         end;
     end;
 
@@ -1536,6 +1751,25 @@ codeunit 5330 "CRM Integration Management"
     begin
         if not IsIntegrationEnabled then
             IsIntegrationEnabled := CRMConnectionSetup.IsEnabled;
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Integration Synch. Job Errors", 'OnAfterLogSynchError', '', false, false)]
+    local procedure DisableConnectionOnAfterLongSynchError(IntegrationSynchJobErrors: Record "Integration Synch. Job Errors")
+    var
+        CRMConnectionSetup: Record "CRM Connection Setup";
+    begin
+        if not IntegrationSynchJobErrors.Message.Contains('CrmCreate') then
+            exit;
+
+        if not IntegrationSynchJobErrors.Message.Contains('prvCreate') then
+            exit;
+
+        DisableConnection();
+
+        if CRMConnectionSetup.Get() then begin
+            CRMConnectionSetup."Disable Reason" := StrSubstNo(ConnectionDisabledReasonTxt, CRMConnectionSetup."Server Address", CRMConnectionSetup."User Name");
+            CRMConnectionSetup.Modify();
+        end;
     end;
 
     [EventSubscriber(ObjectType::Table, 5339, 'OnForceSynchronizeDataIntegration', '', false, false)]
@@ -1551,6 +1785,21 @@ codeunit 5330 "CRM Integration Management"
 
         UpdateOneNow(LocalRecordID);
         SynchronizeHandled := true;
+    end;
+
+    [Scope('OnPrem')]
+    procedure RegisterAssistedSetup()
+    var
+        AssistedSetup: Codeunit "Assisted Setup";
+        Info: ModuleInfo;
+        AssistedSetupGroup: Enum "Assisted Setup Group";
+        VideoCategory: Enum "Video Category";
+    begin
+        NavApp.GetCurrentModuleInfo(Info);
+        if not AssistedSetup.Exists(Info.Id(), PAGE::"CRM Connection Setup Wizard") then begin
+            AssistedSetup.Add(Info.Id(), PAGE::"CRM Connection Setup Wizard", StrSubstNo(CRMConnectionSetupTxt, CRMProductName.SHORT),
+                AssistedSetupGroup::Customize, VideoUrlSetupCRMConnectionTxt, VideoCategory::Customize, '');
+        end;
     end;
 }
 

@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en-US" target-language="en-US" original="Library - No Transactions">
+    <body>
+      <group id="body">
+        <trans-unit id="Codeunit 4034985552 - NamedType 2238109225" size-unit="char" translate="no" xml:space="preserve">
+          <source>Database transaction has been detected, no writes are allowed during this test. RecordID is %1, Operation %2.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit No Transactions Subscriber - NamedType TransactionDetectedErr</note>
+        </trans-unit>
+      </group>
+    </body>
+  </file>
+</xliff>

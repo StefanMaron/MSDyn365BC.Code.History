@@ -86,9 +86,9 @@ codeunit 5640 "Duplicate Depr. Book"
     var
         InsuranceJnlLine: Record "Insurance Journal Line";
     begin
-        FASetup.Get;
+        FASetup.Get();
         FASetup.TestField("Insurance Depr. Book", DeprBook.Code);
-        InsuranceJnlLine.Init;
+        InsuranceJnlLine.Init();
         InsuranceJnlLine."Line No." := 0;
         if not FASetup."Automatic Insurance Posting" then
             InitInsuranceJnlLine(InsuranceJnlLine);
@@ -159,7 +159,7 @@ codeunit 5640 "Duplicate Depr. Book"
             FAGetJnl.InsuranceJnlName(DeprBook.Code, TemplateName, BatchName);
             "Journal Template Name" := TemplateName;
             "Journal Batch Name" := BatchName;
-            LockTable;
+            LockTable();
             FAGetJnl.SetInsuranceJnlRange(InsuranceJnlLine2, TemplateName, BatchName);
             NextLineNo := InsuranceJnlLine2."Line No." + 10000;
             "Posting No. Series" := FAJnlSetup.GetInsuranceNoSeries(InsuranceJnlLine);
@@ -380,7 +380,7 @@ codeunit 5640 "Duplicate Depr. Book"
                 AdjustGenJnlLine(GenJnlLine);
                 "Journal Template Name" := TemplateName;
                 "Journal Batch Name" := BatchName;
-                LockTable;
+                LockTable();
                 FAGetJnl.SetGenJnlRange(GenJnlLine2, TemplateName, BatchName);
                 Validate("Depreciation Book Code", DeprBook.Code);
                 CalcExchangeRateAmount(DuplicateInGenJnl, "Account No.", GenJnlLine, FAJnlLine);
@@ -403,7 +403,7 @@ codeunit 5640 "Duplicate Depr. Book"
                 MakeFAJnlLine(FAJnlLine, GenJnlLine);
                 "Journal Template Name" := TemplateName;
                 "Journal Batch Name" := BatchName;
-                LockTable;
+                LockTable();
                 FAGetJnl.SetFAJnlRange(FAJnlLine2, TemplateName, BatchName);
                 Validate("Depreciation Book Code", DeprBook.Code);
                 CalcExchangeRateAmount(DuplicateInGenJnl, "FA No.", GenJnlLine, FAJnlLine);
@@ -421,7 +421,7 @@ codeunit 5640 "Duplicate Depr. Book"
                 MakeGenJnlLine(GenJnlLine, FAJnlLine);
                 "Journal Template Name" := TemplateName;
                 "Journal Batch Name" := BatchName;
-                LockTable;
+                LockTable();
                 FAGetJnl.SetGenJnlRange(GenJnlLine2, TemplateName, BatchName);
                 Validate("Depreciation Book Code", DeprBook.Code);
                 CalcExchangeRateAmount(DuplicateInGenJnl, "Account No.", GenJnlLine, FAJnlLine);
@@ -444,7 +444,7 @@ codeunit 5640 "Duplicate Depr. Book"
                 AdjustFAJnlLine(FAJnlLine);
                 "Journal Template Name" := TemplateName;
                 "Journal Batch Name" := BatchName;
-                LockTable;
+                LockTable();
                 FAGetJnl.SetFAJnlRange(FAJnlLine2, TemplateName, BatchName);
                 Validate("Depreciation Book Code", DeprBook.Code);
                 CalcExchangeRateAmount(DuplicateInGenJnl, "FA No.", GenJnlLine, FAJnlLine);

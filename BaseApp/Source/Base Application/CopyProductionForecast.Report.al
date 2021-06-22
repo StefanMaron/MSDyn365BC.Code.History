@@ -13,7 +13,7 @@ report 99003803 "Copy Production Forecast"
             trigger OnAfterGetRecord()
             begin
                 if "Entry No." > LastEntryNo then
-                    CurrReport.Break;
+                    CurrReport.Break();
                 ProdForecastEntry2 := "Production Forecast Entry";
 
                 if ToProdForecastEntry."Production Forecast Name" <> '' then
@@ -28,7 +28,7 @@ report 99003803 "Copy Production Forecast"
 
                 ProdForecastEntry2."Entry No." := NextEntryNo;
                 OnBeforeProdForecastEntryInsert(ProdForecastEntry2, ToProdForecastEntry);
-                ProdForecastEntry2.Insert;
+                ProdForecastEntry2.Insert();
                 NextEntryNo := NextEntryNo + 1;
             end;
 
@@ -37,17 +37,15 @@ report 99003803 "Copy Production Forecast"
                 if not Confirm(Text000, false) then
                     exit;
 
-                LockTable;
+                LockTable();
 
-                if ProdForecastEntry2.FindLast then
-                    LastEntryNo := ProdForecastEntry2."Entry No.";
-
+                LastEntryNo := ProdForecastEntry2.GetLastEntryNo();
                 NextEntryNo := LastEntryNo + 1;
 
                 ProdForecastName.SetRange(Name, ToProdForecastEntry."Production Forecast Name");
                 if not ProdForecastName.FindFirst then begin
                     ProdForecastName.Name := ToProdForecastEntry."Production Forecast Name";
-                    ProdForecastName.Insert;
+                    ProdForecastName.Insert();
                 end;
             end;
         }

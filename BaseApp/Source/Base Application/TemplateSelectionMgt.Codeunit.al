@@ -55,13 +55,13 @@ codeunit 1900 "Template Selection Mgt."
         UserPreference: Record "User Preference";
     begin
         if UserPreference.Get(UserId, ContextCode) then
-            UserPreference.Delete;
+            UserPreference.Delete();
 
-        UserPreference.Init;
+        UserPreference.Init();
         UserPreference."User ID" := UserId;
         UserPreference."Instruction Code" := ContextCode;
         UserPreference.SetUserSelection(TemplateCode);
-        UserPreference.Insert;
+        UserPreference.Insert();
     end;
 
     local procedure GetLastTemplateSelection(var TemplateCode: Code[10]; ContextCode: Code[20]): Boolean

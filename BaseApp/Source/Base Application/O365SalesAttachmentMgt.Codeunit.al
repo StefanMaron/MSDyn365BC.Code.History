@@ -78,8 +78,8 @@ codeunit 2112 "O365 Sales Attachment Mgt"
             SalesHeader := RecordVariant;
             if SalesHeader."Incoming Document Entry No." = 0 then begin
                 SalesHeader."Incoming Document Entry No." := IncomingDocument.CreateIncomingDocument(SalesHeader."Sell-to Customer Name", '');
-                SalesHeader.Modify;
-                Commit;
+                SalesHeader.Modify();
+                Commit();
                 RecordVariant := SalesHeader;
             end;
             SalesHeader.SetRecFilter;
@@ -97,7 +97,7 @@ codeunit 2112 "O365 Sales Attachment Mgt"
     var
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
     begin
-        IncomingDocumentAttachment.Init;
+        IncomingDocumentAttachment.Init();
         IncomingDocumentAttachment.CopyFilters(IncomingDocumentAttachmentOrig);
         IncomingDocumentAttachment.NewAttachment;
         case IncomingDocumentAttachment.Type of
@@ -111,7 +111,7 @@ codeunit 2112 "O365 Sales Attachment Mgt"
                       CopyStr(
                         StrSubstNo(MovieLbl, IncomingDocumentAttachment."Line No." div 10000), 1, MaxStrLen(IncomingDocumentAttachment.Name));
         end;
-        IncomingDocumentAttachment.Modify;
+        IncomingDocumentAttachment.Modify();
     end;
 
     [Scope('OnPrem')]

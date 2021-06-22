@@ -33,7 +33,7 @@ codeunit 5818 "Undo Service Shipment Line"
             if not ConfirmManagement.GetResponseOrDefault(ConfMessage, true) then
                 exit;
 
-        LockTable;
+        LockTable();
         ServShptLine.Copy(Rec);
         Code;
         Rec := ServShptLine;
@@ -116,12 +116,12 @@ codeunit 5818 "Undo Service Shipment Line"
             ServLedgEntriesPost.InitServiceRegister(ServLedgEntryNo, WarrantyLedgEntryNo);
             Find('-');
             repeat
-                TempGlobalItemLedgEntry.Reset;
+                TempGlobalItemLedgEntry.Reset();
                 if not TempGlobalItemLedgEntry.IsEmpty then
-                    TempGlobalItemLedgEntry.DeleteAll;
-                TempGlobalItemEntryRelation.Reset;
+                    TempGlobalItemLedgEntry.DeleteAll();
+                TempGlobalItemEntryRelation.Reset();
                 if not TempGlobalItemEntryRelation.IsEmpty then
-                    TempGlobalItemEntryRelation.DeleteAll;
+                    TempGlobalItemEntryRelation.DeleteAll();
 
                 if not HideDialog then
                     Window.Open(Text001);
@@ -171,7 +171,7 @@ codeunit 5818 "Undo Service Shipment Line"
             until Next = 0;
             ServLedgEntriesPost.FinishServiceRegister(ServLedgEntryNo, WarrantyLedgEntryNo);
 
-            InvtSetup.Get;
+            InvtSetup.Get();
             if InvtSetup."Automatic Cost Adjustment" <>
                InvtSetup."Automatic Cost Adjustment"::Never
             then begin
@@ -236,9 +236,9 @@ codeunit 5818 "Undo Service Shipment Line"
         TempApplyToEntryList: Record "Item Ledger Entry" temporary;
     begin
         with ServShptLine do begin
-            SourceCodeSetup.Get;
+            SourceCodeSetup.Get();
             ServShptHeader.Get("Document No.");
-            ItemJnlLine.Init;
+            ItemJnlLine.Init();
             ItemJnlLine."Entry Type" := ItemJnlLine."Entry Type"::Sale;
             ItemJnlLine."Document Type" := ItemJnlLine."Document Type"::"Service Shipment";
             ItemJnlLine."Document No." := ServShptHeader."No.";
@@ -293,8 +293,8 @@ codeunit 5818 "Undo Service Shipment Line"
         NewServShptLine: Record "Service Shipment Line";
     begin
         with OldServShptLine do begin
-            NewServShptLine.Reset;
-            NewServShptLine.Init;
+            NewServShptLine.Reset();
+            NewServShptLine.Init();
             NewServShptLine.Copy(OldServShptLine);
             NewServShptLine."Line No." := "Line No." + GetCorrectiveShptLineNoStep("Document No.", "Line No.");
             NewServShptLine."Item Shpt. Entry No." := ItemShptEntryNo;
@@ -308,7 +308,7 @@ codeunit 5818 "Undo Service Shipment Line"
             NewServShptLine.Correction := true;
             NewServShptLine."Dimension Set ID" := "Dimension Set ID";
             OnBeforeNewServiceShptLineInsert(NewServShptLine, OldServShptLine);
-            NewServShptLine.Insert;
+            NewServShptLine.Insert();
 
             InsertItemEntryRelation(TempGlobalItemEntryRelation, NewServShptLine);
         end;
@@ -333,7 +333,7 @@ codeunit 5818 "Undo Service Shipment Line"
             repeat
                 ItemEntryRelation := TempItemEntryRelation;
                 ItemEntryRelation.TransferFieldsServShptLine(NewServShptLine);
-                ItemEntryRelation.Insert;
+                ItemEntryRelation.Insert();
             until TempItemEntryRelation.Next = 0;
     end;
 
@@ -345,8 +345,8 @@ codeunit 5818 "Undo Service Shipment Line"
         ResJnlPostLine: Codeunit "Res. Jnl.-Post Line";
         TimeSheetMgt: Codeunit "Time Sheet Management";
     begin
-        ResJnlLine.Init;
-        SrcCodeSetup.Get;
+        ResJnlLine.Init();
+        SrcCodeSetup.Get();
         with ResJnlLine do begin
             ServiceShptHeader.Get(ServiceShptLine."Document No.");
             "Entry Type" := "Entry Type"::Usage;

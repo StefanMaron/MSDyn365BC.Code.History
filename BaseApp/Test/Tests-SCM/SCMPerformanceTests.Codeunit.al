@@ -514,7 +514,7 @@ codeunit 137380 "SCM Performance Tests"
         Item.Modify(true);
 
         TempItemAttributeValue := ItemAttributeValue;
-        TempItemAttributeValue.Insert;
+        TempItemAttributeValue.Insert();
 
         // [WHEN] Delete attribute value mapping for the category "C"
         CodeCoverageMgt.StartApplicationCoverage;
@@ -761,7 +761,7 @@ codeunit 137380 "SCM Performance Tests"
         Iterations := 11; // must be odd number in order the sum of quantity for each serial no. will not be 0.
 
         // [GIVEN] Location with directed put-away and pick.
-        WarehouseEmployee.DeleteAll;
+        WarehouseEmployee.DeleteAll();
         LibraryWarehouse.CreateFullWMSLocation(Location, 2);
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
         LibraryWarehouse.FindZone(Zone, Location.Code, LibraryWarehouse.SelectBinType(false, false, true, true), false);
@@ -840,7 +840,7 @@ codeunit 137380 "SCM Performance Tests"
         Iterations := 10;
 
         // [GIVEN] Location with directed put-away and pick.
-        WarehouseEmployee.DeleteAll;
+        WarehouseEmployee.DeleteAll();
         LibraryWarehouse.CreateFullWMSLocation(Location, 2);
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
         LibraryWarehouse.FindZone(Zone, Location.Code, LibraryWarehouse.SelectBinType(false, false, true, true), false);
@@ -930,7 +930,7 @@ codeunit 137380 "SCM Performance Tests"
         NoOfSN[2] := 100;
 
         // [GIVEN] Location with directed put-away and pick.
-        WarehouseEmployee.DeleteAll;
+        WarehouseEmployee.DeleteAll();
         LibraryWarehouse.CreateFullWMSLocation(Location, 3);
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
 
@@ -1062,7 +1062,7 @@ codeunit 137380 "SCM Performance Tests"
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         isInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
@@ -1084,7 +1084,7 @@ codeunit 137380 "SCM Performance Tests"
         Initialize;
         Item.Get(
           CreateTrackedItem(LibraryUtility.GetGlobalNoSeriesCode, LibraryUtility.GetGlobalNoSeriesCode, CreateItemTrackingCode(true, true)));
-        ReservationEntry.DeleteAll; // Switch on or off if we want to execute on a clean db.
+        ReservationEntry.DeleteAll(); // Switch on or off if we want to execute on a clean db.
 
         // Purchase component with IT.
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
@@ -1229,14 +1229,14 @@ codeunit 137380 "SCM Performance Tests"
         if VATPostingSetup."VAT Calculation Type" <> VATPostingSetup."VAT Calculation Type"::"Full VAT" then
             exit;
         VATPostingSetup."VAT Calculation Type" := VATPostingSetup."VAT Calculation Type"::"Normal VAT";
-        VATPostingSetup.Modify;
+        VATPostingSetup.Modify();
     end;
 
     local procedure EnablePurchInvDiscountCalculation()
     var
         PurchSetup: Record "Purchases & Payables Setup";
     begin
-        PurchSetup.Get;
+        PurchSetup.Get();
         PurchSetup.Validate("Calc. Inv. Discount", true);
         PurchSetup.Modify(true);
     end;

@@ -94,7 +94,7 @@ table 1062 "Payment Reporting Argument"
         if CurrencyCode <> '' then
             exit(CurrencyCode);
 
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.GetCurrencyCode(CurrencyCode);
         exit(GeneralLedgerSetup."LCY Code");
     end;

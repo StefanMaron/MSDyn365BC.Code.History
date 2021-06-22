@@ -91,6 +91,7 @@ codeunit 6300 "Azure AD Mgt."
         exit(AzureADAuthFlow.AcquireOnBehalfOfToken(ResourceUrl));
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure GetOnBehalfAccessTokenAndTokenCacheState(ResourceUrl: Text; var TokenCacheState: Text): Text
     var
@@ -100,6 +101,7 @@ codeunit 6300 "Azure AD Mgt."
         exit(AzureADAuthFlow.AcquireOnBehalfOfTokenAndTokenCacheState(ResourceUrl, TokenCacheState));
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure GetTokenFromTokenCacheState(ResourceId: Text; AadUserId: Text; TokenCacheState: Text; var NewTokenCacheState: Text): Text
     var
@@ -214,7 +216,7 @@ codeunit 6300 "Azure AD Mgt."
         exit(true);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 2, 'OnCompanyInitialize', '', false, false)]
+    [Obsolete('To add the record "Azure AD App Setup Wizard" in the Assisted Setup table use the method Add provided in the Assisted Setup codeunit','16.0')]
     procedure CreateAssistedSetup()
     var
         AssistedSetup: Codeunit "Assisted Setup";
@@ -224,9 +226,9 @@ codeunit 6300 "Azure AD Mgt."
         if IsSaaS() then
             exit;
         NavApp.GetCurrentModuleInfo(Info);
-        AssistedSetup.Add(Info.Id(), PAGE::"Azure AD App Setup Wizard", AzureAdSetupTxt, AssistedSetupGroup::GettingStarted, '', '');
+        AssistedSetup.Add(Info.Id(), PAGE::"Azure AD App Setup Wizard", AzureAdSetupTxt, AssistedSetupGroup::GettingStarted);
         if IsAzureADAppSetupDone then
-            AssistedSetup.Complete(Info.Id(), PAGE::"Azure AD App Setup Wizard");
+            AssistedSetup.Complete(PAGE::"Azure AD App Setup Wizard");
     end;
 
     [Scope('OnPrem')]

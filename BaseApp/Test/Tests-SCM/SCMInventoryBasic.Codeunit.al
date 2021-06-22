@@ -97,7 +97,7 @@ codeunit 137280 "SCM Inventory Basic"
         Initialize;
         LibraryInventory.CreateItem(Item);
         Item."Vendor Item No." := LibraryUtility.GenerateRandomText(MaxStrLen(Item."Vendor Item No."));
-        Item.Modify;
+        Item.Modify();
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(
             PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', Item."No.", 10, '', 0D);
@@ -125,7 +125,7 @@ codeunit 137280 "SCM Inventory Basic"
         Initialize;
         LibraryInventory.CreateItem(Item);
         Item."Vendor Item No." := LibraryUtility.GenerateRandomText(MaxStrLen(Item."Vendor Item No."));
-        Item.Modify;
+        Item.Modify();
 
         LibrarySales.CreateSalesDocumentWithItem(
             SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", 10, '', 0D);
@@ -860,13 +860,13 @@ codeunit 137280 "SCM Inventory Basic"
         // Setup: create item, unit of measure, item unit of measure
         Initialize;
 
-        Item.Init;
+        Item.Init();
         Item.Insert(true);
 
         NewUnitOfMeasureCode := CreateNewUnitOfMeasureCode;
-        UnitOfMeasure.Init;
+        UnitOfMeasure.Init();
         UnitOfMeasure.Code := NewUnitOfMeasureCode;
-        UnitOfMeasure.Insert;
+        UnitOfMeasure.Insert();
 
         // Exercise: validate Base Unit of Measure with non-existent item unit of measure
         Item.Validate("Base Unit of Measure", NewUnitOfMeasureCode);
@@ -887,7 +887,7 @@ codeunit 137280 "SCM Inventory Basic"
     begin
         Initialize;
 
-        Item.Init;
+        Item.Init();
         Item.Insert(true);
 
         CreateUoM_and_ItemUoM(FirstUnitOfMeasure, ItemUnitOfMeasure, Item);
@@ -913,7 +913,7 @@ codeunit 137280 "SCM Inventory Basic"
     begin
         Initialize;
 
-        Item.Init;
+        Item.Init();
         Item.Insert(true);
 
         LibraryInventory.CreateUnitOfMeasureCode(FirstUnitOfMeasure);
@@ -938,7 +938,7 @@ codeunit 137280 "SCM Inventory Basic"
     begin
         Initialize;
 
-        Item.Init;
+        Item.Init();
         Item.Insert(true);
 
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
@@ -964,7 +964,7 @@ codeunit 137280 "SCM Inventory Basic"
     begin
         Initialize;
 
-        Item.Init;
+        Item.Init();
         Item.Insert(true);
 
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
@@ -991,7 +991,7 @@ codeunit 137280 "SCM Inventory Basic"
     begin
         Initialize;
 
-        Item.Init;
+        Item.Init();
         Item.Insert(true);
 
         LibraryInventory.CreateUnitOfMeasureCode(FirstUnitOfMeasure);
@@ -1015,7 +1015,7 @@ codeunit 137280 "SCM Inventory Basic"
     begin
         Initialize;
 
-        Item.Init;
+        Item.Init();
         Item.Insert(true);
 
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
@@ -1043,16 +1043,16 @@ codeunit 137280 "SCM Inventory Basic"
         // Setup: create item, unit of measure, item unit of measure
         Initialize;
 
-        Item.Init;
+        Item.Init();
         Item.Insert(true);
 
         CreateUoM_and_ItemUoM(UnitOfMeasure, ItemUnitOfMeasure, Item);
 
         Item.Validate("Base Unit of Measure", ItemUnitOfMeasure.Code);
-        Item.Modify;
+        Item.Modify();
 
         NewUnitOfMeasureCode := CreateNewUnitOfMeasureCode;
-        Commit;
+        Commit();
 
         // Exercise: rename unit of measure assigned to Item (and Item Unit of Measure)
         UnitOfMeasure.Rename(NewUnitOfMeasureCode);
@@ -1074,7 +1074,7 @@ codeunit 137280 "SCM Inventory Basic"
         // Setup: create item, unit of measure, item unit of measure
         Initialize;
 
-        Item.Init;
+        Item.Init();
         Item.Insert(true);
 
         ItemTemplate.SetRange(Code, SelectItemTemplateCode);
@@ -1112,16 +1112,16 @@ codeunit 137280 "SCM Inventory Basic"
         // Arrange: create four items.
         Initialize;
 
-        Item.Init;
+        Item.Init();
         Item.Validate("No.", '1');
         Item.Insert(true);
-        Item.Init;
+        Item.Init();
         Item.Validate("No.", '2');
         Item.Insert(true);
-        Item.Init;
+        Item.Init();
         Item.Validate("No.", '3');
         Item.Insert(true);
-        Item.Init;
+        Item.Init();
         Item.Validate("No.", '4');
         Item.Insert(true);
 
@@ -1183,10 +1183,10 @@ codeunit 137280 "SCM Inventory Basic"
         Initialize;
 
         // [GIVEN] Item Template with empty Base Unit of Measure
-        Item.Init;
+        Item.Init();
         LibraryInventory.CreateItemTemplate(ItemTemplate);
         ItemTemplate."Base Unit of Measure" := '';
-        ItemTemplate.Modify;
+        ItemTemplate.Modify();
         LibraryVariableStorage.Enqueue(ItemTemplate.Code);
 
         // [WHEN] Create new Item using Item Template
@@ -1257,7 +1257,7 @@ codeunit 137280 "SCM Inventory Basic"
         // [SCENARIO] "Sales Unit of Measure" of Item with blank "No." is taken from Unit of Measure table
 
         // [GIVEN] Item with blank "No."
-        Item.Init;
+        Item.Init();
 
         // [GIVEN] "Unit of Measure" - "X"
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
@@ -1281,9 +1281,9 @@ codeunit 137280 "SCM Inventory Basic"
         // [SCENARIO] "Sales Unit of Measure" of Item with not blank "No." is taken from Item Unit of Measure table
 
         // [GIVEN] Item with not blank "No."
-        Item.Init;
+        Item.Init();
         Item."No." := LibraryUtility.GenerateGUID;
-        Item.Insert;
+        Item.Insert();
 
         // [GIVEN] "Item Unit of Measure" - "X"
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
@@ -1307,7 +1307,7 @@ codeunit 137280 "SCM Inventory Basic"
         // [SCENARIO] "Purch. Unit of Measure" of Item with blank "No." is taken from Unit of Measure table
 
         // [GIVEN] Item with blank "No."
-        Item.Init;
+        Item.Init();
 
         // [GIVEN] "Unit of Measure" - "X"
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
@@ -1331,9 +1331,9 @@ codeunit 137280 "SCM Inventory Basic"
         // [SCENARIO] "Purch. Unit of Measure" of Item with not blank "No." is taken from Item Unit of Measure table
 
         // [GIVEN] Item with not blank "No."
-        Item.Init;
+        Item.Init();
         Item."No." := LibraryUtility.GenerateGUID;
-        Item.Insert;
+        Item.Insert();
 
         // [GIVEN] "Item Unit of Measure" - "X"
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
@@ -1359,9 +1359,9 @@ codeunit 137280 "SCM Inventory Basic"
 
         // [GIVEN] Two Unit of Measures: "X" and "Y"
         // [GIVEN] Item with not blank "No." and "Item Unit of Measure" - "X"
-        Item.Init;
+        Item.Init();
         Item."No." := LibraryUtility.GenerateGUID;
-        Item.Insert;
+        Item.Insert();
 
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
         LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.", UnitOfMeasure.Code, 1);
@@ -1387,9 +1387,9 @@ codeunit 137280 "SCM Inventory Basic"
 
         // [GIVEN] Two Unit of Measures: "X" and "Y"
         // [GIVEN] Item with not blank "No." and "Item Unit of Measure" - "X"
-        Item.Init;
+        Item.Init();
         Item."No." := LibraryUtility.GenerateGUID;
-        Item.Insert;
+        Item.Insert();
 
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
         LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.", UnitOfMeasure.Code, 1);
@@ -1413,7 +1413,7 @@ codeunit 137280 "SCM Inventory Basic"
         // [SCENARIO] "Put-away Unit of Measure Code" of Item with blank "No." is taken from Unit of Measure table
 
         // [GIVEN] Item with blank "No."
-        Item.Init;
+        Item.Init();
 
         // [GIVEN] "Unit of Measure" - "X"
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
@@ -1438,9 +1438,9 @@ codeunit 137280 "SCM Inventory Basic"
         // [SCENARIO] "Put-away Unit of Measure Code" of Item with not blank "No." is taken from Item Unit of Measure table
 
         // [GIVEN] Item with not blank "No."
-        Item.Init;
+        Item.Init();
         Item."No." := LibraryUtility.GenerateGUID;
-        Item.Insert;
+        Item.Insert();
 
         // [GIVEN] "Item Unit of Measure" - "X"
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
@@ -1467,9 +1467,9 @@ codeunit 137280 "SCM Inventory Basic"
 
         // [GIVEN] Two Unit of Measures: "X" and "Y"
         // [GIVEN] Item with not blank "No." and "Item Unit of Measure" - "X"
-        Item.Init;
+        Item.Init();
         Item."No." := LibraryUtility.GenerateGUID;
-        Item.Insert;
+        Item.Insert();
 
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
         LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.", UnitOfMeasure.Code, 1);
@@ -1548,7 +1548,7 @@ codeunit 137280 "SCM Inventory Basic"
           SalesLine, SalesLine."Document Type"::Order, CreateCustomer, SalesLine.Type::"Charge (Item)",
           LibraryInventory.CreateItemChargeNo, LibraryRandom.RandInt(100));
         SalesLine.Validate("Qty. to Invoice", 0);
-        SalesLine.Modify;
+        SalesLine.Modify();
 
         // [WHEN] Open Item Charge Assigment
         // [THEN] Item Charge Assigment Page is opened with Qty to Assign = 0
@@ -1875,7 +1875,7 @@ codeunit 137280 "SCM Inventory Basic"
         Initialize;
 
         // [GIVEN] Config. Template Header "ZZZZZ"
-        ConfigTemplateHeader.Init;
+        ConfigTemplateHeader.Init();
         ConfigTemplateHeader.Validate(Code, 'ZZZZZ'); // Last record if sorting by Code
         ConfigTemplateHeader.Validate("Table ID", 27);
         ConfigTemplateHeader.Insert(true);
@@ -2012,7 +2012,7 @@ codeunit 137280 "SCM Inventory Basic"
         // [GIVEN] Nonstock Item with Item Template and Vendor Item No. 2100
         LibraryInventory.CreateNonStockItem(NonstockItem);
         Item.Get(NonstockItem."Vendor Item No.");
-        Item.Delete;
+        Item.Delete();
         NonstockItem.Validate("Item Template Code", ItemTemplate.Code);
         NonstockItem.Modify(true);
 
@@ -2127,7 +2127,7 @@ codeunit 137280 "SCM Inventory Basic"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Inventory Basic");
@@ -2218,11 +2218,11 @@ codeunit 137280 "SCM Inventory Basic"
     local procedure CreateItemAndProductionBOM(var Item: Record Item; var ProductionBOMHeader: Record "Production BOM Header")
     begin
         ProductionBOMHeader."No." := LibraryUtility.GenerateGUID;
-        ProductionBOMHeader.Insert;
+        ProductionBOMHeader.Insert();
 
         Item."No." := LibraryUtility.GenerateGUID;
         Item."Production BOM No." := ProductionBOMHeader."No.";
-        Item.Insert;
+        Item.Insert();
     end;
 
     local procedure CreateAndPostItemJnlLineWithtemTracking(): Code[20]
@@ -2416,7 +2416,7 @@ codeunit 137280 "SCM Inventory Basic"
 
         GlobalItemChargeAssignment := GlobalItemChargeAssignment::AssignmentOnly;
         PurchaseLine2.ShowItemChargeAssgnt;
-        PurchaseLine2.Modify;
+        PurchaseLine2.Modify();
         PurchaseLine.Validate("Qty. to Receive", 0);  // Set Quantity to Receive 0 for Item Line.
         PurchaseLine.Modify(true);
         exit(ItemChargeNo);
@@ -2515,7 +2515,7 @@ codeunit 137280 "SCM Inventory Basic"
     begin
         // Make sure this location will be the first to be retrieved in a matrix page, alphabetically.
         if not Location.Get('A') then begin
-            Location.Init;
+            Location.Init();
             Location.Validate(Code, 'A');
             Location.Validate(Name, 'A');
             Location.Insert(true);
@@ -2662,7 +2662,7 @@ codeunit 137280 "SCM Inventory Basic"
         VATProductPostingGroup.SetFilter(Code, '<>%1', ItemTemplate."VAT Prod. Posting Group");
         VATProductPostingGroup.FindFirst;
         ItemTemplate.Validate("VAT Prod. Posting Group", VATProductPostingGroup.Code);
-        ItemTemplate.Modify;
+        ItemTemplate.Modify();
     end;
 
     local procedure UpdateSalesLineUnitPrice(var SalesLine: Record "Sales Line"; UnitPrice: Decimal)

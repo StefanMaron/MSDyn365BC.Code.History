@@ -374,7 +374,7 @@ codeunit 137010 "SCM Revaluation"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
         isInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Revaluation");
@@ -442,7 +442,7 @@ codeunit 137010 "SCM Revaluation"
             PurchaseLine.Validate("Qty. to Receive", PurchaseLine.Quantity - 10);
         if PartialInvoice then
             PurchaseLine.Validate("Qty. to Invoice", PurchaseLine."Qty. to Receive" - 10);
-        PurchaseLine.Modify;
+        PurchaseLine.Modify();
     end;
 
     [Normal]
@@ -551,7 +551,7 @@ codeunit 137010 "SCM Revaluation"
         // Select Item Journal Template Name for General Journal Line.
         ItemJournalTemplate.SetRange(Type, ItemJournalTemplate.Type::Revaluation);
         if not ItemJournalTemplate.FindFirst then begin
-            ItemJournalTemplate.Init;
+            ItemJournalTemplate.Init();
             ItemJournalTemplate.Validate(
               Name, CopyStr(LibraryUtility.GenerateRandomCode(ItemJournalTemplate.FieldNo(Name), DATABASE::"Item Journal Template"), 1,
                 MaxStrLen(ItemJournalTemplate.Name)));
@@ -580,7 +580,7 @@ codeunit 137010 "SCM Revaluation"
         ItemJournalLine.Validate("Journal Batch Name", ItemJournalBatch.Name);
         CalculateInventoryValue.InitializeRequest(WorkDate, ItemJournalLine."Document No.",
           true, CalculatePer::Item, false, false, true, CalculationBase::" ", false);
-        Commit;
+        Commit();
         CalculateInventoryValue.UseRequestPage(false);
         CalculateInventoryValue.SetItemJnlLine(ItemJournalLine);
         Item.SetRange("No.", Item."No.");
@@ -610,7 +610,7 @@ codeunit 137010 "SCM Revaluation"
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.FindFirst;
         TempPurchaseLine := PurchaseLine;
-        TempPurchaseLine.Insert;
+        TempPurchaseLine.Insert();
     end;
 
     local procedure TransferSalesLineToTemp(var TempSalesLine: Record "Sales Line" temporary; SalesHeader: Record "Sales Header")
@@ -621,7 +621,7 @@ codeunit 137010 "SCM Revaluation"
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.FindFirst;
         TempSalesLine := SalesLine;
-        TempSalesLine.Insert;
+        TempSalesLine.Insert();
     end;
 
     [Normal]

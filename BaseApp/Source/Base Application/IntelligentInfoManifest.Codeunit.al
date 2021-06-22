@@ -200,7 +200,7 @@ codeunit 1642 "Intelligent Info Manifest"
     local procedure OnCreateAddin(var OfficeAddin: Record "Office Add-in")
     begin
         if OfficeAddin.Get(AppIdTxt) then
-            OfficeAddin.Delete;
+            OfficeAddin.Delete();
 
         with AddinManifestManagement do
             CreateAddin(OfficeAddin, DefaultManifestText, AddinNameTxt, AddinDescriptionTxt, AppIdTxt, CODEUNIT::"Intelligent Info Manifest");

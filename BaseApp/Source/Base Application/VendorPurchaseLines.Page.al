@@ -4,7 +4,8 @@ page 352 "Vendor Purchase Lines"
     Editable = false;
     LinksAllowed = false;
     PageType = ListPart;
-    SourceTable = Date;
+    SourceTable = "Vendor Purchase Buffer";
+    SourceTableTemporary = true;
 
     layout
     {
@@ -26,7 +27,7 @@ page 352 "Vendor Purchase Lines"
                     Caption = 'Period Name';
                     ToolTip = 'Specifies the name of the period that you want to view.';
                 }
-                field(BalanceDueLCY; Vend."Balance Due (LCY)")
+                field(BalanceDueLCY; "Balance Due (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatType = 1;
@@ -36,10 +37,10 @@ page 352 "Vendor Purchase Lines"
 
                     trigger OnDrillDown()
                     begin
-                        ShowVendEntriesDue;
+                        ShowVendEntriesDue();
                     end;
                 }
-                field("Vend.""Purchases (LCY)"""; Vend."Purchases (LCY)")
+                field("Vend.""Purchases (LCY)"""; "Purchases (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatType = 1;
@@ -49,7 +50,7 @@ page 352 "Vendor Purchase Lines"
 
                     trigger OnDrillDown()
                     begin
-                        ShowVendEntries;
+                        ShowVendEntries();
                     end;
                 }
             }
@@ -62,35 +63,45 @@ page 352 "Vendor Purchase Lines"
 
     trigger OnAfterGetRecord()
     begin
-        SetDateFilter;
-        Vend.CalcFields("Balance Due (LCY)", "Purchases (LCY)");
+        if DateRec.Get("Period Type", "Period Start") then;
+        CalcLine();
     end;
 
-    trigger OnFindRecord(Which: Text): Boolean
+    trigger OnFindRecord(Which: Text) FoundDate: Boolean
+    var
+        VariantRec: Variant;
     begin
-        exit(PeriodFormMgt.FindDate(Which, Rec, PeriodType));
+        VariantRec := Rec;
+        FoundDate := PeriodFormLinesMgt.FindDate(VariantRec, DateRec, Which, PeriodType);
+        Rec := VariantRec;
     end;
 
-    trigger OnNextRecord(Steps: Integer): Integer
+    trigger OnNextRecord(Steps: Integer) ResultSteps: Integer
+    var
+        VariantRec: Variant;
     begin
-        exit(PeriodFormMgt.NextDate(Steps, Rec, PeriodType));
+        VariantRec := Rec;
+        ResultSteps := PeriodFormLinesMgt.NextDate(VariantRec, DateRec, Steps, PeriodType);
+        Rec := VariantRec;
     end;
 
     trigger OnOpenPage()
     begin
-        Reset;
+        Reset();
     end;
 
     var
         Vend: Record Vendor;
         VendLedgEntry: Record "Vendor Ledger Entry";
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        DateRec: Record Date;
+        PeriodFormLinesMgt: Codeunit "Period Form Lines Mgt.";
         PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
         AmountType: Option "Net Change","Balance at Date";
 
     procedure Set(var NewVend: Record Vendor; NewPeriodType: Integer; NewAmountType: Option "Net Change","Balance at Date")
     begin
         Vend.Copy(NewVend);
+        DeleteAll();
         PeriodType := NewPeriodType;
         AmountType := NewAmountType;
         CurrPage.Update(false);
@@ -98,8 +109,8 @@ page 352 "Vendor Purchase Lines"
 
     local procedure ShowVendEntries()
     begin
-        SetDateFilter;
-        VendLedgEntry.Reset;
+        SetDateFilter();
+        VendLedgEntry.Reset();
         VendLedgEntry.SetCurrentKey("Vendor No.", "Posting Date");
         VendLedgEntry.SetRange("Vendor No.", Vend."No.");
         VendLedgEntry.SetFilter("Posting Date", Vend.GetFilter("Date Filter"));
@@ -112,8 +123,8 @@ page 352 "Vendor Purchase Lines"
     var
         DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
-        SetDateFilter;
-        DtldVendLedgEntry.Reset;
+        SetDateFilter();
+        DtldVendLedgEntry.Reset();
         DtldVendLedgEntry.SetCurrentKey("Vendor No.", "Initial Entry Due Date", "Posting Date", "Currency Code");
         DtldVendLedgEntry.SetRange("Vendor No.", Vend."No.");
         DtldVendLedgEntry.SetFilter("Initial Entry Due Date", Vend.GetFilter("Date Filter"));
@@ -123,12 +134,27 @@ page 352 "Vendor Purchase Lines"
         PAGE.Run(0, DtldVendLedgEntry)
     end;
 
+    local procedure CalcLine()
+    begin
+        SetDateFilter();
+        Vend.CalcFields("Balance Due (LCY)", "Purchases (LCY)");
+        "Balance Due (LCY)" := Vend."Balance Due (LCY)";
+        "Purchases (LCY)" := Vend."Purchases (LCY)";
+
+        OnAfterCalcLine(Vend, Rec);
+    end;
+
     local procedure SetDateFilter()
     begin
         if AmountType = AmountType::"Net Change" then
             Vend.SetRange("Date Filter", "Period Start", "Period End")
         else
             Vend.SetRange("Date Filter", 0D, "Period End");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcLine(var Vendor: Record Vendor; var VendorPurchaseBuffer: Record "Vendor Purchase Buffer")
+    begin
     end;
 }
 

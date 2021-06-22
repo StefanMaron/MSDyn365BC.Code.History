@@ -35,11 +35,9 @@ table 7114 "Analysis Line"
         {
             Caption = 'Description';
         }
-        field(6; Type; Option)
+        field(6; Type; Enum "Analysis Line Type")
         {
             Caption = 'Type';
-            OptionCaption = 'Item,Item Group,Customer,Customer Group,Vendor,Sales/Purchase person,Formula';
-            OptionMembers = Item,"Item Group",Customer,"Customer Group",Vendor,"Sales/Purchase person",Formula;
 
             trigger OnValidate()
             var
@@ -53,19 +51,19 @@ table 7114 "Analysis Line"
                 case Type of
                     Type::"Item Group":
                         begin
-                            InventorySetup.Get;
+                            InventorySetup.Get();
                             InventorySetup.TestField("Item Group Dimension Code");
                             "Group Dimension Code" := InventorySetup."Item Group Dimension Code";
                         end;
                     Type::"Customer Group":
                         begin
-                            SalesSetup.Get;
+                            SalesSetup.Get();
                             SalesSetup.TestField("Customer Group Dimension Code");
                             "Group Dimension Code" := SalesSetup."Customer Group Dimension Code";
                         end;
                     Type::"Sales/Purchase person":
                         begin
-                            SalesSetup.Get;
+                            SalesSetup.Get();
                             SalesSetup.TestField("Salesperson Dimension Code");
                             "Group Dimension Code" := SalesSetup."Salesperson Dimension Code";
                         end;
@@ -258,7 +256,7 @@ table 7114 "Analysis Line"
     var
         AnalysisLineTemplate: Record "Analysis Line Template";
     begin
-        LockTable;
+        LockTable();
         AnalysisLineTemplate.Get("Analysis Area", "Analysis Line Template Name");
 
         if Indentation < 0 then
@@ -366,7 +364,7 @@ table 7114 "Analysis Line"
                     Range := NewRange
                 else begin
                     FormulaAnalysisLine.Range := NewRange;
-                    FormulaAnalysisLine.Modify;
+                    FormulaAnalysisLine.Modify();
                 end;
         until FormulaAnalysisLine.Next = 0;
     end;
@@ -406,19 +404,19 @@ table 7114 "Analysis Line"
                 end;
             Type::"Item Group":
                 begin
-                    InventorySetup.Get;
+                    InventorySetup.Get();
                     InventorySetup.TestField("Item Group Dimension Code");
                     exit(LookupDimTotalingRange(Text, InventorySetup."Item Group Dimension Code"));
                 end;
             Type::"Customer Group":
                 begin
-                    SalesSetup.Get;
+                    SalesSetup.Get();
                     SalesSetup.TestField("Customer Group Dimension Code");
                     exit(LookupDimTotalingRange(Text, SalesSetup."Customer Group Dimension Code"));
                 end;
             Type::"Sales/Purchase person":
                 begin
-                    SalesSetup.Get;
+                    SalesSetup.Get();
                     SalesSetup.TestField("Salesperson Dimension Code");
                     exit(LookupDimTotalingRange(Text, SalesSetup."Salesperson Dimension Code"));
                 end;
@@ -485,7 +483,7 @@ table 7114 "Analysis Line"
             else begin
                 Clear(ItemAnalysisView);
                 if not HasGLSetup then
-                    GLSetup.Get;
+                    GLSetup.Get();
                 HasGLSetup := true;
                 ItemAnalysisView."Dimension 1 Code" := GLSetup."Global Dimension 1 Code";
                 ItemAnalysisView."Dimension 2 Code" := GLSetup."Global Dimension 2 Code";

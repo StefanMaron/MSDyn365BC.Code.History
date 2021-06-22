@@ -68,14 +68,14 @@ report 5625 "Insurance - Tot. Value Insured"
                 begin
                     if Insurance.Get("Insurance No.") then;
                     InsuranceTmp."No." := "Insurance No.";
-                    if InsuranceTmp.Insert then begin
+                    if InsuranceTmp.Insert() then begin
                         InsCoverageLedgEntry.SetRange("Insurance No.", "Insurance No.");
                         InsCoverageLedgEntry.CalcSums(Amount);
                         if InsCoverageLedgEntry.Amount = 0 then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                         Insurance."Total Value Insured" := InsCoverageLedgEntry.Amount;
                     end else
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     if not FirstTime then begin
                         "Fixed Asset".Description := '';
                         FANo := '';
@@ -87,16 +87,16 @@ report 5625 "Insurance - Tot. Value Insured"
                 begin
                     SetRange("FA No.", "Fixed Asset"."No.");
                     InsCoverageLedgEntry.SetRange("FA No.", "Fixed Asset"."No.");
-                    InsuranceTmp.DeleteAll;
+                    InsuranceTmp.DeleteAll();
                 end;
             }
 
             trigger OnAfterGetRecord()
             begin
                 if not FADeprBook.Get("No.", DeprBook.Code) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 if (FADeprBook."Disposal Date" > 0D) or Inactive then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 FirstTime := true;
                 FANo := "No.";
             end;
@@ -123,7 +123,7 @@ report 5625 "Insurance - Tot. Value Insured"
     trigger OnPreReport()
     begin
         FAFilter := "Fixed Asset".GetFilters;
-        FASetup.Get;
+        FASetup.Get();
         FASetup.TestField("Insurance Depr. Book");
         DeprBook.Get(FASetup."Insurance Depr. Book");
         FAFieldname := "Fixed Asset".FieldCaption("No.");

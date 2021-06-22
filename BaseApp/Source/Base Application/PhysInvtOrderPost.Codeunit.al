@@ -70,8 +70,8 @@ codeunit 5884 "Phys. Invt. Order-Post"
               CheckingLinesMsg + PostingLinesMsg);
             Window.Update(1, StrSubstNo('%1 %2', TableCaption, "No."));
 
-            LockTable;
-            PhysInvtOrderLine.LockTable;
+            LockTable();
+            PhysInvtOrderLine.LockTable();
 
             ModifyHeader := false;
             if "Posting No." = '' then begin
@@ -85,7 +85,7 @@ codeunit 5884 "Phys. Invt. Order-Post"
 
             if ModifyHeader then begin
                 Modify;
-                Commit;
+                Commit();
             end;
 
             CheckDim;
@@ -93,7 +93,7 @@ codeunit 5884 "Phys. Invt. Order-Post"
             // Check phys. inventory order lines
             LinesToPost := false;
             LineCount := 0;
-            PhysInvtOrderLine.Reset;
+            PhysInvtOrderLine.Reset();
             PhysInvtOrderLine.SetRange("Document No.", "No.");
             if PhysInvtOrderLine.Find('-') then
                 repeat
@@ -135,17 +135,17 @@ codeunit 5884 "Phys. Invt. Order-Post"
             if not LinesToPost then
                 Error(NothingToPostErr);
 
-            SourceCodeSetup.Get;
+            SourceCodeSetup.Get();
             SourceCode := SourceCodeSetup."Phys. Invt. Orders";
 
-            InventorySetup.Get;
+            InventorySetup.Get();
 
             // Insert posted order header
             InsertPostedHeader(PhysInvtOrderHeader);
 
             // Insert posted order lines
             LineCount := 0;
-            PhysInvtOrderLine.Reset;
+            PhysInvtOrderLine.Reset();
             PhysInvtOrderLine.SetRange("Document No.", "No.");
             PhysInvtOrderLine.SetRange("Entry Type", PhysInvtOrderLine."Entry Type"::"Negative Adjmt.");
             if PhysInvtOrderLine.FindSet then
@@ -159,21 +159,21 @@ codeunit 5884 "Phys. Invt. Order-Post"
                 until PhysInvtOrderLine.Next = 0;
 
             // Insert posted expected phys. invt. tracking Lines
-            ExpPhysInvtTracking.Reset;
+            ExpPhysInvtTracking.Reset();
             ExpPhysInvtTracking.SetRange("Order No", "No.");
             if ExpPhysInvtTracking.Find('-') then
                 repeat
-                    PstdExpPhysInvtTrack.Init;
+                    PstdExpPhysInvtTrack.Init();
                     PstdExpPhysInvtTrack.TransferFields(ExpPhysInvtTracking);
                     PstdExpPhysInvtTrack."Order No" := PstdPhysInvtOrderHdr."No.";
-                    PstdExpPhysInvtTrack.Insert;
+                    PstdExpPhysInvtTrack.Insert();
                 until ExpPhysInvtTracking.Next = 0;
 
             // Insert posted recording header and lines
             InsertPostedRecordings("No.", PstdPhysInvtOrderHdr."No.");
 
             // Insert posted comment Lines
-            PhysInvtCommentLine.Reset;
+            PhysInvtCommentLine.Reset();
             PhysInvtCommentLine.SetRange("Document Type", PhysInvtCommentLine."Document Type"::Order);
             PhysInvtCommentLine.SetRange("Order No.", "No.");
             PhysInvtCommentLine.SetRange("Recording No.", 0);
@@ -182,9 +182,9 @@ codeunit 5884 "Phys. Invt. Order-Post"
                     InsertPostedCommentLine(
                       PhysInvtCommentLine, PhysInvtCommentLine."Document Type"::"Posted Order", PstdPhysInvtOrderHdr."No.");
                 until PhysInvtCommentLine.Next = 0;
-            PhysInvtCommentLine.DeleteAll;
+            PhysInvtCommentLine.DeleteAll();
 
-            PhysInvtCommentLine.Reset;
+            PhysInvtCommentLine.Reset();
             PhysInvtCommentLine.SetRange("Document Type", PhysInvtCommentLine."Document Type"::Recording);
             PhysInvtCommentLine.SetRange("Order No.", "No.");
             if PhysInvtCommentLine.Find('-') then
@@ -192,7 +192,7 @@ codeunit 5884 "Phys. Invt. Order-Post"
                     InsertPostedCommentLine(
                       PhysInvtCommentLine, PhysInvtCommentLine."Document Type"::"Posted Recording", PstdPhysInvtOrderHdr."No.");
                 until PhysInvtCommentLine.Next = 0;
-            PhysInvtCommentLine.DeleteAll;
+            PhysInvtCommentLine.DeleteAll();
 
             "Last Posting No." := "Posting No.";
 
@@ -313,7 +313,7 @@ codeunit 5884 "Phys. Invt. Order-Post"
     local procedure InsertPostedHeader(PhysInvtOrderHeader: Record "Phys. Invt. Order Header")
     begin
         with PstdPhysInvtOrderHdr do begin
-            LockTable;
+            LockTable();
             Init;
             TransferFields(PhysInvtOrderHeader);
             "Pre-Assigned No." := PhysInvtOrderHeader."No.";
@@ -330,10 +330,10 @@ codeunit 5884 "Phys. Invt. Order-Post"
 
     local procedure InsertPostedLine(PstdPhysInvtOrderHdr: Record "Pstd. Phys. Invt. Order Hdr"; PhysInvtOrderLine: Record "Phys. Invt. Order Line")
     begin
-        PstdPhysInvtOrderLine.Init;
+        PstdPhysInvtOrderLine.Init();
         PstdPhysInvtOrderLine.TransferFields(PhysInvtOrderLine);
         PstdPhysInvtOrderLine."Document No." := PstdPhysInvtOrderHdr."No.";
-        PstdPhysInvtOrderLine.Insert;
+        PstdPhysInvtOrderLine.Insert();
     end;
 
     local procedure InsertPostedCommentLine(PhysInvtCommentLine: Record "Phys. Invt. Comment Line"; DocType: Option; DocNo: Code[20])
@@ -352,28 +352,28 @@ codeunit 5884 "Phys. Invt. Order-Post"
         PstdPhysInvtRecordHdr: Record "Pstd. Phys. Invt. Record Hdr";
         PstdPhysInvtRecordLine: Record "Pstd. Phys. Invt. Record Line";
     begin
-        PhysInvtRecordHeader.Reset;
+        PhysInvtRecordHeader.Reset();
         PhysInvtRecordHeader.SetRange("Order No.", DocNo);
         if PhysInvtRecordHeader.Find('-') then
             repeat
-                PstdPhysInvtRecordHdr.Init;
+                PstdPhysInvtRecordHdr.Init();
                 PstdPhysInvtRecordHdr.TransferFields(PhysInvtRecordHeader);
                 PstdPhysInvtRecordHdr."Order No." := PostedDocNo;
-                PstdPhysInvtRecordHdr.Insert;
+                PstdPhysInvtRecordHdr.Insert();
 
-                PhysInvtRecordLine.Reset;
+                PhysInvtRecordLine.Reset();
                 PhysInvtRecordLine.SetRange("Order No.", PhysInvtRecordHeader."Order No.");
                 PhysInvtRecordLine.SetRange("Recording No.", PhysInvtRecordHeader."Recording No.");
                 if PhysInvtRecordLine.Find('-') then
                     repeat
-                        PstdPhysInvtRecordLine.Init;
+                        PstdPhysInvtRecordLine.Init();
                         PstdPhysInvtRecordLine.TransferFields(PhysInvtRecordLine);
                         PstdPhysInvtRecordLine."Order No." := PostedDocNo;
-                        PstdPhysInvtRecordLine.Insert;
+                        PstdPhysInvtRecordLine.Insert();
                     until PhysInvtRecordLine.Next = 0;
-                PhysInvtRecordLine.DeleteAll;
+                PhysInvtRecordLine.DeleteAll();
             until PhysInvtRecordHeader.Next = 0;
-        PhysInvtRecordHeader.DeleteAll;
+        PhysInvtRecordHeader.DeleteAll();
     end;
 
     local procedure InsertEntryRelation()
@@ -382,28 +382,27 @@ codeunit 5884 "Phys. Invt. Order-Post"
         ItemEntryRelation: Record "Item Entry Relation";
     begin
         if WhsePosting then begin
-            TempWhseTrackingSpecification.Reset;
-            TempWhseTrackingSpecification.DeleteAll;
+            TempWhseTrackingSpecification.Reset();
+            TempWhseTrackingSpecification.DeleteAll();
         end;
 
-        TempTrackingSpecification.Reset;
+        TempTrackingSpecification.Reset();
         if ItemJnlPostLine.CollectTrackingSpecification(TempTrackingSpecification) then begin
             if TempTrackingSpecification.Find('-') then
                 repeat
                     if WhsePosting then begin
-                        TempWhseTrackingSpecification.Init;
+                        TempWhseTrackingSpecification.Init();
                         TempWhseTrackingSpecification := TempTrackingSpecification;
                         TempWhseTrackingSpecification."Source Type" := DATABASE::"Phys. Invt. Order Line";
                         TempWhseTrackingSpecification."Source Subtype" := 0;
                         TempWhseTrackingSpecification."Source ID" := PhysInvtOrderLine."Document No.";
                         TempWhseTrackingSpecification."Source Ref. No." := PhysInvtOrderLine."Line No.";
-                        TempWhseTrackingSpecification.Insert;
+                        TempWhseTrackingSpecification.Insert();
                     end;
 
-                    ItemEntryRelation.Init;
+                    ItemEntryRelation.Init();
                     ItemEntryRelation."Item Entry No." := TempTrackingSpecification."Entry No.";
-                    ItemEntryRelation."Serial No." := TempTrackingSpecification."Serial No.";
-                    ItemEntryRelation."Lot No." := TempTrackingSpecification."Lot No.";
+                    ItemEntryRelation.CopyTrackingFromSpec(TempTrackingSpecification);
                     ItemEntryRelation."Source Type" := DATABASE::"Pstd. Phys. Invt. Order Line";
                     ItemEntryRelation."Source Subtype" := 0;
                     ItemEntryRelation."Source ID" := PstdPhysInvtOrderLine."Document No.";
@@ -413,21 +412,21 @@ codeunit 5884 "Phys. Invt. Order-Post"
                     ItemEntryRelation."Order No." := PstdPhysInvtOrderLine."Document No.";
                     ItemEntryRelation."Order Line No." := PstdPhysInvtOrderLine."Line No.";
                     OnInsertEntryRelationOnBeforeInsert(ItemEntryRelation, TempTrackingSpecification, PstdPhysInvtOrderLine);
-                    ItemEntryRelation.Insert;
+                    ItemEntryRelation.Insert();
                 until TempTrackingSpecification.Next = 0;
         end;
-        TempTrackingSpecification.DeleteAll;
+        TempTrackingSpecification.DeleteAll();
     end;
 
     local procedure FinalizePost(DocNo: Code[20])
     begin
-        ExpPhysInvtTracking.Reset;
+        ExpPhysInvtTracking.Reset();
         ExpPhysInvtTracking.SetRange("Order No", DocNo);
-        ExpPhysInvtTracking.DeleteAll;
-        PhysInvtOrderLine.Reset;
+        ExpPhysInvtTracking.DeleteAll();
+        PhysInvtOrderLine.Reset();
         PhysInvtOrderLine.SetRange("Document No.", DocNo);
-        PhysInvtOrderLine.DeleteAll;
-        PhysInvtOrderHeader.Delete;
+        PhysInvtOrderLine.DeleteAll();
+        PhysInvtOrderHeader.Delete();
     end;
 
     local procedure PostWhseJnlLine(ItemJnlLine: Record "Item Journal Line"; OriginalQuantity: Decimal; OriginalQuantityBase: Decimal; Positive: Boolean)

@@ -13,13 +13,11 @@ page 2128 "O365 Email CC and BCC Settings"
             {
                 ApplicationArea = Basic, Suite, Invoicing;
                 Caption = 'CC List';
-                ToolTip = 'List of CC recipients on all new invoices';
             }
             part("BCC List"; "O365 Email BCC Listpart")
             {
                 ApplicationArea = Basic, Suite, Invoicing;
                 Caption = 'BCC List';
-                ToolTip = 'List of BCC recipients on all new invoices';
             }
         }
     }

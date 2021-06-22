@@ -56,7 +56,7 @@ codeunit 130400 "CAL Test Runner"
             OpenWindow;
             ModifyAll(Result, Result::" ");
             ModifyAll("First Error", '');
-            Commit;
+            Commit();
             TestRunNo := CALTestResult.LastTestRunNo + 1;
             CompanyWorkDate := WorkDate;
             Filter := GetView;
@@ -152,7 +152,7 @@ codeunit 130400 "CAL Test Runner"
 
         UpdateTestFunctionLine(IsSuccess);
 
-        Commit;
+        Commit();
         ApplicationArea('');
         ClearLastError;
     end;

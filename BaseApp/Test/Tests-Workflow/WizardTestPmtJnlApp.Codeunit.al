@@ -25,7 +25,7 @@ codeunit 134570 "Wizard Test - Pmt. Jnl App."
     begin
         // Setup
         Initialize;
-        Commit;
+        Commit();
         PaymentJournal.OpenEdit;
 
         ApprovalWorkflowWizard."For All Batches" := false;
@@ -138,7 +138,7 @@ codeunit 134570 "Wizard Test - Pmt. Jnl App."
 
         PmtAppWorkflowSetupWzrd.NextPage.Invoke;
         PmtAppWorkflowSetupWzrd.Finish.Invoke;
-        Commit;
+        Commit();
     end;
 
     [ConfirmHandler]
@@ -180,7 +180,7 @@ codeunit 134570 "Wizard Test - Pmt. Jnl App."
         Assert.IsFalse(FindWorkflowEnabledEntryPoints(DATABASE::"Gen. Journal Line",
             WorkflowEventHandling.RunWorkflowOnSendGeneralJournalLineForApprovalCode,
             WorkflowDefinition), 'Workflow already exists');
-        Commit;
+        Commit();
 
         // Execute
         PaymentJournal.OpenEdit;

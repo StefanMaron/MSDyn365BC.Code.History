@@ -141,7 +141,7 @@ codeunit 134444 "ERM Test Account Categories"
     begin
         LibraryERM.CreateGLAccountCategory(GLAccountCategory);
         GLAccountCategory.Validate(Description, LibraryUtility.GenerateGUID);
-        GLAccountCategory.Modify;
+        GLAccountCategory.Modify();
     end;
 
     [ModalPageHandler]

@@ -175,8 +175,8 @@ page 9039 "O365 Sales Activities"
                             if O365GettingStarted.Get(UserId, ClientTypeManagement.GetCurrentClientType) then begin
                                 O365GettingStarted."Tour in Progress" := false;
                                 O365GettingStarted."Current Page" := 1;
-                                O365GettingStarted.Modify;
-                                Commit;
+                                O365GettingStarted.Modify();
+                                Commit();
                             end;
 
                             if O365SetupMgmt.GettingStartedSupportedForInvoicing then
@@ -325,7 +325,7 @@ page 9039 "O365 Sales Activities"
         IsPageReady := true;
         if O365SetupMgmt.WizardShouldBeOpenedForInvoicing then begin
             HideSatisfactionSurvey := true;
-            Commit; // COMMIT is required for opening page without write transcation error.
+            Commit(); // COMMIT is required for opening page without write transcation error.
             PAGE.RunModal(PAGE::"BC O365 Getting Started");
         end;
         CheckIfSurveyEnabled();

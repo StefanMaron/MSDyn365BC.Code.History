@@ -38,7 +38,7 @@ codeunit 134812 "ERM CA GL Transfer"
         LibraryFiscalYear.UpdateAllowGAccDeletionBeforeDateOnGLSetup(LibraryFiscalYear.GetPastNewYearDate(5));
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM CA GL Transfer");
     end;
 
@@ -98,7 +98,7 @@ codeunit 134812 "ERM CA GL Transfer"
         // Post a Gen. Journal Line for an account which does not have a valid Cost Type associated and
         // verify that no Cost Register entries are created (no G/L entries are transferred).
 
-        ExpectedCostRegisterEntries := CostRegister.Count;
+        ExpectedCostRegisterEntries := CostRegister.Count();
         TransferGLEntry(false, true, false, false, LibraryRandom.RandDec(1000, 2));
 
         // Verify:
@@ -116,7 +116,7 @@ codeunit 134812 "ERM CA GL Transfer"
         // Post a Gen. Journal Line for an account which does not have dimensions set corresponding to a Cost Center or a Cost Object and
         // verify that no Cost Register entries are created (no G/L entries are transferred).
 
-        ExpectedCostRegisterEntries := CostRegister.Count;
+        ExpectedCostRegisterEntries := CostRegister.Count();
         TransferGLEntry(true, false, false, false, LibraryRandom.RandDec(1000, 2));
 
         // Verify:
@@ -133,7 +133,7 @@ codeunit 134812 "ERM CA GL Transfer"
     begin
         // Post a Gen. Journal Line with a closing date and verify that the G/L entry does not get transferred
 
-        ExpectedCostRegisterEntries := CostRegister.Count;
+        ExpectedCostRegisterEntries := CostRegister.Count();
         TransferGLEntry(true, true, false, true, LibraryRandom.RandDec(1000, 2));
 
         // Verify:
@@ -150,7 +150,7 @@ codeunit 134812 "ERM CA GL Transfer"
     begin
         // Post a Gen. Journal Line with an Amount =0 and verify that the G/L entry does not get transferred
 
-        ExpectedCostRegisterEntries := CostRegister.Count;
+        ExpectedCostRegisterEntries := CostRegister.Count();
         TransferGLEntry(true, false, true, false, 0);
 
         // Verify:
@@ -175,7 +175,7 @@ codeunit 134812 "ERM CA GL Transfer"
         CostAccountingSetup(true);
         CreateBalanceSheetAccount(GLAccount);
         SetAccWithDefaultDimensions(GLAccount."No.", true, false);
-        ExpectedCostRegisterEntries := CostRegister.Count;
+        ExpectedCostRegisterEntries := CostRegister.Count();
 
         // Excercise:
         PostGenJournalLine(GLAccount."No.", LibraryRandom.RandDec(1000, 2), false);
@@ -213,7 +213,7 @@ codeunit 134812 "ERM CA GL Transfer"
         // Delete GL Account
         GLAccount.Find;
         GLAccount.Delete(true);
-        ExpectedCostRegisterEntries := CostRegister.Count;
+        ExpectedCostRegisterEntries := CostRegister.Count();
 
         // Exercise:
         asserterror LibraryCostAccounting.TransferGLEntries;
@@ -300,7 +300,7 @@ codeunit 134812 "ERM CA GL Transfer"
     var
         CostAccountingSetup: Record "Cost Accounting Setup";
     begin
-        CostAccountingSetup.Get;
+        CostAccountingSetup.Get();
         exit(CostAccountingSetup."Cost Center Dimension");
     end;
 
@@ -309,7 +309,7 @@ codeunit 134812 "ERM CA GL Transfer"
     var
         CostAccountingSetup: Record "Cost Accounting Setup";
     begin
-        CostAccountingSetup.Get;
+        CostAccountingSetup.Get();
         exit(CostAccountingSetup."Cost Object Dimension");
     end;
 

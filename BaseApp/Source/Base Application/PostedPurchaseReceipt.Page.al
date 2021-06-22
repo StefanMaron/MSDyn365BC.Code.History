@@ -1,4 +1,4 @@
-﻿page 136 "Posted Purchase Receipt"
+page 136 "Posted Purchase Receipt"
 {
     Caption = 'Posted Purchase Receipt';
     InsertAllowed = false;

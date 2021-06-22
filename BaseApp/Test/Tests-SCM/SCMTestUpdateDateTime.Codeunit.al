@@ -246,7 +246,7 @@ codeunit 137225 "SCM Test UpdateDateTime"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Test UpdateDateTime");
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Test UpdateDateTime");
     end;
 }

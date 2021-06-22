@@ -120,7 +120,7 @@ codeunit 134091 "ERM Additional Currency II"
         AmountLCY := Round(LibraryERM.ConvertCurrency(LineAmount, CurrencyCode, '', WorkDate));
 
         // Verify: Verify GL Entry for Additional Currency Amount after Posting Sales Invoice.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         DocumentNo := FindSalesInvoiceHeader(SalesHeader."Sell-to Customer No.");
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, DocumentNo);
         CustLedgerEntry.CalcFields("Remaining Amt. (LCY)", "Original Amt. (LCY)");
@@ -344,7 +344,7 @@ codeunit 134091 "ERM Additional Currency II"
         VendorPostingGroup.Get(PurchaseHeader."Vendor Posting Group");
         VerifyGLEntry(DocumentNo, VendorPostingGroup."Payables Account", -LineAmount);
 
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, DocumentNo);
         VendorLedgerEntry.CalcFields("Remaining Amt. (LCY)", "Original Amt. (LCY)");
         Assert.AreNearlyEqual(
@@ -781,7 +781,7 @@ codeunit 134091 "ERM Additional Currency II"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         with Currency do begin
-            GeneralLedgerSetup.Get;
+            GeneralLedgerSetup.Get();
             LibraryERM.CreateCurrency(Currency);
             Validate("Invoice Rounding Precision", GeneralLedgerSetup."Inv. Rounding Precision (LCY)");
             Validate("Residual Gains Account", LibraryERM.CreateGLAccountNo);
@@ -984,7 +984,7 @@ codeunit 134091 "ERM Additional Currency II"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup."Additional Reporting Currency" := AdditionalReportingCurrency;
         GeneralLedgerSetup.Modify(true);
     end;

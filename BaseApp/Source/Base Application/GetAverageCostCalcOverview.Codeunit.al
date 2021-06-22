@@ -10,7 +10,7 @@ codeunit 5847 "Get Average Cost Calc Overview"
         AvgCostAdjmtEntryPoint.SetFilter("Valuation Date", GetFilter("Valuation Date"));
 
         Reset;
-        DeleteAll;
+        DeleteAll();
         if AvgCostAdjmtEntryPoint.Find('-') then
             repeat
                 Init;
@@ -68,8 +68,8 @@ codeunit 5847 "Get Average Cost Calc Overview"
                 AvgCostCalcOverview.SetRange("Location Code", AvgCostCalcOverview."Location Code");
             end;
             AvgCostCalcOverview.SetRange(Level, 1, 2);
-            AvgCostCalcOverview.DeleteAll;
-            AvgCostCalcOverview.Reset;
+            AvgCostCalcOverview.DeleteAll();
+            AvgCostCalcOverview.Reset();
             AvgCostCalcOverview.Find('+');
 
             if EntriesExist(AvgCostCalcOverview2) then

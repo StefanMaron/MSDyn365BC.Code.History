@@ -37,8 +37,8 @@ codeunit 21 "Item Jnl.-Check Line"
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
         IsHandled: Boolean;
     begin
-        GLSetup.Get;
-        InvtSetup.Get;
+        GLSetup.Get();
+        InvtSetup.Get();
 
         with ItemJnlLine do begin
             if EmptyLine then begin
@@ -212,8 +212,6 @@ codeunit 21 "Item Jnl.-Check Line"
     var
         AssemblyLine: Record "Assembly Line";
         ReservationEntry: Record "Reservation Entry";
-        ItemJnlLineReserve: Codeunit "Item Jnl. Line-Reserve";
-        ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
         WhseValidateSourceLine: Codeunit "Whse. Validate Source Line";
         ShowError: Boolean;
         IsHandled: Boolean;
@@ -239,8 +237,8 @@ codeunit 21 "Item Jnl.-Check Line"
             ItemJnlLine."Entry Type"::Output:
                 if WhseOrderHandlingRequired(ItemJnlLine, Location) then begin
                     if (ItemJnlLine.Quantity < 0) and (ItemJnlLine."Applies-to Entry" = 0) then begin
-                        ReservEngineMgt.InitFilterAndSortingLookupFor(ReservationEntry, false);
-                        ItemJnlLineReserve.FilterReservFor(ReservationEntry, ItemJnlLine);
+                        ReservationEntry.InitSortingAndFilters(false);
+                        ItemJnlLine.SetReservationFilters(ReservationEntry);
                         ReservationEntry.ClearTrackingFilter;
                         if ReservationEntry.FindSet then
                             repeat

@@ -60,7 +60,7 @@ table 5886 "Exp. Phys. Invt. Tracking"
         SetRange("Order Line No.", LineNo);
         if not RemoveAll then
             SetRange("Quantity (Base)", 0);
-        DeleteAll;
+        DeleteAll();
     end;
 }
 

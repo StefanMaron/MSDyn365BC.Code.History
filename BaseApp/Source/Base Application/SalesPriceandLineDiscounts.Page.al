@@ -8,6 +8,9 @@ page 1345 "Sales Price and Line Discounts"
     PageType = List;
     SourceTable = "Sales Price and Line Disc Buff";
     SourceTableTemporary = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+    ObsoleteTag = '16.0';
 
     layout
     {
@@ -173,13 +176,16 @@ page 1345 "Sales Price and Line Discounts"
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Set Special Prices';
+                Enabled = SalesPriceIsEnabled;
                 Image = Price;
                 Promoted = true;
                 PromotedCategory = Process;
                 PromotedIsBig = true;
                 RunObject = Page "Sales Prices";
-                RunPageLink = "Item No." = FIELD("Loaded Item No.");
-                RunPageView = SORTING("Item No.");
+                RunPageLink = "Sales Type" = FIELD("Sales Type"),
+                              "Sales Code" = FIELD("Sales Code"),
+                              "Item No." = FIELD(Code);
+                RunPageView = SORTING("Sales Type", "Sales Code", "Item No.");
                 ToolTip = 'Set up different prices for items that you sell to the customer. An item price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
             }
             action("Set Special Discounts")
@@ -191,9 +197,11 @@ page 1345 "Sales Price and Line Discounts"
                 PromotedCategory = Process;
                 PromotedIsBig = true;
                 RunObject = Page "Sales Line Discounts";
-                RunPageLink = Type = CONST(Item),
-                              Code = FIELD("Loaded Item No.");
-                RunPageView = SORTING(Type, Code);
+                RunPageLink = "Sales Type" = FIELD("Sales Type"),
+                              "Sales Code" = FIELD("Sales Code"),
+                              Type = FIELD(Type),
+                              Code = FIELD(Code);
+                RunPageView = SORTING("Sales Type", "Sales Code", Type, Code);
                 ToolTip = 'Set up different discounts for items that you sell to the customer. An item discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
             }
         }
@@ -210,6 +218,11 @@ page 1345 "Sales Price and Line Discounts"
         "Loaded Disc. Group" := GetLoadedDiscGroup;
     end;
 
+    trigger OnAfterGetCurrRecord()
+    begin
+        SalesPriceIsEnabled := ("Line Type" = "Line Type"::"Sales Price");
+    end;
+
     var
         loadedItemNo: Code[20];
         loadedCustNo: Code[20];
@@ -217,6 +230,7 @@ page 1345 "Sales Price and Line Discounts"
         loadedDiscGroup: Code[20];
         CodeIsVisible: Boolean;
         SalesCodeIsVisible: Boolean;
+        SalesPriceIsEnabled: Boolean;
 
     procedure InitPage(ForItem: Boolean)
     begin

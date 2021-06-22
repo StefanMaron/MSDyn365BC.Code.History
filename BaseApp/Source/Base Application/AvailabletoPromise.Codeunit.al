@@ -276,8 +276,8 @@ codeunit 5790 "Available to Promise"
 
         Item.CalcFields(Inventory, "Reserved Qty. on Inventory");
 
-        AvailabilityAtDate.Reset;
-        AvailabilityAtDate.DeleteAll;
+        AvailabilityAtDate.Reset();
+        AvailabilityAtDate.DeleteAll();
         OldRecordExists := false;
 
         UpdateSchedRcptAvail(AvailabilityAtDate, Item);
@@ -322,7 +322,7 @@ codeunit 5790 "Available to Promise"
             if AvailabilityAtDate.Find then
                 RecordExists := true
             else begin
-                AvailabilityAtDate.Init;
+                AvailabilityAtDate.Init();
                 AvailabilityAtDate."Period End" := Date;
             end;
         end;
@@ -333,7 +333,7 @@ codeunit 5790 "Available to Promise"
         if RecordExists then
             AvailabilityAtDate.Modify
         else
-            AvailabilityAtDate.Insert;
+            AvailabilityAtDate.Insert();
 
         OldRecordExists := true;
     end;
@@ -353,17 +353,17 @@ codeunit 5790 "Available to Promise"
                 Date."Period Start" := AvailabilityAtDate."Period Start";
                 if Date.Find('=<') then begin
                     AvailabilityAtDate.SetRange("Period Start", Date."Period Start", Date."Period End");
-                    AvailabilityInPeriod.Init;
+                    AvailabilityInPeriod.Init();
                     AvailabilityInPeriod."Period Start" := Date."Period Start";
                     AvailabilityInPeriod."Period End" := NormalDate(Date."Period End");
                     repeat
                         AvailabilityInPeriod."Scheduled Receipt" += AvailabilityAtDate."Scheduled Receipt";
                         AvailabilityInPeriod."Gross Requirement" += AvailabilityAtDate."Gross Requirement";
-                        AvailabilityAtDate.Delete;
+                        AvailabilityAtDate.Delete();
                     until AvailabilityAtDate.Next = 0;
                     AvailabilityAtDate.SetRange("Period Start");
                     AvailabilityAtDate := AvailabilityInPeriod;
-                    AvailabilityAtDate.Insert;
+                    AvailabilityAtDate.Insert();
                 end;
             until AvailabilityAtDate.Next = 0;
     end;

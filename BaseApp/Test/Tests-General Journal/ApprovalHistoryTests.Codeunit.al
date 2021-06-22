@@ -32,9 +32,9 @@ codeunit 134323 "Approval History Tests"
     begin
         LibraryApplicationArea.EnableFoundationSetup;
         Workflow.ModifyAll(Enabled, false, true);
-        UserSetup.DeleteAll;
+        UserSetup.DeleteAll();
         LibraryERMCountryData.CreateVATData;
-        GenJournalTemplate.DeleteAll;
+        GenJournalTemplate.DeleteAll();
         if IsInitialized then
             exit;
 
@@ -224,17 +224,17 @@ codeunit 134323 "Approval History Tests"
         if AccountType = GenJournalLine."Account Type"::"Fixed Asset" then begin
             LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
             DepreciationBook."G/L Integration - Maintenance" := true;
-            DepreciationBook.Modify;
+            DepreciationBook.Modify();
             LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, AccountNo, DepreciationBook.Code);
             LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup);
             FADepreciationBook."FA Posting Group" := FAPostingGroup.Code;
-            FADepreciationBook.Modify;
+            FADepreciationBook.Modify();
             GenJournalLine.Validate("FA Posting Type", GenJournalLine."FA Posting Type"::Maintenance);
             GenJournalLine.Validate("Depreciation Book Code", DepreciationBook.Code);
         end;
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
 
-        Commit;
+        Commit();
         SendApprovalRequestForLine(GenJournalLine."Journal Batch Name");
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, GenJournalLine.RecordId);
         LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(GenJournalLine.RecordId);
@@ -253,7 +253,7 @@ codeunit 134323 "Approval History Tests"
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.GeneralJournalBatchApprovalWorkflowCode);
         CreateGeneralJournalBatchWithJournalLine(GenJournalBatch, GenJournalLine, GenJournalLine."Account Type"::Customer,
           LibrarySales.CreateCustomerNo);
-        Commit;
+        Commit();
         SendApprovalRequestForBatch(GenJournalLine."Journal Batch Name");
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, GenJournalBatch.RecordId);
         LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(GenJournalBatch.RecordId);
@@ -418,7 +418,7 @@ codeunit 134323 "Approval History Tests"
     var
         ApprovalCommentLine: Record "Approval Comment Line";
     begin
-        ApprovalCommentLine.Init;
+        ApprovalCommentLine.Init();
         ApprovalCommentLine.SetRange("Table ID", ApprovalEntry."Table ID");
         ApprovalCommentLine.SetRange("Record ID to Approve", ApprovalEntry."Record ID to Approve");
         ApprovalCommentLine.SetRange("Workflow Step Instance ID", ApprovalEntry."Workflow Step Instance ID");

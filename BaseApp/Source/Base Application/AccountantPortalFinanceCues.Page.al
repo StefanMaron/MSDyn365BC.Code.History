@@ -363,7 +363,7 @@ page 1315 "Accountant Portal Finance Cues"
         if not Get then begin
             Init;
             Insert;
-            Commit;
+            Commit();
         end;
         SetFilter("Due Date Filter", '<=%1', Today);
         SetFilter("Overdue Date Filter", '<%1', Today);

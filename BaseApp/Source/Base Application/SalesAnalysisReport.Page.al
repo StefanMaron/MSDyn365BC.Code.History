@@ -332,7 +332,7 @@ page 7117 "Sales Analysis Report"
         AnalysisReportMgt.SetSourceType(Rec, CurrentSourceTypeFilter);
         AnalysisReportMgt.SetSourceNo(Rec, CurrentSourceTypeNoFilter);
 
-        GLSetup.Get;
+        GLSetup.Get();
 
         if AnalysisLineTemplate.Get(GetRangeMax("Analysis Area"), CurrentLineTemplate) then
             if AnalysisLineTemplate."Item Analysis View Code" <> '' then
@@ -446,7 +446,7 @@ page 7117 "Sales Analysis Report"
 
     procedure SetFilters()
     begin
-        AnalysisColumn.Reset;
+        AnalysisColumn.Reset();
         AnalysisColumn.SetRange("Analysis Area", "Analysis Area"::Sales);
         AnalysisColumn.SetRange("Analysis Column Template", CurrentColumnTemplate);
 

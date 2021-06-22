@@ -1,4 +1,4 @@
-﻿page 5708 "Get Shipment Lines"
+page 5708 "Get Shipment Lines"
 {
     Caption = 'Get Shipment Lines';
     Editable = false;
@@ -227,7 +227,7 @@
     var
         SalesShptLine: Record "Sales Shipment Line";
     begin
-        TempSalesShptLine.Reset;
+        TempSalesShptLine.Reset();
         TempSalesShptLine.CopyFilters(Rec);
         TempSalesShptLine.SetRange("Document No.", "Document No.");
         if not TempSalesShptLine.FindFirst then begin
@@ -236,7 +236,7 @@
             SalesShptLine.SetFilter("Qty. Shipped Not Invoiced", '<>0');
             if SalesShptLine.FindFirst then begin
                 TempSalesShptLine := SalesShptLine;
-                TempSalesShptLine.Insert;
+                TempSalesShptLine.Insert();
             end;
         end;
         if "Line No." = TempSalesShptLine."Line No." then

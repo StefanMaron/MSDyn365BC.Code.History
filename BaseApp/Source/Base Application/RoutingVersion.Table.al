@@ -44,7 +44,7 @@ table 99000786 "Routing Version"
                 SkipCommit := false;
                 OnValidateStatusBeforeCommit(Rec, SkipCommit);
                 if not SkipCommit then
-                    Commit;
+                    Commit();
             end;
         }
         field(21; Type; Option)
@@ -91,7 +91,7 @@ table 99000786 "Routing Version"
     var
         RtngLine: Record "Routing Line";
     begin
-        RtngLine.LockTable;
+        RtngLine.LockTable();
         RtngLine.SetRange("Routing No.", "Routing No.");
         RtngLine.SetRange("Version Code", "Version Code");
         RtngLine.DeleteAll(true);

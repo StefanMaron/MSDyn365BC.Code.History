@@ -216,7 +216,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         LibraryVariableStorage.Enqueue(GenJournalBatch."Journal Template Name");
 
         // 2. Exercise: Open General Journal Page with new Template.
-        Commit;  // COMMIT needs before create General Journal.
+        Commit();  // COMMIT needs before create General Journal.
         GeneralJournal.OpenEdit;  // Template selection performed in General Journal Template Handler.
 
         // 3. Verify: Verify General Journal Batch Name on General Journal Page
@@ -244,7 +244,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         LibraryVariableStorage.Enqueue(GenJournalBatch."Journal Template Name");
 
         // 2. Exercise: Create and post General Line with Account Type as G/L Account and Random Amount.
-        Commit;  // COMMIT needs before create General Journal.
+        Commit();  // COMMIT needs before create General Journal.
         GeneralJournal.OpenEdit;  // Template selection performed in General Journal Template Handler.
         DocumentNo := GeneralJournal."Document No.".Value;
         GeneralJournal."Account Type".SetValue(GenJournalLine."Account Type"::"G/L Account");
@@ -635,7 +635,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         // [GIVEN] Gen.Journal Batch "B" has line with the same Document No. = "D001" from No. Series "S"
         CreateGeneralJournalLineWithDocNo(GenJournalLine, GenJournalBatchB, GenJournalLine."Document No.");
 
-        Commit;
+        Commit();
 
         // [GIVEN] Only marked Gen.Jnl.Batch "B" is shown on page after posting with error
         GeneralJournalTemplates.OpenView;
@@ -719,7 +719,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         CreateSimpleGenJnlLine(LastGenJournalLine, GenJournalBatch, BalAmt2, BalDocNo);
 
         // [WHEN] SetupNewLine with BottomLine = True (below last line)
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine.SetUpNewLine(LastGenJournalLine, 0, true);
 
         // [THEN] New line has initial Document No. = G0002 with Amount = -50.
@@ -761,7 +761,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         CreateSimpleGenJnlLine(LastGenJournalLine, GenJournalBatch, BalAmt2, BalDocNo);
 
         // [WHEN] SetupNewLine with BottomLine = True (below last line)
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine.SetUpNewLine(LastGenJournalLine, 0, true);
 
         // [THEN] New line has initial Document No. = G0002 with Amount = -50.
@@ -798,7 +798,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         CreateSimpleGenJnlLine(LastGenJournalLine, GenJournalBatch, LibraryRandom.RandDec(100, 2), BalDocNo);
 
         // [WHEN] SetupNewLine with BottomLine = False (above last line)
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine.SetUpNewLine(LastGenJournalLine, 0, false);
 
         // [THEN] New line has initial Document No. = G0002 with Amount = -20.
@@ -833,7 +833,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         CreateSimpleGenJnlLine(GenJournalLine, GenJournalBatch, LibraryRandom.RandDec(100, 2), LibraryUtility.GenerateGUID);
 
         // [WHEN] SetupNewLine with BottomLine = False on G0002 (between G0001 and G0002)
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine.SetUpNewLine(LastGenJournalLine, 0, false);
 
         // [THEN] New line has initial Document No. = G0001 with Amount = -10.
@@ -866,7 +866,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         CreateSimpleGenJnlLine(LastGenJournalLine, GenJournalBatch, BalAmt, BalDocNo);
 
         // [WHEN] Add new line below last line
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine.SetUpNewLine(LastGenJournalLine, 0, true);
 
         // [THEN] New line has initial Document No. = G0001 with Amount = -20.
@@ -903,7 +903,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         CreateSimpleGenJnlLine(LastGenJournalLine, GenJournalBatch, BalAmt2, BalDocNo);
 
         // [WHEN] Add new line below last line
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine.SetUpNewLine(LastGenJournalLine, 0, true);
 
         // [THEN] New line has initial Document No. = G0001 with Amount = -50.
@@ -1283,7 +1283,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         for Index := 1 to LineCount do
             LibrarySales.CreateCustomer(Customer);
 
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
 
@@ -1324,7 +1324,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         for Index := 1 to LineCount do
             LibraryPurchase.CreateVendor(Vendor);
 
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
 
@@ -1368,7 +1368,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
             GLAccount.Modify(true);
         end;
 
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
 
@@ -1387,12 +1387,14 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryApplicationArea: Codeunit "Library - Application Area";
+        GenJnlManagement: Codeunit "GenJnlManagement";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM TestMultipleGenJnlLines");
         LibraryApplicationArea.EnableFoundationSetup;
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM TestMultipleGenJnlLines");
+        GenJnlManagement.SetJournalSimplePageModePreference(true, Page::"General Journal");
 
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateVATPostingSetup;
@@ -1400,7 +1402,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM TestMultipleGenJnlLines");
     end;
 
@@ -1555,7 +1557,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         LibraryERM.CreateGLAccount(GLAccount);
 
         // Open General Journal Page and create General Journal Lines.
-        Commit; // As there is a RUNMODAL inside the following call: GeneralJournal.OPENEDIT.
+        Commit(); // As there is a RUNMODAL inside the following call: GeneralJournal.OPENEDIT.
         LibraryVariableStorage.Enqueue(GenJournalBatch."Journal Template Name");
         GeneralJournal.OpenEdit;
         for i := 1 to LineCount do begin
@@ -1660,7 +1662,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         GenJournalLine: Record "Gen. Journal Line";
         CreateCustomerJournalLines: Report "Create Customer Journal Lines";
     begin
-        Commit;  // COMMIT is required for Write Transaction Error.
+        Commit();  // COMMIT is required for Write Transaction Error.
         Clear(CreateCustomerJournalLines);
         CreateCustomerJournalLines.UseRequestPage(false);
         CreateCustomerJournalLines.SetTableView(Customer);
@@ -1675,7 +1677,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         GenJournalLine: Record "Gen. Journal Line";
         CreateVendorJournalLines: Report "Create Vendor Journal Lines";
     begin
-        Commit;  // COMMIT is required for Write Transaction Error.
+        Commit();  // COMMIT is required for Write Transaction Error.
         Clear(CreateVendorJournalLines);
         CreateVendorJournalLines.UseRequestPage(false);
         CreateVendorJournalLines.SetTableView(Vendor);
@@ -1690,7 +1692,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         GenJournalLine: Record "Gen. Journal Line";
         CreateGLAccJournalLines: Report "Create G/L Acc. Journal Lines";
     begin
-        Commit;  // COMMIT is required for Write Transaction Error.
+        Commit();  // COMMIT is required for Write Transaction Error.
         Clear(CreateGLAccJournalLines);
         CreateGLAccJournalLines.UseRequestPage(false);
         CreateGLAccJournalLines.SetTableView(GLAccount);
@@ -1705,7 +1707,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         ItemJournalLine: Record "Item Journal Line";
         CreateItemJournalLines: Report "Create Item Journal Lines";
     begin
-        Commit;
+        Commit();
         CreateItemJournalLines.UseRequestPage(false);
         CreateItemJournalLines.SetTableView(Item);
         CreateItemJournalLines.InitializeRequest(ItemJournalLine."Document Type"::"Sales Invoice", WorkDate, WorkDate);
@@ -1719,7 +1721,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         GenJournalLine: Record "Gen. Journal Line";
         CreateCustomerJournalLines: Report "Create Customer Journal Lines";
     begin
-        Commit;
+        Commit();
         CreateCustomerJournalLines.UseRequestPage(true);
         CreateCustomerJournalLines.SetTableView(Customer);
         LibraryVariableStorage.Enqueue(GenJournalLine."Document Type"::Invoice);
@@ -1737,7 +1739,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         GenJournalLine: Record "Gen. Journal Line";
         CreateVendorJournalLines: Report "Create Vendor Journal Lines";
     begin
-        Commit;
+        Commit();
         CreateVendorJournalLines.UseRequestPage(true);
         CreateVendorJournalLines.SetTableView(Vendor);
         LibraryVariableStorage.Enqueue(GenJournalLine."Document Type"::Invoice);
@@ -1755,7 +1757,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         GenJournalLine: Record "Gen. Journal Line";
         CreateGLAccJournalLines: Report "Create G/L Acc. Journal Lines";
     begin
-        Commit;
+        Commit();
         CreateGLAccJournalLines.UseRequestPage(true);
         CreateGLAccJournalLines.SetTableView(GLAccount);
         LibraryVariableStorage.Enqueue(GenJournalLine."Document Type"::Invoice);
@@ -1772,7 +1774,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         ItemJournalLine: Record "Item Journal Line";
         CreateItemJournalLines: Report "Create Item Journal Lines";
     begin
-        Commit;
+        Commit();
         CreateItemJournalLines.UseRequestPage(true);
         CreateItemJournalLines.SetTableView(Item);
         LibraryVariableStorage.Enqueue(ItemJournalLine."Document Type"::"Sales Invoice");
@@ -1863,7 +1865,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         NoSeries.Get(NoSeriesCode);
         OldManualNos := NoSeries."Manual Nos.";
         NoSeries."Manual Nos." := ManualNos;
-        NoSeries.Modify;
+        NoSeries.Modify();
     end;
 
     local procedure UpdateJnlTemplateSourceCode(TemplateName: Code[10]; SourceCode: Record "Source Code")

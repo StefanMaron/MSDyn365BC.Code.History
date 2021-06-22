@@ -261,8 +261,8 @@ page 9803 Permissions
         Permission: Record Permission;
     begin
         TempPermission.Copy(Rec, true);
-        TempPermission.Reset;
-        TempPermission.DeleteAll;
+        TempPermission.Reset();
+        TempPermission.DeleteAll();
         FilterGroup(2);
         SetFilter("Role ID", CurrentRoleID);
         Permission.SetFilter("Role ID", CurrentRoleID);
@@ -271,7 +271,7 @@ page 9803 Permissions
         if Permission.Find('-') then
             repeat
                 TempPermission := Permission;
-                TempPermission.Insert;
+                TempPermission.Insert();
             until Permission.Next = 0;
 
         if Show = Show::All then
@@ -288,7 +288,7 @@ page 9803 Permissions
     begin
         AllObj.SetRange("Object Type");
         TempPermission.Copy(Permission, true);
-        TempPermission.Init;
+        TempPermission.Init();
         if AllObj.FindSet then
             repeat
                 TempPermission."Object Type" := AllObj."Object Type";
@@ -299,7 +299,7 @@ page 9803 Permissions
                 TempPermission."Delete Permission" := "Delete Permission"::" ";
                 TempPermission."Execute Permission" := "Execute Permission"::" ";
                 SetObjectZeroName(TempPermission);
-                if TempPermission.Insert then;
+                if TempPermission.Insert() then;
             until AllObj.Next = 0;
     end;
 

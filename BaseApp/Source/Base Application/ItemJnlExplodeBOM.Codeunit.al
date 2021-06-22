@@ -17,7 +17,7 @@ codeunit 246 "Item Jnl.-Explode BOM"
         TestField("Reserved Qty. (Base)", 0);
         FromBOMComp.SetRange("Parent Item No.", "Item No.");
         FromBOMComp.SetRange(Type, FromBOMComp.Type::Item);
-        NoOfBOMComp := FromBOMComp.Count;
+        NoOfBOMComp := FromBOMComp.Count();
         if NoOfBOMComp = 0 then
             Error(
               Text000,
@@ -27,7 +27,7 @@ codeunit 246 "Item Jnl.-Explode BOM"
         if Selection = 0 then
             exit;
 
-        ToItemJnlLine.Reset;
+        ToItemJnlLine.Reset();
         ToItemJnlLine.SetRange("Journal Template Name", "Journal Template Name");
         ToItemJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
         ToItemJnlLine.SetRange("Document No.", "Document No.");
@@ -59,18 +59,18 @@ codeunit 246 "Item Jnl.-Explode BOM"
             until FromBOMComp.Next = 0;
 
         ToItemJnlLine := Rec;
-        ToItemJnlLine.Init;
+        ToItemJnlLine.Init();
         ToItemJnlLine.Description := Description;
-        ToItemJnlLine.Modify;
+        ToItemJnlLine.Modify();
 
-        FromBOMComp.Reset;
+        FromBOMComp.Reset();
         FromBOMComp.SetRange("Parent Item No.", "Item No.");
         FromBOMComp.SetRange(Type, FromBOMComp.Type::Item);
         FromBOMComp.Find('-');
         NextLineNo := "Line No.";
 
         repeat
-            ToItemJnlLine.Init;
+            ToItemJnlLine.Init();
             ToItemJnlLine."Journal Template Name" := "Journal Template Name";
             ToItemJnlLine."Document No." := "Document No.";
             ToItemJnlLine."Document Date" := "Document Date";
@@ -91,13 +91,13 @@ codeunit 246 "Item Jnl.-Explode BOM"
               Round("Quantity (Base)" * FromBOMComp."Quantity per", 0.00001));
             ToItemJnlLine.Description := FromBOMComp.Description;
             OnBeforeToItemJnlLineInsert(ToItemJnlLine, Rec);
-            ToItemJnlLine.Insert;
+            ToItemJnlLine.Insert();
 
             if Selection = 1 then begin
                 ToItemJnlLine."Shortcut Dimension 1 Code" := "Shortcut Dimension 1 Code";
                 ToItemJnlLine."Shortcut Dimension 2 Code" := "Shortcut Dimension 2 Code";
                 ToItemJnlLine."Dimension Set ID" := "Dimension Set ID";
-                ToItemJnlLine.Modify;
+                ToItemJnlLine.Modify();
             end;
         until FromBOMComp.Next = 0;
     end;

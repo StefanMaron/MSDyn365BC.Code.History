@@ -92,7 +92,7 @@ xmlport 130400 "CAL Test Suite"
                                 CALTestLine.SetRange("Function", "<CAL Test Line>"."Function");
                                 if not CALTestLine.FindFirst then
                                     currXMLport.Skip;
-                                CALTestLine.Delete;
+                                CALTestLine.Delete();
                                 "<CAL Test Line>"."Line No." := CALTestLine."Line No.";
 
                                 CALTestLine.SetRange("Function", '');

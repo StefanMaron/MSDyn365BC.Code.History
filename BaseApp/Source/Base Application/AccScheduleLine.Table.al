@@ -70,11 +70,9 @@ table 85 "Acc. Schedule Line"
                 end;
             end;
         }
-        field(6; "Totaling Type"; Option)
+        field(6; "Totaling Type"; Enum "Acc. Schedule Line Totaling Type")
         {
             Caption = 'Totaling Type';
-            OptionCaption = 'Posting Accounts,Total Accounts,Formula,,,Set Base For Percent,Cost Type,Cost Type Total,Cash Flow Entry Accounts,Cash Flow Total Accounts';
-            OptionMembers = "Posting Accounts","Total Accounts",Formula,,,"Set Base For Percent","Cost Type","Cost Type Total","Cash Flow Entry Accounts","Cash Flow Total Accounts";
 
             trigger OnValidate()
             begin
@@ -282,11 +280,11 @@ table 85 "Acc. Schedule Line"
     begin
         if xRec."Line No." = 0 then
             if not AccSchedName.Get("Schedule Name") then begin
-                AccSchedName.Init;
+                AccSchedName.Init();
                 AccSchedName.Name := "Schedule Name";
                 if AccSchedName.Name = '' then
                     AccSchedName.Description := Text000;
-                AccSchedName.Insert;
+                AccSchedName.Insert();
             end;
     end;
 
@@ -454,12 +452,12 @@ table 85 "Acc. Schedule Line"
                       AccSchedName.TableCaption, AnalysisView.TableCaption, AccSchedName."Analysis View Name",
                       AccSchedName.FieldCaption("Analysis View Name"), AccSchedName.TableCaption);
                     AccSchedName."Analysis View Name" := '';
-                    AccSchedName.Modify;
+                    AccSchedName.Modify();
                 end;
 
         if AccSchedName."Analysis View Name" = '' then begin
             if not HasGLSetup then begin
-                GLSetup.Get;
+                GLSetup.Get();
                 HasGLSetup := true;
             end;
             Clear(AnalysisView);
@@ -552,5 +550,6 @@ table 85 "Acc. Schedule Line"
     local procedure OnBeforeLookupTotaling(var AccScheduleLine: Record "Acc. Schedule Line"; var IsHandled: Boolean)
     begin
     end;
+
 }
 

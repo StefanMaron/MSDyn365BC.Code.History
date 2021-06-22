@@ -83,7 +83,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         CostJournalLine."Journal Template Name" := CostJournalBatch."Journal Template Name";
         CostJournalLine."Journal Batch Name" := CostJournalBatch.Name;
         CostJournalLine."Line No." := LineNo;
-        CostJournalLine.Insert;
+        CostJournalLine.Insert();
 
         // Exercise
         CODEUNIT.Run(CODEUNIT::"CA Jnl.-Post", CostJournalLine);
@@ -193,7 +193,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         CostJournalLine."Journal Template Name" := CostJournalBatch."Journal Template Name";
         CostJournalLine."Journal Batch Name" := CostJournalBatch.Name;
         CostJournalLine."Line No." := LineNo;
-        CostJournalLine.Insert;
+        CostJournalLine.Insert();
 
         // Exercise
         CODEUNIT.Run(CODEUNIT::"CA Jnl.-Post+Print", CostJournalLine);
@@ -259,7 +259,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         // Setup
         CostJournalLine."Journal Template Name" := CostJournalBatch."Journal Template Name";
         CostJournalLine."Journal Batch Name" := CostJournalBatch.Name;
-        CostJournalLine.Insert;
+        CostJournalLine.Insert();
 
         // Exercise and Verify
         asserterror CODEUNIT.Run(CODEUNIT::"CA Jnl.-Post+Print", CostJournalLine);
@@ -337,8 +337,8 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         DynamicLineNo := StaticLineNo + 1;
 
         // Pre-Setup
-        CostAllocationTarget.DeleteAll;
-        CostAllocationSource.DeleteAll;
+        CostAllocationTarget.DeleteAll();
+        CostAllocationSource.DeleteAll();
 
         // Setup
         CreateStaticAllocTarget(CostAllocationTarget, StaticLineNo);
@@ -376,8 +376,8 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         LineNo := LibraryRandom.RandInt(10);
 
         // Pre-Setup
-        CostAllocationTarget.DeleteAll;
-        CostAllocationSource.DeleteAll;
+        CostAllocationTarget.DeleteAll();
+        CostAllocationSource.DeleteAll();
 
         // Setup
         CreateDynAllocTargetItemsSoldAmount(CostAllocationTarget, LineNo);
@@ -410,8 +410,8 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         LineNo := LibraryRandom.RandInt(10);
 
         // Pre-Setup
-        CostAllocationTarget.DeleteAll;
-        CostAllocationSource.DeleteAll;
+        CostAllocationTarget.DeleteAll();
+        CostAllocationSource.DeleteAll();
 
         // Setup
         CreateStaticAllocTarget(CostAllocationTarget, LineNo);
@@ -438,8 +438,8 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         Initialize;
 
         // Setup
-        CostAllocationTarget.DeleteAll;
-        CostAllocationSource.DeleteAll;
+        CostAllocationTarget.DeleteAll();
+        CostAllocationSource.DeleteAll();
 
         // Exercise and Verify
         Assert.AreEqual(0, CostAccountAllocation.CalcAllocationKeys, AllocSourceFound);
@@ -464,8 +464,8 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         DynamicLineNo := StaticLineNo + 1;
 
         // Pre-Setup
-        CostAllocationTarget.DeleteAll;
-        CostAllocationSource.DeleteAll;
+        CostAllocationTarget.DeleteAll();
+        CostAllocationSource.DeleteAll();
 
         // Setup
         CreateStaticAllocTarget(CostAllocationTarget, StaticLineNo);
@@ -502,8 +502,8 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         LineNo := LibraryRandom.RandInt(10);
 
         // Pre-Setup
-        CostAllocationTarget.DeleteAll;
-        CostAllocationSource.DeleteAll;
+        CostAllocationTarget.DeleteAll();
+        CostAllocationSource.DeleteAll();
 
         // Setup
         CreateDynAllocTargetItemsSoldAmount(CostAllocationTarget, LineNo);
@@ -534,8 +534,8 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         LineNo := LibraryRandom.RandInt(10);
 
         // Pre-Setup
-        CostAllocationTarget.DeleteAll;
-        CostAllocationSource.DeleteAll;
+        CostAllocationTarget.DeleteAll();
+        CostAllocationSource.DeleteAll();
 
         // Setup
         CreateStaticAllocTarget(CostAllocationTarget, LineNo);
@@ -561,16 +561,16 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         LineNo := LibraryRandom.RandInt(10);
 
         // Pre-Setup
-        CostAllocationTarget.DeleteAll;
-        CostAllocationSource.DeleteAll;
-        Employee.DeleteAll;
+        CostAllocationTarget.DeleteAll();
+        CostAllocationSource.DeleteAll();
+        Employee.DeleteAll();
 
         // Setup
         Employee."No." :=
           CopyStr(LibraryUtility.GenerateRandomCode(Employee.FieldNo("No."), DATABASE::Employee),
             1, LibraryUtility.GetFieldLength(DATABASE::Employee, Employee.FieldNo("No.")));
         Employee.Status := Employee.Status::Inactive;
-        Employee.Insert;
+        Employee.Insert();
         CreateDynAllocTargetNoOfEmployees(CostAllocationTarget, LineNo);
 
         // Exercise
@@ -678,7 +678,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         CreateCostCenter(CostCenter, DimensionValueCC.Code);
         CreateCostObject(CostObject, DimensionValueCO.Code);
 
-        CostAccountingSetup.Get;
+        CostAccountingSetup.Get();
         InitialCostCenterDimension := CostAccountingSetup."Cost Center Dimension";
         InitialCostObjectDimension := CostAccountingSetup."Cost Object Dimension";
         CostAccountingSetup.Validate("Align G/L Account", CostAccountingSetup."Align G/L Account"::Automatic);
@@ -723,7 +723,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
             1, LibraryUtility.GetFieldLength(DATABASE::"G/L Account", GLAccount.FieldNo("Search Name")));
 
         GLAccount.Validate("Search Name", RandomSearchName);
-        GLAccount.Modify; // Code under trigger should not run.
+        GLAccount.Modify(); // Code under trigger should not run.
 
         CostAccountMgt.UpdateCostTypeFromGLAcc(GLAccount, xGLAccount, CallingTrigger::OnModify);
 
@@ -878,7 +878,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
 
         SetupCostCenterTestCases(Dimension, DimensionValue, InitialCostCenterDimension);
         DimensionValue.Blocked := true;
-        DimensionValue.Modify;
+        DimensionValue.Modify();
 
         CreateCostCenter(CostCenter, DimensionValue.Code);
 
@@ -1053,7 +1053,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
 
         SetupCostObjectTestCases(Dimension, DimensionValue, InitialCostObjectDimension);
         DimensionValue.Blocked := true;
-        DimensionValue.Modify;
+        DimensionValue.Modify();
         CreateCostObject(CostObject, DimensionValue.Code);
 
         CostAccountMgt.UpdateCostObjectFromDim(DimensionValue, XDimensionValue, CallingTrigger::OnModify);
@@ -1158,7 +1158,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
 
         LibraryCostAccounting.SetAlignment(
           CostAccountingSetup.FieldNo("Align G/L Account"), CostAccountingSetup."Align G/L Account"::Automatic);
-        CostAccountingSetup.Get;
+        CostAccountingSetup.Get();
         InitialCostCenterDimension := CostAccountingSetup."Cost Center Dimension";
 
         LibraryCostAccounting.CreateIncomeStmtGLAccount(GLAccount);
@@ -1172,7 +1172,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
 
         CostAccountMgt.UpdateCostTypeFromDefaultDimension(DefaultDimension, GLAccount, CallingTrigger::OnInsert);
 
-        CostType.Reset;
+        CostType.Reset();
         CostType.Get(GLAccount."No.");
         GLAccount.TestField("No.", CostType."No.");
         CostCenter.TestField(Code, CostType."Cost Center Code");
@@ -1202,7 +1202,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
 
         LibraryCostAccounting.SetAlignment(
           CostAccountingSetup.FieldNo("Align G/L Account"), CostAccountingSetup."Align G/L Account"::Automatic);
-        CostAccountingSetup.Get;
+        CostAccountingSetup.Get();
         InitialCostCenterDimension := CostAccountingSetup."Cost Center Dimension";
 
         LibraryCostAccounting.CreateIncomeStmtGLAccount(GLAccount);
@@ -1215,7 +1215,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
 
         CostAccountMgt.UpdateCostTypeFromDefaultDimension(DefaultDimension, GLAccount, CallingTrigger::OnInsert);
 
-        CostType.Reset;
+        CostType.Reset();
         CostType.Get(GLAccount."No.");
         GLAccount.TestField("No.", CostType."No.");
         CostType.TestField("Cost Center Code", '');
@@ -1246,7 +1246,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
 
         LibraryCostAccounting.SetAlignment(
           CostAccountingSetup.FieldNo("Align G/L Account"), CostAccountingSetup."Align G/L Account"::Automatic);
-        CostAccountingSetup.Get;
+        CostAccountingSetup.Get();
         InitialCostObjectDimension := CostAccountingSetup."Cost Object Dimension";
 
         LibraryCostAccounting.CreateIncomeStmtGLAccount(GLAccount);
@@ -1260,7 +1260,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
 
         CostAccountMgt.UpdateCostTypeFromDefaultDimension(DefaultDimension, GLAccount, CallingTrigger::OnInsert);
 
-        CostType.Reset;
+        CostType.Reset();
         CostType.Get(GLAccount."No.");
         GLAccount.TestField("No.", CostType."No.");
         CostObject.TestField(Code, CostType."Cost Object Code");
@@ -1290,7 +1290,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
 
         LibraryCostAccounting.SetAlignment(
           CostAccountingSetup.FieldNo("Align G/L Account"), CostAccountingSetup."Align G/L Account"::Automatic);
-        CostAccountingSetup.Get;
+        CostAccountingSetup.Get();
         InitialCostObjectDimension := CostAccountingSetup."Cost Object Dimension";
 
         LibraryCostAccounting.CreateIncomeStmtGLAccount(GLAccount);
@@ -1303,7 +1303,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
 
         CostAccountMgt.UpdateCostTypeFromDefaultDimension(DefaultDimension, GLAccount, CallingTrigger::OnInsert);
 
-        CostType.Reset;
+        CostType.Reset();
         CostType.Get(GLAccount."No.");
         GLAccount.TestField("No.", CostType."No.");
         CostType.TestField("Cost Object Code", '');
@@ -1370,11 +1370,11 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         LibraryCostAccounting.CreateIncomeStmtGLAccount(GLAccount);
 
         GLAccount.Validate("Cost Type No.", '');
-        GLAccount.Modify;
+        GLAccount.Modify();
 
         CostAccountMgt.LinkCostTypesToGLAccountsYN;
 
-        CostType.Reset;
+        CostType.Reset();
         CostType.Get(GLAccount."No.");
         GLAccount.Get(GLAccount."No.");
 
@@ -1419,8 +1419,8 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         // Cod1100
         Initialize;
 
-        DimensionValue.DeleteAll;
-        CostCenter.DeleteAll;
+        DimensionValue.DeleteAll();
+        CostCenter.DeleteAll();
 
         CostAccountMgt.CreateCostCenters;
 
@@ -1489,8 +1489,8 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
     begin
         Initialize;
 
-        DimensionValue.DeleteAll;
-        CostObject.DeleteAll;
+        DimensionValue.DeleteAll();
+        CostObject.DeleteAll();
 
         CostAccountMgt.CreateCostObjects;
 
@@ -1711,7 +1711,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         CostAccountMgt: Codeunit "Cost Account Mgt";
     begin
         Initialize;
-        DimensionValue.Init;
+        DimensionValue.Init();
         DimensionValue.TestField(Code, CostAccountMgt.GetCostCenterCodeFromDimSet(0));
     end;
 
@@ -1805,7 +1805,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         CostAccountMgt: Codeunit "Cost Account Mgt";
     begin
         Initialize;
-        DimensionValue.Init;
+        DimensionValue.Init();
         DimensionValue.TestField(Code, CostAccountMgt.GetCostObjectCodeFromDimSet(0));
     end;
 
@@ -1948,8 +1948,8 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
     begin
         // COD 1100
         Initialize;
-        CostType.Init;
-        GLAcc.Init;
+        CostType.Init();
+        GLAcc.Init();
         Assert.IsFalse(CostAccountMgt.IsGLAccNoFirstFromRange(CostType, GLAcc."No."), StrSubstNo(Text005, false));
     end;
 
@@ -1992,7 +1992,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         LibraryCostAccounting.CreateCostObject(BalCostObject);
         CostJournalLine."Cost Center Code" := CostObject.Code;
         CostJournalLine."Bal. Cost Center Code" := BalCostObject.Code;
-        CostJournalLine.Modify;
+        CostJournalLine.Modify();
         CODEUNIT.Run(CODEUNIT::"CA Jnl.-Check Line", CostJournalLine);
     end;
 
@@ -2015,7 +2015,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         LibraryCostAccounting.CreateCostObject(BalCostObject);
         CostJournalLine."Cost Center Code" := CostObject.Code;
         CostJournalLine."Bal. Cost Center Code" := BalCostObject.Code;
-        CostJournalLine.Modify;
+        CostJournalLine.Modify();
         CAJnlCheckLine.RunCheck(CostJournalLine);
     end;
 
@@ -2034,7 +2034,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         CreateCostJournalLine(CostJournalLine, CostJournalTemplate, CostJournalBatch);
         CostJournalLine."Cost Type No." := '';
         CostJournalLine."Bal. Cost Type No." := '';
-        CostJournalLine.Modify;
+        CostJournalLine.Modify();
         asserterror CAJnlCheckLine.RunCheck(CostJournalLine);
     end;
 
@@ -2056,7 +2056,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         CostJournalLine."Source Code" :=
           CopyStr(LibraryUtility.GenerateRandomCode(CostJournalLine.FieldNo("Source Code"), DATABASE::"Cost Journal Line"),
             1, LibraryUtility.GetFieldLength(DATABASE::"Cost Journal Line", CostJournalLine.FieldNo("Source Code")));
-        CostJournalLine.Modify;
+        CostJournalLine.Modify();
         asserterror CAJnlCheckLine.RunCheck(CostJournalLine);
     end;
 
@@ -2081,7 +2081,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
           CopyStr(LibraryUtility.GenerateRandomCode(CostJournalLine.FieldNo("Cost Object Code"), DATABASE::"Cost Journal Line"),
             1, LibraryUtility.GetFieldLength(DATABASE::"Cost Journal Line", CostJournalLine.FieldNo("Cost Object Code")));
 
-        CostJournalLine.Modify;
+        CostJournalLine.Modify();
         asserterror CAJnlCheckLine.RunCheck(CostJournalLine);
     end;
 
@@ -2100,7 +2100,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         CreateCostJournalLine(CostJournalLine, CostJournalTemplate, CostJournalBatch);
         CostJournalLine."Bal. Cost Center Code" := '';
         CostJournalLine."Bal. Cost Object Code" := '';
-        CostJournalLine.Modify;
+        CostJournalLine.Modify();
         asserterror CAJnlCheckLine.RunCheck(CostJournalLine);
     end;
 
@@ -2125,7 +2125,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
           CopyStr(LibraryUtility.GenerateRandomCode(CostJournalLine.FieldNo("Bal. Cost Object Code"), DATABASE::"Cost Journal Line"),
             1, LibraryUtility.GetFieldLength(DATABASE::"Cost Journal Line", CostJournalLine.FieldNo("Bal. Cost Object Code")));
 
-        CostJournalLine.Modify;
+        CostJournalLine.Modify();
         asserterror CAJnlCheckLine.RunCheck(CostJournalLine);
     end;
 
@@ -2147,7 +2147,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         LibraryCostAccounting.CreateCostObject(BalCostObject);
         CostJournalLine."Cost Center Code" := CostObject.Code;
         CostJournalLine."Bal. Cost Center Code" := BalCostObject.Code;
-        CostJournalLine.Modify;
+        CostJournalLine.Modify();
         CODEUNIT.Run(CODEUNIT::"CA Jnl.-Post Line", CostJournalLine)
     end;
 
@@ -2164,7 +2164,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
 
         // Setup: Setup Demo Data and make Cost Journal Setup Blank.
         Initialize;
-        CostJournalTemplate.DeleteAll;
+        CostJournalTemplate.DeleteAll();
 
         // Exercise: Execute TemplateSelection function of CostJnlManagement.
         CostJnlManagement.TemplateSelection(CostJournalLine, JnlSelected);
@@ -2188,7 +2188,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
 
         // Setup: Setup Demo Data.Make Cost Journal Setup Blank and create a single cost journal template.
         Initialize;
-        CostJournalTemplate.DeleteAll;
+        CostJournalTemplate.DeleteAll();
         LibraryCostAccounting.CreateCostJournalTemplate(CostJournalTemplate);
 
         // Exercise: Execute TemplateSelection function of CostJnlManagement.
@@ -2493,7 +2493,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         // Exercise: Create Cost journal line to get posted.
         LibraryCostAccounting.CreateCostJournalLine(CostJournalLine, CostJournalBatch."Journal Template Name", CostJournalBatch.Name);
         LineNo := CostJournalLine."Line No.";
-        Commit;
+        Commit();
         CODEUNIT.Run(CODEUNIT::"CA Jnl.-B. Post", CostJournalBatch);
 
         // Verify: Verify that the Cost Journal Line should not exist.
@@ -2521,7 +2521,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
           CostJournalLine, CostJournalBatch."Journal Template Name", CostJournalBatch.Name, WorkDate, '', '');
         LineNo := CostJournalLine."Line No.";
         JournalBatchName := CostJournalLine."Journal Batch Name";
-        Commit;
+        Commit();
         CODEUNIT.Run(CODEUNIT::"CA Jnl.-B. Post", CostJournalBatch);
 
         // Verify: Verify that the Cost Journal Line should exist.
@@ -2756,7 +2756,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
 
         // Setup: Create an Income Stmt GL Account and assigning a G/L Acc. Range to the newly created cost type.
         Initialize;
-        CostAccountingSetup.Get;
+        CostAccountingSetup.Get();
         AlignGLAccount := CostAccountingSetup."Align G/L Account";
         LibraryCostAccounting.SetAlignment(
           CostAccountingSetup.FieldNo("Align G/L Account"), CostAccountingSetup."Align G/L Account"::Automatic);
@@ -2765,7 +2765,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         LibraryCostAccounting.CreateIncomeStmtGLAccount(GLAccount);
         CostType2.Get(GLAccount."Cost Type No.");
         CostType."G/L Account Range" := CostType2."No.";
-        CostType.Modify;
+        CostType.Modify();
 
         // Exercise: Running batch LinkCostTypesToGLAccounts.
         asserterror CostAccountMgt.LinkCostTypesToGLAccounts;
@@ -2818,7 +2818,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         CreateCostJournalBatch(CostJournalBatch);
 
         // Exercise: Run codeunit CA Jnl.-B. Post with empty cost journal batch.
-        Commit;
+        Commit();
         CODEUNIT.Run(CODEUNIT::"CA Jnl.-B. Post", CostJournalBatch);
 
         // Verify: Verify that warning message comes up while calling the codeunit CA Jnl.-B. Post with empty cost journal batch.
@@ -2851,7 +2851,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         DynamicLineNo := LibraryRandom.RandInt(10);
         LibraryInventory.CreateItem(Item);
 
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         for i := 1 to Count do begin
             LibraryDimension.CreateDimensionValue(DimensionValue[i], GeneralLedgerSetup."Global Dimension 1 Code");
             CreateCostCenter(CostCenter[i], DimensionValue[i].Code);
@@ -2861,8 +2861,8 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         CreateAndPostSalesInvoiceWithMultipleLinesAndDimension(DimensionValue, Item."No.", Qty, Count);
 
         // Create two Dynamics Allocation Targets with Base = "Items Sold Qty." and Cost Center Filter.
-        CostAllocationTarget.DeleteAll;
-        CostAllocationSource.DeleteAll;
+        CostAllocationTarget.DeleteAll();
+        CostAllocationSource.DeleteAll();
         ID := CreateMultipleDynAllocTargetItemsSoldQtyWithCostCenterFilter(
             CostAllocationTarget, CostCenter, Item."No.", DynamicLineNo, Count);
 
@@ -2886,7 +2886,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         Initialize;
 
         // [GIVEN] Init GL Setup
-        GeneralLedgerSetup.Init;
+        GeneralLedgerSetup.Init();
 
         // [GIVEN] Setting up Allow Posting From
         GeneralLedgerSetup.Validate("Allow Posting From", WorkDate);
@@ -2910,7 +2910,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         Initialize;
 
         // [GIVEN] Init GL Setup
-        GeneralLedgerSetup.Init;
+        GeneralLedgerSetup.Init();
 
         // [GIVEN] Setting up Allow Posting To
         GeneralLedgerSetup.Validate("Allow Posting To", WorkDate);
@@ -2934,7 +2934,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         Initialize;
 
         // [GIVEN] Init GL Setup
-        GeneralLedgerSetup.Init;
+        GeneralLedgerSetup.Init();
 
         // [GIVEN] Setting up Allow Posting From with proper value
         GeneralLedgerSetup.Validate("Allow Posting From", WorkDate);
@@ -2960,7 +2960,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         Initialize;
 
         // [GIVEN] Init User Setup
-        UserSetup.Init;
+        UserSetup.Init();
 
         // [GIVEN] Setting up Allow Posting From
         UserSetup.Validate("Allow Posting From", WorkDate);
@@ -2984,7 +2984,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         Initialize;
 
         // [GIVEN] Init User Setup
-        UserSetup.Init;
+        UserSetup.Init();
 
         // [GIVEN] Setting up Allow Posting To
         UserSetup.Validate("Allow Posting To", WorkDate);
@@ -3008,7 +3008,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         Initialize;
 
         // [GIVEN] Init User Setup
-        UserSetup.Init;
+        UserSetup.Init();
 
         // [GIVEN] Setting up Allow Posting From with proper value
         UserSetup.Validate("Allow Posting From", WorkDate);
@@ -3036,10 +3036,10 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         Initialize;
 
         // [GIVEN] Init GL Setup and set up incorrect allowed posting range
-        GeneralLedgerSetup.Init;
+        GeneralLedgerSetup.Init();
         GeneralLedgerSetup."Allow Posting To" := WorkDate;
         GeneralLedgerSetup."Allow Posting From" := WorkDate + LibraryRandom.RandInt(10);
-        GeneralLedgerSetup.Modify;
+        GeneralLedgerSetup.Modify();
 
         // [GIVEN] Create Item Journal Line
         LibraryInventory.CreateItemJournalLineInItemTemplate(
@@ -3063,7 +3063,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Cost Accounting - Codeunit");
     end;
 
@@ -3071,7 +3071,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
     var
         CostAccountingSetup: Record "Cost Accounting Setup";
     begin
-        CostAccountingSetup.Get;
+        CostAccountingSetup.Get();
         CostAccountingSetup.Validate("Align Cost Center Dimension", CostAccountingSetup."Align Cost Center Dimension"::"No Alignment");
         CostAccountingSetup.Validate("Cost Center Dimension", InitialCostCenterDimension);
         CostAccountingSetup.Validate("Check G/L Postings", false);
@@ -3082,7 +3082,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
     var
         CostAccountingSetup: Record "Cost Accounting Setup";
     begin
-        CostAccountingSetup.Get;
+        CostAccountingSetup.Get();
         CostAccountingSetup.Validate("Align Cost Object Dimension", CostAccountingSetup."Align Cost Object Dimension"::"No Alignment");
         CostAccountingSetup.Validate("Cost Object Dimension", InitialCostObjectDimension);
         CostAccountingSetup.Validate("Check G/L Postings", false);
@@ -3124,7 +3124,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
           CopyStr(LibraryUtility.GenerateRandomCode(CostAllocationSource.FieldNo(ID), DATABASE::"Cost Allocation Source"),
             1, LibraryUtility.GetFieldLength(DATABASE::"Cost Allocation Source", CostAllocationSource.FieldNo(ID)));
         CostAllocationSource.Level := LibraryRandom.RandInt(99);
-        CostAllocationSource.Insert;
+        CostAllocationSource.Insert();
     end;
 
     local procedure CreateAllocTarget(var CostAllocationTarget: Record "Cost Allocation Target"; ID: Code[10]; LineNo: Integer; Base: Option)
@@ -3132,14 +3132,14 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         CostAllocationTarget.ID := ID;
         CostAllocationTarget."Line No." := LineNo;
         CostAllocationTarget.Base := Base;
-        CostAllocationTarget.Insert;
+        CostAllocationTarget.Insert();
     end;
 
     local procedure CreateCostCenter(var CostCenter: Record "Cost Center"; DimensionValueCode: Code[20])
     begin
-        CostCenter.Init;
+        CostCenter.Init();
         CostCenter.Validate(Code, DimensionValueCode);
-        CostCenter.Insert;
+        CostCenter.Insert();
     end;
 
     local procedure CreateCostJournalBatch(var CostJournalBatch: Record "Cost Journal Batch")
@@ -3149,20 +3149,20 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         CostJournalTemplate.Name :=
           CopyStr(LibraryUtility.GenerateRandomCode(CostJournalTemplate.FieldNo(Name), DATABASE::"Cost Journal Template"),
             1, LibraryUtility.GetFieldLength(DATABASE::"Cost Journal Template", CostJournalTemplate.FieldNo(Name)));
-        CostJournalTemplate.Insert;
+        CostJournalTemplate.Insert();
 
         CostJournalBatch."Journal Template Name" := CostJournalTemplate.Name;
         CostJournalBatch.Name :=
           CopyStr(LibraryUtility.GenerateRandomCode(CostJournalBatch.FieldNo(Name), DATABASE::"Cost Journal Batch"),
             1, LibraryUtility.GetFieldLength(DATABASE::"Cost Journal Batch", CostJournalBatch.FieldNo(Name)));
-        CostJournalBatch.Insert;
+        CostJournalBatch.Insert();
     end;
 
     local procedure CreateCostJnlLineAndxCostJnlLine(var CostJournalLine: Record "Cost Journal Line"; var TempCostJournalLine: Record "Cost Journal Line" temporary; CostJournalTemplateName: Code[10]; CostJournalBatchName: Code[10])
     begin
         // Create Cost Journal line and update its Bal Cost Type No. , Bal Cost Center Code and maintain its previous record
         TempCostJournalLine := CostJournalLine; // to maintain xRec of cost journal line.
-        TempCostJournalLine.Insert;
+        TempCostJournalLine.Insert();
         LibraryCostAccounting.CreateCostJournalLineBasic(CostJournalLine, CostJournalTemplateName, CostJournalBatchName, WorkDate, '', '');
     end;
 
@@ -3192,16 +3192,16 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
 
     local procedure CreateCostObject(var CostObject: Record "Cost Object"; DimensionValueCode: Code[20])
     begin
-        CostObject.Init;
+        CostObject.Init();
         CostObject.Validate(Code, DimensionValueCode);
-        CostObject.Insert;
+        CostObject.Insert();
     end;
 
     local procedure CreateDynAllocTargetByAllocSourceID(var CostAllocationTarget: Record "Cost Allocation Target"; ID: Code[10]; LineNo: Integer; Base: Option; DateFilterCode: Option)
     begin
         CreateAllocTarget(CostAllocationTarget, ID, LineNo, Base);
         CostAllocationTarget."Date Filter Code" := DateFilterCode;
-        CostAllocationTarget.Modify;
+        CostAllocationTarget.Modify();
     end;
 
     local procedure CreateDynAllocTargetItemsSoldAmount(var CostAllocationTarget: Record "Cost Allocation Target"; LineNo: Integer)
@@ -3356,11 +3356,11 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         LibraryTimeSheet.CreateUserSetup(UserSetup, true);
         UserSetup."Allow Posting From" := WorkDate;
         UserSetup."Allow Posting To" := WorkDate;
-        UserSetup.Modify;
+        UserSetup.Modify();
         CreateCostJournalBatch(CostJournalBatch);
         LibraryCostAccounting.CreateCostJournalLine(CostJournalLine, CostJournalBatch."Journal Template Name", CostJournalBatch.Name);
         CostJournalLine."Posting Date" := PostingDate;
-        CostJournalLine.Modify;
+        CostJournalLine.Modify();
 
         // Exercise: Run codeunit CA Jnl.-Check Line.
         asserterror CODEUNIT.Run(CODEUNIT::"CA Jnl.-Check Line", CostJournalLine);
@@ -3383,7 +3383,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         LibraryDimension.CreateDimension(Dimension);
         LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
 
-        CostAccountingSetup.Get;
+        CostAccountingSetup.Get();
         InitialCostCenterDimension := CostAccountingSetup."Cost Center Dimension";
         CostAccountingSetup.Validate("Align Cost Center Dimension", CostAccountingSetup."Align Cost Center Dimension"::Automatic);
         CostAccountingSetup.Validate("Cost Center Dimension", Dimension.Code);
@@ -3398,7 +3398,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         LibraryDimension.CreateDimension(Dimension);
         LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
 
-        CostAccountingSetup.Get;
+        CostAccountingSetup.Get();
         InitialCostObjectDimension := CostAccountingSetup."Cost Object Dimension";
         CostAccountingSetup.Validate("Align Cost Object Dimension", CostAccountingSetup."Align Cost Object Dimension"::Automatic);
         CostAccountingSetup.Validate("Cost Object Dimension", Dimension.Code);
@@ -3412,7 +3412,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
     begin
         CostJournalTemplate.Get(Name);
         CostJournalTemplate."Posting Report ID" := PostingReportID;
-        CostJournalTemplate.Modify;
+        CostJournalTemplate.Modify();
     end;
 
     local procedure UpdateGenJournalLineWithDimension(var GenJournalLine: Record "Gen. Journal Line"; DimSetID: Integer)
@@ -3460,7 +3460,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
     var
         CostAccountingSetup: Record "Cost Accounting Setup";
     begin
-        CostAccountingSetup.Get;
+        CostAccountingSetup.Get();
         OldAlignmentValue := CostAccountingSetup."Align G/L Account";
         LibraryCostAccounting.SetAlignment(
           CostAccountingSetup.FieldNo("Align G/L Account"), CostAccountingSetup."Align G/L Account"::Automatic);

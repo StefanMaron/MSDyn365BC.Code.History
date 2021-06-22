@@ -171,7 +171,7 @@ codeunit 5906 ServLogManagement
         if ServItem."No." = '' then
             exit;
 
-        ServItemLog.Init;
+        ServItemLog.Init();
         ServItemLog."Service Item No." := ServItem."No.";
         ServItemLog."Event No." := 1;
         ServItemLog.Insert(true);
@@ -184,7 +184,7 @@ codeunit 5906 ServLogManagement
         if ServItem."No." = '' then
             exit;
 
-        ServItemLog.Init;
+        ServItemLog.Init();
         ServItemLog."Service Item No." := ServItem."No.";
         ServItemLog.After := ServItem."Description 2";
         ServItemLog."Event No." := 2;
@@ -198,7 +198,7 @@ codeunit 5906 ServLogManagement
         if ServContrLine."Service Item No." = '' then
             exit;
 
-        ServItemLog.Init;
+        ServItemLog.Init();
         ServItemLog."Service Item No." := ServContrLine."Service Item No.";
         ServItemLog."Event No." := 3;
         ServItemLog."Document Type" := ServItemLog."Document Type"::Contract;
@@ -213,7 +213,7 @@ codeunit 5906 ServLogManagement
         if ServContrLine."Service Item No." = '' then
             exit;
 
-        ServItemLog.Init;
+        ServItemLog.Init();
         ServItemLog."Service Item No." := ServContrLine."Service Item No.";
         ServItemLog."Event No." := 4;
         ServItemLog."Document Type" := ServItemLog."Document Type"::Contract;
@@ -228,7 +228,7 @@ codeunit 5906 ServLogManagement
         if ServItemLine."Service Item No." = '' then
             exit;
 
-        ServItemLog.Init;
+        ServItemLog.Init();
         ServItemLog."Service Item No." := ServItemLine."Service Item No.";
         if ServItemLine."Document Type" = ServItemLine."Document Type"::Order then
             ServItemLog."Event No." := 5
@@ -246,7 +246,7 @@ codeunit 5906 ServLogManagement
         if ServItemLine."Service Item No." = '' then
             exit;
 
-        ServItemLog.Init;
+        ServItemLog.Init();
         ServItemLog."Service Item No." := ServItemLine."Service Item No.";
         if ServItemLine."Document Type" = ServItemLine."Document Type"::Order then
             ServItemLog."Event No." := 7
@@ -264,7 +264,7 @@ codeunit 5906 ServLogManagement
         if Component."Parent Service Item No." = '' then
             exit;
 
-        ServItemLog.Init;
+        ServItemLog.Init();
         ServItemLog."Service Item No." := Component."Parent Service Item No.";
         ServItemLog.After := Format(Component.Type) + ' ' + Component."No.";
         ServItemLog."Event No." := 16;
@@ -280,7 +280,7 @@ codeunit 5906 ServLogManagement
         if Component."Parent Service Item No." = '' then
             exit;
 
-        ServItemLog.Init;
+        ServItemLog.Init();
         ServItemLog."Service Item No." := Component."Parent Service Item No.";
         ServItemLog.Before := Format(Component.Type) + ' ' + Component."No.";
         ServItemLog."Event No." := 9;
@@ -296,7 +296,7 @@ codeunit 5906 ServLogManagement
         if ServItem."No." = '' then
             exit;
 
-        ServItemLog.Init;
+        ServItemLog.Init();
         ServItemLog."Service Item No." := ServItem."No.";
         ServItemLog."Event No." := 11;
         ServItemLog.Before := OldServItem."Customer No.";
@@ -308,7 +308,7 @@ codeunit 5906 ServLogManagement
     var
         ServItemLog: Record "Service Item Log";
     begin
-        ServItemLog.Init;
+        ServItemLog.Init();
         ServItemLog."Service Item No." := ServItem."No.";
         ServItemLog."Event No." := 12;
         ServItemLog.Before := OldServItem."Ship-to Code";
@@ -323,7 +323,7 @@ codeunit 5906 ServLogManagement
         if ServItem."No." = '' then
             exit;
 
-        ServItemLog.Init;
+        ServItemLog.Init();
         ServItemLog."Service Item No." := ServItem."No.";
         ServItemLog."Event No." := 8;
         ServItemLog.Before := Format(OldServItem.Status);
@@ -338,7 +338,7 @@ codeunit 5906 ServLogManagement
         if ServItem."No." = '' then
             exit;
 
-        ServItemLog.Init;
+        ServItemLog.Init();
         ServItemLog."Service Item No." := ServItem."No.";
         ServItemLog."Event No." := 14;
         ServItemLog.After := ServItem."Serial No.";
@@ -353,7 +353,7 @@ codeunit 5906 ServLogManagement
         if (ServItem."No." = '') or (OldServItem."No." = '') then
             exit;
 
-        ServItemLog.Init;
+        ServItemLog.Init();
         ServItemLog."Service Item No." := OldServItem."No.";
         ServItemLog."Event No." := 18;
         ServItemLog.After := ServItem."No.";
@@ -368,7 +368,7 @@ codeunit 5906 ServLogManagement
         if (ServItem."Item No." = '') and (OldServItem."Item No." = '') then
             exit;
 
-        ServItemLog.Init;
+        ServItemLog.Init();
         ServItemLog."Service Item No." := ServItem."No.";
         ServItemLog."Event No." := 13;
         ServItemLog.After := ServItem."Item No.";
@@ -383,7 +383,7 @@ codeunit 5906 ServLogManagement
         if ServItem."No." = '' then
             exit;
 
-        ServItemLog.Init;
+        ServItemLog.Init();
         ServItemLog."Service Item No." := ServItem."No.";
         ServItemLog."Event No." := 10;
         ServItemLog.After := NewServItem."No.";
@@ -395,7 +395,7 @@ codeunit 5906 ServLogManagement
         ServItemLog: Record "Service Item Log";
     begin
         ServItemLog.SetRange("Service Item No.", ServItemNo);
-        ServItemLog.DeleteAll;
+        ServItemLog.DeleteAll();
     end;
 
     procedure ServHeaderStatusChange(ServHeader: Record "Service Header"; OldServHeader: Record "Service Header")
@@ -405,7 +405,7 @@ codeunit 5906 ServLogManagement
         if (ServHeader."No." = '') or (OldServHeader."No." = '') then
             exit;
 
-        ServOrderLog.Init;
+        ServOrderLog.Init();
         ServOrderLog."Document Type" := ServHeader."Document Type";
         ServOrderLog."Document No." := ServHeader."No.";
         ServOrderLog."Event No." := 2;
@@ -423,7 +423,7 @@ codeunit 5906 ServLogManagement
         then
             exit;
 
-        ServOrderLog.Init;
+        ServOrderLog.Init();
         ServOrderLog."Document Type" := ServHeader."Document Type";
         ServOrderLog."Document No." := ServHeader."No.";
         ServOrderLog."Event No." := 3;
@@ -441,7 +441,7 @@ codeunit 5906 ServLogManagement
         then
             exit;
 
-        ServOrderLog.Init;
+        ServOrderLog.Init();
         ServOrderLog."Document Type" := ServHeader."Document Type";
         ServOrderLog."Document No." := ServHeader."No.";
         ServOrderLog."Event No." := 15;
@@ -457,7 +457,7 @@ codeunit 5906 ServLogManagement
         if (DocumentNo = '') or (ResourceNo = '') then
             exit;
 
-        ServOrderLog.Init;
+        ServOrderLog.Init();
         ServOrderLog."Document Type" := DocumentType;
         ServOrderLog."Document No." := DocumentNo;
         ServOrderLog."Service Item Line No." := ServItemLineNo;
@@ -473,7 +473,7 @@ codeunit 5906 ServLogManagement
         if (DocumentNo = '') or (ResourceNo = '') then
             exit;
 
-        ServOrderLog.Init;
+        ServOrderLog.Init();
         ServOrderLog."Document Type" := DocumentType;
         ServOrderLog."Document No." := DocumentNo;
         ServOrderLog."Service Item Line No." := ServItemLineNo;
@@ -489,7 +489,7 @@ codeunit 5906 ServLogManagement
         if (DocumentNo = '') or (ResourceNo = '') then
             exit;
 
-        ServOrderLog.Init;
+        ServOrderLog.Init();
         ServOrderLog."Document Type" := DocumentType;
         ServOrderLog."Document No." := DocumentNo;
         ServOrderLog."Service Item Line No." := ServItemLineNo;
@@ -506,7 +506,7 @@ codeunit 5906 ServLogManagement
         if ServHeader."No." = '' then
             exit;
 
-        ServOrderLog.Init;
+        ServOrderLog.Init();
         ServOrderLog."Document Type" := ServHeader."Document Type";
         ServOrderLog."Document No." := ServHeader."No.";
         case ServOrderLog."Document Type" of
@@ -529,7 +529,7 @@ codeunit 5906 ServLogManagement
         if (ServOrderNo = '') or (ShptNo = '') then
             exit;
 
-        ServOrderLog.Init;
+        ServOrderLog.Init();
         ServOrderLog."Document Type" := ServOrderLog."Document Type"::Shipment;
         ServOrderLog."Document No." := ShptNo;
         ServOrderLog.Before := ServOrderNo;
@@ -544,7 +544,7 @@ codeunit 5906 ServLogManagement
         if (ServOrderNo = '') or (InvoiceNo = '') then
             exit;
 
-        ServOrderLog.Init;
+        ServOrderLog.Init();
         ServOrderLog."Document Type" := ServOrderLog."Document Type"::"Posted Invoice";
         ServOrderLog."Document No." := InvoiceNo;
         ServOrderLog.Before := ServOrderNo;
@@ -559,7 +559,7 @@ codeunit 5906 ServLogManagement
         if (ServOrderNo = '') or (InvoiceNo = '') then
             exit;
 
-        ServOrderLog.Init;
+        ServOrderLog.Init();
         ServOrderLog."Document Type" := ServOrderLog."Document Type"::"Posted Invoice";
         ServOrderLog."Document No." := InvoiceNo;
         ServOrderLog.Before := ServOrderNo;
@@ -574,7 +574,7 @@ codeunit 5906 ServLogManagement
         if (ServOrderNo = '') or (CrMemoNo = '') then
             exit;
 
-        ServOrderLog.Init;
+        ServOrderLog.Init();
         ServOrderLog."Document Type" := ServOrderLog."Document Type"::"Posted Credit Memo";
         ServOrderLog."Document No." := CrMemoNo;
         ServOrderLog."Event No." := 16;
@@ -588,7 +588,7 @@ codeunit 5906 ServLogManagement
         if ServHeader."No." = '' then
             exit;
 
-        ServOrderLog.Init;
+        ServOrderLog.Init();
         ServOrderLog."Document Type" := ServHeader."Document Type";
         ServOrderLog."Document No." := ServHeader."No.";
         case ServOrderLog."Document Type" of
@@ -611,7 +611,7 @@ codeunit 5906 ServLogManagement
         if (ServHeader."No." = '') or (ServHeader."Contract No." = OldServHeader."Contract No.") then
             exit;
 
-        ServOrderLog.Init;
+        ServOrderLog.Init();
         ServOrderLog."Document Type" := ServHeader."Document Type";
         ServOrderLog."Document No." := ServHeader."No.";
         ServOrderLog.After := ServHeader."Contract No.";
@@ -627,7 +627,7 @@ codeunit 5906 ServLogManagement
         if ServHeader."No." = '' then
             exit;
 
-        ServOrderLog.Init;
+        ServOrderLog.Init();
         ServOrderLog."Document Type" := OldServHeader."Document Type";
         ServOrderLog."Document No." := OldServHeader."No.";
         ServOrderLog.After :=
@@ -649,7 +649,7 @@ codeunit 5906 ServLogManagement
         if (ServItemLine."Document No." = '') or (ServItemLine."Line No." = 0) then
             exit;
 
-        ServOrderLog.Init;
+        ServOrderLog.Init();
         ServOrderLog."Document Type" := ServItemLine."Document Type";
         ServOrderLog."Document No." := ServItemLine."Document No.";
         ServOrderLog."Service Item Line No." := ServItemLine."Line No.";
@@ -666,7 +666,7 @@ codeunit 5906 ServLogManagement
         if LoanerEntry."Loaner No." = '' then
             exit;
 
-        ServOrderLog.Init;
+        ServOrderLog.Init();
         ServOrderLog."Document Type" := LoanerEntry."Document Type" - 1;
         ServOrderLog."Document No." := LoanerEntry."Document No.";
         ServOrderLog."Event No." := 7;
@@ -681,7 +681,7 @@ codeunit 5906 ServLogManagement
         if LoanerEntry."Loaner No." = '' then
             exit;
 
-        ServOrderLog.Init;
+        ServOrderLog.Init();
         ServOrderLog."Document Type" := LoanerEntry."Document Type" - 1;
         ServOrderLog."Document No." := LoanerEntry."Document No.";
         ServOrderLog."Event No." := 8;
@@ -696,7 +696,7 @@ codeunit 5906 ServLogManagement
         if (ServItemLine."Document No." = '') or (ServItemLine."Line No." = 0) then
             exit;
 
-        ServOrderLog.Init;
+        ServOrderLog.Init();
         ServOrderLog."Document Type" := ServItemLine."Document Type";
         ServOrderLog."Document No." := ServItemLine."Document No.";
         ServOrderLog."Service Item Line No." := ServItemLine."Line No.";
@@ -713,7 +713,7 @@ codeunit 5906 ServLogManagement
         if (ServItemLine."Document No." = '') or (ServItemLine."Line No." = 0) then
             exit;
 
-        ServOrderLog.Init;
+        ServOrderLog.Init();
         ServOrderLog."Document Type" := ServItemLine."Document Type";
         ServOrderLog."Document No." := ServItemLine."Document No.";
         ServOrderLog."Service Item Line No." := ServItemLine."Line No.";

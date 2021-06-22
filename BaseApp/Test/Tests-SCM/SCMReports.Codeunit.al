@@ -167,7 +167,7 @@ codeunit 137309 "SCM Reports"
           Item, Item."Costing Method"::Average, ProductionBOMHeader.Status::Certified, RoutingHeader.Status::Certified);
 
         // Exercise: Run Calculate Inventory Value Test report.
-        Commit;
+        Commit();
         RunCalculateInventoryValueTest(Item."No.", CalculatePer::"Item Ledger Entry");
 
         // Verify: Verify Error Message.
@@ -194,7 +194,7 @@ codeunit 137309 "SCM Reports"
           Item, Item."Costing Method"::Standard, ProductionBOMHeader.Status::Certified, RoutingHeader.Status::Certified);
 
         // Exercise: Run Calculate Inventory Value Test report.
-        Commit;
+        Commit();
         RunCalculateInventoryValueTest(Item."No.", CalculatePer::Item);
 
         // Verify: Verify item info is not present in report.
@@ -226,7 +226,7 @@ codeunit 137309 "SCM Reports"
           RoutingHeader.Status::"Under Development");
 
         // Exercise: Run Calculate Inventory Value Test report.
-        Commit;
+        Commit();
         RunCalculateInventoryValueTest(Item."No.", CalculatePer::Item);
 
         // Verify: Verify report data.
@@ -261,7 +261,7 @@ codeunit 137309 "SCM Reports"
         CreateRoutingVersion(RoutingVersion, Item."Routing No.");
 
         // Exercise: Run Calculate Inventory Value Test report.
-        Commit;
+        Commit();
         RunCalculateInventoryValueTest(Item."No.", CalculatePer::Item);
 
         // Verify.
@@ -348,7 +348,7 @@ codeunit 137309 "SCM Reports"
           Item2, Item."Costing Method"::Standard, ProductionBOMHeader.Status::Certified, RoutingHeader.Status::Certified);
 
         // Exercise: Run Compare List Report and calculate expected values for verification.
-        Commit;
+        Commit();
         RunCompareListReport(Item."No.", Item2."No.");
         Component := GetComponent(Item."Production BOM No.");
         Component2 := GetComponent(Item2."Production BOM No.");
@@ -400,7 +400,7 @@ codeunit 137309 "SCM Reports"
         ProductionOrder.Get(ProductionOrder.Status::Released, CreateAndRefreshProductionOrder);
 
         // Exercise: Run Subcontractor Dispatch List report without updating Subcontractor No. on Work Center.
-        Commit;
+        Commit();
         ProdOrderRoutingLine.SetRange("Prod. Order No.", ProductionOrder."No.");
         RunSubcontractorDispatchList(ProdOrderRoutingLine);
 
@@ -427,7 +427,7 @@ codeunit 137309 "SCM Reports"
         ProdOrderRoutingLine.SetRange("Prod. Order No.", ProductionOrder."No.");
         ProdOrderRoutingLine.FindFirst;
         UpdateAndCalculateWorkCenterCalendar(ProdOrderRoutingLine."No.");
-        Commit;
+        Commit();
         RunSubcontractorDispatchList(ProdOrderRoutingLine);
 
         // Verify: Verify Subcontractor Dispatch List report.
@@ -447,7 +447,7 @@ codeunit 137309 "SCM Reports"
         CreateBinCreationWorksheetLine(BinCreationWorksheetLine);
 
         // Exercise: Run Bin Content Create Worksheet Report.
-        Commit;
+        Commit();
         RunBinContentCreateWorksheetReport(BinCreationWorksheetLine);
 
         // Verify: Verify that the Bin Code and Location Code exist in the Report.
@@ -508,7 +508,7 @@ codeunit 137309 "SCM Reports"
         CreateWarehouseItemJournalLine(Location.Code, ItemNo, WorkDate);
 
         // Exercise: Run Warehouse Inventory Registering Test report.
-        Commit;
+        Commit();
         RunWarehouseInventoryRegisteringTestReport(ItemNo);
 
         // Verify: Warning for Blocked Item exist on the report.
@@ -540,7 +540,7 @@ codeunit 137309 "SCM Reports"
         CreateWarehouseItemJournalLine(Location.Code, Item."No.", RegisteringDate);
 
         // Exercise: Run Warehouse Inventory Registering Test report.
-        Commit;
+        Commit();
         RunWarehouseInventoryRegisteringTestReport(Item."No.");
 
         // Verify: Warning for Date range exist on the report.
@@ -679,7 +679,7 @@ codeunit 137309 "SCM Reports"
           ParentItem."Replenishment System"::"Prod. Order", ProductionBOMHeaderNo, LibraryRandom.RandDec(10, 2));
 
         // Exercise: Run Quantity Explosion of BOM Report.
-        Commit;
+        Commit();
         Item.SetRange("No.", ParentItem."No.");
         REPORT.Run(REPORT::"Quantity Explosion of BOM", true, false, Item);
 
@@ -733,7 +733,7 @@ codeunit 137309 "SCM Reports"
           ParentItem."Replenishment System"::"Prod. Order", ProductionBOMHeaderNo, 0);
 
         // Exercise: Run Rolled-up Cost Shares Report.
-        Commit;
+        Commit();
         Item.SetRange("No.", ParentItem."No.");
         REPORT.Run(REPORT::"Rolled-up Cost Shares", true, false, Item);
 
@@ -777,7 +777,7 @@ codeunit 137309 "SCM Reports"
           LibraryInventory.CreateItem(Item), FirstChildItem."No.", ProductionBOMVersion.Status::Certified);
 
         // Exercise: Run Rolled-up Cost Shares Report .
-        Commit;
+        Commit();
         Item.SetRange("No.", ParentItem."No.");
         REPORT.Run(REPORT::"Rolled-up Cost Shares", true, false, Item);
 
@@ -815,7 +815,7 @@ codeunit 137309 "SCM Reports"
           LibraryInventory.CreateItem(Item), SecondChildItem."No.", ProductionBOMVersion.Status::Certified);
 
         // Exercise: Run Rolled-up Cost Shares Report.
-        Commit;
+        Commit();
         Item.SetRange("No.", ParentItem."No.");
         REPORT.Run(REPORT::"Rolled-up Cost Shares", true, false, Item);
 
@@ -854,7 +854,7 @@ codeunit 137309 "SCM Reports"
         LibraryVariableStorage.Enqueue(WorkDate);
 
         // Exercise: Run Detailed Calculation Report.
-        Commit;
+        Commit();
         Item.SetRange("No.", ParentItem."No.");
         REPORT.Run(REPORT::"Detailed Calculation", true, false, Item);
 
@@ -893,7 +893,7 @@ codeunit 137309 "SCM Reports"
         LibraryVariableStorage.Enqueue(WorkDate);
 
         // Exercise: Run Detailed Calculation Report.
-        Commit;
+        Commit();
         Item.SetRange("No.", ParentItem."No.");
         REPORT.Run(REPORT::"Detailed Calculation", true, false, Item);
 
@@ -928,7 +928,7 @@ codeunit 137309 "SCM Reports"
         LibraryVariableStorage.Enqueue(CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandInt(5)), StartingDate));
 
         // Exercise: Run Detailed Calculation Report greater than Routing version starting date.
-        Commit;
+        Commit();
         Item.SetRange("No.", Item."No.");
         REPORT.Run(REPORT::"Detailed Calculation", true, false, Item);
 
@@ -998,7 +998,7 @@ codeunit 137309 "SCM Reports"
           CreateProductionBOM(ChildItem."Base Unit of Measure", ProductionBOMHeader.Status::Closed), 0);
 
         // Exercise: Run Quantity Explosion of BOM Report.
-        Commit;
+        Commit();
         Item.SetRange("No.", ParentItem."No.");
         REPORT.Run(REPORT::"Quantity Explosion of BOM", true, false, Item);
 
@@ -1119,7 +1119,7 @@ codeunit 137309 "SCM Reports"
         Evaluate(PeriodLength, StrSubstNo('<%1Y>', LibraryRandom.RandInt(5)));
 
         // Exercise: Run Item Age Composition - Qty Report.
-        Commit;
+        Commit();
         RunItemAgeCompositionQuantityReport(ItemNo, PeriodLength, '');
 
         // Verify: Verifying that report running successfully with year value and Item no on report.
@@ -1142,7 +1142,7 @@ codeunit 137309 "SCM Reports"
         Evaluate(PeriodLength, StrSubstNo('<%1Y>', LibraryRandom.RandInt(5)));
 
         // Exercise: Run Item Age Composition - Value Report.
-        Commit;
+        Commit();
         RunItemAgeCompositionValueReport(ItemNo, PeriodLength);
 
         // Verify: Verifying that report running successfully with year value and Item no on report.
@@ -1259,7 +1259,7 @@ codeunit 137309 "SCM Reports"
         LibraryERMCountryData.UpdateInventoryPostingSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Reports");
     end;
 
@@ -1704,7 +1704,7 @@ codeunit 137309 "SCM Reports"
         LibraryVariableStorage.Enqueue(CalcDate(StrSubstNo('<%1D>', Days), RoutingVersion."Starting Date"));
 
         // Exercise: Run Detailed Calculation Report.
-        Commit;
+        Commit();
         Item.SetRange("No.", Item."No.");
         REPORT.Run(REPORT::"Detailed Calculation", true, false, Item);
 
@@ -1741,7 +1741,7 @@ codeunit 137309 "SCM Reports"
             CreateReportSelection(UsageOption, ReportID);
 
         ReportSelections.SetRange(Usage, UsageOption);
-        Result := ReportSelections.Count;
+        Result := ReportSelections.Count();
     end;
 
     local procedure CreateLocation(): Code[10]
@@ -1865,12 +1865,12 @@ codeunit 137309 "SCM Reports"
         ProductionOrderNo := CreateAndPostProductionJournal(ParentItem."No.");
         LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrderNo);
         OldAllowPostingFrom := UpdateGeneralLedgerSetup(AllowPostingFromDate);
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Adjust Cost - Item Entries");
         LibraryVariableStorage.Enqueue(InventoryValuationWIPDate);
 
         // Exercise: Run Inventory Valuation WIP Report.
-        Commit;
+        Commit();
         ProductionOrder.SetRange("No.", ProductionOrderNo);
         REPORT.Run(REPORT::"Inventory Valuation - WIP", true, false, ProductionOrder);
 
@@ -1915,7 +1915,7 @@ codeunit 137309 "SCM Reports"
           LibraryInventory.CreateItem(Item), FirstChildItem."No.", ProdBOMVersionStatus);
 
         // Exercise: Run Quantity Explosion of BOM Report.
-        Commit;
+        Commit();
         Item.SetRange("No.", ParentItem."No.");
         REPORT.Run(REPORT::"Quantity Explosion of BOM", true, false, Item);
 
@@ -2115,7 +2115,7 @@ codeunit 137309 "SCM Reports"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         OldAllowPostingFrom := GeneralLedgerSetup."Allow Posting From";
         GeneralLedgerSetup."Allow Posting From" := AllowPostingFrom;
         GeneralLedgerSetup.Modify(true);
@@ -2126,7 +2126,7 @@ codeunit 137309 "SCM Reports"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         OldCreditWarnings := SalesReceivablesSetup."Credit Warnings";
         OldStockoutWarning := SalesReceivablesSetup."Stockout Warning";
         SalesReceivablesSetup.Validate("Credit Warnings", NewCreditWarnings);
@@ -2286,7 +2286,7 @@ codeunit 137309 "SCM Reports"
         AddParentItemAsBOMComponent(Type, No, ProdBomNo);
 
         // Exercise: Run the Report.
-        Commit;
+        Commit();
         Item.SetRange("No.", Item."No.");
         asserterror REPORT.Run(ReportId, true, false, Item);
 

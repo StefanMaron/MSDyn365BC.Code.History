@@ -58,14 +58,14 @@ codeunit 5701 "Item Subst."
         Item.CalcFields("Qty. on Service Order");
         OldSalesUOM := Item."Sales Unit of Measure";
 
-        ItemSubstitution.Reset;
+        ItemSubstitution.Reset();
         ItemSubstitution.SetRange(Type, ItemSubstitution.Type::Item);
         ItemSubstitution.SetRange("No.", TempSalesLine."No.");
         ItemSubstitution.SetRange("Variant Code", TempSalesLine."Variant Code");
         ItemSubstitution.SetRange("Location Filter", TempSalesLine."Location Code");
         if ItemSubstitution.Find('-') then begin
             CalcCustPrice;
-            TempItemSubstitution.Reset;
+            TempItemSubstitution.Reset();
             TempItemSubstitution.SetRange("No.", TempSalesLine."No.");
             TempItemSubstitution.SetRange("Variant Code", TempSalesLine."Variant Code");
             TempItemSubstitution.SetRange("Location Filter", TempSalesLine."Location Code");
@@ -104,7 +104,7 @@ codeunit 5701 "Item Subst."
 
                 OnItemSubstGetOnAfterSubstSalesLineItem(TempSalesLine);
 
-                Commit;
+                Commit();
                 if ItemCheckAvail.SalesLineCheck(TempSalesLine) then
                     TempSalesLine := SalesLine;
             end;
@@ -119,8 +119,8 @@ codeunit 5701 "Item Subst."
 
     local procedure CalcCustPrice()
     begin
-        TempItemSubstitution.Reset;
-        TempItemSubstitution.DeleteAll;
+        TempItemSubstitution.Reset();
+        TempItemSubstitution.DeleteAll();
         SalesHeader.Get(TempSalesLine."Document Type", TempSalesLine."Document No.");
         if ItemSubstitution.Find('-') then
             repeat
@@ -152,7 +152,7 @@ codeunit 5701 "Item Subst."
                     TempItemSubstitution.Inventory := 0;
                 end;
                 OnCalcCustPriceOnBeforeTempItemSubstitutionInsert(TempItemSubstitution, ItemSubstitution);
-                TempItemSubstitution.Insert;
+                TempItemSubstitution.Insert();
             until ItemSubstitution.Next = 0;
     end;
 
@@ -160,8 +160,8 @@ codeunit 5701 "Item Subst."
     var
         AssemblyHeader: Record "Assembly Header";
     begin
-        TempItemSubstitution.Reset;
-        TempItemSubstitution.DeleteAll;
+        TempItemSubstitution.Reset();
+        TempItemSubstitution.DeleteAll();
         AssemblyHeader.Get(AssemblyLine."Document Type", AssemblyLine."Document No.");
         if ItemSubstitution.Find('-') then
             repeat
@@ -192,7 +192,7 @@ codeunit 5701 "Item Subst."
                     TempItemSubstitution."Quantity Avail. on Shpt. Date" := 0;
                     TempItemSubstitution.Inventory := 0;
                 end;
-                TempItemSubstitution.Insert;
+                TempItemSubstitution.Insert();
             until ItemSubstitution.Next = 0;
     end;
 
@@ -216,14 +216,14 @@ codeunit 5701 "Item Subst."
         Item.CalcFields("Qty. on Service Order");
         OldSalesUOM := Item."Sales Unit of Measure";
 
-        ItemSubstitution.Reset;
+        ItemSubstitution.Reset();
         ItemSubstitution.SetRange("No.", ServInvLine."No.");
         ItemSubstitution.SetRange("Variant Code", ServInvLine."Variant Code");
         ItemSubstitution.SetRange("Location Filter", ServInvLine."Location Code");
         if ItemSubstitution.Find('-') then begin
-            TempItemSubstitution.DeleteAll;
+            TempItemSubstitution.DeleteAll();
             InsertInSubstServiceList(ServInvLine."No.", ItemSubstitution, 1);
-            TempItemSubstitution.Reset;
+            TempItemSubstitution.Reset();
             if TempItemSubstitution.Find('-') then;
             if PAGE.RunModal(PAGE::"Service Item Substitutions", TempItemSubstitution) =
                ACTION::LookupOK
@@ -251,7 +251,7 @@ codeunit 5701 "Item Subst."
                 ServInvLine."Location Code" := SaveLocation;
                 ServInvLine.Validate(Quantity, SaveQty);
                 ServInvLine.Validate("Unit of Measure Code", OldSalesUOM);
-                Commit;
+                Commit();
                 if ItemCheckAvail.ServiceInvLineCheck(ServInvLine) then
                     ServInvLine := ServInvLine2;
                 if Item.Get(ServInvLine."No.") and
@@ -321,7 +321,7 @@ codeunit 5701 "Item Subst."
                     TempItemSubstitution.Find;
                     if RelatLevel < TempItemSubstitution."Relations Level" then begin
                         TempItemSubstitution."Relations Level" := RelatLevel;
-                        TempItemSubstitution.Modify;
+                        TempItemSubstitution.Modify();
                     end;
                 end;
 
@@ -341,7 +341,7 @@ codeunit 5701 "Item Subst."
                     TempItemSubstitution.Interchangeable := ItemSubstitution.Interchangeable;
                     TempItemSubstitution."Location Filter" := ItemSubstitution."Location Filter";
                     TempItemSubstitution."Relations Level" := RelatLevel;
-                    if TempItemSubstitution.Insert then begin
+                    if TempItemSubstitution.Insert() then begin
                         ItemSubstitution2.SetRange(Type, ItemSubstitution2.Type::"Nonstock Item");
                         ItemSubstitution2.SetRange("No.", NonStockItem."Item No.");
                         ItemSubstitution2.SetFilter("Substitute No.", '<>%1&<>%2', NonStockItem."Item No.", OrgNo);
@@ -353,7 +353,7 @@ codeunit 5701 "Item Subst."
                         TempItemSubstitution.Find;
                         if RelatLevel < TempItemSubstitution."Relations Level" then begin
                             TempItemSubstitution."Relations Level" := RelatLevel;
-                            TempItemSubstitution.Modify;
+                            TempItemSubstitution.Modify();
                         end;
                     end;
                 end;
@@ -362,7 +362,7 @@ codeunit 5701 "Item Subst."
 
     local procedure GetSetupData()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         SetupDataIsPresent := true;
     end;
 
@@ -379,7 +379,7 @@ codeunit 5701 "Item Subst."
         then
             ErrorMessage(ProdOrderComp."Item No.", ProdOrderComp."Variant Code");
 
-        TempItemSubstitution.Reset;
+        TempItemSubstitution.Reset();
         TempItemSubstitution.SetRange("Variant Code", ProdOrderComp."Variant Code");
         TempItemSubstitution.SetRange("Location Filter", ProdOrderComp."Location Code");
         if TempItemSubstitution.Find('-') then;
@@ -434,13 +434,13 @@ codeunit 5701 "Item Subst."
         Item.SetFilter("Variant Filter", VariantCode);
         Item.SetRange("Date Filter", 0D, DemandDate);
 
-        ItemSubstitution.Reset;
+        ItemSubstitution.Reset();
         ItemSubstitution.SetRange(Type, ItemSubstitution.Type::Item);
         ItemSubstitution.SetRange("No.", ItemNo);
         ItemSubstitution.SetRange("Variant Code", VariantCode);
         ItemSubstitution.SetRange("Location Filter", LocationCode);
         if ItemSubstitution.Find('-') then begin
-            TempItemSubstitution.DeleteAll;
+            TempItemSubstitution.DeleteAll();
             CreateSubstList(ItemNo, ItemSubstitution, 1, DemandDate, CalcATP);
             exit(true);
         end;
@@ -494,11 +494,11 @@ codeunit 5701 "Item Subst."
                     if ItemSubstitution2.FindFirst then
                         CreateSubstList(OrgNo, ItemSubstitution2, RelationsLevel2 + 1, DemandDate, CalcATP);
                 end else begin
-                    TempItemSubstitution.Reset;
+                    TempItemSubstitution.Reset();
                     if TempItemSubstitution.Find then
                         if RelationsLevel2 < TempItemSubstitution."Relations Level" then begin
                             TempItemSubstitution."Relations Level" := RelationsLevel2;
-                            TempItemSubstitution.Modify;
+                            TempItemSubstitution.Modify();
                         end;
                 end;
             until ItemSubstitution.Next = 0;
@@ -506,13 +506,13 @@ codeunit 5701 "Item Subst."
 
     procedure GetTempItemSubstList(var TempItemSubstitutionList: Record "Item Substitution" temporary)
     begin
-        TempItemSubstitutionList.DeleteAll;
+        TempItemSubstitutionList.DeleteAll();
 
-        TempItemSubstitution.Reset;
+        TempItemSubstitution.Reset();
         if TempItemSubstitution.Find('-') then
             repeat
                 TempItemSubstitutionList := TempItemSubstitution;
-                TempItemSubstitutionList.Insert;
+                TempItemSubstitutionList.Insert();
             until TempItemSubstitution.Next = 0;
     end;
 
@@ -546,14 +546,14 @@ codeunit 5701 "Item Subst."
         Item.CalcFields("Qty. on Service Order");
         OldSalesUOM := Item."Sales Unit of Measure";
 
-        ItemSubstitution.Reset;
+        ItemSubstitution.Reset();
         ItemSubstitution.SetRange(Type, ItemSubstitution.Type::Item);
         ItemSubstitution.SetRange("No.", TempAssemblyLine."No.");
         ItemSubstitution.SetRange("Variant Code", TempAssemblyLine."Variant Code");
         ItemSubstitution.SetRange("Location Filter", TempAssemblyLine."Location Code");
         if ItemSubstitution.Find('-') then begin
             AssemblyCalcCustPrice(TempAssemblyLine);
-            TempItemSubstitution.Reset;
+            TempItemSubstitution.Reset();
             TempItemSubstitution.SetRange(Type, TempItemSubstitution.Type::Item);
             TempItemSubstitution.SetRange("No.", TempAssemblyLine."No.");
             TempItemSubstitution.SetRange("Variant Code", TempAssemblyLine."Variant Code");
@@ -571,7 +571,7 @@ codeunit 5701 "Item Subst."
                 TempAssemblyLine."Location Code" := SaveLocation;
                 TempAssemblyLine.Validate(Quantity, SaveQty);
                 TempAssemblyLine.Validate("Unit of Measure Code", OldSalesUOM);
-                Commit;
+                Commit();
                 if ItemCheckAvail.AssemblyLineCheck(TempAssemblyLine) then
                     TempAssemblyLine := AssemblyLine;
             end;

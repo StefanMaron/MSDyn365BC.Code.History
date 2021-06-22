@@ -27,7 +27,7 @@ report 900 "Batch Post Assembly Orders"
                 BatchProcessingMgt.BatchProcess(RecRef);
                 RecRef.SetTable("Assembly Header");
 
-                CurrReport.Break;
+                CurrReport.Break();
             end;
         }
     }

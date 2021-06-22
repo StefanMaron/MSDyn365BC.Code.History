@@ -189,7 +189,7 @@ codeunit 5752 "Get Source Doc. Outbound"
         OnBeforeCheckSalesHeader(SalesHeader, ShowError);
 
         with SalesHeader do begin
-            if not ("Shipping Advice" = "Shipping Advice"::Complete) then
+            if "Shipping Advice" = "Shipping Advice"::Partial then
                 exit(false);
 
             SalesLine.SetCurrentKey("Document Type", Type, "No.", "Variant Code");
@@ -207,7 +207,7 @@ codeunit 5752 "Get Source Doc. Outbound"
             if SalesLine.FindSet then begin
                 LocationCode := SalesLine."Location Code";
                 SetItemVariant(CurrItemVariant, SalesLine."No.", SalesLine."Variant Code");
-                TotalNoOfRecords := SalesLine.Count;
+                TotalNoOfRecords := SalesLine.Count();
                 repeat
                     RecordNo += 1;
 
@@ -253,7 +253,7 @@ codeunit 5752 "Get Source Doc. Outbound"
         OnBeforeCheckTransferHeader(TransferHeader, ShowError);
 
         with TransferHeader do begin
-            if not ("Shipping Advice" = "Shipping Advice"::Complete) then
+            if "Shipping Advice" = "Shipping Advice"::Partial then
                 exit(false);
 
             TransferLine.SetCurrentKey("Item No.");
@@ -261,7 +261,7 @@ codeunit 5752 "Get Source Doc. Outbound"
             OnCheckTransferHeaderOnAfterSetLineFilters(TransferLine, TransferHeader);
             if TransferLine.FindSet then begin
                 SetItemVariant(CurrItemVariant, TransferLine."Item No.", TransferLine."Variant Code");
-                TotalNoOfRecords := TransferLine.Count;
+                TotalNoOfRecords := TransferLine.Count();
                 repeat
                     RecordNo += 1;
                     if EqualItemVariant(CurrItemVariant, TransferLine."Item No.", TransferLine."Variant Code") then

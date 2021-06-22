@@ -1,4 +1,4 @@
-﻿page 38 "Item Ledger Entries"
+page 38 "Item Ledger Entries"
 {
     AdditionalSearchTerms = 'inventory transactions';
     ApplicationArea = Basic, Suite;
@@ -499,7 +499,7 @@
                 end;
             GetFilter("Global Dimension 1 Code") <> '':
                 begin
-                    GLSetup.Get;
+                    GLSetup.Get();
                     Dimension.Code := GLSetup."Global Dimension 1 Code";
                     SourceFilter := GetFilter("Global Dimension 1 Code");
                     SourceTableName := Dimension.GetMLName(GlobalLanguage);
@@ -509,7 +509,7 @@
                 end;
             GetFilter("Global Dimension 2 Code") <> '':
                 begin
-                    GLSetup.Get;
+                    GLSetup.Get();
                     Dimension.Code := GLSetup."Global Dimension 2 Code";
                     SourceFilter := GetFilter("Global Dimension 2 Code");
                     SourceTableName := Dimension.GetMLName(GlobalLanguage);

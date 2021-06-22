@@ -33,7 +33,7 @@ codeunit 132213 "Library - Small Business"
         NextLineNo: Integer;
     begin
         Clear(SalesCommentLine);
-        SalesCommentLine.SetRange("Document Type", SalesLine."Document Type");
+        SalesCommentLine.SetRange("Document Type", SalesLine."Document Type".AsInteger());
         SalesCommentLine.SetRange("No.", SalesLine."No.");
         SalesCommentLine.SetRange("Document Line No.", SalesLine."Line No.");
         if SalesCommentLine.FindLast then
@@ -42,8 +42,8 @@ codeunit 132213 "Library - Small Business"
             NextLineNo := 10000;
 
         Clear(SalesCommentLine);
-        SalesCommentLine.Init;
-        SalesCommentLine."Document Type" := SalesLine."Document Type";
+        SalesCommentLine.Init();
+        SalesCommentLine."Document Type" := SalesLine."Document Type".AsInteger();
         SalesCommentLine."No." := SalesLine."Document No.";
         SalesCommentLine."Document Line No." := SalesLine."Line No.";
         SalesCommentLine."Line No." := NextLineNo;
@@ -59,7 +59,7 @@ codeunit 132213 "Library - Small Business"
 
     procedure CreateCustomerSalesCode(var StandardCustomerSalesCode: Record "Standard Customer Sales Code"; CustomerNo: Code[20]; "Code": Code[10])
     begin
-        StandardCustomerSalesCode.Init;
+        StandardCustomerSalesCode.Init();
         StandardCustomerSalesCode.Validate("Customer No.", CustomerNo);
         StandardCustomerSalesCode.Validate(Code, Code);
         StandardCustomerSalesCode.Insert(true);
@@ -147,7 +147,7 @@ codeunit 132213 "Library - Small Business"
         Item2: Record Item;
     begin
         LibraryInventory.CreateItem(Item2);
-        ItemNew.Init;
+        ItemNew.Init();
         ItemNew.Insert(true);
         ItemNew.Validate("Base Unit of Measure", FindUnitOfMeasure);
         ItemNew.Validate("Unit Price", LibraryRandom.RandDecInDecimalRange(1.0, 10000.0, 2));
@@ -156,7 +156,7 @@ codeunit 132213 "Library - Small Business"
         if ItemNew."VAT Prod. Posting Group" = '' then
             ItemNew.Validate("VAT Prod. Posting Group", Item2."VAT Prod. Posting Group");
         ItemNew.Description := ItemNew."No.";
-        ItemNew.Modify;
+        ItemNew.Modify();
         OnBeforeCreateItemAsServiceItemGet(ItemNew);
         Item.Get(ItemNew."No.");
     end;
@@ -180,7 +180,7 @@ codeunit 132213 "Library - Small Business"
         Clear(ResponsibilityCenter);
         ResponsibilityCenter.Validate(Code, LibraryUtility.GenerateRandomCode(ResponsibilityCenter.FieldNo(Code),
             DATABASE::"Responsibility Center"));
-        ResponsibilityCenter.Insert;
+        ResponsibilityCenter.Insert();
     end;
 
     procedure CreateSalesInvoiceHeader(var SalesHeader: Record "Sales Header"; Customer: Record Customer)
@@ -242,7 +242,7 @@ codeunit 132213 "Library - Small Business"
 
     procedure CreateStandardSalesCode(var StandardSalesCode: Record "Standard Sales Code")
     begin
-        StandardSalesCode.Init;
+        StandardSalesCode.Init();
         StandardSalesCode.Validate(
           Code,
           CopyStr(
@@ -257,7 +257,7 @@ codeunit 132213 "Library - Small Business"
     var
         RecRef: RecordRef;
     begin
-        StandardSalesLine.Init;
+        StandardSalesLine.Init();
         StandardSalesLine.Validate("Standard Sales Code", StandardSalesCode);
         RecRef.GetTable(StandardSalesLine);
         StandardSalesLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, StandardSalesLine.FieldNo("Line No.")));
@@ -266,7 +266,7 @@ codeunit 132213 "Library - Small Business"
 
     procedure CreateStandardPurchaseCode(var StandardPurchaseCode: Record "Standard Purchase Code")
     begin
-        StandardPurchaseCode.Init;
+        StandardPurchaseCode.Init();
         StandardPurchaseCode.Validate(
           Code,
           CopyStr(
@@ -281,7 +281,7 @@ codeunit 132213 "Library - Small Business"
     var
         RecRef: RecordRef;
     begin
-        StandardPurchaseLine.Init;
+        StandardPurchaseLine.Init();
         StandardPurchaseLine.Validate("Standard Purchase Code", StandardPurchaseCode);
         RecRef.GetTable(StandardPurchaseLine);
         StandardPurchaseLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, StandardPurchaseLine.FieldNo("Line No.")));
@@ -295,7 +295,7 @@ codeunit 132213 "Library - Small Business"
 
     procedure CreateVendorPurchaseCode(var StandardVendorPurchaseCode: Record "Standard Vendor Purchase Code"; VendorNo: Code[20]; "Code": Code[10])
     begin
-        StandardVendorPurchaseCode.Init;
+        StandardVendorPurchaseCode.Init();
         StandardVendorPurchaseCode.Validate("Vendor No.", VendorNo);
         StandardVendorPurchaseCode.Validate(Code, Code);
         StandardVendorPurchaseCode.Insert(true);
@@ -399,12 +399,12 @@ codeunit 132213 "Library - Small Business"
         if not PricesIncludingVAT then
             exit;
 
-        SalesSetup.Get;
+        SalesSetup.Get();
         if not VATPostingSetup.Get(SalesSetup."VAT Bus. Posting Gr. (Price)", VATProdPostingGroupCode) then begin
-            VATPostingSetup.Init;
+            VATPostingSetup.Init();
             VATPostingSetup.Validate("VAT Bus. Posting Group", SalesSetup."VAT Bus. Posting Gr. (Price)");
             VATPostingSetup.Validate("VAT Prod. Posting Group", VATProdPostingGroupCode);
-            VATPostingSetup.Insert;
+            VATPostingSetup.Insert();
         end;
     end;
 
@@ -456,12 +456,12 @@ codeunit 132213 "Library - Small Business"
     var
         VATBusPostingGroup: Record "VAT Business Posting Group";
     begin
-        VATBusPostingGroup.Init;
+        VATBusPostingGroup.Init();
         VATBusPostingGroup.Validate(
           Code,
           LibraryUtility.GenerateRandomCode(
             VATBusPostingGroup.FieldNo(Code), DATABASE::"VAT Business Posting Group"));
-        VATBusPostingGroup.Insert;
+        VATBusPostingGroup.Insert();
 
         CreateZeroVATPostingSetup(VATPostingSetup, VATBusPostingGroup.Code, VATProdPostingGroupCode);
     end;
@@ -470,12 +470,12 @@ codeunit 132213 "Library - Small Business"
     var
         VATProdPostingGroup: Record "VAT Product Posting Group";
     begin
-        VATProdPostingGroup.Init;
+        VATProdPostingGroup.Init();
         VATProdPostingGroup.Validate(
           Code,
           LibraryUtility.GenerateRandomCode(
             VATProdPostingGroup.FieldNo(Code), DATABASE::"VAT Product Posting Group"));
-        VATProdPostingGroup.Insert;
+        VATProdPostingGroup.Insert();
 
         CreateZeroVATPostingSetup(VATPostingSetup, VATBusPostingGroupCode, VATProdPostingGroup.Code);
     end;

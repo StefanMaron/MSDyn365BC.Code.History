@@ -7,7 +7,8 @@ page 353 "Item Availability Lines"
     ModifyAllowed = false;
     PageType = ListPart;
     ShowFilter = false;
-    SourceTable = Date;
+    SourceTable = "Item Availability Buffer";
+    SourceTableTemporary = true;
 
     layout
     {
@@ -29,7 +30,7 @@ page 353 "Item Availability Lines"
                     Caption = 'Period Name';
                     ToolTip = 'Specifies the type of period that item availability is shown for.';
                 }
-                field(GrossRequirement; GrossRequirement)
+                field(GrossRequirement; "Gross Requirement")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Gross Requirement';
@@ -41,7 +42,7 @@ page 353 "Item Availability Lines"
                         ShowItemAvailLineList(0)
                     end;
                 }
-                field(ScheduledRcpt; ScheduledRcpt)
+                field(ScheduledRcpt; "Scheduled Receipt")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Scheduled Receipt';
@@ -53,7 +54,7 @@ page 353 "Item Availability Lines"
                         ShowItemAvailLineList(2);
                     end;
                 }
-                field(PlannedOrderRcpt; PlannedOrderRcpt)
+                field(PlannedOrderRcpt; "Planned Order Receipt")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Planned Order Receipt';
@@ -65,7 +66,7 @@ page 353 "Item Availability Lines"
                         ShowItemAvailLineList(1);
                     end;
                 }
-                field(ProjAvailableBalance; ProjAvailableBalance)
+                field(ProjAvailableBalance; "Projected Available Balance")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Projected Available Balance';
@@ -77,7 +78,7 @@ page 353 "Item Availability Lines"
                         ShowItemAvailLineList(4);
                     end;
                 }
-                field("Item.Inventory"; Item.Inventory)
+                field("Item.Inventory"; Inventory)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Inventory';
@@ -90,7 +91,7 @@ page 353 "Item Availability Lines"
                         ItemAvailFormsMgt.ShowItemLedgerEntries(Item, false);
                     end;
                 }
-                field("Item.""Qty. on Purch. Order"""; Item."Qty. on Purch. Order")
+                field("Item.""Qty. on Purch. Order"""; "Qty. on Purch. Order")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Qty. on Purch. Order';
@@ -104,7 +105,7 @@ page 353 "Item Availability Lines"
                         ItemAvailFormsMgt.ShowPurchLines(Item);
                     end;
                 }
-                field("Item.""Qty. on Sales Order"""; Item."Qty. on Sales Order")
+                field("Item.""Qty. on Sales Order"""; "Qty. on Sales Order")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Qty. on Sales Order';
@@ -118,7 +119,7 @@ page 353 "Item Availability Lines"
                         ItemAvailFormsMgt.ShowSalesLines(Item);
                     end;
                 }
-                field("Item.""Qty. on Service Order"""; Item."Qty. on Service Order")
+                field("Item.""Qty. on Service Order"""; "Qty. on Service Order")
                 {
                     ApplicationArea = Service;
                     Caption = 'Qty. on Service Order';
@@ -131,7 +132,7 @@ page 353 "Item Availability Lines"
                         ItemAvailFormsMgt.ShowServLines(Item);
                     end;
                 }
-                field("Item.""Qty. on Job Order"""; Item."Qty. on Job Order")
+                field("Item.""Qty. on Job Order"""; "Qty. on Job Order")
                 {
                     ApplicationArea = Jobs;
                     Caption = 'Qty. on Job Order';
@@ -144,7 +145,7 @@ page 353 "Item Availability Lines"
                         ItemAvailFormsMgt.ShowJobPlanningLines(Item);
                     end;
                 }
-                field("Item.""Trans. Ord. Shipment (Qty.)"""; Item."Trans. Ord. Shipment (Qty.)")
+                field("Item.""Trans. Ord. Shipment (Qty.)"""; "Trans. Ord. Shipment (Qty.)")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Trans. Ord. Shipment (Qty.)';
@@ -157,7 +158,7 @@ page 353 "Item Availability Lines"
                         ItemAvailFormsMgt.ShowTransLines(Item, Item.FieldNo("Trans. Ord. Shipment (Qty.)"));
                     end;
                 }
-                field("Item.""Qty. in Transit"""; Item."Qty. in Transit")
+                field("Item.""Qty. in Transit"""; "Qty. in Transit")
                 {
                     ApplicationArea = Location;
                     Caption = 'Qty. in Transit';
@@ -170,7 +171,7 @@ page 353 "Item Availability Lines"
                         ItemAvailFormsMgt.ShowTransLines(Item, Item.FieldNo("Qty. in Transit"));
                     end;
                 }
-                field("Item.""Trans. Ord. Receipt (Qty.)"""; Item."Trans. Ord. Receipt (Qty.)")
+                field("Item.""Trans. Ord. Receipt (Qty.)"""; "Trans. Ord. Receipt (Qty.)")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Trans. Ord. Receipt (Qty.)';
@@ -183,7 +184,7 @@ page 353 "Item Availability Lines"
                         ItemAvailFormsMgt.ShowTransLines(Item, Item.FieldNo("Trans. Ord. Receipt (Qty.)"));
                     end;
                 }
-                field("Item.""Qty. on Asm. Component"""; Item."Qty. on Asm. Component")
+                field("Item.""Qty. on Asm. Component"""; "Qty. on Asm. Comp. Lines")
                 {
                     ApplicationArea = Assembly;
                     Caption = 'Qty. on Asm. Comp. Lines';
@@ -197,7 +198,7 @@ page 353 "Item Availability Lines"
                         ItemAvailFormsMgt.ShowAsmCompLines(Item);
                     end;
                 }
-                field("Item.""Qty. on Assembly Order"""; Item."Qty. on Assembly Order")
+                field("Item.""Qty. on Assembly Order"""; "Qty. on Assembly Order")
                 {
                     ApplicationArea = Assembly;
                     Caption = 'Qty. on Assembly Order';
@@ -211,7 +212,7 @@ page 353 "Item Availability Lines"
                         ItemAvailFormsMgt.ShowAsmOrders(Item);
                     end;
                 }
-                field(ExpectedInventory; ExpectedInventory)
+                field(ExpectedInventory; "Expected Inventory")
                 {
                     ApplicationArea = Assembly;
                     Caption = 'Expected Inventory';
@@ -219,7 +220,7 @@ page 353 "Item Availability Lines"
                     ToolTip = 'Specifies how many units of the assembly component are expected to be available for the current assembly order on the due date.';
                     Visible = false;
                 }
-                field(QtyAvailable; QtyAvailable)
+                field(QtyAvailable; "Available Inventory")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Available Inventory';
@@ -227,7 +228,7 @@ page 353 "Item Availability Lines"
                     ToolTip = 'Specifies the quantity of the item that is currently in inventory and not reserved for other demand.';
                     Visible = false;
                 }
-                field("Item.""Scheduled Receipt (Qty.)"""; Item."Scheduled Receipt (Qty.)")
+                field("Item.""Scheduled Receipt (Qty.)"""; "Scheduled Receipt (Qty.)")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Scheduled Receipt (Qty.)';
@@ -241,7 +242,7 @@ page 353 "Item Availability Lines"
                         ItemAvailFormsMgt.ShowSchedReceipt(Item);
                     end;
                 }
-                field("Item.""Scheduled Need (Qty.)"""; Item."Scheduled Need (Qty.)")
+                field("Item.""Scheduled Need (Qty.)"""; "Scheduled Issue (Qty.)")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Scheduled Issue (Qty.)';
@@ -255,7 +256,7 @@ page 353 "Item Availability Lines"
                         ItemAvailFormsMgt.ShowSchedNeed(Item);
                     end;
                 }
-                field(PlannedOrderReleases; PlannedOrderReleases)
+                field(PlannedOrderReleases; "Planned Order Releases")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Planned Order Releases';
@@ -268,7 +269,7 @@ page 353 "Item Availability Lines"
                         ShowItemAvailLineList(3);
                     end;
                 }
-                field("Item.""Net Change"""; Item."Net Change")
+                field("Item.""Net Change"""; "Net Change")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Net Change';
@@ -292,48 +293,50 @@ page 353 "Item Availability Lines"
 
     trigger OnAfterGetRecord()
     begin
-        CalcAvailQuantities(
-          Item, GrossRequirement, PlannedOrderRcpt, ScheduledRcpt,
-          PlannedOrderReleases, ProjAvailableBalance, ExpectedInventory, QtyAvailable);
-    end;
-
-    trigger OnFindRecord(Which: Text): Boolean
-    begin
-        exit(PeriodFormMgt.FindDate(Which, Rec, PeriodType));
+        if DateRec.Get("Period Type", "Period Start") then;
+        CalcAvailQuantities(Item);
     end;
 
     trigger OnInit()
     begin
-        SetItemFilter;
+        SetItemFilter();
     end;
 
-    trigger OnNextRecord(Steps: Integer): Integer
+    trigger OnFindRecord(Which: Text) FoundDate: Boolean
+    var
+        VariantRec: Variant;
     begin
-        exit(PeriodFormMgt.NextDate(Steps, Rec, PeriodType));
+        VariantRec := Rec;
+        FoundDate := PeriodFormLinesMgt.FindDate(VariantRec, DateRec, Which, PeriodType);
+        Rec := VariantRec;
+    end;
+
+    trigger OnNextRecord(Steps: Integer) ResultSteps: Integer
+    var
+        VariantRec: Variant;
+    begin
+        VariantRec := Rec;
+        ResultSteps := PeriodFormLinesMgt.NextDate(VariantRec, DateRec, Steps, PeriodType);
+        Rec := VariantRec;
     end;
 
     trigger OnOpenPage()
     begin
-        Reset;
+        Reset();
     end;
 
     var
         Item: Record Item;
+        DateRec: Record Date;
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        PeriodFormLinesMgt: Codeunit "Period Form Lines Mgt.";
         PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
         AmountType: Option "Net Change","Balance at Date";
-        ExpectedInventory: Decimal;
-        QtyAvailable: Decimal;
-        PlannedOrderReleases: Decimal;
-        GrossRequirement: Decimal;
-        PlannedOrderRcpt: Decimal;
-        ScheduledRcpt: Decimal;
-        ProjAvailableBalance: Decimal;
 
     procedure Set(var NewItem: Record Item; NewPeriodType: Integer; NewAmountType: Option "Net Change","Balance at Date")
     begin
         Item.Copy(NewItem);
+        DeleteAll();
         PeriodType := NewPeriodType;
         AmountType := NewAmountType;
         CurrPage.Update(false);
@@ -352,17 +355,38 @@ page 353 "Item Availability Lines"
 
     local procedure ShowItemAvailLineList(What: Integer)
     begin
-        SetItemFilter;
+        SetItemFilter();
         ItemAvailFormsMgt.ShowItemAvailLineList(Item, What);
     end;
 
-    local procedure CalcAvailQuantities(var Item: Record Item; var GrossRequirement: Decimal; var PlannedOrderRcpt: Decimal; var ScheduledRcpt: Decimal; var PlannedOrderReleases: Decimal; var ProjAvailableBalance: Decimal; var ExpectedInventory: Decimal; var QtyAvailable: Decimal)
+    local procedure CalcAvailQuantities(var Item: Record Item)
     begin
-        SetItemFilter;
+        SetItemFilter();
         ItemAvailFormsMgt.CalcAvailQuantities(
           Item, AmountType = AmountType::"Balance at Date",
-          GrossRequirement, PlannedOrderRcpt, ScheduledRcpt,
-          PlannedOrderReleases, ProjAvailableBalance, ExpectedInventory, QtyAvailable);
+          "Gross Requirement", "Planned Order Receipt", "Scheduled Receipt",
+          "Planned Order Releases", "Projected Available Balance", "Expected Inventory", "Available Inventory");
+
+        Inventory := Item.Inventory;
+        "Qty. on Purch. Order" := Item."Qty. on Purch. Order";
+        "Qty. on Sales Order" := Item."Qty. on Sales Order";
+        "Qty. on Service Order" := Item."Qty. on Service Order";
+        "Qty. on Job Order" := Item."Qty. on Job Order";
+        "Trans. Ord. Shipment (Qty.)" := Item."Trans. Ord. Shipment (Qty.)";
+        "Qty. in Transit" := Item."Qty. in Transit";
+        "Trans. Ord. Receipt (Qty.)" := Item."Trans. Ord. Receipt (Qty.)";
+        "Qty. on Asm. Comp. Lines" := Item."Qty. on Asm. Component";
+        "Qty. on Assembly Order" := Item."Qty. on Assembly Order";
+        "Scheduled Receipt (Qty.)" := Item."Scheduled Receipt (Qty.)";
+        "Scheduled Issue (Qty.)" := Item."Scheduled Need (Qty.)";
+        "Net Change" := Item."Net Change";
+
+        OnAfterCalcAvailQuantities(Rec, Item);
+    end;
+
+    [IntegrationEvent(TRUE, false)]
+    local procedure OnAfterCalcAvailQuantities(var ItemAvailabilityBuffer: Record "Item Availability Buffer"; var Item: Record Item)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

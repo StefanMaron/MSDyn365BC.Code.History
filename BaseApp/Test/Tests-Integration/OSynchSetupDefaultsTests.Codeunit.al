@@ -29,9 +29,9 @@ codeunit 139024 "OSynch Setup Defaults Tests"
         MyEntityCode := 'RESETTEST';
         if OutlookSynchEntity.Get(MyEntityCode) then
             OutlookSynchEntity.Delete(true);
-        OutlookSynchEntity.Init;
+        OutlookSynchEntity.Init();
         OutlookSynchEntity.Code := MyEntityCode;
-        OutlookSynchEntity.Insert;
+        OutlookSynchEntity.Insert();
 
         ResetEntityChoiceValue := 4;
         OutlookSynchSetupDefaults.ResetEntity(MyEntityCode);
@@ -109,14 +109,14 @@ codeunit 139024 "OSynch Setup Defaults Tests"
         if IsInitialized then
             exit;
 
-        Commit;
+        Commit();
 
         IsInitialized := true;
     end;
 
     local procedure MockOSynchEntity(var OutlookSynchEntity: Record "Outlook Synch. Entity")
     begin
-        OutlookSynchEntity.Init;
+        OutlookSynchEntity.Init();
         OutlookSynchEntity.Code :=
           LibraryUtility.GenerateRandomCode(OutlookSynchEntity.FieldNo(Code), DATABASE::"Outlook Synch. Entity");
         OutlookSynchEntity.Insert(true);
@@ -138,45 +138,45 @@ codeunit 139024 "OSynch Setup Defaults Tests"
 
     local procedure MockOSynchEntityElement(var OutlookSynchEntityElement: Record "Outlook Synch. Entity Element"; OutlookSynchEntityCode: Code[10])
     begin
-        OutlookSynchEntityElement.Init;
+        OutlookSynchEntityElement.Init();
         OutlookSynchEntityElement."Synch. Entity Code" := OutlookSynchEntityCode;
         OutlookSynchEntityElement."Element No." := 10000;
-        OutlookSynchEntityElement.Insert;
+        OutlookSynchEntityElement.Insert();
     end;
 
     local procedure MockOSynchField(var OutlookSynchField: Record "Outlook Synch. Field"; OutlookSynchEntityCode: Code[10])
     begin
-        OutlookSynchField.Init;
+        OutlookSynchField.Init();
         OutlookSynchField."Synch. Entity Code" := OutlookSynchEntityCode;
         OutlookSynchField."Element No." := 10000;
         OutlookSynchField."Line No." := 10000;
-        OutlookSynchField.Insert;
+        OutlookSynchField.Insert();
     end;
 
     local procedure MockOSynchFilter(var OutlookSynchFilter: Record "Outlook Synch. Filter"; OutlookSynchEntityRecGUID: Guid)
     begin
-        OutlookSynchFilter.Init;
+        OutlookSynchFilter.Init();
         OutlookSynchFilter."Record GUID" := OutlookSynchEntityRecGUID;
         OutlookSynchFilter."Filter Type" := OutlookSynchFilter."Filter Type"::Condition;
         OutlookSynchFilter."Line No." := 10000;
-        OutlookSynchFilter.Insert;
+        OutlookSynchFilter.Insert();
     end;
 
     local procedure MockOSynchDependency(var OutlookSynchDependency: Record "Outlook Synch. Dependency"; OutlookSynchEntityCode: Code[10])
     begin
-        OutlookSynchDependency.Init;
+        OutlookSynchDependency.Init();
         OutlookSynchDependency."Synch. Entity Code" := OutlookSynchEntityCode;
         OutlookSynchDependency."Element No." := 10000;
         OutlookSynchDependency."Depend. Synch. Entity Code" := OutlookSynchEntityCode;
-        OutlookSynchDependency.Insert;
+        OutlookSynchDependency.Insert();
     end;
 
     local procedure MockOSynchUserSetup(var OutlookSynchUserSetup: Record "Outlook Synch. User Setup"; OutlookSynchEntityCode: Code[10])
     begin
-        OutlookSynchUserSetup.Init;
+        OutlookSynchUserSetup.Init();
         OutlookSynchUserSetup."User ID" := UserId;
         OutlookSynchUserSetup."Synch. Entity Code" := OutlookSynchEntityCode;
-        OutlookSynchUserSetup.Insert;
+        OutlookSynchUserSetup.Insert();
     end;
 
     local procedure ValidateOSynchFilters()

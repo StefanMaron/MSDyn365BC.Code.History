@@ -207,7 +207,7 @@ table 1170 "User Task"
                 DummyUserTask.CopyFilters(Rec);
                 Reset;
                 SetRange("Parent ID", "Parent ID");
-                DeleteAll;
+                DeleteAll();
                 CopyFilters(DummyUserTask);
             end
     end;

@@ -111,8 +111,8 @@ table 485 "Business Chart Buffer"
 
     local procedure ClearMap(var BusChartMap: Record "Business Chart Map")
     begin
-        BusChartMap.Reset;
-        BusChartMap.DeleteAll;
+        BusChartMap.Reset();
+        BusChartMap.DeleteAll();
     end;
 
     procedure SetChartCondensed(Condensed: Boolean)
@@ -263,7 +263,7 @@ table 485 "Business Chart Buffer"
 
     procedure FindFirstMeasure(var BusChartMap: Record "Business Chart Map") Result: Boolean
     begin
-        TempBusChartMapToMeasure.Reset;
+        TempBusChartMapToMeasure.Reset();
         Result := TempBusChartMapToMeasure.FindSet;
         BusChartMap := TempBusChartMapToMeasure;
     end;
@@ -276,7 +276,7 @@ table 485 "Business Chart Buffer"
 
     procedure FindFirstColumn(var BusChartMap: Record "Business Chart Map") Result: Boolean
     begin
-        TempBusChartMapToColumn.Reset;
+        TempBusChartMapToColumn.Reset();
         Result := TempBusChartMapToColumn.FindSet;
         BusChartMap := TempBusChartMapToColumn;
     end;
@@ -285,7 +285,7 @@ table 485 "Business Chart Buffer"
     var
         MidColumnIndex: Integer;
     begin
-        TempBusChartMapToColumn.Reset;
+        TempBusChartMapToColumn.Reset();
         TempBusChartMapToColumn.FindLast;
         MidColumnIndex := -Round(TempBusChartMapToColumn.Count div 2);
         Result := MidColumnIndex = TempBusChartMapToColumn.Next(MidColumnIndex);

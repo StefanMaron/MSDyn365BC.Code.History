@@ -137,7 +137,7 @@ report 1129 "Cost Allocations"
                     CostAllocationTarget.SetRange(ID, ID);
 
                     if CostAllocationTarget.IsEmpty then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
             end;
         }

@@ -24,21 +24,21 @@ codeunit 136215 "Marketing Interactions UI"
         InteractionLogEntriesPage: TestPage "Interaction Log Entries";
     begin
         // [FEATURE] [Opportunity] [UI]
-        InteractionLogEntry.DeleteAll;
-        InteractionLogEntry.Init;
+        InteractionLogEntry.DeleteAll();
+        InteractionLogEntry.Init();
         // [GIVEN] The Interaction Log Entry "A", where "Opportunity No." is <blank>
         InteractionLogEntry."Entry No." += 1;
         InteractionLogEntry.Canceled := false;
-        InteractionLogEntry.Insert;
+        InteractionLogEntry.Insert();
         // [GIVEN] The Interaction Log Entry "B", where "Opportunity No." is <blank>, Status is Cancelled
         InteractionLogEntry."Entry No." += 1;
         InteractionLogEntry.Canceled := true;
-        InteractionLogEntry.Insert;
+        InteractionLogEntry.Insert();
         // [GIVEN] The Interaction Log Entry "C", where "Opportunity No." is "X"
         InteractionLogEntry."Entry No." += 1;
         InteractionLogEntry.Canceled := false;
         InteractionLogEntry."Opportunity No." := 'X';
-        InteractionLogEntry.Insert;
+        InteractionLogEntry.Insert();
 
         // [WHEN] Open "Interaction Log Entries" page
         InteractionLogEntriesPage.OpenView;
@@ -73,11 +73,11 @@ codeunit 136215 "Marketing Interactions UI"
         // [GIVEN] Contact
         LibraryMarketing.CreatePersonContact(Contact);
         // [GIVEN] Interaction Log Entry, where "Opportunity No." is <blank>
-        InteractionLogEntry.DeleteAll;
-        InteractionLogEntry.Init;
+        InteractionLogEntry.DeleteAll();
+        InteractionLogEntry.Init();
         InteractionLogEntry."Contact No." := Contact."No.";
         InteractionLogEntry."Salesperson Code" := Contact."Salesperson Code";
-        InteractionLogEntry.Insert;
+        InteractionLogEntry.Insert();
         InteractionLogEntriesPage.OpenView;
         // [WHEN] Create opportunity for the entry
         InteractionLogEntriesPage.CreateOpportunity.Invoke;
@@ -467,7 +467,7 @@ codeunit 136215 "Marketing Interactions UI"
         // [GIVEN] Person "A", where "Phone No." is '1234' and "Mobile Phone No." is '9876'
         PersonContact.Validate("Phone No.", '1234');
         PersonContact.Validate("Mobile Phone No.", '9876');
-        PersonContact.Modify;
+        PersonContact.Modify();
         // [GIVEN] Open "Make Phone Call" page from Person Contact "A", where "Contact Phone No." is '1234'
         MakePhoneCallToContact(PersonContact);
 
@@ -500,7 +500,7 @@ codeunit 136215 "Marketing Interactions UI"
         // [GIVEN] Person "A", where "Phone No." is '1234' and "Mobile Phone No." is '9876'
         PersonContact.Validate("Phone No.", '1234');
         PersonContact.Validate("Mobile Phone No.", '9876');
-        PersonContact.Modify;
+        PersonContact.Modify();
         // [WHEN] Open "Make Phone Call" page from Person Contact "A", where "Contact Phone No." is '9876'
         MakePhoneCallToContact(PersonContact);
 
@@ -523,15 +523,15 @@ codeunit 136215 "Marketing Interactions UI"
     begin
         // [FEATURE] [Segment Line] [UT]
         Initialize;
-        SegmentLine.DeleteAll;
+        SegmentLine.DeleteAll();
         // [GIVEN] Interaction Template "GOLF", where Description = 'Golf event'
         LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
         // [GIVEN] New Segment Line, where "Description" is <blank>
-        SegmentLine.Init;
+        SegmentLine.Init();
         LibraryMarketing.CreatePersonContact(Contact);
         SegmentLine."Contact No." := Contact."No.";
         SegmentLine.Description := '';
-        SegmentLine.Insert;
+        SegmentLine.Insert();
         // [WHEN] Set "Interaction Template Code" to "GOLF"
         SegmentLine.Validate("Interaction Template Code", InteractionTemplate.Code);
         // [THEN] Segment Line's "Description" = 'Golf event'
@@ -550,16 +550,16 @@ codeunit 136215 "Marketing Interactions UI"
     begin
         // [FEATURE] [Segment Line] [UT]
         Initialize;
-        SegmentLine.DeleteAll;
+        SegmentLine.DeleteAll();
         // [GIVEN] Interaction Template "GOLF", where Description = 'Golf event'
         LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
         // [GIVEN] New Segment Line, where "Description" is 'Playing golf'
-        SegmentLine.Init;
+        SegmentLine.Init();
         LibraryMarketing.CreatePersonContact(Contact);
         SegmentLine."Contact No." := Contact."No.";
         ExpectedDescription := 'Line Description';
         SegmentLine.Description := ExpectedDescription;
-        SegmentLine.Insert;
+        SegmentLine.Insert();
         // [WHEN] Set "Interaction Template Code" to "GOLF"
         SegmentLine.Validate("Interaction Template Code", InteractionTemplate.Code);
         // [THEN] Segment Line's "Description" = 'Playing golf'
@@ -645,12 +645,12 @@ codeunit 136215 "Marketing Interactions UI"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Marketing Interactions UI");
         LibraryVariableStorage.Clear;
 
-        Opportunity.DeleteAll;
+        Opportunity.DeleteAll();
 
         LibraryMarketing.CreateSalesCycle(SalesCycle);
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         MarketingSetup."Default Sales Cycle Code" := SalesCycle.Code;
-        MarketingSetup.Modify;
+        MarketingSetup.Modify();
     end;
 
     local procedure CloseOpportunity(ContactNo: Code[20]; SalesPersonCode: Code[20])
@@ -670,14 +670,14 @@ codeunit 136215 "Marketing Interactions UI"
         LibraryMarketing.CreateCompanyContact(CompanyContact);
         CompanyContact."Salesperson Code" := SalespersonPurchaser.Code;
         CompanyContact."Correspondence Type" := CompanyContact."Correspondence Type"::" ";
-        CompanyContact.Modify;
+        CompanyContact.Modify();
         LibraryMarketing.CreatePersonContact(PersonContact);
         PersonContact."Correspondence Type" := CompanyContact."Correspondence Type"::" ";
         PersonContact."Company No." := CompanyContact."No.";
         PersonContact."Phone No." := LibraryUtility.GenerateGUID;
         PersonContact."Mobile Phone No." := LibraryUtility.GenerateGUID;
         PersonContact."Salesperson Code" := SalespersonPurchaser.Code;
-        PersonContact.Modify;
+        PersonContact.Modify();
     end;
 
     local procedure CreateOpportunitiesPerContact(Contact: array[3] of Record Contact)
@@ -688,7 +688,7 @@ codeunit 136215 "Marketing Interactions UI"
         for i := 1 to 3 do begin
             LibraryMarketing.CreateOpportunity(Opportunity, Contact[i]."No.");
             Opportunity."Salesperson Code" := Contact[3]."Salesperson Code";
-            Opportunity.Modify;
+            Opportunity.Modify();
         end;
     end;
 
@@ -708,7 +708,7 @@ codeunit 136215 "Marketing Interactions UI"
 
     local procedure CreateSalesperson(var SalespersonPurchaser: Record "Salesperson/Purchaser")
     begin
-        SalespersonPurchaser.Init;
+        SalespersonPurchaser.Init();
         SalespersonPurchaser.Validate(Code, LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(SalespersonPurchaser.Code), 1));
         SalespersonPurchaser.Validate(Name, SalespersonPurchaser.Code);  // Validating Name as Code because value is not important.
         SalespersonPurchaser.Insert(true);

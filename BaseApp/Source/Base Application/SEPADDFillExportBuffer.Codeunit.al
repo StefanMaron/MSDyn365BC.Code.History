@@ -38,11 +38,11 @@ codeunit 1231 "SEPA DD-Fill Export Buffer"
         until TempDirectDebitCollectionEntry.Next = 0;
 
         if DirectDebitCollection.HasPaymentFileErrors then begin
-            Commit;
+            Commit();
             Error(HasErrorsErr);
         end;
 
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetup.TestField("LCY Code");
 
         TempDirectDebitCollectionEntry.FindSet;
@@ -82,6 +82,8 @@ codeunit 1231 "SEPA DD-Fill Export Buffer"
                 "Payment Information ID" := TempDirectDebitCollectionEntry."Transaction ID";
                 "End-to-End ID" := TempDirectDebitCollectionEntry."Transaction ID";
                 "Message to Recipient 1" := TempDirectDebitCollectionEntry."Applies-to Entry Description";
+
+                OnBeforeInsertPaymentExportData(PaymentExportData, TempDirectDebitCollectionEntry);
                 Insert(true);
             until TempDirectDebitCollectionEntry.Next = 0;
         end;
@@ -107,6 +109,11 @@ codeunit 1231 "SEPA DD-Fill Export Buffer"
                 "Sequence Type" := SequenceType;
                 Modify;
             end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertPaymentExportData(var PaymentExportData: Record "Payment Export Data"; var TempDirectDebitCollectionEntry: Record "Direct Debit Collection Entry" temporary)
+    begin
     end;
 }
 

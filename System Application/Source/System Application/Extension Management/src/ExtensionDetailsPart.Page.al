@@ -18,8 +18,8 @@ page 2504 "Extension Details Part"
     PopulateAllFields = true;
     RefreshOnActivate = true;
     ShowFilter = false;
-    SourceTable = "NAV App";
-    SourceTableView = WHERE("Package Type" = FILTER(= 0 | 2),
+    SourceTable = "Published Application";
+    SourceTableView = WHERE("Package Type" = FILTER(= Extension | Designer),
                     "Tenant Visible" = CONST(true));
     ContextSensitiveHelpPage = 'ui-extensions';
 
@@ -29,8 +29,6 @@ page 2504 "Extension Details Part"
         {
             group(Control8)
             {
-                //The GridLayout property is only supported on controls of type Grid
-                //GridLayout = Rows;
                 ShowCaption = false;
                 group(Control2)
                 {
@@ -47,8 +45,6 @@ page 2504 "Extension Details Part"
             }
             group(Control4)
             {
-                //The GridLayout property is only supported on controls of type Grid
-                //GridLayout = Rows;
                 ShowCaption = false;
                 group(Control9)
                 {

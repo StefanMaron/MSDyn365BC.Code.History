@@ -48,7 +48,7 @@ codeunit 56 "Sales - Calc Discount By Type"
     begin
         with SalesHeader do begin
 
-            SalesSetup.Get;
+            SalesSetup.Get();
             DiscountNotificationMgt.NotifyAboutMissingSetup(
                 SalesSetup.RecordId, "Gen. Bus. Posting Group",
                 SalesSetup."Discount Posting", SalesSetup."Discount Posting"::"Line Discounts");
@@ -195,7 +195,7 @@ codeunit 56 "Sales - Calc Discount By Type"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         if not SalesReceivablesSetup."Calc. Inv. Discount" then
             exit(true);
 

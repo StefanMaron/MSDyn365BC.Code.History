@@ -242,7 +242,7 @@ codeunit 8618 "Config. Excel Exchange"
         if ConfigPackageTable.FindSet then
             repeat
                 SelectedTable.Number := ConfigPackageTable."Table ID";
-                if SelectedTable.Insert then;
+                if SelectedTable.Insert() then;
             until ConfigPackageTable.Next = 0;
     end;
 
@@ -255,7 +255,7 @@ codeunit 8618 "Config. Excel Exchange"
 
     local procedure IsWorksheetSelected(var TempConfigPackageTable: Record "Config. Package Table" temporary; WrksheetId: Integer): Boolean
     begin
-        TempConfigPackageTable.Reset;
+        TempConfigPackageTable.Reset();
         TempConfigPackageTable.SetRange("Processing Order", WrksheetId);
         exit(not TempConfigPackageTable.IsEmpty);
     end;
@@ -293,7 +293,7 @@ codeunit 8618 "Config. Excel Exchange"
                 FillImportPreviewBuffer(TempConfigPackageTable, WrkSheetId, CellData.ColumnNumber, CellData.Value);
             WrkSheetId += 1;
         until WrkSheetId >= SheetCount;
-        SelectedTable.DeleteAll;
+        SelectedTable.DeleteAll();
         if TempConfigPackageTable.FindFirst then;
         Window.Close;
     end;
@@ -638,7 +638,7 @@ codeunit 8618 "Config. Excel Exchange"
         RowsCount: Integer;
     begin
         TableDefinitionPart := WrkShtWriter.CreateTableDefinitionPart;
-        ConfigPackageField.Reset;
+        ConfigPackageField.Reset();
         ConfigPackageField.SetRange("Package Code", ConfigPackageTable."Package Code");
         ConfigPackageField.SetRange("Table ID", ConfigPackageTable."Table ID");
         ConfigPackageField.SetRange("Include Field", true);
@@ -649,7 +649,7 @@ codeunit 8618 "Config. Excel Exchange"
         if SkipData then
             RowsCount := 1
         else
-            RowsCount := DataTable.Rows.Count;
+            RowsCount := DataTable.Rows.Count();
         Table := WrkShtWriter.CreateTable(id);
         Table.TotalsRowShown := BooleanValue.BooleanValue(false);
         Table.Reference :=
@@ -682,7 +682,7 @@ codeunit 8618 "Config. Excel Exchange"
         TableStartColumnIndex: Integer;
         Index: Integer;
     begin
-        TempXMLBuffer.DeleteAll;
+        TempXMLBuffer.DeleteAll();
         if not OpenXMLManagement.FindTableDefinition(WrkShtReader, Table) then
             exit(false);
 
@@ -726,10 +726,10 @@ codeunit 8618 "Config. Excel Exchange"
 
     local procedure InsertXMLBuffer(ColumnIndex: Integer; var TempXMLBuffer: Record "XML Buffer" temporary)
     begin
-        TempXMLBuffer.Init;
+        TempXMLBuffer.Init();
         TempXMLBuffer."Entry No." := ColumnIndex; // column index in table definition
-        TempXMLBuffer."Parent Entry No." := TempXMLBuffer.Count; // column index in dataset
-        TempXMLBuffer.Insert;
+        TempXMLBuffer."Parent Entry No." := TempXMLBuffer.Count(); // column index in dataset
+        TempXMLBuffer.Insert();
     end;
 
     procedure SetFileOnServer(NewFileOnServer: Boolean)

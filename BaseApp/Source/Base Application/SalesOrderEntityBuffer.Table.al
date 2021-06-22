@@ -108,6 +108,7 @@ table 5495 "Sales Order Entity Buffer"
             Caption = 'Posting Date';
             DataClassification = CustomerContent;
         }
+
         field(23; "Payment Terms Code"; Code[10])
         {
             Caption = 'Payment Terms Code';

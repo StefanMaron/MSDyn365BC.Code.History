@@ -28,7 +28,7 @@ codeunit 133 "Send Incoming Document to OCR"
 
         IncomingDocument.TestField("OCR Status", IncomingDocument."OCR Status"::" ");
         IncomingDocument."OCR Status" := IncomingDocument."OCR Status"::Ready;
-        IncomingDocument.Modify;
+        IncomingDocument.Modify();
 
         CODEUNIT.Run(CODEUNIT::"Release Incoming Document", IncomingDocument);
         ShowMessage(DocumentHasBeenScheduledTxt);
@@ -58,7 +58,7 @@ codeunit 133 "Send Incoming Document to OCR"
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
         OCRServiceSetup: Record "OCR Service Setup";
     begin
-        OCRServiceSetup.Get;
+        OCRServiceSetup.Get();
         if not OCRServiceSetup.Enabled then begin
             if not Confirm(DoYouWantToSetupOCRQst) then
                 exit;
@@ -83,7 +83,7 @@ codeunit 133 "Send Incoming Document to OCR"
 
         CODEUNIT.Run(CODEUNIT::"Release Incoming Document", IncomingDocument);
 
-        IncomingDocument.LockTable;
+        IncomingDocument.LockTable();
         IncomingDocument.Find;
         // Check OCR Status due to it could be changed by another user in the meantime
         if IncomingDocument."OCR Status" = IncomingDocument."OCR Status"::Ready then begin
@@ -93,9 +93,9 @@ codeunit 133 "Send Incoming Document to OCR"
                 Error(NoAttachmentMarkedForOcrErr);
             IncomingDocumentAttachment.SendToOCR;
             IncomingDocument."OCR Status" := IncomingDocument."OCR Status"::Sent;
-            IncomingDocument.Modify;
+            IncomingDocument.Modify();
         end;
-        Commit;
+        Commit();
         OnAfterIncomingDocSentToOCR(IncomingDocument);
     end;
 
@@ -118,7 +118,7 @@ codeunit 133 "Send Incoming Document to OCR"
                 TestField("OCR Status", "OCR Status"::Sent);
 
             CheckNotCreated;
-            LockTable;
+            LockTable();
             Find;
             IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", "Entry No.");
             IncomingDocumentAttachment.SetRange("Use for OCR", true);
@@ -151,7 +151,7 @@ codeunit 133 "Send Incoming Document to OCR"
             "OCR Status" := "OCR Status"::Success;
             "OCR Process Finished" := true;
             Modify;
-            Commit;
+            Commit();
 
             OnAfterIncomingDocReceivedFromOCR(IncomingDocument);
         end;
@@ -164,7 +164,7 @@ codeunit 133 "Send Incoming Document to OCR"
             "OCR Status" := "OCR Status"::Error;
             "OCR Process Finished" := true;
             Modify;
-            Commit;
+            Commit();
 
             OnAfterIncomingDocReceivedFromOCR(IncomingDocument);
         end;
@@ -176,7 +176,7 @@ codeunit 133 "Send Incoming Document to OCR"
             Find;
             "OCR Status" := "OCR Status"::"Awaiting Verification";
             Modify;
-            Commit;
+            Commit();
         end;
     end;
 
@@ -235,7 +235,7 @@ codeunit 133 "Send Incoming Document to OCR"
                 IncomingDocumentAttachment.SetRange("Main Attachment", true);
                 IncomingDocumentAttachment.FindFirst;
                 IncomingDocumentAttachment."Use for OCR" := true;
-                IncomingDocumentAttachment.Modify;
+                IncomingDocumentAttachment.Modify();
             end;
         end;
     end;

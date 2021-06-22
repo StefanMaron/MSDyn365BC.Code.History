@@ -34,14 +34,14 @@ page 7504 "Item Attribute Value List"
                             InsertItemAttributeValue(ItemAttributeValue, Rec);
 
                         if ItemAttributeValue.Get(ItemAttributeValue."Attribute ID", ItemAttributeValue.ID) then begin
-                            ItemAttributeValueMapping.Reset;
-                            ItemAttributeValueMapping.Init;
+                            ItemAttributeValueMapping.Reset();
+                            ItemAttributeValueMapping.Init();
                             ItemAttributeValueMapping."Table ID" := DATABASE::Item;
                             ItemAttributeValueMapping."No." := RelatedRecordCode;
                             ItemAttributeValueMapping."Item Attribute ID" := ItemAttributeValue."Attribute ID";
                             ItemAttributeValueMapping."Item Attribute Value ID" := ItemAttributeValue.ID;
                             OnBeforeItemAttributeValueMappingInsert(ItemAttributeValueMapping, ItemAttributeValue, Rec);
-                            ItemAttributeValueMapping.Insert;
+                            ItemAttributeValueMapping.Insert();
                         end;
                     end;
                 }
@@ -68,7 +68,7 @@ page 7504 "Item Attribute Value List"
                         if ItemAttributeValueMapping.FindFirst then begin
                             ItemAttributeValueMapping."Item Attribute Value ID" := ItemAttributeValue.ID;
                             OnBeforeItemAttributeValueMappingModify(ItemAttributeValueMapping, ItemAttributeValue, RelatedRecordCode);
-                            ItemAttributeValueMapping.Modify;
+                            ItemAttributeValueMapping.Modify();
                             OnAfterItemAttributeValueMappingModify(ItemAttributeValueMapping, Rec);
                         end;
 
@@ -76,7 +76,7 @@ page 7504 "Item Attribute Value List"
                         if ItemAttribute.Type <> ItemAttribute.Type::Option then
                             if FindAttributeValueFromRecord(ItemAttributeValue, xRec) then
                                 if not ItemAttributeValue.HasBeenUsed then
-                                    ItemAttributeValue.Delete;
+                                    ItemAttributeValue.Delete();
                     end;
                 }
                 field("Unit of Measure"; "Unit of Measure")
@@ -118,10 +118,10 @@ page 7504 "Item Attribute Value List"
             repeat
                 ItemAttributeValue.Get(ItemAttributeValueMapping."Item Attribute ID", ItemAttributeValueMapping."Item Attribute Value ID");
                 TempItemAttributeValue.TransferFields(ItemAttributeValue);
-                TempItemAttributeValue.Insert;
+                TempItemAttributeValue.Insert();
             until ItemAttributeValueMapping.Next = 0;
 
-        PopulateItemAttributeValueSelection(TempItemAttributeValue);
+        PopulateItemAttributeValueSelection(TempItemAttributeValue, DATABASE::Item, ItemNo);
     end;
 
     local procedure DeleteItemAttributeValueMapping(AttributeToDeleteID: Integer)
@@ -133,7 +133,7 @@ page 7504 "Item Attribute Value List"
         ItemAttributeValueMapping.SetRange("No.", RelatedRecordCode);
         ItemAttributeValueMapping.SetRange("Item Attribute ID", AttributeToDeleteID);
         if ItemAttributeValueMapping.FindFirst then begin
-            ItemAttributeValueMapping.Delete;
+            ItemAttributeValueMapping.Delete();
             OnAfterItemAttributeValueMappingDelete(AttributeToDeleteID, RelatedRecordCode, Rec);
         end;
 

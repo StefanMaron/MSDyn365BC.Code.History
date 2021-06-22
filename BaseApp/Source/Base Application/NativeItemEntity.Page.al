@@ -340,7 +340,7 @@ page 2802 "Native - Item Entity"
         Clear(TaxGroupCode);
         Clear(TaxGroupId);
         Clear(InventoryValue);
-        TempFieldSet.DeleteAll;
+        TempFieldSet.DeleteAll();
     end;
 
     local procedure SetCalculatedUnitsOfMeasureFields()
@@ -395,7 +395,7 @@ page 2802 "Native - Item Entity"
         if TempFieldSet.Get(DATABASE::Item, FieldNo) then
             exit;
 
-        TempFieldSet.Init;
+        TempFieldSet.Init();
         TempFieldSet.TableNo := DATABASE::Item;
         TempFieldSet.Validate("No.", FieldNo);
         TempFieldSet.Insert(true);

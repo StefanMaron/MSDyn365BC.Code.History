@@ -154,7 +154,7 @@ codeunit 137060 "SCM Inventory 7.0"
         LibraryVariableStorage.Enqueue(ConfirmQst);  // Enqueue Value for ConfirmHandler.
         LibraryVariableStorage.Enqueue(AdjustCostMsg);  // Enqueue Value for MessageHandler.
 
-        InventorySetup.Get;
+        InventorySetup.Get();
         AverageCostPeriod := InventorySetup."Average Cost Period";
         InventorySetup.Validate("Average Cost Period", InventorySetup."Average Cost Period"::"Accounting Period");
         InventorySetup.Modify(true);
@@ -913,7 +913,7 @@ codeunit 137060 "SCM Inventory 7.0"
         CreateItemCrossReference(ItemCrossReference, Item."No.", Item."Base Unit of Measure", Vendor."No.", '');
         // [GIVEN] Delete all item vendors
         ItemVendor.SetRange("Item No.", Item."No.");
-        ItemVendor.DeleteAll;
+        ItemVendor.DeleteAll();
 
         // [GIVEN] Create purchase order: vendor = "V", item = "I", unit of measure = "U1"
         CreatePurchaseOrder(PurchaseLine, Vendor."No.", Item."No.", '', '');
@@ -1064,7 +1064,7 @@ codeunit 137060 "SCM Inventory 7.0"
         CreateItemVendor(ItemVendor, Vendor."No.", Item."No.");
 
         // [GIVEN] Init Requisition Line and validate No. field, Description field is filled from Item.Description
-        RequisitionLine.Init;
+        RequisitionLine.Init();
         RequisitionLine.Validate(Type, RequisitionLine.Type::Item);
         RequisitionLine.Validate("No.", Item."No.");
 
@@ -1100,7 +1100,7 @@ codeunit 137060 "SCM Inventory 7.0"
         CreateItemVendor(ItemVendor, Vendor."No.", Item."No.");
 
         // [GIVEN] Init Requisition Line and validate No. field, Description field is filled from Item.Description
-        RequisitionLine.Init;
+        RequisitionLine.Init();
         RequisitionLine.Validate(Type, RequisitionLine.Type::Item);
         RequisitionLine.Validate("No.", Item."No.");
 
@@ -1138,12 +1138,12 @@ codeunit 137060 "SCM Inventory 7.0"
 
     local procedure ItemJournalSetup()
     begin
-        ItemJournalTemplate.Init;
+        ItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
         ItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
         ItemJournalTemplate.Modify(true);
 
-        ItemJournalBatch.Init;
+        ItemJournalBatch.Init();
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
         ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
         ItemJournalBatch.Modify(true);
@@ -1154,11 +1154,11 @@ codeunit 137060 "SCM Inventory 7.0"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesReceivablesSetup.Modify(true);
 
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchasesPayablesSetup.Modify(true);
     end;
@@ -1179,10 +1179,10 @@ codeunit 137060 "SCM Inventory 7.0"
 
     local procedure RevaluationJournalSetup()
     begin
-        RevaluationItemJournalTemplate.Init;
+        RevaluationItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(RevaluationItemJournalTemplate, RevaluationItemJournalTemplate.Type::Revaluation);
 
-        RevaluationItemJournalBatch.Init;
+        RevaluationItemJournalBatch.Init();
         LibraryInventory.SelectItemJournalBatchName(RevaluationItemJournalBatch, RevaluationItemJournalTemplate.Type,
           RevaluationItemJournalTemplate.Name);
     end;
@@ -1191,7 +1191,7 @@ codeunit 137060 "SCM Inventory 7.0"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.Validate("Average Cost Period", AverageCostPeriod);
         InventorySetup.Modify(true);
     end;
@@ -1318,7 +1318,7 @@ codeunit 137060 "SCM Inventory 7.0"
         SKU."Item No." := ItemNo;
         SKU."Variant Code" := VariantCode;
         SKU."Vendor Item No." := LibraryUtility.GenerateGUID;
-        SKU.Insert;
+        SKU.Insert();
     end;
 
     local procedure CreateTransferRoute(TransferFrom: Code[10]; TransferTo: Code[10]; InTransit: Code[10])
@@ -1482,7 +1482,7 @@ codeunit 137060 "SCM Inventory 7.0"
         ItemJournalLine: Record "Item Journal Line";
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
         LibraryInventory.CreateItemJournalLine(
           ItemJournalLine, ItemJournalBatch."Journal Template Name",

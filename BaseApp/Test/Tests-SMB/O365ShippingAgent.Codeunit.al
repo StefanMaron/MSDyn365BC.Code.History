@@ -375,12 +375,12 @@ codeunit 138007 "O365 Shipping Agent"
 
         LibraryERMCountryData.CreateVATData;
 
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup."Shipment on Invoice" := true;
-        SalesReceivablesSetup.Modify;
+        SalesReceivablesSetup.Modify();
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Shipping Agent");
     end;
 

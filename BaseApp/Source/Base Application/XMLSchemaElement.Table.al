@@ -167,7 +167,7 @@ table 9610 "XML Schema Element"
         if XMLSchemaElement.FindSet then
             repeat
                 XMLSchemaElement.Selected := XMLSchemaElement.Selected or (XMLSchemaElement.MinOccurs > 0);
-                XMLSchemaElement.Modify;
+                XMLSchemaElement.Modify();
                 XMLSchemaElement.SelectMandatoryNodes;
             until XMLSchemaElement.Next = 0;
     end;

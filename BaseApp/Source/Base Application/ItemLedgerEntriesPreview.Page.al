@@ -1,4 +1,4 @@
-﻿page 167 "Item Ledger Entries Preview"
+page 167 "Item Ledger Entries Preview"
 {
     Caption = 'Item Ledger Entries Preview';
     DataCaptionFields = "Item No.";
@@ -419,7 +419,7 @@
         if TempValueEntry2.FindSet then
             repeat
                 TempValueEntry := TempValueEntry2;
-                TempValueEntry.Insert;
+                TempValueEntry.Insert();
             until TempValueEntry2.Next = 0;
     end;
 

@@ -7,7 +7,8 @@ page 362 "Res. Gr. Availability Lines"
     LinksAllowed = false;
     PageType = ListPart;
     SaveValues = true;
-    SourceTable = Date;
+    SourceTable = "Res. Gr. Availability Buffer";
+    SourceTableTemporary = true;
 
     layout
     {
@@ -28,41 +29,42 @@ page 362 "Res. Gr. Availability Lines"
                     Caption = 'Period Name';
                     ToolTip = 'Specifies the name of the period shown in the line.';
                 }
-                field(Capacity; ResGr.Capacity)
+                field(Capacity; Capacity)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Capacity';
                     DecimalPlaces = 0 : 5;
                     ToolTip = 'Specifies the total capacity for the corresponding time period.';
                 }
-                field("ResGr.""Qty. on Order (Job)"""; ResGr."Qty. on Order (Job)")
+                field("ResGr.""Qty. on Order (Job)"""; "Qty. on Order (Job)")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Qty. on Order';
                     DecimalPlaces = 0 : 5;
                     ToolTip = 'Specifies the amount of measuring units allocated to jobs with the status order.';
                 }
-                field("ResGr.""Qty. on Service Order"""; ResGr."Qty. on Service Order")
+                field("ResGr.""Qty. on Service Order"""; "Qty. on Service Order")
                 {
                     ApplicationArea = Service;
                     Caption = 'Qty. Allocated on Service Order';
+                    DecimalPlaces = 0 : 5;
                     ToolTip = 'Specifies the amount of measuring units allocated to service orders.';
                 }
-                field(CapacityAfterOrders; CapacityAfterOrders)
+                field(CapacityAfterOrders; "Availability After Orders")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Availability After Orders';
                     DecimalPlaces = 0 : 5;
                     ToolTip = 'Specifies the capacity minus the quantity on order.';
                 }
-                field("ResGr.""Qty. Quoted (Job)"""; ResGr."Qty. Quoted (Job)")
+                field("ResGr.""Qty. Quoted (Job)"""; "Qty. Quoted (Job)")
                 {
                     ApplicationArea = Jobs;
                     Caption = 'Job Quotes Allocation';
                     DecimalPlaces = 0 : 5;
                     ToolTip = 'Specifies the amount of measuring units allocated to jobs with the status quote.';
                 }
-                field(CapacityAfterQuotes; CapacityAfterQuotes)
+                field(CapacityAfterQuotes; "Net Availability")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Net Availability';
@@ -79,36 +81,45 @@ page 362 "Res. Gr. Availability Lines"
 
     trigger OnAfterGetRecord()
     begin
-        SetDateFilter;
-        CalcLine;
+        if DateRec.Get("Period Type", "Period Start") then;
+        SetDateFilter();
+        CalcLine();
     end;
 
-    trigger OnFindRecord(Which: Text): Boolean
+    trigger OnFindRecord(Which: Text) FoundDate: Boolean
+    var
+        VariantRec: Variant;
     begin
-        exit(PeriodFormMgt.FindDate(Which, Rec, PeriodType));
+        VariantRec := Rec;
+        FoundDate := PeriodFormLinesMgt.FindDate(VariantRec, DateRec, Which, PeriodType);
+        Rec := VariantRec;
     end;
 
-    trigger OnNextRecord(Steps: Integer): Integer
+    trigger OnNextRecord(Steps: Integer) ResultSteps: Integer
+    var
+        VariantRec: Variant;
     begin
-        exit(PeriodFormMgt.NextDate(Steps, Rec, PeriodType));
+        VariantRec := Rec;
+        ResultSteps := PeriodFormLinesMgt.NextDate(VariantRec, DateRec, Steps, PeriodType);
+        Rec := VariantRec;
     end;
 
     trigger OnOpenPage()
     begin
-        Reset;
+        Reset();
     end;
 
     var
         ResGr: Record "Resource Group";
-        PeriodFormMgt: Codeunit PeriodFormManagement;
-        CapacityAfterOrders: Decimal;
-        CapacityAfterQuotes: Decimal;
+        DateRec: Record Date;
+        PeriodFormLinesMgt: Codeunit "Period Form Lines Mgt.";
         PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
         AmountType: Option "Net Change","Balance at Date";
 
     procedure Set(var NewResGr: Record "Resource Group"; NewPeriodType: Integer; NewAmountType: Option "Net Change","Balance at Date")
     begin
         ResGr.Copy(NewResGr);
+        DeleteAll();
         PeriodType := NewPeriodType;
         AmountType := NewAmountType;
         CurrPage.Update(false);
@@ -125,14 +136,18 @@ page 362 "Res. Gr. Availability Lines"
     local procedure CalcLine()
     begin
         ResGr.CalcFields(Capacity, "Qty. on Order (Job)", "Qty. Quoted (Job)", "Qty. on Service Order");
-        CapacityAfterOrders := ResGr.Capacity - ResGr."Qty. on Order (Job)" - ResGr."Qty. on Service Order";
-        CapacityAfterQuotes := CapacityAfterOrders - ResGr."Qty. Quoted (Job)";
+        Capacity := ResGr.Capacity;
+        "Qty. on Order (Job)" := ResGr."Qty. on Order (Job)";
+        "Qty. on Service Order" := ResGr."Qty. on Service Order";
+        "Qty. Quoted (Job)" := ResGr."Qty. Quoted (Job)";
+        "Availability After Orders" := ResGr.Capacity - ResGr."Qty. on Order (Job)" - ResGr."Qty. on Service Order";
+        "Net Availability" := "Availability After Orders" - ResGr."Qty. Quoted (Job)";
 
-        OnAfterCalcLine(ResGr, CapacityAfterOrders, CapacityAfterQuotes);
+        OnAfterCalcLine(ResGr, "Availability After Orders", "Net Availability", Rec);
     end;
 
     [IntegrationEvent(TRUE, false)]
-    local procedure OnAfterCalcLine(var ResourceGroup: Record "Resource Group"; var CapacityAfterOrders: Decimal; var CapacityAfterQuotes: Decimal)
+    local procedure OnAfterCalcLine(var ResourceGroup: Record "Resource Group"; var CapacityAfterOrders: Decimal; var CapacityAfterQuotes: Decimal; var ResGrAvailabilityBuffer: Record "Res. Gr. Availability Buffer")
     begin
     end;
 }

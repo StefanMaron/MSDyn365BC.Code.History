@@ -14,9 +14,9 @@ report 5684 "Copy FA Entries to G/L Budget"
             begin
                 Window.Update(1, "No.");
                 if not FADeprBook.Get("No.", DeprBookCode) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 if Inactive or (FADeprBook."Disposal Date" > 0D) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 FALedgEntry.SetRange("FA No.", "No.");
                 if FALedgEntry.Find('-') then
@@ -147,7 +147,7 @@ report 5684 "Copy FA Entries to G/L Budget"
         trigger OnOpenPage()
         begin
             if DeprBookCode = '' then begin
-                FASetup.Get;
+                FASetup.Get();
                 DeprBookCode := FASetup."Default Depr. Book";
             end;
         end;

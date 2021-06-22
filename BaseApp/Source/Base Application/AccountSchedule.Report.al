@@ -157,7 +157,7 @@ report 25 "Account Schedule"
                         trigger OnAfterGetRecord()
                         begin
                             if Show = Show::Never then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
 
                             Header := "Column Header";
                             RoundingHeader := '';
@@ -210,7 +210,7 @@ report 25 "Account Schedule"
                     trigger OnAfterGetRecord()
                     begin
                         if (Show = Show::No) or not ShowLine(Bold, Italic) then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                         PadChar := 160; // whitespace
                         PadString[1] := PadChar;
@@ -270,11 +270,11 @@ report 25 "Account Schedule"
 
             trigger OnAfterGetRecord()
             begin
-                GLSetup.Get;
+                GLSetup.Get();
                 if "Analysis View Name" <> '' then begin
                     AnalysisView.Get("Analysis View Name");
                 end else begin
-                    AnalysisView.Init;
+                    AnalysisView.Init();
                     AnalysisView."Dimension 1 Code" := GLSetup."Global Dimension 1 Code";
                     AnalysisView."Dimension 2 Code" := GLSetup."Global Dimension 2 Code";
                 end;
@@ -610,7 +610,7 @@ report 25 "Account Schedule"
 
         trigger OnOpenPage()
         begin
-            GLSetup.Get;
+            GLSetup.Get();
             TransferValues;
             if AccSchedName <> '' then
                 if (ColumnLayoutName = '') or not AccSchedNameEditable then
@@ -898,7 +898,7 @@ report 25 "Account Schedule"
     begin
         if GLBudgetName <> '' then
             GLBudgetFilter := GLBudgetName;
-        GLSetup.Get;
+        GLSetup.Get();
         UseAmtsInAddCurrVisible := GLSetup."Additional Reporting Currency" <> '';
         BusinessUnitFilterVisible := not BusinessUnit.IsEmpty;
         if not UseAmtsInAddCurrVisible then

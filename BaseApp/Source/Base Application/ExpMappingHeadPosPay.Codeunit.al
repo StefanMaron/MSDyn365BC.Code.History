@@ -16,13 +16,13 @@ codeunit 1703 "Exp. Mapping Head Pos. Pay"
 
         // Range through the Header record
         LineNo := 1;
-        DataExchLineDef.Init;
+        DataExchLineDef.Init();
         DataExchLineDef.SetRange("Data Exch. Def Code", "Data Exch. Def Code");
         DataExchLineDef.SetRange("Line Type", DataExchLineDef."Line Type"::Header);
         if DataExchLineDef.FindFirst then begin
             DataExch.SetRange("Entry No.", "Entry No.");
             if DataExch.FindFirst then begin
-                PositivePayHeader.Init;
+                PositivePayHeader.Init();
                 PositivePayHeader.SetRange("Data Exch. Entry No.", "Entry No.");
                 if PositivePayHeader.FindFirst then begin
                     Window.Update(1, LineNo);

@@ -180,7 +180,7 @@ report 292 "Copy Sales Document"
     begin
         OnBeforePreReport();
 
-        SalesSetup.Get;
+        SalesSetup.Get();
         CopyDocMgt.SetProperties(
           IncludeHeader, RecalculateLines, false, false, false, SalesSetup."Exact Cost Reversing Mandatory", false);
         CopyDocMgt.SetArchDocVal(DocNoOccurrence, DocVersionNo);
@@ -223,12 +223,12 @@ report 292 "Copy Sales Document"
         DocType2: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
     begin
         if DocNo = '' then begin
-            FromSalesHeader.Init;
+            FromSalesHeader.Init();
             DocNoOccurrence := 0;
             DocVersionNo := 0;
         end else
             if FromSalesHeader."No." = '' then begin
-                FromSalesHeader.Init;
+                FromSalesHeader.Init();
                 case DocType of
                     DocType::Quote,
                   DocType::"Blanket Order",
@@ -352,7 +352,7 @@ report 292 "Copy Sales Document"
 
     local procedure LookupSalesArchive()
     begin
-        FromSalesHeaderArchive.Reset;
+        FromSalesHeaderArchive.Reset();
         FromSalesHeaderArchive.FilterGroup := 0;
         FromSalesHeaderArchive.SetRange("Document Type", CopyDocMgt.ArchSalesHeaderDocType(DocType));
         FromSalesHeaderArchive.FilterGroup := 2;

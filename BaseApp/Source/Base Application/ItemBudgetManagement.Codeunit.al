@@ -16,7 +16,7 @@ codeunit 7130 "Item Budget Management"
         MatrixMgt: Codeunit "Matrix Management";
         GLSetupRead: Boolean;
         Text006: Label 'Do you want to delete the budget entries shown?';
-        Text007: Label '<Sign><Integer Thousand><Decimals,2>';
+        Text007: Label '<Sign><Integer Thousand><Decimals,2>, Locked = true';
         GlobalDimOption: Option Item,Customer,Vendor,Period,Location,"Global Dimension 1","Global Dimension 2","Budget Dimension 1","Budget Dimension 2","Budget Dimension 3";
 
     procedure BudgetNameSelection(CurrentAnalysisArea: Option; var CurrentItemBudgetName: Code[10]; var ItemBudgetName: Record "Item Budget Name"; var ItemStatisticsBuffer: Record "Item Statistics Buffer"; var BudgetDim1Filter: Text; var BudgetDim2Filter: Text; var BudgetDim3Filter: Text)
@@ -26,7 +26,7 @@ codeunit 7130 "Item Budget Management"
             ItemBudgetName.SetRange("Analysis Area", CurrentAnalysisArea);
             ItemBudgetName.FilterGroup := 0;
             if not ItemBudgetName.Find('-') then begin
-                ItemBudgetName.Init;
+                ItemBudgetName.Init();
                 ItemBudgetName."Analysis Area" := CurrentAnalysisArea;
                 ItemBudgetName.Name := Text001;
                 ItemBudgetName.Description := Text002;
@@ -581,7 +581,7 @@ codeunit 7130 "Item Budget Management"
     begin
         if GLSetupRead then
             exit;
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetupRead := true;
     end;
 

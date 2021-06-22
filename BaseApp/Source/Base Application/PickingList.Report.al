@@ -138,7 +138,7 @@ report 5752 "Picking List"
                         then begin
                             if TempWhseActivLine."No." = '' then begin
                                 TempWhseActivLine := "Warehouse Activity Line";
-                                TempWhseActivLine.Insert;
+                                TempWhseActivLine.Insert();
                                 Mark(true);
                             end else begin
                                 TempWhseActivLine.SetSumLinesFilter("Warehouse Activity Line");
@@ -158,10 +158,10 @@ report 5752 "Picking List"
                                         TempWhseActivLine."Destination Type" := TempWhseActivLine."Destination Type"::" ";
                                         TempWhseActivLine."Destination No." := '';
                                     end;
-                                    TempWhseActivLine.Modify;
+                                    TempWhseActivLine.Modify();
                                 end else begin
                                     TempWhseActivLine := "Warehouse Activity Line";
-                                    TempWhseActivLine.Insert;
+                                    TempWhseActivLine.Insert();
                                     Mark(true);
                                 end;
                             end;
@@ -178,7 +178,7 @@ report 5752 "Picking List"
                     begin
                         TempWhseActivLine.SetRange("Activity Type", "Warehouse Activity Header".Type);
                         TempWhseActivLine.SetRange("No.", "Warehouse Activity Header"."No.");
-                        TempWhseActivLine.DeleteAll;
+                        TempWhseActivLine.DeleteAll();
                         if BreakbulkFilter then
                             TempWhseActivLine.SetRange("Original Breakbulk", false);
                         Clear(TempWhseActivLine);
@@ -291,7 +291,7 @@ report 5752 "Picking List"
                         Copy("Warehouse Activity Line");
                         Counter := Count;
                         if Counter = 0 then
-                            CurrReport.Break;
+                            CurrReport.Break();
 
                         if BreakbulkFilter then
                             SetRange("Original Breakbulk", false);

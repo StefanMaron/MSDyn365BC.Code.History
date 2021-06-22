@@ -36,7 +36,7 @@ table 5328 "CRM Synch Status"
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
         Get;
-        DtldCustLedgEntry.Reset;
+        DtldCustLedgEntry.Reset();
         if DtldCustLedgEntry.FindLast then
             if "Last Update Invoice Entry No." <> DtldCustLedgEntry."Entry No." then begin
                 "Last Update Invoice Entry No." := DtldCustLedgEntry."Entry No.";

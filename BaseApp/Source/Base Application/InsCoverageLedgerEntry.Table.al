@@ -32,11 +32,9 @@ table 5629 "Ins. Coverage Ledger Entry"
         {
             Caption = 'Posting Date';
         }
-        field(7; "Document Type"; Option)
+        field(7; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(8; "Document Date"; Date)
         {
@@ -170,6 +168,13 @@ table 5629 "Ins. Coverage Ledger Entry"
 
     var
         DimMgt: Codeunit DimensionManagement;
+
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
+    end;
 
     procedure ShowDimensions()
     begin

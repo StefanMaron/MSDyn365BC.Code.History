@@ -97,10 +97,10 @@ report 1013 "Items per Job"
                 begin
                     if Number = 1 then begin
                         if not JobBuffer.Find('-') then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end else
                         if JobBuffer.Next = 0 then
-                            CurrReport.Break;
+                            CurrReport.Break();
                 end;
             }
 
@@ -115,7 +115,7 @@ report 1013 "Items per Job"
 
             trigger OnPreDataItem()
             begin
-                CurrReport.Break;
+                CurrReport.Break();
             end;
         }
     }

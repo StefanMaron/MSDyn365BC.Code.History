@@ -19,8 +19,9 @@ codeunit 1303 "Correct Posted Sales Invoice"
 
         CODEUNIT.Run(CODEUNIT::"Sales-Post", SalesHeader);
         SetTrackInfoForCancellation(Rec);
+        UpdateSalesOrderLinesFromCancelledInvoice("No.");
 
-        Commit;
+        Commit();
     end;
 
     var
@@ -185,7 +186,7 @@ codeunit 1303 "Correct Posted Sales Invoice"
         if SalesLine.FindSet then
             repeat
                 SalesLine."Job Contract Entry No." := CreateJobPlanningLine(SalesHeader, SalesLine);
-                SalesLine.Modify;
+                SalesLine.Modify();
             until SalesLine.Next = 0;
     end;
 
@@ -202,10 +203,10 @@ codeunit 1303 "Correct Posted Sales Invoice"
         ToJobPlanningLine.InitFromJobPlanningLine(FromJobPlanningLine, -SalesLine.Quantity);
         JobPlanningLineInvoice.InitFromJobPlanningLine(ToJobPlanningLine);
         JobPlanningLineInvoice.InitFromSales(SalesHeader, SalesHeader."Posting Date", SalesLine."Line No.");
-        JobPlanningLineInvoice.Insert;
+        JobPlanningLineInvoice.Insert();
 
         ToJobPlanningLine.UpdateQtyToTransfer;
-        ToJobPlanningLine.Insert;
+        ToJobPlanningLine.Insert();
 
         exit(ToJobPlanningLine."Job Contract Entry No.");
     end;
@@ -218,7 +219,7 @@ codeunit 1303 "Correct Posted Sales Invoice"
         if CreateCreditMemo(SalesInvoiceHeader) then begin
             CreateCopyDocument(SalesInvoiceHeader, SalesHeader, SalesHeader."Document Type"::Invoice, true);
             OnAfterCreateCorrSalesInvoice(SalesHeader);
-            Commit;
+            Commit();
         end;
     end;
 
@@ -426,7 +427,7 @@ codeunit 1303 "Correct Posted Sales Invoice"
         PostingDate: Date;
     begin
         PostingDate := WorkDate;
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
 
         if NoSeriesManagement.TryGetNextNo(SalesReceivablesSetup."Credit Memo Nos.", PostingDate) = '' then
             ErrorHelperHeader(ErrorType::SerieNumCM, SalesInvoiceHeader);
@@ -456,7 +457,7 @@ codeunit 1303 "Correct Posted Sales Invoice"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         if (SalesInvoiceHeader."External Document No." = '') and SalesReceivablesSetup."Ext. Doc. No. Mandatory" then
             ErrorHelperHeader(ErrorType::ExtDocErr, SalesInvoiceHeader);
     end;
@@ -629,15 +630,15 @@ codeunit 1303 "Correct Posted Sales Invoice"
     var
         ItemApplicationEntry: Record "Item Application Entry";
     begin
-        TempItemApplicationEntry.Reset;
-        TempItemApplicationEntry.DeleteAll;
+        TempItemApplicationEntry.Reset();
+        TempItemApplicationEntry.DeleteAll();
         if ItemLedgEntry.FindSet then
             repeat
                 if ItemApplicationEntry.AppliedInbndEntryExists(ItemLedgEntry."Entry No.", true) then
                     repeat
                         TempItemApplicationEntry := ItemApplicationEntry;
                         if not TempItemApplicationEntry.Find then
-                            TempItemApplicationEntry.Insert;
+                            TempItemApplicationEntry.Insert();
                     until ItemApplicationEntry.Next = 0;
             until ItemLedgEntry.Next = 0;
         exit(TempItemApplicationEntry.FindSet);
@@ -774,6 +775,38 @@ codeunit 1303 "Correct Posted Sales Invoice"
             end;
     end;
 
+    local procedure UpdateSalesOrderLinesFromCancelledInvoice(SalesInvoiceHeaderNo: Code[20])
+    var
+        SalesLine: Record "Sales Line";
+        SalesInvoiceLine: Record "Sales Invoice Line";
+    begin
+        SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeaderNo);
+        if SalesInvoiceLine.FindSet() then
+            repeat
+                if SalesLine.Get(SalesLine."Document Type"::Order, SalesInvoiceLine."Order No.", SalesInvoiceLine."Order Line No.") then
+                    UpdateSalesOrderLineInvoicedQuantity(SalesLine, SalesInvoiceLine.Quantity, SalesInvoiceLine."Quantity (Base)");
+            until SalesInvoiceLine.Next() = 0;
+    end;
+
+    local procedure UpdateSalesOrderLineInvoicedQuantity(var SalesLine: Record "Sales Line"; CancelledQuantity: Decimal; CancelledQtyBase: Decimal)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateSalesOrderLineInvoicedQuantity(SalesLine, CancelledQuantity, CancelledQtyBase, IsHandled);
+        if IsHandled then
+            exit;
+
+        SalesLine."Quantity Invoiced" -= CancelledQuantity;
+        SalesLine."Qty. Invoiced (Base)" -= CancelledQtyBase;
+        SalesLine."Quantity Shipped" -= CancelledQuantity;
+        SalesLine."Qty. Shipped (Base)" -= CancelledQtyBase;
+        SalesLine.InitOutstanding();
+        SalesLine.InitQtyToShip();
+        SalesLine.InitQtyToInvoice();
+        SalesLine.Modify();
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterTestCorrectInvoiceIsAllowed(var SalesInvoiceHeader: Record "Sales Invoice Header"; Cancelling: Boolean)
     begin
@@ -804,7 +837,7 @@ codeunit 1303 "Correct Posted Sales Invoice"
     begin
     end;
 
-    [Obsolete('', '15.1')]
+    [Obsolete('This event has been replaced by OnBeforeSalesHeaderInsert, to fix a typo in the name', '15.1')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSelesHeaderInsert(var SalesHeader: Record "Sales Header"; var SalesInvoiceHeader: Record "Sales Invoice Header"; CancellingOnly: Boolean)
     begin

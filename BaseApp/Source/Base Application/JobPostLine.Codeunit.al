@@ -36,14 +36,14 @@ codeunit 1001 "Job Post-Line"
         JobPlanningLine.SetRange("Job Task No.", JobPlanningLine."Job Task No.");
         if JobPlanningLine.FindLast then;
         JobPlanningLine."Line No." := JobPlanningLine."Line No." + 10000;
-        JobPlanningLine.Init;
-        JobPlanningLine.Reset;
+        JobPlanningLine.Init();
+        JobPlanningLine.Reset();
         Clear(JobTransferLine);
         JobTransferLine.FromJobLedgEntryToPlanningLine(JobLedgEntry, JobPlanningLine);
         PostPlanningLine(JobPlanningLine);
     end;
 
-    local procedure PostPlanningLine(JobPlanningLine: Record "Job Planning Line")
+    procedure PostPlanningLine(JobPlanningLine: Record "Job Planning Line")
     var
         Job: Record Job;
     begin
@@ -144,7 +144,7 @@ codeunit 1001 "Job Post-Line"
                     JobPlanningLineInvoice."Invoiced Cost Amount (LCY)" :=
                       JobPlanningLineInvoice."Quantity Transferred" * JobPlanningLine."Unit Cost (LCY)";
                     JobPlanningLineInvoice."Job Ledger Entry No." := JobLedgEntryNo;
-                    JobPlanningLineInvoice.Modify;
+                    JobPlanningLineInvoice.Modify();
                 end;
             SalesHeader."Document Type"::"Credit Memo":
                 if JobPlanningLineInvoice.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.", JobPlanningLine."Line No.",
@@ -162,14 +162,14 @@ codeunit 1001 "Job Post-Line"
                     JobPlanningLineInvoice."Invoiced Cost Amount (LCY)" :=
                       JobPlanningLineInvoice."Quantity Transferred" * JobPlanningLine."Unit Cost (LCY)";
                     JobPlanningLineInvoice."Job Ledger Entry No." := JobLedgEntryNo;
-                    JobPlanningLineInvoice.Modify;
+                    JobPlanningLineInvoice.Modify();
                 end;
         end;
 
         OnBeforeJobPlanningLineUpdateQtyToInvoice(SalesHeader, SalesLine, JobPlanningLine, JobPlanningLineInvoice, JobLedgEntryNo);
 
         JobPlanningLine.UpdateQtyToInvoice;
-        JobPlanningLine.Modify;
+        JobPlanningLine.Modify();
 
         OnAfterJobPlanningLineModify(JobPlanningLine);
 
@@ -242,7 +242,7 @@ codeunit 1001 "Job Post-Line"
         JobTransferLine.FromPlanningSalesLineToJnlLine(JobPlanningLine, SalesHeader, SalesLine, JobJnlLine, EntryType);
         if SalesLine.Type = SalesLine.Type::"G/L Account" then begin
             TempSalesLineJob := SalesLine;
-            TempSalesLineJob.Insert;
+            TempSalesLineJob.Insert();
             InsertTempJobJournalLine(JobJnlLine, TempSalesLineJob."Line No.");
         end else
             JobJnlPostLine.RunWithCheck(JobJnlLine);
@@ -268,7 +268,7 @@ codeunit 1001 "Job Post-Line"
             exit;
         if GenJnlLine."Job No." = '' then
             exit;
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         if GenJnlLine."Source Code" = SourceCodeSetup."Job G/L WIP" then
             exit;
         GenJnlLine.TestField("Job Task No.");
@@ -306,8 +306,8 @@ codeunit 1001 "Job Post-Line"
         Clear(JobJnlLine);
         PurchLine.TestField("Job No.");
         PurchLine.TestField("Job Task No.");
-        Job.LockTable;
-        JobTask.LockTable;
+        Job.LockTable();
+        JobTask.LockTable();
         Job.Get(PurchLine."Job No.");
         PurchLine.TestField("Job Currency Code", Job."Currency Code");
         JobTask.Get(PurchLine."Job No.", PurchLine."Job Task No.");
@@ -317,7 +317,7 @@ codeunit 1001 "Job Post-Line"
 
         if PurchLine.Type = PurchLine.Type::"G/L Account" then begin
             TempPurchaseLineJob := PurchLine;
-            TempPurchaseLineJob.Insert;
+            TempPurchaseLineJob.Insert();
             InsertTempJobJournalLine(JobJnlLine, TempPurchaseLineJob."Line No.");
         end else
             JobJnlPostLine.RunWithCheck(JobJnlLine);
@@ -403,7 +403,7 @@ codeunit 1001 "Job Post-Line"
             SetRange("VAT Prod. Posting Group", TempInvoicePostBuffer."VAT Prod. Posting Group");
             if FindSet then begin
                 repeat
-                    TempJobJournalLine.Reset;
+                    TempJobJournalLine.Reset();
                     TempJobJournalLine.SetRange("Line No.", "Line No.");
                     TempJobJournalLine.FindFirst;
                     JobJnlPostLine.SetGLEntryNo(GLEntryNo);
@@ -412,7 +412,7 @@ codeunit 1001 "Job Post-Line"
                     if not IsHandled then
                         JobJnlPostLine.RunWithCheck(TempJobJournalLine);
                 until Next = 0;
-                DeleteAll;
+                DeleteAll();
             end;
         end;
     end;
@@ -429,14 +429,14 @@ codeunit 1001 "Job Post-Line"
             SetRange("VAT Prod. Posting Group", TempInvoicePostBuffer."VAT Prod. Posting Group");
             if FindSet then begin
                 repeat
-                    TempJobJournalLine.Reset;
+                    TempJobJournalLine.Reset();
                     TempJobJournalLine.SetRange("Line No.", "Line No.");
                     TempJobJournalLine.FindFirst;
                     JobJnlPostLine.SetGLEntryNo(GLEntryNo);
                     OnPostSalesGLAccountsOnBeforeJobJnlPostLine(TempJobJournalLine, TempSalesLineJob);
                     JobJnlPostLine.RunWithCheck(TempJobJournalLine);
                 until Next = 0;
-                DeleteAll;
+                DeleteAll();
             end;
         end;
     end;
@@ -445,7 +445,7 @@ codeunit 1001 "Job Post-Line"
     begin
         TempJobJournalLine := JobJournalLine;
         TempJobJournalLine."Line No." := LineNo;
-        TempJobJournalLine.Insert;
+        TempJobJournalLine.Insert();
     end;
 
     procedure FindNextJobLedgEntryNo(JobPlanningLineInvoice: Record "Job Planning Line Invoice"): Integer
@@ -458,9 +458,7 @@ codeunit 1001 "Job Post-Line"
         RelatedJobPlanningLineInvoice.SetRange("Document No.", JobPlanningLineInvoice."Document No.");
         if RelatedJobPlanningLineInvoice.FindLast then
             exit(RelatedJobPlanningLineInvoice."Job Ledger Entry No." + 1);
-        if JobLedgEntry.FindLast then
-            exit(JobLedgEntry."Entry No." + 1);
-        exit(1);
+        exit(JobLedgEntry.GetLastEntryNo() + 1);
     end;
 
     [IntegrationEvent(false, false)]

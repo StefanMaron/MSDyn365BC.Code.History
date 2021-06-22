@@ -38,16 +38,16 @@ codeunit 137221 "SalesOrder Whse Validate Line"
         LibraryERMCountryData.CreateVATData;
         DisableWarnings;
 
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         WarehouseSetup."Whse. Ship Nos." := LibraryUtility.GetGlobalNoSeriesCode;
         WarehouseSetup.Modify(true);
 
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup."Order Nos." := LibraryUtility.GetGlobalNoSeriesCode;
         SalesReceivablesSetup.Modify(true);
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SalesOrder Whse Validate Line");
     end;
 
@@ -233,7 +233,7 @@ codeunit 137221 "SalesOrder Whse Validate Line"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Credit Warnings", SalesReceivablesSetup."Credit Warnings"::"No Warning");
         SalesReceivablesSetup.Validate("Stockout Warning", false);
         SalesReceivablesSetup.Modify(true);

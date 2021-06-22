@@ -36,10 +36,10 @@ codeunit 131001 "Library - Dimension"
         ChangeGlobalDimHeader: Record "Change Global Dim. Header";
     begin
         InitGlobalDimChange;
-        ChangeGlobalDimHeader.Get;
+        ChangeGlobalDimHeader.Get();
         ChangeGlobalDimHeader.Validate("Global Dimension 1 Code", GlobalDimension1Code);
         ChangeGlobalDimHeader.Validate("Global Dimension 2 Code", GlobalDimension2Code);
-        ChangeGlobalDimHeader.Modify;
+        ChangeGlobalDimHeader.Modify();
         ChangeGlobalDimensions.StartSequential;
     end;
 
@@ -50,11 +50,11 @@ codeunit 131001 "Library - Dimension"
         LibraryDimension: Codeunit "Library - Dimension";
     begin
         InitGlobalDimChange;
-        ChangeGlobalDimHeader.Get;
+        ChangeGlobalDimHeader.Get();
         ChangeGlobalDimHeader."Parallel Processing" := true;
         ChangeGlobalDimHeader.Validate("Global Dimension 1 Code", GlobalDimension1Code);
         ChangeGlobalDimHeader.Validate("Global Dimension 2 Code", GlobalDimension2Code);
-        ChangeGlobalDimHeader.Modify;
+        ChangeGlobalDimHeader.Modify();
         BindSubscription(LibraryDimension); // to mock taks scheduling and single session
         ChangeGlobalDimensions.Prepare;
         ChangeGlobalDimensions.Start;
@@ -67,7 +67,7 @@ codeunit 131001 "Library - Dimension"
 
     procedure CreateDimension(var Dimension: Record Dimension)
     begin
-        Dimension.Init;
+        Dimension.Init();
         Dimension.Validate(
           Code, LibraryUtility.GenerateRandomCode20(Dimension.FieldNo(Code), DATABASE::Dimension));
         Dimension.Insert(true);
@@ -75,7 +75,7 @@ codeunit 131001 "Library - Dimension"
 
     procedure CreateDimensionCombination(var DimensionCombination: Record "Dimension Combination"; Dimension1Code: Code[20]; Dimension2Code: Code[20])
     begin
-        DimensionCombination.Init;
+        DimensionCombination.Init();
         DimensionCombination.Validate("Dimension 1 Code", Dimension1Code);
         DimensionCombination.Validate("Dimension 2 Code", Dimension2Code);
         DimensionCombination.Insert(true);
@@ -83,7 +83,7 @@ codeunit 131001 "Library - Dimension"
 
     procedure CreateDimensionValue(var DimensionValue: Record "Dimension Value"; DimensionCode: Code[20])
     begin
-        DimensionValue.Init;
+        DimensionValue.Init();
         DimensionValue.Validate("Dimension Code", DimensionCode);
         DimensionValue.Validate(
           Code,
@@ -96,7 +96,7 @@ codeunit 131001 "Library - Dimension"
 
     procedure CreateDimensionValueWithCode(var DimensionValue: Record "Dimension Value"; DimensionValueCode: Code[20]; DimensionCode: Code[20])
     begin
-        DimensionValue.Init;
+        DimensionValue.Init();
         DimensionValue.Validate("Dimension Code", DimensionCode);
         DimensionValue.Validate(Code,
           CopyStr(DimensionValueCode, 1, LibraryUtility.GetFieldLength(DATABASE::"Dimension Value", DimensionValue.FieldNo(Code))));
@@ -113,7 +113,7 @@ codeunit 131001 "Library - Dimension"
 
     procedure CreateDimValueCombination(var DimensionValueCombination: Record "Dimension Value Combination"; Dimension1Code: Code[20]; Dimension2Code: Code[20]; Dimension1ValueCode: Code[20]; Dimension2ValueCode: Code[20])
     begin
-        DimensionValueCombination.Init;
+        DimensionValueCombination.Init();
         DimensionValueCombination.Validate("Dimension 1 Code", Dimension1Code);
         DimensionValueCombination.Validate("Dimension 1 Value Code", Dimension1ValueCode);
         DimensionValueCombination.Validate("Dimension 2 Code", Dimension2Code);
@@ -123,7 +123,7 @@ codeunit 131001 "Library - Dimension"
 
     procedure CreateDefaultDimension(var DefaultDimension: Record "Default Dimension"; TableID: Integer; No: Code[20]; DimensionCode: Code[20]; DimensionValueCode: Code[20])
     begin
-        DefaultDimension.Init;
+        DefaultDimension.Init();
         DefaultDimension.Validate("Table ID", TableID);
         DefaultDimension.Validate("No.", No);
         DefaultDimension.Validate("Dimension Code", DimensionCode);
@@ -133,7 +133,7 @@ codeunit 131001 "Library - Dimension"
 
     procedure CreateDefaultDimensionPriority(var DefaultDimensionPriority: Record "Default Dimension Priority"; SourceCode: Code[10]; TableID: Integer)
     begin
-        DefaultDimensionPriority.Init;
+        DefaultDimensionPriority.Init();
         DefaultDimensionPriority.Validate("Source Code", SourceCode);
         DefaultDimensionPriority.Validate("Table ID", TableID);
         DefaultDimensionPriority.Insert(true);
@@ -141,7 +141,7 @@ codeunit 131001 "Library - Dimension"
 
     procedure CreateICDimension(var ICDimension: Record "IC Dimension")
     begin
-        ICDimension.Init;
+        ICDimension.Init();
         ICDimension.Validate(
           Code,
           CopyStr(
@@ -152,7 +152,7 @@ codeunit 131001 "Library - Dimension"
 
     procedure CreateICDimensionValue(var ICDimensionValue: Record "IC Dimension Value"; ICDimensionCode: Code[20])
     begin
-        ICDimensionValue.Init;
+        ICDimensionValue.Init();
         ICDimensionValue.Validate("Dimension Code", ICDimensionCode);
         ICDimensionValue.Validate(
           Code,
@@ -164,7 +164,7 @@ codeunit 131001 "Library - Dimension"
 
     procedure CreateAndMapICDimFromDim(var ICDimension: Record "IC Dimension"; DimensionCode: Code[20])
     begin
-        ICDimension.Init;
+        ICDimension.Init();
         ICDimension.Validate(Code, DimensionCode);
         ICDimension.Validate("Map-to Dimension Code", DimensionCode);
         ICDimension.Insert(true);
@@ -172,7 +172,7 @@ codeunit 131001 "Library - Dimension"
 
     procedure CreateAndMapICDimValueFromDimValue(var ICDimensionValue: Record "IC Dimension Value"; DimensionValueCode: Code[20]; DimensionCode: Code[20])
     begin
-        ICDimensionValue.Init;
+        ICDimensionValue.Init();
         ICDimensionValue.Validate("Dimension Code", DimensionCode);
         ICDimensionValue.Validate(Code, DimensionValueCode);
         ICDimensionValue.Validate("Map-to Dimension Code", DimensionCode);
@@ -281,9 +281,9 @@ codeunit 131001 "Library - Dimension"
         TempDimSetEntry.Validate("Dimension Value ID", DimVal."Dimension Value ID");
         TempDimSetEntry.Modify(true);
 
-        TempDimSetEntry.Reset;
+        TempDimSetEntry.Reset();
         NewDimSetID := DimMgt.GetDimensionSetID(TempDimSetEntry);
-        TempDimSetEntry.DeleteAll;
+        TempDimSetEntry.DeleteAll();
         exit(NewDimSetID);
     end;
 
@@ -303,9 +303,9 @@ codeunit 131001 "Library - Dimension"
         TempDimSetEntry.FindFirst;
         TempDimSetEntry.Delete(true);
 
-        TempDimSetEntry.Reset;
+        TempDimSetEntry.Reset();
         NewDimSetID := DimMgt.GetDimensionSetID(TempDimSetEntry);
-        TempDimSetEntry.DeleteAll;
+        TempDimSetEntry.DeleteAll();
         exit(NewDimSetID);
     end;
 
@@ -329,7 +329,7 @@ codeunit 131001 "Library - Dimension"
         TempDimSetEntry.Insert(true);
 
         NewDimSetID := DimMgt.GetDimensionSetID(TempDimSetEntry);
-        TempDimSetEntry.DeleteAll;
+        TempDimSetEntry.DeleteAll();
         exit(NewDimSetID);
     end;
 
@@ -386,7 +386,7 @@ codeunit 131001 "Library - Dimension"
     begin
         DefaultDimension.SetRange("Table ID", TableID);
         DefaultDimension.SetRange("No.", No);
-        DefaultDimension.DeleteAll;
+        DefaultDimension.DeleteAll();
     end;
 
     procedure GetGlobalDimCodeValue(DimNo: Integer; var DimValue: Record "Dimension Value")
@@ -416,7 +416,7 @@ codeunit 131001 "Library - Dimension"
 
         TempAllObj."Object Type" := TempAllObj."Object Type"::Table;
         TempAllObj."Object ID" := RecRef.Number;
-        TempAllObj.Insert;
+        TempAllObj.Insert();
 
         DimSetIDFieldRef := RecRef.Field(DimSetIDFieldID);
         DimSetIDFieldRef.Validate(DimSetID);
@@ -463,7 +463,7 @@ codeunit 131001 "Library - Dimension"
     begin
         if not TableBuffer.Get(TableID) then begin
             TableBuffer.Number := TableID;
-            TableBuffer.Insert;
+            TableBuffer.Insert();
         end;
     end;
 

@@ -37,7 +37,7 @@ codeunit 136301 "Job Consumption Service"
         LibrarySales.SetCreditWarningsToNoWarnings;
 
         Initialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Job Consumption Service");
     end;
 
@@ -291,9 +291,9 @@ codeunit 136301 "Job Consumption Service"
     begin
         if FromServiceLine.FindSet then
             repeat
-                ToServiceLine.Init;
+                ToServiceLine.Init();
                 ToServiceLine := FromServiceLine;
-                ToServiceLine.Insert;
+                ToServiceLine.Insert();
             until FromServiceLine.Next = 0
     end;
 

@@ -76,11 +76,11 @@ report 99000757 "Where-Used (Top Level)"
                 begin
                     if First then begin
                         if not WhereUsedMgt.FindRecord('-', WhereUsedList) then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         First := false;
                     end else
                         if WhereUsedMgt.NextRecord(1, WhereUsedList) = 0 then
-                            CurrReport.Break;
+                            CurrReport.Break();
                 end;
 
                 trigger OnPreDataItem()

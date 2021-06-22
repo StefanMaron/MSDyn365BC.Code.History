@@ -22,18 +22,18 @@ codeunit 5646 FAReclassJnlManagement
     begin
         JnlSelected := true;
 
-        FAReclassJnlTempl.Reset;
+        FAReclassJnlTempl.Reset();
         FAReclassJnlTempl.SetRange("Page ID", PageID);
 
         case FAReclassJnlTempl.Count of
             0:
                 begin
-                    FAReclassJnlTempl.Init;
+                    FAReclassJnlTempl.Init();
                     FAReclassJnlTempl.Name := Text000;
                     FAReclassJnlTempl.Description := Text001;
                     FAReclassJnlTempl.Validate("Page ID");
-                    FAReclassJnlTempl.Insert;
-                    Commit;
+                    FAReclassJnlTempl.Insert();
+                    Commit();
                 end;
             1:
                 FAReclassJnlTempl.FindFirst;
@@ -131,13 +131,13 @@ codeunit 5646 FAReclassJnlManagement
         FAReclassJnlBatch.SetRange("Journal Template Name", CurrentJnlTemplateName);
         if not FAReclassJnlBatch.Get(CurrentJnlTemplateName, CurrentJnlBatchName) then begin
             if not FAReclassJnlBatch.FindFirst then begin
-                FAReclassJnlBatch.Init;
+                FAReclassJnlBatch.Init();
                 FAReclassJnlBatch."Journal Template Name" := CurrentJnlTemplateName;
                 FAReclassJnlBatch.Name := Text002;
                 FAReclassJnlBatch.Insert(true);
                 FAReclassJnlBatch.Description := Text003;
-                FAReclassJnlBatch.Modify;
-                Commit;
+                FAReclassJnlBatch.Modify();
+                Commit();
             end;
             CurrentJnlBatchName := FAReclassJnlBatch.Name;
         end;
@@ -155,7 +155,7 @@ codeunit 5646 FAReclassJnlManagement
     var
         FAReclassJnlBatch: Record "FA Reclass. Journal Batch";
     begin
-        Commit;
+        Commit();
         FAReclassJnlBatch."Journal Template Name" := FAReclassJnlLine.GetRangeMax("Journal Template Name");
         FAReclassJnlBatch.Name := FAReclassJnlLine.GetRangeMax("Journal Batch Name");
         FAReclassJnlBatch.FilterGroup(2);

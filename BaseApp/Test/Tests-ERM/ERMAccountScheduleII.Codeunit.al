@@ -142,7 +142,7 @@ codeunit 134994 "ERM Account Schedule II"
         LibraryVariableStorage.Enqueue(LibraryERM.GetGlobalDimensionCode(1));
 
         // 2.Exercise: Run the 25th Report.
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Account Schedule");
     end;
 
@@ -172,7 +172,7 @@ codeunit 134994 "ERM Account Schedule II"
         LibraryVariableStorage.Enqueue(AccScheduleName.Name);
         LibraryVariableStorage.Enqueue(Dimension.Code);
         // 2.Exercise: Run the 25th Report.
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Account Schedule");
     end;
 
@@ -196,7 +196,7 @@ codeunit 134994 "ERM Account Schedule II"
         CreateColumnLayoutLine(ColumnLayout, ColumnLayoutName.Name, ColumnLayout."Column Type"::Formula, ColumnLayoutName.Name);
 
         // 2.Exercise: Run the 25th Report.
-        Commit;
+        Commit();
         RunAccountScheduleReport(AccScheduleName.Name, ColumnLayoutName.Name);
 
         // Verify
@@ -298,7 +298,7 @@ codeunit 134994 "ERM Account Schedule II"
     var
         ColumnLayout: Record "Column Layout";
     begin
-        ColumnLayout.Init;
+        ColumnLayout.Init();
         VerifyAccSchedColumnIndentationCalc(0, ColumnLayout."Show Indented Lines"::All, false);
     end;
 
@@ -309,7 +309,7 @@ codeunit 134994 "ERM Account Schedule II"
     var
         ColumnLayout: Record "Column Layout";
     begin
-        ColumnLayout.Init;
+        ColumnLayout.Init();
         VerifyAccSchedColumnIndentationCalc(0, ColumnLayout."Show Indented Lines"::"Non-Indented Only", false);
     end;
 
@@ -320,7 +320,7 @@ codeunit 134994 "ERM Account Schedule II"
     var
         ColumnLayout: Record "Column Layout";
     begin
-        ColumnLayout.Init;
+        ColumnLayout.Init();
         VerifyAccSchedColumnIndentationCalc(0, ColumnLayout."Show Indented Lines"::"Indented Only", true);
     end;
 
@@ -331,7 +331,7 @@ codeunit 134994 "ERM Account Schedule II"
     var
         ColumnLayout: Record "Column Layout";
     begin
-        ColumnLayout.Init;
+        ColumnLayout.Init();
         VerifyAccSchedColumnIndentationCalc(1, ColumnLayout."Show Indented Lines"::All, false);
     end;
 
@@ -342,7 +342,7 @@ codeunit 134994 "ERM Account Schedule II"
     var
         ColumnLayout: Record "Column Layout";
     begin
-        ColumnLayout.Init;
+        ColumnLayout.Init();
         VerifyAccSchedColumnIndentationCalc(1, ColumnLayout."Show Indented Lines"::"Non-Indented Only", true);
     end;
 
@@ -353,7 +353,7 @@ codeunit 134994 "ERM Account Schedule II"
     var
         ColumnLayout: Record "Column Layout";
     begin
-        ColumnLayout.Init;
+        ColumnLayout.Init();
         VerifyAccSchedColumnIndentationCalc(1, ColumnLayout."Show Indented Lines"::"Indented Only", false);
     end;
 
@@ -546,10 +546,10 @@ codeunit 134994 "ERM Account Schedule II"
         AccScheduleLine.SetRange("Date Filter", WorkDate);
         AccScheduleLine.Totaling := Format(ExpectedResult);
         AccScheduleLine.Indentation := Indentation;
-        AccScheduleLine.Modify;
+        AccScheduleLine.Modify();
         LibraryERM.CreateColumnLayout(ColumnLayout, ColumnLayoutName.Name);
         ColumnLayout."Show Indented Lines" := ShowIndentation;
-        ColumnLayout.Modify;
+        ColumnLayout.Modify();
         Result := AccSchedManagement.CalcCell(AccScheduleLine, ColumnLayout, false);
         if ExpectZero then
             ExpectedResult := 0;
@@ -630,7 +630,7 @@ codeunit 134994 "ERM Account Schedule II"
         // [GIVEN] Account Schedule with "Analysis View Name" = ''
         LibraryERM.CreateAccScheduleName(AccScheduleName);
         AccScheduleName."Analysis View Name" := '';
-        AccScheduleName.Modify;
+        AccScheduleName.Modify();
 
         // [GIVEN] 4 Dimensions Code with Dimensions Value
         DimFilterValue[1] := LibraryUtility.GenerateGUID;
@@ -662,15 +662,15 @@ codeunit 134994 "ERM Account Schedule II"
         Initialize;
 
         // [GIVEN] Global Dimensions 1 and 2 are blank
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Global Dimension 1 Code", '');
         GeneralLedgerSetup.Validate("Global Dimension 2 Code", '');
-        GeneralLedgerSetup.Modify;
+        GeneralLedgerSetup.Modify();
 
         // [GIVEN] Account Schedule with "Analysis View Name" = ''
         LibraryERM.CreateAccScheduleName(AccScheduleName);
         AccScheduleName."Analysis View Name" := '';
-        AccScheduleName.Modify;
+        AccScheduleName.Modify();
         LibraryReportValidation.SetFileName(AccScheduleName.Name);
 
         // [WHEN] Run export Account Schedule to Excel - Report 29 (Export Acc. Sched. to Excel)
@@ -745,7 +745,7 @@ codeunit 134994 "ERM Account Schedule II"
         NewAccountScheduleName := LibraryUtility.GenerateGUID;
 
         // Exercise
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(NewAccountScheduleName);
         CopyAccountSchedule(AccScheduleName.Name);
 
@@ -772,7 +772,7 @@ codeunit 134994 "ERM Account Schedule II"
         CreateAccScheduleLineWithGLAcc(AccScheduleLine, AccScheduleName.Name, LibraryERM.CreateGLAccountNo, AccScheduleLine.Show::Yes);
 
         // Exercise
-        Commit;
+        Commit();
         asserterror CopyAccountSchedule(AccScheduleName.Name);
 
         // Verify
@@ -794,7 +794,7 @@ codeunit 134994 "ERM Account Schedule II"
         CreateAccScheduleLineWithGLAcc(AccScheduleLine, AccScheduleName.Name, LibraryERM.CreateGLAccountNo, AccScheduleLine.Show::Yes);
 
         // Exercise
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(AccScheduleName.Name);
         asserterror CopyAccountSchedule(AccScheduleName.Name);
 
@@ -820,7 +820,7 @@ codeunit 134994 "ERM Account Schedule II"
         NewAccountScheduleName := LibraryUtility.GenerateGUID;
 
         // Exercise
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(NewAccountScheduleName);
         asserterror CopyAccountSchedule(MissingAccountScheduleName);
 
@@ -851,7 +851,7 @@ codeunit 134994 "ERM Account Schedule II"
         CreateAccScheduleLineWithGLAcc(AccScheduleLine2, AccScheduleName2.Name, LibraryERM.CreateGLAccountNo, AccScheduleLine2.Show::Yes);
 
         // Exercise
-        Commit;
+        Commit();
         asserterror CopyMultipleAccountSchedule(AccScheduleName.Name, AccScheduleName2.Name);
 
         // Verify
@@ -874,11 +874,11 @@ codeunit 134994 "ERM Account Schedule II"
         Initialize;
 
         // Setup
-        OriginalCount := AccScheduleName.Count;
-        GeneralLedgerSetup.Get;
+        OriginalCount := AccScheduleName.Count();
+        GeneralLedgerSetup.Get();
 
         // Excecise
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(GeneralLedgerSetup."Acc. Sched. for Balance Sheet");
 
         AccountScheduleNames.OpenEdit;
@@ -901,11 +901,11 @@ codeunit 134994 "ERM Account Schedule II"
         Initialize;
 
         // Setup
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         NewAccountScheduleName := LibraryUtility.GenerateGUID;
 
         // Excecise
-        Commit;
+        Commit();
 
         LibraryVariableStorage.Enqueue(NewAccountScheduleName); // Once for the Copy Account Schedule request page handler
         LibraryVariableStorage.Enqueue(NewAccountScheduleName); // Another for the Account Schedule page handler
@@ -936,11 +936,11 @@ codeunit 134994 "ERM Account Schedule II"
         Initialize;
 
         // Setup
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         NewAccountScheduleName := LibraryUtility.GenerateGUID;
 
         // Excecise
-        Commit;
+        Commit();
 
         LibraryVariableStorage.Enqueue(NewAccountScheduleName); // Once for the Copy Account Schedule request page handler
         LibraryVariableStorage.Enqueue(NewAccountScheduleName); // Another for the Account Schedule page handler
@@ -1248,7 +1248,7 @@ codeunit 134994 "ERM Account Schedule II"
         AccountSchedule.SetAccSchedName(ScheduleName);
         AccountSchedule.SetColumnLayoutName(ColumnLayoutName);
         AccountSchedule.SetFilters(Format(WorkDate), '', '', '', '', '', '', '');
-        Commit;
+        Commit();
         AccountSchedule.Run;
     end;
 
@@ -1261,7 +1261,7 @@ codeunit 134994 "ERM Account Schedule II"
         AccountSchedule.SetColumnLayoutName(ColumnLayoutName);
         AccountSchedule.SetFilters(
           Format(WorkDate), '', '', '', DimensionValue[1].Code, DimensionValue[2].Code, DimensionValue[3].Code, DimensionValue[4].Code);
-        Commit;
+        Commit();
         AccountSchedule.Run;
     end;
 

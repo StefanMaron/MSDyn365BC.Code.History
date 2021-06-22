@@ -51,7 +51,7 @@ codeunit 137009 "SCM Availability by Event"
 
         LibrarySetupStorage.Save(DATABASE::"Assembly Setup");
 
-        Commit;
+        Commit();
 
         Initialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Availability by Event");
@@ -233,7 +233,7 @@ codeunit 137009 "SCM Availability by Event"
         SalesOrder.GotoRecord(SalesHeader);
 
         // [WHEN] Invoke Item Availability by Location page and choose Location
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(Location.Code);
         SalesOrder.SalesLines.ItemAvailabilityByLocation.Invoke;
 
@@ -270,7 +270,7 @@ codeunit 137009 "SCM Availability by Event"
         SalesOrder.GotoRecord(SalesHeader);
 
         // [WHEN] Invoke Item Availability by Variant page and choose Item Variant
-        Commit;
+        Commit();
         SalesOrder.SalesLines.ItemAvailabilityByVariant.Invoke;
 
         // [THEN] DummyNotificationHandler has been invoked - Notification was called properly
@@ -395,8 +395,8 @@ codeunit 137009 "SCM Availability by Event"
         CalcInvtPageData.Initialize(Item, ForecastName, InclBlanketOrders, 0D, InclPlan);
 
         // Create Period aggegation entries in Page background table
-        TempInvtPageData.Reset;
-        TempInvtPageData.DeleteAll;
+        TempInvtPageData.Reset();
+        TempInvtPageData.DeleteAll();
         TempInvtPageData.SetCurrentKey("Period Start", "Line No.");
         CalcInvtPageData.CreatePeriodEntries(TempInvtPageData, PeriodType);   // got events in background table in cu
 
@@ -411,14 +411,14 @@ codeunit 137009 "SCM Availability by Event"
         TempInvtPageData.SetRange(Level);
 
         // Populate the view table likedon on expandall in the page
-        PageTempInvtPageData.Reset;
-        PageTempInvtPageData.DeleteAll;
+        PageTempInvtPageData.Reset();
+        PageTempInvtPageData.DeleteAll();
         PageTempInvtPageData.SetCurrentKey("Period Start", "Line No.");
         if TempInvtPageData.Find('-') then
             repeat
                 PageTempInvtPageData := TempInvtPageData;
                 PageTempInvtPageData.UpdateInventorys(RunningBalance, RunningBalanceForecast, RunningBalancePlan);
-                PageTempInvtPageData.Insert;
+                PageTempInvtPageData.Insert();
             until TempInvtPageData.Next = 0;
 
         Assert.AreEqual(ExpectedNoOfLines, PageTempInvtPageData.Count,
@@ -432,11 +432,11 @@ codeunit 137009 "SCM Availability by Event"
         PurchPayablesSetup: Record "Purchases & Payables Setup";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesReceivablesSetup.Modify(true);
 
-        PurchPayablesSetup.Get;
+        PurchPayablesSetup.Get();
         PurchPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchPayablesSetup.Modify(true);
     end;

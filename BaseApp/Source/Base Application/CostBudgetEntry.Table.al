@@ -125,7 +125,7 @@ table 1109 "Cost Budget Entry"
     trigger OnInsert()
     begin
         if "Entry No." = 0 then
-            "Entry No." := GetNextEntryNo;
+            "Entry No." := GetLastEntryNo() + 1;
         CheckEntries;
         "Last Modified By User" := UserId;
 
@@ -152,6 +152,13 @@ table 1109 "Cost Budget Entry"
         Text003: Label '%1 entries in budget %2 processed. %3 entries compressed.';
         Text004: Label 'A cost center or cost object is missing. Define a corresponding filter in the Budget window.';
         Text005: Label 'You cannot define both cost center and cost object.';
+
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
+    end;
 
     procedure CompressBudgetEntries(BudName: Code[20])
     var
@@ -183,7 +190,7 @@ table 1109 "Cost Budget Entry"
                    (CostBudgetEntrySource.Date = CostBudgetEntryTarget.Date)
                 then begin
                     CostBudgetEntryTarget.Amount := CostBudgetEntryTarget.Amount + CostBudgetEntrySource.Amount;
-                    CostBudgetEntrySource.Delete;
+                    CostBudgetEntrySource.Delete();
                     NoCompressed := NoCompressed + 1;
                     QtyPerGrp := QtyPerGrp + 1;
                 end else begin
@@ -192,7 +199,7 @@ table 1109 "Cost Budget Entry"
                         if CostBudgetEntryTarget.Amount = 0 then
                             CostBudgetEntryTarget.Delete
                         else
-                            CostBudgetEntryTarget.Modify;
+                            CostBudgetEntryTarget.Modify();
                         QtyPerGrp := 0;
                     end;
 
@@ -210,7 +217,7 @@ table 1109 "Cost Budget Entry"
             until CostBudgetEntrySource.Next = 0;
 
         if CostBudgetEntryTarget.Amount <> 0 then
-            CostBudgetEntryTarget.Modify;
+            CostBudgetEntryTarget.Modify();
 
         Window.Close;
         Message(Text003, NoProcessed, BudName, NoCompressed);
@@ -227,16 +234,6 @@ table 1109 "Cost Budget Entry"
 
         if ("Cost Center Code" <> '') and ("Cost Object Code" <> '') then
             Error(Text005);
-    end;
-
-    local procedure GetNextEntryNo(): Integer
-    var
-        CostBudgetEntry: Record "Cost Budget Entry";
-    begin
-        CostBudgetEntry.SetCurrentKey("Entry No.");
-        if CostBudgetEntry.FindLast then
-            exit(CostBudgetEntry."Entry No." + 1);
-        exit(1);
     end;
 
     local procedure Modified()

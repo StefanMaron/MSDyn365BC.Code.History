@@ -187,7 +187,7 @@ codeunit 139177 "Navigate to CRM from NAV Test"
         CRMSalesorder.StateCode := CRMSalesorder.StateCode::Submitted;
         // [GIVEN] CRM Salesorder has not been submitted to backoffice.
         Clear(CRMSalesorder.LastBackofficeSubmit);
-        CRMSalesorder.Modify;
+        CRMSalesorder.Modify();
 
         // [WHEN] The user clicks on the CRM SalesOrder action on the NAV CRM Sales Orders page
         CRMSalesOrderList.OpenView;

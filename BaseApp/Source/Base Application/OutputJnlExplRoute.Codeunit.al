@@ -24,7 +24,7 @@ codeunit 5406 "Output Jnl.-Expl. Route"
         if not ItemJnlLineReserve.DeleteLineConfirm(Rec) then
             exit;
 
-        ProdOrderLine.Reset;
+        ProdOrderLine.Reset();
         ProdOrderLine.SetRange(Status, ProdOrderLine.Status::Released);
         ProdOrderLine.SetRange("Prod. Order No.", "Order No.");
         if "Order Line No." <> 0 then
@@ -164,7 +164,7 @@ codeunit 5406 "Output Jnl.-Expl. Route"
         OnBeforeOutputItemJnlLineInsert(ItemJnlLine, LastOperation);
         DimMgt.UpdateGlobalDimFromDimSetID(
           ItemJnlLine."Dimension Set ID", ItemJnlLine."Shortcut Dimension 1 Code", ItemJnlLine."Shortcut Dimension 2 Code");
-        ItemJnlLine.Insert;
+        ItemJnlLine.Insert();
 
         OnAfterInsertItemJnlLine(ItemJnlLine);
 

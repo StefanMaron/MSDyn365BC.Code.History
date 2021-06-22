@@ -324,7 +324,7 @@ table 8627 "Config. Setup"
     begin
         if AllProfile.Get(Scope, AppID, ProfileID) then begin
             AllProfile.Validate("Default Role Center", true);
-            AllProfile.Modify;
+            AllProfile.Modify();
             ConfPersonalizationMgt.ChangeDefaultRoleCenter(AllProfile);
         end;
     end;
@@ -406,13 +406,13 @@ table 8627 "Config. Setup"
             if not HideDialog then
                 if Confirm(PackageAlreadyExistsQst, true) then begin
                     ConfigPackage.Delete(true);
-                    Commit;
+                    Commit();
                 end else
                     Error('');
 
         ConfigXMLExchange.SetHideDialog(HideDialog);
         ConfigXMLExchange.ImportPackageXML(DecompressedFileName);
-        Commit;
+        Commit();
     end;
 
     procedure ImportPackageFromStream(InStream: InStream)
@@ -424,13 +424,13 @@ table 8627 "Config. Setup"
             if not HideDialog then
                 if Confirm(PackageAlreadyExistsQst, true) then begin
                     ConfigPackage.Delete(true);
-                    Commit;
+                    Commit();
                 end else
                     Error('');
 
         ConfigXMLExchange.SetHideDialog(HideDialog);
         ConfigXMLExchange.ImportPackageXMLFromStream(InStream);
-        Commit;
+        Commit();
     end;
 
     procedure ApplyPackages() ErrorCount: Integer
@@ -462,20 +462,20 @@ table 8627 "Config. Setup"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         if not CompanyInfo.Get then begin
-            CompanyInfo.Init;
-            CompanyInfo.Insert;
+            CompanyInfo.Init();
+            CompanyInfo.Insert();
         end;
         CompanyInfo.TransferFields(Rec);
-        CompanyInfo.Modify;
+        CompanyInfo.Modify();
 
         if not SalesReceivablesSetup.Get then begin
-            SalesReceivablesSetup.Init;
-            SalesReceivablesSetup.Insert;
+            SalesReceivablesSetup.Init();
+            SalesReceivablesSetup.Insert();
         end;
         SalesReceivablesSetup."Logo Position on Documents" := "Logo Position on Documents";
-        SalesReceivablesSetup.Modify;
+        SalesReceivablesSetup.Modify();
 
-        Commit;
+        Commit();
     end;
 
     procedure SetHideDialog(NewHideDialog: Boolean)

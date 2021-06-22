@@ -6,11 +6,9 @@ table 5902 "Service Line"
 
     fields
     {
-        field(1; "Document Type"; Option)
+        field(1; "Document Type"; Enum "Service Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = 'Quote,Order,Invoice,Credit Memo';
-            OptionMembers = Quote,"Order",Invoice,"Credit Memo";
         }
         field(2; "Customer No."; Code[20])
         {
@@ -27,11 +25,9 @@ table 5902 "Service Line"
         {
             Caption = 'Line No.';
         }
-        field(5; Type; Option)
+        field(5; Type; Enum "Service Line Type")
         {
             Caption = 'Type';
-            OptionCaption = ' ,Item,Resource,Cost,G/L Account';
-            OptionMembers = " ",Item,Resource,Cost,"G/L Account";
 
             trigger OnValidate()
             begin
@@ -141,6 +137,7 @@ table 5902 "Service Line"
                 end;
 
                 if Type <> Type::" " then begin
+                    PlanPriceCalcByField(FieldNo("No."));
                     Validate("VAT Prod. Posting Group");
                     Validate("Unit of Measure Code");
                     if Quantity <> 0 then begin
@@ -151,13 +148,13 @@ table 5902 "Service Line"
                             InitQtyToShip;
                         UpdateWithWarehouseShip;
                     end;
-                    UpdateUnitPrice(FieldNo("No."));
                     AdjustMaxLabourUnitPrice("Unit Price");
 
                     if (Type <> Type::Cost) and
                        not ReplaceServItemAction
                     then
                         Validate(Quantity, xRec.Quantity);
+                    UpdateUnitPriceByField(FieldNo("No."));
                     UpdateAmounts;
                 end;
                 UpdateReservation(FieldNo("No."));
@@ -252,7 +249,8 @@ table 5902 "Service Line"
                             Error(Text026, FieldCaption(Quantity));
                 end;
 
-                "Quantity (Base)" := UOMMgt.CalcBaseQty(Quantity, "Qty. per Unit of Measure");
+                "Quantity (Base)" :=
+                    UOMMgt.CalcBaseQty("No.", "Variant Code", "Unit of Measure Code", Quantity, "Qty. per Unit of Measure");
 
                 if "Document Type" <> "Document Type"::"Credit Memo" then begin
                     if (Quantity * "Quantity Shipped" < 0) or
@@ -278,8 +276,9 @@ table 5902 "Service Line"
                     InitItemAppl(false);
 
                 if Type = Type::Item then begin
+                    if xRec.Quantity <> Quantity then
+                        PlanPriceCalcByField(FieldNo(Quantity));
                     WhseValidateSourceLine.ServiceLineVerifyChange(Rec, xRec);
-                    UpdateUnitPrice(FieldNo(Quantity));
                     UpdateReservation(FieldNo(Quantity));
                     UpdateWithWarehouseShip;
                     if ("Quantity (Base)" * xRec."Quantity (Base)" <= 0) and ("No." <> '') then begin
@@ -303,6 +302,8 @@ table 5902 "Service Line"
                 end;
                 if "Job Planning Line No." <> 0 then
                     Validate("Job Planning Line No.");
+
+                UpdateUnitPriceByField(FieldNo(Quantity));
             end;
         }
         field(16; "Outstanding Quantity"; Decimal)
@@ -329,7 +330,8 @@ table 5902 "Service Line"
                 if "Qty. to Invoice" = MaxQtyToInvoice then
                     InitQtyToInvoice
                 else
-                    "Qty. to Invoice (Base)" := UOMMgt.CalcBaseQty("Qty. to Invoice", "Qty. per Unit of Measure");
+                    "Qty. to Invoice (Base)" :=
+                        UOMMgt.CalcBaseQty("No.", "Variant Code", "Unit of Measure Code", "Qty. to Invoice", "Qty. per Unit of Measure");
                 if ("Qty. to Invoice" * Quantity < 0) or
                    (Abs("Qty. to Invoice") > Abs(MaxQtyToInvoice))
                 then
@@ -374,13 +376,15 @@ table 5902 "Service Line"
                     if not LineRequiresShipmentOrReceipt then
                         InitQtyToShip
                     else
-                        "Qty. to Ship (Base)" := UOMMgt.CalcBaseQty("Qty. to Ship", "Qty. per Unit of Measure");
+                        "Qty. to Ship (Base)" :=
+                            UOMMgt.CalcBaseQty("No.", "Variant Code", "Unit of Measure Code", "Qty. to Ship", "Qty. per Unit of Measure");
                     if "Qty. to Consume" <> 0 then
                         Validate("Qty. to Consume", "Qty. to Ship")
                     else
                         Validate("Qty. to Consume", 0);
                 end else begin
-                    "Qty. to Ship (Base)" := UOMMgt.CalcBaseQty("Qty. to Ship", "Qty. per Unit of Measure");
+                    "Qty. to Ship (Base)" :=
+                        UOMMgt.CalcBaseQty("No.", "Variant Code", "Unit of Measure Code", "Qty. to Ship", "Qty. per Unit of Measure");
                     if "Qty. to Consume" <> 0 then
                         Validate("Qty. to Consume", "Qty. to Ship")
                     else
@@ -715,8 +719,11 @@ table 5902 "Service Line"
 
             trigger OnValidate()
             begin
-                if Type = Type::Item then
-                    UpdateUnitPrice(FieldNo("Customer Price Group"));
+                if Type = Type::Item then begin
+                    if "Customer Price Group" <> xRec."Customer Price Group" then
+                        PlanPriceCalcByField(FieldNo("Customer Price Group"));
+                    UpdateUnitPriceByField(FieldNo("Customer Price Group"));
+                end;
             end;
         }
         field(45; "Job No."; Code[20])
@@ -785,7 +792,9 @@ table 5902 "Service Line"
                     TestStatusOpen;
                     if WorkType.Get("Work Type Code") then
                         Validate("Unit of Measure Code", WorkType."Unit of Measure Code");
-                    UpdateUnitPrice(FieldNo("Work Type Code"));
+                    if "Work Type Code" <> xRec."Work Type Code" then
+                        PlanPriceCalcByField(FieldNo("Work Type Code"));
+                    UpdateUnitPriceByField(FieldNo("Work Type Code"));
                     Validate("Unit Price");
                     FindResUnitCost;
                 end;
@@ -869,7 +878,7 @@ table 5902 "Service Line"
             begin
                 GetServHeader;
                 if "Document Type" = "Document Type"::"Credit Memo" then begin
-                    ServShptHeader.Reset;
+                    ServShptHeader.Reset();
                     ServShptHeader.SetCurrentKey("Customer No.", "Posting Date");
                     ServShptHeader.FilterGroup(2);
                     ServShptHeader.SetRange("Customer No.", ServHeader."Customer No.");
@@ -891,7 +900,7 @@ table 5902 "Service Line"
                     if "Shipment No." <> '' then begin
                         GetServHeader;
                         if "Document Type" = "Document Type"::"Credit Memo" then begin
-                            ServShptHeader.Reset;
+                            ServShptHeader.Reset();
                             ServShptHeader.SetCurrentKey("Customer No.", "Posting Date");
                             ServShptHeader.SetRange("Customer No.", ServHeader."Customer No.");
                             ServShptHeader.SetRange("Ship-to Code", ServHeader."Ship-to Code");
@@ -901,12 +910,12 @@ table 5902 "Service Line"
                         end;
                     end;
                     TestField("Appl.-to Service Entry", 0);
-                    ServDocReg.Reset;
+                    ServDocReg.Reset();
                     ServDocReg.SetRange("Destination Document Type", "Document Type");
                     ServDocReg.SetRange("Destination Document No.", "Document No.");
                     ServDocReg.SetRange("Source Document Type", ServDocReg."Source Document Type"::Order);
                     ServDocReg.SetRange("Source Document No.", xRec."Shipment No.");
-                    ServDocReg.DeleteAll;
+                    ServDocReg.DeleteAll();
                     Clear(ServDocReg);
                 end;
             end;
@@ -965,12 +974,10 @@ table 5902 "Service Line"
                         Validate("VAT Prod. Posting Group", GenProdPostingGroup."Def. VAT Prod. Posting Group");
             end;
         }
-        field(77; "VAT Calculation Type"; Option)
+        field(77; "VAT Calculation Type"; Enum "Tax Calculation Type")
         {
             Caption = 'VAT Calculation Type';
             Editable = false;
-            OptionCaption = 'Normal VAT,Reverse Charge VAT,Full VAT,Sales Tax';
-            OptionMembers = "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
         }
         field(78; "Transaction Type"; Code[10])
         {
@@ -1112,17 +1119,15 @@ table 5902 "Service Line"
             Editable = false;
             FieldClass = FlowField;
         }
-        field(96; Reserve; Option)
+        field(96; Reserve; Enum "Reserve Method")
         {
             Caption = 'Reserve';
-            OptionCaption = 'Never,Optional,Always';
-            OptionMembers = Never,Optional,Always;
 
             trigger OnValidate()
             var
                 Item: Record Item;
             begin
-                if Reserve <> Reserve::Never then begin
+                if Reserve in [Reserve::Optional, Reserve::Always] then begin
                     TestField(Type, Type::Item);
                     TestField("No.");
                 end;
@@ -1312,7 +1317,8 @@ table 5902 "Service Line"
                             "Job Remaining Qty." := 0;
                     end;
                 end;
-                "Job Remaining Qty. (Base)" := UOMMgt.CalcBaseQty("Job Remaining Qty.", "Qty. per Unit of Measure");
+                "Job Remaining Qty. (Base)" :=
+                    UOMMgt.CalcBaseQty("No.", "Variant Code", "Unit of Measure Code", "Job Remaining Qty.", "Qty. per Unit of Measure");
 
                 UpdateRemainingCostsAndAmounts;
             end;
@@ -1369,7 +1375,8 @@ table 5902 "Service Line"
 
                 if Type = Type::Item then begin
                     GetUnitCost;
-                    UpdateUnitPrice(FieldNo("Variant Code"));
+                    if "Variant Code" <> xRec."Variant Code" then
+                        PlanPriceCalcByField(FieldNo("Variant Code"));
                     WhseValidateSourceLine.ServiceLineVerifyChange(Rec, xRec);
                 end;
 
@@ -1394,6 +1401,8 @@ table 5902 "Service Line"
                 GetServHeader;
                 if ServHeader."Language Code" <> '' then
                     GetItemTranslation;
+
+                UpdateUnitPriceByField(FieldNo("Variant Code"));
             end;
         }
         field(5403; "Bin Code"; Code[20])
@@ -1492,7 +1501,7 @@ table 5902 "Service Line"
                     "Unit of Measure" := ''
                 else begin
                     if not UnitOfMeasure.Get("Unit of Measure Code") then
-                        UnitOfMeasure.Init;
+                        UnitOfMeasure.Init();
                     "Unit of Measure" := UnitOfMeasure.Description;
                     GetServHeader;
                     if ServHeader."Language Code" <> '' then begin
@@ -1510,7 +1519,8 @@ table 5902 "Service Line"
                                 WhseValidateSourceLine.ServiceLineVerifyChange(Rec, xRec);
                             GetItem(Item);
                             GetUnitCost;
-                            UpdateUnitPrice(FieldNo("Unit of Measure Code"));
+                            if "Unit of Measure Code" <> xRec."Unit of Measure Code" then
+                                PlanPriceCalcByField(FieldNo("Unit of Measure Code"));
                             "Gross Weight" := Item."Gross Weight" * "Qty. per Unit of Measure";
                             "Net Weight" := Item."Net Weight" * "Qty. per Unit of Measure";
                             "Unit Volume" := Item."Unit Volume" * "Qty. per Unit of Measure";
@@ -1528,7 +1538,8 @@ table 5902 "Service Line"
                             end;
                             ResUnitofMeasure.Get("No.", "Unit of Measure Code");
                             "Qty. per Unit of Measure" := ResUnitofMeasure."Qty. per Unit of Measure";
-                            UpdateUnitPrice(FieldNo("Unit of Measure Code"));
+                            if "Unit of Measure Code" <> xRec."Unit of Measure Code" then
+                                PlanPriceCalcByField(FieldNo("Unit of Measure Code"));
                             FindResUnitCost;
                         end;
                     Type::"G/L Account", Type::" ", Type::Cost:
@@ -1536,6 +1547,7 @@ table 5902 "Service Line"
                 end;
 
                 Validate(Quantity);
+                UpdateUnitPriceByField(FieldNo("Unit of Measure Code"));
                 CheckItemAvailable(FieldNo("Unit of Measure Code"));
                 UpdateReservation(FieldNo("Unit of Measure Code"));
             end;
@@ -1551,8 +1563,10 @@ table 5902 "Service Line"
                     FieldError("Quantity (Base)", Text029);
 
                 TestField("Qty. per Unit of Measure", 1);
+                if "Quantity (Base)" <> xRec."Quantity (Base)" then
+                    PlanPriceCalcByField(FieldNo("Quantity (Base)"));
                 Validate(Quantity, "Quantity (Base)");
-                UpdateUnitPrice(FieldNo("Quantity (Base)"));
+                UpdateUnitPriceByField(FieldNo("Quantity (Base)"));
             end;
         }
         field(5416; "Outstanding Qty. (Base)"; Decimal)
@@ -1801,7 +1815,7 @@ table 5902 "Service Line"
             trigger OnLookup()
             begin
                 if "Document Type" in ["Document Type"::Invoice, "Document Type"::"Credit Memo"] then begin
-                    ServItem.Reset;
+                    ServItem.Reset();
                     ServItem.SetCurrentKey("Customer No.");
                     ServItem.FilterGroup(2);
                     ServItem.SetRange("Customer No.", "Customer No.");
@@ -1810,7 +1824,7 @@ table 5902 "Service Line"
                         Validate("Service Item No.", ServItem."No.");
                 end
                 else begin
-                    ServItemLine.Reset;
+                    ServItemLine.Reset();
                     ServItemLine.SetCurrentKey("Document Type", "Document No.", "Service Item No.");
                     ServItemLine.FilterGroup(2);
                     ServItemLine.SetRange("Document Type", "Document Type");
@@ -1832,7 +1846,7 @@ table 5902 "Service Line"
                 if "Service Item No." <> '' then begin
                     if "Document Type" in ["Document Type"::Invoice, "Document Type"::"Credit Memo"] then
                         exit;
-                    ServItemLine.Reset;
+                    ServItemLine.Reset();
                     ServItemLine.SetRange("Document Type", "Document Type");
                     ServItemLine.SetRange("Document No.", "Document No.");
                     ServItemLine.SetRange("Service Item No.", "Service Item No.");
@@ -1887,7 +1901,7 @@ table 5902 "Service Line"
 
             trigger OnLookup()
             begin
-                ServItemLine.Reset;
+                ServItemLine.Reset();
                 ServItemLine.SetRange("Document Type", "Document Type");
                 ServItemLine.SetRange("Document No.", "Document No.");
                 ServItemLine."Serial No." := "Service Item Serial No.";
@@ -1898,7 +1912,7 @@ table 5902 "Service Line"
             trigger OnValidate()
             begin
                 if "Service Item Serial No." <> '' then begin
-                    ServItemLine.Reset;
+                    ServItemLine.Reset();
                     ServItemLine.SetRange("Document Type", "Document Type");
                     ServItemLine.SetRange("Document No.", "Document No.");
                     ServItemLine.SetRange("Serial No.", "Service Item Serial No.");
@@ -1973,7 +1987,8 @@ table 5902 "Service Line"
                 if "Qty. to Consume" = MaxQtyToConsume then
                     InitQtyToConsume
                 else begin
-                    "Qty. to Consume (Base)" := UOMMgt.CalcBaseQty("Qty. to Consume", "Qty. per Unit of Measure");
+                    "Qty. to Consume (Base)" :=
+                        UOMMgt.CalcBaseQty("No.", "Variant Code", "Unit of Measure Code", "Qty. to Consume", "Qty. per Unit of Measure");
                     InitQtyToInvoice;
                 end;
 
@@ -2167,7 +2182,7 @@ table 5902 "Service Line"
                         UpdateServDocRegister(false);
                     end;
                 end else begin
-                    ServMgtSetup.Get;
+                    ServMgtSetup.Get();
                     if not ServItem.Get("Service Item No.") then
                         Clear(ServItem);
                     if "Contract No." = '' then
@@ -2177,7 +2192,7 @@ table 5902 "Service Line"
                         if ServContractHeader.Get(ServContractHeader."Contract Type"::Contract, "Contract No.") then begin
                             if (ServContractHeader."Starting Date" <= WorkDate) and not "Exclude Contract Discount" then begin
                                 if not ContractGroup.Get(ServContractHeader."Contract Group Code") then
-                                    ContractGroup.Init;
+                                    ContractGroup.Init();
                                 if not ContractGroup."Disc. on Contr. Orders Only" or
                                    (ContractGroup."Disc. on Contr. Orders Only" and (ServHeader."Contract No." <> ''))
                                 then begin
@@ -2186,7 +2201,7 @@ table 5902 "Service Line"
                                             "Contract Disc. %" := 0;
                                         Type::Item:
                                             begin
-                                                ContractServDisc.Init;
+                                                ContractServDisc.Init();
                                                 ContractServDisc."Contract Type" := ContractServDisc."Contract Type"::Contract;
                                                 ContractServDisc."Contract No." := ServContractHeader."Contract No.";
                                                 ContractServDisc.Type := ContractServDisc.Type::"Service Item Group";
@@ -2199,7 +2214,7 @@ table 5902 "Service Line"
                                         Type::Resource:
                                             begin
                                                 Res.Get("No.");
-                                                ContractServDisc.Init;
+                                                ContractServDisc.Init();
                                                 ContractServDisc."Contract Type" := ContractServDisc."Contract Type"::Contract;
                                                 ContractServDisc."Contract No." := ServContractHeader."Contract No.";
                                                 ContractServDisc.Type := ContractServDisc.Type::"Resource Group";
@@ -2211,7 +2226,7 @@ table 5902 "Service Line"
                                         Type::Cost:
                                             begin
                                                 ServCost.Get("No.");
-                                                ContractServDisc.Init;
+                                                ContractServDisc.Init();
                                                 ContractServDisc."Contract Type" := ContractServDisc."Contract Type"::Contract;
                                                 ContractServDisc."Contract No." := ServContractHeader."Contract No.";
                                                 ContractServDisc.Type := ContractServDisc.Type::Cost;
@@ -2265,7 +2280,9 @@ table 5902 "Service Line"
 
             trigger OnValidate()
             begin
-                UpdateUnitPrice(FieldNo(Warranty));
+                if Warranty <> xRec.Warranty then
+                    PlanPriceCalcByField(FieldNo(Warranty));
+                UpdateUnitPriceByField(FieldNo(Warranty));
                 UpdateAmounts;
             end;
         }
@@ -2403,7 +2420,7 @@ table 5902 "Service Line"
                 ReturnReason: Record "Return Reason";
             begin
                 if "Return Reason Code" = '' then
-                    UpdateUnitPrice(FieldNo("Return Reason Code"));
+                    PlanPriceCalcByField(FieldNo("Return Reason Code"));
 
                 if ReturnReason.Get("Return Reason Code") then begin
                     if (ReturnReason."Default Location Code" <> '') and (not IsNonInventoriableItem) then
@@ -2413,9 +2430,14 @@ table 5902 "Service Line"
                         Validate("Unit Price", 0);
                     end else
                         if "Unit Price" = 0 then
-                            UpdateUnitPrice(FieldNo("Return Reason Code"));
+                            PlanPriceCalcByField(FieldNo("Return Reason Code"));
                 end;
+                UpdateUnitPriceByField(FieldNo("Return Reason Code"));
             end;
+        }
+        field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
+        {
+            Caption = 'Price Calculation Method';
         }
         field(7001; "Allow Line Disc."; Boolean)
         {
@@ -2429,8 +2451,11 @@ table 5902 "Service Line"
 
             trigger OnValidate()
             begin
-                if Type = Type::Item then
-                    UpdateUnitPrice(FieldNo("Customer Disc. Group"));
+                if Type = Type::Item then begin
+                    if "Customer Disc. Group" <> xRec."Customer Disc. Group" then
+                        PlanPriceCalcByField(FieldNo("Customer Disc. Group"));
+                    UpdateUnitPriceByField(FieldNo("Customer Disc. Group"));
+                end;
             end;
         }
         field(7300; "Qty. Picked"; Decimal)
@@ -2441,7 +2466,8 @@ table 5902 "Service Line"
 
             trigger OnValidate()
             begin
-                "Qty. Picked (Base)" := UOMMgt.CalcBaseQty("Qty. Picked", "Qty. per Unit of Measure");
+                "Qty. Picked (Base)" :=
+                    UOMMgt.CalcBaseQty("No.", "Variant Code", "Unit of Measure Code", "Qty. Picked", "Qty. per Unit of Measure");
                 "Completely Picked" := "Qty. Picked" >= 0;
             end;
         }
@@ -2513,6 +2539,11 @@ table 5902 "Service Line"
         key(Key14; "Document Type", "Document No.", Type, "No.")
         {
         }
+        key(Key15; "Document No.", "Document Type")
+        {
+            MaintainSqlIndex = false;
+            SumIndexFields = Amount, "Amount Including VAT", "Outstanding Amount", "Shipped Not Invoiced", "Outstanding Amount (LCY)", "Shipped Not Invoiced (LCY)", "Line Amount";
+        }
     }
 
     fieldgroups
@@ -2555,7 +2586,7 @@ table 5902 "Service Line"
             UpdateServDocRegister(true);
 
         if "Line No." <> 0 then begin
-            ServiceLine2.Reset;
+            ServiceLine2.Reset();
             ServiceLine2.SetRange("Document Type", "Document Type");
             ServiceLine2.SetRange("Document No.", "Document No.");
             ServiceLine2.SetRange("Attached to Line No.", "Line No.");
@@ -2642,6 +2673,7 @@ table 5902 "Service Line"
         ReserveServLine: Codeunit "Service Line-Reserve";
         WhseValidateSourceLine: Codeunit "Whse. Validate Source Line";
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
+        FieldCausedPriceCalculation: Integer;
         Select: Integer;
         FullAutoReservation: Boolean;
         HideReplacementDialog: Boolean;
@@ -2683,7 +2715,7 @@ table 5902 "Service Line"
         LocationChangedMsg: Label 'Item %1 with serial number %2 is stored on location %3. The Location Code field on the service line will be updated.', Comment = '%1 = Item No., %2 = Item serial No., %3 = Location code';
         LineDiscountPctErr: Label 'The value in the Line Discount % field must be between 0 and 100.';
 
-    local procedure CheckItemAvailable(CalledByFieldNo: Integer)
+    procedure CheckItemAvailable(CalledByFieldNo: Integer)
     var
         ItemCheckAvail: Codeunit "Item-Check Avail.";
         IsHandled: Boolean;
@@ -2726,10 +2758,10 @@ table 5902 "Service Line"
         No: array[10] of Code[20];
         DimensionSetID: Integer;
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         GetServHeader;
         if not ServItemLine.Get(ServHeader."Document Type", ServHeader."No.", "Service Item Line No.") then
-            ServItemLine.Init;
+            ServItemLine.Init();
 
         TableID[1] := Type1;
         No[1] := No1;
@@ -2783,7 +2815,7 @@ table 5902 "Service Line"
         ErrorIfAlreadySelectedSI("Service Item Line No.");
         Clear(ServItemReplacement);
         ServItemReplacement.SetValues("Service Item No.", "No.", "Variant Code");
-        Commit;
+        Commit();
         if ServItemReplacement.RunModal = ACTION::OK then begin
             SerialNo := ServItemReplacement.ReturnSerialNo;
             VariantCode := ServItemReplacement.ReturnVariantCode;
@@ -2798,10 +2830,10 @@ table 5902 "Service Line"
 
             "Variant Code" := VariantCode;
             Validate(Quantity, 1);
-            TempTrackingSpecification.DeleteAll;
+            TempTrackingSpecification.DeleteAll();
             TempTrackingSpecification."Serial No." := SerialNo;
             TempTrackingSpecification."Variant Code" := VariantCode;
-            TempTrackingSpecification.Insert;
+            TempTrackingSpecification.Insert();
             if "Line No." <> 0 then
                 InsertItemTracking;
             case ServItemReplacement.ReturnReplacement of
@@ -2862,7 +2894,7 @@ table 5902 "Service Line"
                 exit;
         end;
 
-        ServiceLine.Reset;
+        ServiceLine.Reset();
         ServiceLine.SetCurrentKey("Document Type", "Document No.", "Service Item Line No.", Type, "No.");
         ServiceLine.SetRange("Document Type", "Document Type");
         ServiceLine.SetRange("Document No.", "Document No.");
@@ -2876,7 +2908,6 @@ table 5902 "Service Line"
 
     local procedure CalculateDiscount()
     var
-        SalesPriceCalcMgt: Codeunit "Sales Price Calc. Mgt.";
         Discounts: array[4] of Decimal;
         i: Integer;
     begin
@@ -2902,7 +2933,8 @@ table 5902 "Service Line"
             Discounts[2] := "Contract Disc. %";
 
         ServHeader.Get("Document Type", "Document No.");
-        SalesPriceCalcMgt.FindServLineDisc(ServHeader, Rec);
+
+        ApplyDiscount(ServHeader);
         Discounts[3] := "Line Discount %";
         if Discounts[3] > 100 then
             Discounts[3] := 100;
@@ -2922,6 +2954,91 @@ table 5902 "Service Line"
             end;
 
         OnAfterCalculateDiscount(Rec);
+    end;
+
+    local procedure GetLineWithPrice(var PriceCalculation: Interface "Price Calculation")
+    var
+        Line: Variant;
+    begin
+        PriceCalculation.GetLine(Line);
+        Rec := Line;
+    end;
+
+    local procedure GetPriceCalculationHandler(ServiceHeader: Record "Service Header"; var PriceCalculation: Interface "Price Calculation")
+    var
+        PriceCalculationMgt: codeunit "Price Calculation Mgt.";
+        ServiceLinePrice: Codeunit "Service Line - Price";
+        PriceType: Enum "Price Type";
+    begin
+        if (ServiceHeader."No." = '') and ("Document No." <> '') then
+            ServiceHeader.Get("Document Type", "Document No.");
+        ServiceLinePrice.SetLine(PriceType::Sale, ServiceHeader, Rec);
+        PriceCalculationMgt.GetHandler(ServiceLinePrice, PriceCalculation);
+    end;
+
+    procedure ApplyDiscount(ServiceHeader: Record "Service Header")
+    var
+        PriceCalculation: Interface "Price Calculation";
+    begin
+        GetPriceCalculationHandler(ServiceHeader, PriceCalculation);
+        PriceCalculation.ApplyDiscount();
+        GetLineWithPrice(PriceCalculation);
+    end;
+
+    procedure PickDiscount()
+    var
+        ServiceHeader: Record "Service Header";
+        PriceCalculation: Interface "Price Calculation";
+    begin
+        GetPriceCalculationHandler(ServiceHeader, PriceCalculation);
+        PriceCalculation.PickDiscount();
+        GetLineWithPrice(PriceCalculation);
+    end;
+
+    procedure PickPrice()
+    var
+        ServiceHeader: Record "Service Header";
+        PriceCalculation: Interface "Price Calculation";
+    begin
+        GetPriceCalculationHandler(ServiceHeader, PriceCalculation);
+        PriceCalculation.PickPrice();
+        GetLineWithPrice(PriceCalculation);
+    end;
+
+    procedure CountDiscount(ShowAll: Boolean): Integer;
+    var
+        ServiceHeader: Record "Service Header";
+        PriceCalculation: Interface "Price Calculation";
+    begin
+        GetPriceCalculationHandler(ServiceHeader, PriceCalculation);
+        exit(PriceCalculation.CountDiscount(ShowAll));
+    end;
+
+    procedure CountPrice(ShowAll: Boolean): Integer;
+    var
+        ServiceHeader: Record "Service Header";
+        PriceCalculation: Interface "Price Calculation";
+    begin
+        GetPriceCalculationHandler(ServiceHeader, PriceCalculation);
+        exit(PriceCalculation.CountPrice(ShowAll));
+    end;
+
+    procedure DiscountExists(ShowAll: Boolean): Boolean;
+    var
+        ServiceHeader: Record "Service Header";
+        PriceCalculation: Interface "Price Calculation";
+    begin
+        GetPriceCalculationHandler(ServiceHeader, PriceCalculation);
+        exit(PriceCalculation.IsDiscountExists(ShowAll));
+    end;
+
+    procedure PriceExists(ShowAll: Boolean): Boolean;
+    var
+        ServiceHeader: Record "Service Header";
+        PriceCalculation: Interface "Price Calculation";
+    begin
+        GetPriceCalculationHandler(ServiceHeader, PriceCalculation);
+        exit(PriceCalculation.IsPriceExists(ShowAll));
     end;
 
     procedure UpdateAmounts()
@@ -2963,16 +3080,16 @@ table 5902 "Service Line"
     begin
         if CurrFieldNo = 0 then
             exit;
-        SalesSetup.Get;
+        SalesSetup.Get();
         DiscountNotificationMgt.RecallNotification(SalesSetup.RecordId);
         if (FieldNumber = FieldNo("Line Discount Amount")) and ("Line Discount Amount" = 0) then
             exit;
         DiscountNotificationMgt.NotifyAboutMissingSetup(
-          SalesSetup.RecordId, "Gen. Bus. Posting Group", "Gen. Prod. Posting Group",
+          SalesSetup.RecordId, "Gen. Bus. Posting Group",
           SalesSetup."Discount Posting", SalesSetup."Discount Posting"::"Invoice Discounts");
     end;
 
-    local procedure GetItem(var Item: Record Item)
+    procedure GetItem(var Item: Record Item)
     begin
         TestField("No.");
         Item.Get("No.");
@@ -2986,7 +3103,7 @@ table 5902 "Service Line"
         exit(ServHeader."Posting Date");
     end;
 
-    local procedure GetServHeader()
+    procedure GetServHeader()
     begin
         TestField("Document No.");
         if ("Document Type" <> ServHeader."Document Type") or ("Document No." <> ServHeader."No.") then begin
@@ -3025,6 +3142,7 @@ table 5902 "Service Line"
         "Fault Reason Code" := '';
 
         "Bill-to Customer No." := ServHeader."Bill-to Customer No.";
+        "Price Calculation Method" := ServHeader."Price Calculation Method";
         "Customer Price Group" := ServHeader."Customer Price Group";
         "Customer Disc. Group" := ServHeader."Customer Disc. Group";
         "Allow Line Disc." := ServHeader."Allow Line Disc.";
@@ -3064,20 +3182,56 @@ table 5902 "Service Line"
         OnAfterAssignHeaderValues(Rec, ServHeader);
     end;
 
-    procedure UpdateUnitPrice(CalledByFieldNo: Integer)
-    var
-        SalesPriceCalcMgt: Codeunit "Sales Price Calc. Mgt.";
+    local procedure IsPriceCalcCalledByField(CurrPriceFieldNo: Integer): Boolean;
     begin
+        exit(FieldCausedPriceCalculation = CurrPriceFieldNo);
+    end;
+
+    local procedure PlanPriceCalcByField(CurrPriceFieldNo: Integer)
+    begin
+        if FieldCausedPriceCalculation = 0 then
+            FieldCausedPriceCalculation := CurrPriceFieldNo;
+    end;
+
+    local procedure ClearFieldCausedPriceCalculation()
+    begin
+        FieldCausedPriceCalculation := 0;
+    end;
+
+    procedure UpdateUnitPrice(CalledByFieldNo: Integer)
+    begin
+        ClearFieldCausedPriceCalculation();
+        PlanPriceCalcByField(CalledByFieldNo);
+        UpdateUnitPriceByField(CalledByFieldNo);
+    end;
+
+    local procedure UpdateUnitPriceByField(CalledByFieldNo: Integer)
+    begin
+        if not IsPriceCalcCalledByField(CalledByFieldNo) then
+            exit;
+
         OnBeforeUpdateUnitPrice(Rec, xRec, CalledByFieldNo, CurrFieldNo);
 
         TestField("Qty. per Unit of Measure");
         ServHeader.Get("Document Type", "Document No.");
 
         CalculateDiscount;
-        SalesPriceCalcMgt.FindServLinePrice(ServHeader, Rec, CalledByFieldNo);
+        ApplyPrice(ServHeader, CalledByFieldNo);
         Validate("Unit Price");
 
+        ClearFieldCausedPriceCalculation();
         OnAfterUpdateUnitPrice(Rec, xRec, CalledByFieldNo, CurrFieldNo);
+    end;
+
+    local procedure ApplyPrice(ServiceHeader: Record "Service Header"; CalledByFieldNo: Integer)
+    var
+        PriceCalculation: Interface "Price Calculation";
+        Line: Variant;
+    begin
+        GetPriceCalculationHandler(ServiceHeader, PriceCalculation);
+        PriceCalculation.ApplyPrice(CalledByFieldNo);
+        PriceCalculation.GetLine(Line);
+        Rec := Line;
     end;
 
     procedure ShowDimensions()
@@ -3099,19 +3253,18 @@ table 5902 "Service Line"
         TestField("No.");
         TestField(Reserve);
         Clear(Reservation);
-        Reservation.SetServiceLine(Rec);
-        Reservation.RunModal;
+        Reservation.SetReservSource(Rec);
+        Reservation.RunModal();
     end;
 
     procedure ShowReservationEntries(Modal: Boolean)
     var
         ReservEntry: Record "Reservation Entry";
-        ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
     begin
         TestField(Type, Type::Item);
         TestField("No.");
-        ReservEngineMgt.InitFilterAndSortingLookupFor(ReservEntry, true);
-        ReserveServLine.FilterReservFor(ReservEntry, Rec);
+        ReservEntry.InitSortingAndFilters(true);
+        SetReservationFilters(ReservEntry);
         if Modal then
             PAGE.RunModal(PAGE::"Reservation Entries", ReservEntry)
         else
@@ -3133,16 +3286,16 @@ table 5902 "Service Line"
             FieldError(Reserve);
         ReserveServLine.ReservQuantity(Rec, QtyToReserve, QtyToReserveBase);
         if QtyToReserveBase <> 0 then begin
-            ReservMgt.SetServLine(Rec);
+            ReservMgt.SetReservSource(Rec);
             if ReplaceServItemAction then begin
                 ReserveServLine.FindReservEntry(Rec, ReservationEntry);
                 ReservMgt.SetSerialLotNo(ReservationEntry."Serial No.", ReservationEntry."Lot No.");
             end;
             ReservMgt.AutoReserve(FullAutoReservation, '', "Order Date", QtyToReserve, QtyToReserveBase);
             Find;
-            ServiceMgtSetup.Get;
+            ServiceMgtSetup.Get();
             if (not FullAutoReservation) and (not ServiceMgtSetup."Skip Manual Reservation") then begin
-                Commit;
+                Commit();
                 if ConfirmManagement.GetResponse(ManualReserveQst, true) then begin
                     ShowReservation;
                     Find;
@@ -3364,7 +3517,7 @@ table 5902 "Service Line"
             exit;
 
         if ServItem."Item No." = "No." then begin
-            ServItemLine.Reset;
+            ServItemLine.Reset();
             if not HideReplacementDialog then begin
                 ReplaceServItemAction := ReplaceServItem;
                 if not ReplaceServItemAction then
@@ -3377,8 +3530,8 @@ table 5902 "Service Line"
                 case Select of
                     1:
                         begin
-                            Commit;
-                            ServItemComponent.Reset;
+                            Commit();
+                            ServItemComponent.Reset();
                             ServItemComponent.SetRange(Active, true);
                             ServItemComponent.SetRange("Parent Service Item No.", ServItem."No.");
                             if PAGE.RunModal(0, ServItemComponent) = ACTION::LookupOK then begin
@@ -3455,7 +3608,7 @@ table 5902 "Service Line"
     procedure CheckIfServItemReplacement(ComponentLineNo: Integer)
     begin
         if "Service Item Line No." <> 0 then begin
-            ServiceLine.Reset;
+            ServiceLine.Reset();
             ServiceLine.SetCurrentKey("Document Type", "Document No.", "Service Item Line No.", "Component Line No.");
             ServiceLine.SetRange("Document Type", "Document Type");
             ServiceLine.SetRange("Document No.", "Document No.");
@@ -3498,13 +3651,15 @@ table 5902 "Service Line"
             ReserveServLine.DeleteLine(Rec);
             Clear(CreateReservEntry);
             with ServiceLine do begin
-                CreateReservEntry.CreateReservEntryFor(DATABASE::"Service Line", "Document Type", "Document No.",
-                  '', 0, "Line No.", "Qty. per Unit of Measure", Quantity, "Quantity (Base)",
-                  TempTrackingSpecification."Serial No.", TempTrackingSpecification."Lot No.");
-                CreateReservEntry.CreateEntry("No.", "Variant Code", "Location Code", Description,
-                  0D, "Posting Date", 0, ReservEntry."Reservation Status"::Surplus);
+                CreateReservEntry.CreateReservEntryFor(
+                    DATABASE::"Service Line", "Document Type", "Document No.",
+                    '', 0, "Line No.", "Qty. per Unit of Measure", Quantity, "Quantity (Base)",
+                    TempTrackingSpecification."Serial No.", TempTrackingSpecification."Lot No.");
+                CreateReservEntry.CreateEntry(
+                    "No.", "Variant Code", "Location Code", Description,
+                    0D, "Posting Date", 0, ReservEntry."Reservation Status"::Surplus);
             end;
-            TempTrackingSpecification.DeleteAll;
+            TempTrackingSpecification.DeleteAll();
         end;
     end;
 
@@ -3558,7 +3713,7 @@ table 5902 "Service Line"
         end;
     end;
 
-    local procedure GetSKU(): Boolean
+    procedure GetSKU(): Boolean
     begin
         if (SKU."Location Code" = "Location Code") and
            (SKU."Item No." = "No.") and
@@ -3587,11 +3742,59 @@ table 5902 "Service Line"
         OnAfterGetUnitCost(Rec, Item);
     end;
 
+    procedure GetRemainingQty(var RemainingQty: Decimal; var RemainingQtyBase: Decimal)
+    begin
+        CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
+        RemainingQty := "Outstanding Quantity" - Abs("Reserved Quantity");
+        RemainingQtyBase := "Outstanding Qty. (Base)" - Abs("Reserved Qty. (Base)");
+    end;
+
+    procedure GetReservationQty(var QtyReserved: Decimal; var QtyReservedBase: Decimal; var QtyToReserve: Decimal; var QtyToReserveBase: Decimal): Decimal
+    begin
+        CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
+        QtyReserved := "Reserved Quantity";
+        QtyReservedBase := "Reserved Qty. (Base)";
+        QtyToReserve := "Outstanding Quantity";
+        QtyToReserveBase := "Outstanding Qty. (Base)";
+        exit("Qty. per Unit of Measure");
+    end;
+
+    procedure GetSourceCaption(): Text
+    begin
+        exit(StrSubstNo('%1 %2 %3', "Document Type", "Document No.", "No."));
+    end;
+
+    procedure SetReservationEntry(var ReservEntry: Record "Reservation Entry")
+    begin
+        ReservEntry.SetSource(DATABASE::"Service Line", "Document Type", "Document No.", "Line No.", '', 0);
+        ReservEntry.SetItemData("No.", Description, "Location Code", "Variant Code", "Qty. per Unit of Measure");
+        if Type <> Type::Item then
+            ReservEntry."Item No." := '';
+        ReservEntry."Expected Receipt Date" := "Needed by Date";
+        ReservEntry."Shipment Date" := "Needed by Date";
+    end;
+
+    procedure SetReservationFilters(var ReservEntry: Record "Reservation Entry")
+    begin
+        ReservEntry.SetSourceFilter(DATABASE::"Service Line", "Document Type", "Document No.", "Line No.", false);
+        ReservEntry.SetSourceFilter('', 0);
+    end;
+
+    procedure ReservEntryExist(): Boolean
+    var
+        ReservEntry: Record "Reservation Entry";
+    begin
+        ReservEntry.InitSortingAndFilters(false);
+        SetReservationFilters(ReservEntry);
+        exit(not ReservEntry.IsEmpty);
+    end;
+
+    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '16.0')]
     procedure FindResUnitCost()
     var
         ResCost: Record "Resource Cost";
     begin
-        ResCost.Init;
+        ResCost.Init();
         ResCost.Code := "No.";
         ResCost."Work Type Code" := "Work Type Code";
         CODEUNIT.Run(CODEUNIT::"Resource-Find Cost", ResCost);
@@ -3752,7 +3955,7 @@ table 5902 "Service Line"
     begin
         if not ServHeader.Get("Document Type", "Document No.") then begin
             ServHeader."No." := '';
-            ServHeader.Init;
+            ServHeader.Init();
         end;
         if ServHeader."Prices Including VAT" then
             exit('2,1,' + GetFieldCaption(FieldNumber));
@@ -3940,14 +4143,14 @@ table 5902 "Service Line"
     begin
         Currency.Initialize(ServHeader."Currency Code");
 
-        VATAmountLine.DeleteAll;
+        VATAmountLine.DeleteAll();
 
         with ServiceLine do begin
             SetRange("Document Type", ServHeader."Document Type");
             SetRange("Document No.", ServHeader."No.");
             SetFilter(Type, '>0');
             SetFilter(Quantity, '<>0');
-            SalesSetup.Get;
+            SalesSetup.Get();
             if SalesSetup."Invoice Rounding" then begin
                 Cust.Get(ServHeader."Bill-to Customer No.");
                 CustPostingGroup.Get(Cust."Customer Posting Group");
@@ -3994,7 +4197,7 @@ table 5902 "Service Line"
                                     VATAmountLine."Inv. Disc. Base Amount" += Round("Line Amount" * QtyFactor, Currency."Amount Rounding Precision");
                                 VATAmountLine."Invoice Discount Amount" += "Inv. Disc. Amount to Invoice";
                                 VATAmountLine."VAT Difference" += "VAT Difference";
-                                VATAmountLine.Modify;
+                                VATAmountLine.Modify();
                             end;
                         QtyType::Shipping:
                             begin
@@ -4013,7 +4216,7 @@ table 5902 "Service Line"
                                 VATAmountLine."Invoice Discount Amount" +=
                                   Round("Inv. Discount Amount" * QtyFactor, Currency."Amount Rounding Precision");
                                 VATAmountLine."VAT Difference" += "VAT Difference";
-                                VATAmountLine.Modify;
+                                VATAmountLine.Modify();
                             end;
                         QtyType::Consuming:
                             begin
@@ -4036,7 +4239,7 @@ table 5902 "Service Line"
                                     VATAmountLine."Inv. Disc. Base Amount" += "Line Amount";
                                 VATAmountLine."Invoice Discount Amount" += "Inv. Discount Amount";
                                 VATAmountLine."VAT Difference" += "VAT Difference";
-                                VATAmountLine.Modify;
+                                VATAmountLine.Modify();
                             end;
                     end;
                     TotalVATAmount += "Amount Including VAT" - Amount + "VAT Difference";
@@ -4056,7 +4259,7 @@ table 5902 "Service Line"
                 VATAmountLine."VAT Amount" := VATAmountLine."VAT Amount" + TotalVATAmount;
                 VATAmountLine."Amount Including VAT" := VATAmountLine."Amount Including VAT" + TotalVATAmount;
                 VATAmountLine."Calculated VAT Amount" := VATAmountLine."Calculated VAT Amount" + TotalVATAmount;
-                VATAmountLine.Modify;
+                VATAmountLine.Modify();
             end;
 
         OnAfterCalcVATAmountLines(ServHeader, ServiceLine, VATAmountLine, QtyType);
@@ -4089,7 +4292,7 @@ table 5902 "Service Line"
 
         Currency.Initialize(ServHeader."Currency Code");
 
-        TempVATAmountLineRemainder.DeleteAll;
+        TempVATAmountLineRemainder.DeleteAll();
 
         with ServiceLine do begin
             SetRange("Document Type", ServHeader."Document Type");
@@ -4102,7 +4305,7 @@ table 5902 "Service Line"
                 QtyType::Shipping:
                     SetFilter("Qty. to Ship", '<>0');
             end;
-            LockTable;
+            LockTable();
             if Find('-') then
                 repeat
                     VATAmountLine.Get("VAT Identifier", "VAT Calculation Type", "Tax Group Code", false, "Line Amount" >= 0);
@@ -4112,8 +4315,8 @@ table 5902 "Service Line"
                              "VAT Identifier", "VAT Calculation Type", "Tax Group Code", false, "Line Amount" >= 0)
                         then begin
                             TempVATAmountLineRemainder := VATAmountLine;
-                            TempVATAmountLineRemainder.Init;
-                            TempVATAmountLineRemainder.Insert;
+                            TempVATAmountLineRemainder.Init();
+                            TempVATAmountLineRemainder.Insert();
                         end;
 
                         if QtyType = QtyType::General then
@@ -4206,7 +4409,7 @@ table 5902 "Service Line"
                           NewAmountIncludingVAT - Round(NewAmountIncludingVAT, Currency."Amount Rounding Precision");
                         TempVATAmountLineRemainder."VAT Amount" := VATAmount - NewAmountIncludingVAT + NewAmount;
                         TempVATAmountLineRemainder."VAT Difference" := VATDifference - "VAT Difference";
-                        TempVATAmountLineRemainder.Modify;
+                        TempVATAmountLineRemainder.Modify();
                     end;
                 until Next = 0;
             SetRange(Type);
@@ -4403,15 +4606,15 @@ table 5902 "Service Line"
         TestField(Quantity);
         TestField("Quantity Shipped", 0);
 
-        ServItemLine.Reset;
+        ServItemLine.Reset();
         ServItemLine.SetRange("Document Type", "Document Type");
         ServItemLine.SetRange("Document No.", "Document No.");
-        NoOfServItems := ServItemLine.Count;
+        NoOfServItems := ServItemLine.Count();
         if NoOfServItems <= 1 then
             Error(Text041);
 
         if ConfirmManagement.GetResponseOrDefault(Text044, true) then begin
-            ServiceLine.Reset;
+            ServiceLine.Reset();
             ServiceLine.SetRange("Document Type", "Document Type");
             ServiceLine.SetRange("Document No.", "Document No.");
             if ServiceLine.FindLast then
@@ -4424,7 +4627,7 @@ table 5902 "Service Line"
                 repeat
                     if ServItemLine."Line No." <> "Service Item Line No." then begin
                         Clear(ServiceLine);
-                        ServiceLine.Init;
+                        ServiceLine.Init();
                         ServiceLine."Document Type" := "Document Type";
                         ServiceLine."Document No." := "Document No.";
                         ServiceLine."Line No." := NextLine;
@@ -4507,7 +4710,7 @@ table 5902 "Service Line"
         ServiceLine2: Record "Service Line";
         ServDocReg: Record "Service Document Register";
     begin
-        ServiceLine2.Reset;
+        ServiceLine2.Reset();
         ServiceLine2.SetRange("Document Type", "Document Type");
         ServiceLine2.SetRange("Document No.", "Document No.");
         if DeleteRecord then
@@ -4518,7 +4721,7 @@ table 5902 "Service Line"
 
         if ServiceLine2.IsEmpty then
             if xRec."Contract No." <> '' then begin
-                ServDocReg.Reset;
+                ServDocReg.Reset();
                 if "Document Type" = "Document Type"::Invoice then
                     ServDocReg.SetRange("Destination Document Type", ServDocReg."Destination Document Type"::Invoice)
                 else
@@ -4527,7 +4730,7 @@ table 5902 "Service Line"
                 ServDocReg.SetRange("Destination Document No.", "Document No.");
                 ServDocReg.SetRange("Source Document Type", ServDocReg."Source Document Type"::Contract);
                 ServDocReg.SetRange("Source Document No.", xRec."Contract No.");
-                ServDocReg.DeleteAll;
+                ServDocReg.DeleteAll();
             end;
 
         if ("Contract No." <> '') and (Type <> Type::" ") and not DeleteRecord then begin
@@ -4624,6 +4827,22 @@ table 5902 "Service Line"
         exit(not IsEmpty);
     end;
 
+    procedure FindLinesForReservation(ReservationEntry: Record "Reservation Entry"; AvailabilityFilter: Text; Positive: Boolean)
+    begin
+        Reset;
+        SetCurrentKey(Type, "No.", "Variant Code", "Location Code", "Needed by Date", "Document Type");
+        SetRange(Type, Type::Item);
+        SetRange("No.", ReservationEntry."Item No.");
+        SetRange("Variant Code", ReservationEntry."Variant Code");
+        SetRange("Location Code", ReservationEntry."Location Code");
+        SetFilter("Needed by Date", AvailabilityFilter);
+        if Positive then
+            SetFilter("Quantity (Base)", '<0')
+        else
+            SetFilter("Quantity (Base)", '>0');
+        SetRange("Job No.", ' ');
+    end;
+
     local procedure UpdateServiceLedgerEntry()
     var
         ServiceLedgerEntry: Record "Service Ledger Entry";
@@ -4649,7 +4868,7 @@ table 5902 "Service Line"
             if CurrencyExchangeRate.FindLast then
                 CurrencyFactor := CurrencyExchangeRate."Adjustment Exch. Rate Amount" / CurrencyExchangeRate."Relational Exch. Rate Amount";
         end;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LCYRoundingPrecision := 0.01;
         if Currency.Get(GeneralLedgerSetup."LCY Code") then
             LCYRoundingPrecision := Currency."Amount Rounding Precision";
@@ -4666,7 +4885,7 @@ table 5902 "Service Line"
             ServiceLedgerEntry."Discount Amount" := Round("Line Discount Amount" / CurrencyFactor, LCYRoundingPrecision);
         if "Line Discount %" <> xRec."Line Discount %" then
             ServiceLedgerEntry."Discount %" := "Line Discount %";
-        ServiceLedgerEntry.Modify;
+        ServiceLedgerEntry.Modify();
     end;
 
     local procedure UpdateWithWarehouseShip()
@@ -4690,7 +4909,7 @@ table 5902 "Service Line"
     begin
         GetLocation("Location Code");
         if "Location Code" = '' then begin
-            WhseSetup.Get;
+            WhseSetup.Get();
             Location2."Require Shipment" := WhseSetup."Require Shipment";
             Location2."Require Pick" := WhseSetup."Require Pick";
             Location2."Require Receive" := WhseSetup."Require Receive";
@@ -4762,7 +4981,7 @@ table 5902 "Service Line"
         WhseIntegrationMgt.CheckIfBinDedicatedOnSrcDoc("Location Code", "Bin Code", IssueWarning);
     end;
 
-    local procedure TestStatusOpen()
+    procedure TestStatusOpen()
     var
         ServHeader: Record "Service Header";
     begin
@@ -4812,7 +5031,7 @@ table 5902 "Service Line"
     begin
         if Location.Get("Location Code") then
             exit(EvaluateDaysBack(Location."Outbound Whse. Handling Time", GetDueDate));
-        InventorySetup.Get;
+        InventorySetup.Get();
         exit(EvaluateDaysBack(InventorySetup."Outbound Whse. Handling Time", GetDueDate));
     end;
 
@@ -4930,16 +5149,16 @@ table 5902 "Service Line"
     [Scope('OnPrem')]
     procedure GetLineNo(): Integer
     var
-        ServiceLine: Record "Service Line";
+        ServLine: Record "Service Line";
     begin
         if "Line No." <> 0 then
-            if not ServiceLine.Get("Document Type", "Document No.", "Line No.") then
+            if not ServLine.Get("Document Type", "Document No.", "Line No.") then
                 exit("Line No.");
 
-        ServiceLine.SetRange("Document Type", "Document Type");
-        ServiceLine.SetRange("Document No.", "Document No.");
-        if ServiceLine.FindLast() then
-            exit(ServiceLine."Line No." + 10000);
+        ServLine.SetRange("Document Type", "Document Type");
+        ServLine.SetRange("Document No.", "Document No.");
+        if ServLine.FindLast() then
+            exit(ServLine."Line No." + 10000);
         exit(10000);
     end;
 
@@ -4948,7 +5167,7 @@ table 5902 "Service Line"
         SetRange("Document Type", "Document Type");
         SetRange("Document No.", "Document No.");
         SetRange("Attached to Line No.", "Line No.");
-        DeleteAll;
+        DeleteAll();
 
         SetRange("Document Type");
         SetRange("Document No.");
@@ -5107,6 +5326,7 @@ table 5902 "Service Line"
     begin
     end;
 
+    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '16.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterResourseFindCost(var ServiceLine: Record "Service Line"; var ResourceCost: Record "Resource Cost")
     begin
@@ -5159,6 +5379,11 @@ table 5902 "Service Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var ServiceLine: Record "Service Line"; CallingFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetReservationFilters(var ReservEntry: Record "Reservation Entry"; ServiceLine: Record "Service Line")
     begin
     end;
 

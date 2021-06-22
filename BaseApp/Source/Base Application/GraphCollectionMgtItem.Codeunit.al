@@ -12,7 +12,7 @@ codeunit 5470 "Graph Collection Mgt - Item"
         BaseUnitOfMeasureCannotHaveConversionsErr: Label 'Base Unit Of Measure must be specified on the item first.', Locked = true;
         TypeHelper: Codeunit "Type Helper";
 
-    [Scope('OnPrem')]
+    [Scope('Cloud')]
     procedure InsertItemFromSalesDocument(var Item: Record Item; var TempFieldSet: Record "Field" temporary; UnitOfMeasureJSON: Text)
     var
         GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
@@ -33,7 +33,7 @@ codeunit 5470 "Graph Collection Mgt - Item"
         Item.Modify(true);
     end;
 
-    [Scope('OnPrem')]
+    [Scope('Cloud')]
     procedure InsertItem(var Item: Record Item; var TempFieldSet: Record "Field" temporary; BaseUnitOfMeasureJSON: Text)
     var
         GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
@@ -120,7 +120,7 @@ codeunit 5470 "Graph Collection Mgt - Item"
             VerifyBaseUOMIsSet(Item, ExpectedBaseUOMCode);
             if not UnitOfMeasure.Get(ExpectedBaseUOMCode) then begin
                 UnitOfMeasure.Code := ExpectedBaseUOMCode;
-                UnitOfMeasure.Insert;
+                UnitOfMeasure.Insert();
             end;
 
             if Item."Base Unit of Measure" = '' then begin
@@ -290,7 +290,7 @@ codeunit 5470 "Graph Collection Mgt - Item"
         Evaluate(TempItemUnitOfMeasure."Qty. per Unit of Measure", FromToConversionRateTxt);
         TempItemUnitOfMeasure."Item No." := Item."No.";
         TempItemUnitOfMeasure.Code := UnitOfMeasure.Code;
-        TempItemUnitOfMeasure.Insert;
+        TempItemUnitOfMeasure.Insert();
 
         exit(true);
     end;
@@ -353,7 +353,7 @@ codeunit 5470 "Graph Collection Mgt - Item"
         repeat
             CombinedDateTime := CreateDateTime(Item."Last Date Modified", Item."Last Time Modified");
             Item."Last DateTime Modified" := DotNet_DateTimeOffset.ConvertToUtcDateTime(CombinedDateTime);
-            Item.Modify;
+            Item.Modify();
         until Item.Next = 0;
     end;
 
@@ -362,7 +362,7 @@ codeunit 5470 "Graph Collection Mgt - Item"
         if TypeHelper.GetField(DATABASE::Item, FieldNo, TempFieldSet) then
             exit;
 
-        TempFieldSet.Init;
+        TempFieldSet.Init();
         TempFieldSet.TableNo := DATABASE::Item;
         TempFieldSet.Validate("No.", FieldNo);
         TempFieldSet.Insert(true);

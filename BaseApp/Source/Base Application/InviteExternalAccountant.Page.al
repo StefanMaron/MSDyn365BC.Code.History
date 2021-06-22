@@ -22,11 +22,13 @@ page 9033 "Invite External Accountant"
                         Visible = FirstStepVisible;
                         group(Control24)
                         {
-                            Caption = 'This Invite External Accountant feature allows your organization to share its data with an external party either through the use of a separate portal or through the external party''s access to your organization''s online services account. Microsoft has no control over the third-party''s use of your data. You are responsible for ensuring that you have separate agreements in place with any such external user governing such external user''s access to and use of your data.';
+                            InstructionalText = 'This Invite External Accountant feature allows your organization to share its data with an external party either through the use of a separate portal or through the external party''s access to your organization''s online services account. Microsoft has no control over the third-party''s use of your data. You are responsible for ensuring that you have separate agreements in place with any such external user governing such external user''s access to and use of your data.';
+                            ShowCaption = false;
                             Visible = FirstStepVisible;
                             group("By clicking 'I Accept', you consent to share your organization's data with external parties you designate.")
                             {
-                                Caption = 'By clicking ''I Accept'', you consent to share your organization''s data with external parties you designate.';
+                                InstructionalText = 'By clicking ''I Accept'', you consent to share your organization''s data with external parties you designate.';
+                                ShowCaption = false;
                                 Visible = FirstStepVisible;
                                 field(DataPrivacy; DataPrivacyAccepted)
                                 {
@@ -36,7 +38,7 @@ page 9033 "Invite External Accountant"
 
                                     trigger OnValidate()
                                     begin
-                                        NextActionEnabled := true;
+                                        NextActionEnabled := DataPrivacyAccepted;
                                     end;
                                 }
                                 group(Control7)
@@ -276,6 +278,7 @@ page 9033 "Invite External Accountant"
         OpenTheFollowingLinkTxt: Label 'Open the following link to verify that you can log in.';
         ToAddMyCompanyTxt: Label 'To add my company to your Accountant Hub, click <a href="%1">here</a>.', Comment = '%1=Link for creating a client in the Accountant Hub.';
         EmailNotUsingAccountantPortalTxt: Label 'Not using the Accountant Hub?  Click <a href="https://dynamics.microsoft.com/en-us/business-central/accountants">here</a> to learn more.', Comment = '{Do not translate html portion.}';
+        LicenseAlreadyAssignedTxt: Label 'A license is already assigned to %1.', Comment = '%1 - user email';
         InvitationResult: Text;
         FailureTxt: Label 'Failure';
         SuccessTxt: Label 'Success';
@@ -363,27 +366,30 @@ page 9033 "Invite External Accountant"
             exit;
         end;
 
-        AzureADGraph.GetTenantDetail(TenantDetail);
+        if not InviteExternalAccountant.IsLicenseAlreadyAssigned(GuestGraphUser) then begin
+            AzureADGraph.GetTenantDetail(TenantDetail);
 
-        if not InviteExternalAccountant.InvokeUserProfileUpdateRequest(GuestGraphUser,
-             TenantDetail.CountryLetterCode, ErrorMessage)
-        then begin
-            InvitationResult := FailureTxt;
-            InviteProgress := StrSubstNo(InvitationErrorTxt, ProfileUpdateTxt);
-            InviteExternalAccountant.SendTelemetryForWizardFailure(ProfileUpdateTxt, ErrorMessage);
-            ProgressWindow.Close;
-            exit;
-        end;
+            if not InviteExternalAccountant.InvokeUserProfileUpdateRequest(GuestGraphUser,
+                TenantDetail.CountryLetterCode, ErrorMessage)
+            then begin
+                InvitationResult := FailureTxt;
+                InviteProgress := StrSubstNo(InvitationErrorTxt, ProfileUpdateTxt);
+                InviteExternalAccountant.SendTelemetryForWizardFailure(ProfileUpdateTxt, ErrorMessage);
+                ProgressWindow.Close;
+                exit;
+            end;
 
-        if not InviteExternalAccountant.InvokeUserAssignLicenseRequest(GuestGraphUser, TargetLicense, ErrorMessage) then begin
-            InvitationResult := FailureTxt;
-            InviteProgress := StrSubstNo(InvitationErrorTxt, LicenseAssignmentTxt);
-            InviteExternalAccountant.SendTelemetryForWizardFailure(LicenseAssignmentTxt, ErrorMessage);
-            ProgressWindow.Close;
-            exit;
-        end;
+            if not InviteExternalAccountant.InvokeUserAssignLicenseRequest(GuestGraphUser, TargetLicense, ErrorMessage) then begin
+                InvitationResult := FailureTxt;
+                InviteProgress := StrSubstNo(InvitationErrorTxt, LicenseAssignmentTxt);
+                InviteExternalAccountant.SendTelemetryForWizardFailure(LicenseAssignmentTxt, ErrorMessage);
+                ProgressWindow.Close;
+                exit;
+            end;
 
-        InviteExternalAccountant.CreateNewUser(InvitedUserId);
+            InviteExternalAccountant.CreateNewUser(InvitedUserId);
+        end else
+            Message(StrSubstNo(LicenseAlreadyAssignedTxt, NewUserEmailAddress));
 
         SendToList.Add(NewUserEmailAddress);
 

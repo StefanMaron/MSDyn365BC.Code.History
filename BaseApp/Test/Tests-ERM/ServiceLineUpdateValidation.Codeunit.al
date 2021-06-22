@@ -44,7 +44,7 @@ codeunit 136113 "Service Line Update Validation"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Line Update Validation");
     end;
 
@@ -63,7 +63,7 @@ codeunit 136113 "Service Line Update Validation"
         CreateServiceOrder(ServiceHeader);
         LibraryService.FindServiceCost(ServiceCost);
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Cost, ServiceCost.Code);
-        Commit;
+        Commit();
 
         // 2. Verify: Verify error occurs "Quantity must be Positive" on updating Negative Quantity, Qty. to Ship, Qty. to Invoice
         // and Qty. to Consume on All Service Lines.
@@ -1257,7 +1257,7 @@ codeunit 136113 "Service Line Update Validation"
         SelectServiceLine(ServiceLine, ServiceHeader);
         repeat
             TempServiceLine := ServiceLine;
-            TempServiceLine.Insert;
+            TempServiceLine.Insert();
         until ServiceLine.Next = 0;
     end;
 

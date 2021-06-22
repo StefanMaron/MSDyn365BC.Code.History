@@ -220,7 +220,7 @@ table 730 "Standard Address"
     var
         Customer: Record Customer;
     begin
-        Customer.LockTable;
+        Customer.LockTable();
         Customer.Get("Related RecordID");
         Customer.Validate(Address, Address);
         Customer.Validate("Address 2", "Address 2");
@@ -235,7 +235,7 @@ table 730 "Standard Address"
     var
         CompanyInformation: Record "Company Information";
     begin
-        CompanyInformation.LockTable;
+        CompanyInformation.LockTable();
         CompanyInformation.Get("Related RecordID");
         CompanyInformation.Validate(Address, Address);
         CompanyInformation.Validate("Address 2", "Address 2");
@@ -250,7 +250,7 @@ table 730 "Standard Address"
     var
         SalesHeader: Record "Sales Header";
     begin
-        SalesHeader.LockTable;
+        SalesHeader.LockTable();
         SalesHeader.Get("Related RecordID");
         SalesHeader.Validate("Sell-to Address", Address);
         SalesHeader.Validate("Sell-to Address 2", "Address 2");

@@ -50,7 +50,7 @@ codeunit 135505 "Journal Lines E2E Test"
         if GenJournalBatch.Get(GraphMgtJournal.GetDefaultJournalLinesTemplateName, JournalName) then begin
             GenJournalBatch.Validate("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"G/L Account");
             GenJournalBatch.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNoWithDirectPosting);
-            GenJournalBatch.Modify;
+            GenJournalBatch.Modify();
         end;
 
         // [GIVEN] a JSON text with a journal line containing all the available fields
@@ -58,7 +58,7 @@ codeunit 135505 "Journal Lines E2E Test"
         LineJSON := LibraryGraphJournalLines.CreateLineWithGenericLineValuesJSON(LineNo, Amount);
         AccountNo := LibraryGraphJournalLines.CreateAccount;
         LineJSON := LibraryGraphMgt.AddPropertytoJSON(LineJSON, AccountNoNameTxt, AccountNo);
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSON to the web service
         TargetURL :=
@@ -106,7 +106,7 @@ codeunit 135505 "Journal Lines E2E Test"
         LineNo := LibraryGraphJournalLines.GetNextJournalLineNo(JournalName);
         Amount := LibraryRandom.RandDecInRange(1, 500, 1);
         LineJSON := LibraryGraphMgt.AddComplexTypetoJSON('', AmountNameTxt, Format(Amount, 0, 9));
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSON to the web service
         TargetURL :=
@@ -158,7 +158,7 @@ codeunit 135505 "Journal Lines E2E Test"
         Amount := LibraryRandom.RandDecInRange(1, 500, 1);
         LineNo[4] := LineNo[2] + 1;
         LineJSON := CreateLineWithAmountJSON(LineNo[4], Amount);
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSON to the web service
         TargetURL :=
@@ -206,7 +206,7 @@ codeunit 135505 "Journal Lines E2E Test"
         Amount := LibraryRandom.RandDecInRange(1, 500, 1);
         LineNo[3] := LibraryGraphJournalLines.GetNextJournalLineNo(JournalName);
         LineJSON := CreateLineWithAmountJSON(LineNo[3], Amount);
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSON to the web service
         TargetURL :=
@@ -245,13 +245,13 @@ codeunit 135505 "Journal Lines E2E Test"
 
         // [GIVEN] a line in the General Journal Table
         LineNo := LibraryGraphJournalLines.CreateSimpleJournalLine(JournalName);
-        GenJournalLine.Reset;
+        GenJournalLine.Reset();
         GraphMgtJournalLines.SetJournalLineFilters(GenJournalLine);
         GenJournalLine.SetRange("Journal Batch Name", JournalName);
         GenJournalLine.SetRange("Line No.", LineNo);
         GenJournalLine.FindFirst;
         GenJournalLineGUID := GenJournalLine.SystemId;
-        Commit;
+        Commit();
 
         // [WHEN] we GET the line from the web service
         TargetURL :=
@@ -286,7 +286,7 @@ codeunit 135505 "Journal Lines E2E Test"
         // [GIVEN] 2 lines in the General Journal Table
         LineNo[1] := LibraryGraphJournalLines.CreateSimpleJournalLine(JournalName);
         LineNo[2] := LibraryGraphJournalLines.CreateSimpleJournalLine(JournalName);
-        Commit;
+        Commit();
 
         // [WHEN] we GET all the lines from the web service
         TargetURL :=
@@ -340,7 +340,7 @@ codeunit 135505 "Journal Lines E2E Test"
         GenJournalLine.FindFirst;
         GenJournalLineGUID := GenJournalLine.SystemId;
         Assert.AreNotEqual('', GenJournalLineGUID, 'Journal Line GUID should not be empty');
-        Commit;
+        Commit();
 
         // [WHEN] we PATCH the JSON to the web service, with the unique JournalLineID
         TargetURL :=
@@ -349,7 +349,7 @@ codeunit 135505 "Journal Lines E2E Test"
         LibraryGraphMgt.PatchToWebService(TargetURL, LineJSON, ResponseText);
 
         // [THEN] the JournalLine in the table should have the values that were given
-        GenJournalLine.Reset;
+        GenJournalLine.Reset();
         GraphMgtJournalLines.SetJournalLineFilters(GenJournalLine);
         GenJournalLine.SetRange("Journal Batch Name", JournalName);
         GenJournalLine.SetRange("Line No.", NewLineNo);
@@ -390,7 +390,7 @@ codeunit 135505 "Journal Lines E2E Test"
         GenJournalLine.FindFirst;
         GenJournalLineGUID := GenJournalLine.SystemId;
         Assert.AreNotEqual('', GenJournalLineGUID, 'Journal Line GUID should not be empty');
-        Commit;
+        Commit();
 
         // [WHEN] we PATCH the JSON to the web service, with the different journal batch name
         // [THEN] we get an error
@@ -427,7 +427,7 @@ codeunit 135505 "Journal Lines E2E Test"
         GenJournalLine.FindFirst;
         GenJournalLineGUID := GenJournalLine.SystemId;
         Assert.AreNotEqual('', GenJournalLineGUID, 'GenJournalLineGUID should not be empty');
-        Commit;
+        Commit();
 
         // [WHEN] we DELETE the journal line from the web service, with the journal line's unique ID
         TargetURL :=
@@ -458,7 +458,7 @@ codeunit 135505 "Journal Lines E2E Test"
 
         // [GIVEN] a line in the General Journal Table
         LibraryGraphJournalLines.CreateSimpleJournalLine(JournalName);
-        Commit;
+        Commit();
 
         // [WHEN] we GET the line from the web service
         // [THEN] it should fail immediately
@@ -481,7 +481,7 @@ codeunit 135505 "Journal Lines E2E Test"
         // [GIVEN] a JSON text with a journal line containing only the amount
         Amount := LibraryRandom.RandDecInRange(1, 500, 1);
         LineJSON := LibraryGraphMgt.AddComplexTypetoJSON('', AmountNameTxt, Format(Amount, 0, 9));
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSON to the web service
         // [THEN] the request should fail
@@ -524,7 +524,7 @@ codeunit 135505 "Journal Lines E2E Test"
         LineJSON[3] := LibraryGraphMgt.AddPropertytoJSON('', AccountNoNameTxt, AccountNo);
         LineJSON[3] := LibraryGraphMgt.AddPropertytoJSON(LineJSON[3], AccountIdNameTxt, AccountGUID);
 
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSONs to the web service
         TargetURL :=
@@ -543,7 +543,7 @@ codeunit 135505 "Journal Lines E2E Test"
         Assert.AreEqual(
           AccountGUID, GenJournalLine."Account Id", 'Journal Line ' + AccountIdNameTxt + ' should have the correct Account Id');
 
-        GenJournalLine.Reset;
+        GenJournalLine.Reset();
         GraphMgtJournalLines.SetJournalLineFilters(GenJournalLine);
         GenJournalLine.SetRange("Line No.", LineNo[2]);
         GenJournalLine.FindFirst;
@@ -552,7 +552,7 @@ codeunit 135505 "Journal Lines E2E Test"
         Assert.AreEqual(
           AccountGUID, GenJournalLine."Account Id", 'Journal Line ' + AccountIdNameTxt + ' should have the correct Account Id');
 
-        GenJournalLine.Reset;
+        GenJournalLine.Reset();
         GraphMgtJournalLines.SetJournalLineFilters(GenJournalLine);
         GenJournalLine.SetRange("Line No.", LineNo[3]);
         GenJournalLine.FindFirst;
@@ -584,13 +584,13 @@ codeunit 135505 "Journal Lines E2E Test"
         AccountNo := LibraryGraphJournalLines.CreateAccount;
         GLAccount.Get(AccountNo);
         AccountGUID := GLAccount.Id;
-        GLAccount.Delete;
+        GLAccount.Delete();
 
         // [GIVEN] JSON texts for journal lines with and without AccountNo and AccountId
         LineJSON[1] := LibraryGraphMgt.AddPropertytoJSON('', AccountNoNameTxt, AccountNo);
         LineJSON[2] := LibraryGraphMgt.AddPropertytoJSON('', AccountIdNameTxt, AccountGUID);
 
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSON to the web service
         // [THEN] we will get errors because the Account doesn't exist
@@ -626,7 +626,7 @@ codeunit 135505 "Journal Lines E2E Test"
         LineJSON :=
           CreateLineWithDimensionsJSON(
             LineNo, 1, 1, 1, 1, GlobalDimensionCode, GlobalDimensionValue, NonGlobalDimensionCode, NonGlobalDimensionValue);
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSON to the web service
         TargetURL :=
@@ -673,7 +673,7 @@ codeunit 135505 "Journal Lines E2E Test"
         GenJournalLine.FindFirst;
         GenJournalLineGUID := GenJournalLine.SystemId;
         Assert.AreNotEqual('', GenJournalLineGUID, 'Journal Line GUID should not be empty');
-        Commit;
+        Commit();
         VerifyDimensionsOnJournalLine(JournalName, LineNo, '', '', '', '');
 
         // [GIVEN] Web service URL for a line with the unique JournalLineID
@@ -774,7 +774,7 @@ codeunit 135505 "Journal Lines E2E Test"
         DimensionValue: Record "Dimension Value";
         I: Integer;
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         if DimensionNumber = 1 then
             DimensionValue.SetRange("Dimension Code", GLSetup."Shortcut Dimension 1 Code")
         else
@@ -795,7 +795,7 @@ codeunit 135505 "Journal Lines E2E Test"
         DimensionValue: Record "Dimension Value";
         I: Integer;
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         Dimension.SetFilter(Code, '<>%1&<>%2', GLSetup."Shortcut Dimension 1 Code", GLSetup."Shortcut Dimension 2 Code");
         Dimension.Find('-');
         for I := 2 to DimensionNumber do
@@ -821,7 +821,7 @@ codeunit 135505 "Journal Lines E2E Test"
         if ExpectedNonGlobalDimensionCode <> '' then
             ExpectedDimensionCount += 1;
 
-        GenJournalLine.Reset;
+        GenJournalLine.Reset();
         GraphMgtJournalLines.SetJournalLineFilters(GenJournalLine);
         GenJournalLine.SetRange("Journal Batch Name", JournalName);
         GenJournalLine.SetRange("Line No.", LineNo);

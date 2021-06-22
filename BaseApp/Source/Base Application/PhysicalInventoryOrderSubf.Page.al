@@ -1,4 +1,4 @@
-﻿page 5877 "Physical Inventory Order Subf."
+page 5877 "Physical Inventory Order Subf."
 {
     AutoSplitKey = true;
     Caption = 'Lines';

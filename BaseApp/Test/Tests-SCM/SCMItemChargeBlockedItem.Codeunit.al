@@ -489,7 +489,7 @@ codeunit 137930 "SCM Item Charge Blocked Item"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Receipt on Invoice", ReceiptOnInvoice);
         PurchasesPayablesSetup.Modify(true);
     end;
@@ -498,7 +498,7 @@ codeunit 137930 "SCM Item Charge Blocked Item"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Shipment on Invoice", ShipmentOnInvoice);
         SalesReceivablesSetup.Modify(true);
     end;

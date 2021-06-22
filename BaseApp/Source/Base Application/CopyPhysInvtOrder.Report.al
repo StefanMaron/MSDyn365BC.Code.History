@@ -74,9 +74,9 @@ report 5882 "Copy Phys. Invt. Order"
                 Error(EnterDocumentNoErr);
 
             Find;
-            LockTable;
-            PhysInvtOrderLine.LockTable;
-            PhysInvtOrderLine.Reset;
+            LockTable();
+            PhysInvtOrderLine.LockTable();
+            PhysInvtOrderLine.Reset();
             PhysInvtOrderLine.SetRange("Document No.", "No.");
             if PhysInvtOrderLine.FindLast then
                 NextLineNo := PhysInvtOrderLine."Line No." + 10000
@@ -92,7 +92,7 @@ report 5882 "Copy Phys. Invt. Order"
                         if FromPhysInvtOrderHeader."No." = "No." then
                             Error(CannotCopyToItSelfErr, "No.");
 
-                        FromPhysInvtOrderLine.Reset;
+                        FromPhysInvtOrderLine.Reset();
                         FromPhysInvtOrderLine.SetRange("Document No.", FromPhysInvtOrderHeader."No.");
                         FromPhysInvtOrderLine.ClearMarks;
                         if FromPhysInvtOrderLine.Find('-') then
@@ -119,7 +119,7 @@ report 5882 "Copy Phys. Invt. Order"
                 DocType::"Posted Phys. Invt. Order":
                     begin
                         FromPstdPhysInvtOrderHdr.Get(DocNo);
-                        FromPstdPhysInvtOrderLine.Reset;
+                        FromPstdPhysInvtOrderLine.Reset();
                         FromPstdPhysInvtOrderLine.SetRange("Document No.", FromPstdPhysInvtOrderHdr."No.");
                         FromPstdPhysInvtOrderLine.ClearMarks;
                         if FromPstdPhysInvtOrderLine.Find('-') then
@@ -146,7 +146,7 @@ report 5882 "Copy Phys. Invt. Order"
             end;
         end;
 
-        Commit;
+        Commit();
 
         if NoOfNoInsertedLines = 0 then
             Message(
@@ -188,7 +188,7 @@ report 5882 "Copy Phys. Invt. Order"
             FromPhysInvtOrderHeader.Init
         else
             if FromPhysInvtOrderHeader."No." = '' then begin
-                FromPhysInvtOrderHeader.Init;
+                FromPhysInvtOrderHeader.Init();
                 case DocType of
                     DocType::"Phys. Invt. Order":
                         FromPhysInvtOrderHeader.Get(DocNo);
@@ -226,7 +226,7 @@ report 5882 "Copy Phys. Invt. Order"
 
     procedure InsertNewLine(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; BinCode: Code[20])
     begin
-        PhysInvtOrderLine.Init;
+        PhysInvtOrderLine.Init();
         PhysInvtOrderLine."Document No." := PhysInvtOrderHeader."No.";
         PhysInvtOrderLine."Line No." := NextLineNo;
         PhysInvtOrderLine.Validate("Item No.", ItemNo);
@@ -237,7 +237,7 @@ report 5882 "Copy Phys. Invt. Order"
         PhysInvtOrderLine.CreateDim(DATABASE::Item, PhysInvtOrderLine."Item No.");
         if CalcQtyExpected then
             PhysInvtOrderLine.CalcQtyAndTrackLinesExpected;
-        PhysInvtOrderLine.Modify;
+        PhysInvtOrderLine.Modify();
         NextLineNo := NextLineNo + 10000;
     end;
 }

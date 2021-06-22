@@ -145,13 +145,13 @@ table 2840 "Native - Gen. Settings Buffer"
         if not IsTemporary then
             Error(RecordMustBeTemporaryErr);
 
-        DeleteAll;
+        DeleteAll();
         Clear(Rec);
 
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         "Country/Region Code" := CompanyInformation.GetCompanyCountryRegionCode;
 
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         "Currency Symbol" := GeneralLedgerSetup.GetCurrencySymbol;
         "Amount Rounding Precision" := GetNumberOfDecimals(GeneralLedgerSetup."Amount Rounding Precision");
         "Unit-Amount Rounding Precision" := GetNumberOfDecimals(GeneralLedgerSetup."Unit-Amount Rounding Precision");
@@ -177,7 +177,7 @@ table 2840 "Native - Gen. Settings Buffer"
         if MarketingSetup.Get then begin
             EnableSync := MarketingSetup."Sync with Microsoft Graph";
             if EnableSync then begin
-                O365SalesInitialSetup.Get;
+                O365SalesInitialSetup.Get();
                 EnableSyncCoupons := O365SalesInitialSetup."Coupons Integration Enabled";
             end;
         end;
@@ -213,7 +213,7 @@ table 2840 "Native - Gen. Settings Buffer"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         if "Currency Symbol" <> GeneralLedgerSetup."Local Currency Symbol" then begin
             GeneralLedgerSetup.Validate("Local Currency Symbol", "Currency Symbol");
             GeneralLedgerSetup.Modify(true);
@@ -224,7 +224,7 @@ table 2840 "Native - Gen. Settings Buffer"
     var
         CompanyInformation: Record "Company Information";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         if CompanyInformation."Country/Region Code" <> "Country/Region Code" then begin
             CompanyInformation.Validate("Country/Region Code", "Country/Region Code");
             CompanyInformation.Modify(true);
@@ -250,7 +250,7 @@ table 2840 "Native - Gen. Settings Buffer"
     begin
         CheckSyncAllowed;
 
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         EnableSync := MarketingSetup."Sync with Microsoft Graph";
 
         if not EnableSync then
@@ -264,13 +264,13 @@ table 2840 "Native - Gen. Settings Buffer"
     begin
         if EnableSyncCoupons then begin
             CheckSyncAllowed;
-            MarketingSetup.Get;
+            MarketingSetup.Get();
             if not MarketingSetup."Sync with Microsoft Graph" then
                 Error(CannotEnableCouponsSyncErr);
             if MarketingSetup.TrySetWebhookSubscriptionUser(UserSecurityId) then
                 Error(CannotSetWebhookSubscriptionUserErr);
         end;
-        O365SalesInitialSetup.Get;
+        O365SalesInitialSetup.Get();
         O365SalesInitialSetup."Coupons Integration Enabled" := EnableSyncCoupons;
         O365SalesInitialSetup.Modify(true);
     end;
@@ -298,7 +298,7 @@ table 2840 "Native - Gen. Settings Buffer"
         PaymentMethod: Record "Payment Method";
         PaymentTerms: Record "Payment Terms";
     begin
-        O365SalesInitialSetup.Get;
+        O365SalesInitialSetup.Get();
 
         if PaymentTerms.Get(O365SalesInitialSetup."Default Payment Terms Code") then begin
             "Default Payment Terms ID" := PaymentTerms.Id;

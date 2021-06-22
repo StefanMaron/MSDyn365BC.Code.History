@@ -19,17 +19,17 @@ codeunit 132511 TestTestPermissionTestHelper
         TestTableA: Record TestTableA;
         TestTableB: Record TestTableB;
     begin
-        TestTableA.Init;
+        TestTableA.Init();
 
         Clear(TestTableA.IntegerField);
 
-        TestTableA.Insert;
+        TestTableA.Insert();
 
-        TestTableB.Init;
+        TestTableB.Init();
 
         Clear(TestTableB.IntegerField);
 
-        TestTableB.Insert;
+        TestTableB.Insert();
     end;
 
     [Test]
@@ -41,11 +41,11 @@ codeunit 132511 TestTestPermissionTestHelper
         Init;
         permissionTestHelper.AddEffectivePermissionSet('ENFORCED SET');
 
-        TestTableA.Init;
+        TestTableA.Init();
 
         Clear(TestTableA.IntegerField);
 
-        TestTableA.Insert;
+        TestTableA.Insert();
 
         permissionTestHelper.Clear;
     end;
@@ -71,11 +71,11 @@ codeunit 132511 TestTestPermissionTestHelper
         Init;
         permissionTestHelper.AddEffectivePermissionSet('ENFORCED SET');
 
-        TestTableB.Init;
+        TestTableB.Init();
 
         Clear(TestTableB.IntegerField);
 
-        asserterror TestTableB.Insert;
+        asserterror TestTableB.Insert();
 
         permissionTestHelper.Clear;
     end;
@@ -102,7 +102,7 @@ codeunit 132511 TestTestPermissionTestHelper
 
         with Permission do begin
             SetRange("Role ID", PermissionSet."Role ID");
-            DeleteAll;
+            DeleteAll();
             Reset;
 
             Init;

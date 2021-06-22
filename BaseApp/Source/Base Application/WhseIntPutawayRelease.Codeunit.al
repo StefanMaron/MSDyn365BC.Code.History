@@ -51,7 +51,7 @@ codeunit 7316 "Whse. Int. Put-away Release"
             WhsePutawayRqst.SetRange(Status, Status::Open);
             WhsePutawayRqst.DeleteAll(true);
 
-            Commit;
+            Commit();
         end;
     end;
 
@@ -84,7 +84,7 @@ codeunit 7316 "Whse. Int. Put-away Release"
             if WhsePutawayRqst.Find('-') then
                 repeat
                     WhsePutawayRqst.Status := Status::Open;
-                    WhsePutawayRqst.Modify;
+                    WhsePutawayRqst.Modify();
                 until WhsePutawayRqst.Next = 0;
 
             Status := Status::Open;
@@ -106,8 +106,8 @@ codeunit 7316 "Whse. Int. Put-away Release"
             "Document Status" := GetDocumentStatus(0);
             WhsePutawayRqst."Completely Put Away" :=
               "Document Status" = "Document Status"::"Completely Put Away";
-            if not WhsePutawayRqst.Insert then
-                WhsePutawayRqst.Modify;
+            if not WhsePutawayRqst.Insert() then
+                WhsePutawayRqst.Modify();
         end;
     end;
 }

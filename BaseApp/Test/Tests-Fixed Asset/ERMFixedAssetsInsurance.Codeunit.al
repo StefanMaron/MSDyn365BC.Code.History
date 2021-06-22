@@ -48,7 +48,7 @@ codeunit 134452 "ERM Fixed Assets Insurance"
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Fixed Assets Insurance");
     end;
 
@@ -298,7 +298,7 @@ codeunit 134452 "ERM Fixed Assets Insurance"
         Initialize;
         JournalBatchName := CreateAndPostInsuranceJournal;
         FindInsuranceRegister(InsuranceRegister, JournalBatchName);
-        Commit;
+        Commit();
 
         // 2. Exercise: Run Date Compress Insurance Ledger Report with Starting and Ending Dates.
         StartingDate := LibraryFiscalYear.GetLastPostingDate(true);
@@ -733,7 +733,7 @@ codeunit 134452 "ERM Fixed Assets Insurance"
         InsuranceJournalLine: Record "Insurance Journal Line";
         InsuranceJournalLineAmount: Decimal;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         InsuranceJournalLine.SetRange("FA No.", FANo);
         InsuranceJournalLine.SetRange("Insurance No.", InsuranceNo);
         InsuranceJournalLine.FindFirst;
@@ -747,7 +747,7 @@ codeunit 134452 "ERM Fixed Assets Insurance"
     [Scope('OnPrem')]
     procedure InsuranceStatisticsPageHadler(var InsuranceStatistics: Page "Insurance Statistics")
     begin
-        Insurance2.Init;
+        Insurance2.Init();
 
         // Assign Global Variable.
         InsuranceStatistics.GetRecord(Insurance2);

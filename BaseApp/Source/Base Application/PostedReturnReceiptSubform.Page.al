@@ -1,4 +1,4 @@
-﻿page 6661 "Posted Return Receipt Subform"
+page 6661 "Posted Return Receipt Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';

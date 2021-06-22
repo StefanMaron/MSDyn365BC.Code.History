@@ -1,4 +1,4 @@
-﻿page 941 "Blanket Assembly Order Subform"
+page 941 "Blanket Assembly Order Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';

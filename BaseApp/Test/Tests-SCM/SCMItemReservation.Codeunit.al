@@ -484,7 +484,7 @@ codeunit 137406 "SCM Item Reservation"
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Item Reservation");
     end;
 

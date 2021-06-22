@@ -1078,7 +1078,7 @@ codeunit 137034 "SCM Production Journal"
         ItemJournalSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Production Journal");
     end;
 
@@ -1355,7 +1355,7 @@ codeunit 137034 "SCM Production Journal"
         Clear(ItemJournalLine);
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
-        ItemJournalLine.DeleteAll;
+        ItemJournalLine.DeleteAll();
     end;
 
     local procedure InitOutputJournalLine(var ItemJournalLine: Record "Item Journal Line"; ProdOrderNo: Code[20]; ItemNo: Code[20])
@@ -1490,7 +1490,7 @@ codeunit 137034 "SCM Production Journal"
 
     local procedure CreateProdOrderRoutingLine(var NewProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProductionOrder: Record "Production Order"; RoutingReferenceNo: Integer; RoutingNo: Code[20]; NewOperationNo: Code[10]; WorkCenterNo: Code[20])
     begin
-        NewProdOrderRoutingLine.Init;
+        NewProdOrderRoutingLine.Init();
         NewProdOrderRoutingLine.Validate(Status, ProductionOrder.Status);
         NewProdOrderRoutingLine.Validate("Prod. Order No.", ProductionOrder."No.");
         NewProdOrderRoutingLine.Validate("Routing Reference No.", RoutingReferenceNo);
@@ -1587,12 +1587,12 @@ codeunit 137034 "SCM Production Journal"
 
     local procedure CopyProductionJournalToTemp(var ItemJournalLine: Record "Item Journal Line"; ProdOrderNo: Code[20])
     begin
-        TempItemJournalLine.DeleteAll;
+        TempItemJournalLine.DeleteAll();
         ItemJournalLine.SetRange("Order No.", ProdOrderNo);
         ItemJournalLine.FindSet;
         repeat
             TempItemJournalLine := ItemJournalLine;
-            if TempItemJournalLine.Insert then;
+            if TempItemJournalLine.Insert() then;
         until ItemJournalLine.Next = 0;
     end;
 
@@ -1601,17 +1601,17 @@ codeunit 137034 "SCM Production Journal"
         DimensionSetEntry: Record "Dimension Set Entry";
     begin
         // Copy Dimension Set Entry record to temporary record because record not available when out of Production Journal Handler.
-        TempItemJournalLine2.DeleteAll;
-        TempDimensionSetEntry.DeleteAll;
+        TempItemJournalLine2.DeleteAll();
+        TempDimensionSetEntry.DeleteAll();
         ItemJournalLine.SetRange("Order No.", ProdOrderNo);
         ItemJournalLine.FindSet;
         repeat
             TempItemJournalLine2 := ItemJournalLine;
-            TempItemJournalLine2.Insert;
+            TempItemJournalLine2.Insert();
             LibraryDimension.FindDimensionSetEntry(DimensionSetEntry, ItemJournalLine."Dimension Set ID");
             repeat
                 TempDimensionSetEntry := DimensionSetEntry;
-                if TempDimensionSetEntry.Insert then;
+                if TempDimensionSetEntry.Insert() then;
             until DimensionSetEntry.Next = 0;
         until ItemJournalLine.Next = 0;
     end;

@@ -25,7 +25,7 @@ report 5186 "Remove Contacts"
                         trigger OnAfterGetRecord()
                         begin
                             ContactOK := true;
-                            CurrReport.Break;
+                            CurrReport.Break();
                         end;
 
                         trigger OnPreDataItem()
@@ -33,7 +33,7 @@ report 5186 "Remove Contacts"
                             if ContactOK and (GetFilters <> '') then
                                 ContactOK := false
                             else
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem("Contact Mailing Group"; "Contact Mailing Group")
@@ -46,7 +46,7 @@ report 5186 "Remove Contacts"
                         trigger OnAfterGetRecord()
                         begin
                             ContactOK := true;
-                            CurrReport.Break;
+                            CurrReport.Break();
                         end;
 
                         trigger OnPreDataItem()
@@ -54,7 +54,7 @@ report 5186 "Remove Contacts"
                             if ContactOK and (GetFilters <> '') then
                                 ContactOK := false
                             else
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem("Interaction Log Entry"; "Interaction Log Entry")
@@ -66,7 +66,7 @@ report 5186 "Remove Contacts"
                         trigger OnAfterGetRecord()
                         begin
                             ContactOK := true;
-                            CurrReport.Break;
+                            CurrReport.Break();
                         end;
 
                         trigger OnPreDataItem()
@@ -74,7 +74,7 @@ report 5186 "Remove Contacts"
                             if ContactOK and (GetFilters <> '') then
                                 ContactOK := false
                             else
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem("Contact Job Responsibility"; "Contact Job Responsibility")
@@ -87,7 +87,7 @@ report 5186 "Remove Contacts"
                         trigger OnAfterGetRecord()
                         begin
                             ContactOK := true;
-                            CurrReport.Break;
+                            CurrReport.Break();
                         end;
 
                         trigger OnPreDataItem()
@@ -95,7 +95,7 @@ report 5186 "Remove Contacts"
                             if ContactOK and (GetFilters <> '') then
                                 ContactOK := false
                             else
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem("Contact Industry Group"; "Contact Industry Group")
@@ -108,7 +108,7 @@ report 5186 "Remove Contacts"
                         trigger OnAfterGetRecord()
                         begin
                             ContactOK := true;
-                            CurrReport.Break;
+                            CurrReport.Break();
                         end;
 
                         trigger OnPreDataItem()
@@ -116,7 +116,7 @@ report 5186 "Remove Contacts"
                             if ContactOK and (GetFilters <> '') then
                                 ContactOK := false
                             else
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem("Contact Business Relation"; "Contact Business Relation")
@@ -133,13 +133,13 @@ report 5186 "Remove Contacts"
                             trigger OnAfterGetRecord()
                             begin
                                 ContactOK := true;
-                                CurrReport.Break;
+                                CurrReport.Break();
                             end;
 
                             trigger OnPreDataItem()
                             begin
                                 if SkipItemLedgerEntry then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                                 case "Contact Business Relation"."Link to Table" of
                                     "Contact Business Relation"."Link to Table"::Customer:
@@ -153,7 +153,7 @@ report 5186 "Remove Contacts"
                                             SetRange("Source No.", "Contact Business Relation"."No.");
                                         end
                                     else
-                                        CurrReport.Break;
+                                        CurrReport.Break();
                                 end;
                             end;
                         }
@@ -164,7 +164,7 @@ report 5186 "Remove Contacts"
                             if not ItemFilters then begin
                                 ContactOK := true;
                                 SkipItemLedgerEntry := true;
-                                CurrReport.Break;
+                                CurrReport.Break();
                             end;
                         end;
 
@@ -173,7 +173,7 @@ report 5186 "Remove Contacts"
                             if ContactOK and ((GetFilters <> '') or ItemFilters) then
                                 ContactOK := false
                             else
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem("Integer"; "Integer")
@@ -191,9 +191,9 @@ report 5186 "Remove Contacts"
                     begin
                         if EntireCompanies then begin
                             if TempCheckCont.Get("No.") then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                             TempCheckCont := Contact;
-                            TempCheckCont.Insert;
+                            TempCheckCont.Insert();
                         end;
 
                         ContactOK := true;
@@ -325,12 +325,12 @@ report 5186 "Remove Contacts"
     local procedure InsertContact(var CheckedCont: Record Contact)
     begin
         TempCont := CheckedCont;
-        if TempCont.Insert then;
+        if TempCont.Insert() then;
     end;
 
     local procedure AddPeople()
     begin
-        TempCont.Reset;
+        TempCont.Reset();
         if TempCont.Find('-') then
             repeat
                 if TempCont."Company No." <> '' then begin
@@ -339,26 +339,26 @@ report 5186 "Remove Contacts"
                     if Cont.Find('-') then
                         repeat
                             TempCont2 := Cont;
-                            if TempCont2.Insert then;
+                            if TempCont2.Insert() then;
                         until Cont.Next = 0
                 end else begin
                     TempCont2 := TempCont;
-                    TempCont2.Insert;
+                    TempCont2.Insert();
                 end;
             until TempCont.Next = 0;
 
-        TempCont.DeleteAll;
+        TempCont.DeleteAll();
         if TempCont2.Find('-') then
             repeat
                 TempCont := TempCont2;
-                TempCont.Insert;
+                TempCont.Insert();
             until TempCont2.Next = 0;
-        TempCont2.DeleteAll;
+        TempCont2.DeleteAll();
     end;
 
     local procedure UpdateSegLines()
     begin
-        SegLine.Reset;
+        SegLine.Reset();
         SegLine.SetRange("Segment No.", "Segment Header"."No.");
         if SegLine.Find('-') then
             repeat

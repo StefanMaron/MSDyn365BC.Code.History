@@ -74,7 +74,7 @@ page 2135 "O365 Email Account Settings"
                         SMTPTestMail: Codeunit "SMTP Test Mail";
                     begin
                         CurrPage.SaveRecord;
-                        Commit;
+                        Commit();
 
                         if SMTPTestMail.SendTestMail("User ID") then
                             Message(SettingsDidWorkMsg, "User ID")
@@ -96,7 +96,7 @@ page 2135 "O365 Email Account Settings"
                 trigger OnDrillDown()
                 begin
                     CurrPage.SaveRecord;
-                    Commit;
+                    Commit();
                     PAGE.Run(PAGE::"O365 Email Setup Wizard");
                 end;
             }

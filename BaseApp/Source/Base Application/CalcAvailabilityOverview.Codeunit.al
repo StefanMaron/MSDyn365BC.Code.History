@@ -8,12 +8,12 @@ codeunit 5830 "Calc. Availability Overview"
     begin
         CopyOfAvailabilityCalcOverview.Copy(Rec);
         Reset;
-        DeleteAll;
+        DeleteAll();
         Copy(CopyOfAvailabilityCalcOverview);
 
         OpenWindow(Text000, Count);
 
-        Item.Reset;
+        Item.Reset();
         Item.SetFilter("No.", CopyOfAvailabilityCalcOverview.GetFilter("Item No."));
         Item.SetFilter("Location Filter", GetFilter("Location Code"));
         Item.SetFilter("Variant Filter", GetFilter("Variant Code"));
@@ -69,7 +69,7 @@ codeunit 5830 "Calc. Availability Overview"
                 EndDate := GetRangeMax(Date);
             end;
 
-            Item.Reset;
+            Item.Reset();
             Item.SetFilter("No.", CopyOfAvailabilityCalcOverview.GetFilter("Item No."));
             Item.SetFilter("Location Filter", GetFilter("Location Code"));
             Item.SetFilter("Variant Filter", GetFilter("Variant Code"));
@@ -80,7 +80,7 @@ codeunit 5830 "Calc. Availability Overview"
             Reset;
             SetCurrentKey("Item No.");
             SetRange("Item No.", Item."No.");
-            DeleteAll;
+            DeleteAll();
 
             Reset;
             if FindLast then;
@@ -105,7 +105,7 @@ codeunit 5830 "Calc. Availability Overview"
                 SetRange(Date);
                 SetRange("Location Code");
                 SetRange("Variant Code");
-                DeleteAll;
+                DeleteAll();
             end else
                 if DemandType = DemandType::" " then
                     ModifyAll("Matches Criteria", true);
@@ -135,7 +135,7 @@ codeunit 5830 "Calc. Availability Overview"
             SetRange("Variant Code", "Variant Code");
             SetRange(Date, Date);
             SetRange(Level, 2, 3);
-            DeleteAll;
+            DeleteAll();
 
             Reset;
             if FindLast then;

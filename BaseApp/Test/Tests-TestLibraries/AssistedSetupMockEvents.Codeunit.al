@@ -39,7 +39,7 @@ codeunit 132475 "Assisted Setup Mock Events"
             exit;
         if PageID <> PAGE::"Item List" then
             exit;
-        AssistedSetup.Complete(ExtensionId, PageID);
+        AssistedSetup.Complete(PageID);
     end;    
 }
 

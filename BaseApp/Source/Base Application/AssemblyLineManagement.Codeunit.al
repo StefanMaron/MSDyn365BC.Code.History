@@ -64,7 +64,7 @@ codeunit 905 "Assembly Line Management"
     procedure InsertAsmLine(AsmHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line"; AsmLineRecordIsTemporary: Boolean)
     begin
         with AsmHeader do begin
-            AssemblyLine.Init;
+            AssemblyLine.Init();
             AssemblyLine."Document Type" := "Document Type";
             AssemblyLine."Document No." := "No.";
             AssemblyLine."Line No." := GetNextAsmLineNo(AssemblyLine, AsmLineRecordIsTemporary);
@@ -150,11 +150,11 @@ codeunit 905 "Assembly Line Management"
 
             AssemblyHeader.Get("Document Type", "Document No.");
             FromBOMComp.SetRange("Parent Item No.", "No.");
-            NoOfBOMCompLines := FromBOMComp.Count;
+            NoOfBOMCompLines := FromBOMComp.Count();
             if NoOfBOMCompLines = 0 then
                 Error(Text006, "No.");
 
-            ToAssemblyLine.Reset;
+            ToAssemblyLine.Reset();
             ToAssemblyLine.SetRange("Document Type", "Document Type");
             ToAssemblyLine.SetRange("Document No.", "Document No.");
             ToAssemblyLine := AsmLine;
@@ -166,16 +166,16 @@ codeunit 905 "Assembly Line Management"
             end;
 
             TempAssemblyLine := AsmLine;
-            TempAssemblyLine.Init;
+            TempAssemblyLine.Init();
             TempAssemblyLine.Description := Description;
             TempAssemblyLine."Description 2" := "Description 2";
             TempAssemblyLine."No." := "No.";
-            TempAssemblyLine.Insert;
+            TempAssemblyLine.Insert();
 
             NextLineNo := "Line No.";
             FromBOMComp.FindSet();
             repeat
-                TempAssemblyLine.Init;
+                TempAssemblyLine.Init();
                 TempAssemblyLine."Document Type" := "Document Type";
                 TempAssemblyLine."Document No." := "Document No.";
                 NextLineNo := NextLineNo + LineSpacing;
@@ -202,10 +202,10 @@ codeunit 905 "Assembly Line Management"
             TempAssemblyLine.Reset();
             TempAssemblyLine.FindSet();
             ToAssemblyLine := TempAssemblyLine;
-            ToAssemblyLine.Modify;
+            ToAssemblyLine.Modify();
             while TempAssemblyLine.Next <> 0 do begin
                 ToAssemblyLine := TempAssemblyLine;
-                ToAssemblyLine.Insert;
+                ToAssemblyLine.Insert();
                 if ToAssemblyLine."Due Date" < WorkDate then begin
                     DueDateBeforeWorkDate := true;
                     NewLineDueDate := ToAssemblyLine."Due Date";
@@ -264,7 +264,7 @@ codeunit 905 "Assembly Line Management"
 
         NoOfLinesFound := CopyAssemblyData(AsmHeader, TempAssemblyHeader, TempAssemblyLine);
         if ReplaceLinesFromBOM then begin
-            TempAssemblyLine.DeleteAll;
+            TempAssemblyLine.DeleteAll();
             if not ((AsmHeader."Quantity (Base)" = 0) or (AsmHeader."Item No." = '')) then begin  // condition to replace asm lines
                 IsHandled := false;
                 OnBeforeReplaceAssemblyLines(AsmHeader, TempAssemblyLine, IsHandled);
@@ -291,7 +291,7 @@ codeunit 905 "Assembly Line Management"
             if TempAssemblyLine.Find('-') then
                 repeat
                     TempCurrAsmLine := TempAssemblyLine;
-                    TempCurrAsmLine.Insert;
+                    TempCurrAsmLine.Insert();
                     TempAssemblyLine.SetSkipVerificationsThatChangeDatabase(true);
                     UpdateExistingLine(
                         AsmHeader, OldAsmHeader, CurrFieldNo, TempAssemblyLine,
@@ -306,7 +306,7 @@ codeunit 905 "Assembly Line Management"
             ReplaceLinesFromBOM, TempAssemblyLine, TempCurrAsmLine, UpdateDimension, AsmHeader."Dimension Set ID",
             OldAsmHeader."Dimension Set ID");
 
-        AssemblyLine.Reset;
+        AssemblyLine.Reset();
         if ReplaceLinesFromBOM then begin
             AsmHeader.DeleteAssemblyLines();
             TempAssemblyLine.Reset();
@@ -466,16 +466,16 @@ codeunit 905 "Assembly Line Management"
         AssemblyLine: Record "Assembly Line";
     begin
         ToAssemblyHeader := FromAssemblyHeader;
-        ToAssemblyHeader.Insert;
+        ToAssemblyHeader.Insert();
 
         SetLinkToLines(FromAssemblyHeader, AssemblyLine);
         AssemblyLine.SetFilter(Type, '%1|%2', AssemblyLine.Type::Item, AssemblyLine.Type::Resource);
-        ToAssemblyLine.Reset;
-        ToAssemblyLine.DeleteAll;
+        ToAssemblyLine.Reset();
+        ToAssemblyLine.DeleteAll();
         if AssemblyLine.Find('-') then
             repeat
                 ToAssemblyLine := AssemblyLine;
-                ToAssemblyLine.Insert;
+                ToAssemblyLine.Insert();
                 NoOfLinesInserted += 1;
             until AssemblyLine.Next() = 0;
     end;
@@ -502,7 +502,7 @@ codeunit 905 "Assembly Line Management"
         if IsHandled then
             exit;
 
-        AssemblySetup.Get;
+        AssemblySetup.Get();
         if not GuiAllowed or
            TempAssemblyLine.IsEmpty() or
            (not AssemblySetup."Stockout Warning" and not ShowPageEvenIfEnoughComponentsAvailable) or
@@ -648,15 +648,12 @@ codeunit 905 "Assembly Line Management"
         AssemblyLine: Record "Assembly Line";
         WhseWkshLine: Record "Whse. Worksheet Line";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
-        WhseSNRequired: Boolean;
-        WhseLNRequired: Boolean;
     begin
         with AssemblyLine do begin
             SetLinkToItemLines(AsmHeader, AssemblyLine);
             if FindSet() then
                 repeat
-                    ItemTrackingMgt.CheckWhseItemTrkgSetup("No.", WhseSNRequired, WhseLNRequired, false);
-                    if WhseSNRequired or WhseLNRequired then
+                    if ItemTrackingMgt.GetWhseItemTrkgSetup("No.") then
                         ItemTrackingMgt.InitItemTrkgForTempWkshLine(
                           WhseWkshLine."Whse. Document Type"::Assembly,
                           "Document No.",
@@ -676,7 +673,7 @@ codeunit 905 "Assembly Line Management"
             repeat
                 if TempFromAssemblyLine.IsInventoriableItem() then begin
                     TempToAssemblyLine := TempFromAssemblyLine;
-                    TempToAssemblyLine.Insert;
+                    TempToAssemblyLine.Insert();
                 end;
             until TempFromAssemblyLine.Next() = 0;
     end;

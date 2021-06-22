@@ -1,4 +1,4 @@
-﻿page 9308 "Purchase Invoices"
+page 9308 "Purchase Invoices"
 {
     AdditionalSearchTerms = 'vendor invoice';
     ApplicationArea = Basic, Suite;
@@ -296,7 +296,7 @@
                     trigger OnAction()
                     begin
                         CalcInvDiscForHeader;
-                        Commit;
+                        Commit();
                         PAGE.RunModal(PAGE::"Purchase Statistics", Rec);
                     end;
                 }

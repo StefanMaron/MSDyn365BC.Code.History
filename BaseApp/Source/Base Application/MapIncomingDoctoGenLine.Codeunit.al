@@ -32,7 +32,7 @@ codeunit 1224 "Map Incoming Doc to Gen. Line"
         TextToAccountMappingFound: Boolean;
         TempGenJournalLineInserted: Boolean;
     begin
-        IncomingDocumentsSetup.Get;
+        IncomingDocumentsSetup.Get();
         if (IncomingDocumentsSetup."General Journal Template Name" = '') or
            (IncomingDocumentsSetup."General Journal Batch Name" = '')
         then
@@ -51,11 +51,11 @@ codeunit 1224 "Map Incoming Doc to Gen. Line"
                 LastGenJournalLine."Line No." := LastGenJournalLine."Line No." + 10000;
                 LastGenJournalLine.Validate("Document No.",
                   NoSeriesMgt.GetNextNo(GenJournalBatch."No. Series", IncomingDocument."Document Date", false));
-                TempGenJournalLineInserted := LastGenJournalLine.Insert;
+                TempGenJournalLineInserted := LastGenJournalLine.Insert();
             end;
 
             // Create the gen jnl line out of the inc doc and text-to-account mapping
-            GenJournalLine.Init;
+            GenJournalLine.Init();
             GenJournalLine.Validate("Journal Template Name", IncomingDocumentsSetup."General Journal Template Name");
             GenJournalLine.Validate("Journal Batch Name", IncomingDocumentsSetup."General Journal Batch Name");
             GenJournalLine."Line No." := LastGenJournalLine."Line No." + 10000;
@@ -63,7 +63,7 @@ codeunit 1224 "Map Incoming Doc to Gen. Line"
             GenJournalLine.SetUpNewLine(LastGenJournalLine, LastGenJournalLine."Balance (LCY)", true);
 
             if TempGenJournalLineInserted then
-                LastGenJournalLine.Delete;
+                LastGenJournalLine.Delete();
 
             GenJournalLine."Document Type" := GetAttachedDocumentType;
 
@@ -111,7 +111,7 @@ codeunit 1224 "Map Incoming Doc to Gen. Line"
             GenJournalLine.Validate("Posting Date", IncomingDocument."Document Date");
             GenJournalLine.Validate("Document Date", IncomingDocument."Document Date");
             GenJournalLine.Validate("External Document No.", IncomingDocument."Vendor Invoice No.");
-            GeneralLedgerSetup.Get;
+            GeneralLedgerSetup.Get();
             if IncomingDocument."Currency Code" <> GeneralLedgerSetup."LCY Code" then
                 if VerifyCurrency(IncomingDocument."Currency Code", IncomingDocument."Document Date") then
                     GenJournalLine.Validate("Currency Code", IncomingDocument."Currency Code");
@@ -168,7 +168,7 @@ codeunit 1224 "Map Incoming Doc to Gen. Line"
         TextToAccountMapping: Record "Text-to-Account Mapping";
         DefaultGLAccount: Code[20];
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
 
         if GenJournalLine."Document Type" = GenJournalLine."Document Type"::Invoice then
             DefaultGLAccount := PurchasesPayablesSetup."Debit Acc. for Non-Item Lines";

@@ -51,8 +51,8 @@ codeunit 1295 "Get Bank Stmt. Line Candidates"
             GetCandidateRanking(BankAccReconLine, TempBankStmtMatchingBuffer);
         BankAccount.Get(BankAccReconLine."Bank Account No.");
 
-        PaymentApplicationProposal.Reset;
-        TempBankStmtMatchingBuffer.Reset;
+        PaymentApplicationProposal.Reset();
+        TempBankStmtMatchingBuffer.Reset();
         TempBankStmtMatchingBuffer.SetRange("One to Many Match", false);
         if TempBankStmtMatchingBuffer.FindSet then
             repeat

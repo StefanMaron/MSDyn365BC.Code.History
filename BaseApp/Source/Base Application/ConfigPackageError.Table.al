@@ -25,7 +25,8 @@ table 8617 "Config. Package Error"
             Caption = 'Record No.';
             Editable = false;
             NotBlank = true;
-            TableRelation = "Config. Package Record"."No." WHERE("Table ID" = FIELD("Table ID"));
+            TableRelation = "Config. Package Record"."No." WHERE("Package Code" = FIELD("Package Code"),
+                                                                 "Table ID" = FIELD("Table ID"));
         }
         field(4; "Field ID"; Integer)
         {

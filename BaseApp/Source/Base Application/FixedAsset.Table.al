@@ -15,7 +15,7 @@ table 5600 "Fixed Asset"
             trigger OnValidate()
             begin
                 if "No." <> xRec."No." then begin
-                    FASetup.Get;
+                    FASetup.Get();
                     NoSeriesMgt.TestManual(FASetup."Fixed Asset Nos.");
                     "No. Series" := '';
                 end;
@@ -77,11 +77,13 @@ table 5600 "Fixed Asset"
 
                 FASubclass.Get("FA Subclass Code");
                 if "FA Class Code" <> '' then begin
-                    if not (FASubclass."FA Class Code" in ['', "FA Class Code"]) then
-                        Error(UnexpctedSubclassErr);
-                end else
-                    Validate("FA Class Code", FASubclass."FA Class Code");
+                    if FASubclass."FA Class Code" in ['', "FA Class Code"] then
+                        exit;
 
+                    Error(UnexpctedSubclassErr);
+                end;
+
+                Validate("FA Class Code", FASubclass."FA Class Code");
                 if "FA Posting Group" = '' then
                     Validate("FA Posting Group", FASubclass."Default FA Posting Group");
             end;
@@ -292,9 +294,9 @@ table 5600 "Fixed Asset"
         if IsHandled then
             exit;
 
-        LockTable;
-        MainAssetComp.LockTable;
-        InsCoverageLedgEntry.LockTable;
+        LockTable();
+        MainAssetComp.LockTable();
+        InsCoverageLedgEntry.LockTable();
         if "Main Asset/Component" = "Main Asset/Component"::"Main Asset" then
             Error(Text000);
         FAMoveEntries.MoveFAInsuranceEntries("No.");
@@ -305,27 +307,27 @@ table 5600 "Fixed Asset"
 
         MainAssetComp.SetCurrentKey("FA No.");
         MainAssetComp.SetRange("FA No.", "No.");
-        MainAssetComp.DeleteAll;
+        MainAssetComp.DeleteAll();
         if "Main Asset/Component" = "Main Asset/Component"::Component then begin
-            MainAssetComp.Reset;
+            MainAssetComp.Reset();
             MainAssetComp.SetRange("Main Asset No.", "Component of Main Asset");
             MainAssetComp.SetRange("FA No.", '');
-            MainAssetComp.DeleteAll;
+            MainAssetComp.DeleteAll();
             MainAssetComp.SetRange("FA No.");
             if not MainAssetComp.FindFirst then begin
                 FA.Get("Component of Main Asset");
                 FA."Main Asset/Component" := FA."Main Asset/Component"::" ";
                 FA."Component of Main Asset" := '';
-                FA.Modify;
+                FA.Modify();
             end;
         end;
 
         MaintenanceRegistration.SetRange("FA No.", "No.");
-        MaintenanceRegistration.DeleteAll;
+        MaintenanceRegistration.DeleteAll();
 
         CommentLine.SetRange("Table Name", CommentLine."Table Name"::"Fixed Asset");
         CommentLine.SetRange("No.", "No.");
-        CommentLine.DeleteAll;
+        CommentLine.DeleteAll();
 
         DimMgt.DeleteDefaultDim(DATABASE::"Fixed Asset", "No.");
     end;
@@ -333,7 +335,7 @@ table 5600 "Fixed Asset"
     trigger OnInsert()
     begin
         if "No." = '' then begin
-            FASetup.Get;
+            FASetup.Get();
             FASetup.TestField("Fixed Asset Nos.");
             NoSeriesMgt.InitSeries(FASetup."Fixed Asset Nos.", xRec."No. Series", 0D, "No.", "No. Series");
         end;
@@ -386,7 +388,7 @@ table 5600 "Fixed Asset"
     begin
         with FA do begin
             FA := Rec;
-            FASetup.Get;
+            FASetup.Get();
             FASetup.TestField("Fixed Asset Nos.");
             if NoSeriesMgt.SelectSeries(FASetup."Fixed Asset Nos.", OldFA."No. Series", "No. Series") then begin
                 NoSeriesMgt.SetSeries("No.");

@@ -46,11 +46,11 @@ codeunit 88 "Sales Post via Job Queue"
 
     local procedure SetJobQueueStatus(var SalesHeader: Record "Sales Header"; NewStatus: Option)
     begin
-        SalesHeader.LockTable;
+        SalesHeader.LockTable();
         if SalesHeader.Find then begin
             SalesHeader."Job Queue Status" := NewStatus;
-            SalesHeader.Modify;
-            Commit;
+            SalesHeader.Modify();
+            Commit();
         end;
     end;
 
@@ -113,7 +113,7 @@ codeunit 88 "Sales Post via Job Queue"
     var
         SalesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         with JobQueueEntry do begin
             "Notify On Success" := SalesSetup."Notify On Success";
             "Job Queue Category Code" := GetJobQueueCategoryCode();
@@ -157,9 +157,11 @@ codeunit 88 "Sales Post via Job Queue"
 
     local procedure AreOtherJobQueueEntriesScheduled(JobQueueEntry: Record "Job Queue Entry"): Boolean
     var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
         JobQueueEntryFilter: Record "Job Queue Entry";
         result: Boolean;
     begin
+        SalesReceivablesSetup.Get();
         JobQueueEntryFilter.SetFilter("Job Queue Category Code", GetJobQueueCategoryCode());
         JobQueueEntryFilter.SetFilter(ID, '<>%1', JobQueueEntry.ID);
         JobQueueEntryFilter.SetRange("Object ID to Run", JobQueueEntry."Object ID to Run");

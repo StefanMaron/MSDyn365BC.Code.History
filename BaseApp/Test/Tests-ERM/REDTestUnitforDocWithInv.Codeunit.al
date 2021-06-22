@@ -499,7 +499,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"RED Test Unit for Doc With Inv");
     end;
 
@@ -511,7 +511,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         DeferralTemplate."Deferral %" := LibraryRandom.RandDecInRange(10, 99, 2);
         DeferralPercent := DeferralTemplate."Deferral %";
         DeferralTemplate."Period Description" := 'Deferral Revenue for %4';
-        DeferralTemplate.Modify;
+        DeferralTemplate.Modify();
         exit(DeferralTemplate."Deferral Code");
     end;
 
@@ -860,7 +860,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         GLEntry.SetRange("Document No.", DocNo);
         GLEntry.SetRange("G/L Account No.", AccNo);
         GLEntry.SetRange("Posting Date", StartPostDate, EndPostDate);
-        RecCount := GLEntry.Count;
+        RecCount := GLEntry.Count();
         GLEntry.CalcSums(Amount);
         AccAmt := GLEntry.Amount;
         if GLEntry.FindFirst then begin
@@ -993,7 +993,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         CreateVATPostingSetup(VATPostingSetup, LibraryRandom.RandDecInRange(10, 20, 2));
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomerWithVAT(VATPostingSetup."VAT Bus. Posting Group"));
         SalesHeader.Validate("Posting Date", SetDateDay(15, WorkDate));
-        SalesHeader.Modify;
+        SalesHeader.Modify();
 
         CreateGLAccount(GLAccount, VATPostingSetup."VAT Prod. Posting Group", DeferralPercent);
 
@@ -1013,7 +1013,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         LibraryPurchase.CreatePurchHeader(
           PurchHeader, DocumentType, CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
         PurchHeader.Validate("Posting Date", SetDateDay(15, WorkDate));
-        PurchHeader.Modify;
+        PurchHeader.Modify();
 
         CreateGLAccount(GLAccount, VATPostingSetup."VAT Prod. Posting Group", DeferralPercent);
 
@@ -1021,7 +1021,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         PurchLine.Validate("Allow Invoice Disc.", true);
         PurchLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(1000, 2));
         PurchLine.Validate("Line Discount %", LibraryRandom.RandIntInRange(10, 39));
-        PurchLine.Modify;
+        PurchLine.Modify();
     end;
 
     local procedure CreateGLAccount(var GLAccount: Record "G/L Account"; VATProdPostingGroup: Code[20]; var DeferralPercent: Decimal)
@@ -1030,7 +1030,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         GLAccount.Validate(
           "Default Deferral Template Code", CreateDeferralCode(CalcMethod::"Straight-Line", StartDate::"Posting Date", 3, DeferralPercent));
         GLAccount.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
-        GLAccount.Modify;
+        GLAccount.Modify();
     end;
 
     local procedure InitializeSalesMultipleLinesMultiplelVATPercentScenario(var SalesHeader: Record "Sales Header"; var InvoiceDiscountAmount: Decimal; CurrencyCode: Code[10]; var DeferralPercent: Decimal; var Line1AccNo: Code[20]; var Line2AccNo: Code[20])
@@ -1150,7 +1150,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
 
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, Customer."No.");
         SalesHeader.Validate("Posting Date", SetDateDay(15, WorkDate));
-        SalesHeader.Modify;
+        SalesHeader.Modify();
 
         // Create Posting Setup for Sales Tax.
         CreateVATPostingSetupForSalesTax(VATPostingSetup, SalesHeader."VAT Bus. Posting Group");
@@ -1184,7 +1184,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
         PurchHeader.Validate("Tax Area Code", Vendor."Tax Area Code");
         PurchHeader.Validate("Tax Liable", true);
         PurchHeader.Validate("Posting Date", SetDateDay(15, WorkDate));
-        PurchHeader.Modify;
+        PurchHeader.Modify();
 
         CreateVATPostingSetupForSalesTax(VATPostingSetup, PurchHeader."VAT Bus. Posting Group");
         SetupSalesTax(
@@ -1250,7 +1250,7 @@ codeunit 134807 "RED Test Unit for Doc With Inv"
     begin
         LibraryERM.CreateGLAccount(GLAccount);
         GLAccount."Income/Balance" := GLAccount."Income/Balance"::"Balance Sheet";
-        GLAccount.Modify;
+        GLAccount.Modify();
         LibraryERM.CreateTaxJurisdiction(TaxJurisdiction);
         TaxJurisdiction.Validate("Tax Account (Sales)", GLAccount."No.");
         TaxJurisdiction.Validate("Tax Account (Purchases)", GLAccount."No.");

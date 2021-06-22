@@ -25,7 +25,7 @@ codeunit 1550 "Record Restriction Mgt."
             RestrictedRecord.Details := CopyStr(RestrictionDetails, 1, MaxStrLen(RestrictedRecord.Details));
             RestrictedRecord.Modify(true);
         end else begin
-            RestrictedRecord.Init;
+            RestrictedRecord.Init();
             RestrictedRecord."Record ID" := RecRef.RecordId;
             RestrictedRecord.Details := CopyStr(RestrictionDetails, 1, MaxStrLen(RestrictedRecord.Details));
             RestrictedRecord.Insert(true);

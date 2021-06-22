@@ -1,4 +1,4 @@
-﻿page 9241 "G/L Entries Dim. Overv. Matrix"
+page 9241 "G/L Entries Dim. Overv. Matrix"
 {
     Caption = 'G/L Entries Dim. Overv. Matrix';
     DataCaptionExpression = GetCaption;
@@ -683,7 +683,7 @@
     begin
         if not DimSetEntry.Get("Dimension Set ID", MatrixRecord.Code)
         then begin
-            DimSetEntry.Init;
+            DimSetEntry.Init();
             DimSetEntry."Dimension Code" := MatrixRecord.Code;
         end;
         MATRIX_CellData[MATRIX_CurrentColumnOrdinal] := Format(DimSetEntry."Dimension Value Code");
@@ -719,11 +719,11 @@
     procedure SetTempGLEntry(var NewGLEntry: Record "G/L Entry")
     begin
         RunOnTempRec := true;
-        TempGLEntry.DeleteAll;
+        TempGLEntry.DeleteAll();
         if NewGLEntry.Find('-') then
             repeat
                 TempGLEntry := NewGLEntry;
-                TempGLEntry.Insert;
+                TempGLEntry.Insert();
             until NewGLEntry.Next = 0;
     end;
 

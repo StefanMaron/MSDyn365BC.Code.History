@@ -177,7 +177,7 @@ report 5064 "Segment - Cover Sheet"
 
                     trigger OnPreDataItem()
                     begin
-                        CompanyInfo.Get;
+                        CompanyInfo.Get();
                         FormatAddr.Company(CompanyAddr, CompanyInfo);
                     end;
                 }

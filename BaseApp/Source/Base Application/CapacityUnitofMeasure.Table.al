@@ -15,11 +15,9 @@ table 99000780 "Capacity Unit of Measure"
         {
             Caption = 'Description';
         }
-        field(3; Type; Option)
+        field(3; Type; Enum "Capacity Unit of Measure")
         {
             Caption = 'Type';
-            OptionCaption = 'Milliseconds,100/Hour,Minutes,Hours,Days';
-            OptionMembers = " ","100/Hour",Minutes,Hours,Days;
         }
     }
 

@@ -60,9 +60,9 @@ codeunit 99000771 "BOM Matrix Management"
     begin
         GlobalCalcDate := CalcDate;
 
-        ComponentList.DeleteAll;
-        ComponentEntry.Reset;
-        ComponentEntry.DeleteAll;
+        ComponentList.DeleteAll();
+        ComponentEntry.Reset();
+        ComponentEntry.DeleteAll();
 
         MultiLevel := NewMultiLevel;
         MatrixType := MatrixType::Item;
@@ -104,9 +104,9 @@ codeunit 99000771 "BOM Matrix Management"
 
     procedure BOMMatrixFromBOM(ProdBOM: Record "Production BOM Header"; NewMultiLevel: Boolean)
     begin
-        ComponentList.DeleteAll;
-        ComponentEntry.Reset;
-        ComponentEntry.DeleteAll;
+        ComponentList.DeleteAll();
+        ComponentEntry.Reset();
+        ComponentEntry.DeleteAll();
 
         MultiLevel := NewMultiLevel;
         MatrixType := MatrixType::Version;
@@ -159,8 +159,8 @@ codeunit 99000771 "BOM Matrix Management"
                                 ComponentList."Unit of Measure Code" := Item."Base Unit of Measure";
                                 OnBuildMatrixForItemOnBeforeComponentListFind(ProdBOMComponent, ComponentList);
                                 if not ComponentList.Find then
-                                    ComponentList.Insert;
-                                ComponentEntry2.Init;
+                                    ComponentList.Insert();
+                                ComponentEntry2.Init();
                                 ComponentEntry2."Item No." := ProdBOMComponent."No.";
                                 ComponentEntry2."Variant Code" := ProdBOMComponent."Variant Code";
                                 case MatrixType of
@@ -181,9 +181,9 @@ codeunit 99000771 "BOM Matrix Management"
                                 if ComponentEntry.FindFirst then begin
                                     ComponentEntry.Quantity :=
                                       ComponentEntry.Quantity + ComponentEntry2.Quantity;
-                                    ComponentEntry.Modify;
+                                    ComponentEntry.Modify();
                                 end else
-                                    ComponentEntry.Insert;
+                                    ComponentEntry.Insert();
                             end;
                         end;
                     ProdBOMComponent.Type::"Production BOM":

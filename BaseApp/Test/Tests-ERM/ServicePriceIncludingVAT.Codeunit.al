@@ -39,7 +39,7 @@ codeunit 136123 "Service Price Including VAT"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Price Including VAT");
     end;
 
@@ -209,7 +209,7 @@ codeunit 136123 "Service Price Including VAT"
     begin
         repeat
             TempServiceLine := ServiceLine;
-            TempServiceLine.Insert;
+            TempServiceLine.Insert();
         until ServiceLine.Next = 0;
     end;
 

@@ -4,6 +4,9 @@ page 7007 "Get Sales Price"
     Editable = false;
     PageType = List;
     SourceTable = "Sales Price";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+    ObsoleteTag = '16.0';
 
     layout
     {

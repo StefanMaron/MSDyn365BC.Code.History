@@ -123,7 +123,7 @@ codeunit 135547 "Webhook Logs E2E"
         AddActivityLog('first', 'red');
         AddActivityLog('second', 'yellow');
         AddActivityLog('third', 'green');
-        Commit;
+        Commit();
     end;
 
     local procedure AddActivityLog(ActivityDescription: Text; ActivityMessage: Text)
@@ -150,7 +150,7 @@ codeunit 135547 "Webhook Logs E2E"
         ActivityLog: Record "Activity Log";
     begin
         ActivityLog.SetRange(Context, ActivityLogContextLbl);
-        ActivityLog.DeleteAll;
+        ActivityLog.DeleteAll();
     end;
 }
 

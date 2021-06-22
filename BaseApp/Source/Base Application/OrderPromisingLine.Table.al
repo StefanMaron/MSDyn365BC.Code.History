@@ -278,15 +278,11 @@ table 99000880 "Order Promising Line"
         exit(SalesLine."Shipment Date");
     end;
 
-    procedure GetLastEntryNo() LastEntryNo: Integer
+    procedure GetLastEntryNo(): Integer;
     var
-        CopyOfOrderPromisingLine: Record "Order Promising Line";
+        FindRecordManagement: Codeunit "Find Record Management";
     begin
-        CopyOfOrderPromisingLine.Copy(Rec);
-        Reset;
-        if FindLast then
-            LastEntryNo := "Entry No.";
-        Copy(CopyOfOrderPromisingLine);
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
     end;
 
     procedure CalcAvailability(): Decimal
@@ -305,7 +301,7 @@ table 99000880 "Order Promising Line"
             else
                 AvailabilityDate := WorkDate;
 
-            Item.Reset;
+            Item.Reset();
             Item.SetRange("Date Filter", 0D, AvailabilityDate);
             Item.SetRange("Variant Filter", "Variant Code");
             Item.SetRange("Location Filter", "Location Code");

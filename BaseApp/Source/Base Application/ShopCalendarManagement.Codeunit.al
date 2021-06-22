@@ -18,7 +18,7 @@ codeunit 99000755 "Shop Calendar Management"
         exit(TimeFactor(UnitOfMeasureCode) / TimeFactor(WorkCenter."Unit of Measure Code"));
     end;
 
-    procedure TimeFactor(UnitOfMeasureCode: Code[10]): Decimal
+    procedure TimeFactor(UnitOfMeasureCode: Code[10]) Factor: Decimal
     var
         CapUnitOfMeasure: Record "Capacity Unit of Measure";
     begin
@@ -28,6 +28,8 @@ codeunit 99000755 "Shop Calendar Management"
         CapUnitOfMeasure.Get(UnitOfMeasureCode);
 
         case CapUnitOfMeasure.Type of
+            CapUnitOfMeasure.Type::Seconds:
+                exit(1000);
             CapUnitOfMeasure.Type::Minutes:
                 exit(60000);
             CapUnitOfMeasure.Type::"100/Hour":
@@ -37,7 +39,9 @@ codeunit 99000755 "Shop Calendar Management"
             CapUnitOfMeasure.Type::Days:
                 exit(86400000);
         end;
-        exit(1);
+
+        Factor := 1;
+        OnAfterTimeFactor(CapUnitOfMeasure, Factor);
     end;
 
     local procedure ShopCalHoliday(ShopCalendarCode: Code[10]; Date: Date; StartingTime: Time; EndingTime: Time): Boolean
@@ -65,11 +69,11 @@ codeunit 99000755 "Shop Calendar Management"
 
         OnBeforeCalculateSchedule(WorkCenter, StartingDate);
 
-        CalendarEntry.LockTable;
+        CalendarEntry.LockTable();
         CalendarEntry.SetRange("Capacity Type", CapacityType);
         CalendarEntry.SetRange("No.", No);
         CalendarEntry.SetRange(Date, StartingDate, EndingDate);
-        CalendarEntry.DeleteAll;
+        CalendarEntry.DeleteAll();
         CalAbsentEntry.SetRange("Capacity Type", CapacityType);
         CalAbsentEntry.SetRange("No.", No);
         CalAbsentEntry.SetRange(Date, StartingDate, EndingDate);
@@ -89,7 +93,7 @@ codeunit 99000755 "Shop Calendar Management"
                         ShopCalendar.TestField("Ending Time");
                         ShopCalendar.TestField("Work Shift Code");
 
-                        CalendarEntry.Init;
+                        CalendarEntry.Init();
                         CalendarEntry."Capacity Type" := CapacityType;
                         CalendarEntry."Work Shift Code" := ShopCalendar."Work Shift Code";
                         CalendarEntry.Date := PeriodDate;
@@ -131,7 +135,7 @@ codeunit 99000755 "Shop Calendar Management"
     begin
         CalEntry."Starting Time" := StartingTime;
         CalEntry.Validate("Ending Time", EndingTime);
-        CalEntry.Insert;
+        CalEntry.Insert();
     end;
 
     procedure CalcTimeDelta(EndingTime: Time; StartingTime: Time): Integer
@@ -147,6 +151,11 @@ codeunit 99000755 "Shop Calendar Management"
     procedure GetMaxDate(): Date
     begin
         exit(99991230D);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTimeFactor(CapUnitOfMeasure: Record "Capacity Unit of Measure"; var Factor: Decimal)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

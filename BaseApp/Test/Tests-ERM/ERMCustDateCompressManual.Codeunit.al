@@ -84,7 +84,7 @@ codeunit 134034 "ERM Cust Date Compress Manual"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateLocalData;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Cust Date Compress Manual");
     end;
 

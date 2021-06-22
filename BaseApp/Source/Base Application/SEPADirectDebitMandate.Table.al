@@ -17,7 +17,7 @@ table 1230 "SEPA Direct Debit Mandate"
                 NoSeriesMgt: Codeunit NoSeriesManagement;
             begin
                 if ID <> xRec.ID then begin
-                    SalesSetup.Get;
+                    SalesSetup.Get();
                     NoSeriesMgt.TestManual(SalesSetup."Direct Debit Mandate Nos.");
                     "No. Series" := '';
                 end;
@@ -183,7 +183,7 @@ table 1230 "SEPA Direct Debit Mandate"
         NewNo: Code[20];
     begin
         if ID = '' then begin
-            SalesSetup.Get;
+            SalesSetup.Get();
             SalesSetup.TestField("Direct Debit Mandate Nos.");
             NoSeriesMgt.InitSeries(SalesSetup."Direct Debit Mandate Nos.", xRec."No. Series", 0D, NewNo, "No. Series");
             ID := NewNo;
@@ -233,7 +233,7 @@ table 1230 "SEPA Direct Debit Mandate"
     var
         DirectDebitCollectionEntry: Record "Direct Debit Collection Entry";
     begin
-        DirectDebitCollectionEntry.Init;
+        DirectDebitCollectionEntry.Init();
         if "Type of Payment" = "Type of Payment"::OneOff then
             exit(DirectDebitCollectionEntry."Sequence Type"::"One Off");
         if "Debit Counter" = 0 then

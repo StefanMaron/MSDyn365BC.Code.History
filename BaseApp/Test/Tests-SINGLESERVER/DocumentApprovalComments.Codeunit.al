@@ -139,7 +139,7 @@ codeunit 134201 "Document Approval - Comments"
         CreateApprovalEntryWithPurchInvoice(ApprovalEntry, WorkflowInstanceID);
 
         // Execute
-        Commit;
+        Commit();
         ApprovalEntriesPage.OpenView;
         ApprovalEntriesPage.GotoRecord(ApprovalEntry);
         ApprovalEntriesPage.Reject.Invoke;
@@ -721,7 +721,7 @@ codeunit 134201 "Document Approval - Comments"
         MockApprovalEntryWithComment(RecordIDToApprove);
 
         // [WHEN] Delete Gen. Journal Line
-        GenJournalLine.Delete;
+        GenJournalLine.Delete();
 
         // [THEN] Approval Comments should be deleted
         ApprovalCommentLine.SetRange("Record ID to Approve", RecordIDToApprove);
@@ -746,7 +746,7 @@ codeunit 134201 "Document Approval - Comments"
         MockApprovalEntryWithComment(RecordIDToApprove);
 
         // [WHEN] Delete Customer
-        Customer.Delete;
+        Customer.Delete();
 
         // [THEN] Approval Comments should be deleted
         ApprovalCommentLine.SetRange("Record ID to Approve", RecordIDToApprove);
@@ -771,7 +771,7 @@ codeunit 134201 "Document Approval - Comments"
         MockApprovalEntryWithComment(RecordIDToApprove);
 
         // [WHEN] Delete Vendor
-        Vendor.Delete;
+        Vendor.Delete();
 
         // [THEN] Approval Comments should be deleted
         ApprovalCommentLine.SetRange("Record ID to Approve", RecordIDToApprove);
@@ -796,7 +796,7 @@ codeunit 134201 "Document Approval - Comments"
         MockApprovalEntryWithComment(RecordIDToApprove);
 
         // [WHEN] Delete Item
-        Item.Delete;
+        Item.Delete();
 
         // [THEN] Approval Comments should be deleted
         ApprovalCommentLine.SetRange("Record ID to Approve", RecordIDToApprove);
@@ -823,7 +823,7 @@ codeunit 134201 "Document Approval - Comments"
         MockApprovalEntryWithComment(RecordIDToApprove);
 
         // [WHEN] Delete Gen. Journal Batch
-        GenJournalBatch.Delete;
+        GenJournalBatch.Delete();
 
         // [THEN] Approval Comments should be deleted
         ApprovalCommentLine.SetRange("Record ID to Approve", RecordIDToApprove);
@@ -1200,7 +1200,7 @@ codeunit 134201 "Document Approval - Comments"
 
     local procedure CreateApprovalEntry(var ApprovalEntry: Record "Approval Entry"; WorkflowInstanceID: Guid; RecID: RecordID; EntryStatus: Option)
     begin
-        ApprovalEntry.Init;
+        ApprovalEntry.Init();
         ApprovalEntry.Validate("Table ID", DATABASE::"Purchase Header");
         ApprovalEntry.Validate("Sequence No.", LibraryRandom.RandInt(100));
         ApprovalEntry."Approver ID" := UserId;
@@ -1339,8 +1339,8 @@ codeunit 134201 "Document Approval - Comments"
         ApprovalEntry: Record "Approval Entry";
         ApprovalCommentLine: Record "Approval Comment Line";
     begin
-        ApprovalEntry.DeleteAll;
-        ApprovalCommentLine.DeleteAll;
+        ApprovalEntry.DeleteAll();
+        ApprovalCommentLine.DeleteAll();
     end;
 
     local procedure GetApprovalEntries(var ApprovalEntry: Record "Approval Entry"; TableID: Integer; DocumentType: Option; DocumentNo: Code[20])
@@ -1441,7 +1441,7 @@ codeunit 134201 "Document Approval - Comments"
     begin
         UserSetup.Get(ApprovalAdministrator);
         UserSetup."Approval Administrator" := true;
-        UserSetup.Modify;
+        UserSetup.Modify();
     end;
 
     local procedure SetupApprovalWorkflows(TableNo: Integer; DocumentType: Option)
@@ -1532,11 +1532,11 @@ codeunit 134201 "Document Approval - Comments"
           LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode);
         LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.GetApprovalCommentCode, EntryPointStepID);
         Workflow.Enabled := true;
-        Workflow.Modify;
+        Workflow.Modify();
         Workflow.CreateInstance(WorkflowStepInstance);
         WorkflowStepInstance.FindFirst;
         WorkflowStepInstance.Status := WorkflowStepInstance.Status::Active;
-        WorkflowStepInstance.Modify;
+        WorkflowStepInstance.Modify();
         exit(WorkflowStepInstance.ID);
     end;
 

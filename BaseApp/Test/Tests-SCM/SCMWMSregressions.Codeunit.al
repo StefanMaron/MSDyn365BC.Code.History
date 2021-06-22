@@ -48,16 +48,16 @@ codeunit 137005 "SCM WMS regressions"
 
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         WarehouseSetup."Whse. Ship Nos." := LibraryUtility.GetGlobalNoSeriesCode;
         WarehouseSetup.Modify(true);
 
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup."Order Nos." := LibraryUtility.GetGlobalNoSeriesCode;
         SalesReceivablesSetup.Modify(true);
 
         Initialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM WMS regressions");
     end;
 
@@ -282,7 +282,7 @@ codeunit 137005 "SCM WMS regressions"
         ProdOrderRoutingLine.SetRange("Prod. Order No.", ProductionOrder."No.");
         ProdOrderRoutingLine.FindFirst;
         ProdOrderRoutingLine."Next Operation No." := LibraryUtility.GenerateGUID;
-        ProdOrderRoutingLine.Modify;
+        ProdOrderRoutingLine.Modify();
 
         // [WHEN] Create and post put-away from production order
         asserterror CreateAndPostPutAwayFromProdOrder(ProductionOrder);
@@ -320,9 +320,9 @@ codeunit 137005 "SCM WMS regressions"
 
         // [GIVEN] Set operation "2" to be the starting routing operation, "1" - terminating operation
         RoutingLine[1]."Previous Operation No." := RoutingLine[2]."Operation No.";
-        RoutingLine[1].Modify;
+        RoutingLine[1].Modify();
         RoutingLine[2]."Next Operation No." := RoutingLine[1]."Operation No.";
-        RoutingLine[2].Modify;
+        RoutingLine[2].Modify();
 
         CertifyRouting(RoutingHeader);
 
@@ -417,7 +417,7 @@ codeunit 137005 "SCM WMS regressions"
         ProdOrderLine: Record "Prod. Order Line";
         Assert: Codeunit Assert;
     begin
-        ProdOrderLine.Reset;
+        ProdOrderLine.Reset();
         ProdOrderLine.SetRange(Status, ProductionOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
         Assert.IsTrue(ProdOrderLine.FindSet, ProdOrderLinesNotCreatedConst);
@@ -534,7 +534,7 @@ codeunit 137005 "SCM WMS regressions"
 
     local procedure FindAndSelInvActvOnSrcNoAndLoc(var WarehouseActivityHeader: Record "Warehouse Activity Header"; ActivitySourceType: Option; ActivitySourceNo: Code[20]; LocationCode: Code[10]): Boolean
     begin
-        WarehouseActivityHeader.Reset;
+        WarehouseActivityHeader.Reset();
         WarehouseActivityHeader.SetRange("Location Code", LocationCode);
         WarehouseActivityHeader.SetRange("Source Document", ActivitySourceType);
         WarehouseActivityHeader.SetRange("Source No.", ActivitySourceNo);
@@ -543,7 +543,7 @@ codeunit 137005 "SCM WMS regressions"
 
     local procedure FindAndSelPostPAwOnSrcNoAndLoc(var PostedInvtPutAwayHeader: Record "Posted Invt. Put-away Header"; SourceDoc: Option; SourceNo: Code[20]; LocationCode: Code[10]): Boolean
     begin
-        PostedInvtPutAwayHeader.Reset;
+        PostedInvtPutAwayHeader.Reset();
         PostedInvtPutAwayHeader.SetRange("Location Code", LocationCode);
         PostedInvtPutAwayHeader.SetRange("Source Document", SourceDoc);
         PostedInvtPutAwayHeader.SetRange("Source No.", SourceNo);
@@ -552,7 +552,7 @@ codeunit 137005 "SCM WMS regressions"
 
     local procedure FindAndSelPstPickOnSrcNoAndLoc(var PostedInvtPickHeader: Record "Posted Invt. Pick Header"; SourceDoc: Option; SourceNo: Code[20]; LocationCode: Code[10]): Boolean
     begin
-        PostedInvtPickHeader.Reset;
+        PostedInvtPickHeader.Reset();
         PostedInvtPickHeader.SetRange("Location Code", LocationCode);
         PostedInvtPickHeader.SetRange("Source Document", SourceDoc);
         PostedInvtPickHeader.SetRange("Source No.", SourceNo);

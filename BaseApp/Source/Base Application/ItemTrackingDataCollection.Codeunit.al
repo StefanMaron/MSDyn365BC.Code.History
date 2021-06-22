@@ -29,7 +29,7 @@ codeunit 6501 "Item Tracking Data Collection"
         Text013: Label 'Neutralize consumption/output';
         LotNoBySNNotFoundErr: Label 'A lot number could not be found for serial number %1.', Comment = '%1 - serial number.';
 
-    procedure AssistEditTrackingNo(var TempTrackingSpecification: Record "Tracking Specification" temporary; SearchForSupply: Boolean; CurrentSignFactor: Integer; LookupMode: Option "Serial No.","Lot No."; MaxQuantity: Decimal)
+    procedure AssistEditTrackingNo(var TempTrackingSpecification: Record "Tracking Specification" temporary; SearchForSupply: Boolean; CurrentSignFactor: Integer; LookupMode: Enum "Item Tracking Type"; MaxQuantity: Decimal)
     var
         ItemTrackingSummaryForm: Page "Item Tracking Summary";
         Window: Dialog;
@@ -49,8 +49,8 @@ codeunit 6501 "Item Tracking Data Collection"
         if not FullGlobalDataSetExists then
             RetrieveLookupData(TempTrackingSpecification, true);
 
-        TempGlobalReservEntry.Reset;
-        TempGlobalEntrySummary.Reset;
+        TempGlobalReservEntry.Reset();
+        TempGlobalEntrySummary.Reset();
 
         // Select the proper key on form
         TempGlobalEntrySummary.SetCurrentKey("Expiration Date");
@@ -151,16 +151,14 @@ codeunit 6501 "Item Tracking Data Collection"
         TempEntrySummary: Record "Entry Summary" temporary;
         ItemTrackingSummaryForm: Page "Item Tracking Summary";
         Window: Dialog;
-        LookupMode: Option "Serial No.","Lot No.",All;
     begin
         Clear(ItemTrackingSummaryForm);
         Window.Open(Text004);
-        LookupMode := LookupMode::All;
         if not FullGlobalDataSetExists then
             RetrieveLookupData(TempTrackingSpecification, true);
 
-        TempGlobalReservEntry.Reset;
-        TempGlobalEntrySummary.Reset;
+        TempGlobalReservEntry.Reset();
+        TempGlobalEntrySummary.Reset();
 
         // Swap sign if negative supply lines
         if CurrentSignFactor > 0 then
@@ -200,14 +198,14 @@ codeunit 6501 "Item Tracking Data Collection"
             if TempEntrySummary.Find('-') then
                 repeat
                     TempEntrySummary."Selected Quantity" := -TempEntrySummary."Selected Quantity";
-                    TempEntrySummary.Modify;
+                    TempEntrySummary.Modify();
                 until TempEntrySummary.Next = 0;
 
         // Modify the item tracking lines with the selected quantities
         AddSelectedTrackingToDataSet(TempEntrySummary, TempTrackingSpecification, CurrentSignFactor);
     end;
 
-    procedure LookupTrackingAvailability(var TempTrackingSpecification: Record "Tracking Specification" temporary; LookupMode: Option "Serial No.","Lot No.")
+    procedure LookupTrackingAvailability(var TempTrackingSpecification: Record "Tracking Specification" temporary; LookupMode: Enum "Item Tracking Type")
     var
         ItemTrackingSummaryForm: Page "Item Tracking Summary";
         Window: Dialog;
@@ -223,15 +221,15 @@ codeunit 6501 "Item Tracking Data Collection"
 
         Clear(ItemTrackingSummaryForm);
         Window.Open(Text004);
-        TempGlobalChangedEntrySummary.Reset;
+        TempGlobalChangedEntrySummary.Reset();
 
         if not (PartialGlobalDataSetExists or FullGlobalDataSetExists) then
             RetrieveLookupData(TempTrackingSpecification, true);
 
-        TempGlobalEntrySummary.Reset;
+        TempGlobalEntrySummary.Reset();
         TempGlobalEntrySummary.SetCurrentKey("Lot No.", "Serial No.");
 
-        TempGlobalReservEntry.Reset;
+        TempGlobalReservEntry.Reset();
 
         case LookupMode of
             LookupMode::"Serial No.":
@@ -270,14 +268,13 @@ codeunit 6501 "Item Tracking Data Collection"
         LastSummaryEntryNo := 0;
         LastReservEntryNo := 0;
         xTrackingSpecification := TempTrackingSpecification;
-        TempGlobalReservEntry.Reset;
-        TempGlobalReservEntry.DeleteAll;
-        TempGlobalEntrySummary.Reset;
-        TempGlobalEntrySummary.DeleteAll;
+        TempGlobalReservEntry.Reset();
+        TempGlobalReservEntry.DeleteAll();
+        TempGlobalEntrySummary.Reset();
+        TempGlobalEntrySummary.DeleteAll();
 
-        ReservEntry.Reset;
-        if ReservEntry.FindLast then
-            LastReservEntryNo := ReservEntry."Entry No.";
+        ReservEntry.Reset();
+        LastReservEntryNo := ReservEntry.GetLastEntryNo();
         ReservEntry.SetCurrentKey(
           "Item No.", "Variant Code", "Location Code", "Item Tracking", "Reservation Status", "Lot No.", "Serial No.");
         ReservEntry.SetRange("Item No.", TempTrackingSpecification."Item No.");
@@ -288,10 +285,10 @@ codeunit 6501 "Item Tracking Data Collection"
             repeat
                 TempReservEntry := ReservEntry;
                 if CanIncludeReservEntryToTrackingSpec(TempReservEntry) then
-                    TempReservEntry.Insert;
+                    TempReservEntry.Insert();
             until ReservEntry.Next = 0;
 
-        ItemLedgEntry.Reset;
+        ItemLedgEntry.Reset();
         ItemLedgEntry.SetCurrentKey("Item No.", Open, "Variant Code", "Location Code", "Item Tracking",
           "Lot No.", "Serial No.");
         ItemLedgEntry.SetRange("Item No.", TempTrackingSpecification."Item No.");
@@ -326,7 +323,7 @@ codeunit 6501 "Item Tracking Data Collection"
                 until TempTrackingSpecification.Next = 0;
         end;
 
-        TempGlobalEntrySummary.Reset;
+        TempGlobalEntrySummary.Reset();
         UpdateCurrentPendingQty;
         TempTrackingSpecification := xTrackingSpecification;
 
@@ -346,18 +343,17 @@ codeunit 6501 "Item Tracking Data Collection"
                 if ItemLedgEntry.TrackingExists and
                    not TempGlobalReservEntry.Get(-ItemLedgEntry."Entry No.", ItemLedgEntry.Positive)
                 then begin
-                    TempGlobalReservEntry.Init;
+                    TempGlobalReservEntry.Init();
                     TempGlobalReservEntry."Entry No." := -ItemLedgEntry."Entry No.";
                     TempGlobalReservEntry."Reservation Status" := TempGlobalReservEntry."Reservation Status"::Surplus;
                     TempGlobalReservEntry.Positive := ItemLedgEntry.Positive;
                     TempGlobalReservEntry."Item No." := ItemLedgEntry."Item No.";
+                    TempGlobalReservEntry."Variant Code" := ItemLedgEntry."Variant Code";
                     TempGlobalReservEntry."Location Code" := ItemLedgEntry."Location Code";
                     TempGlobalReservEntry."Quantity (Base)" := ItemLedgEntry."Remaining Quantity";
                     TempGlobalReservEntry."Source Type" := DATABASE::"Item Ledger Entry";
                     TempGlobalReservEntry."Source Ref. No." := ItemLedgEntry."Entry No.";
-                    TempGlobalReservEntry."Serial No." := ItemLedgEntry."Serial No.";
-                    TempGlobalReservEntry."Lot No." := ItemLedgEntry."Lot No.";
-                    TempGlobalReservEntry."Variant Code" := ItemLedgEntry."Variant Code";
+                    TempGlobalReservEntry.CopyTrackingFromItemLedgEntry(ItemLedgEntry);
 
                     if TempGlobalReservEntry.Positive then begin
                         TempGlobalReservEntry."Warranty Date" := ItemLedgEntry."Warranty Date";
@@ -369,7 +365,7 @@ codeunit 6501 "Item Tracking Data Collection"
                     IsHandled := false;
                     OnTransferItemLedgToTempRecOnBeforeInsert(TempGlobalReservEntry, ItemLedgEntry, TrackingSpecification, IsHandled);
                     if not IsHandled then begin
-                        TempGlobalReservEntry.Insert;
+                        TempGlobalReservEntry.Insert();
                         CreateEntrySummary(TrackingSpecification, TempGlobalReservEntry);
                     end;
                 end;
@@ -388,7 +384,7 @@ codeunit 6501 "Item Tracking Data Collection"
                     IsHandled := false;
                     OnAfterTransferReservEntryToTempRec(TempGlobalReservEntry, TempReservEntry, TrackingSpecification, IsHandled);
                     if not IsHandled then begin
-                        TempGlobalReservEntry.Insert;
+                        TempGlobalReservEntry.Insert();
                         CreateEntrySummary(TrackingSpecification, TempGlobalReservEntry);
                     end;
                 end;
@@ -397,7 +393,7 @@ codeunit 6501 "Item Tracking Data Collection"
 
     local procedure CreateEntrySummary(TrackingSpecification: Record "Tracking Specification" temporary; TempReservEntry: Record "Reservation Entry" temporary)
     var
-        LookupMode: Option "Serial No.","Lot No.";
+        LookupMode: Enum "Item Tracking Type";
     begin
         CreateEntrySummary2(TrackingSpecification, LookupMode::"Serial No.", TempReservEntry);
         CreateEntrySummary2(TrackingSpecification, LookupMode::"Lot No.", TempReservEntry);
@@ -405,13 +401,13 @@ codeunit 6501 "Item Tracking Data Collection"
         OnAfterCreateEntrySummary(TrackingSpecification, TempGlobalEntrySummary);
     end;
 
-    local procedure CreateEntrySummary2(TrackingSpecification: Record "Tracking Specification" temporary; LookupMode: Option "Serial No.","Lot No."; TempReservEntry: Record "Reservation Entry" temporary)
+    local procedure CreateEntrySummary2(TrackingSpecification: Record "Tracking Specification" temporary; LookupMode: Enum "Item Tracking Type"; TempReservEntry: Record "Reservation Entry" temporary)
     var
         DoInsert: Boolean;
     begin
         OnBeforeCreateEntrySummary2(TempGlobalEntrySummary, TempReservEntry, TrackingSpecification);
 
-        TempGlobalEntrySummary.Reset;
+        TempGlobalEntrySummary.Reset();
         TempGlobalEntrySummary.SetCurrentKey("Lot No.", "Serial No.");
 
         // Set filters
@@ -434,7 +430,7 @@ codeunit 6501 "Item Tracking Data Collection"
 
         // If no summary exists, create new record
         if not TempGlobalEntrySummary.FindFirst then begin
-            TempGlobalEntrySummary.Init;
+            TempGlobalEntrySummary.Init();
             TempGlobalEntrySummary."Entry No." := LastSummaryEntryNo + 1;
             LastSummaryEntryNo := TempGlobalEntrySummary."Entry No.";
 
@@ -481,7 +477,7 @@ codeunit 6501 "Item Tracking Data Collection"
         if DoInsert then
             TempGlobalEntrySummary.Insert
         else
-            TempGlobalEntrySummary.Modify;
+            TempGlobalEntrySummary.Modify();
 
         OnAfterCreateEntrySummary2(TempGlobalEntrySummary, TempReservEntry);
     end;
@@ -500,13 +496,13 @@ codeunit 6501 "Item Tracking Data Collection"
         LastEntryNo: Integer;
         ChangeType: Option Insert,Modify,Delete;
     begin
-        TempEntrySummary.Reset;
+        TempEntrySummary.Reset();
         TempEntrySummary.SetFilter("Selected Quantity", '<>%1', 0);
         if TempEntrySummary.IsEmpty then
             exit;
 
         // To save general and pointer information
-        TrackingSpecification2.Init;
+        TrackingSpecification2.Init();
         TrackingSpecification2."Item No." := TempTrackingSpecification."Item No.";
         TrackingSpecification2."Location Code" := TempTrackingSpecification."Location Code";
         TrackingSpecification2."Source Type" := TempTrackingSpecification."Source Type";
@@ -521,9 +517,8 @@ codeunit 6501 "Item Tracking Data Collection"
 
         OnAddSelectedTrackingToDataSetOnAfterInitTrackingSpecification2(TrackingSpecification2, TempTrackingSpecification);
 
-        TempTrackingSpecification.Reset;
-        if TempTrackingSpecification.FindLast then
-            LastEntryNo := TempTrackingSpecification."Entry No.";
+        TempTrackingSpecification.Reset();
+        LastEntryNo := TempTrackingSpecification.GetLastEntryNo();
 
         TempEntrySummary.FindFirst;
         repeat
@@ -533,14 +528,13 @@ codeunit 6501 "Item Tracking Data Collection"
                   TempTrackingSpecification."Quantity (Base)" + TempEntrySummary."Selected Quantity");
                 TempTrackingSpecification."Buffer Status" := TempTrackingSpecification."Buffer Status"::MODIFY;
                 TransferExpDateFromSummary(TempTrackingSpecification, TempEntrySummary);
-                TempTrackingSpecification.Modify;
+                TempTrackingSpecification.Modify();
                 UpdateTrackingDataSetWithChange(TempTrackingSpecification, true, CurrentSignFactor, ChangeType::Modify);
             end else begin
                 TempTrackingSpecification := TrackingSpecification2;
                 TempTrackingSpecification."Entry No." := LastEntryNo + 1;
                 LastEntryNo := TempTrackingSpecification."Entry No.";
-                TempTrackingSpecification."Serial No." := TempEntrySummary."Serial No.";
-                TempTrackingSpecification."Lot No." := TempEntrySummary."Lot No.";
+                TempTrackingSpecification.CopyTrackingFromEntrySummary(TempEntrySummary);
                 TempTrackingSpecification."Buffer Status" := TempTrackingSpecification."Buffer Status"::INSERT;
                 TransferExpDateFromSummary(TempTrackingSpecification, TempEntrySummary);
                 if TempTrackingSpecification.IsReclass then begin
@@ -549,15 +543,15 @@ codeunit 6501 "Item Tracking Data Collection"
                 end;
                 TempTrackingSpecification.Validate("Quantity (Base)", TempEntrySummary."Selected Quantity");
                 OnBeforeTempTrackingSpecificationInsert(TempTrackingSpecification, TempEntrySummary);
-                TempTrackingSpecification.Insert;
+                TempTrackingSpecification.Insert();
                 UpdateTrackingDataSetWithChange(TempTrackingSpecification, true, CurrentSignFactor, ChangeType::Insert);
             end;
         until TempEntrySummary.Next = 0;
 
-        TempTrackingSpecification.Reset;
+        TempTrackingSpecification.Reset();
     end;
 
-    procedure TrackingAvailable(TempTrackingSpecification: Record "Tracking Specification" temporary; LookupMode: Option "Serial No.","Lot No."): Boolean
+    procedure TrackingAvailable(TempTrackingSpecification: Record "Tracking Specification" temporary; LookupMode: Enum "Item Tracking Type"): Boolean
     var
         IsHandled: Boolean;
         Result: Boolean;
@@ -580,9 +574,9 @@ codeunit 6501 "Item Tracking Data Collection"
         if not (PartialGlobalDataSetExists or FullGlobalDataSetExists) then
             RetrieveLookupData(TempTrackingSpecification, true);
 
-        TempGlobalEntrySummary.Reset;
+        TempGlobalEntrySummary.Reset();
         TempGlobalEntrySummary.SetCurrentKey("Lot No.", "Serial No.");
-        TempGlobalEntrySummary.SetTrackingFilter(TempTrackingSpecification."Serial No.", TempTrackingSpecification."Lot No.");
+        TempGlobalEntrySummary.SetTrackingFilterFromSpec(TempTrackingSpecification);
         TempGlobalEntrySummary.CalcSums("Total Available Quantity");
         if CheckJobInPurchLine(TempTrackingSpecification) then
             exit(TempGlobalEntrySummary.FindFirst);
@@ -614,27 +608,25 @@ codeunit 6501 "Item Tracking Data Collection"
         if CurrentSignFactor > 0 then // Negative supply lines
             NewQuantity := -NewQuantity;
 
-        TempGlobalChangedEntrySummary.Reset;
+        TempGlobalChangedEntrySummary.Reset();
         TempGlobalChangedEntrySummary.SetCurrentKey("Lot No.", "Serial No.");
         TempGlobalChangedEntrySummary.SetTrackingFilterFromSpec(TempTrackingSpecificationChanged);
         if not TempGlobalChangedEntrySummary.FindFirst then begin
-            TempGlobalChangedEntrySummary.Reset;
-            if TempGlobalChangedEntrySummary.FindLast then
-                LastEntryNo := TempGlobalChangedEntrySummary."Entry No.";
-            TempGlobalChangedEntrySummary.Init;
+            TempGlobalChangedEntrySummary.Reset();
+            LastEntryNo := TempGlobalChangedEntrySummary.GetLastEntryNo();
+            TempGlobalChangedEntrySummary.Init();
             TempGlobalChangedEntrySummary."Entry No." := LastEntryNo + 1;
-            TempGlobalChangedEntrySummary."Lot No." := TempTrackingSpecificationChanged."Lot No.";
-            TempGlobalChangedEntrySummary."Serial No." := TempTrackingSpecificationChanged."Serial No.";
+            TempGlobalChangedEntrySummary.CopyTrackingFromSpec(TempTrackingSpecificationChanged);
             TempGlobalChangedEntrySummary."Current Pending Quantity" := NewQuantity;
             if TempTrackingSpecificationChanged."Serial No." <> '' then
                 TempGlobalChangedEntrySummary."Table ID" := DATABASE::"Tracking Specification"; // Not a summary line
             OnBeforeTempGlobalChangedEntrySummaryInsert(TempGlobalChangedEntrySummary, TempTrackingSpecificationChanged);
-            TempGlobalChangedEntrySummary.Insert;
+            TempGlobalChangedEntrySummary.Insert();
             PartialGlobalDataSetExists := false; // The partial data set does not cover the new line
         end else
             if LineIsDemand then begin
                 TempGlobalChangedEntrySummary."Current Pending Quantity" := NewQuantity;
-                TempGlobalChangedEntrySummary.Modify;
+                TempGlobalChangedEntrySummary.Modify();
             end;
         exit(TempGlobalChangedEntrySummary."Entry No.");
     end;
@@ -643,7 +635,7 @@ codeunit 6501 "Item Tracking Data Collection"
     var
         TempLastGlobalEntrySummary: Record "Entry Summary" temporary;
     begin
-        TempGlobalChangedEntrySummary.Reset;
+        TempGlobalChangedEntrySummary.Reset();
         TempGlobalChangedEntrySummary.SetCurrentKey("Lot No.", "Serial No.");
         if TempGlobalChangedEntrySummary.FindSet then
             repeat
@@ -663,9 +655,8 @@ codeunit 6501 "Item Tracking Data Collection"
         SumOfSNPendingQuantity: Decimal;
         SumOfSNRequestedQuantity: Decimal;
     begin
-        TempGlobalEntrySummary.Reset;
-        if TempGlobalEntrySummary.FindLast then
-            LastEntryNo := TempGlobalEntrySummary."Entry No.";
+        TempGlobalEntrySummary.Reset();
+        LastEntryNo := TempGlobalEntrySummary.GetLastEntryNo();
 
         TempGlobalEntrySummary.SetCurrentKey("Lot No.", "Serial No.");
         if ChangedEntrySummary."Serial No." <> '' then begin
@@ -674,7 +665,7 @@ codeunit 6501 "Item Tracking Data Collection"
                 TempGlobalEntrySummary."Current Pending Quantity" := ChangedEntrySummary."Current Pending Quantity" -
                   TempGlobalEntrySummary."Current Requested Quantity";
                 TempGlobalEntrySummary.UpdateAvailable;
-                TempGlobalEntrySummary.Modify;
+                TempGlobalEntrySummary.Modify();
             end else begin
                 TempGlobalEntrySummary := ChangedEntrySummary;
                 TempGlobalEntrySummary."Entry No." := LastEntryNo + 1;
@@ -682,7 +673,7 @@ codeunit 6501 "Item Tracking Data Collection"
                 TempGlobalEntrySummary."Bin Active" := CurrBinCode <> '';
                 UpdateBinContent(TempGlobalEntrySummary);
                 TempGlobalEntrySummary.UpdateAvailable;
-                TempGlobalEntrySummary.Insert;
+                TempGlobalEntrySummary.Insert();
             end;
 
             if (ChangedEntrySummary."Lot No." <> '') and not SkipLot then begin
@@ -711,7 +702,7 @@ codeunit 6501 "Item Tracking Data Collection"
                       TempGlobalEntrySummary."Current Requested Quantity";
 
                 TempGlobalEntrySummary.UpdateAvailable;
-                TempGlobalEntrySummary.Modify;
+                TempGlobalEntrySummary.Modify();
             end else begin
                 TempGlobalEntrySummary := ChangedEntrySummary;
                 TempGlobalEntrySummary."Entry No." := LastEntryNo + 1;
@@ -723,7 +714,7 @@ codeunit 6501 "Item Tracking Data Collection"
                 TempGlobalEntrySummary."Bin Active" := CurrBinCode <> '';
                 UpdateBinContent(TempGlobalEntrySummary);
                 TempGlobalEntrySummary.UpdateAvailable;
-                TempGlobalEntrySummary.Insert;
+                TempGlobalEntrySummary.Insert();
             end;
         end;
     end;
@@ -731,7 +722,7 @@ codeunit 6501 "Item Tracking Data Collection"
     procedure RefreshTrackingAvailability(var TempTrackingSpecification: Record "Tracking Specification" temporary; ShowMessage: Boolean) AvailabilityOK: Boolean
     var
         TrackingSpecification2: Record "Tracking Specification";
-        LookupMode: Option "Serial No.","Lot No.";
+        LookupMode: Enum "Item Tracking Type";
         PreviousLotNo: Code[50];
     begin
         AvailabilityOK := true;
@@ -739,7 +730,7 @@ codeunit 6501 "Item Tracking Data Collection"
             exit;
 
         TrackingSpecification2.Copy(TempTrackingSpecification);
-        TempTrackingSpecification.Reset;
+        TempTrackingSpecification.Reset();
         if TempTrackingSpecification.IsEmpty then begin
             TempTrackingSpecification.Copy(TrackingSpecification2);
             exit;
@@ -796,7 +787,7 @@ codeunit 6501 "Item Tracking Data Collection"
         if CurrBinCode = '' then
             exit;
         CurrItemTrackingCode.TestField(Code);
-        WarehouseEntry.Reset;
+        WarehouseEntry.Reset();
         WarehouseEntry.SetCurrentKey(
           "Item No.", "Bin Code", "Location Code", "Variant Code",
           "Unit of Measure Code", "Lot No.", "Serial No.");
@@ -817,14 +808,14 @@ codeunit 6501 "Item Tracking Data Collection"
 
     local procedure RefreshBinContent(var TempEntrySummary: Record "Entry Summary" temporary)
     begin
-        TempEntrySummary.Reset;
+        TempEntrySummary.Reset();
         if TempEntrySummary.FindSet then
             repeat
                 if CurrBinCode <> '' then
                     UpdateBinContent(TempEntrySummary)
                 else
                     TempEntrySummary."Bin Content" := 0;
-                TempEntrySummary.Modify;
+                TempEntrySummary.Modify();
             until TempEntrySummary.Next = 0;
     end;
 
@@ -849,14 +840,14 @@ codeunit 6501 "Item Tracking Data Collection"
 
     local procedure AdjustForDoubleEntries()
     begin
-        TempGlobalAdjustEntry.Reset;
-        TempGlobalAdjustEntry.DeleteAll;
+        TempGlobalAdjustEntry.Reset();
+        TempGlobalAdjustEntry.DeleteAll();
 
-        TempGlobalTrackingSpec.Reset;
-        TempGlobalTrackingSpec.DeleteAll;
+        TempGlobalTrackingSpec.Reset();
+        TempGlobalTrackingSpec.DeleteAll();
 
         // Check if there is any need to investigate:
-        TempGlobalReservEntry.Reset;
+        TempGlobalReservEntry.Reset();
         TempGlobalReservEntry.SetCurrentKey("Source ID", "Source Ref. No.", "Source Type", "Source Subtype", "Source Batch Name");
         TempGlobalReservEntry.SetRange("Reservation Status", TempGlobalReservEntry."Reservation Status"::Prospect);
         TempGlobalReservEntry.SetRange("Source Type", DATABASE::"Item Journal Line");
@@ -864,7 +855,7 @@ codeunit 6501 "Item Tracking Data Collection"
         if TempGlobalReservEntry.IsEmpty then  // No journal lines with consumption or output exist
             exit;
 
-        TempGlobalReservEntry.Reset;
+        TempGlobalReservEntry.Reset();
         TempGlobalReservEntry.SetCurrentKey("Source ID", "Source Ref. No.", "Source Type", "Source Subtype", "Source Batch Name");
         TempGlobalReservEntry.SetRange("Source Type", DATABASE::"Prod. Order Line");
         TempGlobalReservEntry.SetRange("Source Subtype", 3); // Released order
@@ -874,7 +865,7 @@ codeunit 6501 "Item Tracking Data Collection"
                 SumUpTempTrkgSpec(TempGlobalTrackingSpec, TempGlobalReservEntry);
             until TempGlobalReservEntry.Next = 0;
 
-        TempGlobalReservEntry.Reset;
+        TempGlobalReservEntry.Reset();
         TempGlobalReservEntry.SetCurrentKey("Source ID", "Source Ref. No.", "Source Type", "Source Subtype", "Source Batch Name");
         TempGlobalReservEntry.SetRange("Source Type", DATABASE::"Prod. Order Component");
         TempGlobalReservEntry.SetRange("Source Subtype", 3); // Released order
@@ -884,7 +875,7 @@ codeunit 6501 "Item Tracking Data Collection"
                 SumUpTempTrkgSpec(TempGlobalTrackingSpec, TempGlobalReservEntry);
             until TempGlobalReservEntry.Next = 0;
 
-        TempGlobalReservEntry.Reset;
+        TempGlobalReservEntry.Reset();
         TempGlobalReservEntry.SetCurrentKey("Source ID", "Source Ref. No.", "Source Type", "Source Subtype", "Source Batch Name");
         TempGlobalReservEntry.SetRange("Reservation Status", TempGlobalReservEntry."Reservation Status"::Prospect);
         TempGlobalReservEntry.SetRange("Source Type", DATABASE::"Item Journal Line");
@@ -910,12 +901,12 @@ codeunit 6501 "Item Tracking Data Collection"
         if TempTrackingSpecification.FindFirst then begin
             TempTrackingSpecification."Quantity (Base)" += ReservEntry."Quantity (Base)";
             OnBeforeTempTrackingSpecificationModify(TempTrackingSpecification, ReservEntry);
-            TempTrackingSpecification.Modify;
+            TempTrackingSpecification.Modify();
         end else begin
             ItemTrackingMgt.CreateTrackingSpecification(ReservEntry, TempTrackingSpecification);
             if not ReservEntry.Positive then               // To avoid inserting existing entry when both sides of the reservation
                 TempTrackingSpecification."Entry No." *= -1; // are handled.
-            TempTrackingSpecification.Insert;
+            TempTrackingSpecification.Insert();
         end;
     end;
 
@@ -953,7 +944,7 @@ codeunit 6501 "Item Tracking Data Collection"
             RemainingQty := TempTrackingSpecification."Quantity (Base)" + TempTrackingSpecification."Buffer Value2";
             QtyOnJnlLine := ReservEntry."Quantity (Base)";
             ReservEntry."Transferred from Entry No." := Abs(TempTrackingSpecification."Entry No.");
-            ReservEntry.Modify;
+            ReservEntry.Modify();
 
             if (RemainingQty <> 0) and (RemainingQty * QtyOnJnlLine > 0) then begin
                 if Abs(QtyOnJnlLine) <= Abs(RemainingQty) then
@@ -964,7 +955,7 @@ codeunit 6501 "Item Tracking Data Collection"
 
             TempTrackingSpecification."Buffer Value1" += QtyOnJnlLine;
             TempTrackingSpecification."Buffer Value2" += AdjustQty;
-            TempTrackingSpecification.Modify;
+            TempTrackingSpecification.Modify();
             AddToAdjustmentEntryDataSet(ReservEntry, AdjustQty);
         end;
     end;
@@ -972,7 +963,7 @@ codeunit 6501 "Item Tracking Data Collection"
     local procedure FindRelatedParentTrkgSpec(ItemJnlLine: Record "Item Journal Line"; var TempTrackingSpecification: Record "Tracking Specification" temporary; SerialNo: Code[50]; LotNo: Code[50]): Boolean
     begin
         ItemJnlLine.TestField("Order Type", ItemJnlLine."Order Type"::Production);
-        TempTrackingSpecification.Reset;
+        TempTrackingSpecification.Reset();
         case ItemJnlLine."Entry Type" of
             ItemJnlLine."Entry Type"::Consumption:
                 begin
@@ -1002,23 +993,23 @@ codeunit 6501 "Item Tracking Data Collection"
         TempGlobalAdjustEntry.Description := CopyStr(Text013, 1, MaxStrLen(TempGlobalAdjustEntry.Description));
         TempGlobalAdjustEntry."Quantity (Base)" := AdjustQty;
         TempGlobalAdjustEntry."Entry No." += LastReservEntryNo; // Use last entry no as offset to avoid inserting existing entry
-        TempGlobalAdjustEntry.Insert;
+        TempGlobalAdjustEntry.Insert();
     end;
 
     local procedure InsertAdjustmentEntries()
     var
         TempTrackingSpecification: Record "Tracking Specification" temporary;
     begin
-        TempGlobalAdjustEntry.Reset;
+        TempGlobalAdjustEntry.Reset();
         if not TempGlobalAdjustEntry.FindSet then
             exit;
 
-        TempTrackingSpecification.Init;
-        TempTrackingSpecification.Insert;
+        TempTrackingSpecification.Init();
+        TempTrackingSpecification.Insert();
         repeat
             CreateEntrySummary(TempTrackingSpecification, TempGlobalAdjustEntry); // TrackingSpecification is a dummy record
             TempGlobalReservEntry := TempGlobalAdjustEntry;
-            TempGlobalReservEntry.Insert;
+            TempGlobalReservEntry.Insert();
         until TempGlobalAdjustEntry.Next = 0;
     end;
 
@@ -1037,7 +1028,7 @@ codeunit 6501 "Item Tracking Data Collection"
         then
             exit;
 
-        TempGlobalTrackingSpec.Reset;
+        TempGlobalTrackingSpec.Reset();
 
         if FindRelatedParentTrkgSpec(ItemJnlLine, TempGlobalTrackingSpec,
              ChangedEntrySummary."Serial No.", ChangedEntrySummary."Lot No.")
@@ -1059,7 +1050,7 @@ codeunit 6501 "Item Tracking Data Collection"
     begin
         with TrackingSpecification do
             if ("Source Type" = DATABASE::"Purchase Line") and ("Source Subtype" = "Source Subtype"::"3") then begin
-                PurchLine.Reset;
+                PurchLine.Reset();
                 PurchLine.SetRange("Document Type", "Source Subtype");
                 PurchLine.SetRange("Document No.", "Source ID");
                 PurchLine.SetRange("Line No.", "Source Ref. No.");
@@ -1084,7 +1075,7 @@ codeunit 6501 "Item Tracking Data Collection"
         if not (PartialGlobalDataSetExists or FullGlobalDataSetExists) then
             RetrieveLookupData(TrackingSpecification, true);
 
-        TempGlobalEntrySummary.Reset;
+        TempGlobalEntrySummary.Reset();
         TempGlobalEntrySummary.SetCurrentKey("Lot No.", "Serial No.");
         TempGlobalEntrySummary.SetRange("Serial No.", TrackingSpecification."Serial No.");
         TempGlobalEntrySummary.SetFilter("Lot No.", '<>%1', '');
@@ -1103,7 +1094,7 @@ codeunit 6501 "Item Tracking Data Collection"
         if not (PartialGlobalDataSetExists or FullGlobalDataSetExists) then
             RetrieveLookupData(TrackingSpecification, true);
 
-        TempGlobalEntrySummary.Reset;
+        TempGlobalEntrySummary.Reset();
         TempGlobalEntrySummary.SetCurrentKey("Lot No.", "Serial No.");
         TempGlobalEntrySummary.SetRange("Lot No.", TrackingSpecification."Lot No.");
         TempGlobalEntrySummary.CalcSums("Total Available Quantity");
@@ -1145,7 +1136,7 @@ codeunit 6501 "Item Tracking Data Collection"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeAssistEditTrackingNo(var TempTrackingSpecification: Record "Tracking Specification" temporary; var SearchForSupply: Boolean; CurrentSignFactor: Integer; LookupMode: Option "Serial No.","Lot No."; MaxQuantity: Decimal)
+    local procedure OnBeforeAssistEditTrackingNo(var TempTrackingSpecification: Record "Tracking Specification" temporary; var SearchForSupply: Boolean; CurrentSignFactor: Integer; LookupMode: Enum "Item Tracking Type"; MaxQuantity: Decimal)
     begin
     end;
 

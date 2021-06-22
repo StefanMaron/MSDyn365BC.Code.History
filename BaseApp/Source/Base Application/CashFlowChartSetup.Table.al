@@ -75,7 +75,7 @@ table 869 "Cash Flow Chart Setup"
                 StartDate := WorkDate;
             "Start Date"::"First Entry Date":
                 begin
-                    CFSetup.Get;
+                    CFSetup.Get();
                     CashFlowForecast.Get(CFSetup."CF No. on Chart in Role Center");
                     StartDate := CashFlowForecast.GetEntryDate(Which::First);
                 end;

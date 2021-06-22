@@ -53,7 +53,7 @@ codeunit 134188 "WF Demo General Journal Line"
         LibraryDocumentApprovals.SetApprover(RequestorUserSetup, ApproverUserSetup);
 
         // Exercise
-        Commit;
+        Commit();
         SendFilteredApprovalRequest(GenJournalLine."Journal Batch Name", GenJournalLine."Line No.");
 
         // Verify
@@ -69,8 +69,8 @@ codeunit 134188 "WF Demo General Journal Line"
         Assert.AreEqual(1, ApprovalEntry.Count, UnexpectedNoOfApprovalEntriesErr);
 
         // Teardown
-        ApproverUserSetup.Delete;
-        RequestorUserSetup.Delete;
+        ApproverUserSetup.Delete();
+        RequestorUserSetup.Delete();
     end;
 
     [Test]
@@ -103,7 +103,7 @@ codeunit 134188 "WF Demo General Journal Line"
         LibraryDocumentApprovals.SetApprover(RequestorUserSetup, ApproverUserSetup);
 
         // Exercise
-        Commit;
+        Commit();
         SendApprovalRequestForGeneralJournal(GenJournalLine."Journal Batch Name");
 
         // Verify
@@ -122,7 +122,7 @@ codeunit 134188 "WF Demo General Journal Line"
         Approve(ApprovalEntry);
 
         // Verify
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, GenJournalLine.RecordId);
 
         VerifyApprovalEntryIsApproved(ApprovalEntry);
@@ -158,7 +158,7 @@ codeunit 134188 "WF Demo General Journal Line"
         LibraryDocumentApprovals.SetApprover(RequestorUserSetup, ApproverUserSetup);
 
         // Exercise
-        Commit;
+        Commit();
         SendApprovalRequestForGeneralJournal(GenJournalLine."Journal Batch Name");
 
         // Verify
@@ -177,7 +177,7 @@ codeunit 134188 "WF Demo General Journal Line"
         Reject(ApprovalEntry);
 
         // Verify
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, GenJournalLine.RecordId);
 
         VerifyApprovalEntryIsRejected(ApprovalEntry);
@@ -214,7 +214,7 @@ codeunit 134188 "WF Demo General Journal Line"
         LibraryDocumentApprovals.SetApprover(RequestorUserSetup, ApproverUserSetup);
 
         // Exercise
-        Commit;
+        Commit();
         SendApprovalRequestForGeneralJournal(GenJournalLine."Journal Batch Name");
 
         // Verify
@@ -235,7 +235,7 @@ codeunit 134188 "WF Demo General Journal Line"
         Delegate(ApprovalEntry);
 
         // Verify
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, GenJournalLine.RecordId);
 
         Assert.AreEqual(1, ApprovalEntry.Count, UnexpectedNoOfApprovalEntriesErr);
@@ -251,7 +251,7 @@ codeunit 134188 "WF Demo General Journal Line"
         Approve(ApprovalEntry);
 
         // Verify
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, GenJournalLine.RecordId);
 
         VerifyApprovalEntryIsApproved(ApprovalEntry);
@@ -289,7 +289,7 @@ codeunit 134188 "WF Demo General Journal Line"
         CheckUserCanCancelTheApprovalRequestForAGeneralJnlLine(GenJournalBatch, false);
 
         // Exercise
-        Commit;
+        Commit();
         SendApprovalRequestForGeneralJournal(GenJournalLine."Journal Batch Name");
 
         // Verify
@@ -305,7 +305,7 @@ codeunit 134188 "WF Demo General Journal Line"
         CancelApprovalRequestForGeneralJournal(GenJournalLine."Journal Batch Name");
 
         // Verify
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, GenJournalLine.RecordId);
 
         VerifyApprovalEntryIsCancelled(ApprovalEntry);
@@ -340,7 +340,7 @@ codeunit 134188 "WF Demo General Journal Line"
         CheckUserCanCancelTheApprovalRequestForACashReceiptJnlLine(GenJournalBatch, false);
 
         // Exercise
-        Commit;
+        Commit();
         SendApprovalRequestForCashReceipt(GenJournalBatch.Name);
 
         // Verify
@@ -354,7 +354,7 @@ codeunit 134188 "WF Demo General Journal Line"
         CancelApprovalRequestForCashReceipt(GenJournalBatch.Name);
 
         // Verify
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, GenJournalLine.RecordId);
 
         VerifyApprovalEntryIsCancelled(ApprovalEntry);
@@ -389,7 +389,7 @@ codeunit 134188 "WF Demo General Journal Line"
         CheckUserCanCancelTheApprovalRequestForAPaymentJnlLine(GenJournalBatch, false);
 
         // Exercise
-        Commit;
+        Commit();
         SendApprovalRequestForPaymentJournal(GenJournalBatch.Name);
 
         // Verify
@@ -403,7 +403,7 @@ codeunit 134188 "WF Demo General Journal Line"
         CancelApprovalRequestForPaymentJournal(GenJournalBatch.Name);
 
         // Verify
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, GenJournalLine.RecordId);
 
         VerifyApprovalEntryIsCancelled(ApprovalEntry);
@@ -438,7 +438,7 @@ codeunit 134188 "WF Demo General Journal Line"
         CheckCommentsForDocumentOnGeneralJournalPage(GenJournalBatch, 0, false);
 
         // Exercise
-        Commit;
+        Commit();
         SendApprovalRequestForGeneralJournal(GenJournalBatch.Name);
 
         CheckCommentsForDocumentOnGeneralJournalPage(GenJournalBatch, 0, false);
@@ -458,7 +458,7 @@ codeunit 134188 "WF Demo General Journal Line"
         Approve(ApprovalEntry);
 
         // Verify
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, GenJournalLine.RecordId);
 
         VerifyApprovalEntryIsApproved(ApprovalEntry);
@@ -493,7 +493,7 @@ codeunit 134188 "WF Demo General Journal Line"
         CheckCommentsForDocumentOnCashReceiptPage(GenJournalBatch, 0, false);
 
         // Exercise
-        Commit;
+        Commit();
         SendApprovalRequestForCashReceipt(GenJournalBatch.Name);
 
         CheckCommentsForDocumentOnCashReceiptPage(GenJournalBatch, 0, false);
@@ -514,7 +514,7 @@ codeunit 134188 "WF Demo General Journal Line"
         Approve(ApprovalEntry);
 
         // Verify
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, GenJournalLine.RecordId);
 
         VerifyApprovalEntryIsApproved(ApprovalEntry);
@@ -549,7 +549,7 @@ codeunit 134188 "WF Demo General Journal Line"
         CheckCommentsForDocumentOnPaymentPage(GenJournalBatch, 0, false);
 
         // Exercise
-        Commit;
+        Commit();
         SendApprovalRequestForPaymentJournal(GenJournalBatch.Name);
 
         CheckCommentsForDocumentOnPaymentPage(GenJournalBatch, 0, false);
@@ -570,7 +570,7 @@ codeunit 134188 "WF Demo General Journal Line"
         Approve(ApprovalEntry);
 
         // Verify
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, GenJournalLine.RecordId);
 
         VerifyApprovalEntryIsApproved(ApprovalEntry);
@@ -606,7 +606,7 @@ codeunit 134188 "WF Demo General Journal Line"
         LibraryDocumentApprovals.SetApprover(RequestorUserSetup, ApproverUserSetup);
 
         // Exercise
-        Commit;
+        Commit();
         SendFilteredApprovalRequest(GenJournalLine."Journal Batch Name", GenJournalLine."Line No.");
 
         // Verify
@@ -625,7 +625,7 @@ codeunit 134188 "WF Demo General Journal Line"
         Approve(ApprovalEntry);
 
         // Verify
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, GenJournalLine.RecordId);
 
         VerifyApprovalEntryIsApproved(ApprovalEntry);
@@ -661,7 +661,7 @@ codeunit 134188 "WF Demo General Journal Line"
         LibraryDocumentApprovals.SetApprover(RequestorUserSetup, ApproverUserSetup);
 
         // Exercise
-        Commit;
+        Commit();
         SendFilteredApprovalRequest(GenJournalLine."Journal Batch Name", GenJournalLine."Line No.");
 
         // Verify
@@ -680,7 +680,7 @@ codeunit 134188 "WF Demo General Journal Line"
         Reject(ApprovalEntry);
 
         // Verify
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, GenJournalLine.RecordId);
 
         VerifyApprovalEntryIsRejected(ApprovalEntry);
@@ -717,7 +717,7 @@ codeunit 134188 "WF Demo General Journal Line"
         LibraryDocumentApprovals.SetApprover(RequestorUserSetup, ApproverUserSetup);
 
         // Exercise
-        Commit;
+        Commit();
         SendFilteredApprovalRequest(GenJournalLine."Journal Batch Name", GenJournalLine."Line No.");
 
         // Verify
@@ -738,7 +738,7 @@ codeunit 134188 "WF Demo General Journal Line"
         Delegate(ApprovalEntry);
 
         // Verify
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, GenJournalLine.RecordId);
 
         Assert.AreEqual(1, ApprovalEntry.Count, UnexpectedNoOfApprovalEntriesErr);
@@ -754,7 +754,7 @@ codeunit 134188 "WF Demo General Journal Line"
         Approve(ApprovalEntry);
 
         // Verify
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, GenJournalLine.RecordId);
 
         VerifyApprovalEntryIsApproved(ApprovalEntry);
@@ -790,7 +790,7 @@ codeunit 134188 "WF Demo General Journal Line"
         LibraryDocumentApprovals.SetApprover(RequestorUserSetup, ApproverUserSetup);
 
         // Exercise
-        Commit;
+        Commit();
         SendFilteredApprovalRequest(GenJournalLine."Journal Batch Name", GenJournalLine."Line No.");
 
         // Verify
@@ -806,7 +806,7 @@ codeunit 134188 "WF Demo General Journal Line"
         CancelFilteredApprovalRequest(GenJournalLine."Journal Batch Name", GenJournalLine."Line No.");
 
         // Verify
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, GenJournalLine.RecordId);
 
         VerifyApprovalEntryIsCancelled(ApprovalEntry);
@@ -836,7 +836,7 @@ codeunit 134188 "WF Demo General Journal Line"
         CreateDirectApprovalWorkflow(Workflow);
 
         // [WHEN] User opens the journal batch
-        Commit;
+        Commit();
         GeneralJournal.OpenEdit;
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
 
@@ -859,7 +859,7 @@ codeunit 134188 "WF Demo General Journal Line"
         CreateJournalLineOpenApprovalEntryForCurrentUser(GenJournalLine);
 
         // [WHEN] User opens the journal batch
-        Commit;
+        Commit();
         GeneralJournal.OpenEdit;
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
 
@@ -900,7 +900,7 @@ codeunit 134188 "WF Demo General Journal Line"
         CreateDirectApprovalWorkflow(Workflow);
 
         // [WHEN] User opens the journal batch
-        Commit;
+        Commit();
         PaymentJournal.OpenEdit;
         PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
 
@@ -923,7 +923,7 @@ codeunit 134188 "WF Demo General Journal Line"
         CreateJournalLineOpenApprovalEntryForCurrentUser(GenJournalLine);
 
         // [WHEN] User opens the journal batch
-        Commit;
+        Commit();
         PaymentJournal.OpenEdit;
         PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
 
@@ -964,7 +964,7 @@ codeunit 134188 "WF Demo General Journal Line"
         CreateDirectApprovalWorkflow(Workflow);
 
         // [WHEN] User opens the journal batch
-        Commit;
+        Commit();
         CashReceiptJournal.OpenEdit;
         CashReceiptJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
 
@@ -987,7 +987,7 @@ codeunit 134188 "WF Demo General Journal Line"
         CreateJournalLineOpenApprovalEntryForCurrentUser(GenJournalLine);
 
         // [WHEN] User opens the journal batch
-        Commit;
+        Commit();
         CashReceiptJournal.OpenEdit;
         CashReceiptJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
 
@@ -1014,8 +1014,8 @@ codeunit 134188 "WF Demo General Journal Line"
         LibraryApplicationArea.EnableFoundationSetup;
         LibraryVariableStorage.Clear;
         Workflow.ModifyAll(Enabled, false, true);
-        UserSetup.DeleteAll;
-        GenJournalTemplate.DeleteAll;
+        UserSetup.DeleteAll();
+        GenJournalTemplate.DeleteAll();
         if IsInitialized then
             exit;
 
@@ -1106,8 +1106,8 @@ codeunit 134188 "WF Demo General Journal Line"
     var
         ApprovalEntry: Record "Approval Entry";
     begin
-        ApprovalEntry.Init;
-        ApprovalEntry."Document Type" := GenJournalLine."Document Type";
+        ApprovalEntry.Init();
+        ApprovalEntry."Document Type" := GenJournalLine."Document Type".AsInteger();
         ApprovalEntry."Document No." := GenJournalLine."Document No.";
         ApprovalEntry."Table ID" := DATABASE::"Gen. Journal Line";
         ApprovalEntry."Record ID to Approve" := GenJournalLine.RecordId;
@@ -1115,7 +1115,7 @@ codeunit 134188 "WF Demo General Journal Line"
         ApprovalEntry."Approver ID" := UserId;
         ApprovalEntry.Status := ApprovalEntry.Status::Open;
         ApprovalEntry."Sequence No." := 1;
-        ApprovalEntry.Insert;
+        ApprovalEntry.Insert();
     end;
 
     local procedure SendApprovalRequestForGeneralJournal(GenJournalBatchName: Code[20])
@@ -1195,7 +1195,7 @@ codeunit 134188 "WF Demo General Journal Line"
     local procedure AssignApprovalEntry(var ApprovalEntry: Record "Approval Entry"; UserSetup: Record "User Setup")
     begin
         ApprovalEntry."Approver ID" := UserSetup."User ID";
-        ApprovalEntry.Modify;
+        ApprovalEntry.Modify();
     end;
 
     local procedure Approve(var ApprovalEntry: Record "Approval Entry")

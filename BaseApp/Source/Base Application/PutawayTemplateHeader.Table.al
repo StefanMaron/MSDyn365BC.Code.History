@@ -34,7 +34,7 @@ table 7307 "Put-away Template Header"
         PutAwayTemplateLine: Record "Put-away Template Line";
     begin
         PutAwayTemplateLine.SetRange("Put-away Template Code", Code);
-        PutAwayTemplateLine.DeleteAll;
+        PutAwayTemplateLine.DeleteAll();
     end;
 }
 

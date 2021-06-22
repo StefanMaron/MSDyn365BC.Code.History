@@ -156,7 +156,7 @@ page 1515 "Workflow Step Responses"
 
         CalculateNewKey(BelowxRec);
 
-        WorkflowStep.Init;
+        WorkflowStep.Init();
         UpdateNextStepDescription;
     end;
 

@@ -18,7 +18,7 @@ page 1501 Workflow
                 trigger OnValidate()
                 begin
                     if OpenNew then begin
-                        if Insert then;
+                        if Insert() then;
                         CurrPage.Update(false);
                         Get(Code);
                         OpenNew := false;
@@ -234,7 +234,7 @@ page 1501 Workflow
         Workflow: Record Workflow;
     begin
         if Workflow.Get then
-            Workflow.Delete;
+            Workflow.Delete();
     end;
 
     trigger OnOpenPage()

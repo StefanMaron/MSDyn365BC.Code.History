@@ -56,10 +56,20 @@ table 204 "Unit of Measure"
         }
     }
 
+    var
+        UoMIsStillUsedError: Label 'You cannot delete the unit of measure because it is assigned to one or more records.';
+
     trigger OnDelete()
+    var
+        Item: Record Item;
     begin
+        Item.SetCurrentKey("Base Unit of Measure");
+        Item.SetRange("Base Unit of Measure", Code);
+        if not Item.IsEmpty then
+            Error(UoMIsStillUsedError);
+
         UnitOfMeasureTranslation.SetRange(Code, Code);
-        UnitOfMeasureTranslation.DeleteAll;
+        UnitOfMeasureTranslation.DeleteAll();
     end;
 
     trigger OnInsert()
@@ -108,7 +118,7 @@ table 204 "Unit of Measure"
             repeat
                 TempUnitOfMeasure := UnitOfMeasure;
                 TempUnitOfMeasure.Description := UnitOfMeasure.GetDescriptionInCurrentLanguage;
-                TempUnitOfMeasure.Insert;
+                TempUnitOfMeasure.Insert();
             until UnitOfMeasure.Next = 0;
     end;
 

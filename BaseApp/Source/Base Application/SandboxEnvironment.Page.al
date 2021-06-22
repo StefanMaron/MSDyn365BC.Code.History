@@ -8,6 +8,9 @@ page 1881 "Sandbox Environment"
     PageType = NavigatePage;
     ShowFilter = false;
     UsageCategory = Lists;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This functionality is now available from the Business Central Admin Center.';
+    ObsoleteTag = '16.0';
 
     layout
     {

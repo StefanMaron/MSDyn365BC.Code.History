@@ -224,7 +224,7 @@ table 322 "Tax Detail"
     begin
         ApplyCommonFilters(TaxJurisdictionCode, TaxGroupCode, TaxType, EffectiveDate);
         SetRange("Effective Date", EffectiveDate);
-        LockTable;
+        LockTable();
         if not FindLast then begin
             Init;
             "Tax Jurisdiction Code" := TaxJurisdictionCode;

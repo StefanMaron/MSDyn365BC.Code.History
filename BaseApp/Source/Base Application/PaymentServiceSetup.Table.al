@@ -115,8 +115,8 @@ table 1060 "Payment Service Setup"
         SetID: Integer;
         LastKey: Integer;
     begin
-        PaymentReportingArgument.Reset;
-        PaymentReportingArgument.DeleteAll;
+        PaymentReportingArgument.Reset();
+        PaymentReportingArgument.DeleteAll();
 
         DataTypeMgt.GetRecordRef(DocumentRecordVariant, DocumentRecordRef);
         DataTypeMgt.FindFieldByName(DocumentRecordRef, PaymentServiceFieldRef, DummySalesHeader.FieldName("Payment Service Set ID"));
@@ -181,7 +181,7 @@ table 1060 "Payment Service Setup"
         if SetID <> 0 then
             LoadSet(TempPaymentServiceSetup, SetID);
 
-        TempPaymentServiceSetup.Reset;
+        TempPaymentServiceSetup.Reset();
         TempPaymentServiceSetup.SetRange(Enabled, true);
 
         if not (PAGE.RunModal(PAGE::"Select Payment Service", TempPaymentServiceSetup) = ACTION::LookupOK) then
@@ -198,8 +198,8 @@ table 1060 "Payment Service Setup"
 
     local procedure GetEnabledPaymentServices(var TempPaymentServiceSetup: Record "Payment Service Setup" temporary): Boolean
     begin
-        TempPaymentServiceSetup.Reset;
-        TempPaymentServiceSetup.DeleteAll;
+        TempPaymentServiceSetup.Reset();
+        TempPaymentServiceSetup.DeleteAll();
         OnRegisterPaymentServices(TempPaymentServiceSetup);
         TempPaymentServiceSetup.SetRange(Enabled, true);
         exit(TempPaymentServiceSetup.FindSet);
@@ -216,7 +216,7 @@ table 1060 "Payment Service Setup"
             Clear(TempRecordSetBuffer);
             TempRecordSetBuffer.No := CurrentKey + 1;
             TempRecordSetBuffer."Value RecordID" := TempPaymentServiceSetup."Setup Record ID";
-            TempRecordSetBuffer.Insert;
+            TempRecordSetBuffer.Insert();
         until TempPaymentServiceSetup.Next = 0;
     end;
 
@@ -248,7 +248,7 @@ table 1060 "Payment Service Setup"
             TempRecordSetBuffer.SetRange("Value RecordID", TempPaymentServiceSetup."Setup Record ID");
             if TempRecordSetBuffer.FindFirst then begin
                 TempPaymentServiceSetup.Available := true;
-                TempPaymentServiceSetup.Modify;
+                TempPaymentServiceSetup.Modify();
             end;
         until TempPaymentServiceSetup.Next = 0;
     end;
@@ -394,6 +394,7 @@ table 1060 "Payment Service Setup"
                     exit(true);
                 end;
             else begin
+                    Commit();
                     if PAGE.RunModal(PAGE::"Select Payment Service Type", TempPaymentServiceSetup) = ACTION::LookupOK then begin
                         OnCreatePaymentService(TempPaymentServiceSetup);
                         exit(true);

@@ -861,7 +861,7 @@ codeunit 134042 "ERM VAT Tolerance"
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
 
         isInitialized := true;
-        Commit;
+        Commit();
     end;
 
     local procedure CreatePurchaseInvWithReverseChargeVATAndPmtDisc(var PurchHeader: Record "Purchase Header"; VATPostingSetup: Record "VAT Posting Setup"; DiscountPct: Decimal): Decimal
@@ -930,13 +930,13 @@ codeunit 134042 "ERM VAT Tolerance"
     local procedure CopyPurchaseLine(var TempPurchaseLine: Record "Purchase Line" temporary; PurchaseLine: Record "Purchase Line")
     begin
         TempPurchaseLine := PurchaseLine;
-        TempPurchaseLine.Insert;
+        TempPurchaseLine.Insert();
     end;
 
     local procedure CopySalesLine(var TempSalesLine: Record "Sales Line" temporary; SalesLine: Record "Sales Line")
     begin
         TempSalesLine := SalesLine;
-        TempSalesLine.Insert;
+        TempSalesLine.Insert();
     end;
 
     local procedure CreateCustomerWithPmtTerms(): Code[20]
@@ -1136,7 +1136,7 @@ codeunit 134042 "ERM VAT Tolerance"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Pmt. Disc. Excl. VAT", true);
         GeneralLedgerSetup.Validate("VAT Tolerance %", VATTolerancePct);
         GeneralLedgerSetup.Modify(true);

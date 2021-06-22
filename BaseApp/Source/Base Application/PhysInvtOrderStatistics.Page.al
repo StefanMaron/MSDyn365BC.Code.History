@@ -32,7 +32,7 @@ page 5897 "Phys. Invt. Order Statistics"
 
                             trigger OnDrillDown()
                             begin
-                                PhysInvtOrderLine2.Reset;
+                                PhysInvtOrderLine2.Reset();
                                 PhysInvtOrderLine2.SetCurrentKey("Document No.", "Entry Type", "Without Difference");
                                 PhysInvtOrderLine2.SetRange("Document No.", "No.");
                                 PhysInvtOrderLine2.SetRange("Entry Type", PhysInvtOrderLine2."Entry Type"::"Positive Adjmt.");
@@ -48,7 +48,7 @@ page 5897 "Phys. Invt. Order Statistics"
 
                             trigger OnDrillDown()
                             begin
-                                PhysInvtOrderLine2.Reset;
+                                PhysInvtOrderLine2.Reset();
                                 PhysInvtOrderLine2.SetCurrentKey("Document No.", "Entry Type", "Without Difference");
                                 PhysInvtOrderLine2.SetRange("Document No.", "No.");
                                 PhysInvtOrderLine2.SetRange("Entry Type", PhysInvtOrderLine2."Entry Type"::"Positive Adjmt.");
@@ -64,7 +64,7 @@ page 5897 "Phys. Invt. Order Statistics"
 
                             trigger OnDrillDown()
                             begin
-                                PhysInvtOrderLine2.Reset;
+                                PhysInvtOrderLine2.Reset();
                                 PhysInvtOrderLine2.SetCurrentKey("Document No.", "Entry Type", "Without Difference");
                                 PhysInvtOrderLine2.SetRange("Document No.", "No.");
                                 PhysInvtOrderLine2.SetRange("Entry Type", PhysInvtOrderLine2."Entry Type"::"Negative Adjmt.");
@@ -160,7 +160,7 @@ page 5897 "Phys. Invt. Order Statistics"
 
         ClearAll;
 
-        PhysInvtOrderLine.Reset;
+        PhysInvtOrderLine.Reset();
         PhysInvtOrderLine.SetRange("Document No.", "No.");
         if PhysInvtOrderLine.Find('-') then
             repeat

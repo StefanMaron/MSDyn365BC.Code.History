@@ -34,7 +34,7 @@ codeunit 134465 "ERM Increment Batch Name Tests"
         BalAccountNo := LibraryERM.CreateGLAccountNoWithDirectPosting;
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         GenJournalTemplate."Increment Batch Name" := true;
-        GenJournalTemplate.Modify;
+        GenJournalTemplate.Modify();
 
         // [GIVEN] Journal Line in the Batch 'BATCH00001'
         CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
@@ -110,7 +110,7 @@ codeunit 134465 "ERM Increment Batch Name Tests"
         // [GIVEN] Journal Batch 'BATCH00001', where "Increment Batch Name" is 'Yes'
         LibraryInventory.CreateItemJournalTemplate(ItemJournalTemplate);
         ItemJournalTemplate."Increment Batch Name" := true;
-        ItemJournalTemplate.Modify;
+        ItemJournalTemplate.Modify();
 
         // [GIVEN] Journal Line in the Batch 'BATCH00001'
         CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
@@ -181,7 +181,7 @@ codeunit 134465 "ERM Increment Batch Name Tests"
         // [GIVEN] Journal Batch 'BATCH00001', where "Increment Batch Name" is 'Yes'
         LibraryResource.CreateResourceJournalTemplate(ResJournalTemplate);
         ResJournalTemplate."Increment Batch Name" := true;
-        ResJournalTemplate.Modify;
+        ResJournalTemplate.Modify();
 
         // [GIVEN] Journal Line in the Batch 'BATCH00001'
         CreateResJournalBatch(ResJournalBatch, ResJournalTemplate.Name);
@@ -270,7 +270,7 @@ codeunit 134465 "ERM Increment Batch Name Tests"
         // [GIVEN] Journal Batch 'BATCH00001', where "Increment Batch Name" is 'Yes'
         JobJournalTemplate.Get(JobJournalLine."Journal Template Name");
         JobJournalTemplate."Increment Batch Name" := true;
-        JobJournalTemplate.Modify;
+        JobJournalTemplate.Modify();
         BatchName := JobJournalLine."Journal Batch Name";
 
         // [WHEN] Post the batch 'BATCH00001'
@@ -332,34 +332,34 @@ codeunit 134465 "ERM Increment Batch Name Tests"
             exit;
 
         IsInitialized := true;
-        Commit;
+        Commit();
     end;
 
     local procedure CreateGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; JournalTemplateName: Code[10])
     begin
-        GenJournalBatch.Init;
+        GenJournalBatch.Init();
         GenJournalBatch.Validate("Journal Template Name", JournalTemplateName);
         GenJournalBatch.Validate(Name, 'BATCH00001');
         GenJournalBatch.Validate(Description, GenJournalBatch.Name);
-        GenJournalBatch.Insert;
+        GenJournalBatch.Insert();
     end;
 
     local procedure CreateItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; JournalTemplateName: Code[10])
     begin
-        ItemJournalBatch.Init;
+        ItemJournalBatch.Init();
         ItemJournalBatch.Validate("Journal Template Name", JournalTemplateName);
         ItemJournalBatch.Validate(Name, 'BATCH00001');
         ItemJournalBatch.Validate(Description, ItemJournalBatch.Name);
-        ItemJournalBatch.Insert;
+        ItemJournalBatch.Insert();
     end;
 
     local procedure CreateResJournalBatch(var ResJournalBatch: Record "Res. Journal Batch"; JournalTemplateName: Code[10])
     begin
-        ResJournalBatch.Init;
+        ResJournalBatch.Init();
         ResJournalBatch.Validate("Journal Template Name", JournalTemplateName);
         ResJournalBatch.Validate(Name, 'BATCH00001');
         ResJournalBatch.Validate(Description, ResJournalBatch.Name);
-        ResJournalBatch.Insert;
+        ResJournalBatch.Insert();
     end;
 
     [ConfirmHandler]

@@ -41,7 +41,7 @@ codeunit 135155 "Data Privacy Tests"
         PackageName: Text[50];
     begin
         // [GIVEN] The Config. Package table is empty
-        ConfigPackage.DeleteAll;
+        ConfigPackage.DeleteAll();
 
         // [GIVEN] A package code and a package name
         PackageCode := 'Code abc random';
@@ -51,7 +51,7 @@ codeunit 135155 "Data Privacy Tests"
         DataPrivacyMgmt.CreateConfigPackage(ConfigPackage, PackageCode, PackageName);
 
         // [THEN] The Config. Package table contains exactly one entry
-        ConfigPackage.Reset;
+        ConfigPackage.Reset();
         Assert.AreEqual(1, ConfigPackage.Count, 'There should be exactly one entry in the Config. Package table');
 
         if ConfigPackage.FindFirst then begin
@@ -77,7 +77,7 @@ codeunit 135155 "Data Privacy Tests"
         TableId: Integer;
     begin
         // [GIVEN] The Config. Package Table table is empty
-        ConfigPackageTable.DeleteAll;
+        ConfigPackageTable.DeleteAll();
 
         // [GIVEN] A PackageCode, TableId and a Config. Package record with the given PackageCode
         PackageCode := 'Code code';
@@ -88,7 +88,7 @@ codeunit 135155 "Data Privacy Tests"
         DataPrivacyMgmt.CreatePackageTable(PackageCode, TableId);
 
         // [THEN] The Config. Package Table table contains exactly one entry
-        ConfigPackageTable.Reset;
+        ConfigPackageTable.Reset();
         Assert.AreEqual(1, ConfigPackageTable.Count, 'The Config. Package Table table should contain exactly one entry');
 
         if ConfigPackageTable.FindFirst then begin
@@ -113,7 +113,7 @@ codeunit 135155 "Data Privacy Tests"
         InitTableAndFieldIds;
 
         // [GIVEN] The Config. Package Field is empty
-        ConfigPackageField.DeleteAll;
+        ConfigPackageField.DeleteAll();
 
         // [GIVEN] A ProcessingOrder, a ConfigPackageCode and a Config. Package with this code
         ProcessingOrder := 1;
@@ -128,7 +128,7 @@ codeunit 135155 "Data Privacy Tests"
         Assert.AreEqual(false, ConfigPackageFieldCreated, 'The 1st Config. Package Field should NOT have been created');
 
         // [THEN] The Config. Package Field table is empty
-        ConfigPackageField.Reset;
+        ConfigPackageField.Reset();
         Assert.AreEqual(0, ConfigPackageField.Count, 'The Config. Package Field table should be empty');
 
         // [WHEN] Trying to create a Config. Package Field for an existent table, but inexistent field
@@ -139,7 +139,7 @@ codeunit 135155 "Data Privacy Tests"
         Assert.AreEqual(false, ConfigPackageFieldCreated, 'The 2nd Config. Package Field should NOT have been created');
 
         // [THEN] The Config. Package Field table is empty
-        ConfigPackageField.Reset;
+        ConfigPackageField.Reset();
         Assert.AreEqual(0, ConfigPackageField.Count, 'The Config. Package Field table should be empty');
 
         // [WHEN] Trying to create a Config. Package Field for an existent table and field id, 
@@ -151,7 +151,7 @@ codeunit 135155 "Data Privacy Tests"
         Assert.AreEqual(false, ConfigPackageFieldCreated, 'The 3rd Config. Package Field should NOT have been created');
 
         // [THEN] The Config. Package Field table is empty
-        ConfigPackageField.Reset;
+        ConfigPackageField.Reset();
         Assert.AreEqual(0, ConfigPackageField.Count, 'The Config. Package Field table should be empty');
 
         // [WHEN] Trying to create a Config. Package Field for an existent table and field id, 
@@ -163,7 +163,7 @@ codeunit 135155 "Data Privacy Tests"
         Assert.AreEqual(false, ConfigPackageFieldCreated, 'The 4th Config. Package Field should NOT have been created');
 
         // [THEN] The Config. Package Field table is empty
-        ConfigPackageField.Reset;
+        ConfigPackageField.Reset();
         Assert.AreEqual(0, ConfigPackageField.Count, 'The Config. Package Field table should be empty');
 
         // [WHEN] Trying to create a Config. Package Field for an existent table and field id, 
@@ -175,7 +175,7 @@ codeunit 135155 "Data Privacy Tests"
         Assert.AreEqual(true, ConfigPackageFieldCreated, 'The 5th Config. Package Field should have been created');
 
         // [THEN] The Config. Package Field table should have exactly one entry
-        ConfigPackageField.Reset;
+        ConfigPackageField.Reset();
         Assert.AreEqual(1, ConfigPackageField.Count, 'The Config. Package Field table should contain exactly one entry');
 
         // [THEN] The Config. Package Field entry's fields are properly set
@@ -206,8 +206,8 @@ codeunit 135155 "Data Privacy Tests"
         InitTableAndFieldIds;
 
         // [GIVEN] The Config. Package Filter and Config. Package tables are empty
-        ConfigPackageFilter.DeleteAll;
-        ConfigPackage.DeleteAll;
+        ConfigPackageFilter.DeleteAll();
+        ConfigPackage.DeleteAll();
 
         // [GIVEN] A random ConfigPackageCode and a field value
         ConfigPackageCode := 'blah blah code';
@@ -222,7 +222,7 @@ codeunit 135155 "Data Privacy Tests"
         Assert.AreEqual(false, ConfigPackageFilterCreated, 'The 1st Config. Package Filter should NOT have been created');
 
         // [THEN] The Config. Package Filter table is empty
-        ConfigPackageFilter.Reset;
+        ConfigPackageFilter.Reset();
         Assert.AreEqual(0, ConfigPackageFilter.Count, 'The Config. Package Filter table should be empty');
 
         // [GIVEN] A Config. Package with the Code ConfigPackageCode
@@ -236,7 +236,7 @@ codeunit 135155 "Data Privacy Tests"
         Assert.AreEqual(true, ConfigPackageFilterCreated, 'The 2nd Config. Package Filter should have been created');
 
         // [THEN] The Config. Package Filter table should have exactly one entry
-        ConfigPackageFilter.Reset;
+        ConfigPackageFilter.Reset();
         Assert.AreEqual(1, ConfigPackageFilter.Count, 'The Config. Package Filter table should contain one entry');
 
         // [THEN] The Config. Package Filter entry's fields are properly set
@@ -250,7 +250,7 @@ codeunit 135155 "Data Privacy Tests"
         end;
 
         // [GIVEN] The Config. Package Filter table is empty
-        ConfigPackageFilter.DeleteAll;
+        ConfigPackageFilter.DeleteAll();
 
         // [WHEN] Trying to create a Config. Package Filter for an inexistent table and field id
         ConfigPackageFilterCreated := DataPrivacyMgmt.CreatePackageFilter(
@@ -260,7 +260,7 @@ codeunit 135155 "Data Privacy Tests"
         Assert.AreEqual(false, ConfigPackageFilterCreated, 'The 3rd Config. Package Filter should NOT have been created');
 
         // [THEN] The Config. Package Filter table is empty
-        ConfigPackageFilter.Reset;
+        ConfigPackageFilter.Reset();
         Assert.AreEqual(0, ConfigPackageFilter.Count, 'The Config. Package Filter table should be empty');
 
         // [WHEN] Trying to create a Config. Package Filter for an existent table, but inexistent field id
@@ -271,7 +271,7 @@ codeunit 135155 "Data Privacy Tests"
         Assert.AreEqual(false, ConfigPackageFilterCreated, 'The 4th Config. Package Filter should NOT have been created');
 
         // [THEN] The Config. Package Filter table is empty
-        ConfigPackageFilter.Reset;
+        ConfigPackageFilter.Reset();
         Assert.AreEqual(0, ConfigPackageFilter.Count, 'The Config. Package Filter table should be empty');
 
         // [WHEN] Trying to create a Config. Package Filter for an existent table and field id, 
@@ -283,7 +283,7 @@ codeunit 135155 "Data Privacy Tests"
         Assert.AreEqual(false, ConfigPackageFilterCreated, 'The 5th Config. Package Filter should NOT have been created');
 
         // [THEN] The Config. Package Filter table is empty
-        ConfigPackageFilter.Reset;
+        ConfigPackageFilter.Reset();
         Assert.AreEqual(0, ConfigPackageFilter.Count, 'The Config. Package Filter table should be empty');
 
         // [WHEN] Trying to create a Config. Package Filter for an existent table and field id, 
@@ -295,7 +295,7 @@ codeunit 135155 "Data Privacy Tests"
         Assert.AreEqual(false, ConfigPackageFilterCreated, 'The 6th Config. Package Filter should NOT have been created');
 
         // [THEN] The Config. Package Filter table is empty
-        ConfigPackageFilter.Reset;
+        ConfigPackageFilter.Reset();
         Assert.AreEqual(0, ConfigPackageFilter.Count, 'The Config. Package Filter table should be empty');
 
         // [WHEN] Trying to create a Config. Package Filter for an existent table and field id, 
@@ -307,7 +307,7 @@ codeunit 135155 "Data Privacy Tests"
         Assert.AreEqual(true, ConfigPackageFilterCreated, 'The 8th Config. Package Filter should have been created');
 
         // [THEN] The Config. Package Filter table should contain exactly one entry
-        ConfigPackageFilter.Reset;
+        ConfigPackageFilter.Reset();
         Assert.AreEqual(1, ConfigPackageFilter.Count, 'There should be 1 Config. Package Filter');
 
         // [WHEN] Trying to create a Config. Package Filter for an existent table and field id, 
@@ -319,7 +319,7 @@ codeunit 135155 "Data Privacy Tests"
         Assert.AreEqual(true, ConfigPackageFilterCreated, 'The 9th Config. Package Filter should have been created');
 
         // [THEN] The Config. Package Filter table should contain exactly two entries
-        ConfigPackageFilter.Reset;
+        ConfigPackageFilter.Reset();
         Assert.AreEqual(2, ConfigPackageFilter.Count, 'There should be 2 Config. Package Filters');
 
         // [WHEN] Trying to create a Config. Package Filter for an existent table and field id, 
@@ -331,7 +331,7 @@ codeunit 135155 "Data Privacy Tests"
         Assert.AreEqual(true, ConfigPackageFilterCreated, 'The 10th Config. Package Filter should have been created');
 
         // [THEN] The Config. Package Filter table should contain exactly three entries
-        ConfigPackageFilter.Reset;
+        ConfigPackageFilter.Reset();
         Assert.AreEqual(3, ConfigPackageFilter.Count, 'There should be 3 Config. Package Filters');
 
         // [WHEN] Trying to create a Config. Package Filter for an existent table and field id, 
@@ -343,7 +343,7 @@ codeunit 135155 "Data Privacy Tests"
         Assert.AreEqual(true, ConfigPackageFilterCreated, 'The 11th Config. Package Filter should have been created');
 
         // [THEN] The Config. Package Filter table should contain exactly four entries
-        ConfigPackageFilter.Reset;
+        ConfigPackageFilter.Reset();
         Assert.AreEqual(4, ConfigPackageFilter.Count, 'There should be 4 Config. Package Filters');
     end;
 
@@ -457,7 +457,7 @@ codeunit 135155 "Data Privacy Tests"
         BINDSUBSCRIPTION(DataPrivacyTests);
 
         // [GIVEN] The Config. Package table is empty
-        ConfigPackage.DeleteAll;
+        ConfigPackage.DeleteAll();
 
         // [GIVEN] An EntityNo variable whose length is greater than 17 characters
         EntityNo := '1234567891012141618';
@@ -484,9 +484,9 @@ codeunit 135155 "Data Privacy Tests"
         Assert.AreEqual('CUS34567891012141618', PackageCode, 'The package code is incorrect');
 
         // [GIVEN] The Config. Package table contains an entry with the Code PackageCode
-        ConfigPackage.Init;
+        ConfigPackage.Init();
         ConfigPackage.Code := PackageCode;
-        ConfigPackage.Insert;
+        ConfigPackage.Insert();
 
         // [GIVEN] The ActionType variable becomes 'Export a data subject's data'
         ActionType := ActionType::"Export a data subject's data";
@@ -507,7 +507,7 @@ codeunit 135155 "Data Privacy Tests"
         Assert.AreEqual('CU*R2D2', PackageCode, 'The package code is incorrect');
 
         // [GIVEN] The Config. Package table is empty
-        ConfigPackage.DeleteAll;
+        ConfigPackage.DeleteAll();
 
         // [GIVEN] An EntityTypeTableNo variable that corresponds to a non-master table
         EntityTypeTableNo := 27;
@@ -517,7 +517,7 @@ codeunit 135155 "Data Privacy Tests"
 
         // [THEN] OnAfterGetPackageCodeSubscriber should be called and insert a new Config. Package
         // with the code PackageCodeTempTxt
-        ConfigPackage.Reset;
+        ConfigPackage.Reset();
         Assert.AreEqual(1, ConfigPackage.Count, 'There should be exactly one entry in the Config. Package table');
 
         if ConfigPackage.FindFirst then
@@ -535,9 +535,9 @@ codeunit 135155 "Data Privacy Tests"
     var
         ConfigPackage: Record "Config. Package";
     begin
-        ConfigPackage.Init;
+        ConfigPackage.Init();
         ConfigPackage.Code := PackageCodeTempTxt;
-        ConfigPackage.Insert;
+        ConfigPackage.Insert();
 
         PackageCodeKeep := PackageCodeKeepTxt;
         PackageCodeTemp := PackageCodeTempTxt;
@@ -555,20 +555,20 @@ codeunit 135155 "Data Privacy Tests"
         PackageCode := 'hgjhgsdblah';
 
         // [GIVEN] A record in the Config. Package table
-        ConfigPackage.DeleteAll;
+        ConfigPackage.DeleteAll();
 
-        ConfigPackage.Init;
+        ConfigPackage.Init();
         ConfigPackage.Code := PackageCode;
-        ConfigPackage.Insert;
+        ConfigPackage.Insert();
 
         Assert.AreEqual(1, ConfigPackage.Count, 'There should be exactly one entry in the Config. Package table');
 
         // [GIVEN] A record in the Config. Package Data table with the same Code as the Config. Package Code
-        ConfigPackageData.DeleteAll;
+        ConfigPackageData.DeleteAll();
 
-        ConfigPackageData.Init;
+        ConfigPackageData.Init();
         ConfigPackageData."Package Code" := PackageCode;
-        ConfigPackageData.Insert;
+        ConfigPackageData.Insert();
 
         Assert.AreEqual(1, ConfigPackageData.Count, 'There should be exactly one entry in the Config. Package Data table');
 
@@ -576,10 +576,10 @@ codeunit 135155 "Data Privacy Tests"
         DataPrivacyMgmt.DeletePackage(PackageCode);
 
         // [THEN] Both the Config. Package and the Config. Package Data tables should be empty
-        ConfigPackage.Reset;
+        ConfigPackage.Reset();
         Assert.AreEqual(0, ConfigPackage.Count, 'The Config. Package table is empty');
 
-        ConfigPackageData.Reset;
+        ConfigPackageData.Reset();
         Assert.AreEqual(0, ConfigPackageData.Count, 'The Config. Package Data table is empty');
     end;
 
@@ -596,9 +596,9 @@ codeunit 135155 "Data Privacy Tests"
         TableNo: Integer;
     begin
         // [GIVEN] The Config. Package, Config. Package Table and Config. Package Filter tables are empty
-        ConfigPackage.DeleteAll;
-        ConfigPackageTable.DeleteAll;
-        ConfigPackageFilter.DeleteAll;
+        ConfigPackage.DeleteAll();
+        ConfigPackageTable.DeleteAll();
+        ConfigPackageFilter.DeleteAll();
 
         // [GIVEN] A package code, an entity number and a table number
         PackageCode := 'codeghf';
@@ -606,9 +606,9 @@ codeunit 135155 "Data Privacy Tests"
         TableNo := 18;
 
         // [GIVEN] A Config. Package entry with the Code PackageCode
-        ConfigPackage.Init;
+        ConfigPackage.Init();
         ConfigPackage.Code := PackageCode;
-        ConfigPackage.Insert;
+        ConfigPackage.Insert();
 
         // [WHEN] Creating data for ChangeLog entries
         DataPrivacyMgmt.CreateDataForChangeLogEntries(PackageCode, EntityNo, TableNo);
@@ -682,10 +682,10 @@ codeunit 135155 "Data Privacy Tests"
         CompanyConfidentialFieldId: Integer;
     begin
         // [GIVEN] The Config. Package, Config. Package Table, Config. Package Filter and Config. Package Field tables are empty
-        ConfigPackage.DeleteAll;
-        ConfigPackageTable.DeleteAll;
-        ConfigPackageField.DeleteAll;
-        ConfigPackageFilter.DeleteAll;
+        ConfigPackage.DeleteAll();
+        ConfigPackageTable.DeleteAll();
+        ConfigPackageField.DeleteAll();
+        ConfigPackageFilter.DeleteAll();
 
         // [GIVEN] A table number corresponding to the Customer table id
         TableNo := DATABASE::Customer;
@@ -700,18 +700,18 @@ codeunit 135155 "Data Privacy Tests"
         EntityNo := '123';
 
         // [GIVEN] The Customer table contains a single entry, with No. EntityNo
-        Customer.DeleteAll;
+        Customer.DeleteAll();
 
-        Customer.Init;
+        Customer.Init();
         Customer."No." := CopyStr(EntityNo, 1, 20);
-        Customer.Insert;
+        Customer.Insert();
 
         // [GIVEN] The Data Sensitivity table contains a few entries for fields in the Customer table
         SensitiveFieldId1 := 2;
         SensitiveFieldId2 := 3;
         CompanyConfidentialFieldId := 4;
 
-        DataSensitivity.DeleteAll;
+        DataSensitivity.DeleteAll();
         DataClassificationMgt.InsertDataSensitivityForField(TableNo, SensitiveFieldId1, DataSensitivity."Data Sensitivity"::Sensitive);
         DataClassificationMgt.InsertDataSensitivityForField(TableNo, SensitiveFieldId2, DataSensitivity."Data Sensitivity"::Sensitive);
         DataClassificationMgt.InsertDataSensitivityForField(TableNo,
@@ -769,14 +769,14 @@ codeunit 135155 "Data Privacy Tests"
 
         // [THEN] There should be at least one entry in the Config. Package Field table for a table that
         // our current table (with ID EntityTypeTableNo) has a relation to
-        ConfigPackageField.Reset;
+        ConfigPackageField.Reset();
         ConfigPackageField.SetRange("Table ID", 21);
         Assert.AreNotEqual(0, ConfigPackageField.Count,
           'There should be at least one entry in the Config. Package Field table for Table ID 21');
 
         // [THEN] A field from a related table to the table with ID EntityTypeTableID that is normal and is of type
         // Integer, Text, Code or Option must be represented in the Config. Package Field
-        ConfigPackageField.Reset;
+        ConfigPackageField.Reset();
         ConfigPackageField.SetRange("Table ID", 21);
         ConfigPackageField.SetRange("Field ID", 3);
 
@@ -784,14 +784,14 @@ codeunit 135155 "Data Privacy Tests"
           'The Config. Package Field table must contain an entry for table 21 field 3');
 
         // [THEN] The Config. Package Table table should contain an entry for the Change Log Entry table
-        ConfigPackageTable.Reset;
+        ConfigPackageTable.Reset();
         ConfigPackageTable.SetRange("Table ID", DATABASE::"Change Log Entry");
 
         Assert.AreEqual(1, ConfigPackageTable.Count,
           'There must be an entry in the Config. Package Table table for the Change Log Entry table');
 
         // [THEN] There must be 2 entries in the Config. Package Filter table for Change Log Entry table
-        ConfigPackageFilter.Reset;
+        ConfigPackageFilter.Reset();
         ConfigPackageFilter.SetRange("Table ID", DATABASE::"Change Log Entry");
         ConfigPackageFilter.SetRange("Field ID", ChangeLogEntry.FieldNo("Table No."));
         Assert.AreEqual(1, ConfigPackageTable.Count,
@@ -848,7 +848,7 @@ codeunit 135155 "Data Privacy Tests"
         TableNo := 27;
 
         // [GIVEN] The Data Sensitivity table is empty
-        DataSensitivity.DeleteAll;
+        DataSensitivity.DeleteAll();
 
         // [WHEN] Filtering the Data Sensitivity table for Sensitive entries
         DataPrivacyMgmt.FilterDataSensitivityByDataSensitivityOption(

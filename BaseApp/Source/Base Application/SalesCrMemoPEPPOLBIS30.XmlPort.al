@@ -71,17 +71,6 @@ xmlport 1611 "Sales Cr.Memo - PEPPOL BIS 3.0"
                         currXMLport.Skip;
                 end;
             }
-            textelement(BuyerReference)
-            {
-                NamespacePrefix = 'cbc';
-
-                trigger OnBeforePassVariable()
-                begin
-                    BuyerReference := SalesHeader."Your Reference";
-                    if BuyerReference = '' then
-                        currXMLport.Skip();
-                end;
-            }
             textelement(InvoicePeriod)
             {
                 NamespacePrefix = 'cac';
@@ -115,12 +104,9 @@ xmlport 1611 "Sales Cr.Memo - PEPPOL BIS 3.0"
 
                 trigger OnBeforePassVariable()
                 begin
-                    PEPPOLMgt.GetOrderReferenceInfo(
+                    PEPPOLMgt.GetOrderReferenceInfoBIS(
                       SalesHeader,
                       OrderReferenceID);
-
-                    if OrderReferenceID = '' then
-                        currXMLport.Skip();
                 end;
             }
             textelement(BillingReference)
@@ -1085,9 +1071,13 @@ xmlport 1611 "Sales Cr.Memo - PEPPOL BIS 3.0"
                       PrimaryAccountNumberID,
                       NetworkID);
 
-                    PEPPOLMgt.GetPaymentMeansPayeeFinancialAccBIS(
+                    PEPPOLMgt.GetPaymentMeansPayeeFinancialAcc(
                       PayeeFinancialAccountID,
-                      FinancialInstitutionBranchID);
+                      DummyVar,
+                      FinancialInstitutionBranchID,
+                      DummyVar,
+                      DummyVar,
+                      DummyVar);
                 end;
             }
             tableelement(pmttermsloop; Integer)
@@ -1987,20 +1977,27 @@ xmlport 1611 "Sales Cr.Memo - PEPPOL BIS 3.0"
             }
 
             trigger OnAfterGetRecord()
+            var
+                TaxCurrencyCode: Text;
+                TaxCurrencyCodeListID: Text;
             begin
                 if not FindNextCreditMemoRec(CrMemoHeaderLoop.Number) then
                     currXMLport.Break;
 
                 GetTotals;
 
-                PEPPOLMgt.GetGeneralInfoBIS(
+                PEPPOLMgt.GetGeneralInfo(
                   SalesHeader,
                   ID,
                   IssueDate,
                   DummyVar,
+                  DummyVar,
                   Note,
                   TaxPointDate,
                   DocumentCurrencyCode,
+                  DummyVar,
+                  TaxCurrencyCode,
+                  TaxCurrencyCodeListID,
                   AccountingCost);
 
                 CustomizationID := GetCustomizationID;
@@ -2021,6 +2018,7 @@ xmlport 1611 "Sales Cr.Memo - PEPPOL BIS 3.0"
                     ShowCaption = false;
                     field("SalesCrMemoHeader.""No."""; SalesCrMemoHeader."No.")
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Sales Credit Memo No.';
                         TableRelation = "Sales Cr.Memo Header";
                     }
@@ -2035,7 +2033,7 @@ xmlport 1611 "Sales Cr.Memo - PEPPOL BIS 3.0"
 
     trigger OnPreXmlPort()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetup.TestField("LCY Code");
     end;
 
@@ -2115,7 +2113,6 @@ xmlport 1611 "Sales Cr.Memo - PEPPOL BIS 3.0"
                         Error(SpecifyASalesCreditMemoNoErr);
                     SalesCrMemoHeader.SetRecFilter;
                     SalesCrMemoLine.SetRange("Document No.", SalesCrMemoHeader."No.");
-                    SalesCrMemoLine.SetFilter(Type, '<>%1', SalesCrMemoLine.Type::" ");
 
                     ProcessedDocType := ProcessedDocType::Sale;
                 end;
@@ -2126,7 +2123,6 @@ xmlport 1611 "Sales Cr.Memo - PEPPOL BIS 3.0"
                         Error(SpecifyAServCreditMemoNoErr);
                     ServiceCrMemoHeader.SetRecFilter;
                     ServiceCrMemoLine.SetRange("Document No.", ServiceCrMemoHeader."No.");
-                    ServiceCrMemoLine.SetFilter(Type, '<>%1', ServiceCrMemoLine.Type::" ");
 
                     ProcessedDocType := ProcessedDocType::Service;
                 end;

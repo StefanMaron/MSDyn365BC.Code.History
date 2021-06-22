@@ -47,7 +47,7 @@ codeunit 138080 "O365 Ship-to Addr. P.I"
 
         // Verify - ShipToOptions is set to default
         PurchaseInvoice.ShippingOptionWithLocation.AssertEquals(Format(ShipToOptions::"Default (Company Address)"));
-        CompanyInformation.Get;
+        CompanyInformation.Get();
 
         VerifyShipToAddressValues(
           PurchaseInvoice,
@@ -342,7 +342,7 @@ codeunit 138080 "O365 Ship-to Addr. P.I"
         // [SCENARIO 255272] ShipToOption = "Default (Company Address)" when create a new Purchase Invoice from a Vendor card
         // [SCENARIO 255272] in case of blanked Location and Purchase Invoice Nos Series "Manual Nos." = FALSE (forces DocNoVisible = FALSE)
         Initialize;
-        CompanyInformation.Get;
+        CompanyInformation.Get();
 
         // [GIVEN] Purchase Invoice Nos Series "Manual Nos." = FALSE
         // [GIVEN] Vendor card with blanked Location
@@ -402,7 +402,7 @@ codeunit 138080 "O365 Ship-to Addr. P.I"
         // [SCENARIO 255272] ShipToOption = "Custom Address" when create a new Purchase Invoice from a Vendor card
         // [SCENARIO 255272] in case of blanked Location and Purchase Invoice Nos Series "Manual Nos." = TRUE (forces DocNoVisible = TRUE)
         Initialize;
-        CompanyInformation.Get;
+        CompanyInformation.Get();
 
         // [GIVEN] Purchase Invoice Nos Series "Manual Nos." = TRUE
         // [GIVEN] Vendor card with blanked Location
@@ -465,7 +465,7 @@ codeunit 138080 "O365 Ship-to Addr. P.I"
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
 
         IsInitialized := true;
-        Commit;
+        Commit();
     end;
 
     local procedure PrepareVendor(var Vendor: Record Vendor; LocationCode: Code[10]; ManualNosSeries: Boolean)
@@ -493,7 +493,7 @@ codeunit 138080 "O365 Ship-to Addr. P.I"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         UpdateNoSeries(PurchasesPayablesSetup."Invoice Nos.", ManualNos);
     end;
 

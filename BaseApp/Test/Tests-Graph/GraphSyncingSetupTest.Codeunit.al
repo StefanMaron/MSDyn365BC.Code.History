@@ -30,7 +30,7 @@ codeunit 134621 "Graph Syncing Setup Test"
         CompanyInformation.OpenView;
 
         // Verify
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         MarketingSetup.TestField("Sync with Microsoft Graph", false);
     end;
 
@@ -51,7 +51,7 @@ codeunit 134621 "Graph Syncing Setup Test"
         CompanyInformation.OpenView;
 
         // Verify
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         MarketingSetup.TestField("Sync with Microsoft Graph", false);
     end;
 
@@ -167,7 +167,7 @@ codeunit 134621 "Graph Syncing Setup Test"
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
 
         // Exercise
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         MarketingSetup.Validate("Sync with Microsoft Graph", true);
 
         // Verify
@@ -186,12 +186,12 @@ codeunit 134621 "Graph Syncing Setup Test"
 
         // Setup
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation."Demo Company" := false;
-        CompanyInformation.Modify;
+        CompanyInformation.Modify();
 
         // Exercise
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         MarketingSetup.Validate("Sync with Microsoft Graph", true);
 
         // Verify
@@ -211,17 +211,17 @@ codeunit 134621 "Graph Syncing Setup Test"
 
         // Setup
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation."Demo Company" := false;
-        CompanyInformation.Modify;
+        CompanyInformation.Modify();
 
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         MarketingSetup.Validate("Sync with Microsoft Graph", false);
-        MarketingSetup.Modify;
+        MarketingSetup.Modify();
 
         // Exercise
         CompanyInformation.Validate("Sync with O365 Bus. profile", true);
-        CompanyInformation.Modify;
+        CompanyInformation.Modify();
 
         // Verify
         Assert.IsTrue(GraphSyncRunner.IsGraphSyncEnabled, 'Graph sync should be enabled.');
@@ -239,7 +239,7 @@ codeunit 134621 "Graph Syncing Setup Test"
         EnableGraphSync;
 
         // Verify
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation.TestField("Sync with O365 Bus. profile", true);
     end;
 
@@ -256,12 +256,12 @@ codeunit 134621 "Graph Syncing Setup Test"
         EnableGraphSync;
 
         // Exercise
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         MarketingSetup.Validate("Sync with Microsoft Graph", false);
         MarketingSetup.Modify(true);
 
         // Verify
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation.TestField("Sync with O365 Bus. profile", false);
     end;
 
@@ -277,16 +277,16 @@ codeunit 134621 "Graph Syncing Setup Test"
 
         // Setup
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation."Demo Company" := false;
-        CompanyInformation.Modify;
+        CompanyInformation.Modify();
 
         // Exercise
         CompanyInformation.Validate("Sync with O365 Bus. profile", true);
         CompanyInformation.Modify(true);
 
         // Verify
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         MarketingSetup.TestField("Sync with Microsoft Graph", false);
     end;
 
@@ -371,11 +371,11 @@ codeunit 134621 "Graph Syncing Setup Test"
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
     begin
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation."Demo Company" := false;
-        CompanyInformation.Modify;
+        CompanyInformation.Modify();
 
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         MarketingSetup.Validate("Sync with Microsoft Graph", true);
         MarketingSetup.Modify(true);
     end;

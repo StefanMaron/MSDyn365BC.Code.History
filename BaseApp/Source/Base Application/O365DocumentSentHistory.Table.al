@@ -133,7 +133,7 @@ table 2158 "O365 Document Sent History"
         O365DocumentSentHistory.SetRange("Document No.", DocNo);
         O365DocumentSentHistory.SetRange(Posted, DocPosted);
 
-        O365DocumentSentHistory.DeleteAll;
+        O365DocumentSentHistory.DeleteAll();
     end;
 
     procedure ShowJobQueueErrorMessage()

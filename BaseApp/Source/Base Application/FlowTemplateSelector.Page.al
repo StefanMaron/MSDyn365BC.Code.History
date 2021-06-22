@@ -17,7 +17,8 @@ page 6400 "Flow Template Selector"
                     group(Control11)
                     {
                         ShowCaption = false;
-                        Visible = IsUserReadyForFlow AND NOT IsErrorMessageVisible;
+                        Visible = IsUserReadyForFlow and not IsErrorMessageVisible;
+
                         field(EnvironmentNameText; EnvironmentNameText)
                         {
                             ApplicationArea = Basic, Suite;
@@ -28,7 +29,8 @@ page 6400 "Flow Template Selector"
                     group(Control4)
                     {
                         ShowCaption = false;
-                        Visible = IsUserReadyForFlow AND NOT IsErrorMessageVisible;
+                        Visible = IsUserReadyForFlow and not IsErrorMessageVisible;
+
                         field(SearchFilter; SearchText)
                         {
                             ApplicationArea = Basic, Suite;
@@ -39,7 +41,7 @@ page 6400 "Flow Template Selector"
                             begin
                                 if AddInReady then
                                     CurrPage.FlowAddin.LoadTemplates(FlowServiceManagement.GetFlowEnvironmentID, SearchText,
-                                      FlowServiceManagement.GetFlowTemplatePageSize, FlowServiceManagement.GetFlowTemplateDestinationNew);
+                                      FlowServiceManagement.GetFlowTemplatePageSize, FlowServiceManagement.GetFlowTemplateDestinationDetails);
                             end;
                         }
                         usercontrol(FlowAddin; "Microsoft.Dynamics.Nav.Client.FlowIntegration")
@@ -80,6 +82,7 @@ page 6400 "Flow Template Selector"
                     {
                         ShowCaption = false;
                         Visible = IsErrorMessageVisible;
+
                         field(ErrorMessageText; ErrorMessageText)
                         {
                             ApplicationArea = Basic, Suite;
@@ -136,7 +139,16 @@ page 6400 "Flow Template Selector"
         SearchText := Search;
     end;
 
-    local procedure Initialize()
+    local procedure LoadTemplates()
+    begin
+        EnvironmentNameText := FlowServiceManagement.GetSelectedFlowEnvironmentName;
+        CurrPage.FlowAddin.LoadTemplates(FlowServiceManagement.GetFlowEnvironmentID, SearchText,
+          FlowServiceManagement.GetFlowTemplatePageSize, FlowServiceManagement.GetFlowTemplateDestinationDetails);
+        CurrPage.Update;
+    end;
+
+    [TryFunction]
+    local procedure TryInitialize()
     begin
         IsUserReadyForFlow := FlowServiceManagement.IsUserReadyForFlow;
 
@@ -147,20 +159,6 @@ page 6400 "Flow Template Selector"
                 ShowErrorMessage(GetLastErrorText);
             CurrPage.Update;
         end;
-    end;
-
-    local procedure LoadTemplates()
-    begin
-        EnvironmentNameText := FlowServiceManagement.GetSelectedFlowEnvironmentName;
-        CurrPage.FlowAddin.LoadTemplates(FlowServiceManagement.GetFlowEnvironmentID, SearchText,
-          FlowServiceManagement.GetFlowTemplatePageSize, FlowServiceManagement.GetFlowTemplateDestinationNew);
-        CurrPage.Update;
-    end;
-
-    [TryFunction]
-    local procedure TryInitialize()
-    begin
-        Initialize;
     end;
 
     [TryFunction]

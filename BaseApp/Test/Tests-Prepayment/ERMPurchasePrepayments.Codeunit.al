@@ -32,7 +32,7 @@ codeunit 134333 "ERM Purchase Prepayments"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LCYCode := '';
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Purchase Prepayments");
     end;
 
@@ -282,7 +282,7 @@ codeunit 134333 "ERM Purchase Prepayments"
         // Create an Item that uses this setup (finding was not possible in all cases).
         InventoryPostingGroup.FindFirst;
 
-        Item.Init;
+        Item.Init();
         Item.Insert(true);
         Item.Validate("Gen. Prod. Posting Group", GLAccount."Gen. Prod. Posting Group");
         Item.Validate("VAT Prod. Posting Group", GLAccount."VAT Prod. Posting Group");
@@ -297,7 +297,7 @@ codeunit 134333 "ERM Purchase Prepayments"
         Vendor.Validate("Gen. Bus. Posting Group", GLAccount."Gen. Bus. Posting Group");
         Vendor.Validate("VAT Bus. Posting Group", GLAccount."VAT Bus. Posting Group");
         Vendor.Validate("Prepayment %", PrepaymentPercentage);
-        Vendor.Modify;
+        Vendor.Modify();
     end;
 
     local procedure CreatePurchOrder(var PurchaseHeader: Record "Purchase Header"; Vendor: Record Vendor; Item: Record Item; CurrencyCode: Code[10])
@@ -325,7 +325,7 @@ codeunit 134333 "ERM Purchase Prepayments"
           LibraryERM.CreateGLAccountNoWithDirectPosting, LibraryRandom.RandInt(10));
         PurchaseLine."Prepmt. Line Amount" := PrepmtLineAmount;
         PurchaseLine."Prepmt. Amt. Inv." := PrepmtAmtInv;
-        PurchaseLine.Modify;
+        PurchaseLine.Modify();
     end;
 
     local procedure CheckNumOfVendorLedgerEntries(var VendorLedgerEntry: Record "Vendor Ledger Entry"; Vendor: Record Vendor; NumExpectedLedgerEntries: Integer)
@@ -368,7 +368,7 @@ codeunit 134333 "ERM Purchase Prepayments"
         GeneralLedgerSetup: Record "General Ledger Setup";
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Currency.SetFilter(Code, '<>%1', GeneralLedgerSetup."LCY Code");
         LibraryERM.FindCurrency(Currency);
 

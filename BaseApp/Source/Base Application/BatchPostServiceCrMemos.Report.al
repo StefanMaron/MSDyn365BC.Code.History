@@ -87,7 +87,7 @@ report 6005 "Batch Post Service Cr. Memos"
 
                         trigger OnValidate()
                         begin
-                            SalesSetup.Get;
+                            SalesSetup.Get();
                             SalesSetup.TestField("Calc. Inv. Discount", false);
                         end;
                     }
@@ -101,7 +101,7 @@ report 6005 "Batch Post Service Cr. Memos"
 
         trigger OnOpenPage()
         begin
-            SalesSetup.Get;
+            SalesSetup.Get();
             CalcInvDisc := SalesSetup."Calc. Inv. Discount";
             ReplacePostingDate := false;
             ReplaceDocumentDate := false;
@@ -142,13 +142,13 @@ report 6005 "Batch Post Service Cr. Memos"
 
     local procedure CalculateInvoiceDiscount()
     begin
-        ServLine.Reset;
+        ServLine.Reset();
         ServLine.SetRange("Document Type", "Service Header"."Document Type");
         ServLine.SetRange("Document No.", "Service Header"."No.");
         if ServLine.FindFirst then
             if ServCalcDisc.Run(ServLine) then begin
                 "Service Header".Get("Service Header"."Document Type", "Service Header"."No.");
-                Commit;
+                Commit();
             end;
     end;
 

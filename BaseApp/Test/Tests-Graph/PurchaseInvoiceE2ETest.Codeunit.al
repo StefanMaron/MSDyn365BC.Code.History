@@ -38,7 +38,7 @@ codeunit 135537 "Purchase Invoice E2E Test"
         // [GIVEN] 2 invoices, one posted and one unposted
         Initialize;
         CreatePurchaseInvoices(InvoiceID1, InvoiceID2);
-        Commit;
+        Commit();
 
         // [WHEN] we GET all the invoices from the web service
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Purchase Invoice Entity", InvoiceServiceNameTxt);
@@ -75,7 +75,7 @@ codeunit 135537 "Purchase Invoice E2E Test"
         InvoiceDate := WorkDate;
 
         InvoiceWithComplexJSON := CreateInvoiceJSONWithAddress(Vendor, InvoiceDate);
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSON to the web service
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Purchase Invoice Entity", InvoiceServiceNameTxt);
@@ -90,7 +90,7 @@ codeunit 135537 "Purchase Invoice E2E Test"
 
         LibraryGraphDocumentTools.VerifyPurchaseDocumentBuyFromAddress(Vendor, PurchaseHeader, ResponseText, false, false);
 
-        PurchaseHeader.Reset;
+        PurchaseHeader.Reset();
         PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Invoice);
         PurchaseHeader.SetRange("No.", InvoiceNumber);
         PurchaseHeader.SetRange("Buy-from Vendor No.", VendorNo);
@@ -121,7 +121,7 @@ codeunit 135537 "Purchase Invoice E2E Test"
 
         CurrencyCode := GetCurrencyCode;
         InvoiceJSON := CreateInvoiceJSON('vendorNumber', VendorNo, 'currencyCode', CurrencyCode);
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSON to the web service
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Purchase Invoice Entity", InvoiceServiceNameTxt);
@@ -135,7 +135,7 @@ codeunit 135537 "Purchase Invoice E2E Test"
         LibraryGraphMgt.VerifyIDInJson(ResponseText);
 
         // [THEN] the invoice should exist in the tables
-        PurchaseHeader.Reset;
+        PurchaseHeader.Reset();
         PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Invoice);
         PurchaseHeader.SetRange("No.", InvoiceNumber);
         PurchaseHeader.SetRange("Buy-from Vendor No.", VendorNo);
@@ -194,7 +194,7 @@ codeunit 135537 "Purchase Invoice E2E Test"
         InvoiceID := PurchaseHeader."No.";
 
         // [GIVEN] the invoice's unique ID
-        PurchaseHeader.Reset;
+        PurchaseHeader.Reset();
         PurchaseHeader.SetRange("No.", InvoiceID);
         PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Invoice);
         PurchaseHeader.FindFirst;
@@ -210,14 +210,14 @@ codeunit 135537 "Purchase Invoice E2E Test"
         LibraryGraphDocumentTools.GetVendorAddressComplexType(ComplexTypeJSON, Vendor, EmptyData, PartiallyEmptyData);
         InvoiceWithComplexJSON := LibraryGraphMgt.AddComplexTypetoJSON(InvoiceJSON, 'buyFromAddress', ComplexTypeJSON);
 
-        Commit;
+        Commit();
 
         // [WHEN] we PATCH the JSON to the web service, with the unique Item ID
         TargetURL := LibraryGraphMgt.CreateTargetURL(InvoiceIntegrationID, PAGE::"Purchase Invoice Entity", InvoiceServiceNameTxt);
         LibraryGraphMgt.PatchToWebService(TargetURL, InvoiceWithComplexJSON, ResponseText);
 
         // [THEN] the item should have the Unit of Measure as a value in the table
-        PurchaseHeader.Reset;
+        PurchaseHeader.Reset();
         PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Invoice);
         PurchaseHeader.SetRange("No.", InvoiceID);
         Assert.IsTrue(PurchaseHeader.FindFirst, 'The unposted invoice should exist');
@@ -248,7 +248,7 @@ codeunit 135537 "Purchase Invoice E2E Test"
         ID1 := PurchInvHeader."Draft Invoice SystemId";
         Assert.AreNotEqual('', ID1, 'ID should not be empty');
 
-        PurchaseHeader.Reset;
+        PurchaseHeader.Reset();
         PurchaseHeader.Get(PurchaseHeader."Document Type"::Invoice, InvoiceID2);
         ID2 := PurchaseHeader.SystemId;
         Assert.AreNotEqual('', ID2, 'ID should not be empty');
@@ -295,7 +295,7 @@ codeunit 135537 "Purchase Invoice E2E Test"
 
         // [GIVEN] a json describing our new invoice
         InvoiceWithComplexJSON := CreateInvoiceJSONWithAddress(Vendor, InvoiceDate);
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSON to the web service and create another invoice through the test page
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Purchase Invoice Entity", InvoiceServiceNameTxt);
@@ -304,7 +304,7 @@ codeunit 135537 "Purchase Invoice E2E Test"
         CreateInvoiceThroughTestPage(PurchaseInvoice, Vendor, InvoiceDate);
 
         // [THEN] the invoice should exist in the table and match the invoice created from the page
-        ApiPurchaseHeader.Reset;
+        ApiPurchaseHeader.Reset();
         ApiPurchaseHeader.SetRange("Buy-from Vendor No.", VendorNo);
         ApiPurchaseHeader.SetRange("Document Type", ApiPurchaseHeader."Document Type"::Invoice);
         ApiPurchaseHeader.SetRange("Document Date", InvoiceDate);
@@ -338,7 +338,7 @@ codeunit 135537 "Purchase Invoice E2E Test"
 
         // [WHEN] We look through all purchase headers.
         // [THEN] The integration record for the purchase header should have the same record id.
-        PurchaseHeader.Reset;
+        PurchaseHeader.Reset();
         if PurchaseHeader.Find('-') then begin
             repeat
                 Assert.IsTrue(IntegrationRecord.Get(PurchaseHeader.SystemId), 'The PurchaseHeader id should exist in the integration record table');
@@ -367,7 +367,7 @@ codeunit 135537 "Purchase Invoice E2E Test"
         Currency.FindFirst;
         CurrencyCode := Currency.Code;
         InvoiceJSON := LibraryGraphMgt.AddPropertytoJSON('', 'currencyCode', CurrencyCode);
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSON to the web service
         // [THEN] an error is received
@@ -387,7 +387,7 @@ codeunit 135537 "Purchase Invoice E2E Test"
         LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
         ModifyPurchaseHeaderPostingDate(PurchaseHeader, WorkDate);
         InvoiceID2 := PurchaseHeader."No.";
-        Commit;
+        Commit();
     end;
 
     local procedure CreateInvoiceJSONWithAddress(Vendor: Record Vendor; InvoiceDate: Date): Text

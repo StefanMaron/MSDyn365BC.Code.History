@@ -9,7 +9,7 @@ codeunit 5482 "Graph Mgt - Journal"
     var
         GenJnlTemplate: Record "Gen. Journal Template";
     begin
-        GenJnlTemplate.Reset;
+        GenJnlTemplate.Reset();
         GenJnlTemplate.SetRange("Page ID", PAGE::"General Journal");
         GenJnlTemplate.SetRange(Recurring, false);
         GenJnlTemplate.SetRange(Type, 0);
@@ -21,7 +21,7 @@ codeunit 5482 "Graph Mgt - Journal"
     var
         GenJnlTemplate: Record "Gen. Journal Template";
     begin
-        GenJnlTemplate.Reset;
+        GenJnlTemplate.Reset();
         GenJnlTemplate.SetRange("Page ID", PAGE::"Cash Receipt Journal");
         GenJnlTemplate.SetRange(Recurring, false);
         GenJnlTemplate.SetRange(Type, 3);

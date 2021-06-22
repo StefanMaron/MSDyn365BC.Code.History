@@ -165,7 +165,7 @@ codeunit 132216 "Library - Permissions Verify"
         RelatedRecordRef: RecordRef;
         RelatedRecordId: RecordID;
     begin
-        RecordRef.Init;
+        RecordRef.Init();
         RecordRef.Insert(true);
 
         RecordId := RecordRef.RecordId;
@@ -175,15 +175,15 @@ codeunit 132216 "Library - Permissions Verify"
             RelatedRecordRef.Open(TableRelationsMetadata."Related Table ID");
             RelatedRecordId := RelatedRecordRef.RecordId;
             if RelatedRecordId.TableNo <> RecordId.TableNo then begin
-                RelatedRecordRef.DeleteAll;
-                RelatedRecordRef.Init;
-                RelatedRecordRef.Insert;
+                RelatedRecordRef.DeleteAll();
+                RelatedRecordRef.Init();
+                RelatedRecordRef.Insert();
             end;
             RelatedRecordRef.Close;
         until TableRelationsMetadata.Next = 0;
 
         RecordRef.Close;
-        Commit;
+        Commit();
     end;
 
     [Scope('OnPrem')]
@@ -194,7 +194,7 @@ codeunit 132216 "Library - Permissions Verify"
         RelatedRecordId: RecordID;
         RecordId: RecordID;
     begin
-        TableRelationsMetadata.Init;
+        TableRelationsMetadata.Init();
         RecordId := RecordRef.RecordId;
         TableRelationsMetadata.SetRange("Table ID", RecordId.TableNo);
         if TableRelationsMetadata.FindSet then
@@ -227,14 +227,14 @@ codeunit 132216 "Library - Permissions Verify"
 
     procedure VerifyWritePermissionTrue(RecordRef: RecordRef)
     begin
-        RecordRef.Init;
+        RecordRef.Init();
         RecordRef.Insert(true);
         RecordRef.Delete(true);
     end;
 
     procedure VerifyWritePermissionFalse(RecordRef: RecordRef)
     begin
-        RecordRef.Init;
+        RecordRef.Init();
 
         asserterror RecordRef.Insert(true);
         Assert.IsFalse(RecordRef.WritePermission, StrSubstNo(SupplementalPermissionErr, 'Insert', Format(RecordRef.Caption)));

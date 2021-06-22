@@ -880,7 +880,7 @@ codeunit 137308 "SCM Planning Reports"
         // Verify: Check values - Gross Requirements, Scheduled Receipts, Projected Balance in the Planning Availability report.
         LibraryReportDataset.LoadDataSetFile;
         VerifyGrossReqAndProjectedBalanceForMultipleSales(SalesLine, SalesLine2, ProductionOrder);
-        LibraryReportDataset.Reset;
+        LibraryReportDataset.Reset();
         if ReorderingPolicy = Item."Reordering Policy"::"Maximum Qty." then
             LibraryReportDataset.AssertElementWithValueExists('PlngBuffScheduledReceipts',
               SelectScheduledReceipts(ProductionOrder."No."));
@@ -940,7 +940,7 @@ codeunit 137308 "SCM Planning Reports"
     begin
         // 1) Setup: Create a production forecast entry for an item with a Production BOM
         Initialize;
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         CurrentProductionForecast := ManufacturingSetup."Current Production Forecast";
         CreateItemWithProductionBOM(Item);
         CreateForecastEntry(ProductionForecastEntry, ProductionForecastName, Item, EventDate);
@@ -952,7 +952,7 @@ codeunit 137308 "SCM Planning Reports"
         VerifyProductionForecastGrossRequirement(ProductionForecastEntry);
 
         // 4) Cleanup
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         ManufacturingSetup.Validate("Current Production Forecast", CurrentProductionForecast);
         ManufacturingSetup.Modify(true);
     end;
@@ -1298,7 +1298,7 @@ codeunit 137308 "SCM Planning Reports"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Planning Reports");
-        RequisitionWkshName.DeleteAll;
+        RequisitionWkshName.DeleteAll();
 
         LibraryVariableStorage.Clear;
 
@@ -1314,7 +1314,7 @@ codeunit 137308 "SCM Planning Reports"
         ItemJournalSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Planning Reports");
     end;
 
@@ -1323,11 +1323,11 @@ codeunit 137308 "SCM Planning Reports"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchasesPayablesSetup.Modify(true);
 
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesReceivablesSetup.Modify(true);
     end;
@@ -1436,7 +1436,7 @@ codeunit 137308 "SCM Planning Reports"
         PlanningBuffer.SetRange("Item No.", ItemNo);
         if Date <> 0D then
             PlanningBuffer.SetRange(Date, Date);
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Planning Availability", true, false, PlanningBuffer);
     end;
 
@@ -1882,7 +1882,7 @@ codeunit 137308 "SCM Planning Reports"
             LibraryReportDataset.AssertElementWithValueExists('ProjectedBalance', PurchaseLine.Quantity + PurchaseLine2.Quantity);
         end else begin
             Assert.AreEqual(ProductionOrder.Quantity, SelectScheduledReceipts(ProductionOrder."No."), ScheduledReceiptsErr);
-            LibraryReportDataset.Reset;
+            LibraryReportDataset.Reset();
             VerifyMultipleProjectedBalances(PurchaseLine, PurchaseLine2, ProductionOrder);
         end;
         VerifyMultipleSchedReceipts(PurchaseLine, PurchaseLine2);
@@ -1915,7 +1915,7 @@ codeunit 137308 "SCM Planning Reports"
         SchedReceipts: Decimal;
     begin
         SchedReceipts := SelectScheduledReceipts(ProductionOrder."No.");
-        LibraryReportDataset.Reset;
+        LibraryReportDataset.Reset();
         LibraryReportDataset.AssertElementWithValueExists('ProjectedBalance',
           SchedReceipts - SalesLine.Quantity - SalesLine2.Quantity);
         VerifySalesGrossRequirement(SalesLine);
@@ -1966,7 +1966,7 @@ codeunit 137308 "SCM Planning Reports"
     begin
         LibraryManufacturing.CreateProductionForecastName(ProductionForecastName);
 
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         ManufacturingSetup.Validate("Current Production Forecast", ProductionForecastName.Name);
         ManufacturingSetup.Modify(true);
 

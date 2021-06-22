@@ -16,7 +16,7 @@ codeunit 9800 "Log Table Permissions"
     begin
         OnBeforeStart(SessionId());
 
-        TempTablePermissionBuffer.DeleteAll;
+        TempTablePermissionBuffer.DeleteAll();
         if IsNull(EventReceiver) then
             EventReceiver := EventReceiver.NavPermissionEventReceiver(SessionId);
 
@@ -42,7 +42,7 @@ codeunit 9800 "Log Table Permissions"
             exit;
 
         if not TempTablePermissionBuffer.Get(SessionId, TypeOfObject, ObjectId) then begin
-            TempTablePermissionBuffer.Init;
+            TempTablePermissionBuffer.Init();
             TempTablePermissionBuffer."Session ID" := SessionId;
             TempTablePermissionBuffer."Object Type" := TypeOfObject;
             TempTablePermissionBuffer."Object ID" := ObjectId;
@@ -51,7 +51,7 @@ codeunit 9800 "Log Table Permissions"
             TempTablePermissionBuffer."Modify Permission" := TempTablePermissionBuffer."Modify Permission"::" ";
             TempTablePermissionBuffer."Delete Permission" := TempTablePermissionBuffer."Delete Permission"::" ";
             TempTablePermissionBuffer."Execute Permission" := TempTablePermissionBuffer."Execute Permission"::" ";
-            TempTablePermissionBuffer.Insert;
+            TempTablePermissionBuffer.Insert();
         end;
 
         TempTablePermissionBuffer."Object Type" := TypeOfObject;
@@ -88,7 +88,7 @@ codeunit 9800 "Log Table Permissions"
                 TempTablePermissionBuffer."Execute Permission" :=
                   GetMaxPermission(TempTablePermissionBuffer."Execute Permission", TempTablePermissionBuffer."Execute Permission"::Indirect);
         end;
-        TempTablePermissionBuffer.Modify;
+        TempTablePermissionBuffer.Modify();
     end;
 
     procedure GetMaxPermission(CurrentPermission: Option; NewPermission: Option): Integer

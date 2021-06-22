@@ -82,8 +82,8 @@ table 5942 "Service Item Log"
 
     trigger OnInsert()
     begin
-        ServItemLog.LockTable;
-        ServItemLog.Reset;
+        ServItemLog.LockTable();
+        ServItemLog.Reset();
         ServItemLog.SetRange("Service Item No.", "Service Item No.");
         if ServItemLog.FindLast then
             "Entry No." := ServItemLog."Entry No." + 1

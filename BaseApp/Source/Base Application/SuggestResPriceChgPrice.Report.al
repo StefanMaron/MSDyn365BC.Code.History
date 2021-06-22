@@ -2,6 +2,9 @@ report 1192 "Suggest Res. Price Chg.(Price)"
 {
     Caption = 'Suggest Res. Price Chg.(Price)';
     ProcessingOnly = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+    ObsoleteTag = '16.0';
 
     dataset
     {
@@ -87,7 +90,7 @@ report 1192 "Suggest Res. Price Chg.(Price)"
                     if ResPriceChg2.Find('=') then
                         ResPriceChg.Modify
                     else
-                        ResPriceChg.Insert;
+                        ResPriceChg.Insert();
                 end;
             end;
 

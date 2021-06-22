@@ -1,4 +1,4 @@
-﻿page 95 "Sales Quote Subform"
+page 95 "Sales Quote Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';
@@ -23,10 +23,10 @@
 
                     trigger OnValidate()
                     begin
-                        NoOnAfterValidate;
-                        UpdateEditableOnRow;
-                        UpdateTypeText;
-                        DeltaUpdateTotals;
+                        NoOnAfterValidate();
+                        UpdateEditableOnRow();
+                        UpdateTypeText();
+                        DeltaUpdateTotals();
                     end;
                 }
                 field(FilteredTypeField; TypeAsText)
@@ -45,9 +45,9 @@
                         if TempOptionLookupBuffer.AutoCompleteOption(TypeAsText, TempOptionLookupBuffer."Lookup Type"::Sales) then
                             Validate(Type, TempOptionLookupBuffer.ID);
                         TempOptionLookupBuffer.ValidateOption(TypeAsText);
-                        UpdateEditableOnRow;
-                        UpdateTypeText;
-                        DeltaUpdateTotals;
+                        UpdateEditableOnRow();
+                        UpdateTypeText();
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("No."; "No.")
@@ -59,10 +59,10 @@
                     trigger OnValidate()
                     begin
                         ShowShortcutDimCode(ShortcutDimCode);
-                        NoOnAfterValidate;
-                        UpdateEditableOnRow;
-                        UpdateTypeText;
-                        DeltaUpdateTotals;
+                        NoOnAfterValidate();
+                        UpdateEditableOnRow();
+                        UpdateTypeText();
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Cross-Reference No."; "Cross-Reference No.")
@@ -73,19 +73,19 @@
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        CrossReferenceNoLookUp;
+                        CrossReferenceNoLookUp();
                         InsertExtendedText(false);
-                        NoOnAfterValidate;
-                        UpdateEditableOnRow;
+                        NoOnAfterValidate();
+                        UpdateEditableOnRow();
                         OnCrossReferenceNoOnLookup(Rec);
                     end;
 
                     trigger OnValidate()
                     begin
-                        CrossReferenceNoOnAfterValidat;
-                        NoOnAfterValidate;
-                        UpdateEditableOnRow;
-                        DeltaUpdateTotals;
+                        CrossReferenceNoOnAfterValidat();
+                        NoOnAfterValidate();
+                        UpdateEditableOnRow();
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Variant Code"; "Variant Code")
@@ -96,8 +96,8 @@
 
                     trigger OnValidate()
                     begin
-                        VariantCodeOnAfterValidate;
-                        DeltaUpdateTotals;
+                        VariantCodeOnAfterValidate();
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Substitution Available"; "Substitution Available")
@@ -120,7 +120,7 @@
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field(Description; Description)
@@ -131,15 +131,15 @@
 
                     trigger OnValidate()
                     begin
-                        UpdateEditableOnRow;
+                        UpdateEditableOnRow();
 
                         if "No." = xRec."No." then
                             exit;
 
                         ShowShortcutDimCode(ShortcutDimCode);
-                        NoOnAfterValidate;
-                        UpdateTypeText;
-                        DeltaUpdateTotals;
+                        NoOnAfterValidate();
+                        UpdateTypeText();
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Location Code"; "Location Code")
@@ -151,8 +151,8 @@
 
                     trigger OnValidate()
                     begin
-                        LocationCodeOnAfterValidate;
-                        DeltaUpdateTotals;
+                        LocationCodeOnAfterValidate();
+                        DeltaUpdateTotals();
                     end;
                 }
                 field(Quantity; Quantity)
@@ -166,7 +166,7 @@
 
                     trigger OnValidate()
                     begin
-                        QuantityOnAfterValidate;
+                        QuantityOnAfterValidate();
                     end;
                 }
                 field("Qty. to Assemble to Order"; "Qty. to Assemble to Order")
@@ -179,12 +179,12 @@
 
                     trigger OnDrillDown()
                     begin
-                        ShowAsmToOrderLines;
+                        ShowAsmToOrderLines();
                     end;
 
                     trigger OnValidate()
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         CurrPage.Update(true);
                     end;
                 }
@@ -197,7 +197,7 @@
 
                     trigger OnValidate()
                     begin
-                        UnitofMeasureCodeOnAfterValida;
+                        UnitofMeasureCodeOnAfterValida();
                     end;
                 }
                 field("Unit of Measure"; "Unit of Measure")
@@ -212,7 +212,7 @@
                     ToolTip = 'Specifies the unit cost of the item on the line.';
                     Visible = false;
                 }
-                field(PriceExists; PriceExists)
+                field(PriceExists; PriceExists())
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sales Price Exists';
@@ -231,7 +231,7 @@
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Tax Liable"; "Tax Liable")
@@ -249,7 +249,7 @@
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Tax Group Code"; "Tax Group Code")
@@ -262,7 +262,7 @@
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Line Discount %"; "Line Discount %")
@@ -275,7 +275,7 @@
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Line Amount"; "Line Amount")
@@ -289,10 +289,10 @@
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
-                field(LineDiscExists; LineDiscExists)
+                field(LineDiscExists; LineDiscExists())
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sales Line Disc. Exists';
@@ -308,7 +308,7 @@
 
                     trigger OnValidate()
                     begin
-                        DeltaUpdateTotals;
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Allow Invoice Disc."; "Allow Invoice Disc.")
@@ -319,10 +319,10 @@
 
                     trigger OnValidate()
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         AmountWithDiscountAllowed := DocumentTotals.CalcTotalSalesAmountOnlyDiscountAllowed(Rec);
                         InvoiceDiscountAmount := Round(AmountWithDiscountAllowed * InvoiceDiscountPct / 100, Currency."Amount Rounding Precision");
-                        ValidateInvoiceDiscountAmount;
+                        ValidateInvoiceDiscountAmount();
                     end;
                 }
                 field("Inv. Discount Amount"; "Inv. Discount Amount")
@@ -334,8 +334,8 @@
 
                     trigger OnValidate()
                     begin
-                        UpdatePage;
-                        DeltaUpdateTotals;
+                        UpdatePage();
+                        DeltaUpdateTotals();
                     end;
                 }
                 field("Allow Item Charge Assignment"; "Allow Item Charge Assignment")
@@ -351,8 +351,8 @@
 
                     trigger OnDrillDown()
                     begin
-                        CurrPage.SaveRecord;
-                        ShowItemChargeAssgnt;
+                        CurrPage.SaveRecord();
+                        ShowItemChargeAssgnt();
                         UpdateForm(false);
                     end;
                 }
@@ -364,8 +364,8 @@
 
                     trigger OnDrillDown()
                     begin
-                        CurrPage.SaveRecord;
-                        ShowItemChargeAssgnt;
+                        CurrPage.SaveRecord();
+                        ShowItemChargeAssgnt();
                         UpdateForm(false);
                     end;
                 }
@@ -849,7 +849,7 @@
 
                     trigger OnAction()
                     begin
-                        ShowPrices
+                        PickPrice();
                     end;
                 }
                 action("Get Li&ne Discount")
@@ -863,7 +863,7 @@
 
                     trigger OnAction()
                     begin
-                        ShowLineDisc
+                        PickDiscount();
                     end;
                 }
                 action("E&xplode BOM")
@@ -891,8 +891,9 @@
                     PromotedCategory = Category8;
                     PromotedIsBig = true;
                     PromotedOnly = true;
+                    Visible = IsSaaSExcelAddinEnabled;
                     ToolTip = 'Send the data in the sub page to an Excel file for analysis or editing';
-                    Visible = IsSaasExcelAddinEnabled;
+                    AccessByPermission = System "Allow Action Export To Excel" = X;
 
                     trigger OnAction()
                     var
@@ -910,15 +911,15 @@
     begin
         GetTotalSalesHeader;
         CalculateTotals;
-        UpdateEditableOnRow;
-        UpdateTypeText;
+        UpdateEditableOnRow();
+        UpdateTypeText();
         SetItemChargeFieldsStyle;
     end;
 
     trigger OnAfterGetRecord()
     begin
         ShowShortcutDimCode(ShortcutDimCode);
-        UpdateTypeText;
+        UpdateTypeText();
         SetItemChargeFieldsStyle;
     end;
 
@@ -927,7 +928,7 @@
         ReserveSalesLine: Codeunit "Sales Line-Reserve";
     begin
         if (Quantity <> 0) and ItemExists("No.") then begin
-            Commit;
+            Commit();
             if not ReserveSalesLine.DeleteLineConfirm(Rec) then
                 exit(false);
             ReserveSalesLine.DeleteLine(Rec);
@@ -945,7 +946,7 @@
     var
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         Currency.InitRoundingPrecision;
         TempOptionLookupBuffer.FillBuffer(TempOptionLookupBuffer."Lookup Type"::Sales);
         IsFoundation := ApplicationAreaMgmtFacade.IsFoundationEnabled;
@@ -966,41 +967,39 @@
                 Type := Type::Item;
 
         Clear(ShortcutDimCode);
-        UpdateTypeText;
+        UpdateTypeText();
     end;
 
     trigger OnOpenPage()
     var
         ServerSetting: Codeunit "Server Setting";
     begin
-        IsSaasExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
+        IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
+        SuppressTotals := CurrentClientType() = ClientType::ODataV4;
+
         SetDimensionsVisibility;
     end;
 
     var
         TotalSalesHeader: Record "Sales Header";
         TotalSalesLine: Record "Sales Line";
-        SalesHeader: Record "Sales Header";
         Currency: Record Currency;
         SalesSetup: Record "Sales & Receivables Setup";
         TempOptionLookupBuffer: Record "Option Lookup Buffer" temporary;
         TransferExtendedText: Codeunit "Transfer Extended Text";
-        SalesPriceCalcMgt: Codeunit "Sales Price Calc. Mgt.";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         SalesCalcDiscByType: Codeunit "Sales - Calc Discount By Type";
         DocumentTotals: Codeunit "Document Totals";
         VATAmount: Decimal;
         AmountWithDiscountAllowed: Decimal;
         ShortcutDimCode: array[8] of Code[20];
-        IsCommentLine: Boolean;
         UnitofMeasureCodeIsChangeable: Boolean;
         IsFoundation: Boolean;
         CurrPageIsEditable: Boolean;
-        IsBlankNumber: Boolean;
         InvoiceDiscountAmount: Decimal;
         InvoiceDiscountPct: Decimal;
         InvDiscAmountEditable: Boolean;
-        IsSaasExcelAddinEnabled: Boolean;
+        IsSaaSExcelAddinEnabled: Boolean;
         ItemChargeStyleExpression: Text;
         TypeAsText: Text[30];
         DimVisible1: Boolean;
@@ -1011,6 +1010,11 @@
         DimVisible6: Boolean;
         DimVisible7: Boolean;
         DimVisible8: Boolean;
+        SuppressTotals: Boolean;
+
+    protected var
+        IsBlankNumber: Boolean;
+        IsCommentLine: Boolean;
 
     procedure ApproveCalcInvDisc()
     begin
@@ -1022,6 +1026,9 @@
     var
         SalesHeader: Record "Sales Header";
     begin
+        if SuppressTotals then
+            exit;
+
         SalesHeader.Get("Document Type", "Document No.");
         SalesCalcDiscByType.ApplyInvDiscBasedOnAmt(InvoiceDiscountAmount, SalesHeader);
         DocumentTotals.SalesDocTotalsNotUpToDate;
@@ -1046,8 +1053,8 @@
     begin
         OnBeforeInsertExtendedText(Rec);
         if TransferExtendedText.SalesCheckIfAnyExtText(Rec, Unconditionally) then begin
-            CurrPage.SaveRecord;
-            Commit;
+            CurrPage.SaveRecord();
+            Commit();
             TransferExtendedText.InsertSalesExtText(Rec);
         end;
         if TransferExtendedText.MakeUpdate then
@@ -1074,32 +1081,13 @@
         CurrPage.Update(SetSaveRecord);
     end;
 
-    local procedure ShowPrices()
-    begin
-        SalesHeader.Get("Document Type", "Document No.");
-        Clear(SalesPriceCalcMgt);
-        SalesPriceCalcMgt.GetSalesLinePrice(SalesHeader, Rec);
-    end;
-
-    local procedure ShowLineDisc()
-    begin
-        SalesHeader.Get("Document Type", "Document No.");
-        Clear(SalesPriceCalcMgt);
-        SalesPriceCalcMgt.GetSalesLineLineDisc(SalesHeader, Rec);
-    end;
-
-    local procedure ShowLineComments()
-    begin
-        ShowLineComments;
-    end;
-
     procedure NoOnAfterValidate()
     begin
         InsertExtendedText(false);
         if (Type = Type::"Charge (Item)") and ("No." <> xRec."No.") and
            (xRec."No." <> '')
         then
-            CurrPage.SaveRecord;
+            CurrPage.SaveRecord();
 
         OnAfterNoOnAfterValidate(Rec, xRec);
 
@@ -1124,25 +1112,25 @@
     local procedure QuantityOnAfterValidate()
     begin
         if Reserve = Reserve::Always then begin
-            CurrPage.SaveRecord;
+            CurrPage.SaveRecord();
             AutoReserve;
         end;
-        DeltaUpdateTotals;
+        DeltaUpdateTotals();
     end;
 
     local procedure UnitofMeasureCodeOnAfterValida()
     begin
         if Reserve = Reserve::Always then begin
-            CurrPage.SaveRecord;
+            CurrPage.SaveRecord();
             AutoReserve;
         end;
-        DeltaUpdateTotals;
+        DeltaUpdateTotals();
     end;
 
     local procedure SaveAndAutoAsmToOrder()
     begin
         if (Type = Type::Item) and IsAsmToOrderRequired then begin
-            CurrPage.SaveRecord;
+            CurrPage.SaveRecord();
             AutoAsmToOrder;
         end;
     end;
@@ -1175,6 +1163,9 @@
 
     local procedure CalculateTotals()
     begin
+        if SuppressTotals then
+            exit;
+
         DocumentTotals.SalesCheckIfDocumentChanged(Rec, xRec);
         DocumentTotals.CalculateSalesSubPageTotals(TotalSalesHeader, TotalSalesLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
         DocumentTotals.RefreshSalesLine(Rec);
@@ -1182,6 +1173,9 @@
 
     procedure DeltaUpdateTotals()
     begin
+        if SuppressTotals then
+            exit;
+
         DocumentTotals.SalesDeltaUpdateTotals(Rec, xRec, TotalSalesLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
         if "Line Amount" <> xRec."Line Amount" then
             SendLineInvoiceDiscountResetNotification;
@@ -1191,7 +1185,10 @@
     var
         SalesHeader: Record "Sales Header";
     begin
-        CurrPage.SaveRecord;
+        if SuppressTotals then
+            exit;
+
+        CurrPage.SaveRecord();
 
         SalesHeader.Get("Document Type", "Document No.");
         DocumentTotals.SalesRedistributeInvoiceDiscountAmounts(Rec, VATAmount, TotalSalesLine);
@@ -1208,7 +1205,7 @@
         TypeAsText := TempOptionLookupBuffer.FormatOption(RecRef.Field(FieldNo(Type)));
     end;
 
-    local procedure SetItemChargeFieldsStyle()
+    procedure SetItemChargeFieldsStyle()
     begin
         ItemChargeStyleExpression := '';
         if AssignedItemCharge then

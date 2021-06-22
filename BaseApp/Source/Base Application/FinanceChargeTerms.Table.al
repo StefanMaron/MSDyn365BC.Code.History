@@ -20,7 +20,7 @@ table 5 "Finance Charge Terms"
 
             trigger OnValidate()
             begin
-                FinChrgInterestRate.Reset;
+                FinChrgInterestRate.Reset();
                 FinChrgInterestRate.SetRange("Fin. Charge Terms Code", Code);
                 if not FinChrgInterestRate.IsEmpty then
                     Message(InterestRateNotificationMsg);
@@ -108,13 +108,13 @@ table 5 "Finance Charge Terms"
     trigger OnDelete()
     begin
         FinChrgText.SetRange("Fin. Charge Terms Code", Code);
-        FinChrgText.DeleteAll;
+        FinChrgText.DeleteAll();
 
         CurrForFinChrgTerms.SetRange("Fin. Charge Terms Code", Code);
-        CurrForFinChrgTerms.DeleteAll;
+        CurrForFinChrgTerms.DeleteAll();
 
         FinChrgInterestRate.SetRange("Fin. Charge Terms Code", Code);
-        FinChrgInterestRate.DeleteAll;
+        FinChrgInterestRate.DeleteAll();
     end;
 
     var

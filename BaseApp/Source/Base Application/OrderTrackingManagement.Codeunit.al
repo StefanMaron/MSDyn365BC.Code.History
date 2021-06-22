@@ -36,17 +36,6 @@ codeunit 99000778 OrderTrackingManagement
         TempOrderTrackingEntry: Record "Order Tracking Entry" temporary;
         CreateReservEntry: Codeunit "Create Reserv. Entry";
         ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
-        ReserveSalesLine: Codeunit "Sales Line-Reserve";
-        ReserveReqLine: Codeunit "Req. Line-Reserve";
-        ReservePurchLine: Codeunit "Purch. Line-Reserve";
-        ReserveProdOrderLine: Codeunit "Prod. Order Line-Reserve";
-        ReserveProdOrderComp: Codeunit "Prod. Order Comp.-Reserve";
-        AsmHeaderReserve: Codeunit "Assembly Header-Reserve";
-        AsmLineReserve: Codeunit "Assembly Line-Reserve";
-        ReservePlanningComponent: Codeunit "Plng. Component-Reserve";
-        ReserveItemLedgEntry: Codeunit "Item Ledger Entry-Reserve";
-        ServLineReserve: Codeunit "Service Line-Reserve";
-        JobPlanningLineReserve: Codeunit "Job Planning Line-Reserve";
         CaptionText: Text;
         Type: Option " ",Sales,"Req. Line",Purchase,"Item Jnl","BOM Jnl","Item Ledg. Entry","Prod. Order Line","Prod. Order Comp.","Planning Line","Planning Comp.",Transfer,"Service Order";
         ID: Code[20];
@@ -80,10 +69,9 @@ codeunit 99000778 OrderTrackingManagement
         SalesLine := CurrentSalesLine;
         ReservEntry."Source Type" := DATABASE::"Sales Line";
 
-        ReservEngineMgt.InitFilterAndSortingLookupFor(ReservEntry, false);
-        ReserveSalesLine.FilterReservFor(ReservEntry, SalesLine);
-
-        CaptionText := ReserveSalesLine.Caption(SalesLine);
+        ReservEntry.InitSortingAndFilters(false);
+        SalesLine.SetReservationFilters(ReservEntry);
+        CaptionText := SalesLine.GetSourceCaption();
 
         if CurrentSalesLine."Qty. Shipped (Base)" <> 0 then begin
             SaleShptLine.SetCurrentKey("Order No.", "Order Line No.");
@@ -93,16 +81,16 @@ codeunit 99000778 OrderTrackingManagement
                 repeat
                     if ItemLedgEntry2.Get(SaleShptLine."Item Shpt. Entry No.") then
                         ItemLedgEntry2.Mark(true);
-                until SaleShptLine.Next = 0;
+                until SaleShptLine.Next() = 0;
         end;
     end;
 
     procedure SetReqLine(var CurrentReqLine: Record "Requisition Line")
     begin
         ReqLine := CurrentReqLine;
-        ReservEngineMgt.InitFilterAndSortingLookupFor(ReservEntry, false);
-        ReserveReqLine.FilterReservFor(ReservEntry, ReqLine);
-        CaptionText := ReserveReqLine.Caption(ReqLine);
+        ReservEntry.InitSortingAndFilters(false);
+        ReqLine.SetReservationFilters(ReservEntry);
+        CaptionText := ReqLine.GetSourceCaption();
 
         IsPlanning := ReqLine."Planning Line Origin" <> ReqLine."Planning Line Origin"::" ";
     end;
@@ -114,9 +102,9 @@ codeunit 99000778 OrderTrackingManagement
         CurrentPurchLine.TestField(Type, CurrentPurchLine.Type::Item);
         PurchLine := CurrentPurchLine;
 
-        ReservEngineMgt.InitFilterAndSortingLookupFor(ReservEntry, false);
-        ReservePurchLine.FilterReservFor(ReservEntry, PurchLine);
-        CaptionText := ReservePurchLine.Caption(PurchLine);
+        ReservEntry.InitSortingAndFilters(false);
+        PurchLine.SetReservationFilters(ReservEntry);
+        CaptionText := PurchLine.GetSourceCaption();
 
         if CurrentPurchLine."Qty. Received (Base)" <> 0 then begin
             PurchRcptLine.SetCurrentKey("Order No.", "Order Line No.");
@@ -126,7 +114,7 @@ codeunit 99000778 OrderTrackingManagement
                 repeat
                     if ItemLedgEntry2.Get(PurchRcptLine."Item Rcpt. Entry No.") then
                         ItemLedgEntry2.Mark(true);
-                until PurchRcptLine.Next = 0;
+                until PurchRcptLine.Next() = 0;
         end;
     end;
 
@@ -134,9 +122,9 @@ codeunit 99000778 OrderTrackingManagement
     begin
         ProdOrderLine := CurrentProdOrderLine;
 
-        ReservEngineMgt.InitFilterAndSortingLookupFor(ReservEntry, false);
-        ReserveProdOrderLine.FilterReservFor(ReservEntry, ProdOrderLine);
-        CaptionText := ReserveProdOrderLine.Caption(ProdOrderLine);
+        ReservEntry.InitSortingAndFilters(false);
+        ProdOrderLine.SetReservationFilters(ReservEntry);
+        CaptionText := ProdOrderLine.GetSourceCaption();
 
         if CurrentProdOrderLine."Finished Quantity" <> 0 then begin
             ItemLedgEntry2.SetCurrentKey("Order Type", "Order No.", "Order Line No.", "Entry Type");
@@ -149,7 +137,7 @@ codeunit 99000778 OrderTrackingManagement
             if ItemLedgEntry2.Find('-') then
                 repeat
                     ItemLedgEntry2.Mark(true);
-                until ItemLedgEntry2.Next = 0;
+                until ItemLedgEntry2.Next() = 0;
         end;
     end;
 
@@ -157,9 +145,9 @@ codeunit 99000778 OrderTrackingManagement
     begin
         ProdOrderComp := CurrentProdOrderComp;
 
-        ReservEngineMgt.InitFilterAndSortingLookupFor(ReservEntry, false);
-        ReserveProdOrderComp.FilterReservFor(ReservEntry, ProdOrderComp);
-        CaptionText := ReserveProdOrderComp.Caption(ProdOrderComp);
+        ReservEntry.InitSortingAndFilters(false);
+        ProdOrderComp.SetReservationFilters(ReservEntry);
+        CaptionText := ProdOrderComp.GetSourceCaption();
 
         if (CurrentProdOrderComp."Remaining Quantity" <> CurrentProdOrderComp."Expected Quantity") and
            (CurrentProdOrderComp.Status in
@@ -180,7 +168,7 @@ codeunit 99000778 OrderTrackingManagement
             if ItemLedgEntry2.Find('-') then
                 repeat
                     ItemLedgEntry2.Mark(true);
-                until ItemLedgEntry2.Next = 0;
+                until ItemLedgEntry2.Next() = 0;
         end;
     end;
 
@@ -188,9 +176,9 @@ codeunit 99000778 OrderTrackingManagement
     begin
         AsmHeader := CurrentAsmHeader;
 
-        ReservEngineMgt.InitFilterAndSortingLookupFor(ReservEntry, false);
-        AsmHeaderReserve.FilterReservFor(ReservEntry, AsmHeader);
-        CaptionText := AsmHeaderReserve.Caption(AsmHeader);
+        ReservEntry.InitSortingAndFilters(false);
+        AsmHeader.SetReservationFilters(ReservEntry);
+        CaptionText := AsmHeader.GetSourceCaption();
 
         if CurrentAsmHeader."Assembled Quantity (Base)" <> 0 then begin
             ItemLedgEntry2.SetCurrentKey("Order Type", "Order No.");
@@ -200,7 +188,7 @@ codeunit 99000778 OrderTrackingManagement
             if ItemLedgEntry2.Find('-') then
                 repeat
                     ItemLedgEntry2.Mark(true);
-                until ItemLedgEntry2.Next = 0;
+                until ItemLedgEntry2.Next() = 0;
         end;
     end;
 
@@ -208,9 +196,9 @@ codeunit 99000778 OrderTrackingManagement
     begin
         AsmLine := CurrentAsmLine;
 
-        ReservEngineMgt.InitFilterAndSortingLookupFor(ReservEntry, false);
-        AsmLineReserve.FilterReservFor(ReservEntry, AsmLine);
-        CaptionText := AsmLineReserve.Caption(AsmLine);
+        ReservEntry.InitSortingAndFilters(false);
+        AsmLine.SetReservationFilters(ReservEntry);
+        CaptionText := AsmLine.GetSourceCaption();
 
         if CurrentAsmLine."Consumed Quantity (Base)" <> 0 then begin
             ItemLedgEntry2.SetCurrentKey("Order Type", "Order No.");
@@ -220,7 +208,7 @@ codeunit 99000778 OrderTrackingManagement
             if ItemLedgEntry2.Find('-') then
                 repeat
                     ItemLedgEntry2.Mark(true);
-                until ItemLedgEntry2.Next = 0;
+                until ItemLedgEntry2.Next() = 0;
         end;
     end;
 
@@ -228,9 +216,9 @@ codeunit 99000778 OrderTrackingManagement
     begin
         PlanningComponent := CurrentPlanningComponent;
 
-        ReservEngineMgt.InitFilterAndSortingLookupFor(ReservEntry, false);
-        ReservePlanningComponent.FilterReservFor(ReservEntry, PlanningComponent);
-        CaptionText := ReservePlanningComponent.Caption(PlanningComponent);
+        ReservEntry.InitSortingAndFilters(false);
+        PlanningComponent.SetReservationFilters(ReservEntry);
+        CaptionText := PlanningComponent.GetSourceCaption();
         IsPlanning := true;
     end;
 
@@ -238,9 +226,9 @@ codeunit 99000778 OrderTrackingManagement
     begin
         ItemLedgEntry := CurrentItemLedgEntry;
 
-        ReservEngineMgt.InitFilterAndSortingLookupFor(ReservEntry, false);
-        ReserveItemLedgEntry.FilterReservFor(ReservEntry, ItemLedgEntry);
-        CaptionText := ReserveItemLedgEntry.Caption(ItemLedgEntry);
+        ReservEntry.InitSortingAndFilters(false);
+        ItemLedgEntry.SetReservationFilters(ReservEntry);
+        CaptionText := ItemLedgEntry.GetSourceCaption();
         ItemLedgEntry2 := ItemLedgEntry;
         ItemLedgEntry2.Mark(true);
     end;
@@ -258,15 +246,15 @@ codeunit 99000778 OrderTrackingManagement
         if not TempItemLedgEntry.Find('-') then
             exit;
 
-        ReservEngineMgt.InitFilterAndSortingLookupFor(ReservEntry, false);
-        ReserveItemLedgEntry.FilterReservFor(ReservEntry, TempItemLedgEntry);
-        CaptionText := ReserveItemLedgEntry.Caption(TempItemLedgEntry);
+        ReservEntry.InitSortingAndFilters(false);
+        TempItemLedgEntry.SetReservationFilters(ReservEntry);
+        CaptionText := TempItemLedgEntry.GetSourceCaption();
 
         repeat
             ItemLedgEntry2 := TempItemLedgEntry;
             ItemLedgEntry2.Mark(true);
             MultipleSummedUpQty += TempItemLedgEntry."Remaining Quantity";
-        until TempItemLedgEntry.Next = 0;
+        until TempItemLedgEntry.Next() = 0;
 
         MultipleItemLedgEntries := (TempItemLedgEntry.Count > 1);
     end;
@@ -279,10 +267,9 @@ codeunit 99000778 OrderTrackingManagement
         ServLine := CurrentServLine;
         ReservEntry."Source Type" := DATABASE::"Service Line";
 
-        ReservEngineMgt.InitFilterAndSortingLookupFor(ReservEntry, false);
-        ServLineReserve.FilterReservFor(ReservEntry, ServLine);
-
-        CaptionText := ServLineReserve.Caption(ServLine);
+        ReservEntry.InitSortingAndFilters(false);
+        ServLine.SetReservationFilters(ReservEntry);
+        CaptionText := ServLine.GetSourceCaption();
 
         if CurrentServLine."Qty. Shipped (Base)" <> 0 then begin
             ServShptLine.SetCurrentKey("Order No.", "Order Line No.");
@@ -292,7 +279,7 @@ codeunit 99000778 OrderTrackingManagement
                 repeat
                     if ItemLedgEntry2.Get(ServShptLine."Item Shpt. Entry No.") then
                         ItemLedgEntry2.Mark(true);
-                until ServShptLine.Next = 0;
+                until ServShptLine.Next() = 0;
         end;
     end;
 
@@ -305,10 +292,9 @@ codeunit 99000778 OrderTrackingManagement
         JobPlanningLine := CurrentJobPlanningLine;
         ReservEntry."Source Type" := DATABASE::"Job Planning Line";
 
-        ReservEngineMgt.InitFilterAndSortingLookupFor(ReservEntry, false);
-        JobPlanningLineReserve.FilterReservFor(ReservEntry, JobPlanningLine);
-
-        CaptionText := JobPlanningLineReserve.Caption(JobPlanningLine);
+        ReservEntry.InitSortingAndFilters(false);
+        JobPlanningLine.SetReservationFilters(ReservEntry);
+        CaptionText := JobPlanningLine.GetSourceCaption();
 
         if CurrentJobPlanningLine."Qty. Posted" <> 0 then begin
             JobUsageLink.SetRange("Job No.", CurrentJobPlanningLine."Job No.");
@@ -319,8 +305,13 @@ codeunit 99000778 OrderTrackingManagement
                     JobLedgEntry.Get(JobUsageLink."Entry No.");
                     if ItemLedgEntry2.Get(JobLedgEntry."Ledger Entry No.") then
                         ItemLedgEntry2.Mark(true);
-                until JobUsageLink.Next = 0;
+                until JobUsageLink.Next() = 0;
         end;
+    end;
+
+    procedure SetSourceRecord(var SourceRecordVar: Variant)
+    begin
+        OnAfterSetSoucreRecord(SourceRecordVar, ReservEntry, CaptionText);
     end;
 
     procedure TrackedQuantity(): Decimal
@@ -336,7 +327,7 @@ codeunit 99000778 OrderTrackingManagement
         if ReservEntry.Find('-') then
             repeat
                 QtyTracked1 += ReservEntry."Quantity (Base)";
-            until ReservEntry.Next = 0;
+            until ReservEntry.Next() = 0;
         if IsPlanning then
             if DerivePlanningFilter(ReservEntry, FilterReservEntry) then begin
                 FilterReservEntry.SetRange("Reservation Status", FilterReservEntry."Reservation Status"::Reservation,
@@ -344,7 +335,7 @@ codeunit 99000778 OrderTrackingManagement
                 if FilterReservEntry.Find('-') then
                     repeat
                         QtyTracked2 += FilterReservEntry."Quantity (Base)";
-                    until FilterReservEntry.Next = 0;
+                    until FilterReservEntry.Next() = 0;
                 exit((QtyTracked1 + QtyTracked2) * CreateReservEntry.SignFactor(FilterReservEntry));
             end;
         exit(QtyTracked1 * CreateReservEntry.SignFactor(ReservEntry));
@@ -382,14 +373,14 @@ codeunit 99000778 OrderTrackingManagement
     var
         Window: Dialog;
     begin
-        TempReservEntryList.DeleteAll;
-        TempOrderTrackingEntry.DeleteAll;
+        TempReservEntryList.DeleteAll();
+        TempOrderTrackingEntry.DeleteAll();
         EntryNo := 1;
 
         with TempOrderTrackingEntry do begin
             if not SuppressMessages then
                 Window.Open(Text000);
-            Init;
+            Init();
             "Entry No." := 0;
             DrillOrdersUp(ReservEntry, 1);
             ItemLedgEntry2.SetCurrentKey("Entry No.");
@@ -397,7 +388,7 @@ codeunit 99000778 OrderTrackingManagement
             if ItemLedgEntry2.Find('-') then
                 repeat
                     InsertItemLedgTrackEntry(1, ItemLedgEntry2, ItemLedgEntry2."Remaining Quantity", ItemLedgEntry2);
-                until ItemLedgEntry2.Next = 0;
+                until ItemLedgEntry2.Next() = 0;
             TrackingExists := Find('-');
             if not TrackingExists and not SuppressMessages then
                 Message(Text008);
@@ -472,7 +463,7 @@ codeunit 99000778 OrderTrackingManagement
                                         DrillOrdersUp(FilterReservEntry, Level + 1);
                             end;
                     end;
-            until ReservEntry.Next = 0;
+            until ReservEntry.Next() = 0;
         end;
 
         if Level = 1 then
@@ -488,7 +479,7 @@ codeunit 99000778 OrderTrackingManagement
     local procedure FiltersForTrackingFromComponents(FromReservationEntry: Record "Reservation Entry"; var ToReservationEntry: Record "Reservation Entry")
     begin
         with FromReservationEntry do begin
-            ToReservationEntry.Reset;
+            ToReservationEntry.Reset();
             if "Source Type" = DATABASE::"Prod. Order Component" then begin
                 ToReservationEntry.SetSourceFilter(DATABASE::"Prod. Order Line", "Source Subtype", "Source ID", -1, true);
                 ToReservationEntry.SetSourceFilter("Source Batch Name", "Source Prod. Order Line");
@@ -504,7 +495,7 @@ codeunit 99000778 OrderTrackingManagement
         RequisitionLine: Record "Requisition Line";
     begin
         with FromReservationEntry do begin
-            ToReservationEntry.Reset;
+            ToReservationEntry.Reset();
             if "Source Type" = DATABASE::"Prod. Order Line" then begin
                 ToReservationEntry.SetSourceFilter(DATABASE::"Prod. Order Component", "Source Subtype", "Source ID", -1, true);
                 ToReservationEntry.SetSourceFilter("Source Batch Name", "Source Ref. No.");
@@ -527,7 +518,7 @@ codeunit 99000778 OrderTrackingManagement
     local procedure FiltersForTrackingFromTransfer(FromReservationEntry: Record "Reservation Entry"; var ToReservationEntry: Record "Reservation Entry"; IsSearchUp: Boolean)
     begin
         with FromReservationEntry do begin
-            ToReservationEntry.Reset;
+            ToReservationEntry.Reset();
             if IsSearchUp then
                 ToReservationEntry.SetSourceFilter("Source Type", 0, "Source ID", "Source Ref. No.", true)
             else
@@ -587,10 +578,10 @@ codeunit 99000778 OrderTrackingManagement
                             repeat
                                 InsertItemLedgTrackEntry(Level + 1, ItemLedgEntry6, ItemLedgEntry6.Quantity, ItemLedgEntry4);
                                 DrillItemLedgEntries(Level + 1, ItemLedgEntry6);
-                            until ItemLedgEntry6.Next = 0;
+                            until ItemLedgEntry6.Next() = 0;
                     end;
                 end;
-            until ItemApplnEntry.Next = 0;
+            until ItemApplnEntry.Next() = 0;
 
         if (ItemLedgEntry4."Order Type" = ItemLedgEntry4."Order Type"::Production) and (ItemLedgEntry4."Order No." <> '') then begin
             ItemLedgEntry6.SetCurrentKey("Order Type", "Order No.", "Order Line No.", "Entry Type");
@@ -611,7 +602,7 @@ codeunit 99000778 OrderTrackingManagement
                         InsertItemLedgTrackEntry(Level + 1, ItemLedgEntry6, ItemLedgEntry6.Quantity, ItemLedgEntry4);
                         DrillItemLedgEntries(Level + 1, ItemLedgEntry6);
                     end;
-                until ItemLedgEntry6.Next = 0;
+                until ItemLedgEntry6.Next() = 0;
         end;
     end;
 
@@ -619,11 +610,11 @@ codeunit 99000778 OrderTrackingManagement
     begin
         TempReservEntryList := ReservEntry;
         TempReservEntryList.Positive := false;
-        if not TempReservEntryList.Insert then
+        if not TempReservEntryList.Insert() then
             exit;
 
-        TempOrderTrackingEntry.Reset;
-        TempOrderTrackingEntry.Init;
+        TempOrderTrackingEntry.Reset();
+        TempOrderTrackingEntry.Init();
 
         TempOrderTrackingEntry.Level := Level;
         TempOrderTrackingEntry."For Type" := ReservEntry."Source Type";
@@ -647,7 +638,7 @@ codeunit 99000778 OrderTrackingManagement
 
         if OrderTrackingEntryExists then begin
             TempOrderTrackingEntry.Quantity += ReservEntry."Quantity (Base)";
-            TempOrderTrackingEntry.Modify;
+            TempOrderTrackingEntry.Modify();
             exit;
         end;
 
@@ -759,7 +750,7 @@ codeunit 99000778 OrderTrackingManagement
                 if ReqLine."Action Message" = ReqLine."Action Message"::Cancel then
                     TempOrderTrackingEntry.Name := Text004;
 
-        TempOrderTrackingEntry.Insert;
+        TempOrderTrackingEntry.Insert();
         EntryNo := EntryNo + 1;
 
         OnAfterInsertTrackingEntry(TempOrderTrackingEntry, DateWarning);
@@ -771,8 +762,8 @@ codeunit 99000778 OrderTrackingManagement
     begin
         if TrackQuantity = 0 then
             exit;
-        TempOrderTrackingEntry.Reset;
-        TempOrderTrackingEntry.Init;
+        TempOrderTrackingEntry.Reset();
+        TempOrderTrackingEntry.Init();
         TempOrderTrackingEntry."Entry No." := EntryNo;
         if SearchUp then begin
             TempOrderTrackingEntry."Demanded by" :=
@@ -823,7 +814,7 @@ codeunit 99000778 OrderTrackingManagement
         TempOrderTrackingEntry."Ending Date" := 0D;
 
         OnBeforeTempOrderTrackingEntryInsert(TempOrderTrackingEntry, ToItemLedgEntry, FromItemLedgEntry);
-        TempOrderTrackingEntry.Insert;
+        TempOrderTrackingEntry.Insert();
         EntryNo := EntryNo + 1;
     end;
 
@@ -849,10 +840,10 @@ codeunit 99000778 OrderTrackingManagement
         TempOrderTrackingEntry.SetRange("From Ref. No.", TempOrderTrackingEntry."From Ref. No.");
 
         if TempOrderTrackingEntry.Find('-') then begin
-            TempOrderTrackingEntry.Reset;
+            TempOrderTrackingEntry.Reset();
             exit(true);
         end;
-        TempOrderTrackingEntry.Reset;
+        TempOrderTrackingEntry.Reset();
         TempOrderTrackingEntry := OrderTrackingEntry2;
         exit(false);
     end;
@@ -923,6 +914,11 @@ codeunit 99000778 OrderTrackingManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInsertTrackingEntry(var OrderTrackingEntry: Record "Order Tracking Entry"; var DateWarning: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetSoucreRecord(var SourceRecordVar: Variant; var ReservationEntry: Record "Reservation Entry"; var CaptionText: Text)
     begin
     end;
 

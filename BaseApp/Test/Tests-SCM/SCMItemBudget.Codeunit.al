@@ -90,7 +90,7 @@ codeunit 137401 "SCM Item Budget"
         // Setup: Create Item Budget Entry.
         Initialize;
         CreateItemBudgetEntry(ItemBudgetEntry);
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
 
         // Exercise: Run Sales Budget Overview.
         RunSalesBudgetOverview(
@@ -230,7 +230,7 @@ codeunit 137401 "SCM Item Budget"
         LibraryApplicationArea.EnableItemBudgetSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Item Budget");
     end;
 
@@ -317,7 +317,7 @@ codeunit 137401 "SCM Item Budget"
     var
         DateCompItemBudgetEntries: Report "Date Comp. Item Budget Entries";
     begin
-        Commit;  // Commit required for batch reports.
+        Commit();  // Commit required for batch reports.
         Clear(DateCompItemBudgetEntries);
         DateCompItemBudgetEntries.SetTableView(ItemBudgetEntry);
         DateCompItemBudgetEntries.Run;

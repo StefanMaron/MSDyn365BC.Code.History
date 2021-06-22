@@ -201,7 +201,7 @@ table 9001 "User Group Member"
             exit('');
         // Force = TRUE overwrites the current default profile
         if not UserPersonalization.Get("User Security ID") then begin
-            UserPersonalization.Init;
+            UserPersonalization.Init();
             UserPersonalization."User SID" := "User Security ID";
             UserPersonalization."Profile ID" := DefaultAllProfile."Profile ID";
             UserPersonalization."App ID" := DefaultAllProfile."App ID";

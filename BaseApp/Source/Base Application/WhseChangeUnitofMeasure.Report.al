@@ -53,7 +53,7 @@ report 7314 "Whse. Change Unit of Measure"
 
                             trigger OnLookup(var Text: Text): Boolean
                             begin
-                                ItemUOM.Reset;
+                                ItemUOM.Reset();
                                 ItemUOM.FilterGroup(2);
                                 ItemUOM.SetRange("Item No.", "Item No.");
                                 ItemUOM.FilterGroup(0);

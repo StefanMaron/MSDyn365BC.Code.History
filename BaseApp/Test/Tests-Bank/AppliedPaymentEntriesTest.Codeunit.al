@@ -725,7 +725,7 @@ codeunit 134264 "Applied Payment Entries Test"
     begin
         FillInCommonBankAccRecLineFields(BankAccReconLine, BankAccRecon, TransactionDate, Amount);
         BankAccReconLine."Transaction Text" := TransactionText;
-        BankAccReconLine.Insert;
+        BankAccReconLine.Insert();
         exit(BankAccReconLine."Statement Line No.");
     end;
 

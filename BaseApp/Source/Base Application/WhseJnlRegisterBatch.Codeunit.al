@@ -53,8 +53,6 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
         ItemJnlLine: Record "Item Journal Line";
         WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line";
         PhysInvtCountMgt: Codeunit "Phys. Invt. Count.-Management";
-        WhseSNRequired: Boolean;
-        WhseLNRequired: Boolean;
         HideDialog: Boolean;
         SuppressCommit: Boolean;
         IsHandled: Boolean;
@@ -67,7 +65,7 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
             exit;
 
         with WhseJnlLine do begin
-            LockTable;
+            LockTable();
             SetRange("Journal Template Name", "Journal Template Name");
             SetRange("Journal Batch Name", "Journal Batch Name");
             SetRange("Location Code", "Location Code");
@@ -77,7 +75,7 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
             if not Find('=><') then begin
                 "Line No." := 0;
                 if not SuppressCommit then
-                    Commit;
+                    Commit();
                 exit;
             end;
 
@@ -90,7 +88,7 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
             end;
             CheckItemAvailability(WhseJnlLine);
 
-            CheckLines(TempHandlingSpecification, WhseSNRequired, WhseLNRequired, HideDialog);
+            CheckLines(TempHandlingSpecification, HideDialog);
 
             // Find next register no.
             WhseRegNo := FindWhseRegNo;
@@ -129,7 +127,7 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
                                       ArrayLen(NoSeriesMgt2));
                                 NoSeries.Code := "Registering No. Series";
                                 NoSeries.Description := Format(NoOfRegisteringNoSeries);
-                                NoSeries.Insert;
+                                NoSeries.Insert();
                             end;
                             LastDocNo := "Whse. Document No.";
                             Evaluate(RegisteringNoSeriesNo, NoSeries.Description);
@@ -197,15 +195,16 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
             if not HideDialog then
                 Window.Close;
             if not SuppressCommit then
-                Commit;
+                Commit();
             Clear(WhseJnlRegisterLine);
         end;
 
         OnAfterCode(WhseJnlLine, WhseJnlBatch, WhseRegNo);
     end;
 
-    local procedure CheckLines(var TempTrackingSpecification: Record "Tracking Specification" temporary; var WhseSNRequired: Boolean; var WhseLNRequired: Boolean; HideDialog: Boolean)
+    local procedure CheckLines(var TempTrackingSpecification: Record "Tracking Specification" temporary; HideDialog: Boolean)
     var
+        WhseItemTrackingSetup: Record "Item Tracking Setup";
         IsHandled: Boolean;
     begin
         with WhseJnlLine do begin
@@ -225,18 +224,15 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
                 if "Entry Type" in ["Entry Type"::"Negative Adjmt.", "Entry Type"::Movement] then
                     UpdateTempBinContentBuffer(WhseJnlLine, "From Bin Code", false);
 
-                ItemTrackingMgt.CheckWhseItemTrkgSetup("Item No.", WhseSNRequired, WhseLNRequired, false);
-                if WhseSNRequired or WhseLNRequired then begin
-                    if WhseSNRequired then
+                ItemTrackingMgt.GetWhseItemTrkgSetup("Item No.", WhseItemTrackingSetup);
+                if WhseItemTrackingSetup.TrackingRequired() then begin
+                    if WhseItemTrackingSetup."Serial No. Required" then
                         TestField("Qty. per Unit of Measure", 1);
                     if WhseJnlTemplate.Type <> WhseJnlTemplate.Type::"Physical Inventory" then
                         CreateTrackingSpecification(WhseJnlLine, TempTrackingSpecification)
                     else begin
                         OnCheckWhseJnlLine(WhseJnlLine);
-                        if WhseSNRequired then
-                            TestField("Serial No.");
-                        if WhseLNRequired then
-                            TestField("Lot No.");
+                        CheckTrackingIfRequired(WhseItemTrackingSetup);
                     end;
                 end;
                 ItemTrackingMgt.CollectItemTrkgInfWhseJnlLine(WhseJnlLine);
@@ -305,10 +301,9 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
     local procedure CreateTrackingSpecification(WhseJnlLine: Record "Warehouse Journal Line"; var TempHandlingSpecification: Record "Tracking Specification" temporary)
     var
         WhseItemTrkgLine: Record "Whse. Item Tracking Line";
+        WhseItemTrackingSetup: Record "Item Tracking Setup";
         BinContent: Record "Bin Content";
         Location: Record Location;
-        WhseSNRequired: Boolean;
-        WhseLNRequired: Boolean;
     begin
         if (WhseJnlLine."Entry Type" = WhseJnlLine."Entry Type"::Movement) or
            (WhseJnlLine.Quantity < 0)
@@ -331,11 +326,8 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
 
         if WhseItemTrkgLine.Find('-') then
             repeat
-                ItemTrackingMgt.CheckWhseItemTrkgSetup(WhseJnlLine."Item No.", WhseSNRequired, WhseLNRequired, false);
-                if WhseSNRequired then
-                    WhseItemTrkgLine.TestField("Serial No.");
-                if WhseLNRequired then
-                    WhseItemTrkgLine.TestField("Lot No.");
+                ItemTrackingMgt.GetWhseItemTrkgSetup(WhseJnlLine."Item No.", WhseItemTrackingSetup);
+                WhseItemTrkgLine.CheckTrackingIfRequired(WhseItemTrackingSetup);
             until WhseItemTrkgLine.Next = 0;
 
         if (WhseJnlLine."Entry Type" = WhseJnlLine."Entry Type"::Movement) or
@@ -343,8 +335,7 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
         then
             if WhseItemTrkgLine.Find('-') then
                 repeat
-                    BinContent.SetRange("Lot No. Filter", WhseItemTrkgLine."Lot No.");
-                    BinContent.SetRange("Serial No. Filter", WhseItemTrkgLine."Serial No.");
+                    BinContent.SetTrackingFilterFromWhseItemTrackingLine(WhseItemTrkgLine);
                     BinContent.CalcFields("Quantity (Base)");
                     if WhseItemTrkgLine."Quantity (Base)" > BinContent."Quantity (Base)" then
                         Error(Text006);
@@ -354,11 +345,11 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
             repeat
                 OnBeforeInsertTempHandlingSpecs(WhseJnlLine, WhseItemTrkgLine);
 
-                TempHandlingSpecification.Init;
+                TempHandlingSpecification.Init();
                 TempHandlingSpecification.TransferFields(WhseItemTrkgLine);
                 TempHandlingSpecification."Quantity actual Handled (Base)" := WhseItemTrkgLine."Qty. to Handle (Base)";
                 OnBeforeTempHandlingSpecificationInsert(TempHandlingSpecification, WhseItemTrkgLine);
-                TempHandlingSpecification.Insert;
+                TempHandlingSpecification.Insert();
 
                 with WhseJnlLine do begin
                     Location.Get("Location Code");
@@ -366,15 +357,12 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
                        ("From Bin Code" <> Location."Adjustment Bin Code") and
                        Location."Directed Put-away and Pick"
                     then begin
-                        BinContent.Get(
-                          "Location Code", "From Bin Code",
-                          "Item No.", "Variant Code", "Unit of Measure Code");
-                        BinContent.SetRange("Lot No. Filter", TempHandlingSpecification."Lot No.");
-                        BinContent.SetRange("Serial No. Filter", TempHandlingSpecification."Serial No.");
+                        BinContent.Get("Location Code", "From Bin Code", "Item No.", "Variant Code", "Unit of Measure Code");
+                        BinContent.SetTrackingFilterFromTrackingSpecification(TempHandlingSpecification);
                         BinContent.CheckDecreaseBinContent("Qty. (Absolute)", "Qty. (Absolute, Base)", "Qty. (Absolute, Base)");
                     end;
                 end;
-            until WhseItemTrkgLine.Next = 0;
+            until WhseItemTrkgLine.Next() = 0;
     end;
 
     local procedure UpdateTempBinContentBuffer(WhseJnlLine: Record "Warehouse Journal Line"; BinCode: Code[20]; Increase: Boolean)
@@ -384,10 +372,10 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
             if not TempBinContentBuffer.Get(
                  "Location Code", BinCode, '', '', '', '', '')
             then begin
-                TempBinContentBuffer.Init;
+                TempBinContentBuffer.Init();
                 TempBinContentBuffer."Location Code" := "Location Code";
                 TempBinContentBuffer."Bin Code" := BinCode;
-                TempBinContentBuffer.Insert;
+                TempBinContentBuffer.Insert();
             end;
             if Increase then begin
                 TempBinContentBuffer."Qty. to Handle (Base)" := TempBinContentBuffer."Qty. to Handle (Base)" + "Qty. (Absolute, Base)";
@@ -400,7 +388,7 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
                 TempBinContentBuffer.Cubage := TempBinContentBuffer.Cubage - Cubage;
                 TempBinContentBuffer.Weight := TempBinContentBuffer.Weight - Weight;
             end;
-            TempBinContentBuffer.Modify;
+            TempBinContentBuffer.Modify();
         end;
     end;
 
@@ -423,13 +411,10 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
     var
         WhseEntry: Record "Warehouse Entry";
     begin
-        WhseEntry.LockTable;
+        WhseEntry.LockTable();
         if WhseEntry.FindLast then;
-        WhseReg.LockTable;
-        if WhseReg.FindLast then
-            exit(WhseReg."No." + 1);
-
-        exit(1);
+        WhseReg.LockTable();
+        exit(WhseReg.GetLastEntryNo() + 1);
     end;
 
     procedure GetWhseRegNo(): Integer
@@ -454,20 +439,19 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
         WhseItemTrkgLine.SetRange("Location Code", WhseJnlLine2."Location Code");
 
         if WhseItemTrkgLine.FindSet then begin
-            ItemJnlLine.Init;
+            ItemJnlLine.Init();
             ItemJnlLine."Line No." := 0;
             ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::Transfer);
             with WhseJnlLine2 do begin
                 repeat
-                    if ((WhseItemTrkgLine."New Serial No." <> WhseItemTrkgLine."Serial No.") or
-                        (WhseItemTrkgLine."New Lot No." <> WhseItemTrkgLine."Lot No.") or
-                        (WhseItemTrkgLine."New Expiration Date" <> WhseItemTrkgLine."Expiration Date"))
+                    if not WhseItemTrkgLine.HasSameNewTracking() or
+                        (WhseItemTrkgLine."New Expiration Date" <> WhseItemTrkgLine."Expiration Date")
                     then begin
+                        ReservEntry.CopyTrackingFromWhseItemTrackingLine(WhseItemTrkgLine);
                         CreateReservEntry.CreateReservEntryFor(
                           DATABASE::"Item Journal Line", ItemJnlLine."Entry Type", '', '', 0, "Line No.", WhseItemTrkgLine."Qty. per Unit of Measure",
-                          Abs(WhseItemTrkgLine."Qty. to Handle"), Abs(WhseItemTrkgLine."Qty. to Handle (Base)"),
-                          WhseItemTrkgLine."Serial No.", WhseItemTrkgLine."Lot No.");
-                        CreateReservEntry.SetNewSerialLotNo(WhseItemTrkgLine."New Serial No.", WhseItemTrkgLine."New Lot No.");
+                          Abs(WhseItemTrkgLine."Qty. to Handle"), Abs(WhseItemTrkgLine."Qty. to Handle (Base)"), ReservEntry);
+                        CreateReservEntry.SetNewTrackingFromNewWhseItemTrackingLine(WhseItemTrkgLine);
                         CreateReservEntry.SetDates(WhseItemTrkgLine."Warranty Date", WhseItemTrkgLine."Expiration Date");
                         CreateReservEntry.SetNewExpirationDate(WhseItemTrkgLine."New Expiration Date");
                         OnBeforeCreateReservEntry(WhseJnlLine2, WhseItemTrkgLine);
@@ -512,6 +496,7 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
     var
         TempSKU: Record "Stockkeeping Unit" temporary;
         WhseJnlLineToPost: Record "Warehouse Journal Line";
+        ConfirmManagement: Codeunit "Confirm Management";
         WhseJnlLineQty: Decimal;
         ReservedQtyOnInventory: Decimal;
         QtyOnWarehouseEntries: Decimal;
@@ -527,9 +512,10 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
                         ReservedQtyOnInventory := CalcReservedQtyOnInventory(TempSKU."Item No.", TempSKU."Location Code", TempSKU."Variant Code");
                         QtyOnWarehouseEntries := CalcQtyOnWarehouseEntry(TempSKU."Item No.", TempSKU."Location Code", TempSKU."Variant Code");
                         if (ReservedQtyOnInventory > 0) and ((QtyOnWarehouseEntries - ReservedQtyOnInventory) < Abs(WhseJnlLineQty)) then
-                            if not Confirm(
-                                 Text007, false, TempSKU.FieldCaption("Item No."), TempSKU."Item No.", TempSKU.FieldCaption("Location Code"),
-                                 TempSKU."Location Code", TempSKU.FieldCaption("Variant Code"), TempSKU."Variant Code")
+                            if not ConfirmManagement.GetResponseOrDefault(
+                                StrSubstNo(
+                                     Text007, TempSKU.FieldCaption("Item No."), TempSKU."Item No.", TempSKU.FieldCaption("Location Code"),
+                                     TempSKU."Location Code", TempSKU.FieldCaption("Variant Code"), TempSKU."Variant Code"), true)
                             then
                                 Error('');
                     end;

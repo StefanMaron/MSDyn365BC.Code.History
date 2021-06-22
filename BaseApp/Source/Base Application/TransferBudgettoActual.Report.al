@@ -16,9 +16,9 @@ report 1137 "Transfer Budget to Actual"
             var
                 SourceCodeSetup: Record "Source Code Setup";
             begin
-                SourceCodeSetup.Get;
+                SourceCodeSetup.Get();
                 SourceCodeSetup.TestField("Transfer Budget to Actual");
-                TempCostJnlLine.Init;
+                TempCostJnlLine.Init();
                 LastEntryNo := LastEntryNo + 1;
                 TempCostJnlLine."Line No." := LastEntryNo;
                 TempCostJnlLine."Cost Type No." := "Cost Type No.";
@@ -33,7 +33,7 @@ report 1137 "Transfer Budget to Actual"
                 TempCostJnlLine."Source Code" := SourceCodeSetup."Transfer Budget to Actual";
                 TempCostJnlLine."Allocation Description" := "Allocation Description";
                 TempCostJnlLine."Allocation ID" := "Allocation ID";
-                TempCostJnlLine.Insert;
+                TempCostJnlLine.Insert();
 
                 NoInserted := NoInserted + 1;
                 if (NoInserted mod 100) = 0 then
@@ -61,7 +61,7 @@ report 1137 "Transfer Budget to Actual"
                 if not Confirm(Text002, true, GetFilter("Budget Name"), GetFilter(Date)) then
                     Error('');
 
-                LockTable;
+                LockTable();
 
                 Window.Open(Text003);
 
@@ -107,11 +107,11 @@ report 1137 "Transfer Budget to Actual"
         JournalLineCount: Integer;
         CostJnlLineStep: Integer;
     begin
-        TempCostJnlLine.Reset;
+        TempCostJnlLine.Reset();
         Window2.Open(
           Text005);
         if TempCostJnlLine.Count > 0 then
-            JournalLineCount := 10000 * 100000 div TempCostJnlLine.Count;
+            JournalLineCount := 10000 * 100000 div TempCostJnlLine.Count();
         if TempCostJnlLine.FindSet then
             repeat
                 CostJnlLineStep := CostJnlLineStep + JournalLineCount;

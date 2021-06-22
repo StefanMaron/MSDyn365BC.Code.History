@@ -18,6 +18,7 @@ page 800 "Online Map Setup"
                 field(TermsOfUseLbl; TermsOfUseLbl)
                 {
                     ApplicationArea = Basic, Suite;
+                    Caption = 'Terms of Use';
                     Editable = false;
 
                     trigger OnDrillDown()
@@ -28,6 +29,7 @@ page 800 "Online Map Setup"
                 field(PrivacyStatementLbl; PrivacyStatementLbl)
                 {
                     ApplicationArea = Basic, Suite;
+                    Caption = 'Privacy Statement';
                     Editable = false;
 
                     trigger OnDrillDown()

@@ -82,7 +82,6 @@ page 5768 "Warehouse Receipt"
                 field("Sorting Method"; "Sorting Method")
                 {
                     ApplicationArea = Warehouse;
-                    OptionCaption = ' ,Item,Document,Shelf or Bin,Due Date ';
                     ToolTip = 'Specifies the method by which the receipts are sorted.';
 
                     trigger OnValidate()

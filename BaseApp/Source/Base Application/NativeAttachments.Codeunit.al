@@ -31,7 +31,7 @@ codeunit 2820 "Native - Attachments"
         NativeEDMTypes: Codeunit "Native - EDM Types";
         GraphMgtAttachmentBuffer: Codeunit "Graph Mgt - Attachment Buffer";
     begin
-        TempAttachmentEntityBuffer.DeleteAll;
+        TempAttachmentEntityBuffer.DeleteAll();
         GraphMgtAttachmentBuffer.LoadAttachments(TempAttachmentEntityBuffer, DocumentIdFilter, '');
 
         exit(NativeEDMTypes.WriteAttachmentsJSON(TempAttachmentEntityBuffer));
@@ -64,8 +64,8 @@ codeunit 2820 "Native - Attachments"
         if JobQueueEntry.FindFirst then
             exit;
 
-        JobQueueEntry.LockTable;
-        JobQueueEntry.Init;
+        JobQueueEntry.LockTable();
+        JobQueueEntry.Init();
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
         JobQueueEntry."Object ID to Run" := CODEUNIT::"Native - Attachments";
         JobQueueEntry."Earliest Start Date/Time" := JobStartTime;

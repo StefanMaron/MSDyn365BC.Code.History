@@ -81,10 +81,10 @@ codeunit 137021 "SCM Planning - NTF tests"
 
         DummyJobsSetup."Allow Sched/Contract Lines Def" := false;
         DummyJobsSetup."Apply Usage Link by Default" := false;
-        DummyJobsSetup.Modify;
+        DummyJobsSetup.Modify();
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Planning - NTF tests");
     end;
 
@@ -191,7 +191,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         WarehouseEmployee: Record "Warehouse Employee";
     begin
         Clear(WarehouseEmployee);
-        WarehouseEmployee.Init;
+        WarehouseEmployee.Init();
         WarehouseEmployee.Validate("User ID", UserId);
         WarehouseEmployee.Validate("Location Code", LocationCode);
         WarehouseEmployee.Validate(Default, true);
@@ -249,7 +249,7 @@ codeunit 137021 "SCM Planning - NTF tests"
     var
         ManufacturingSetupRec: Record "Manufacturing Setup";
     begin
-        ManufacturingSetupRec.Get;
+        ManufacturingSetupRec.Get();
         ManufacturingSetupRec.Validate("Components at Location", '');
         ManufacturingSetupRec.Validate("Current Production Forecast", '');
         ManufacturingSetupRec.Validate("Use Forecast on Locations", true);
@@ -265,7 +265,7 @@ codeunit 137021 "SCM Planning - NTF tests"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Stockout Warning", false);
         SalesReceivablesSetup.Modify(true);
     end;
@@ -408,7 +408,7 @@ codeunit 137021 "SCM Planning - NTF tests"
     begin
         ConsumptionJournalSetup;
         ClearItemJournal(ConsumptionItemJournalTemplate, ConsumptionItemJournalBatch);
-        Commit;
+        Commit();
         LibraryManufacturing.CalculateConsumption(
           ProductionOrder."No.", ConsumptionItemJournalTemplate.Name, ConsumptionItemJournalBatch.Name);
         LibraryInventory.PostItemJournalLine(ConsumptionItemJournalTemplate.Name, ConsumptionItemJournalBatch.Name);
@@ -417,26 +417,26 @@ codeunit 137021 "SCM Planning - NTF tests"
     local procedure ConsumptionJournalSetup()
     begin
         Clear(ConsumptionItemJournalTemplate);
-        ConsumptionItemJournalTemplate.Init;
+        ConsumptionItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(
           ConsumptionItemJournalTemplate, ConsumptionItemJournalTemplate.Type::Consumption);
 
         Clear(ConsumptionItemJournalBatch);
-        ConsumptionItemJournalBatch.Init;
+        ConsumptionItemJournalBatch.Init();
         LibraryInventory.SelectItemJournalBatchName(ConsumptionItemJournalBatch, ConsumptionItemJournalTemplate.Type,
           ConsumptionItemJournalTemplate.Name);
     end;
 
     local procedure GetLastWhseShipmentCreated(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; Location: Record Location)
     begin
-        WarehouseShipmentHeader.Init;
+        WarehouseShipmentHeader.Init();
         WarehouseShipmentHeader.SetRange("Location Code", Location.Code);
         WarehouseShipmentHeader.FindLast;
     end;
 
     local procedure GetLastActvHdrCreatedNoSrc(var WhseActivityHdr: Record "Warehouse Activity Header"; Location: Record Location; ActivityType: Option)
     begin
-        WhseActivityHdr.Init;
+        WhseActivityHdr.Init();
         WhseActivityHdr.SetRange("Location Code", Location.Code);
         WhseActivityHdr.SetRange(Type, ActivityType);
         WhseActivityHdr.FindLast;
@@ -444,7 +444,7 @@ codeunit 137021 "SCM Planning - NTF tests"
 
     local procedure GetLastReceiptHdrCreatedNoSrc(var WhseReceiptHeader: Record "Warehouse Receipt Header"; Location: Record Location)
     begin
-        WhseReceiptHeader.Init;
+        WhseReceiptHeader.Init();
         WhseReceiptHeader.SetRange("Location Code", Location.Code);
         WhseReceiptHeader.FindLast;
     end;
@@ -513,7 +513,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         ProductionBOMLine: Record "Production BOM Line";
     begin
         // Choose any unit of measure
-        UnitOfMeasure.Init;
+        UnitOfMeasure.Init();
         UnitOfMeasure.FindFirst;
         LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, UnitOfMeasure.Code);
 
@@ -630,7 +630,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Clear(ItemJournalLine);
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalTemplate.Name);
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
-        ItemJournalLine.DeleteAll;
+        ItemJournalLine.DeleteAll();
     end;
 
     local procedure ClearWarehouseJournal(WarehouseJournalTemplate: Record "Warehouse Journal Template"; WarehouseJournalBatch: Record "Warehouse Journal Batch")
@@ -640,7 +640,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Clear(WarehouseJournalLine);
         WarehouseJournalLine.SetRange("Journal Template Name", WarehouseJournalTemplate.Name);
         WarehouseJournalLine.SetRange("Journal Batch Name", WarehouseJournalBatch.Name);
-        WarehouseJournalLine.DeleteAll;
+        WarehouseJournalLine.DeleteAll();
     end;
 
     local procedure TestSetup()
@@ -3501,9 +3501,9 @@ codeunit 137021 "SCM Planning - NTF tests"
         AccNo := GetNonBlockedGLAccount;
         InventoryPostingSetup."Inventory Account" := AccNo;
         InventoryPostingSetup."WIP Account" := AccNo;
-        InventoryPostingSetup.Modify;
+        InventoryPostingSetup.Modify();
         LibraryItemTracking.AddSerialNoTrackingInfo(Item);
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         ManufacturingSetup."Preset Output Quantity" := ManufacturingSetup."Preset Output Quantity"::"Zero on All Operations";
         ManufacturingSetup.Modify(true);
         // LibraryVariableStorage.Enqueue(Variable);

@@ -44,19 +44,19 @@ report 1495 "Delete Check Ledger Entries"
             trigger OnPreDataItem()
             begin
                 if not Confirm(Text000, false) then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 if EntrdDateComprReg."Ending Date" = 0D then
                     Error(Text003, EntrdDateComprReg.FieldCaption("Ending Date"));
 
                 Window.Open(Text004);
 
-                SourceCodeSetup.Get;
+                SourceCodeSetup.Get();
                 SourceCodeSetup.TestField("Compress Check Ledger");
 
-                CheckLedgEntry2.LockTable;
+                CheckLedgEntry2.LockTable();
                 if CheckLedgEntry3.FindLast then;
-                DateComprReg.LockTable;
+                DateComprReg.LockTable();
 
                 SetRange("Check Date", EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
                 DateComprMgt.GetDateFilter(EntrdDateComprReg."Ending Date", EntrdDateComprReg, true);
@@ -150,16 +150,16 @@ report 1495 "Delete Check Ledger Entries"
     local procedure InsertRegisters(DateComprReg: Record "Date Compr. Register")
     begin
         if RegExists then begin
-            DateComprReg.Modify;
+            DateComprReg.Modify();
         end else begin
-            DateComprReg.Insert;
+            DateComprReg.Insert();
             RegExists := true;
         end;
-        Commit;
+        Commit();
 
-        CheckLedgEntry2.LockTable;
+        CheckLedgEntry2.LockTable();
         if CheckLedgEntry3.FindLast then;
-        DateComprReg.LockTable;
+        DateComprReg.LockTable();
 
         InitRegister;
     end;

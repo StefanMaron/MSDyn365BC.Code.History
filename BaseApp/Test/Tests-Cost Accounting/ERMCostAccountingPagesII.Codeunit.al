@@ -233,7 +233,7 @@ codeunit 134823 "ERM Cost Accounting - Pages II"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Cost Accounting - Pages II");
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Cost Accounting - Pages II");
     end;
 

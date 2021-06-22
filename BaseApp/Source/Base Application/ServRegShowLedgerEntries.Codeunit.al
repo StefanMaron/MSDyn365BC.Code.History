@@ -4,7 +4,7 @@ codeunit 5911 "Serv Reg.-Show Ledger Entries"
 
     trigger OnRun()
     begin
-        ServLedgEntry.Reset;
+        ServLedgEntry.Reset();
         ServLedgEntry.SetRange("Entry No.", "From Entry No.", "To Entry No.");
         PAGE.Run(PAGE::"Service Ledger Entries", ServLedgEntry);
     end;

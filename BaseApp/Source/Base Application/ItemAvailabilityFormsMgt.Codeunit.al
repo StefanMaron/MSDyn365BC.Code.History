@@ -260,7 +260,7 @@ codeunit 353 "Item Availability Forms Mgt"
         with SalesLine do begin
             TestField(Type, Type::Item);
             TestField("No.");
-            Item.Reset;
+            Item.Reset();
             Item.Get("No.");
             FilterItem(Item, "Location Code", "Variant Code", "Shipment Date");
 
@@ -311,7 +311,7 @@ codeunit 353 "Item Availability Forms Mgt"
         with PurchLine do begin
             TestField(Type, Type::Item);
             TestField("No.");
-            Item.Reset;
+            Item.Reset();
             Item.Get("No.");
             FilterItem(Item, "Location Code", "Variant Code", "Expected Receipt Date");
 
@@ -354,7 +354,7 @@ codeunit 353 "Item Availability Forms Mgt"
         with ReqLine do begin
             TestField(Type, Type::Item);
             TestField("No.");
-            Item.Reset;
+            Item.Reset();
             Item.Get("No.");
             FilterItem(Item, "Location Code", "Variant Code", "Due Date");
 
@@ -399,7 +399,7 @@ codeunit 353 "Item Availability Forms Mgt"
     begin
         with ProdOrderLine do begin
             TestField("Item No.");
-            Item.Reset;
+            Item.Reset();
             Item.Get("Item No.");
             FilterItem(Item, "Location Code", "Variant Code", "Due Date");
 
@@ -437,7 +437,7 @@ codeunit 353 "Item Availability Forms Mgt"
     begin
         with ProdOrderComp do begin
             TestField("Item No.");
-            Item.Reset;
+            Item.Reset();
             Item.Get("Item No.");
             FilterItem(Item, "Location Code", "Variant Code", "Due Date");
 
@@ -475,7 +475,7 @@ codeunit 353 "Item Availability Forms Mgt"
     begin
         with TransLine do begin
             TestField("Item No.");
-            Item.Reset;
+            Item.Reset();
             Item.Get("Item No.");
             FilterItem(Item, "Transfer-from Code", "Variant Code", "Shipment Date");
 
@@ -513,7 +513,7 @@ codeunit 353 "Item Availability Forms Mgt"
     begin
         with WhseActivLine do begin
             TestField("Item No.");
-            Item.Reset;
+            Item.Reset();
             Item.Get("Item No.");
             FilterItem(Item, "Location Code", "Variant Code", "Due Date");
 
@@ -548,7 +548,7 @@ codeunit 353 "Item Availability Forms Mgt"
             ServHeader.Get("Document Type", "Document No.");
             TestField(Type, Type::Item);
             TestField("No.");
-            Item.Reset;
+            Item.Reset();
             Item.Get("No.");
             FilterItem(Item, "Location Code", "Variant Code", ServHeader."Response Date");
 
@@ -583,7 +583,7 @@ codeunit 353 "Item Availability Forms Mgt"
     begin
         with WhseRcptLine do begin
             TestField("Item No.");
-            Item.Reset;
+            Item.Reset();
             Item.Get("Item No.");
             FilterItem(Item, "Location Code", "Variant Code", "Due Date");
 
@@ -615,7 +615,7 @@ codeunit 353 "Item Availability Forms Mgt"
     begin
         with ItemJnlLine do begin
             TestField("Item No.");
-            Item.Reset;
+            Item.Reset();
             Item.Get("Item No.");
             FilterItem(Item, "Location Code", "Variant Code", "Posting Date");
 
@@ -653,7 +653,7 @@ codeunit 353 "Item Availability Forms Mgt"
     begin
         with AsmHeader do begin
             TestField("Item No.");
-            Item.Reset;
+            Item.Reset();
             Item.Get("Item No.");
             FilterItem(Item, "Location Code", "Variant Code", "Due Date");
 
@@ -692,7 +692,7 @@ codeunit 353 "Item Availability Forms Mgt"
         with AsmLine do begin
             TestField(Type, Type::Item);
             TestField("No.");
-            Item.Reset;
+            Item.Reset();
             Item.Get("No.");
             FilterItem(Item, "Location Code", "Variant Code", "Due Date");
 
@@ -730,7 +730,7 @@ codeunit 353 "Item Availability Forms Mgt"
     begin
         with PlanningComp do begin
             TestField("Item No.");
-            Item.Reset;
+            Item.Reset();
             Item.Get("Item No.");
             FilterItem(Item, "Location Code", "Variant Code", "Due Date");
 

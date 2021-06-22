@@ -480,6 +480,11 @@ codeunit 5817 "Undo Posting Management"
     end;
 
     procedure CheckItemLedgEntries(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; LineRef: Integer)
+    begin
+        CheckItemLedgEntries(TempItemLedgEntry, LineRef, false);
+    end;
+
+    procedure CheckItemLedgEntries(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; LineRef: Integer; InvoicedEntry: Boolean)
     var
         ValueEntry: Record "Value Entry";
         ItemRec: Record Item;
@@ -499,9 +504,16 @@ codeunit 5817 "Undo Posting Management"
                        not (("Order Type" = "Order Type"::Assembly) and
                             PostedATOLink.Get(PostedATOLink."Assembly Document Type"::Assembly, "Document No."))
                     then
-                        TestField("Remaining Quantity", Quantity);
+                        if InvoicedEntry then
+                            TestField("Remaining Quantity", Quantity - "Invoiced Quantity")
+                        else
+                            TestField("Remaining Quantity", Quantity);
                 end else
-                    TestField("Shipped Qty. Not Returned", Quantity);
+                    if InvoicedEntry then
+                        TestField("Shipped Qty. Not Returned", Quantity - "Invoiced Quantity")
+                    else
+                        TestField("Shipped Qty. Not Returned", Quantity);
+
                 CalcFields("Reserved Quantity");
                 TestField("Reserved Quantity", 0);
 
@@ -521,12 +533,24 @@ codeunit 5817 "Undo Posting Management"
     end;
 
     procedure PostItemJnlLineAppliedToList(ItemJnlLine: Record "Item Journal Line"; var TempApplyToItemLedgEntry: Record "Item Ledger Entry" temporary; UndoQty: Decimal; UndoQtyBase: Decimal; var TempItemLedgEntry: Record "Item Ledger Entry" temporary; var TempItemEntryRelation: Record "Item Entry Relation" temporary)
+    begin
+        PostItemJnlLineAppliedToList(ItemJnlLine, TempApplyToItemLedgEntry, UndoQty, UndoQtyBase, TempItemLedgEntry, TempItemEntryRelation, false);
+    end;
+
+    procedure PostItemJnlLineAppliedToList(ItemJnlLine: Record "Item Journal Line"; var TempApplyToItemLedgEntry: Record "Item Ledger Entry" temporary; UndoQty: Decimal; UndoQtyBase: Decimal; var TempItemLedgEntry: Record "Item Ledger Entry" temporary; var TempItemEntryRelation: Record "Item Entry Relation" temporary; InvoicedEntry: Boolean)
     var
         ItemApplicationEntry: Record "Item Application Entry";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         NonDistrQuantity: Decimal;
         NonDistrQuantityBase: Decimal;
     begin
+        if InvoicedEntry then begin
+            TempApplyToItemLedgEntry.SetRange("Completely Invoiced", false);
+            if TempApplyToItemLedgEntry.IsEmpty then begin
+                TempApplyToItemLedgEntry.SetRange("Completely Invoiced");
+                exit;
+            end;
+        end;
         TempApplyToItemLedgEntry.Find('-'); // Assertion: will fail if not found.
         if ItemJnlLine."Job No." = '' then
             ItemJnlLine.TestField(Correction, true);
@@ -540,8 +564,7 @@ codeunit 5817 "Undo Posting Management"
 
             ItemJnlLine."Item Shpt. Entry No." := 0;
             ItemJnlLine."Quantity (Base)" := -TempApplyToItemLedgEntry.Quantity;
-            ItemJnlLine."Serial No." := TempApplyToItemLedgEntry."Serial No.";
-            ItemJnlLine."Lot No." := TempApplyToItemLedgEntry."Lot No.";
+            ItemJnlLine.CopyTrackingFromItemLedgEntry(TempApplyToItemLedgEntry);
 
             // Quantity is filled in according to UOM:
             ItemTrackingMgt.AdjustQuantityRounding(
@@ -557,12 +580,11 @@ codeunit 5817 "Undo Posting Management"
             UndoValuePostingFromJob(ItemJnlLine, ItemApplicationEntry, TempApplyToItemLedgEntry);
 
             TempItemEntryRelation."Item Entry No." := ItemJnlLine."Item Shpt. Entry No.";
-            TempItemEntryRelation."Serial No." := ItemJnlLine."Serial No.";
-            TempItemEntryRelation."Lot No." := ItemJnlLine."Lot No.";
+            TempItemEntryRelation.CopyTrackingFromItemJnlLine(ItemJnlLine);
             OnPostItemJnlLineAppliedToListOnBeforeTempItemEntryRelationInsert(TempItemEntryRelation, ItemJnlLine);
-            TempItemEntryRelation.Insert;
+            TempItemEntryRelation.Insert();
             TempItemLedgEntry := TempApplyToItemLedgEntry;
-            TempItemLedgEntry.Insert;
+            TempItemLedgEntry.Insert();
         until TempApplyToItemLedgEntry.Next = 0;
     end;
 
@@ -571,13 +593,13 @@ codeunit 5817 "Undo Posting Management"
         ItemLedgEntry: Record "Item Ledger Entry";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
     begin
-        TempItemLedgEntry.Reset;
+        TempItemLedgEntry.Reset();
         if not TempItemLedgEntry.IsEmpty then
-            TempItemLedgEntry.DeleteAll;
+            TempItemLedgEntry.DeleteAll();
         if EntryRef <> 0 then begin
             ItemLedgEntry.Get(EntryRef); // Assertion: will fail if no entry exists.
             TempItemLedgEntry := ItemLedgEntry;
-            TempItemLedgEntry.Insert;
+            TempItemLedgEntry.Insert();
         end else begin
             if SourceType in [DATABASE::"Sales Shipment Line",
                               DATABASE::"Return Shipment Line",
@@ -617,7 +639,7 @@ codeunit 5817 "Undo Posting Management"
         PurchSetup: Record "Purchases & Payables Setup";
         ReservePurchLine: Codeunit "Purch. Line-Reserve";
     begin
-        PurchSetup.Get;
+        PurchSetup.Get();
         with PurchLine do begin
             xPurchLine := PurchLine;
             case "Document Type" of
@@ -661,7 +683,7 @@ codeunit 5817 "Undo Posting Management"
         SalesSetup: Record "Sales & Receivables Setup";
         ReserveSalesLine: Codeunit "Sales Line-Reserve";
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         with SalesLine do begin
             xSalesLine := SalesLine;
             case "Document Type" of
@@ -755,7 +777,7 @@ codeunit 5817 "Undo Posting Management"
                         ConfirmAdjPriceLineChange;
                         Modify;
 
-                        SalesSetup.Get;
+                        SalesSetup.Get();
                         if SalesSetup."Calc. Inv. Discount" then begin
                             ServHeader.Get("Document Type", "Document No.");
                             ServCalcDiscount.CalculateWithServHeader(ServHeader, ServLine, ServLine);
@@ -783,7 +805,7 @@ codeunit 5817 "Undo Posting Management"
                 repeat
                     TrackingSpecification.Get("Entry No.");
                     if not TrackingIsATO(TrackingSpecification) then begin
-                        ReservEntry.Init;
+                        ReservEntry.Init();
                         ReservEntry.TransferFields(TrackingSpecification);
                         ReservEntry.Validate("Quantity (Base)");
                         ReservEntry."Reservation Status" := ReservEntry."Reservation Status"::Surplus;
@@ -793,12 +815,12 @@ codeunit 5817 "Undo Posting Management"
                             ReservEntry."Shipment Date" := AvailabilityDate;
                         ReservEntry."Entry No." := 0;
                         ReservEntry.UpdateItemTracking;
-                        ReservEntry.Insert;
+                        ReservEntry.Insert();
 
                         TempReservEntry := ReservEntry;
-                        TempReservEntry.Insert;
+                        TempReservEntry.Insert();
                     end;
-                    TrackingSpecification.Delete;
+                    TrackingSpecification.Delete();
                 until Next = 0;
                 ReservEngineMgt.UpdateOrderTracking(TempReservEntry);
             end;
@@ -915,7 +937,7 @@ codeunit 5817 "Undo Posting Management"
 
     procedure FindItemReceiptApplication(var ItemApplnEntry: Record "Item Application Entry"; ItemRcptEntryNo: Integer)
     begin
-        ItemApplnEntry.Reset;
+        ItemApplnEntry.Reset();
         ItemApplnEntry.SetRange("Inbound Item Entry No.", ItemRcptEntryNo);
         ItemApplnEntry.SetFilter("Item Ledger Entry No.", '<>%1', ItemRcptEntryNo);
         ItemApplnEntry.FindFirst;
@@ -923,9 +945,17 @@ codeunit 5817 "Undo Posting Management"
 
     procedure FindItemShipmentApplication(var ItemApplnEntry: Record "Item Application Entry"; ItemShipmentEntryNo: Integer)
     begin
-        ItemApplnEntry.Reset;
+        ItemApplnEntry.Reset();
         ItemApplnEntry.SetRange("Item Ledger Entry No.", ItemShipmentEntryNo);
         ItemApplnEntry.FindFirst;
+    end;
+
+    [Scope('OnPrem')]
+    procedure UpdatePurchaseLineOverRcptQty(PurchaseLine: Record "Purchase Line"; OverRcptQty: Decimal)
+    begin
+        PurchaseLine.Get(PurchaseLine."Document Type"::Order, PurchaseLine."Document No.", PurchaseLine."Line No.");
+        PurchaseLine."Over-Receipt Quantity" += OverRcptQty;
+        PurchaseLine.Modify();
     end;
 
     [IntegrationEvent(false, false)]

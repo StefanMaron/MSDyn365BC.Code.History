@@ -50,7 +50,7 @@ codeunit 134298 "Test Platform Event"
     begin
         if DataTypeBuffer.FindLast then;
 
-        DataTypeBuffer.Init;
+        DataTypeBuffer.Init();
         DataTypeBuffer.ID += 1;
         DataTypeBuffer.Text := CopyStr(EventText, 1, 30);
         DataTypeBuffer.Insert(true);

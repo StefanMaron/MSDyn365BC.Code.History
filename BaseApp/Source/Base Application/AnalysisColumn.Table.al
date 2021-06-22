@@ -29,12 +29,10 @@ table 7118 "Analysis Column"
         {
             Caption = 'Column Header';
         }
-        field(6; "Column Type"; Option)
+        field(6; "Column Type"; Enum "Analysis Column Type")
         {
             Caption = 'Column Type';
             InitValue = "Net Change";
-            OptionCaption = 'Formula,Net Change,Balance at Date,Beginning Balance,Year to Date,Rest of Fiscal Year,Entire Fiscal Year';
-            OptionMembers = Formula,"Net Change","Balance at Date","Beginning Balance","Year to Date","Rest of Fiscal Year","Entire Fiscal Year";
         }
         field(7; "Ledger Entry Type"; Option)
         {
@@ -141,11 +139,9 @@ table 7118 "Analysis Column"
                   FieldNo("Value Entry Type Filter"), true);
             end;
         }
-        field(17; "Value Type"; Option)
+        field(17; "Value Type"; Enum "Analysis Value Type")
         {
             Caption = 'Value Type';
-            OptionCaption = ' ,Quantity,Sales Amount,Cost Amount,Non-Invntble Amount,Unit Price,Standard Cost,Indirect Cost,Unit Cost';
-            OptionMembers = " ",Quantity,"Sales Amount","Cost Amount","Non-Invntble Amount","Unit Price","Standard Cost","Indirect Cost","Unit Cost";
         }
         field(18; Invoiced; Boolean)
         {

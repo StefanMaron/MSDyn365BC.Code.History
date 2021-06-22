@@ -246,7 +246,7 @@ report 38 "Trial Balance by Period"
 
                 if PeriodStartingDate = 0D then
                     Error(Text004);
-                AccountingPeriod.Reset;
+                AccountingPeriod.Reset();
                 if not AccountingPeriod.Get(PeriodStartingDate) then
                     Error(Text005);
 
@@ -265,7 +265,7 @@ report 38 "Trial Balance by Period"
                 Header[1, 2] := Format(EndDate[1]);
 
                 AccountingPeriod2.SetFilter("Starting Date", '>=%1', AccountingPeriod."Starting Date");
-                MaxCount := AccountingPeriod2.Count;
+                MaxCount := AccountingPeriod2.Count();
                 if MaxCount > 13 then
                     MaxCount := 13;
 
@@ -399,7 +399,7 @@ report 38 "Trial Balance by Period"
 
     local procedure CheckIndent()
     begin
-        GLIndent.Reset;
+        GLIndent.Reset();
         MaxIndent := '';
         if GLIndent.FindSet then
             repeat

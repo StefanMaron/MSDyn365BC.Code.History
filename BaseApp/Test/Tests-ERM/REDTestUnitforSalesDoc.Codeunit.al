@@ -79,7 +79,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         // [GIVEN] User has assigned a default deferral code to a GL Account
         CreateGLAccount(GLAccount);
         GLAccount.Validate("Default Deferral Template Code", DeferralTemplateCode);
-        GLAccount.Modify;
+        GLAccount.Modify();
 
         // [WHEN] Creating Sales Line for GL Account should default deferral code
         CreateSalesDocWithLine(SalesHeader, SalesLine,
@@ -185,7 +185,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         CreateSalesDocWithLine(SalesHeader, SalesLine,
           SalesHeader."Document Type"::"Return Order", SalesLine.Type::Item, ItemNo, SetDateDay(10, WorkDate));
         SalesLine.Validate("Returns Deferral Start Date", SetDateDay(15, WorkDate));
-        SalesLine.Modify;
+        SalesLine.Modify();
 
         // [THEN] The Deferral Code was assigned to the sales line
         SalesLine.TestField("Deferral Code", DeferralTemplateCode);
@@ -1359,7 +1359,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
           SalesHeader."Document Type"::Invoice, SalesLine.Type::Item, ItemNo, SetDateDay(1, WorkDate));
 
         FindDeferralHeader(SalesLine, DeferralHeader);
-        DeferralHeader.Delete;
+        DeferralHeader.Delete();
 
         // [WHEN] Document is posted
         asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -1389,7 +1389,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
 
         FindDeferralHeader(SalesLine, DeferralHeader);
         DeferralHeader."Amount to Defer" := 0;
-        DeferralHeader.Modify;
+        DeferralHeader.Modify();
 
         // [WHEN] Document is posted
         asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -1420,7 +1420,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
 
         FindDeferralHeader(SalesLine, DeferralHeader);
         RangeDeferralLines(DeferralHeader, DeferralLine);
-        DeferralLine.DeleteAll;
+        DeferralLine.DeleteAll();
 
         // [WHEN] Document is posted
         asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -1454,7 +1454,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         if DeferralLine.FindFirst then begin
             DeferralLine.Amount := 0.0;
             DeferralLine."Amount (LCY)" := 0.0;
-            DeferralLine.Modify;
+            DeferralLine.Modify();
         end;
 
         // [WHEN] Document is posted
@@ -1545,7 +1545,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         CreateGLAccount(GLAccount);
         SalesAccount := GLAccount."No.";
         GenPostingSetup.Validate("Sales Credit Memo Account", SalesAccount);
-        GenPostingSetup.Modify;
+        GenPostingSetup.Modify();
 
         // [WHEN] Document is posted
         DocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -1917,7 +1917,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 2);
         CreateSalesDocWithLine(SalesHeader, SalesLine,
           SalesHeader."Document Type"::Invoice, SalesLine.Type::Item, ItemNo, SetDateDay(1, WorkDate));
-        Commit;
+        Commit();
 
         // [GIVEN] Two periods are created
         FindDeferralHeader(SalesLine, DeferralHeader);
@@ -2287,7 +2287,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"RED Test Unit for Sales Doc");
     end;
 
@@ -2373,7 +2373,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     local procedure CreateSalesHeaderForCustomer(var SalesHeader: Record "Sales Header"; DocumentType: Integer; PostingDate: Date; CustomerCode: Code[20])
     begin
         Clear(SalesHeader);
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader.Validate("Document Type", DocumentType);
         SalesHeader.Validate("Sell-to Customer No.", CustomerCode);
         SalesHeader.Validate("Posting Date", PostingDate);
@@ -2515,7 +2515,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         OrigianlOption: Boolean;
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         OrigianlOption := SalesReceivablesSetup."Stockout Warning";
         SalesReceivablesSetup.Validate("Stockout Warning", Option);
         SalesReceivablesSetup.Modify(true);
@@ -2527,7 +2527,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         OrigianlOption: Option;
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         OrigianlOption := SalesReceivablesSetup."Credit Warnings";
         SalesReceivablesSetup.Validate("Credit Warnings", Option);
         SalesReceivablesSetup.Modify(true);
@@ -2900,7 +2900,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         GLEntry.SetRange("Document No.", DocNo);
         GLEntry.SetRange("G/L Account No.", AccNo);
         GLEntry.SetRange("Posting Date", StartPostDate, EndPostDate);
-        RecCount := GLEntry.Count;
+        RecCount := GLEntry.Count();
         if GLEntry.FindSet then
             repeat
                 AccAmt := AccAmt + GLEntry.Amount;
@@ -2925,7 +2925,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         GLEntry.SetRange("Document No.", DocNo);
         GLEntry.SetRange("G/L Account No.", AccNo);
         GLEntry.SetRange("Posting Date", StartPostDate, EndPostDate);
-        RecCount := GLEntry.Count;
+        RecCount := GLEntry.Count();
         if GLEntry.FindSet then begin
             SalesAmt := GLEntry.Amount;
             repeat
@@ -3047,7 +3047,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     begin
         NewPostingDate := CalcDate('<+1M>', PostingDate);
         SetupBatchPostingReportParameters(NewPostingDate, ConfirmValue);
-        Commit;
+        Commit();
         SalesHeader.SetFilter("No.", '%1|%2', DocNo1, DocNo2);
         REPORT.Run(ReportID, true, false, SalesHeader);
     end;

@@ -14,7 +14,7 @@ report 187 "Update Reminder Text"
                 ReminderHeader.Get("No.");
                 if ReminderLevel.Get(ReminderHeader."Reminder Terms Code", ReminderLevelNo) then begin
                     ReminderHeader.Validate("Reminder Level", ReminderLevelNo);
-                    ReminderHeader.Modify;
+                    ReminderHeader.Modify();
                     ReminderHeader.UpdateLines(ReminderHeader, UpdateAdditionalFee);
                 end
             end;

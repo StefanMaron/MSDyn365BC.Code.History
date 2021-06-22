@@ -26,12 +26,12 @@ codeunit 7151 ItemAViewEntryToValueEntries
         if ItemAnalysisView."Date Compression" = ItemAnalysisView."Date Compression"::None then begin
             if ValueEntry.Get(ItemAnalysisViewEntry."Entry No.") then begin
                 TempValueEntry := ValueEntry;
-                TempValueEntry.Insert;
+                TempValueEntry.Insert();
             end;
             exit;
         end;
 
-        GLSetup.Get;
+        GLSetup.Get();
 
         StartDate := ItemAnalysisViewEntry."Posting Date";
         EndDate := StartDate;
@@ -97,7 +97,7 @@ codeunit 7151 ItemAViewEntryToValueEntries
                         then
                             if not TempValueEntry.Get("Entry No.") then begin
                                 TempValueEntry := ValueEntry;
-                                TempValueEntry.Insert;
+                                TempValueEntry.Insert();
                             end;
                 until Next = 0;
         end;

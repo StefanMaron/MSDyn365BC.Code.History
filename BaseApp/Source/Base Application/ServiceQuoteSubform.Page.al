@@ -1,4 +1,4 @@
-﻿page 5965 "Service Quote Subform"
+page 5965 "Service Quote Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';
@@ -520,7 +520,7 @@
     begin
         TestField("Document No.");
         TestField("Line No.");
-        ServOrderAlloc.Reset;
+        ServOrderAlloc.Reset();
         ServOrderAlloc.SetCurrentKey("Document Type", "Document No.", "Service Item Line No.");
         ServOrderAlloc.FilterGroup(2);
         ServOrderAlloc.SetFilter(Status, '<>%1', ServOrderAlloc.Status::Canceled);
@@ -564,7 +564,7 @@
         ServMgtSetup: Record "Service Mgt. Setup";
         FaultResolutionRelation: Page "Fault/Resol. Cod. Relationship";
     begin
-        ServMgtSetup.Get;
+        ServMgtSetup.Get();
         case ServMgtSetup."Fault Reporting Level" of
             ServMgtSetup."Fault Reporting Level"::None:
                 Error(

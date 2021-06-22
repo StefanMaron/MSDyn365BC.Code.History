@@ -1,4 +1,4 @@
-﻿page 1001 "Job Task Lines Subform"
+page 1001 "Job Task Lines Subform"
 {
     Caption = 'Job Task Lines Subform';
     DataCaptionFields = "Job No.";

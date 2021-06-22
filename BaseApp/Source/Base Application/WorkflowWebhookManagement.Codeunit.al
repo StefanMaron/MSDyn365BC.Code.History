@@ -221,7 +221,7 @@ codeunit 1543 "Workflow Webhook Management"
                     if WorkflowStepArgument."Response User ID" <> UserId then
                         exit(false);
 
-                    UserSetup.Init;
+                    UserSetup.Init();
                     UserSetup.FilterGroup(-1);
                     UserSetup.SetFilter("Approver ID", '%1', UserId);
                     UserSetup.SetFilter(Substitute, '%1', UserId);
@@ -246,7 +246,7 @@ codeunit 1543 "Workflow Webhook Management"
         if IsNullGuid(WorkflowStepInstance.Argument) or not WorkflowStepArgument.Get(WorkflowStepInstance.Argument) then
             Clear(WorkflowStepArgument);
 
-        WorkflowWebhookEntry.Init;
+        WorkflowWebhookEntry.Init();
         WorkflowWebhookEntry."Workflow Step Instance ID" := WorkflowStepInstance.ID;
         WorkflowWebhookEntry."Initiated By User ID" := UserId;
         WorkflowWebhookEntry.Response := GetInitialResponseValue(WorkflowStepInstance.ID, WorkflowStepInstance."Workflow Code",
@@ -310,7 +310,7 @@ codeunit 1543 "Workflow Webhook Management"
         ResponseTypeNotExpected := WorkflowStepArgument."Response Type"::"Not Expected";
 
         if WorkflowStepArgument.IsEmpty or (WorkflowStepArgument."Response Type" <> ResponseTypeNotExpected) then begin
-            WorkflowStepInstance.Init;
+            WorkflowStepInstance.Init();
             WorkflowStepInstance.SetRange(ID, WorkflowStepInstanceID);
             WorkflowStepInstance.SetRange("Workflow Code", WorkflowCode);
 
@@ -367,7 +367,7 @@ codeunit 1543 "Workflow Webhook Management"
 
             WorkflowWebhookEntry.SetRange("Record ID", RecordId);
             if WorkflowWebhookEntry.FindFirst then
-                WorkflowWebhookEntry.DeleteAll;
+                WorkflowWebhookEntry.DeleteAll();
         end;
     end;
 

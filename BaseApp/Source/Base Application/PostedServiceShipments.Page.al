@@ -1,4 +1,4 @@
-﻿page 5974 "Posted Service Shipments"
+page 5974 "Posted Service Shipments"
 {
     ApplicationArea = Service;
     Caption = 'Posted Service Shipments';

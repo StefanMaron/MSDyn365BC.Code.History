@@ -10,6 +10,94 @@ codeunit 170 "Standard Codes Mgt."
         GetSalesRecurringLinesQst: Label 'Recurring sales lines exist for customer %1. Do you want to insert them on this document?', Comment = '%1 - customer number';
         GetPurchRecurringLinesQst: Label 'Recurring purchase lines exist for vendor %1. Do you want to insert them on this document?', Comment = '%1 - vendor number';
 
+    procedure CheckCreatePurchRecurringLines(var PurchHeader: Record "Purchase Header"): Boolean
+    var
+        StandardVendorPurchaseCode: Record "Standard Vendor Purchase Code";
+    begin
+        if not CanCreatePurchRecurringLines(PurchHeader) then
+            exit;
+
+        IF NOT TryFindFirstStandardPurchCodeToAdd(PurchHeader, StandardVendorPurchaseCode) THEN
+            exit;
+
+        IF (StandardVendorPurchaseCode.Count = 1) AND
+           StandardVendorPurchaseCode.IsInsertRecurringLinesOnDocumentAutomatic(PurchHeader)
+        then
+            StandardVendorPurchaseCode.ApplyStdCodesToPurchaseLines(PurchHeader, StandardVendorPurchaseCode)
+        else
+            ShowGetPurchRecurringLinesNotification(PurchHeader);
+    end;
+
+    local procedure CheckCreateSalesRecurringLines(SalesHeader: Record "Sales Header")
+    var
+        StandardCustomerSalesCode: Record "Standard Customer Sales Code";
+    begin
+        IF NOT CanCreateSalesRecurringLines(SalesHeader) THEN
+            exit;
+
+        IF NOT TryFindFirstStandardSalesCodeToAdd(SalesHeader, StandardCustomerSalesCode) THEN
+            exit;
+
+        IF (StandardCustomerSalesCode.Count = 1) AND
+           StandardCustomerSalesCode.IsInsertRecurringLinesOnDocumentAutomatic(SalesHeader)
+        then
+            StandardCustomerSalesCode.ApplyStdCodesToSalesLines(SalesHeader, StandardCustomerSalesCode)
+        else
+            ShowGetSalesRecurringLinesNotification(SalesHeader);
+    end;
+
+    local procedure TryFindFirstStandardPurchCodeToAdd(PurchHeader: Record "Purchase Header"; var StandardVendorPurchaseCode: Record "Standard Vendor Purchase Code"): Boolean;
+    begin
+        StandardVendorPurchaseCode.SetFilterByAutomaticAndAlwaysAskCodes(PurchHeader);
+        exit(StandardVendorPurchaseCode.FindFirst());
+    end;
+
+    local procedure TryFindFirstStandardSalesCodeToAdd(SalesHeader: Record "Sales Header"; var StandardCustomerSalesCode: Record "Standard Customer Sales Code"): Boolean;
+    begin
+        StandardCustomerSalesCode.SetFilterByAutomaticAndAlwaysAskCodes(SalesHeader);
+        exit(StandardCustomerSalesCode.FindFirst());
+    end;
+
+    procedure CanCreatePurchRecurringLines(var PurchHeader: Record "Purchase Header"): Boolean
+    var
+        StandardVendorPurchaseCode: Record "Standard Vendor Purchase Code";
+    begin
+        if PurchHeader.IsTemporary then
+            exit(false);
+
+        if PurchHeader."Buy-from Vendor No." = '' then
+            exit(false);
+
+        if not IsPurchDocumentEmpty(PurchHeader) then
+            exit(false);
+
+        if PurchHeader."Document Type" in
+           [PurchHeader."Document Type"::"Blanket Order", PurchHeader."Document Type"::"Return Order"]
+        then
+            exit(false);
+
+        exit(true);
+    end;
+
+    local procedure CanCreateSalesRecurringLines(SalesHeader: Record "Sales Header"): Boolean;
+    begin
+        if SalesHeader.IsTemporary then
+            exit(false);
+
+        if SalesHeader."Sell-to Customer No." = '' then
+            exit(false);
+
+        if SalesHeader."Document Type" in
+           [SalesHeader."Document Type"::"Blanket Order", SalesHeader."Document Type"::"Return Order"]
+        then
+            exit(false);
+
+        if not IsSalesDocumentEmpty(SalesHeader) then
+            exit(false);
+
+        exit(true);
+    end;
+
     procedure GetSalesRecurringLines(SalesHeader: Record "Sales Header")
     var
         StandardCustomerSalesCode: Record "Standard Customer Sales Code";
@@ -17,7 +105,6 @@ codeunit 170 "Standard Codes Mgt."
         OnBeforeGetSalesRecurringLines(SalesHeader);
 
         StandardCustomerSalesCode.SetFilterByAutomaticAndAlwaysAskCodes(SalesHeader);
-        StandardCustomerSalesCode.SetRange("Customer No.", SalesHeader."Sell-to Customer No.");
         StandardCustomerSalesCode.FindFirst;
         if (StandardCustomerSalesCode.Count = 1) and
            StandardCustomerSalesCode.IsInsertRecurringLinesOnDocumentAutomatic(SalesHeader)
@@ -34,7 +121,6 @@ codeunit 170 "Standard Codes Mgt."
         OnBeforeGetPurchRecurringLines(PurchHeader);
 
         StandardVendorPurchaseCode.SetFilterByAutomaticAndAlwaysAskCodes(PurchHeader);
-        StandardVendorPurchaseCode.SetRange("Vendor No.", PurchHeader."Buy-from Vendor No.");
         StandardVendorPurchaseCode.FindFirst;
         if (StandardVendorPurchaseCode.Count = 1) and
            StandardVendorPurchaseCode.IsInsertRecurringLinesOnDocumentAutomatic(PurchHeader)
@@ -164,23 +250,10 @@ codeunit 170 "Standard Codes Mgt."
     var
         StandardCustomerSalesCode: Record "Standard Customer Sales Code";
     begin
-        if SalesHeader.IsTemporary then
-            exit(false);
-
-        if SalesHeader."Sell-to Customer No." = '' then
-            exit(false);
-
-        if not IsSalesDocumentEmpty(SalesHeader) then
-            exit(false);
-
-        if SalesHeader."Document Type" in
-           [SalesHeader."Document Type"::"Blanket Order", SalesHeader."Document Type"::"Return Order"]
-        then
-            exit(false);
+        IF not CanCreateSalesRecurringLines(SalesHeader) then
+            exit;
 
         StandardCustomerSalesCode.SetFilterByAutomaticAndAlwaysAskCodes(SalesHeader);
-        StandardCustomerSalesCode.SetRange("Customer No.", SalesHeader."Sell-to Customer No.");
-        StandardCustomerSalesCode.SetRange("Currency Code", SalesHeader."Currency Code");
         exit(not StandardCustomerSalesCode.IsEmpty);
     end;
 
@@ -210,9 +283,103 @@ codeunit 170 "Standard Codes Mgt."
             exit(false);
 
         StandardVendorPurchaseCode.SetFilterByAutomaticAndAlwaysAskCodes(PurchHeader);
-        StandardVendorPurchaseCode.SetRange("Vendor No.", PurchHeader."Buy-from Vendor No.");
-        StandardVendorPurchaseCode.SetRange("Currency Code", PurchHeader."Currency Code");
         exit(not StandardVendorPurchaseCode.IsEmpty);
+    end;
+
+    [EventSubscriber(ObjectType::Page, 41, 'OnAfterValidateEvent', 'Sell-to Customer Name', false, false)]
+    local procedure OnAfterValidateSalesQuoteSellToCustomerName(var Rec: Record "Sales Header"; var xRec: Record "Sales Header")
+    begin
+        CheckCreateSalesRecurringLines(Rec);
+    end;
+
+    [EventSubscriber(ObjectType::Page, 41, 'OnAfterValidateEvent', 'Sell-to Customer No.', false, false)]
+    local procedure OnAfterValidateSalesQuoteSellToCustomerNo(var Rec: Record "Sales Header"; var xRec: Record "Sales Header")
+    begin
+        CheckCreateSalesRecurringLines(Rec);
+    end;
+
+    [EventSubscriber(ObjectType::Page, 42, 'OnAfterValidateEvent', 'Sell-to Customer Name', false, false)]
+    local procedure OnAfterValidateSalesOrderSellToCustomerName(var Rec: Record "Sales Header"; var xRec: Record "Sales Header")
+    begin
+        CheckCreateSalesRecurringLines(Rec);
+    end;
+
+    [EventSubscriber(ObjectType::Page, 42, 'OnAfterValidateEvent', 'Sell-to Customer No.', false, false)]
+    local procedure OnAfterValidateSalesOrderSellToCustomerNo(var Rec: Record "Sales Header"; var xRec: Record "Sales Header")
+    begin
+        CheckCreateSalesRecurringLines(Rec);
+    end;
+
+    [EventSubscriber(ObjectType::Page, 43, 'OnAfterValidateEvent', 'Sell-to Customer Name', false, false)]
+    local procedure OnAfterValidateSalesInvoiceSellToCustomerName(var Rec: Record "Sales Header"; var xRec: Record "Sales Header")
+    begin
+        CheckCreateSalesRecurringLines(Rec);
+    end;
+
+    [EventSubscriber(ObjectType::Page, 43, 'OnAfterValidateEvent', 'Sell-to Customer No.', false, false)]
+    local procedure OnAfterValidateSalesInvoiceSellToCustomerNo(var Rec: Record "Sales Header"; var xRec: Record "Sales Header")
+    begin
+        CheckCreateSalesRecurringLines(Rec);
+    end;
+
+    [EventSubscriber(ObjectType::Page, 44, 'OnAfterValidateEvent', 'Sell-to Customer Name', false, false)]
+    local procedure OnAfterValidateSalesCreditMemoSellToCustomerName(var Rec: Record "Sales Header"; var xRec: Record "Sales Header")
+    begin
+        CheckCreateSalesRecurringLines(Rec);
+    end;
+
+    [EventSubscriber(ObjectType::Page, 44, 'OnAfterValidateEvent', 'Sell-to Customer No.', false, false)]
+    local procedure OnAfterValidateSalesCreditMemoSellToCustomerNo(var Rec: Record "Sales Header"; var xRec: Record "Sales Header")
+    begin
+        CheckCreateSalesRecurringLines(Rec);
+    end;
+
+    [EventSubscriber(ObjectType::Page, 49, 'OnAfterValidateEvent', 'Buy-from Vendor Name', false, false)]
+    local procedure OnAfterValidatePurchaseQuoteSellToVendorName(var Rec: Record "Purchase Header"; var xRec: Record "Purchase Header")
+    begin
+        CheckCreatePurchRecurringLines(Rec);
+    end;
+
+    [EventSubscriber(ObjectType::Page, 49, 'OnAfterValidateEvent', 'Buy-from Vendor No.', false, false)]
+    local procedure OnAfterValidatePurchaseQuoteSellToVendorNo(var Rec: Record "Purchase Header"; var xRec: Record "Purchase Header")
+    begin
+        CheckCreatePurchRecurringLines(Rec);
+    end;
+
+    [EventSubscriber(ObjectType::Page, 51, 'OnAfterValidateEvent', 'Buy-from Vendor Name', false, false)]
+    local procedure OnAfterValidatePurchaseInvoiceSellToVendorName(var Rec: Record "Purchase Header"; var xRec: Record "Purchase Header")
+    begin
+        CheckCreatePurchRecurringLines(Rec);
+    end;
+
+    [EventSubscriber(ObjectType::Page, 51, 'OnAfterValidateEvent', 'Buy-from Vendor No.', false, false)]
+    local procedure OnAfterValidatePurchaseInvoiceSellToVendorNo(var Rec: Record "Purchase Header"; var xRec: Record "Purchase Header")
+    begin
+        CheckCreatePurchRecurringLines(Rec);
+    end;
+
+    [EventSubscriber(ObjectType::Page, 50, 'OnAfterValidateEvent', 'Buy-from Vendor Name', false, false)]
+    local procedure OnAfterValidatePurchaseOrderSellToVendorName(var Rec: Record "Purchase Header"; var xRec: Record "Purchase Header")
+    begin
+        CheckCreatePurchRecurringLines(Rec);
+    end;
+
+    [EventSubscriber(ObjectType::Page, 50, 'OnAfterValidateEvent', 'Buy-from Vendor No.', false, false)]
+    local procedure OnAfterValidatePurchaseOrderSellToVendorNo(var Rec: Record "Purchase Header"; var xRec: Record "Purchase Header")
+    begin
+        CheckCreatePurchRecurringLines(Rec);
+    end;
+
+    [EventSubscriber(ObjectType::Page, 52, 'OnAfterValidateEvent', 'Buy-from Vendor Name', false, false)]
+    local procedure OnAfterValidatePurchaseCreditMemoSellToVendorName(var Rec: Record "Purchase Header"; var xRec: Record "Purchase Header")
+    begin
+        CheckCreatePurchRecurringLines(Rec);
+    end;
+
+    [EventSubscriber(ObjectType::Page, 52, 'OnAfterValidateEvent', 'Buy-from Vendor No.', false, false)]
+    local procedure OnAfterValidatePurchaseCreditMemoSellToVendorNo(var Rec: Record "Purchase Header"; var xRec: Record "Purchase Header")
+    begin
+        CheckCreatePurchRecurringLines(Rec);
     end;
 
     [IntegrationEvent(false, false)]

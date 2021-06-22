@@ -206,7 +206,7 @@ codeunit 134030 "ERM VAT 2010"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateVATPostingSetup;
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM VAT 2010");
     end;
 
@@ -268,7 +268,7 @@ codeunit 134030 "ERM VAT 2010"
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
         // Select Journal Batch Name and Template Name.
-        GenJournalBatch.Init;
+        GenJournalBatch.Init();
         LibraryERM.SelectGenJnlBatch(GenJournalBatch);
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
 

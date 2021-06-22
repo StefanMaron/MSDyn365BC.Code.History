@@ -51,10 +51,10 @@ codeunit 138042 "O365 Page Dimensions"
         Dimensions.New;
         Dimensions.Code.SetValue(TestDimensionCode);
         Dimensions.OK.Invoke;
-        DimensionValue.Init;
+        DimensionValue.Init();
         DimensionValue."Dimension Code" := TestDimensionCode;
         DimensionValue.Code := TestDimensionValue;
-        DimensionValue.Insert;
+        DimensionValue.Insert();
         Dimensions.OpenEdit;
         DimensionValues.Trap;
         Dimensions.FindFirstField(Code, TestDimensionCode);
@@ -65,7 +65,7 @@ codeunit 138042 "O365 Page Dimensions"
         Dimensions.OK.Invoke;
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Page Dimensions");
     end;
 
@@ -76,7 +76,7 @@ codeunit 138042 "O365 Page Dimensions"
         LibraryLowerPermissions.SetOutsideO365Scope;
         case TableID of
             DATABASE::Resource:
-                Resource.DeleteAll;
+                Resource.DeleteAll();
         end;
         LibraryLowerPermissions.SetO365Full;
     end;

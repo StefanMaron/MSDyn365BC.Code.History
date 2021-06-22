@@ -45,7 +45,7 @@ codeunit 1395 "Cancel Issued Fin. Charge Memo"
     begin
         OnBeforeCancelIssuedFinChargeMemo(IssuedFinChargeMemoHeader);
 
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         SourceCodeSetup.TestField("Finance Charge Memo");
         FinChargeMemoSourceCode := SourceCodeSetup."Finance Charge Memo";
         FinanceChargeTerms.Get(IssuedFinChargeMemoHeader."Fin. Charge Terms Code");
@@ -81,7 +81,7 @@ codeunit 1395 "Cancel Issued Fin. Charge Memo"
               IssuedFinChargeMemoHeader."Customer No.", true, DocumentNo, PostingDate);
             TempGenJnlLine.Validate(Amount, TotalAmount);
             TempGenJnlLine.Validate("Amount (LCY)", TotalAmountLCY);
-            TempGenJnlLine.Insert;
+            TempGenJnlLine.Insert();
         end;
 
         if FeePosted then
@@ -122,7 +122,7 @@ codeunit 1395 "Cancel Issued Fin. Charge Memo"
         ReminderFinChargeEntry.SetRange("Customer Entry No.", IssuedFinChargeMemoLine."Entry No.");
         if ReminderFinChargeEntry.FindFirst then begin
             ReminderFinChargeEntry.Canceled := true;
-            ReminderFinChargeEntry.Modify;
+            ReminderFinChargeEntry.Modify();
         end;
     end;
 
@@ -144,7 +144,7 @@ codeunit 1395 "Cancel Issued Fin. Charge Memo"
                 TotalAmount := TotalAmount - TempGenJnlLine.Amount;
                 TotalAmountLCY := TotalAmountLCY - TempGenJnlLine."Balance (LCY)";
                 TempGenJnlLine."Bill-to/Pay-to No." := IssuedFinChargeMemoHeader."Customer No.";
-                TempGenJnlLine.Insert;
+                TempGenJnlLine.Insert();
             end;
     end;
 
@@ -164,7 +164,7 @@ codeunit 1395 "Cancel Issued Fin. Charge Memo"
             TotalAmount := TotalAmount - TempGenJnlLine.Amount;
             TotalAmountLCY := TotalAmountLCY - TempGenJnlLine."Balance (LCY)";
             TempGenJnlLine."Bill-to/Pay-to No." := "Customer No.";
-            TempGenJnlLine.Insert;
+            TempGenJnlLine.Insert();
         end;
     end;
 
@@ -219,7 +219,7 @@ codeunit 1395 "Cancel Issued Fin. Charge Memo"
         if UseSameDocumentNo then
             DocumentNo := IssuedFinChargeMemoHeader."No."
         else begin
-            SalesSetup.Get;
+            SalesSetup.Get();
             SalesSetup.TestField("Canc. Iss. Fin. Ch. Mem. Nos.");
             DocumentNo := NoSeriesManagement.GetNextNo(SalesSetup."Canc. Iss. Fin. Ch. Mem. Nos.", PostingDate, true);
         end;
@@ -234,7 +234,7 @@ codeunit 1395 "Cancel Issued Fin. Charge Memo"
                 GenJnlPostLine.RunWithCheck(TempGenJnlLine);
             until TempGenJnlLine.Next = 0;
 
-        TempGenJnlLine.DeleteAll;
+        TempGenJnlLine.DeleteAll();
     end;
 
     procedure SetParameters(NewUseSameDocumentNo: Boolean; NewUseSamePostingDate: Boolean; PostingDate: Date; NewSkipShowNotification: Boolean)
@@ -251,7 +251,7 @@ codeunit 1395 "Cancel Issued Fin. Charge Memo"
         IssuedFinChargeMemoHeader."Canceled By" := UserId;
         IssuedFinChargeMemoHeader."Canceled Date" := Today;
         IssuedFinChargeMemoHeader."Canceled By Document No." := DocumentNo;
-        IssuedFinChargeMemoHeader.Modify;
+        IssuedFinChargeMemoHeader.Modify();
     end;
 
     local procedure ShowAppliedCustomerLedgerEntryNotification(EntryNo: Integer; IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header")

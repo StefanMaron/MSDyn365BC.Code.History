@@ -31,7 +31,7 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
         LibraryLowerPermissions.SetOutsideO365Scope;
         case TableID of
             DATABASE::Resource:
-                Resource.DeleteAll;
+                Resource.DeleteAll();
         end;
         LibraryLowerPermissions.SetO365Full;
     end;
@@ -149,11 +149,11 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
         LibrarySmallBusiness.CreateItem(Item);
         LibraryService.CreateResponsibilityCenter(ResponsibilityCenter);
 
-        UserSetup.Init;
+        UserSetup.Init();
         UserSetup."User ID" := UserId;
         UserSetup.Validate("Purchase Resp. Ctr. Filter", ResponsibilityCenter.Code);
-        if not UserSetup.Insert then
-            UserSetup.Modify;
+        if not UserSetup.Insert() then
+            UserSetup.Modify();
 
         PurchaseCreditMemo.OpenNew;
         PurchaseCreditMemo."Buy-from Vendor Name".SetValue(Vend.Name);
@@ -166,7 +166,7 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
 
         LibraryService.CreateResponsibilityCenter(ResponsibilityCenter);
         UserSetup.Validate("Purchase Resp. Ctr. Filter", ResponsibilityCenter.Code);
-        UserSetup.Modify;
+        UserSetup.Modify();
 
         with PurchaseCreditMemo do begin
             OpenEdit;
@@ -190,7 +190,7 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
         LibrarySmallBusiness.CreateVendor(Vend);
         LibrarySmallBusiness.CreateItem(Item);
 
-        ExtendedTextHeader.Init;
+        ExtendedTextHeader.Init();
         ExtendedTextHeader.Validate("Table Name", ExtendedTextHeader."Table Name"::Item);
         ExtendedTextHeader.Validate("No.", Item."No.");
         ExtendedTextHeader.Validate("Purchase Invoice", true);
@@ -333,7 +333,7 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
 
         CreateVend(Vend);
         Vend."Payment Terms Code" := '';
-        Vend.Modify;
+        Vend.Modify();
 
         PurchaseCreditMemo.OpenNew;
         PurchaseCreditMemo."Buy-from Vendor Name".SetValue(Vend.Name);
@@ -457,12 +457,12 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
 
         LibraryERMCountryData.CreateVATData;
 
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup."Automatic Cost Posting" := false;
-        InventorySetup.Modify;
+        InventorySetup.Modify();
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Simplify UI Purch.Cr.Memo");
     end;
 
@@ -482,7 +482,7 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
     begin
         Vendor.Get(VendorNo);
         Vendor.Validate("Disable Search by Name", true);
-        Vendor.Modify;
+        Vendor.Modify();
     end;
 
     local procedure VerifyPurchCreditMemoAgainstVend(PurchaseCreditMemo: TestPage "Purchase Credit Memo"; Vend: Record Vendor)
@@ -542,7 +542,7 @@ codeunit 138026 "O365 Simplify UI Purch.Cr.Memo"
     var
         ExtendedTextLine: Record "Extended Text Line";
     begin
-        ExtendedTextLine.Init;
+        ExtendedTextLine.Init();
         ExtendedTextLine.Validate("Table Name", ExtendedTextHeader."Table Name");
         ExtendedTextLine.Validate("No.", ExtendedTextHeader."No.");
         ExtendedTextLine.Validate("Language Code", ExtendedTextHeader."Language Code");

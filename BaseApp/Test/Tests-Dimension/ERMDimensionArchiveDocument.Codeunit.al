@@ -536,7 +536,7 @@ codeunit 134481 "ERM Dimension Archive Document"
         ShortcutDimensionCode: Code[20];
     begin
         // Create Customer, Item, Sales Header and Sales Line with Dimension.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         ShortcutDimensionCode := GeneralLedgerSetup."Shortcut Dimension 1 Code";
         CreateSalesOrder(SalesHeader, SalesLine);
         CreateSalesDimSetEntryHeader(SalesHeader, ShortcutDimensionCode);
@@ -556,7 +556,7 @@ codeunit 134481 "ERM Dimension Archive Document"
         ShortcutDimensionCode: Code[20];
     begin
         // Setup: Create Vendor, Item, Purchase Header and Purchase Line with Dimension.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         ShortcutDimensionCode := GeneralLedgerSetup."Shortcut Dimension 1 Code";
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine);
         CreatePurchDimSetEntryHeader(PurchaseHeader, ShortcutDimensionCode);
@@ -615,7 +615,7 @@ codeunit 134481 "ERM Dimension Archive Document"
     begin
         repeat
             TempDimensionSetEntry := DimensionSetEntry;
-            TempDimensionSetEntry.Insert;
+            TempDimensionSetEntry.Insert();
         until DimensionSetEntry.Next = 0;
     end;
 

@@ -1,4 +1,4 @@
-﻿page 6627 "Sales Return Order Archive"
+page 6627 "Sales Return Order Archive"
 {
     Caption = 'Sales Return Order Archive';
     DeleteAllowed = false;

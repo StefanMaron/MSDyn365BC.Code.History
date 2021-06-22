@@ -29,11 +29,9 @@ table 5601 "FA Ledger Entry"
         {
             Caption = 'Posting Date';
         }
-        field(6; "Document Type"; Option)
+        field(6; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(7; "Document Date"; Date)
         {
@@ -62,11 +60,9 @@ table 5601 "FA Ledger Entry"
             OptionCaption = ' ,Disposal,Bal. Disposal';
             OptionMembers = " ",Disposal,"Bal. Disposal";
         }
-        field(13; "FA Posting Type"; Option)
+        field(13; "FA Posting Type"; Enum "FA Ledger Entry FA Posting Type")
         {
             Caption = 'FA Posting Type';
-            OptionCaption = 'Acquisition Cost,Depreciation,Write-Down,Appreciation,Custom 1,Custom 2,Proceeds on Disposal,Salvage Value,Gain/Loss,Book Value on Disposal';
-            OptionMembers = "Acquisition Cost",Depreciation,"Write-Down",Appreciation,"Custom 1","Custom 2","Proceeds on Disposal","Salvage Value","Gain/Loss","Book Value on Disposal";
         }
         field(14; Amount; Decimal)
         {
@@ -160,11 +156,9 @@ table 5601 "FA Ledger Entry"
             //This property is currently not supported
             //TestTableRelation = false;
         }
-        field(33; "Depreciation Method"; Option)
+        field(33; "Depreciation Method"; Enum "FA Depreciation Method")
         {
             Caption = 'Depreciation Method';
-            OptionCaption = 'Straight-Line,Declining-Balance 1,Declining-Balance 2,DB1/SL,DB2/SL,User-Defined,Manual';
-            OptionMembers = "Straight-Line","Declining-Balance 1","Declining-Balance 2","DB1/SL","DB2/SL","User-Defined",Manual;
         }
         field(34; "Depreciation Starting Date"; Date)
         {
@@ -213,11 +207,9 @@ table 5601 "FA Ledger Entry"
         {
             Caption = 'Transaction No.';
         }
-        field(44; "Bal. Account Type"; Option)
+        field(44; "Bal. Account Type"; enum "Gen. Journal Account Type")
         {
             Caption = 'Bal. Account Type';
-            OptionCaption = 'G/L Account,Customer,Vendor,Bank Account,Fixed Asset';
-            OptionMembers = "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset";
         }
         field(45; "Bal. Account No."; Code[20])
         {
@@ -443,11 +435,18 @@ table 5601 "FA Ledger Entry"
         DimMgt: Codeunit DimensionManagement;
         NextLineNo: Integer;
 
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
+    end;
+
     procedure MoveToGenJnl(var GenJnlLine: Record "Gen. Journal Line")
     begin
         NextLineNo := GenJnlLine."Line No.";
         GenJnlLine."Line No." := 0;
-        GenJnlLine.Init;
+        GenJnlLine.Init();
         FAJnlSetup.SetGenJnlTrailCodes(GenJnlLine);
         GenJnlLine."FA Posting Type" := ConvertPostingType + 1;
         GenJnlLine."Posting Date" := "Posting Date";
@@ -477,7 +476,7 @@ table 5601 "FA Ledger Entry"
     begin
         NextLineNo := FAJnlLine."Line No.";
         FAJnlLine."Line No." := 0;
-        FAJnlLine.Init;
+        FAJnlLine.Init();
         FAJnlSetup.SetFAJnlTrailCodes(FAJnlLine);
         FAJnlLine."FA Posting Type" := ConvertPostingType;
         FAJnlLine."Posting Date" := "Posting Date";

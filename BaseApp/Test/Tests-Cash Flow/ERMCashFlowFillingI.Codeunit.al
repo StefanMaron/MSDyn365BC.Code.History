@@ -369,7 +369,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         CFHelper.CreateCashFlowForecastDefault(CashFlowForecast);
         InvestmentAmount := LibraryRandom.RandDec(2000, 2);
         Evaluate(FAPostingDateFormula, '<1M>');
-        FASetup.Get;
+        FASetup.Get();
         CFHelper.CreateFixedAssetForInvestment(FixedAsset, FASetup."Default Depr. Book", FAPostingDateFormula, InvestmentAmount);
         ExpectedDueAndCFDate := CalcDate(FAPostingDateFormula, WorkDate);
 
@@ -406,7 +406,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         Evaluate(DeprecEndDateFormula, '<1M-D5>');
         Evaluate(ExpectedDisposalDateFormula, '<1M+1W-WD1>');
         ExpectedDisposalAmount := LibraryRandom.RandDec(2000, 2);
-        FASetup.Get;
+        FASetup.Get();
         CFHelper.CreateFixedAssetForDisposal(FixedAsset, FASetup."Default Depr. Book", DeprecStartDateFormula, DeprecEndDateFormula,
           ExpectedDisposalDateFormula, ExpectedDisposalAmount);
         ExpectedDueAndCFDate := CalcDate(ExpectedDisposalDateFormula, WorkDate);
@@ -540,7 +540,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         Initialize;
         CFHelper.CreateCashFlowForecastConsiderDiscount(CashFlowForecast);
         CFHelper.SetPmtToleranceOptionsOnCashFlowForecast(CashFlowForecast, true, false);
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         CFHelper.CreateRandomDateFormula(PmtDiscountGracePeriod);
         CFHelper.SetupPmtDsctGracePeriod(PmtDiscountGracePeriod);
         LibraryERM.GetDiscountPaymentTerm(PaymentTerms);
@@ -1046,25 +1046,25 @@ codeunit 134551 "ERM Cash Flow Filling I"
         Initialize;
 
         // Setup - set the Tax schedule on CashFlowSetup
-        CashFlowSetup.Get;
+        CashFlowSetup.Get();
         CashFlowSetup."Taxable Period" := CashFlowSetup."Taxable Period"::Quarterly;
         Evaluate(CashFlowSetup."Tax Payment Window", '<5D>');
-        CashFlowSetup.Modify;
+        CashFlowSetup.Modify();
         DocumentDate1 := CalcDate('<-CQ+1D>', WorkDate);
         DocumentDate2 := CalcDate('<CQ>', WorkDate);
         DocumentDate3 := CalcDate('<3D>', DocumentDate2);
 
         // Setup - create the sales orders - 2 in the same tax period and the third a little later
-        SalesHeader1.DeleteAll;
+        SalesHeader1.DeleteAll();
         CFHelper.CreateDefaultSalesOrder(SalesHeader1);
         SalesHeader1."Document Date" := DocumentDate1;
-        SalesHeader1.Modify;
+        SalesHeader1.Modify();
         CFHelper.CreateDefaultSalesOrder(SalesHeader2);
         SalesHeader2."Document Date" := DocumentDate2;
-        SalesHeader2.Modify;
+        SalesHeader2.Modify();
         CFHelper.CreateDefaultSalesOrder(SalesHeader3);
         SalesHeader3."Document Date" := DocumentDate3;
-        SalesHeader3.Modify;
+        SalesHeader3.Modify();
 
         // Setup - create the forecast entity
         CFHelper.CreateCashFlowForecastDefault(CashFlowForecast);
@@ -1113,18 +1113,18 @@ codeunit 134551 "ERM Cash Flow Filling I"
             GLAccount."Gen. Bus. Posting Group", GLAccount."VAT Bus. Posting Group"));
 
         // Setup - set the Tax schedule on CashFlowSetup
-        CashFlowSetup.Get;
+        CashFlowSetup.Get();
         CashFlowSetup."Taxable Period" := CashFlowSetup."Taxable Period"::Quarterly;
         Evaluate(CashFlowSetup."Tax Payment Window", '<5D>');
         CashFlowSetup."Tax Bal. Account Type" := CashFlowSetup."Tax Bal. Account Type"::Vendor;
         CashFlowSetup."Tax Bal. Account No." := Vendor."No.";
-        CashFlowSetup.Modify;
+        CashFlowSetup.Modify();
         DocumentDate := CalcDate('<-CQ-30D>', WorkDate);
 
         // Setup - create the sales order
         CFHelper.CreateDefaultSalesOrder(SalesHeader);
         SalesHeader."Document Date" := DocumentDate;
-        SalesHeader.Modify;
+        SalesHeader.Modify();
 
         // Setup - create the forecast entity
         CFHelper.CreateCashFlowForecastDefault(CashFlowForecast);
@@ -1137,7 +1137,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         BankAccountLedgerEntry."Bal. Account No." := CashFlowSetup."Tax Bal. Account No.";
         BankAccountLedgerEntry."Amount (LCY)" := LibraryRandom.RandDec(100, 2);
         BankAccountLedgerEntry."Posting Date" := CalcDate('<-1D>', TaxDueDate);
-        BankAccountLedgerEntry.Insert;
+        BankAccountLedgerEntry.Insert();
 
         // Exercise
         ConsiderSource[SourceType::Tax] := true;
@@ -1165,13 +1165,13 @@ codeunit 134551 "ERM Cash Flow Filling I"
         Initialize;
 
         // Setup - set the Tax schedule on CashFlowSetup
-        CashFlowSetup.Get;
+        CashFlowSetup.Get();
         CashFlowSetup."Taxable Period" := CashFlowSetup."Taxable Period"::Quarterly;
         Evaluate(CashFlowSetup."Tax Payment Window", '<5D>');
-        CashFlowSetup.Modify;
+        CashFlowSetup.Modify();
 
         // Setup: Create two purchase orders
-        PurchaseHeader1.DeleteAll;
+        PurchaseHeader1.DeleteAll();
         CFHelper.CreateDefaultPurchaseOrder(PurchaseHeader1);
         CFHelper.CreateDefaultPurchaseOrder(PurchaseHeader2);
 
@@ -1203,21 +1203,21 @@ codeunit 134551 "ERM Cash Flow Filling I"
         Initialize;
 
         // Setup - set the Tax schedule on CashFlowSetup
-        CashFlowSetup.Get;
+        CashFlowSetup.Get();
         CashFlowSetup."Taxable Period" := CashFlowSetup."Taxable Period"::Quarterly;
         Evaluate(CashFlowSetup."Tax Payment Window", '<5D>');
-        CashFlowSetup.Modify;
+        CashFlowSetup.Modify();
         DocumentDatePrevPeriod := CalcDate('<-CQ-30D>', WorkDate);
         DocumentDateOlderThenPrevPeriod := CalcDate('<-CQ-30D>', DocumentDatePrevPeriod);
 
         // Setup - create the sales orders
         CFHelper.CreateDefaultSalesOrder(SalesHeaderPrevPeriod);
         SalesHeaderPrevPeriod."Document Date" := DocumentDatePrevPeriod;
-        SalesHeaderPrevPeriod.Modify;
+        SalesHeaderPrevPeriod.Modify();
         SalesHeaderPrevPeriod.CalcFields("Amount Including VAT", Amount);
         CFHelper.CreateDefaultSalesOrder(SalesHeaderOlderThanPrevPeriod);
         SalesHeaderOlderThanPrevPeriod."Document Date" := DocumentDateOlderThenPrevPeriod;
-        SalesHeaderOlderThanPrevPeriod.Modify;
+        SalesHeaderOlderThanPrevPeriod.Modify();
 
         // Setup - create the forecast entity
         CFHelper.CreateCashFlowForecastDefault(CashFlowForecast);
@@ -2091,7 +2091,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Cash Flow Filling I");
     end;
 

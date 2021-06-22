@@ -138,7 +138,7 @@ codeunit 134983 "ERM Purchase Reports"
 
         // Setup: Modify Purchase & Payables Setup.
         Initialize;
-        PurchSetup.Get;
+        PurchSetup.Get();
         PurchSetup.Validate("Ext. Doc. No. Mandatory", true);
         PurchSetup.Modify(true);
 
@@ -826,7 +826,7 @@ codeunit 134983 "ERM Purchase Reports"
         Vendor.SetRange("No.", PurchaseHeader."Buy-from Vendor No.");
         VendorTop10List.SetTableView(Vendor);
         LibraryVariableStorage.Enqueue(ShowType);
-        Commit;
+        Commit();
         VendorTop10List.Run;
 
         // Verify: Verify Saved Report with Different Fields data.
@@ -839,7 +839,7 @@ codeunit 134983 "ERM Purchase Reports"
         LibraryReportDataset.AssertCurrentRowValueEquals('Vendor__Purchases__LCY___Control23', -VendorLedgerEntry."Purchase (LCY)");
         LibraryReportDataset.AssertCurrentRowValueEquals('STRSUBSTNO_Text003_SELECTSTR_ShowType_1_Text004__',
           StrSubstNo(AgedLbl, SelectStr(ShowType + 1, Aged2Lbl)));
-        LibraryReportDataset.Reset;
+        LibraryReportDataset.Reset();
         Assert.AreEqual(TotalPurchase,
           (LibraryReportDataset.Sum('Vendor__Purchases__LCY__') * 100) / LibraryReportDataset.Sum('TotalVenPurchases'),
           StrSubstNo(ValidationErr, Vendor.FieldCaption("Balance (LCY)"), TotalPurchase));
@@ -871,7 +871,7 @@ codeunit 134983 "ERM Purchase Reports"
         Clear(VendorItemPurchases);
         Vendor.SetRange("No.", PurchaseHeader."Buy-from Vendor No.");
         VendorItemPurchases.SetTableView(Vendor);
-        Commit;
+        Commit();
         VendorItemPurchases.Run;
         LibraryReportDataset.LoadDataSetFile;
 
@@ -885,7 +885,7 @@ codeunit 134983 "ERM Purchase Reports"
         LibraryReportDataset.AssertCurrentRowValueEquals('Value_Entry___Cost_Amount__Actual__', ValueEntry."Cost Amount (Actual)");
         LibraryReportDataset.AssertCurrentRowValueEquals('Value_Entry___Discount_Amount_', ValueEntry."Discount Amount");
         LibraryReportDataset.AssertCurrentRowValueEquals('Value_Entry__Invoiced_Quantity_', ValueEntry."Invoiced Quantity");
-        LibraryReportDataset.Reset;
+        LibraryReportDataset.Reset();
         Assert.AreEqual(ValueEntry."Cost Amount (Actual)", LibraryReportDataset.Sum('Value_Entry___Cost_Amount__Actual__'),
           StrSubstNo(ValidationErr, ValueEntry.FieldCaption("Cost Amount (Actual)"), ValueEntry."Cost Amount (Actual)"));
         Assert.AreEqual(ValueEntry."Discount Amount", LibraryReportDataset.Sum('Value_Entry___Discount_Amount_'),
@@ -1026,7 +1026,7 @@ codeunit 134983 "ERM Purchase Reports"
         // Exercise: Run Order report.
 
         PurchaseHeader.SetRange("No.", PurchaseHeader."No.");
-        Commit;
+        Commit();
         REPORT.Run(REPORT::Order, true, false, PurchaseHeader);
 
         // Verify: Verifying that no repeation of line exist on report.
@@ -1050,7 +1050,7 @@ codeunit 134983 "ERM Purchase Reports"
 
         // [WHEN] Run Order report.
         PurchaseHeader.SetRange("No.", PurchaseHeader."No.");
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Standard Purchase - Order", true, false, PurchaseHeader);
 
         // [THEN] Verifying that no repeation of line exist on report.
@@ -1201,7 +1201,7 @@ codeunit 134983 "ERM Purchase Reports"
         Initialize;
 
         // [GIVEN] Report "Purchase - Quote" was run for the first time, "Archive Document" flag state was changed before the report was run.
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(false);
         REPORT.Run(REPORT::"Purchase - Quote");
         ArchiveDocValue := LibraryVariableStorage.DequeueText;
@@ -1229,7 +1229,7 @@ codeunit 134983 "ERM Purchase Reports"
         Initialize;
 
         // [GIVEN] Report "Order" was run for the first time, "Archive Document" flag state was changed before the report was run.
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(false);
         REPORT.Run(REPORT::Order);
         ArchiveDocValue := LibraryVariableStorage.DequeueText;
@@ -1257,7 +1257,7 @@ codeunit 134983 "ERM Purchase Reports"
         Initialize;
 
         // [GIVEN] Report "Blanket Purchase Order" was run for the first time, "Archive Document" flag state was changed before the report was run.
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(false);
         REPORT.Run(REPORT::"Blanket Purchase Order");
         ArchiveDocValue := LibraryVariableStorage.DequeueText;
@@ -1285,7 +1285,7 @@ codeunit 134983 "ERM Purchase Reports"
         Initialize;
 
         // [GIVEN] Report "Standard Purchase - Order" was run for the first time, "Archive Document" flag state was changed before the report was run.
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(false);
         REPORT.Run(REPORT::"Standard Purchase - Order");
         ArchiveDocValue := LibraryVariableStorage.DequeueText;
@@ -1318,7 +1318,7 @@ codeunit 134983 "ERM Purchase Reports"
         // [WHEN] Run Order report.
         LibraryVariableStorage.Enqueue(PurchaseHeader."No.");
         PurchaseHeader.SetRange("No.", PurchaseHeader."No.");
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Standard Purchase - Order", true, false, PurchaseHeader);
 
         // [THEN] Verifying that "Job No." and "Job Task No." exist on report.
@@ -1347,7 +1347,7 @@ codeunit 134983 "ERM Purchase Reports"
         // [WHEN] Run Order report.
         LibraryVariableStorage.Enqueue(PurchaseHeader."No.");
         PurchaseHeader.SetRange("No.", PurchaseHeader."No.");
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Standard Purchase - Order", true, false, PurchaseHeader);
 
         // [THEN] Verifying that Unit Price exists on report.
@@ -1432,14 +1432,14 @@ codeunit 134983 "ERM Purchase Reports"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Purchase Reports");
     end;
 
     local procedure CopyPurchaseLine(var TempPurchaseLine: Record "Purchase Line" temporary; PurchaseLine: Record "Purchase Line")
     begin
         TempPurchaseLine := PurchaseLine;
-        TempPurchaseLine.Insert;
+        TempPurchaseLine.Insert();
     end;
 
     local procedure CreateAndPostPurchaseOrder(var PurchaseLine: Record "Purchase Line"; VATDifference: Decimal) PostedDocumentNo: Code[20]
@@ -1589,12 +1589,12 @@ codeunit 134983 "ERM Purchase Reports"
         PurchaseLine: Record "Purchase Line";
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
-        PurchaseLine.Init;
+        PurchaseLine.Init();
         PurchaseLine."Document Type" := PurchaseHeader."Document Type"::Order;
         PurchaseLine."Document No." := PurchaseHeader."No.";
         PurchaseLine."Line No." := 10000;
         PurchaseLine.Description := PurchaseHeader."No.";
-        PurchaseLine.Insert;
+        PurchaseLine.Insert();
     end;
 
     local procedure CreatePurchaseLine(PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20])
@@ -1696,13 +1696,13 @@ codeunit 134983 "ERM Purchase Reports"
         LibraryVariableStorage.Enqueue(DocumentNo);
         LibraryVariableStorage.Enqueue(AddCurrency);
         LibraryVariableStorage.Enqueue(false);
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"VAT Exceptions");
     end;
 
     local procedure RunVendorListReport(var Vendor: Record Vendor)
     begin
-        Commit;
+        Commit();
         Vendor.SetRange("No.", Vendor."No.");
         REPORT.Run(REPORT::"Vendor - List", true, false, Vendor);
     end;
@@ -1775,7 +1775,7 @@ codeunit 134983 "ERM Purchase Reports"
         PurchCrMemoHdr.SetRange("No.", DocumentNo);
         PurchaseCreditMemo.SetTableView(PurchCrMemoHdr);
         PurchaseCreditMemo.InitializeRequest(0, ShowInternalInfo, LogInteraction);  // Using 0 for No. of Copies.
-        Commit;
+        Commit();
         PurchaseCreditMemo.Run;
     end;
 
@@ -1788,7 +1788,7 @@ codeunit 134983 "ERM Purchase Reports"
         PurchaseHeader.SetRange("No.", DocumentNo);
         PurchaseDocumentTest.SetTableView(PurchaseHeader);
         PurchaseDocumentTest.InitializeRequest(Receive, Invoice, ShowDimension, ShowItemCharge);
-        Commit;
+        Commit();
         PurchaseDocumentTest.Run
     end;
 
@@ -1802,7 +1802,7 @@ codeunit 134983 "ERM Purchase Reports"
         PurchaseHeader.SetRange("No.", DocumentNo);
         PurchasePrepmtDocTest.SetTableView(PurchaseHeader);
         PurchasePrepmtDocTest.InitializeRequest(DocumentType::Invoice, false); // ShowDim = FALSE
-        Commit;
+        Commit();
         PurchasePrepmtDocTest.Run
     end;
 
@@ -1815,7 +1815,7 @@ codeunit 134983 "ERM Purchase Reports"
         LibraryVariableStorage.Enqueue(ShowInternalInfo);
         LibraryVariableStorage.Enqueue(LogInteraction);
 
-        Commit;
+        Commit();
         Clear(PurchaseInvoice);
         PurchInvHeader.SetRange("No.", DocumentNo);
         PurchaseInvoice.SetTableView(PurchInvHeader);
@@ -1830,7 +1830,7 @@ codeunit 134983 "ERM Purchase Reports"
         LibraryVariableStorage.Enqueue(ArchiveDocument);
         LibraryVariableStorage.Enqueue(LogInteraction);
         PurchaseHeader.SetRange("No.", DocumentNo);
-        Commit;
+        Commit();
         REPORT.Run(REPORT::Order, true, false, PurchaseHeader);
     end;
 
@@ -1840,7 +1840,7 @@ codeunit 134983 "ERM Purchase Reports"
     begin
         LibraryVariableStorage.Enqueue(LogInteraction);
         PurchaseHeader.SetRange("No.", DocumentNo);
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Standard Purchase - Order", true, false, PurchaseHeader);
     end;
 
@@ -1853,7 +1853,7 @@ codeunit 134983 "ERM Purchase Reports"
         ReturnShipmentHeader.SetRange("No.", No);
         PurchaseReturnShipment.SetTableView(ReturnShipmentHeader);
         PurchaseReturnShipment.InitializeRequest(0, ShowInternalInfo, ShowCorrectionLines, ShowLogInteract);  // Using 0 for No. of Copies.
-        Commit;
+        Commit();
         PurchaseReturnShipment.Run;
         LibraryReportDataset.LoadDataSetFile;
     end;
@@ -1874,7 +1874,7 @@ codeunit 134983 "ERM Purchase Reports"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         OldAdditionalReportingCurrency := GeneralLedgerSetup."Additional Reporting Currency";
         GeneralLedgerSetup."Additional Reporting Currency" := AdditionalReportingCurrency;
         GeneralLedgerSetup.Modify(true);
@@ -2005,7 +2005,7 @@ codeunit 134983 "ERM Purchase Reports"
         TotalAmountInDec: Variant;
         VATAmountInDec: Variant;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryReportDataset.SetRange('DocumentNo_VatEntry', DocumentNo);
         if not LibraryReportDataset.GetNextRow then
             Error(StrSubstNo(RowNotFoundErr, 'DocumentNo_VatEntry', DocumentNo));

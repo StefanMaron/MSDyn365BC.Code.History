@@ -124,7 +124,7 @@ page 1288 "Payment-to-Entry Match"
         GetBankAccReconciliationLine(StatementType, BankAccountNo, StatementNo, StatementLineNo, AccountType);
 
         if AppliesToEntryNo = 0 then begin // TextMapper
-            BankPmtApplRule.Init;
+            BankPmtApplRule.Init();
             NoOfLedgerEntriesWithinAmountTolerance := 0;
             NoOfLedgerEntriesOutsideAmountTolerance := 0;
         end else begin

@@ -1,4 +1,4 @@
-﻿page 5856 "Get Post.Doc - P.RcptLn Sbfrm"
+page 5856 "Get Post.Doc - P.RcptLn Sbfrm"
 {
     Caption = 'Lines';
     Editable = false;
@@ -298,7 +298,7 @@
         RemainingQty2: Decimal;
         RevUnitCostLCY2: Decimal;
     begin
-        TempPurchRcptLine.Reset;
+        TempPurchRcptLine.Reset();
         TempPurchRcptLine.CopyFilters(Rec);
         TempPurchRcptLine.SetRange("Document No.", "Document No.");
         if not TempPurchRcptLine.FindFirst then begin
@@ -312,7 +312,7 @@
                 ShowRec := IsShowRec(PurchRcptLine2);
                 if ShowRec then begin
                     TempPurchRcptLine := PurchRcptLine2;
-                    TempPurchRcptLine.Insert;
+                    TempPurchRcptLine.Insert();
                 end;
             until (PurchRcptLine2.Next = 0) or ShowRec;
             RemainingQty := RemainingQty2;
@@ -353,8 +353,8 @@
         Visible := NewVisible;
 
         if Visible then begin
-            TempPurchRcptLine.Reset;
-            TempPurchRcptLine.DeleteAll;
+            TempPurchRcptLine.Reset();
+            TempPurchRcptLine.DeleteAll();
         end;
     end;
 

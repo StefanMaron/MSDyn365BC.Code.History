@@ -8,11 +8,9 @@ table 5478 "Purch. Inv. Line Aggregate"
         {
             Caption = 'Line No.';
         }
-        field(5; Type; Option)
+        field(5; Type; Enum "Purchase Line Type")
         {
             Caption = 'Type';
-            OptionCaption = ' ,G/L Account,Item,,Fixed Asset,Charge (Item)';
-            OptionMembers = " ","G/L Account",Item,,"Fixed Asset","Charge (Item)";
 
             trigger OnValidate()
             begin

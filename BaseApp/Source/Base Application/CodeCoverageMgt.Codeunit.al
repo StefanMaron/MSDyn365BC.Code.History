@@ -10,7 +10,7 @@ codeunit 9990 "Code Coverage Mgt."
         [WithEvents]
         Timer: DotNet Timer;
         BackupErr: Label 'Code Coverage Backup encountered an error: %1.';
-        FormatStringTxt: Label '<Day,2>_<Month,2>_<Year>_<Hours24,2>_<Minutes,2>.';
+        FormatStringTxt: Label '<Day,2>_<Month,2>_<Year>_<Hours24,2>_<Minutes,2>.', Locked = true;
         BackupFilePath: Text[1024];
         SummaryFilePath: Text[1024];
         BackupPathFormatTxt: Label 'CodeCoverageBackup_%1.txt';
@@ -49,7 +49,7 @@ codeunit 9990 "Code Coverage Mgt."
     var
         CodeCoverage: Record "Code Coverage";
     begin
-        CodeCoverage.DeleteAll;
+        CodeCoverage.DeleteAll();
     end;
 
     procedure Import()

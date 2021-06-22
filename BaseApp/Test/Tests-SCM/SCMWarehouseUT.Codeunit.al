@@ -44,7 +44,7 @@ codeunit 137831 "SCM - Warehouse UT"
         CreateInventoryPickFromWarehouseRequest(WarehouseRequest);
 
         // VERIFY : No pick is made
-        WhseActivityLine.Reset;
+        WhseActivityLine.Reset();
         WhseActivityLine.SetRange("Activity Type", WhseActivityLine."Activity Type"::"Invt. Pick");
         WhseActivityLine.SetRange("Item No.", BinContent."Item No.");
         Assert.IsTrue(WhseActivityLine.IsEmpty, 'No inventory pick to be made.');
@@ -74,7 +74,7 @@ codeunit 137831 "SCM - Warehouse UT"
         CreateInventoryPickFromWarehouseRequest(WarehouseRequest);
 
         // VERIFY : Full pick is made but 1 line with qty 2 and lot 1 and another without lot
-        WhseActivityLine.Reset;
+        WhseActivityLine.Reset();
         WhseActivityLine.SetRange("Activity Type", WhseActivityLine."Activity Type"::"Invt. Pick");
         WhseActivityLine.SetRange("Item No.", BinContent."Item No.");
         WhseActivityLine.SetRange("Lot No.", Lot1Code);
@@ -111,7 +111,7 @@ codeunit 137831 "SCM - Warehouse UT"
         CreateInventoryPickFromWarehouseRequest(WarehouseRequest);
 
         // VERIFY : Pick is made only for unspecified lot
-        WhseActivityLine.Reset;
+        WhseActivityLine.Reset();
         WhseActivityLine.SetRange("Activity Type", WhseActivityLine."Activity Type"::"Invt. Pick");
         WhseActivityLine.SetRange("Item No.", BinContent."Item No.");
         WhseActivityLine.SetRange("Lot No.", Lot2Code);
@@ -152,7 +152,7 @@ codeunit 137831 "SCM - Warehouse UT"
         CreateInventoryPickFromWarehouseRequest(WarehouseRequest);
 
         // VERIFY : Pick is made only for unspecified lot
-        WhseActivityLine.Reset;
+        WhseActivityLine.Reset();
         WhseActivityLine.SetRange("Activity Type", WhseActivityLine."Activity Type"::"Invt. Pick");
         WhseActivityLine.SetRange("Item No.", BinContent."Item No.");
         WhseActivityLine.SetRange("Lot No.", Lot1Code);
@@ -191,7 +191,7 @@ codeunit 137831 "SCM - Warehouse UT"
         CreateInventoryPickFromWarehouseRequest(WarehouseRequest);
 
         // VERIFY : Pick is made only for unspecified lot
-        WhseActivityLine.Reset;
+        WhseActivityLine.Reset();
         WhseActivityLine.SetRange("Activity Type", WhseActivityLine."Activity Type"::"Invt. Pick");
         WhseActivityLine.SetRange("Item No.", BinContent."Item No.");
         WhseActivityLine.SetRange("Lot No.", Lot1Code);
@@ -227,7 +227,7 @@ codeunit 137831 "SCM - Warehouse UT"
         CreateInventoryPickFromWarehouseRequest(WarehouseRequest);
 
         // VERIFY : Pick is made only for unspecified lot
-        WhseActivityLine.Reset;
+        WhseActivityLine.Reset();
         WhseActivityLine.SetRange("Activity Type", WhseActivityLine."Activity Type"::"Invt. Pick");
         WhseActivityLine.SetRange("Item No.", BinContent."Item No.");
         WhseActivityLine.SetRange("Lot No.", Lot1Code);
@@ -264,7 +264,7 @@ codeunit 137831 "SCM - Warehouse UT"
         CreateInventoryPickFromWarehouseRequest(WarehouseRequest);
 
         // VERIFY : Pick is made only for unspecified lot
-        WhseActivityLine.Reset;
+        WhseActivityLine.Reset();
         WhseActivityLine.SetRange("Activity Type", WhseActivityLine."Activity Type"::"Invt. Pick");
         WhseActivityLine.SetRange("Item No.", BinContent."Item No.");
         WhseActivityLine.SetRange("Lot No.", Lot1Code);
@@ -305,7 +305,7 @@ codeunit 137831 "SCM - Warehouse UT"
         CreateInventoryPickFromWarehouseRequest(WarehouseRequest);
 
         // VERIFY : Pick is made only for unspecified lot
-        WhseActivityLine.Reset;
+        WhseActivityLine.Reset();
         WhseActivityLine.SetRange("Activity Type", WhseActivityLine."Activity Type"::"Invt. Pick");
         WhseActivityLine.SetRange("Item No.", BinContent."Item No.");
         WhseActivityLine.SetRange("Lot No.", Lot1Code);
@@ -371,7 +371,7 @@ codeunit 137831 "SCM - Warehouse UT"
         CreateWarehousePickFromShipment(WarehouseShipmentLine);
 
         // VERIFY : Full pick is made but 1 line with qty 2 and lot 1 and another without lot
-        WhseActivityLine.Reset;
+        WhseActivityLine.Reset();
         WhseActivityLine.SetRange("Activity Type", WhseActivityLine."Activity Type"::Pick);
         WhseActivityLine.SetRange("Action Type", WhseActivityLine."Action Type"::Take);
         WhseActivityLine.SetRange("Item No.", BinContent."Item No.");
@@ -409,7 +409,7 @@ codeunit 137831 "SCM - Warehouse UT"
         CreateWarehousePickFromShipment(WarehouseShipmentLine);
 
         // VERIFY : Pick is made only for unspecified lot
-        WhseActivityLine.Reset;
+        WhseActivityLine.Reset();
         WhseActivityLine.SetRange("Activity Type", WhseActivityLine."Activity Type"::Pick);
         WhseActivityLine.SetRange("Item No.", BinContent."Item No.");
         WhseActivityLine.SetRange("Lot No.", Lot2Code);
@@ -451,7 +451,7 @@ codeunit 137831 "SCM - Warehouse UT"
         CreateWarehousePickFromShipment(WarehouseShipmentLine);
 
         // VERIFY : Pick is made only for unspecified lot
-        WhseActivityLine.Reset;
+        WhseActivityLine.Reset();
         WhseActivityLine.SetRange("Activity Type", WhseActivityLine."Activity Type"::Pick);
         WhseActivityLine.SetRange("Action Type", WhseActivityLine."Action Type"::Take);
         WhseActivityLine.SetRange("Item No.", BinContent."Item No.");
@@ -493,7 +493,7 @@ codeunit 137831 "SCM - Warehouse UT"
         CreateWarehousePickFromShipment(WarehouseShipmentLine);
 
         // VERIFY : Pick is made only for unspecified lot
-        WhseActivityLine.Reset;
+        WhseActivityLine.Reset();
         WhseActivityLine.SetRange("Activity Type", WhseActivityLine."Activity Type"::Pick);
         WhseActivityLine.SetRange("Action Type", WhseActivityLine."Action Type"::Take);
         WhseActivityLine.SetRange("Item No.", BinContent."Item No.");
@@ -530,7 +530,7 @@ codeunit 137831 "SCM - Warehouse UT"
         CreateWarehousePickFromShipment(WarehouseShipmentLine);
 
         // VERIFY : Pick is made only for unspecified lot
-        WhseActivityLine.Reset;
+        WhseActivityLine.Reset();
         WhseActivityLine.SetRange("Activity Type", WhseActivityLine."Activity Type"::Pick);
         WhseActivityLine.SetRange("Action Type", WhseActivityLine."Action Type"::Take);
         WhseActivityLine.SetRange("Item No.", BinContent."Item No.");
@@ -568,7 +568,7 @@ codeunit 137831 "SCM - Warehouse UT"
         CreateWarehousePickFromShipment(WarehouseShipmentLine);
 
         // VERIFY : Pick is made only for unspecified lot
-        WhseActivityLine.Reset;
+        WhseActivityLine.Reset();
         WhseActivityLine.SetRange("Activity Type", WhseActivityLine."Activity Type"::Pick);
         WhseActivityLine.SetRange("Action Type", WhseActivityLine."Action Type"::Take);
         WhseActivityLine.SetRange("Item No.", BinContent."Item No.");
@@ -610,7 +610,7 @@ codeunit 137831 "SCM - Warehouse UT"
         CreateWarehousePickFromShipment(WarehouseShipmentLine);
 
         // VERIFY : Pick is made only for unspecified lot
-        WhseActivityLine.Reset;
+        WhseActivityLine.Reset();
         WhseActivityLine.SetRange("Activity Type", WhseActivityLine."Activity Type"::Pick);
         WhseActivityLine.SetRange("Action Type", WhseActivityLine."Action Type"::Take);
         WhseActivityLine.SetRange("Item No.", BinContent."Item No.");
@@ -643,7 +643,7 @@ codeunit 137831 "SCM - Warehouse UT"
         CreateItemWithLotTracking(Item);
         CreateInventoryPickLocation(Location);
         Location."Pick According to FEFO" := true;
-        Location.Insert;
+        Location.Insert();
         CreateBin(Bin, Location.Code);
         CreateBinContent(BinContent, Location.Code, Bin.Code, Item."No.");
 
@@ -666,7 +666,7 @@ codeunit 137831 "SCM - Warehouse UT"
         CreateInventoryPickFromWarehouseRequest(WarehouseRequest);
 
         // VERIFY : Pick is made for newer lot only
-        WhseActivityLine.Reset;
+        WhseActivityLine.Reset();
         WhseActivityLine.SetRange("Activity Type", WhseActivityLine."Activity Type"::"Invt. Pick");
         WhseActivityLine.SetRange("Item No.", BinContent."Item No.");
         WhseActivityLine.SetRange("Lot No.", '');
@@ -698,7 +698,7 @@ codeunit 137831 "SCM - Warehouse UT"
         CreateItemWithLotTracking(Item);
         CreateInventoryPickLocation(Location);
         Location."Pick According to FEFO" := true;
-        Location.Insert;
+        Location.Insert();
         CreateBin(Bin, Location.Code);
         CreateBinContent(BinContent, Location.Code, Bin.Code, Item."No.");
 
@@ -721,7 +721,7 @@ codeunit 137831 "SCM - Warehouse UT"
         CreateInventoryPickFromWarehouseRequest(WarehouseRequest);
 
         // VERIFY : Pick is made for newer lot only
-        WhseActivityLine.Reset;
+        WhseActivityLine.Reset();
         WhseActivityLine.SetRange("Activity Type", WhseActivityLine."Activity Type"::"Invt. Pick");
         WhseActivityLine.SetRange("Item No.", BinContent."Item No.");
         WhseActivityLine.SetRange("Lot No.", '');
@@ -755,7 +755,7 @@ codeunit 137831 "SCM - Warehouse UT"
         CreateItemWithLotTracking(Item);
         CreateWarehousePickLocation(Location);
         Location."Pick According to FEFO" := true;
-        Location.Insert;
+        Location.Insert();
         CreateBin(Bin, Location.Code);
         CreateBinContent(BinContent, Location.Code, Bin.Code, Item."No.");
 
@@ -778,7 +778,7 @@ codeunit 137831 "SCM - Warehouse UT"
         CreateWarehousePickFromShipment(WarehouseShipmentLine);
 
         // VERIFY : Pick is made for newer lot only
-        WhseActivityLine.Reset;
+        WhseActivityLine.Reset();
         WhseActivityLine.SetRange("Activity Type", WhseActivityLine."Activity Type"::Pick);
         WhseActivityLine.SetRange("Action Type", WhseActivityLine."Action Type"::Take);
         WhseActivityLine.SetRange("Item No.", BinContent."Item No.");
@@ -811,7 +811,7 @@ codeunit 137831 "SCM - Warehouse UT"
         CreateItemWithLotTracking(Item);
         CreateWarehousePickLocation(Location);
         Location."Pick According to FEFO" := true;
-        Location.Insert;
+        Location.Insert();
         CreateBin(Bin, Location.Code);
         CreateBinContent(BinContent, Location.Code, Bin.Code, Item."No.");
 
@@ -834,7 +834,7 @@ codeunit 137831 "SCM - Warehouse UT"
         CreateWarehousePickFromShipment(WarehouseShipmentLine);
 
         // VERIFY : Pick is made for newer lot only
-        WhseActivityLine.Reset;
+        WhseActivityLine.Reset();
         WhseActivityLine.SetRange("Activity Type", WhseActivityLine."Activity Type"::Pick);
         WhseActivityLine.SetRange("Action Type", WhseActivityLine."Action Type"::Take);
         WhseActivityLine.SetRange("Item No.", BinContent."Item No.");
@@ -866,9 +866,9 @@ codeunit 137831 "SCM - Warehouse UT"
         LibraryWarehouse.CreateLocation(Location1);
         LibraryWarehouse.CreateLocation(Location2);
 
-        Item.Init;
+        Item.Init();
         Item."No." := LibraryUtility.GenerateGUID;
-        Item.Insert;
+        Item.Insert();
 
         LibraryWarehouse.CreateTransferRoute(TransferRoute, Location2.Code, Location1.Code);
         LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(StockkeepingUnit, Location1.Code, Item."No.", '');
@@ -984,7 +984,7 @@ codeunit 137831 "SCM - Warehouse UT"
 
         CreateBinContent(BinContent, LocationCode, BinCode, LibraryInventory.CreateItemNo);
         BinContent."Min. Qty." := LibraryRandom.RandInt(10);
-        BinContent.Modify;
+        BinContent.Modify();
 
         with WarehouseActivityLine do begin
             MockWhseActivityLine(
@@ -1012,7 +1012,7 @@ codeunit 137831 "SCM - Warehouse UT"
 
         CreateBinContent(BinContent, LocationCode, BinCode, LibraryInventory.CreateItemNo);
         BinContent."Max. Qty." := LibraryRandom.RandInt(10);
-        BinContent.Modify;
+        BinContent.Modify();
 
         with WarehouseActivityLine do begin
             MockWhseActivityLine(
@@ -1149,17 +1149,17 @@ codeunit 137831 "SCM - Warehouse UT"
           DATABASE::"Transfer Line", TransferLine."Document No.", TransferLine."Item No.", TransferLine."Variant Code",
           TransferLine."Transfer-from Code", -Qty);
 
-        Commit;
+        Commit();
         asserterror TransferLineReserve.TransferWhseShipmentToItemJnlLine(TransferLine, ItemJournalLine, WarehouseShipmentHeader, Qty);
         Assert.ExpectedError('Location Code');
 
         ItemJournalLine."Location Code" := TransferLine."Transfer-from Code";
-        Commit;
+        Commit();
         asserterror TransferLineReserve.TransferWhseShipmentToItemJnlLine(TransferLine, ItemJournalLine, WarehouseShipmentHeader, Qty);
         Assert.ExpectedError('Item No.');
 
         ItemJournalLine."Item No." := TransferLine."Item No.";
-        Commit;
+        Commit();
         asserterror TransferLineReserve.TransferWhseShipmentToItemJnlLine(TransferLine, ItemJournalLine, WarehouseShipmentHeader, Qty);
         Assert.ExpectedError('Variant Code');
     end;
@@ -1196,19 +1196,19 @@ codeunit 137831 "SCM - Warehouse UT"
           DATABASE::"Transfer Line", TransferLine."Document No.", TransferLine."Item No.", TransferLine."Variant Code",
           TransferLine."Transfer-from Code", TransferLine.Quantity);
 
-        Commit;
+        Commit();
         asserterror TransferLineReserve.TransferWhseShipmentToItemJnlLine(TransferLine, ItemJournalLine, WarehouseShipmentHeader, Qty);
         Assert.ExpectedError('Item No.');
 
         ReservationEntry."Item No." := TransferLine."Item No.";
-        ReservationEntry.Modify;
-        Commit;
+        ReservationEntry.Modify();
+        Commit();
         asserterror TransferLineReserve.TransferWhseShipmentToItemJnlLine(TransferLine, ItemJournalLine, WarehouseShipmentHeader, Qty);
         Assert.ExpectedError('Variant Code');
 
         ReservationEntry."Variant Code" := TransferLine."Variant Code";
-        ReservationEntry.Modify;
-        Commit;
+        ReservationEntry.Modify();
+        Commit();
         asserterror TransferLineReserve.TransferWhseShipmentToItemJnlLine(TransferLine, ItemJournalLine, WarehouseShipmentHeader, Qty);
         Assert.ExpectedError('Location Code');
     end;
@@ -1398,16 +1398,16 @@ codeunit 137831 "SCM - Warehouse UT"
     var
         ItemTrackingCode: Record "Item Tracking Code";
     begin
-        ItemTrackingCode.Init;
+        ItemTrackingCode.Init();
         ItemTrackingCode.Code := LibraryUtility.GenerateGUID;
         ItemTrackingCode."Lot Specific Tracking" := true;
         ItemTrackingCode."Lot Warehouse Tracking" := true;
-        ItemTrackingCode.Insert;
+        ItemTrackingCode.Insert();
 
         Clear(Item);
         Item."No." := LibraryUtility.GenerateGUID;
         Item."Item Tracking Code" := ItemTrackingCode.Code;
-        Item.Insert;
+        Item.Insert();
     end;
 
     local procedure CreateSetupForLotBW(var BinContent: Record "Bin Content")
@@ -1418,7 +1418,7 @@ codeunit 137831 "SCM - Warehouse UT"
     begin
         CreateItemWithLotTracking(Item);
         CreateInventoryPickLocation(Location);
-        Location.Insert;
+        Location.Insert();
         CreateBin(Bin, Location.Code);
         CreateBinContent(BinContent, Location.Code, Bin.Code, Item."No.");
     end;
@@ -1431,7 +1431,7 @@ codeunit 137831 "SCM - Warehouse UT"
     begin
         CreateItemWithLotTracking(Item);
         CreateWarehousePickLocation(Location);
-        Location.Insert;
+        Location.Insert();
         CreateBin(Bin, Location.Code);
         CreateBinContent(BinContent, Location.Code, Bin.Code, Item."No.");
     end;
@@ -1461,7 +1461,7 @@ codeunit 137831 "SCM - Warehouse UT"
         Clear(Bin);
         Bin."Location Code" := LocationCode;
         Bin.Code := LibraryUtility.GenerateGUID;
-        Bin.Insert;
+        Bin.Insert();
     end;
 
     local procedure CreateZone(LocationCode: Code[10]): Code[10]
@@ -1483,7 +1483,7 @@ codeunit 137831 "SCM - Warehouse UT"
         BinContent."Location Code" := LocationCode;
         BinContent."Bin Code" := BinCode;
         BinContent."Item No." := ItemNo;
-        BinContent.Insert;
+        BinContent.Insert();
     end;
 
     local procedure CreateInventoryForLot(BinContent: Record "Bin Content"; LotNo: Code[10]; Quantity: Decimal; ExpirationDate: Date)
@@ -1494,7 +1494,7 @@ codeunit 137831 "SCM - Warehouse UT"
         ItemLedgerEntry2: Record "Item Ledger Entry";
     begin
         WarehouseEntry2.FindLast;
-        WarehouseEntry.Init;
+        WarehouseEntry.Init();
         WarehouseEntry."Entry No." := WarehouseEntry2."Entry No." + 1;
         WarehouseEntry."Location Code" := BinContent."Location Code";
         WarehouseEntry."Bin Code" := BinContent."Bin Code";
@@ -1503,10 +1503,10 @@ codeunit 137831 "SCM - Warehouse UT"
         WarehouseEntry.Quantity := Quantity;
         WarehouseEntry."Qty. (Base)" := Quantity;
         WarehouseEntry."Expiration Date" := ExpirationDate;
-        WarehouseEntry.Insert;
+        WarehouseEntry.Insert();
 
         ItemLedgerEntry2.FindLast;
-        ItemLedgerEntry.Init;
+        ItemLedgerEntry.Init();
         ItemLedgerEntry."Entry No." := ItemLedgerEntry2."Entry No." + 1;
         ItemLedgerEntry."Item No." := BinContent."Item No.";
         ItemLedgerEntry."Location Code" := BinContent."Location Code";
@@ -1516,7 +1516,7 @@ codeunit 137831 "SCM - Warehouse UT"
         ItemLedgerEntry."Expiration Date" := ExpirationDate;
         ItemLedgerEntry.Open := true;
         ItemLedgerEntry."Remaining Quantity" := ItemLedgerEntry.Quantity;
-        ItemLedgerEntry.Insert;
+        ItemLedgerEntry.Insert();
     end;
 
     local procedure CreateItemTrackingEntry(var SalesLine: Record "Sales Line"; LotCode: Code[10]; LotQtyToShip: Decimal)
@@ -1525,7 +1525,7 @@ codeunit 137831 "SCM - Warehouse UT"
         ReservationEntry2: Record "Reservation Entry";
     begin
         if ReservationEntry2.FindLast then;
-        ReservationEntry.Init;
+        ReservationEntry.Init();
         ReservationEntry."Entry No." := ReservationEntry2."Entry No." + 1;
         ReservationEntry.Positive := false;
         ReservationEntry."Source Type" := DATABASE::"Sales Line";
@@ -1540,7 +1540,7 @@ codeunit 137831 "SCM - Warehouse UT"
         ReservationEntry.Quantity := -LotQtyToShip;
         ReservationEntry."Qty. to Handle (Base)" := -LotQtyToShip;
         ReservationEntry."Shipment Date" := WorkDate;
-        ReservationEntry.Insert;
+        ReservationEntry.Insert();
     end;
 
     local procedure CreateReservationEntry(var SalesLine: Record "Sales Line"; LotCode: Code[10]; LotQtyToShip: Decimal; ResvAgainstSourceType: Integer; ResvAgainstSourceSubtype: Option; ResvAgainstSourceID: Code[20]; ResvAgainstSourceRefNo: Integer)
@@ -1551,7 +1551,7 @@ codeunit 137831 "SCM - Warehouse UT"
         ReservationEntry.FindLast;
         ReservationEntry."Reservation Status" := ReservationEntry."Reservation Status"::Reservation;
         ReservationEntry."Expected Receipt Date" := ReservationEntry."Shipment Date";
-        ReservationEntry.Modify;
+        ReservationEntry.Modify();
 
         ReservationEntry.Positive := true;
         ReservationEntry."Source Type" := ResvAgainstSourceType;
@@ -1563,7 +1563,7 @@ codeunit 137831 "SCM - Warehouse UT"
         ReservationEntry."Qty. to Handle (Base)" := LotQtyToShip;
         ReservationEntry."Shipment Date" := ReservationEntry."Expected Receipt Date";
         ReservationEntry."Expected Receipt Date" := ReservationEntry."Shipment Date";
-        ReservationEntry.Insert;
+        ReservationEntry.Insert();
     end;
 
     local procedure CreateSales(var WarehouseRequest: Record "Warehouse Request"; ItemNo: Code[20]; LocationCode: Code[10]; QtyToShip: Decimal)
@@ -1571,10 +1571,10 @@ codeunit 137831 "SCM - Warehouse UT"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
         SalesHeader."No." := LibraryUtility.GenerateGUID;
-        SalesHeader.Insert;
+        SalesHeader.Insert();
 
         SalesLine."Document Type" := SalesHeader."Document Type";
         SalesLine."Document No." := SalesHeader."No.";
@@ -1587,7 +1587,7 @@ codeunit 137831 "SCM - Warehouse UT"
         SalesLine."Quantity (Base)" := QtyToShip;
         SalesLine."Outstanding Qty. (Base)" := QtyToShip;
         SalesLine."Qty. to Ship (Base)" := QtyToShip;
-        SalesLine.Insert;
+        SalesLine.Insert();
 
         Clear(WarehouseRequest);
         WarehouseRequest.Type := WarehouseRequest.Type::Outbound;
@@ -1596,7 +1596,7 @@ codeunit 137831 "SCM - Warehouse UT"
         WarehouseRequest."Source Subtype" := SalesLine."Document Type";
         WarehouseRequest."Source No." := SalesLine."Document No.";
         WarehouseRequest."Source Document" := WarehouseRequest."Source Document"::"Sales Order";
-        WarehouseRequest.Insert;
+        WarehouseRequest.Insert();
     end;
 
     local procedure FindSalesLine(var SalesLine: Record "Sales Line"; SalesNo: Code[20])
@@ -1634,7 +1634,7 @@ codeunit 137831 "SCM - Warehouse UT"
             if Abs(ReservationEntry."Quantity (Base)") <= 0 then
                 ReservationEntry.Delete
             else
-                ReservationEntry.Modify;
+                ReservationEntry.Modify();
         end;
     end;
 
@@ -1672,12 +1672,12 @@ codeunit 137831 "SCM - Warehouse UT"
     begin
         CreateSales(WarehouseRequest, ItemNo, LocationCode, QtyToShip);
 
-        WarehouseShipmentHeader.Init;
+        WarehouseShipmentHeader.Init();
         WarehouseShipmentHeader."No." := LibraryUtility.GenerateGUID;
         WarehouseShipmentHeader."Location Code" := LocationCode;
-        WarehouseShipmentHeader.Insert;
+        WarehouseShipmentHeader.Insert();
 
-        WarehouseShipmentLine.Init;
+        WarehouseShipmentLine.Init();
         WarehouseShipmentLine."No." := WarehouseShipmentHeader."No.";
         WarehouseShipmentLine."Source Type" := WarehouseRequest."Source Type";
         WarehouseShipmentLine."Source Subtype" := WarehouseRequest."Source Subtype";
@@ -1691,7 +1691,7 @@ codeunit 137831 "SCM - Warehouse UT"
         WarehouseShipmentLine."Qty. (Base)" := QtyToShip;
         WarehouseShipmentLine."Qty. Outstanding" := QtyToShip;
         WarehouseShipmentLine."Qty. Outstanding (Base)" := QtyToShip;
-        WarehouseShipmentLine.Insert;
+        WarehouseShipmentLine.Insert();
     end;
 
     local procedure CreateInventoryPickFromWarehouseRequest(WarehouseRequest: Record "Warehouse Request")
@@ -1728,9 +1728,9 @@ codeunit 137831 "SCM - Warehouse UT"
 
     local procedure MockLocation(var Location: Record Location)
     begin
-        Location.Init;
+        Location.Init();
         Location.Code := LibraryUtility.GenerateGUID;
-        Location.Insert;
+        Location.Insert();
     end;
 
     local procedure MockWMSLocation(var LocationCode: Code[10]; var BinCode: Code[20])
@@ -1743,11 +1743,11 @@ codeunit 137831 "SCM - Warehouse UT"
         ZoneCode := CreateZone(Location.Code);
         CreateBin(Bin, Location.Code);
         Bin."Zone Code" := ZoneCode;
-        Bin.Modify;
+        Bin.Modify();
 
         Location."Directed Put-away and Pick" := true;
         Location."Adjustment Bin Code" := Bin.Code;
-        Location.Insert;
+        Location.Insert();
 
         LocationCode := Location.Code;
         BinCode := Bin.Code;
@@ -1757,9 +1757,9 @@ codeunit 137831 "SCM - Warehouse UT"
     var
         StockkeepingUnit: Record "Stockkeeping Unit";
     begin
-        StockkeepingUnit.Init;
+        StockkeepingUnit.Init();
         StockkeepingUnit."Location Code" := LocationCode;
-        StockkeepingUnit.Insert;
+        StockkeepingUnit.Insert();
     end;
 
     local procedure MockItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; LocationCode: Code[10]; BinCode: Code[20])

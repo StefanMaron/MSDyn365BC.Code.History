@@ -46,7 +46,7 @@ codeunit 133504 "SCM Costing Performance"
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
 
         isInitialized := true;
-        Commit;
+        Commit();
     end;
 
     [Test]
@@ -80,7 +80,7 @@ codeunit 133504 "SCM Costing Performance"
     procedure SalePurchSale_FIFO()
     begin
         Initialize;
-        DummyItem.Init;
+        DummyItem.Init();
         SalePurchSale(DummyItem."Costing Method"::FIFO);
     end;
 
@@ -89,7 +89,7 @@ codeunit 133504 "SCM Costing Performance"
     procedure SalePurchSale_Avg()
     begin
         Initialize;
-        DummyItem.Init;
+        DummyItem.Init();
         SalePurchSale(DummyItem."Costing Method"::Average);
     end;
 
@@ -98,7 +98,7 @@ codeunit 133504 "SCM Costing Performance"
     procedure Test_PurchReturnShptAnd2Sales_FIFO()
     begin
         Initialize;
-        DummyItem.Init;
+        DummyItem.Init();
         PurchReturnShptAnd2Sales(DummyItem."Costing Method"::FIFO, false);
     end;
 
@@ -107,7 +107,7 @@ codeunit 133504 "SCM Costing Performance"
     procedure Test_PurchReturnShptAnd2Sales_AvgFixedAppln()
     begin
         Initialize;
-        DummyItem.Init;
+        DummyItem.Init();
         PurchReturnShptAnd2Sales(DummyItem."Costing Method"::Average, false);
     end;
 
@@ -116,7 +116,7 @@ codeunit 133504 "SCM Costing Performance"
     procedure Test_PurchReturnShptAnd2Sales_AvgNoAppln()
     begin
         Initialize;
-        DummyItem.Init;
+        DummyItem.Init();
         PurchReturnShptAnd2Sales(DummyItem."Costing Method"::Average, true);
     end;
 
@@ -125,7 +125,7 @@ codeunit 133504 "SCM Costing Performance"
     procedure Test_UndoReturnReceiptAnd2Sales_FIFO()
     begin
         Initialize;
-        DummyItem.Init;
+        DummyItem.Init();
         UndoReturnReceiptAnd2Sales(DummyItem."Costing Method"::FIFO, false);
     end;
 
@@ -136,7 +136,7 @@ codeunit 133504 "SCM Costing Performance"
         DummyItem: Record Item;
     begin
         Initialize;
-        DummyItem.Init;
+        DummyItem.Init();
         UndoReturnReceiptAnd2Sales(DummyItem."Costing Method"::Average, false);
     end;
 
@@ -145,7 +145,7 @@ codeunit 133504 "SCM Costing Performance"
     procedure Test_UndoReturnReceiptAnd2Sales_AvgNoAppln()
     begin
         Initialize;
-        DummyItem.Init;
+        DummyItem.Init();
         UndoReturnReceiptAnd2Sales(DummyItem."Costing Method"::Average, true);
     end;
 
@@ -624,7 +624,7 @@ codeunit 133504 "SCM Costing Performance"
             LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", Qty, '', 0D);
             SalesLine.Validate("Unit Price", UnitPrice);
             SalesLine.Validate("Appl.-to Item Entry", ApplToEntry);
-            SalesLine.Modify;
+            SalesLine.Modify();
             LibrarySales.PostSalesDocument(SalesHeader, true, true);
         end else
             LibraryPatterns.POSTSalesOrder(SalesHeader, Item, '', '', Qty, WorkDate, UnitPrice, true, true);

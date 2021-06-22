@@ -56,8 +56,8 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
           GLAccount."No.",
           0);
 
-        GenJournalLine.Delete;
-        Commit;
+        GenJournalLine.Delete();
+        Commit();
         asserterror GenJnlPost.Preview(GenJournalLine);
         VerifyEmptyPreviewError;
     end;
@@ -80,7 +80,7 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
           GenJournalLine."Account Type"::"G/L Account",
           GLAccount."No.",
           Amount);
-        Commit;
+        Commit();
 
         // Execute
         GLPostingPreview.Trap;
@@ -93,8 +93,8 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
 
         // Cleanup
         if GenJournalLine.Find then
-            GenJournalLine.Delete;
-        GLAccount.Delete;
+            GenJournalLine.Delete();
+        GLAccount.Delete();
     end;
 
     [Test]
@@ -117,7 +117,7 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
         LibraryERM.CreateICGLAccount(ICGLAccount);
         LibraryERM.CreateGLAccount(GLAccount);
 
-        ICPartner.Init;
+        ICPartner.Init();
         ICPartner.Validate(
           Code,
           ICGLAccount."No.");
@@ -128,12 +128,12 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
 
         GenJournalTemplate.Get(GenJournalBatch."Journal Template Name");
         GenJournalTemplate.Type := GenJournalTemplate.Type::Intercompany;
-        GenJournalTemplate.Modify;
+        GenJournalTemplate.Modify();
 
         GenJournalBatch."Template Type" := GenJournalTemplate.Type::Intercompany;
-        GenJournalBatch.Modify;
+        GenJournalBatch.Modify();
 
-        Commit;
+        Commit();
 
         LibraryJournals.CreateGenJournalLine2(GenJournalLine,
           GenJournalBatch."Journal Template Name",
@@ -146,10 +146,10 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
 
         GenJournalLine."IC Partner G/L Acc. No." := ICGLAccount."No.";
         GenJournalLine.Description := 'TEST';
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
 
         // Execute
-        Commit;
+        Commit();
         GLPostingPreview.Trap;
         asserterror GenJnlPost.Preview(GenJournalLine);
         VerifyEmptyPreviewError;
@@ -159,14 +159,14 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
 
         // Cleanup
         if GenJournalTemplate.Get(GenJournalBatch."Journal Template Name") then
-            GenJournalTemplate.Delete;
+            GenJournalTemplate.Delete();
 
-        GenJournalBatch.Delete;
+        GenJournalBatch.Delete();
 
         if GenJournalLine.Find then
-            GenJournalLine.Delete;
-        ICGLAccount.Delete;
-        GLAccount.Delete;
+            GenJournalLine.Delete();
+        ICGLAccount.Delete();
+        GLAccount.Delete();
     end;
 
     [Test]
@@ -187,7 +187,7 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
           GenJournalLine."Account Type"::Customer,
           Customer."No.",
           Amount);
-        Commit;
+        Commit();
 
         // Execute
         GLPostingPreview.Trap;
@@ -198,8 +198,8 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
         GLPostingPreview.Close;
 
         // Cleanup
-        GenJournalLine.Delete;
-        Customer.Delete;
+        GenJournalLine.Delete();
+        Customer.Delete();
     end;
 
     [Test]
@@ -232,7 +232,7 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
           GenJournalLine."Document Type"::" ",
           GenJournalLine."Bal. Account No.",
           Amount2);
-        Commit;
+        Commit();
 
         // Execute
         GLPostingPreview.Trap;
@@ -243,8 +243,8 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
         GLPostingPreview.Close;
 
         // Cleanup
-        GenJournalLine.Delete;
-        Customer.Delete;
+        GenJournalLine.Delete();
+        Customer.Delete();
     end;
 
     [Test]
@@ -278,7 +278,7 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
           GenJournalLine."Bal. Account No.",
           Amount2);
 
-        Commit;
+        Commit();
 
         // Execute
         GLPostingPreview.Trap;
@@ -289,9 +289,9 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
         GLPostingPreview.Close;
 
         // Cleanup
-        GenJournalLine.Delete;
-        Vendor.Delete;
-        Commit;
+        GenJournalLine.Delete();
+        Vendor.Delete();
+        Commit();
     end;
 
     [Test]
@@ -325,7 +325,7 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
           GenJournalLine."Bal. Account No.",
           Amount2);
 
-        Commit;
+        Commit();
 
         // Execute
         GLPostingPreview.Trap;
@@ -336,9 +336,9 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
         GLPostingPreview.Close;
 
         // Cleanup
-        GenJournalLine.Delete;
-        Employee.Delete;
-        Commit;
+        GenJournalLine.Delete();
+        Employee.Delete();
+        Commit();
     end;
 
     [Test]
@@ -359,7 +359,7 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
           GenJournalLine."Account Type"::"Bank Account",
           BankAccount."No.",
           Amount);
-        Commit;
+        Commit();
 
         // Execute
         GLPostingPreview.Trap;
@@ -370,9 +370,9 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
         GLPostingPreview.Close;
 
         // Cleanup
-        GenJournalLine.Delete;
-        BankAccount.Delete;
-        Commit;
+        GenJournalLine.Delete();
+        BankAccount.Delete();
+        Commit();
     end;
 
     [Test]
@@ -394,7 +394,7 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
 
         GenJournalLine.Validate(Amount, -539);
         GenJournalLine.Modify(true);
-        Commit;
+        Commit();
 
         GLPostingPreview.Trap;
         FixedAssetGLJournal.Trap;
@@ -429,10 +429,10 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
           GenJournalLine."Account Type"::"G/L Account",
           GLAccount."No.",
           Amount);
-        Commit;
+        Commit();
 
         RecordRestrictionMgt.RestrictRecordUsage(GenJournalLine, '');
-        Commit;
+        Commit();
         RestrictedRecord.SetRange("Record ID", GenJournalLine.RecordId);
         Assert.IsTrue(RestrictedRecord.FindFirst, 'Missing RestrictedRecord');
 
@@ -457,8 +457,8 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
 
         // Cleanup
         if GenJournalLine.Find then
-            GenJournalLine.Delete;
-        GLAccount.Delete;
+            GenJournalLine.Delete();
+        GLAccount.Delete();
     end;
 
     [Test]
@@ -477,7 +477,7 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
           GenJournalLine."Account Type"::"G/L Account",
           LibraryERM.CreateGLAccountNo,
           0);
-        Commit;
+        Commit();
 
         // [GIVEN] Preview failed on "There is nothing to post error"
         asserterror GenJnlPost.Preview(GenJournalLine);
@@ -519,7 +519,7 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
           GenJournalLine."Account Type"::"G/L Account",
           LibraryERM.CreateGLAccountNo,
           0);
-        Commit;
+        Commit();
         GLEntry.FindLast;
         LastGLEntryNo := GLEntry."Entry No.";
 
@@ -531,7 +531,7 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
         GenJournalLine.Modify(true);
 
         // [WHEN] Preview posting of General Journal Line
-        Commit;
+        Commit();
         asserterror GenJnlPost.Preview(GenJournalLine);
 
         // [THEN] Preview successfully ran. No G/L Enries were created
@@ -558,7 +558,7 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
           GenJournalLine, GenJournalLine."Document Type"::" ",
           GenJournalLine."Account Type"::"G/L Account",
           LibraryERM.CreateGLAccountNo, LibraryRandom.RandInt(100));
-        Commit;
+        Commit();
         GLEntry.FindLast;
         LastGLEntryNo := GLEntry."Entry No.";
         asserterror GenJnlPost.Preview(GenJournalLine);
@@ -594,7 +594,7 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
 
         SetPaymentTypeJournalTemplate(GenJournalLine);
 
-        Commit;
+        Commit();
 
         // [WHEN] Run Posting Preview from a Page.
         PaymentJournal.OpenEdit;
@@ -635,17 +635,17 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
             Modify(true);
         end;
 
-        Commit;
+        Commit();
     end;
 
     local procedure DeletePaymentJournalTemplates()
     var
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
-        GenJournalTemplate.Reset;
+        GenJournalTemplate.Reset();
         GenJournalTemplate.SetRange("Page ID", PAGE::"Payment Journal");
         GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::Payments);
-        GenJournalTemplate.DeleteAll;
+        GenJournalTemplate.DeleteAll();
     end;
 
     local procedure SetPaymentTypeJournalTemplate(var GenJournalLine: Record "Gen. Journal Line")
@@ -655,7 +655,7 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
         GenJournalTemplate.Get(GenJournalLine."Journal Template Name");
         GenJournalTemplate."Page ID" := PAGE::"Payment Journal";
         GenJournalTemplate.Type := GenJournalTemplate.Type::Payments;
-        GenJournalTemplate.Modify;
+        GenJournalTemplate.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -778,7 +778,7 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
         GLEntry.SetRange("G/L Account No.", AccNo);
         GLEntry.FindFirst;
         GLEntry.TestField(Amount, ExpectedAmount);
-        GLReg.Init;
+        GLReg.Init();
         GLReg.SetFilter("From Entry No.", '..%1', GLEntry."Entry No.");
         GLReg.SetFilter("To Entry No.", '%1..', GLEntry."Entry No.");
         Assert.RecordIsNotEmpty(GLReg);
@@ -831,7 +831,7 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
         EmployeePostingGroup: Record "Employee Posting Group";
     begin
         LibraryHumanResource.CreateEmployee(Employee);
-        EmployeePostingGroup.Init;
+        EmployeePostingGroup.Init();
         EmployeePostingGroup.Validate(Code, LibraryUtility.GenerateGUID);
         EmployeePostingGroup.Validate("Payables Account", LibraryERM.CreateGLAccountNoWithDirectPosting);
         EmployeePostingGroup.Insert(true);

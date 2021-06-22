@@ -89,7 +89,7 @@ codeunit 137109 "SCM Kitting - Std Cost Wksheet"
 
         Initialize;
 
-        StandardCostWorksheet.Init;
+        StandardCostWorksheet.Init();
         StandardCostWorksheet.Validate(Type, StandardCostWorksheet.Type::Item);
         StandardCostWorksheet.Validate("Standard Cost", LibraryRandom.RandDec(100, 2));
         StandardCostWorksheet.Validate("New Standard Cost", 0);
@@ -106,10 +106,10 @@ codeunit 137109 "SCM Kitting - Std Cost Wksheet"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Kitting - Std Cost Wksheet");
 
         LibraryERMCountryData.CreateVATData;
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Kitting - Std Cost Wksheet");
     end;
 
@@ -146,10 +146,10 @@ codeunit 137109 "SCM Kitting - Std Cost Wksheet"
         StdCostWorksheetPage: TestPage "Standard Cost Worksheet";
     begin
         StdCostWorksheet.DeleteAll(true);
-        Commit;
+        Commit();
 
         StdCostWorksheetPage.OpenEdit;
-        Commit;
+        Commit();
 
         if Suggest then begin
             StdCostWorksheetPage."Suggest I&tem Standard Cost".Invoke; // Suggest item standard cost for leaves.
@@ -413,7 +413,7 @@ codeunit 137109 "SCM Kitting - Std Cost Wksheet"
                         repeat
                             Resource.Get(BOMComponent."No.");
                             TempResource := Resource;
-                            TempResource.Insert;
+                            TempResource.Insert();
 
                             if (BOMComponent."Resource Usage Type" = BOMComponent."Resource Usage Type"::Fixed) and (Item."Lot Size" <> 0) then
                                 LotSize := Item."Lot Size"
@@ -455,7 +455,7 @@ codeunit 137109 "SCM Kitting - Std Cost Wksheet"
             Item."Replenishment System"::Purchase:
                 begin
                     TempItem := Item;
-                    TempItem.Insert;
+                    TempItem.Insert();
                     GetCostInformation(BOMComponent.Type::Item, Item."No.", UnitCost, Overhead, IndirectCost);
                     SglLevelMaterialCost := UnitCost;
                     RolledUpMaterialCost := UnitCost;

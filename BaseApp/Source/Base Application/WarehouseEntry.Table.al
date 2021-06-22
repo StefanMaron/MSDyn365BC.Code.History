@@ -80,12 +80,10 @@ table 7312 "Warehouse Entry"
         {
             Caption = 'Source Subline No.';
         }
-        field(25; "Source Document"; Option)
+        field(25; "Source Document"; Enum "Warehouse Journal Source Document")
         {
             BlankZero = true;
             Caption = 'Source Document';
-            OptionCaption = ',S. Order,S. Invoice,S. Credit Memo,S. Return Order,P. Order,P. Invoice,P. Credit Memo,P. Return Order,Inb. Transfer,Outb. Transfer,Prod. Consumption,Item Jnl.,Phys. Invt. Jnl.,Reclass. Jnl.,Consumption Jnl.,Output Jnl.,BOM Jnl.,Serv. Order,Job Jnl.,Assembly Consumption,Assembly Order';
-            OptionMembers = ,"S. Order","S. Invoice","S. Credit Memo","S. Return Order","P. Order","P. Invoice","P. Credit Memo","P. Return Order","Inb. Transfer","Outb. Transfer","Prod. Consumption","Item Jnl.","Phys. Invt. Jnl.","Reclass. Jnl.","Consumption Jnl.","Output Jnl.","BOM Jnl.","Serv. Order","Job Jnl.","Assembly Consumption","Assembly Order";
         }
         field(26; "Source Code"; Code[10])
         {
@@ -281,6 +279,47 @@ table 7312 "Warehouse Entry"
     var
         ItemTrackingMgt: Codeunit "Item Tracking Management";
 
+    procedure ClearTrackingFilter()
+    begin
+        SetRange("Serial No.");
+        SetRange("Lot No.");
+
+        OnAfterClearTrackingFilter(Rec);
+    end;
+
+    procedure CopyTrackingFromWhseEntry(WhseEntry: Record "Warehouse Entry")
+    begin
+        "Serial No." := WhseEntry."Serial No.";
+        "Lot No." := WhseEntry."Lot No.";
+
+        OnAfterCopyTrackingFromWhseEntry(Rec, WhseEntry);
+    end;
+
+    procedure CopyTrackingFromWhseJnlLine(WhseJnlLine: Record "Warehouse Journal Line")
+    begin
+        "Serial No." := WhseJnlLine."Serial No.";
+        "Lot No." := WhseJnlLine."Lot No.";
+
+        OnAfterCopyTrackingFromWhseJnlLine(Rec, WhseJnlLine);
+    end;
+
+    procedure SetCalculationFilters(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; WhseItemTrackingSetup: Record "Item Tracking Setup"; ExcludeDedicatedBinContent: Boolean)
+    begin
+        SetRange("Item No.", ItemNo);
+        SetRange("Location Code", LocationCode);
+        SetRange("Variant Code", VariantCode);
+        SetTrackingFilterFromItemTrackingSetupIfNotBlankIfRequired(WhseItemTrackingSetup);
+        if ExcludeDedicatedBinContent then
+            SetRange(Dedicated, false);
+    end;
+
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
+    end;
+
     procedure SetSourceFilter(SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SetKey: Boolean)
     begin
         if SetKey then
@@ -293,9 +332,138 @@ table 7312 "Warehouse Entry"
             SetRange("Source Line No.", SourceLineNo);
     end;
 
-    procedure TrackingExists(): Boolean
+    procedure SetTrackingFilterIfNotBlank()
     begin
-        exit(("Lot No." <> '') or ("Serial No." <> ''));
+        if "Lot No." <> '' then
+            SetRange("Lot No.", "Lot No.");
+        if "Serial No." <> '' then
+            SetRange("Serial No.", "Serial No.");
+
+        OnAfterSetTrackingFilterIfNotBlank(Rec);
+    end;
+
+    procedure SetTrackingFilterFromBinContent(var BinContent: Record "Bin Content")
+    begin
+        SetFilter("Serial No.", BinContent.GetFilter("Serial No. Filter"));
+        SetFilter("Lot No.", BinContent.GetFilter("Lot No. Filter"));
+
+        OnAfterSetTrackingFilterFromBinContent(Rec, BinContent);
+    end;
+
+    procedure SetTrackingFilterFromBinContentBuffer(BinContentBuffer: Record "Bin Content Buffer")
+    begin
+        SetRange("Serial No.", BinContentBuffer."Serial No.");
+        SetRange("Lot No.", BinContentBuffer."Lot No.");
+
+        OnAfterSetTrackingFilterFromBinContentBuffer(Rec, BinContentBuffer);
+    end;
+
+    procedure SetTrackingFilterFromItemTrackingSetupIfNotBlankIfRequired(WhseItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        if WhseItemTrackingSetup."Serial No." <> '' then
+            if WhseItemTrackingSetup."Serial No. Required" then
+                SetRange("Serial No.", WhseItemTrackingSetup."Serial No.")
+            else
+                SetFilter("Serial No.", '%1|%2', WhseItemTrackingSetup."Serial No.", '');
+        if WhseItemTrackingSetup."Lot No." <> '' then
+            if WhseItemTrackingSetup."Lot No. Required" then
+                SetRange("Lot No.", WhseItemTrackingSetup."Lot No.")
+            else
+                SetFilter("Lot No.", '%1|%2', WhseItemTrackingSetup."Lot No.", '');
+
+        OnAfterSetTrackingFilterFromItemTrackingSetupIfNotBlankIfRequired(Rec, WhseItemTrackingSetup);
+    end;
+
+    procedure SetTrackingFilterFromWhseEntry(FromWhseEntry: Record "Warehouse Entry")
+    begin
+        SetRange("Serial No.", FromWhseEntry."Serial No.");
+        SetRange("Lot No.", FromWhseEntry."Lot No.");
+
+        OnAfterSetTrackingFilterFromWhseEntry(Rec, FromWhseEntry);
+    end;
+
+    procedure SetTrackingFilterFromReservEntryIfNotBlank(ReservEntry: Record "Reservation Entry")
+    begin
+        if ReservEntry."Serial No." <> '' then
+            SetRange("Serial No.", ReservEntry."Serial No.");
+        if ReservEntry."Lot No." <> '' then
+            SetRange("Lot No.", ReservEntry."Lot No.");
+
+        OnAfterSetTrackingFilterFromReservEntryIfNotBlank(Rec, ReservEntry);
+    end;
+
+    procedure SetTrackingFilterFromItemTrackingSetupIfNotBlank(WhseItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        if WhseItemTrackingSetup."Serial No." <> '' then
+            SetRange("Serial No.", WhseItemTrackingSetup."Serial No.");
+        if WhseItemTrackingSetup."Lot No." <> '' then
+            SetRange("Lot No.", WhseItemTrackingSetup."Lot No.");
+
+        OnAfterSetTrackingFilterFromItemTrackingSetupIfNotBlank(Rec, WhseItemTrackingSetup);
+    end;
+
+    procedure TrackingExists(): Boolean
+    var
+        IsTrackingExists: Boolean;
+    begin
+        IsTrackingExists := ("Lot No." <> '') or ("Serial No." <> '');
+        OnAfterTrackingExists(Rec, IsTrackingExists);
+        exit(IsTrackingExists);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterClearTrackingFilter(var WarehouseEntry: Record "Warehouse Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromWhseEntry(var WarehouseEntry: Record "Warehouse Entry"; FromWarehouseEntry: Record "Warehouse Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromWhseJnlLine(var WarehouseEntry: Record "Warehouse Entry"; WarehouseJournalLine: Record "Warehouse Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromBinContent(var WarehouseEntry: Record "Warehouse Entry"; var BinContent: Record "Bin Content")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromBinContentBuffer(var WarehouseEntry: Record "Warehouse Entry"; BinContentBuffer: Record "Bin Content Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromReservEntryIfNotBlank(var WarehouseEntry: Record "Warehouse Entry"; ReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromItemTrackingSetupIfNotBlank(var WarehouseEntry: Record "Warehouse Entry"; WhseItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromItemTrackingSetupIfNotBlankIfRequired(var WarehouseEntry: Record "Warehouse Entry"; WhseItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromWhseEntry(var WhseEntry: Record "Warehouse Entry"; FromWhseEntry: Record "Warehouse Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterIfNotBlank(var WhseEntry: Record "Warehouse Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTrackingExists(WhseEntry: Record "Warehouse Entry"; var IsTrackingExists: Boolean);
+    begin
     end;
 }
 

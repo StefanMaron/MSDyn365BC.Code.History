@@ -128,7 +128,7 @@ codeunit 132536 "Assert Test"
     var
         NameValueBuffer: Record "Name/Value Buffer";
     begin
-        NameValueBuffer.DeleteAll;
+        NameValueBuffer.DeleteAll();
         Assert.TableIsEmpty(DATABASE::"Name/Value Buffer");
 
         InsertNameValueBuffer(NameValueBuffer, 1);
@@ -148,7 +148,7 @@ codeunit 132536 "Assert Test"
         InsertNameValueBuffer(NameValueBuffer, 1);
         Assert.TableIsNotEmpty(DATABASE::"Name/Value Buffer");
 
-        NameValueBuffer.DeleteAll;
+        NameValueBuffer.DeleteAll();
         asserterror Assert.TableIsNotEmpty(DATABASE::"Name/Value Buffer");
         Assert.AreEqual(
           StrSubstNo(TableIsNotEmptyErr, NameValueBuffer.TableCaption, ''),
@@ -162,7 +162,7 @@ codeunit 132536 "Assert Test"
     var
         NameValueBuffer: Record "Name/Value Buffer";
     begin
-        NameValueBuffer.DeleteAll;
+        NameValueBuffer.DeleteAll();
         Assert.RecordIsEmpty(NameValueBuffer);
 
         InsertNameValueBuffer(NameValueBuffer, 1);
@@ -193,7 +193,7 @@ codeunit 132536 "Assert Test"
         InsertNameValueBuffer(NameValueBuffer, 1);
         Assert.RecordIsNotEmpty(NameValueBuffer);
 
-        NameValueBuffer.DeleteAll;
+        NameValueBuffer.DeleteAll();
         asserterror Assert.RecordIsNotEmpty(NameValueBuffer);
         Assert.AreEqual(
           StrSubstNo(TableIsNotEmptyErr, NameValueBuffer.TableCaption, NameValueBuffer.GetFilters),
@@ -218,7 +218,7 @@ codeunit 132536 "Assert Test"
     var
         TempNameValueBuffer: Record "Name/Value Buffer" temporary;
     begin
-        TempNameValueBuffer.DeleteAll;
+        TempNameValueBuffer.DeleteAll();
         Assert.RecordIsEmpty(TempNameValueBuffer);
 
         InsertNameValueBuffer(TempNameValueBuffer, 1);
@@ -248,7 +248,7 @@ codeunit 132536 "Assert Test"
         InsertNameValueBuffer(TempNameValueBuffer, 1);
         Assert.RecordIsNotEmpty(TempNameValueBuffer);
 
-        TempNameValueBuffer.DeleteAll;
+        TempNameValueBuffer.DeleteAll();
         asserterror Assert.RecordIsNotEmpty(TempNameValueBuffer);
         Assert.AreEqual(
           StrSubstNo(TableIsNotEmptyErr, TempNameValueBuffer.TableCaption, TempNameValueBuffer.GetFilters),
@@ -389,7 +389,7 @@ codeunit 132536 "Assert Test"
     var
         NameValueBuffer: Record "Name/Value Buffer";
     begin
-        NameValueBuffer.DeleteAll;
+        NameValueBuffer.DeleteAll();
         InsertNameValueBuffer(NameValueBuffer, 1);
         InsertNameValueBuffer(NameValueBuffer, 2);
 
@@ -403,7 +403,7 @@ codeunit 132536 "Assert Test"
     var
         NameValueBuffer: Record "Name/Value Buffer";
     begin
-        NameValueBuffer.DeleteAll;
+        NameValueBuffer.DeleteAll();
         InsertNameValueBuffer(NameValueBuffer, 1);
         InsertNameValueBuffer(NameValueBuffer, 2);
 
@@ -419,7 +419,7 @@ codeunit 132536 "Assert Test"
     var
         NameValueBuffer: Record "Name/Value Buffer";
     begin
-        NameValueBuffer.DeleteAll;
+        NameValueBuffer.DeleteAll();
         InsertNameValueBuffer(NameValueBuffer, 1);
         InsertNameValueBuffer(NameValueBuffer, 2);
 
@@ -435,7 +435,7 @@ codeunit 132536 "Assert Test"
     var
         NameValueBuffer: Record "Name/Value Buffer";
     begin
-        NameValueBuffer.DeleteAll;
+        NameValueBuffer.DeleteAll();
         InsertNameValueBuffer(NameValueBuffer, 1);
         InsertNameValueBuffer(NameValueBuffer, 2);
 
@@ -451,7 +451,7 @@ codeunit 132536 "Assert Test"
     var
         NameValueBuffer: Record "Name/Value Buffer";
     begin
-        NameValueBuffer.DeleteAll;
+        NameValueBuffer.DeleteAll();
         InsertNameValueBuffer(NameValueBuffer, 1);
         InsertNameValueBuffer(NameValueBuffer, 2);
 
@@ -465,9 +465,9 @@ codeunit 132536 "Assert Test"
     [TransactionModel(TransactionModel::AutoRollback)]
     local procedure InsertNameValueBuffer(var NameValueBuffer: Record "Name/Value Buffer"; NewID: Integer)
     begin
-        NameValueBuffer.Init;
+        NameValueBuffer.Init();
         NameValueBuffer.ID := NewID;
-        NameValueBuffer.Insert;
+        NameValueBuffer.Insert();
     end;
 }
 

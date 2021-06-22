@@ -25,17 +25,17 @@ codeunit 134149 "ERM Intrastat Propagation"
         // [FEATURE] [Tariff Number]
         // [GIVEN] Tariff number "TARIFF NUM" does not exists
         LibraryLowerPermissions.SetO365BusFull;
-        TariffNumber.DeleteAll;
+        TariffNumber.DeleteAll();
         Assert.RecordCount(TariffNumber, 0);
 
         // [WHEN] Not existing Tariff number is request to be linked to item
-        Item.Init;
+        Item.Init();
         Item.Validate("Tariff No.", 'TARIFF NUM');
-        Item.Insert;
+        Item.Insert();
 
         // [THEN] Tariff number exists
         TariffNumber.Get('TARIFF NUM');
-        TariffNumber.Delete; // Cleanup
+        TariffNumber.Delete(); // Cleanup
     end;
 
     [Test]
@@ -103,14 +103,14 @@ codeunit 134149 "ERM Intrastat Propagation"
         LibraryERM.FindIntrastatSetup(IntrastatSetup);
         LibraryERM.SetDefaultTransactionTypesInIntrastatSetup;
 
-        Commit;
+        Commit();
     end;
 
     local procedure GetDefaultTransactionType(): Code[10]
     var
         IntrastatSetup: Record "Intrastat Setup";
     begin
-        IntrastatSetup.Get;
+        IntrastatSetup.Get();
         exit(IntrastatSetup."Default Trans. - Purchase");
     end;
 
@@ -118,7 +118,7 @@ codeunit 134149 "ERM Intrastat Propagation"
     var
         IntrastatSetup: Record "Intrastat Setup";
     begin
-        IntrastatSetup.Get;
+        IntrastatSetup.Get();
         exit(IntrastatSetup."Default Trans. - Return");
     end;
 }

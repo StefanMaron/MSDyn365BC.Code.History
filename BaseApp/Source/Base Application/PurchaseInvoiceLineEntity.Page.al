@@ -366,15 +366,15 @@ page 5528 "Purchase Invoice Line Entity"
         TempFieldBuffer.Order := LastOrderNo;
         TempFieldBuffer."Table ID" := DATABASE::"Purch. Inv. Line Aggregate";
         TempFieldBuffer."Field ID" := FieldNo;
-        TempFieldBuffer.Insert;
+        TempFieldBuffer.Insert();
     end;
 
     local procedure ClearCalculatedFields()
     begin
-        TempFieldBuffer.Reset;
-        TempFieldBuffer.DeleteAll;
-        TempItemFieldSet.Reset;
-        TempItemFieldSet.DeleteAll;
+        TempFieldBuffer.Reset();
+        TempFieldBuffer.DeleteAll();
+        TempItemFieldSet.Reset();
+        TempItemFieldSet.DeleteAll();
 
         Clear(Item);
         Clear(UnitOfMeasureJSON);
@@ -396,7 +396,7 @@ page 5528 "Purchase Invoice Line Entity"
         if TempItemFieldSet.Get(DATABASE::Item, FieldNo) then
             exit;
 
-        TempItemFieldSet.Init;
+        TempItemFieldSet.Init();
         TempItemFieldSet.TableNo := DATABASE::Item;
         TempItemFieldSet.Validate("No.", FieldNo);
         TempItemFieldSet.Insert(true);

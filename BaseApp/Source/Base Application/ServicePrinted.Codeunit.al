@@ -8,7 +8,7 @@ codeunit 5905 "Service-Printed"
         "No. Printed" := "No. Printed" + 1;
         OnBeforeModify(Rec);
         Modify;
-        Commit;
+        Commit();
     end;
 
     [IntegrationEvent(false, false)]

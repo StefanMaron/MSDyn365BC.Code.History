@@ -1,4 +1,4 @@
-﻿page 5522 "Order Planning"
+page 5522 "Order Planning"
 {
     AdditionalSearchTerms = 'supply planning,mrp,material requirements planning,mps,master production schedule';
     ApplicationArea = Planning;
@@ -661,14 +661,14 @@
     trigger OnOpenPage()
     begin
         if not MfgUserTempl.Get(UserId) then begin
-            MfgUserTempl.Init;
+            MfgUserTempl.Init();
             MfgUserTempl."User ID" := UserId;
             MfgUserTempl."Make Orders" := MfgUserTempl."Make Orders"::"The Active Order";
             MfgUserTempl."Create Purchase Order" := MfgUserTempl."Create Purchase Order"::"Make Purch. Orders";
             MfgUserTempl."Create Production Order" := MfgUserTempl."Create Production Order"::"Firm Planned";
             MfgUserTempl."Create Transfer Order" := MfgUserTempl."Create Transfer Order"::"Make Trans. Orders";
             MfgUserTempl."Create Assembly Order" := MfgUserTempl."Create Assembly Order"::"Make Assembly Orders";
-            MfgUserTempl.Insert;
+            MfgUserTempl.Insert();
         end;
 
         InitTempRec;
@@ -770,9 +770,9 @@
         ReqLine: Record "Requisition Line";
         ReqLineWithCursor: Record "Requisition Line";
     begin
-        DeleteAll;
+        DeleteAll();
 
-        ReqLine.Reset;
+        ReqLine.Reset();
         ReqLine.CopyFilters(Rec);
         ReqLine.SetRange("User ID", UserId);
         ReqLine.SetRange("Worksheet Template Name", '');
@@ -998,7 +998,7 @@
         ReqLine: Record "Requisition Line";
     begin
         Reset;
-        DeleteAll;
+        DeleteAll();
 
         Clear(OrderPlanningMgt);
         case DemandOrderFilter of
@@ -1051,13 +1051,13 @@
                     end;
                 DATABASE::"Service Line":
                     begin
-                        ServHeader.Init;
+                        ServHeader.Init();
                         ServHeader.Status := Status;
                         Text := Format(ServHeader.Status);
                     end;
                 DATABASE::"Job Planning Line":
                     begin
-                        Job.Init;
+                        Job.Init();
                         Job.Status := Status;
                         Text := Format(Job.Status);
                     end;

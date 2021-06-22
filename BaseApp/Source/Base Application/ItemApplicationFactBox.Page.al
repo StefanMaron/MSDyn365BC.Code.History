@@ -78,7 +78,7 @@ page 9125 "Item Application FactBox"
         Applied := ItemApplnEntry.OutboundApplied("Entry No.", false) - ItemApplnEntry.InboundApplied("Entry No.", false);
 
         if not Item.Get("Item No.") then
-            Item.Reset;
+            Item.Reset();
     end;
 
     trigger OnFindRecord(Which: Text): Boolean

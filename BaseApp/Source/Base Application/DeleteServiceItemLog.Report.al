@@ -25,14 +25,14 @@ report 6010 "Delete Service Item Log"
                 CounterTotal := Count;
                 if CounterTotal = 0 then begin
                     Message(Text000);
-                    CurrReport.Break;
+                    CurrReport.Break();
                 end;
                 if not ConfirmManagement.GetResponseOrDefault(
                      StrSubstNo(Text001, CounterTotal, TableCaption), true)
                 then
                     Error(Text003);
 
-                DeleteAll;
+                DeleteAll();
             end;
         }
     }

@@ -79,6 +79,7 @@ codeunit 137150 "SCM Warehouse UOM"
         QuantityBaseAvailableMustNotBeLessErr: Label 'Quantity (Base) available must not be less than';
         WhsePickCreatedTxt: Label 'Pick activity no.';
         InsufficientQtyToPickInBinErr: Label 'The Qty. Outstanding (Base) %1 exceeds the quantity available to pick %2 of the Bin Content.', Comment = '%1: Field(Qty. Outstanding (Base)), %2: Quantity available to pick in bin.';
+        UoMIsStillUsedError: Label 'You cannot delete the unit of measure because it is assigned to one or more records.';
 
     [Test]
     [HandlerFunctions('ItemTrackingLinesPageHandler')]
@@ -2924,6 +2925,48 @@ codeunit 137150 "SCM Warehouse UOM"
 
     [Test]
     [Scope('OnPrem')]
+    procedure DeleteUnitOfMeasureWhileInUseInItems()
+    var
+        Item: Record Item;
+        UnitOfMeasure: Record "Unit of Measure";
+    begin
+        // [FEATURE] [Item Unit of Measure]
+        // Deleting Item Unit of Measure should be prohibited if UOM is still in use in an item
+        Initialize;
+
+        // [GIVEN] Item with secondary UoM = "X"
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+        LibraryInventory.CreateItem(Item);
+        Item."Base Unit of Measure" := UnitOfMeasure.Code;
+        Item.Modify();
+
+        // [WHEN] Delete UoM "X"
+        asserterror UnitOfMeasure.Delete(true);
+
+        // [THEN] Error is thrown: "Cannot delete a unit of measure that is still used."
+        Assert.ExpectedError(UoMIsStillUsedError);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DeleteUnitOfMeasureThatIsNotUsed()
+    var
+        UnitOfMeasure: Record "Unit of Measure";
+    begin
+        // [FEATURE] [Item Unit of Measure]
+        // Deleting Item Unit of Measure should be prohibited if UOM is still in use in an item
+        Initialize;
+
+        // [GIVEN] Item with secondary UoM = "X"
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+
+        // [WHEN] Delete Item UoM "X"
+        // [THEN] The unit of measure is deleted
+        UnitOfMeasure.Delete(true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure RenameItemUnitOfMeasure()
     var
         Item: Record Item;
@@ -3246,7 +3289,7 @@ codeunit 137150 "SCM Warehouse UOM"
         LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, true);
 
         // [THEN] The purchased Item I is sold completely and there is no any open Item Ledger Entry for I.
-        ItemLedgerEntry.Init;
+        ItemLedgerEntry.Init();
         ItemLedgerEntry.SetRange("Item No.", Item."No.");
         ItemLedgerEntry.SetRange(Open, true);
         Assert.RecordIsEmpty(ItemLedgerEntry);
@@ -3321,7 +3364,7 @@ codeunit 137150 "SCM Warehouse UOM"
         CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.", LibraryRandom.RandInt(10));
 
         // [GIVEN] No Locations in current database
-        Location.DeleteAll;
+        Location.DeleteAll();
 
         // [WHEN] Delete Item UoM "X"
         ItemUnitOfMeasure.Delete(true);
@@ -3659,7 +3702,7 @@ codeunit 137150 "SCM Warehouse UOM"
         CreateItemTrackingCode(ItemTrackingCode3, true, true, false, true);  // Both Lot and Serial Item Tracking.
         CreateItemTrackingCode(ItemTrackingCode4, true, false, false, false);  // Serial Item Tracking.
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Warehouse UOM");
     end;
 
@@ -3674,11 +3717,11 @@ codeunit 137150 "SCM Warehouse UOM"
           "Receipt Posting Policy", WarehouseSetup."Receipt Posting Policy"::"Stop and show the first posting error");
         WarehouseSetup.Modify(true);
 
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesSetup.Modify(true);
 
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchasesPayablesSetup.Modify(true);
     end;
@@ -3686,13 +3729,13 @@ codeunit 137150 "SCM Warehouse UOM"
     local procedure OutputJournalSetup()
     begin
         Clear(OutputItemJournalTemplate);
-        OutputItemJournalTemplate.Init;
+        OutputItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(OutputItemJournalTemplate, OutputItemJournalTemplate.Type::Output);
         OutputItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
         OutputItemJournalTemplate.Modify(true);
 
         Clear(OutputItemJournalBatch);
-        OutputItemJournalBatch.Init;
+        OutputItemJournalBatch.Init();
         LibraryInventory.SelectItemJournalBatchName(
           OutputItemJournalBatch, OutputItemJournalTemplate.Type, OutputItemJournalTemplate.Name);
         OutputItemJournalBatch.Modify(true);
@@ -3923,7 +3966,7 @@ codeunit 137150 "SCM Warehouse UOM"
             end else
                 TransferLine.Validate(Quantity, TransferLine.Quantity + Quantity);
         end;
-        TransferLine.Modify;
+        TransferLine.Modify();
     end;
 
     local procedure GetTotalBaseQtyOfData(var TempWarehouseEntry: Record "Warehouse Entry" temporary; var BinCodeFilter: Text) Result: Decimal
@@ -3992,9 +4035,9 @@ codeunit 137150 "SCM Warehouse UOM"
         ReservationEntry.SetRange("Item No.", ItemNo);
         ReservationEntry.FindSet;
         repeat
-            ReservationEntry2.Init;
+            ReservationEntry2.Init();
             ReservationEntry2 := ReservationEntry;
-            ReservationEntry2.Insert;
+            ReservationEntry2.Insert();
         until ReservationEntry.Next = 0;
     end;
 
@@ -5065,12 +5108,12 @@ codeunit 137150 "SCM Warehouse UOM"
         LibraryWarehouse.SelectWhseWorksheetTemplate(WhseWorksheetTemplate, WhseWorksheetTemplate.Type::Movement);
         LibraryWarehouse.SelectWhseWorksheetName(WhseWorksheetName, WhseWorksheetTemplate.Name, LocationCode);
         WhseWorksheetLine.DeleteAll(true);
-        WhseWorksheetLine.Init;
+        WhseWorksheetLine.Init();
         WhseWorksheetLine.Validate("Worksheet Template Name", WhseWorksheetName."Worksheet Template Name");
         WhseWorksheetLine.Validate(Name, WhseWorksheetName.Name);
         BinContent.SetRange("Location Code", LocationCode);
         BinContent.SetRange("Item No.", ItemNo);
-        WhseInternalPutAwayHeader.Init;
+        WhseInternalPutAwayHeader.Init();
         LibraryWarehouse.WhseGetBinContent(BinContent, WhseWorksheetLine, WhseInternalPutAwayHeader, 0);  // Use 0 for Movement Worksheet.
     end;
 

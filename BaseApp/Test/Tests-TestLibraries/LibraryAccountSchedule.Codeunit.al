@@ -9,7 +9,7 @@ codeunit 131304 "Library - Account Schedule"
 
     var
         AccSchedManagement: Codeunit AccSchedManagement;
-        RoundingFormatTok: Label '<Precision,%1><Standard Format,0>';
+        RoundingFormatTok: Label '<Precision,%1><Standard Format,0>', Locked = true;
 
     procedure CalcCell(var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; CalcAddCurr: Boolean; IncludeSimEntries: Boolean): Decimal
     begin
@@ -22,7 +22,7 @@ codeunit 131304 "Library - Account Schedule"
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         exit(GetCustomFormatString(GLSetup."Amount Decimal Places"));
     end;
 

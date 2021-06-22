@@ -314,7 +314,7 @@ table 2115 "O365 Coupon Claim"
         O365CouponClaimDocLink."Graph Contact ID" := "Graph Contact ID";
         O365CouponClaimDocLink."Document Type" := GetRangeMin("Document Type Filter");
         O365CouponClaimDocLink."Document No." := GetRangeMin("Document No. Filter");
-        if not O365CouponClaimDocLink.Insert then
+        if not O365CouponClaimDocLink.Insert() then
             Error(CouponHasAlreadyBeenAppliedErr);
         exit(true);
     end;
@@ -352,7 +352,7 @@ table 2115 "O365 Coupon Claim"
                 exit; // The user did not apply any discount
         end;
 
-        O365CouponClaimDocLink.Delete;
+        O365CouponClaimDocLink.Delete();
         exit(true);
     end;
 

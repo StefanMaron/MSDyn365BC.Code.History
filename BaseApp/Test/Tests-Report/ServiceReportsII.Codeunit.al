@@ -84,7 +84,7 @@ codeunit 136905 "Service Reports - II"
         CreateServiceContract(ServiceContractHeader);
         ModifyServiceContractHeader(ServiceContractHeader);
         LibraryService.SignContract(ServiceContractHeader);
-        Commit;
+        Commit();
 
         // 2. Exercise: Run Create Contract Invoices Report.
         CurrentWorkDate := WorkDate;
@@ -124,7 +124,7 @@ codeunit 136905 "Service Reports - II"
         // 2. Exercise: Generate Service Order Report.
         ServiceHeader.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceHeader.SetRange("No.", ServiceHeader."No.");
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Service Order", true, true, ServiceHeader);
 
         // 3. Verify: Test that value of Quantity,Unit Price and Amount in Service Order matches the value Quantity,Unit Price and Amount In corresponding Service Line Table.
@@ -525,7 +525,7 @@ codeunit 136905 "Service Reports - II"
         SetHandler := true;  // Setting Handler's value as TRUE to execute Assign Serial No. Action on Item Tracking Lines Page.
         ItemJournal.ItemTrackingLines.Invoke;
         ItemJournal.Post.Invoke;
-        Commit;
+        Commit();
         LibraryUtility.GenerateGUID;  // Hack to fix New General Batch Creation issue with Generate GUID.
 
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CreateCustomer(''));
@@ -630,7 +630,7 @@ codeunit 136905 "Service Reports - II"
         Clear(ServPricingProfitability);
         ServicePriceGroup.SetRange(Code, ServicePriceGroup.Code);
         ServPricingProfitability.SetTableView(ServicePriceGroup);
-        Commit;
+        Commit();
         ServPricingProfitability.Run;
 
         // [THEN] Values in the Report are correct.
@@ -908,7 +908,7 @@ codeunit 136905 "Service Reports - II"
         // Validate Document No. as combination of Journal Batch Name and Line No.
         ItemJournalLine.Validate("Document No.", ItemJournalLine."Journal Batch Name" + Format(ItemJournalLine."Line No."));
         ItemJournalLine.Modify(true);
-        Commit;
+        Commit();
     end;
 
     local procedure CreateItemWithItemTrackingCode(): Code[20]
@@ -1111,7 +1111,7 @@ codeunit 136905 "Service Reports - II"
         ServiceOrder.FILTER.SetFilter("Document Type", Format(ServiceHeader."Document Type"));
         ServiceOrder.FILTER.SetFilter("No.", ServiceHeader."No.");
         ServiceOrder.ServItemLines."Service Lines".Invoke;
-        Commit;
+        Commit();
     end;
 
     local procedure RunCreateContractInvoices(ServiceContractHeader: Record "Service Contract Header")
@@ -1138,7 +1138,7 @@ codeunit 136905 "Service Reports - II"
     begin
         ServiceContractHeader.SetRange("Contract Type", ServiceContractHeader."Contract Type"::Contract);
         ServiceContractHeader.SetRange("Customer No.", CustomerNo);
-        ServiceMgtSetup.Get;
+        ServiceMgtSetup.Get();
         InvoiceNo :=
           NoSeriesManagement.GetNextNo(ServiceMgtSetup."Contract Invoice Nos.", WorkDate, false);
 
@@ -1159,7 +1159,7 @@ codeunit 136905 "Service Reports - II"
 
         ServiceOrder.SetTableView(ServiceHeader);
         ServiceOrder.InitializeRequest(ShowInternalInformation, ShowQuantity);
-        Commit;
+        Commit();
         ServiceOrder.Run;
     end;
 
@@ -1172,7 +1172,7 @@ codeunit 136905 "Service Reports - II"
         ServiceCrMemoHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
         ServiceCreditMemo.SetTableView(ServiceCrMemoHeader);
         ServiceCreditMemo.InitializeRequest(ShowDetail);
-        Commit;
+        Commit();
         ServiceCreditMemo.Run;
     end;
 
@@ -1185,7 +1185,7 @@ codeunit 136905 "Service Reports - II"
         ServiceItem.SetRange("No.", No);
         ServiceProfitServiceItems.SetTableView(ServiceItem);
         ServiceProfitServiceItems.InitializeRequest(ShowDetail);
-        Commit;
+        Commit();
         ServiceProfitServiceItems.Run;
     end;
 
@@ -1198,7 +1198,7 @@ codeunit 136905 "Service Reports - II"
         ServiceShipmentHeader.SetRange("Order No.", OrderNo);
         ServiceProfitServOrders.SetTableView(ServiceShipmentHeader);
         ServiceProfitServOrders.InitializeRequest(ShowDetail);
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Service Profit (Serv. Orders)", true, true, ServiceShipmentHeader);
     end;
 
@@ -1211,7 +1211,7 @@ codeunit 136905 "Service Reports - II"
         ServiceShipmentHeader.SetRange("Order No.", OrderNo);
         ServiceShipment.SetTableView(ServiceShipmentHeader);
         ServiceShipment.InitializeRequest(ShowInternalInfo, ShowCorrectionLine, ShowLotSerialNoAppendix);
-        Commit;
+        Commit();
         ServiceShipment.Run;
     end;
 
@@ -1411,7 +1411,7 @@ codeunit 136905 "Service Reports - II"
         LibraryReportDataset.AssertCurrentRowValueEquals('Qty', ServiceLine.Quantity);
         LibraryReportDataset.AssertCurrentRowValueEquals('UnitPrice_ServLine', ServiceLine."Unit Price");
 
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
 
         LibraryReportDataset.FindCurrentRowValue('Amt', Amount);
 
@@ -1588,7 +1588,7 @@ codeunit 136905 "Service Reports - II"
     [Scope('OnPrem')]
     procedure ItemTrackingPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
     begin
-        Commit;
+        Commit();
         if SetHandler then
             ItemTrackingLines."Assign Serial No.".Invoke
         else
@@ -1601,7 +1601,7 @@ codeunit 136905 "Service Reports - II"
     procedure ItemTrackingSummaryPageHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
     begin
         ItemTrackingSummary.OK.Invoke;
-        Commit;
+        Commit();
     end;
 
     [ModalPageHandler]

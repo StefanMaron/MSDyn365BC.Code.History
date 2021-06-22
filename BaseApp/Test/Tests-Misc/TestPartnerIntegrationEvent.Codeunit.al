@@ -944,7 +944,7 @@ codeunit 134299 "Test Partner Integration Event"
         CreateSalesInvoice(SalesHeader);
         LibraryERM.CreatePaymentMethodWithBalAccount(PaymentMethod);
         SalesHeader.Validate("Payment Method Code", PaymentMethod.Code);
-        SalesHeader.Modify;
+        SalesHeader.Modify();
 
         // Exercise
         CODEUNIT.Run(CODEUNIT::"Sales-Post", SalesHeader);
@@ -1243,7 +1243,7 @@ codeunit 134299 "Test Partner Integration Event"
         CreatePurchaseInvoice(PurchaseHeader);
         LibraryERM.CreatePaymentMethodWithBalAccount(PaymentMethod);
         PurchaseHeader.Validate("Payment Method Code", PaymentMethod.Code);
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
 
         // Exercise
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -2613,7 +2613,7 @@ codeunit 134299 "Test Partner Integration Event"
     local procedure OnAfterNavigateFindRecords(var DocumentEntry: Record "Document Entry"; DocNoFilter: Text; PostingDateFilter: Text)
     begin
         // Ensure there is one known entry so we can invoke Show and handle the page
-        DocumentEntry.DeleteAll;
+        DocumentEntry.DeleteAll();
         InsertIntoDocEntry(DocumentEntry, DATABASE::"G/L Entry", 'G/L Entry', 1);
         InsertDataTypeBuffer(OnAfterNavigateFindRecordsTxt);
     end;
@@ -2861,7 +2861,7 @@ codeunit 134299 "Test Partner Integration Event"
     begin
         if DataTypeBuffer.FindLast then;
 
-        DataTypeBuffer.Init;
+        DataTypeBuffer.Init();
         DataTypeBuffer.ID += 1;
         DataTypeBuffer.Text := CopyStr(EventText, 1, MaxStrLen(DataTypeBuffer.Text));
         DataTypeBuffer.Insert(true);
@@ -2948,7 +2948,7 @@ codeunit 134299 "Test Partner Integration Event"
         Location.SetRange("Require Shipment", false);
         Location.FindFirst;
         ItemJournalLine."New Location Code" := Location.Code;
-        ItemJournalLine.Modify;
+        ItemJournalLine.Modify();
     end;
 
     local procedure CreateSalesInvoice(var SalesHeader: Record "Sales Header")
@@ -3021,29 +3021,29 @@ codeunit 134299 "Test Partner Integration Event"
 
     local procedure MockSalesInvoice(var SalesHeader: Record "Sales Header")
     begin
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader."Document Type" := SalesHeader."Document Type"::Invoice;
         SalesHeader."No." := LibraryUtility.GenerateGUID;
-        SalesHeader.Insert;
+        SalesHeader.Insert();
     end;
 
     local procedure MockSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
     begin
-        SalesLine.Init;
+        SalesLine.Init();
         SalesLine."Document Type" := SalesHeader."Document Type";
         SalesLine."Document No." := SalesHeader."No.";
         SalesLine."Line No." := LibraryUtility.GetNewRecNo(SalesLine, SalesLine.FieldNo("Line No."));
-        SalesLine.Insert;
+        SalesLine.Insert();
     end;
 
     local procedure MockInvoicedBookingItem(DocumentNo: Code[20])
     var
         InvoicedBookingItem: Record "Invoiced Booking Item";
     begin
-        InvoicedBookingItem.Init;
+        InvoicedBookingItem.Init();
         InvoicedBookingItem."Booking Item ID" := CreateGuid;
         InvoicedBookingItem."Document No." := DocumentNo;
-        InvoicedBookingItem.Insert;
+        InvoicedBookingItem.Insert();
     end;
 
     local procedure SetBookingMgrSetup()
@@ -3051,9 +3051,9 @@ codeunit 134299 "Test Partner Integration Event"
         BookingMgrSetup: Record "Booking Mgr. Setup";
     begin
         if not BookingMgrSetup.Get then
-            BookingMgrSetup.Insert;
+            BookingMgrSetup.Insert();
         BookingMgrSetup."Booking Mgr. Codeunit" := CODEUNIT::"Test Partner Integration Event";
-        BookingMgrSetup.Modify;
+        BookingMgrSetup.Modify();
     end;
 
     local procedure UndoPurchRcptLine(PurchaseReceiptNo: Code[20]; LineNo: Integer)
@@ -3069,13 +3069,13 @@ codeunit 134299 "Test Partner Integration Event"
 
     local procedure InsertIntoDocEntry(var DocumentEntry: Record "Document Entry"; DocTableID: Integer; DocTableName: Text; DocNoOfRecords: Integer)
     begin
-        DocumentEntry.Init;
+        DocumentEntry.Init();
         DocumentEntry."Entry No." := DocumentEntry."Entry No." + 1;
         DocumentEntry."Table ID" := DocTableID;
         DocumentEntry."Document Type" := DocumentEntry."Document Type"::" ";
         DocumentEntry."Table Name" := CopyStr(DocTableName, 1, MaxStrLen(DocumentEntry."Table Name"));
         DocumentEntry."No. of Records" := DocNoOfRecords;
-        DocumentEntry.Insert;
+        DocumentEntry.Insert();
     end;
 }
 

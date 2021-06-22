@@ -35,13 +35,13 @@ codeunit 134220 "WFWH General Journal Line"
     var
         WorkflowWebhookEntry: Record "Workflow Webhook Entry";
     begin
-        WorkflowWebhookEntry.Init;
+        WorkflowWebhookEntry.Init();
         WorkflowWebhookEntry.SetCurrentKey("Data ID");
         WorkflowWebhookEntry.SetRange("Data ID", Id);
         WorkflowWebhookEntry.FindFirst;
 
         WorkflowWebhookEntry."Initiated By User ID" := InitiatedByUserID;
-        WorkflowWebhookEntry.Modify;
+        WorkflowWebhookEntry.Modify();
     end;
 
     [Test]
@@ -51,7 +51,7 @@ codeunit 134220 "WFWH General Journal Line"
         UserSetup: Record "User Setup";
     begin
         if not UserSetup.Get(BogusUserIdTxt) then begin
-            UserSetup.Init;
+            UserSetup.Init();
             UserSetup."User ID" := BogusUserIdTxt;
             UserSetup."Approver ID" := UserId;
             UserSetup.Insert(true);
@@ -72,7 +72,7 @@ codeunit 134220 "WFWH General Journal Line"
     var
         WorkflowWebhookEntry: Record "Workflow Webhook Entry";
     begin
-        WorkflowWebhookEntry.Init;
+        WorkflowWebhookEntry.Init();
         WorkflowWebhookEntry.SetFilter("Data ID", Id);
         WorkflowWebhookEntry.SetFilter(Response, '=%1', WorkflowWebhookEntry.Response::Pending);
         WorkflowWebhookEntry.FindFirst;
@@ -84,7 +84,7 @@ codeunit 134220 "WFWH General Journal Line"
     var
         WorkflowWebhookEntry: Record "Workflow Webhook Entry";
     begin
-        WorkflowWebhookEntry.Init;
+        WorkflowWebhookEntry.Init();
         WorkflowWebhookEntry.SetCurrentKey("Data ID");
         WorkflowWebhookEntry.SetRange("Data ID", Id);
         WorkflowWebhookEntry.FindFirst;
@@ -152,7 +152,7 @@ codeunit 134220 "WFWH General Journal Line"
         // Setup
         CreateAndEnableGeneralJournalLineWorkflowDefinition(UserId);
         CreateJournalBatchWithMultipleJournalLines(GenJournalLine);
-        Commit;
+        Commit();
 
         // Exercise
         SendFilteredApprovalRequest(GenJournalLine."Journal Batch Name", GenJournalLine."Line No.");
@@ -193,7 +193,7 @@ codeunit 134220 "WFWH General Journal Line"
         MakeCurrentUserAnApprover;
         SendApprovalRequestForGeneralJournal(GenJournalLine."Journal Batch Name");
 
-        Commit;
+        Commit();
 
         // Verify
         VerifyWorkflowWebhookEntryResponse(GenJournalLine.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
@@ -230,7 +230,7 @@ codeunit 134220 "WFWH General Journal Line"
         MakeCurrentUserAnApprover;
         SendApprovalRequestForGeneralJournal(GenJournalLine."Journal Batch Name");
 
-        Commit;
+        Commit();
 
         // Verify
         VerifyWorkflowWebhookEntryResponse(GenJournalLine.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
@@ -267,7 +267,7 @@ codeunit 134220 "WFWH General Journal Line"
         MakeCurrentUserAnApprover;
         SendApprovalRequestForGeneralJournal(GenJournalLine."Journal Batch Name");
 
-        Commit;
+        Commit();
 
         // Verify
         VerifyWorkflowWebhookEntryResponse(GenJournalLine.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
@@ -303,7 +303,7 @@ codeunit 134220 "WFWH General Journal Line"
         CreateCashReceiptJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
         MakeCurrentUserAnApprover;
         SendApprovalRequestForCashReceipt(GenJournalBatch.Name);
-        Commit;
+        Commit();
 
         // Verify
         VerifyWorkflowWebhookEntryResponse(GenJournalLine.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
@@ -339,7 +339,7 @@ codeunit 134220 "WFWH General Journal Line"
         CreateCashReceiptJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
         MakeCurrentUserAnApprover;
         SendApprovalRequestForCashReceipt(GenJournalBatch.Name);
-        Commit;
+        Commit();
 
         // Verify
         VerifyWorkflowWebhookEntryResponse(GenJournalLine.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
@@ -375,7 +375,7 @@ codeunit 134220 "WFWH General Journal Line"
         CreateCashReceiptJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
         MakeCurrentUserAnApprover;
         SendApprovalRequestForCashReceipt(GenJournalBatch.Name);
-        Commit;
+        Commit();
 
         // Verify
         VerifyWorkflowWebhookEntryResponse(GenJournalLine.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
@@ -412,7 +412,7 @@ codeunit 134220 "WFWH General Journal Line"
         MakeCurrentUserAnApprover;
         SendApprovalRequestForPaymentJournal(GenJournalBatch.Name);
 
-        Commit;
+        Commit();
 
         // Verify
         VerifyWorkflowWebhookEntryResponse(GenJournalLine.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
@@ -449,7 +449,7 @@ codeunit 134220 "WFWH General Journal Line"
         MakeCurrentUserAnApprover;
         SendApprovalRequestForPaymentJournal(GenJournalBatch.Name);
 
-        Commit;
+        Commit();
 
         // Verify
         VerifyWorkflowWebhookEntryResponse(GenJournalLine.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
@@ -486,7 +486,7 @@ codeunit 134220 "WFWH General Journal Line"
         MakeCurrentUserAnApprover;
         SendApprovalRequestForPaymentJournal(GenJournalBatch.Name);
 
-        Commit;
+        Commit();
 
         // Verify
         VerifyWorkflowWebhookEntryResponse(GenJournalLine.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
@@ -523,7 +523,7 @@ codeunit 134220 "WFWH General Journal Line"
         MakeCurrentUserAnApprover;
         SendFilteredApprovalRequest(GenJournalLine."Journal Batch Name", GenJournalLine."Line No.");
 
-        Commit;
+        Commit();
 
         // Verify
         VerifySingleApprovalRequestPendingForFilteredGeneralJournalLine(DummyWorkflowWebhookEntry, GenJournalLine.SystemId);
@@ -560,7 +560,7 @@ codeunit 134220 "WFWH General Journal Line"
         MakeCurrentUserAnApprover;
         SendFilteredApprovalRequest(GenJournalLine."Journal Batch Name", GenJournalLine."Line No.");
 
-        Commit;
+        Commit();
 
         // Verify
         VerifySingleApprovalRequestPendingForFilteredGeneralJournalLine(DummyWorkflowWebhookEntry, GenJournalLine.SystemId);
@@ -597,7 +597,7 @@ codeunit 134220 "WFWH General Journal Line"
         MakeCurrentUserAnApprover;
         SendFilteredApprovalRequest(GenJournalLine."Journal Batch Name", GenJournalLine."Line No.");
 
-        Commit;
+        Commit();
 
         // Verify
         VerifySingleApprovalRequestPendingForFilteredGeneralJournalLine(DummyWorkflowWebhookEntry, GenJournalLine.SystemId);
@@ -633,7 +633,7 @@ codeunit 134220 "WFWH General Journal Line"
         CreateAndEnableGeneralJournalLineWorkflowDefinition(BogusUserIdTxt);
         CreateGeneralJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
         SendApprovalRequestForGeneralJournal(GenJournalLine."Journal Batch Name");
-        Commit;
+        Commit();
 
         // Verify
         VerifyWorkflowWebhookEntryResponse(GenJournalLine.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
@@ -672,7 +672,7 @@ codeunit 134220 "WFWH General Journal Line"
         SendApprovalRequestForGeneralJournal(GenJournalLine."Journal Batch Name");
         ChangeWorkflowWebhookEntryInitiatedBy(GenJournalLine.SystemId, BogusUserIdTxt);
 
-        Commit;
+        Commit();
 
         // Verify
         VerifyWorkflowWebhookEntryResponse(GenJournalLine.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
@@ -709,7 +709,7 @@ codeunit 134220 "WFWH General Journal Line"
         CreateAndEnableGeneralJournalLineWorkflowDefinition(BogusUserIdTxt);
         CreateGeneralJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
         SendApprovalRequestForGeneralJournal(GenJournalLine."Journal Batch Name");
-        Commit;
+        Commit();
 
         // Verify
         VerifyWorkflowWebhookEntryResponse(GenJournalLine.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
@@ -748,7 +748,7 @@ codeunit 134220 "WFWH General Journal Line"
         MakeCurrentUserAnApprover;
         SendApprovalRequestForGeneralJournal(GenJournalLine."Journal Batch Name");
 
-        Commit;
+        Commit();
 
         // Verify
         VerifyWorkflowWebhookEntryResponse(GenJournalLine.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
@@ -789,7 +789,7 @@ codeunit 134220 "WFWH General Journal Line"
         MakeCurrentUserAnApprover;
         SendApprovalRequestForGeneralJournal(GenJournalLine."Journal Batch Name");
 
-        Commit;
+        Commit();
 
         // Verify
         VerifyWorkflowWebhookEntryResponse(GenJournalLine.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
@@ -822,7 +822,7 @@ codeunit 134220 "WFWH General Journal Line"
         WebhookHelper.CreatePendingFlowApproval(GenJournalLine.RecordId);
 
         // [WHEN] User opens the journal batch
-        Commit;
+        Commit();
         GeneralJournal.OpenEdit;
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
 
@@ -855,7 +855,7 @@ codeunit 134220 "WFWH General Journal Line"
         WebhookHelper.CreatePendingFlowApproval(GenJournalLine.RecordId);
 
         // [WHEN] User opens the journal batch
-        Commit;
+        Commit();
         PaymentJournal.OpenEdit;
         PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
 
@@ -888,7 +888,7 @@ codeunit 134220 "WFWH General Journal Line"
         WebhookHelper.CreatePendingFlowApproval(GenJournalLine.RecordId);
 
         // [WHEN] User opens the journal batch
-        Commit;
+        Commit();
         CashReceiptJournal.OpenEdit;
         CashReceiptJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
 
@@ -923,7 +923,7 @@ codeunit 134220 "WFWH General Journal Line"
         WebhookHelper.CreatePendingFlowApproval(GenJournalLine.RecordId);
 
         // [WHEN] User opens the journal batch and clicks Cancel
-        Commit;
+        Commit();
         GeneralJournal.OpenEdit;
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
         GeneralJournal.CancelApprovalRequestJournalLine.Invoke;
@@ -957,7 +957,7 @@ codeunit 134220 "WFWH General Journal Line"
         WebhookHelper.CreatePendingFlowApproval(GenJournalLine.RecordId);
 
         // [WHEN] User opens the journal batch and clicks Cancel
-        Commit;
+        Commit();
         PaymentJournal.OpenEdit;
         PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
         PaymentJournal.CancelApprovalRequestJournalLine.Invoke;
@@ -991,7 +991,7 @@ codeunit 134220 "WFWH General Journal Line"
         WebhookHelper.CreatePendingFlowApproval(GenJournalLine.RecordId);
 
         // [WHEN] User opens the journal batch and clicks Cancel
-        Commit;
+        Commit();
         CashReceiptJournal.OpenEdit;
         CashReceiptJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
         CashReceiptJournal.CancelApprovalRequestJournalLine.Invoke;
@@ -1015,9 +1015,9 @@ codeunit 134220 "WFWH General Journal Line"
         LibraryApplicationArea.EnableFoundationSetup;
         LibraryVariableStorage.Clear;
         Workflow.ModifyAll(Enabled, false, true);
-        UserSetup.DeleteAll;
-        GenJournalTemplate.DeleteAll;
-        ClearWorkflowWebhookEntry.DeleteAll;
+        UserSetup.DeleteAll();
+        GenJournalTemplate.DeleteAll();
+        ClearWorkflowWebhookEntry.DeleteAll();
         RemoveBogusUser;
         if IsInitialized then
             exit;

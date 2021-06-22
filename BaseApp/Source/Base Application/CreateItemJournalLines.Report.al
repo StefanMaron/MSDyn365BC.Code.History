@@ -16,7 +16,7 @@ report 8613 "Create Item Journal Lines"
             var
                 StdItemJnlLine: Record "Standard Item Journal Line";
             begin
-                ItemJnlLine.Init;
+                ItemJnlLine.Init();
                 if GetStandardJournalLine then begin
                     Initialize(StdItemJnl, ItemJnlBatch.Name);
 
@@ -276,7 +276,7 @@ report 8613 "Create Item Journal Lines"
 
     local procedure CopyItemJnlFromStdJnl(StdItemJnlLine: Record "Standard Item Journal Line"; var ItemJnlLine: Record "Item Journal Line")
     begin
-        ItemJnlLine.Init;
+        ItemJnlLine.Init();
         ItemJnlLine."Line No." := 0;
         ItemJnlLine.SetUpNewLine(LastItemJnlLine);
         if LastItemJnlLine."Line No." <> 0 then

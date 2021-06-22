@@ -2,11 +2,15 @@ pageextension 1758 "Data Classification Wiz. Ext." extends "Data Classification 
 {
     layout
     {
-        modify("ExportModeSelected")
+        modify(ExportModeSelected)
         {
             trigger OnAfterValidate()
             begin
-                ShouldNextBeEnabled := IsNextEnabled();
+                if IsExportModeSelected() then begin
+                    SetExpertModeSelected(false);
+                    SetImportModeSelected(false);
+                end;
+                ShouldNextBeEnabled := ShouldEnableNext();
             end;
         }
 
@@ -14,7 +18,11 @@ pageextension 1758 "Data Classification Wiz. Ext." extends "Data Classification 
         {
             trigger OnAfterValidate()
             begin
-                ShouldNextBeEnabled := IsNextEnabled();
+                if IsImportModeSelected() then begin
+                    SetExpertModeSelected(false);
+                    SetExportModeSelected(false);
+                end;
+                ShouldNextBeEnabled := ShouldEnableNext();
             end;
         }
 
@@ -22,7 +30,11 @@ pageextension 1758 "Data Classification Wiz. Ext." extends "Data Classification 
         {
             trigger OnAfterValidate()
             begin
-                ShouldNextBeEnabled := IsNextEnabled();
+                if IsExpertModeSelected() then begin
+                    SetExportModeSelected(false);
+                    SetImportModeSelected(false);
+                end;
+                ShouldNextBeEnabled := ShouldEnableNext();
             end;
         }
     }

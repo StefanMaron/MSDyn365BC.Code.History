@@ -61,7 +61,7 @@ codeunit 132204 "Library - Warehouse"
     var
         PhysInvtCountManagement: Codeunit "Phys. Invt. Count.-Management";
     begin
-        Commit;  // Commit is required.
+        Commit();  // Commit is required.
         Clear(PhysInvtCountManagement);
         PhysInvtCountManagement.InitFromWhseJnl(WarehouseJournalLine);
         PhysInvtCountManagement.Run;
@@ -83,11 +83,11 @@ codeunit 132204 "Library - Warehouse"
         DocumentNo: Text[20];
     begin
         Clear(ItemJournalLine);
-        ItemJournalLine.Init;
+        ItemJournalLine.Init();
         ItemJournalLine.Validate("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.Validate("Journal Batch Name", ItemJournalBatch.Name);
 
-        Commit;
+        Commit();
         CalcWhseAdjmt.SetItemJnlLine(ItemJournalLine);
         if (DocumentNo = '') and (ItemJournalBatch."No. Series" <> '') then
             DocumentNo := NoSeriesMgt.GetNextNo(ItemJournalBatch."No. Series", WorkDate, false);
@@ -117,7 +117,7 @@ codeunit 132204 "Library - Warehouse"
         ItemJournalLine.Validate("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.Validate("Journal Batch Name", ItemJournalBatch.Name);
 
-        Commit;
+        Commit();
         CalculateWhseAdjustment.SetItemJnlLine(ItemJournalLine);
         if DocumentNo = '' then
             DocumentNo := NoSeriesMgt.GetNextNo(ItemJournalBatch."No. Series", NewPostingDate, false);
@@ -158,7 +158,7 @@ codeunit 132204 "Library - Warehouse"
         WarehouseActivityLine2: Record "Warehouse Activity Line";
         WhseChangeUnitOfMeasure: Report "Whse. Change Unit of Measure";
     begin
-        Commit;
+        Commit();
         Clear(WhseChangeUnitOfMeasure);
         WhseChangeUnitOfMeasure.DefWhseActLine(WarehouseActivityLine);
         WhseChangeUnitOfMeasure.RunModal;
@@ -174,7 +174,7 @@ codeunit 132204 "Library - Warehouse"
         Bin: Record Bin;
     begin
         Clear(Location);
-        Location.Init;
+        Location.Init();
 
         CreateLocationWithInventoryPostingSetup(Location);
         // Skip validate trigger for bin mandatory to improve performance.
@@ -260,7 +260,7 @@ codeunit 132204 "Library - Warehouse"
     procedure CreateBin(var Bin: Record Bin; LocationCode: Code[10]; BinCode: Code[20]; ZoneCode: Code[10]; BinTypeCode: Code[10])
     begin
         Clear(Bin);
-        Bin.Init;
+        Bin.Init();
         Bin.Validate("Location Code", LocationCode);
         if BinCode = '' then
             BinCode := LibraryUtility.GenerateRandomCode(Bin.FieldNo(Code), DATABASE::Bin);
@@ -276,7 +276,7 @@ codeunit 132204 "Library - Warehouse"
     var
         Bin: Record Bin;
     begin
-        BinContent.Init;
+        BinContent.Init();
         BinContent.Validate("Location Code", LocationCode);
         BinContent.Validate("Bin Code", BinCode);
         BinContent.Validate("Item No.", ItemNo);
@@ -294,7 +294,7 @@ codeunit 132204 "Library - Warehouse"
     var
         RecRef: RecordRef;
     begin
-        BinCreationWorksheetLine.Init;
+        BinCreationWorksheetLine.Init();
         BinCreationWorksheetLine.Validate("Worksheet Template Name", WorksheetTemplateName);
         BinCreationWorksheetLine.Validate(Name, Name);
         BinCreationWorksheetLine.Validate("Location Code", LocationCode);
@@ -306,7 +306,7 @@ codeunit 132204 "Library - Warehouse"
 
     procedure CreateBinTemplate(var BinTemplate: Record "Bin Template"; LocationCode: Code[10])
     begin
-        BinTemplate.Init;
+        BinTemplate.Init();
         BinTemplate.Validate(Code, LibraryUtility.GenerateRandomCode(BinTemplate.FieldNo(Code), DATABASE::Location));
         BinTemplate.Insert(true);
         BinTemplate.Validate("Location Code", LocationCode);
@@ -316,7 +316,7 @@ codeunit 132204 "Library - Warehouse"
     procedure CreateBinType(var BinType: Record "Bin Type"; Receive: Boolean; Ship: Boolean; PutAway: Boolean; Pick: Boolean)
     begin
         Clear(BinType);
-        BinType.Init;
+        BinType.Init();
 
         BinType.Code := LibraryUtility.GenerateRandomCode(BinType.FieldNo(Code), DATABASE::"Bin Type");
         BinType.Description := BinType.Code;
@@ -392,8 +392,8 @@ codeunit 132204 "Library - Warehouse"
         WhseRequest: Record "Warehouse Request";
         CreateInvtPutAwayPickMvmt: Report "Create Invt Put-away/Pick/Mvmt";
     begin
-        WhseRequest.Reset;
-        WhseRequest.Init;
+        WhseRequest.Reset();
+        WhseRequest.Init();
         WhseRequest.SetCurrentKey("Source Document", "Source No.");
         WhseRequest.SetRange("Source Document", SourceDocument);
         WhseRequest.SetRange("Source No.", SourceNo);
@@ -410,7 +410,7 @@ codeunit 132204 "Library - Warehouse"
     begin
         PurchaseHeader.TestField(Status, PurchaseHeader.Status::Released);
 
-        WhseRequest.Reset;
+        WhseRequest.Reset();
         WhseRequest.SetCurrentKey("Source Document", "Source No.");
         case PurchaseHeader."Document Type" of
             PurchaseHeader."Document Type"::Order:
@@ -432,7 +432,7 @@ codeunit 132204 "Library - Warehouse"
     begin
         SalesHeader.TestField(Status, SalesHeader.Status::Released);
 
-        WhseRequest.Reset;
+        WhseRequest.Reset();
         WhseRequest.SetCurrentKey("Source Document", "Source No.");
         case SalesHeader."Document Type" of
             SalesHeader."Document Type"::Order:
@@ -452,7 +452,7 @@ codeunit 132204 "Library - Warehouse"
         TmpWarehouseRequest: Record "Warehouse Request";
         CreateInvtPutAwayPickMvmt: Report "Create Invt Put-away/Pick/Mvmt";
     begin
-        Commit;
+        Commit();
         CreateInvtPutAwayPickMvmt.InitializeRequest(PutAway, Pick, Movement, false, false);
         if WarehouseRequest.HasFilter then
             TmpWarehouseRequest.CopyFilters(WarehouseRequest)
@@ -491,14 +491,14 @@ codeunit 132204 "Library - Warehouse"
         if RequireShipment then
             Location.Validate("Require Shipment", true);
         Location."Bin Mandatory" := BinMandatory;
-        Location.Modify;
+        Location.Modify();
 
         OnAfterCreateLocationWMS(Location, BinMandatory, RequirePutAway, RequirePick, RequireReceive, RequireShipment);
     end;
 
     local procedure CreateLocationCodeAndName(var Location: Record Location): Code[10]
     begin
-        Location.Init;
+        Location.Init();
         Location.Validate(Code, LibraryUtility.GenerateRandomCode(Location.FieldNo(Code), DATABASE::Location));
         Location.Validate(Name, Location.Code);
         Location.Insert(true);
@@ -551,7 +551,7 @@ codeunit 132204 "Library - Warehouse"
         ExistingBinCount: Integer;
     begin
         Clear(Bin);
-        Bin.Init;
+        Bin.Init();
         Bin.SetRange("Location Code", LocationCode);
         ExistingBinCount := Bin.Count + 1;
 
@@ -608,7 +608,7 @@ codeunit 132204 "Library - Warehouse"
     procedure CreatePutAwayTemplateHeader(var PutAwayTemplateHeader: Record "Put-away Template Header")
     begin
         Clear(PutAwayTemplateHeader);
-        PutAwayTemplateHeader.Init;
+        PutAwayTemplateHeader.Init();
 
         PutAwayTemplateHeader.Validate(Code,
           LibraryUtility.GenerateRandomCode(PutAwayTemplateHeader.FieldNo(Code), DATABASE::"Put-away Template Header"));
@@ -621,7 +621,7 @@ codeunit 132204 "Library - Warehouse"
         RecRef: RecordRef;
     begin
         Clear(PutAwayTemplateLine);
-        PutAwayTemplateLine.Init;
+        PutAwayTemplateLine.Init();
 
         PutAwayTemplateLine.Validate("Put-away Template Code", PutAwayTemplateHeader.Code);
         RecRef.GetTable(PutAwayTemplateLine);
@@ -640,7 +640,7 @@ codeunit 132204 "Library - Warehouse"
         Handled: Boolean;
     begin
         Clear(TransferHeader);
-        TransferHeader.Init;
+        TransferHeader.Init();
         TransferHeader.Insert(true);
         OnAfterCreateTransferHeaderInsertTransferHeader(TransferHeader, FromLocation, ToLocation, InTransitCode, Handled);
         if Handled then
@@ -658,7 +658,7 @@ codeunit 132204 "Library - Warehouse"
         RecRef: RecordRef;
     begin
         Clear(TransferLine);
-        TransferLine.Init;
+        TransferLine.Init();
         TransferLine.Validate("Document No.", TransferHeader."No.");
         RecRef.GetTable(TransferLine);
         TransferLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, TransferLine.FieldNo("Line No.")));
@@ -680,7 +680,7 @@ codeunit 132204 "Library - Warehouse"
     procedure CreateTransferRoute(var TransferRoute: Record "Transfer Route"; TransferFrom: Code[10]; TransferTo: Code[10])
     begin
         Clear(TransferRoute);
-        TransferRoute.Init;
+        TransferRoute.Init();
         TransferRoute.Validate("Transfer-from Code", TransferFrom);
         TransferRoute.Validate("Transfer-to Code", TransferTo);
         TransferRoute.Insert(true);
@@ -698,7 +698,7 @@ codeunit 132204 "Library - Warehouse"
     procedure CreateZone(var Zone: Record Zone; ZoneCode: Code[10]; LocationCode: Code[10]; BinTypeCode: Code[10]; WhseClassCode: Code[10]; SpecialEquip: Code[10]; ZoneRank: Integer; IsCrossDockZone: Boolean)
     begin
         Clear(Zone);
-        Zone.Init;
+        Zone.Init();
 
         if ZoneCode = '' then
             Zone.Validate(Code, LibraryUtility.GenerateRandomCode(Zone.FieldNo(Code), DATABASE::Zone))
@@ -731,8 +731,8 @@ codeunit 132204 "Library - Warehouse"
                 exit;
         end;
 
-        WarehouseEmployee.Reset;
-        WarehouseEmployee.Init;
+        WarehouseEmployee.Reset();
+        WarehouseEmployee.Init();
         WarehouseEmployee.Validate("User ID", UserId);
         WarehouseEmployee.Validate("Location Code", LocationCode);
         WarehouseEmployee.Validate(Default, IsDefault);
@@ -742,20 +742,20 @@ codeunit 132204 "Library - Warehouse"
     procedure CreateWarehouseClass(var WarehouseClass: Record "Warehouse Class")
     begin
         Clear(WarehouseClass);
-        WarehouseClass.Init;
+        WarehouseClass.Init();
         WarehouseClass.Validate(Code, LibraryUtility.GenerateRandomCode(WarehouseClass.FieldNo(Code), DATABASE::"Warehouse Class"));
         WarehouseClass.Insert(true);
     end;
 
     procedure CreateWarehouseReceiptHeader(var WarehouseReceiptHeader: Record "Warehouse Receipt Header")
     begin
-        WarehouseReceiptHeader.Init;
+        WarehouseReceiptHeader.Init();
         WarehouseReceiptHeader.Insert(true);
     end;
 
     procedure CreateWarehouseShipmentHeader(var WarehouseShipmentHeader: Record "Warehouse Shipment Header")
     begin
-        WarehouseShipmentHeader.Init;
+        WarehouseShipmentHeader.Init();
         WarehouseShipmentHeader.Insert(true);
     end;
 
@@ -773,7 +773,7 @@ codeunit 132204 "Library - Warehouse"
     procedure CreateWarehouseSourceFilter(var WarehouseSourceFilter: Record "Warehouse Source Filter"; Type: Option)
     begin
         // Create Warehouse source filter to get Source Document.
-        WarehouseSourceFilter.Init;
+        WarehouseSourceFilter.Init();
         WarehouseSourceFilter.Validate(Type, Type);
         WarehouseSourceFilter.Validate(
           Code, LibraryUtility.GenerateRandomCode(WarehouseSourceFilter.FieldNo(Code), DATABASE::"Warehouse Source Filter"));
@@ -822,7 +822,7 @@ codeunit 132204 "Library - Warehouse"
 
     procedure CreateWhseJournalTemplate(var WarehouseJournalTemplate: Record "Warehouse Journal Template"; WarehouseJournalTemplateType: Option)
     begin
-        WarehouseJournalTemplate.INIT;
+        WarehouseJournalTemplate.Init();
         WarehouseJournalTemplate.VALIDATE(Name, LibraryUtility.GenerateGUID);
         WarehouseJournalTemplate.VALIDATE(Type, WarehouseJournalTemplateType);
         WarehouseJournalTemplate.INSERT(TRUE);
@@ -831,7 +831,7 @@ codeunit 132204 "Library - Warehouse"
     procedure CreateWhseJournalBatch(var WarehouseJournalBatch: Record "Warehouse Journal Batch"; WarehouseJournalTemplateName: Code[10]; LocationCode: Code[10])
     begin
         // Create Item Journal Batch with a random Name of String length less than 10.
-        WarehouseJournalBatch.Init;
+        WarehouseJournalBatch.Init();
         WarehouseJournalBatch.Validate("Journal Template Name", WarehouseJournalTemplateName);
         WarehouseJournalBatch.Validate(
           Name, CopyStr(LibraryUtility.GenerateRandomCode(WarehouseJournalBatch.FieldNo(Name), DATABASE::"Warehouse Journal Batch"), 1,
@@ -850,7 +850,7 @@ codeunit 132204 "Library - Warehouse"
         JnlSelected: Boolean;
     begin
         if not WarehouseJournalBatch.Get(JournalTemplateName, JournalBatchName, LocationCode) then begin
-            WarehouseJournalBatch.Init;
+            WarehouseJournalBatch.Init();
             WarehouseJournalBatch.Validate("Journal Template Name", JournalTemplateName);
             WarehouseJournalBatch.SetupNewBatch;
             WarehouseJournalBatch.Validate(Name, JournalBatchName);
@@ -860,7 +860,7 @@ codeunit 132204 "Library - Warehouse"
         end;
 
         Clear(WarehouseJournalLine);
-        WarehouseJournalLine.Init;
+        WarehouseJournalLine.Init();
         WarehouseJournalLine.Validate("Journal Template Name", JournalTemplateName);
         WarehouseJournalLine.Validate("Journal Batch Name", JournalBatchName);
         WarehouseJournalLine.Validate("Location Code", LocationCode);
@@ -870,7 +870,7 @@ codeunit 132204 "Library - Warehouse"
         WarehouseJournalLine.TemplateSelection(PAGE::"Whse. Item Journal", 0, WarehouseJournalLine, JnlSelected);
         Assert.IsTrue(JnlSelected, 'Journal was not selected');
         WarehouseJournalLine.OpenJnl(JournalBatchName, LocationCode, WarehouseJournalLine);
-        Commit;
+        Commit();
         WarehouseJournalLine.SetUpNewLine(WarehouseJournalLine);
 
         RecRef.GetTable(WarehouseJournalLine);
@@ -986,7 +986,7 @@ codeunit 132204 "Library - Warehouse"
     procedure CreateWhseWorksheetName(var WhseWorksheetName: Record "Whse. Worksheet Name"; WhseWorkSheetTemplateName: Code[10]; LocationCode: Code[10])
     begin
         // Create Item Journal Batch with a random Name of String length less than 10.
-        WhseWorksheetName.Init;
+        WhseWorksheetName.Init();
         WhseWorksheetName.Validate("Worksheet Template Name", WhseWorkSheetTemplateName);
         WhseWorksheetName.Validate(
           Name, CopyStr(LibraryUtility.GenerateRandomCode(WhseWorksheetName.FieldNo(Name), DATABASE::"Whse. Worksheet Name"), 1,
@@ -1000,7 +1000,7 @@ codeunit 132204 "Library - Warehouse"
         RecRef: RecordRef;
     begin
         Clear(WhseWorksheetLine);
-        WhseWorksheetLine.Init;
+        WhseWorksheetLine.Init();
         WhseWorksheetLine.Validate("Worksheet Template Name", WorksheetTemplateName);
         WhseWorksheetLine.Validate(Name, Name);
         WhseWorksheetLine.Validate("Location Code", LocationCode);
@@ -1015,7 +1015,7 @@ codeunit 132204 "Library - Warehouse"
     var
         DeleteEmptyWhseRegisters: Report "Delete Empty Whse. Registers";
     begin
-        Commit;  // Commit required for batch job report.
+        Commit();  // Commit required for batch job report.
         Clear(DeleteEmptyWhseRegisters);
         DeleteEmptyWhseRegisters.UseRequestPage(false);
         DeleteEmptyWhseRegisters.Run;
@@ -1023,8 +1023,8 @@ codeunit 132204 "Library - Warehouse"
 
     procedure FindBin(var Bin: Record Bin; LocationCode: Code[10]; ZoneCode: Code[10]; BinIndex: Integer)
     begin
-        Bin.Init;
-        Bin.Reset;
+        Bin.Init();
+        Bin.Reset();
         Bin.SetCurrentKey("Location Code", "Zone Code", Code);
         Bin.SetRange("Location Code", LocationCode);
         Bin.SetRange("Zone Code", ZoneCode);
@@ -1099,8 +1099,8 @@ codeunit 132204 "Library - Warehouse"
         BinContent: Record "Bin Content";
         WhseGetBinContent: Report "Whse. Get Bin Content";
     begin
-        BinContent.Init;
-        BinContent.Reset;
+        BinContent.Init();
+        BinContent.Reset();
         if LocationCodeFilter <> '' then
             BinContent.SetRange("Location Code", LocationCodeFilter);
         if ItemFilter <> '' then
@@ -1118,8 +1118,8 @@ codeunit 132204 "Library - Warehouse"
         BinContent: Record "Bin Content";
         WhseGetBinContent: Report "Whse. Get Bin Content";
     begin
-        BinContent.Init;
-        BinContent.Reset;
+        BinContent.Init();
+        BinContent.Reset();
         if LocationCodeFilter <> '' then
             BinContent.SetRange("Location Code", LocationCodeFilter);
         if ItemFilter <> '' then
@@ -1218,7 +1218,7 @@ codeunit 132204 "Library - Warehouse"
         WhseWkshTemplate.SetRange(Type, WhseWkshTemplate.Type::Pick);
         WhseWkshTemplate.FindFirst; // expected to be present as Distribution demo data has been called.
         if not WhseWkshName.Get(WhseWkshTemplate.Name, Name, WhsePickRequest."Location Code") then begin
-            WhseWkshName.Init;
+            WhseWkshName.Init();
             WhseWkshName.Validate("Worksheet Template Name", WhseWkshTemplate.Name);
             WhseWkshName.Validate(Name, Name);
             WhseWkshName.Validate("Location Code", WhsePickRequest."Location Code");
@@ -1391,7 +1391,7 @@ codeunit 132204 "Library - Warehouse"
     var
         WarehouseJournalLine: Record "Warehouse Journal Line";
     begin
-        WarehouseJournalLine.Init;
+        WarehouseJournalLine.Init();
         WarehouseJournalLine.Validate("Journal Template Name", JournalTemplateName);
         WarehouseJournalLine.Validate("Journal Batch Name", JournalBatchName);
         WarehouseJournalLine.Validate("Location Code", LocationCode);
@@ -1450,7 +1450,7 @@ codeunit 132204 "Library - Warehouse"
         WarehouseEntry: Record "Warehouse Entry";
         DateCompressWhseEntries: Report "Date Compress Whse. Entries";
     begin
-        Commit;  // Commit required for batch job report.
+        Commit();  // Commit required for batch job report.
         Clear(DateCompressWhseEntries);
         WarehouseEntry.SetRange("Item No.", ItemNo);
         DateCompressWhseEntries.SetTableView(WarehouseEntry);
@@ -1462,7 +1462,7 @@ codeunit 132204 "Library - Warehouse"
         BinType: Record "Bin Type";
     begin
         Clear(BinType);
-        BinType.Init;
+        BinType.Init();
 
         BinType.SetRange(Receive, Receive);
         BinType.SetRange(Ship, Ship);
@@ -1547,7 +1547,7 @@ codeunit 132204 "Library - Warehouse"
     var
         WarehouseSetup: Record "Warehouse Setup";
     begin
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         WarehouseSetup.Validate("Require Shipment", RequireShipment);
         WarehouseSetup.Modify(true);
     end;
@@ -1556,7 +1556,7 @@ codeunit 132204 "Library - Warehouse"
     var
         WarehouseSetup: Record "Warehouse Setup";
     begin
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         WarehouseSetup.Validate("Require Receive", RequireReceive);
         WarehouseSetup.Modify(true);
     end;
@@ -1610,7 +1610,7 @@ codeunit 132204 "Library - Warehouse"
     var
         WhseCalculateInventory: Report "Whse. Calculate Inventory";
     begin
-        Commit;  // Commit is required to run the report.
+        Commit();  // Commit is required to run the report.
         WhseCalculateInventory.SetWhseJnlLine(WarehouseJournalLine);
         WhseCalculateInventory.InitializeRequest(NewRegisteringDate, WhseDocNo, ItemsNotOnInvt);
         WhseCalculateInventory.SetTableView(BinContent);
@@ -1652,13 +1652,13 @@ codeunit 132204 "Library - Warehouse"
     procedure WarehouseJournalSetup(LocationCode: Code[10]; var WarehouseJournalTemplate: Record "Warehouse Journal Template"; var WarehouseJournalBatch: Record "Warehouse Journal Batch")
     begin
         Clear(WarehouseJournalTemplate);
-        WarehouseJournalTemplate.Init;
+        WarehouseJournalTemplate.Init();
         SelectWhseJournalTemplateName(WarehouseJournalTemplate, WarehouseJournalTemplate.Type::Item);
         WarehouseJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
         WarehouseJournalTemplate.Modify(true);
 
         Clear(WarehouseJournalBatch);
-        WarehouseJournalBatch.Init;
+        WarehouseJournalBatch.Init();
         SelectWhseJournalBatchName(
           WarehouseJournalBatch, WarehouseJournalTemplate.Type, WarehouseJournalTemplate.Name, LocationCode);
         WarehouseJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);

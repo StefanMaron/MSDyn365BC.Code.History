@@ -10,8 +10,6 @@ codeunit 134764 TestPowerBIQueries
 
     var
         Assert: Codeunit Assert;
-        LibraryUtility: Codeunit "Library - Utility";
-        LibraryRandom: Codeunit "Library - Random";
 
     [Test]
     [Scope('OnPrem')]
@@ -25,8 +23,8 @@ codeunit 134764 TestPowerBIQueries
         // [SCENARIO] Exercise Query PowerBICustomerList.
 
         // [GIVEN] Customers and Customer Ledger Entries.
-        Customer1.DeleteAll;
-        DetailedCustLedgEntry.DeleteAll;
+        Customer1.DeleteAll();
+        DetailedCustLedgEntry.DeleteAll();
 
         CreateCustomerSimple(Customer1, '1', 1000);
         CreateDetailedCustLedgEntry(Customer1, 1, 1, 100);
@@ -60,8 +58,8 @@ codeunit 134764 TestPowerBIQueries
     begin
         // [SCENARIO] Exercise Query PowerBIVendorList.
 
-        Vendor1.DeleteAll;
-        DetailedVendorLedgEntry.DeleteAll;
+        Vendor1.DeleteAll();
+        DetailedVendorLedgEntry.DeleteAll();
 
         // [GIVEN] Vendors and Vendor Ledger Entries.
 
@@ -97,8 +95,8 @@ codeunit 134764 TestPowerBIQueries
     begin
         // [SCENARIO] Exercise Query PowerBIItemPurchasesList.
 
-        Item1.DeleteAll;
-        ItemLedgerEntry.DeleteAll;
+        Item1.DeleteAll();
+        ItemLedgerEntry.DeleteAll();
 
         // [GIVEN] Items and Item Ledger Entries.
 
@@ -130,8 +128,8 @@ codeunit 134764 TestPowerBIQueries
     begin
         // [SCENARIO] Exercise Query PowerBIItemSalesList.
 
-        Item1.DeleteAll;
-        ValueEntry.DeleteAll;
+        Item1.DeleteAll();
+        ValueEntry.DeleteAll();
 
         // [GIVEN] Items and Value Entries.
 
@@ -163,8 +161,8 @@ codeunit 134764 TestPowerBIQueries
     begin
         // [SCENARIO] Exercise Query PowerBIJobsList.
 
-        Job1.DeleteAll;
-        JobLedgerEntry.DeleteAll;
+        Job1.DeleteAll();
+        JobLedgerEntry.DeleteAll();
 
         // [GIVEN] Jobs and Job Ledger Entries.
 
@@ -196,8 +194,8 @@ codeunit 134764 TestPowerBIQueries
     begin
         // [SCENARIO] Exercise Query PowerBISalesList.
 
-        SalesHeader1.DeleteAll;
-        SalesLine.DeleteAll;
+        SalesHeader1.DeleteAll();
+        SalesLine.DeleteAll();
 
         // [GIVEN] Sales Header and Lines.
 
@@ -233,8 +231,8 @@ codeunit 134764 TestPowerBIQueries
     begin
         // [SCENARIO] Exercise Query PowerBIPurchaseList.
 
-        PurchaseHeader1.DeleteAll;
-        PurchaseLine.DeleteAll;
+        PurchaseHeader1.DeleteAll();
+        PurchaseLine.DeleteAll();
 
         // [GIVEN] Purchase Header and Lines.
 
@@ -270,8 +268,8 @@ codeunit 134764 TestPowerBIQueries
     begin
         // [SCENARIO] Exercise Query PowerBIGLAmountList.
 
-        GLAccount1.DeleteAll;
-        GLEntry.DeleteAll;
+        GLAccount1.DeleteAll();
+        GLEntry.DeleteAll();
 
         // [GIVEN] GL Accounts and Entries.
 
@@ -303,8 +301,8 @@ codeunit 134764 TestPowerBIQueries
     begin
         // [SCENARIO] Exercise Query PowerBIGLBudgetedAmountList.
 
-        GLAccount1.DeleteAll;
-        GLBudgetEntry.DeleteAll;
+        GLAccount1.DeleteAll();
+        GLBudgetEntry.DeleteAll();
 
         // [GIVEN] GL Accounts and Budget Entries.
 
@@ -325,54 +323,20 @@ codeunit 134764 TestPowerBIQueries
         Assert.IsFalse(PowerBIGLBudgetedAmountList.Read, 'Unexpected record in Query.');
     end;
 
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestItemListByCustomerQuery()
-    var
-        Customer: Record Customer;
-        Item: array[2] of Record Item;
-        ValueEntry: Record "Value Entry";
-        ItemSalesByCustomer: Query "Item Sales by Customer";
-        Qty: array[2] of Decimal;
-    begin
-        // [FEATURE] [Sales] [UT]
-        // [SCENARIO 343131] Item List by Customer query shows sales invoices and credit-memos.
-        Qty[1] := LibraryRandom.RandIntInRange(100, 200);
-        Qty[2] := -LibraryRandom.RandIntInRange(10, 20);
-
-        CreateCustomerSimple(Customer, LibraryUtility.GenerateGUID(), 0);
-        CreateItemSimple(Item[1], LibraryUtility.GenerateGUID());
-        CreateItemSimple(Item[2], LibraryUtility.GenerateGUID());
-
-        MockValueEntryForSales(ValueEntry, Customer."No.", ValueEntry."Document Type"::"Sales Invoice", Item[1]."No.", Qty[1]);
-        MockValueEntryForSales(ValueEntry, Customer."No.", ValueEntry."Document Type"::"Sales Credit Memo", Item[2]."No.", Qty[2]);
-
-        ItemSalesByCustomer.SetRange(CustomerNo, Customer."No.");
-        ItemSalesByCustomer.SetRange(Item_No, Item[1]."No.");
-        ItemSalesByCustomer.Open();
-        Assert.IsTrue(ItemSalesByCustomer.Read(), 'Sales Invoice is not displayed in Item Sales by Customer report.');
-        Assert.AreEqual(Qty[1], ItemSalesByCustomer.Item_Ledger_Entry_Quantity, '');
-
-        ItemSalesByCustomer.SetRange(Item_No, Item[2]."No.");
-        ItemSalesByCustomer.Open();
-        Assert.IsTrue(ItemSalesByCustomer.Read(), 'Sales Credit Memo is not displayed in Item Sales by Customer report.');
-        Assert.AreEqual(Qty[2], ItemSalesByCustomer.Item_Ledger_Entry_Quantity, '');
-    end;
-
     local procedure CreateCustomerSimple(var Customer: Record Customer; No: Code[20]; CreditLimit: Decimal)
     begin
-        Customer.Init;
+        Customer.Init();
         Customer."No." := No;
         Customer.Name := No;
         Customer."Credit Limit (LCY)" := CreditLimit;
-        Customer.Insert;
+        Customer.Insert();
     end;
 
     local procedure CreateDetailedCustLedgEntry(var Customer: Record Customer; CustLedgerEntry: Integer; Entry: Integer; Amount: Decimal)
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
-        DetailedCustLedgEntry.Init;
+        DetailedCustLedgEntry.Init();
         DetailedCustLedgEntry."Customer No." := Customer."No.";
         DetailedCustLedgEntry."Entry No." := Entry;
         DetailedCustLedgEntry."Cust. Ledger Entry No." := CustLedgerEntry;
@@ -380,22 +344,22 @@ codeunit 134764 TestPowerBIQueries
         DetailedCustLedgEntry.Amount := Amount;
         DetailedCustLedgEntry."Amount (LCY)" := Amount * 2;
         DetailedCustLedgEntry."Transaction No." := CustLedgerEntry;
-        DetailedCustLedgEntry.Insert;
+        DetailedCustLedgEntry.Insert();
     end;
 
     local procedure CreateVendorSimple(var Vendor: Record Vendor; No: Code[20])
     begin
-        Vendor.Init;
+        Vendor.Init();
         Vendor."No." := No;
         Vendor.Name := No;
-        Vendor.Insert;
+        Vendor.Insert();
     end;
 
     local procedure CreateDetailedVendLedgEntry(var Vendor: Record Vendor; VendLedgerEntry: Integer; Entry: Integer; Amount: Decimal; PossibleDiscount: Decimal)
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
-        DetailedVendorLedgEntry.Init;
+        DetailedVendorLedgEntry.Init();
         DetailedVendorLedgEntry."Vendor No." := Vendor."No.";
         DetailedVendorLedgEntry."Entry No." := Entry;
         DetailedVendorLedgEntry."Applied Vend. Ledger Entry No." := VendLedgerEntry;
@@ -404,162 +368,145 @@ codeunit 134764 TestPowerBIQueries
         DetailedVendorLedgEntry."Amount (LCY)" := Amount * 2;
         DetailedVendorLedgEntry."Transaction No." := VendLedgerEntry;
         DetailedVendorLedgEntry."Remaining Pmt. Disc. Possible" := PossibleDiscount;
-        DetailedVendorLedgEntry.Insert;
+        DetailedVendorLedgEntry.Insert();
     end;
 
     local procedure CreateItemSimple(var Item: Record Item; No: Code[20])
     begin
-        Item.Init;
+        Item.Init();
         Item."No." := No;
         Item."Search Description" := No;
-        Item.Insert;
+        Item.Insert();
     end;
 
     local procedure CreateItemLedgEntry(var Item: Record Item; RecDate: Date; EntryNo: Integer; Quantity: Decimal)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        ItemLedgerEntry.Init;
+        ItemLedgerEntry.Init();
         ItemLedgerEntry."Item No." := Item."No.";
         ItemLedgerEntry."Entry No." := EntryNo;
         ItemLedgerEntry."Posting Date" := RecDate;
         ItemLedgerEntry."Invoiced Quantity" := Quantity;
         ItemLedgerEntry."Entry Type" := ItemLedgerEntry."Entry Type"::Purchase;
-        ItemLedgerEntry.Insert;
+        ItemLedgerEntry.Insert();
     end;
 
     local procedure CreateValueEntry(var Item: Record Item; RecDate: Date; EntryNo: Integer; Quantity: Decimal)
     var
         ValueEntry: Record "Value Entry";
     begin
-        ValueEntry.Init;
+        ValueEntry.Init();
         ValueEntry."Item No." := Item."No.";
         ValueEntry."Entry No." := EntryNo;
         ValueEntry."Posting Date" := RecDate;
         ValueEntry."Invoiced Quantity" := Quantity;
         ValueEntry."Item Ledger Entry Type" := ValueEntry."Item Ledger Entry Type"::Sale;
-        ValueEntry.Insert;
+        ValueEntry.Insert();
     end;
 
-    local procedure CreateJobSimple(var Job: Record Job; No: Code[20]; Complete: Boolean; Status: Option Planning,Quote,Open,Completed)
+    local procedure CreateJobSimple(var Job: Record Job; No: Code[20]; Complete: Boolean; Status: Enum "Job Status")
     begin
-        Job.Init;
+        Job.Init();
         Job."No." := No;
         Job."Search Description" := No;
         Job.Complete := Complete;
         Job.Status := Status;
-        Job.Insert;
+        Job.Insert();
     end;
 
     local procedure CreateJobLedgerEntry(var Job: Record Job; TotalCost: Decimal; EntryNo: Integer)
     var
         JobLedgerEntry: Record "Job Ledger Entry";
     begin
-        JobLedgerEntry.Init;
+        JobLedgerEntry.Init();
         JobLedgerEntry."Job No." := Job."No.";
         JobLedgerEntry."Posting Date" := Today;
         JobLedgerEntry."Total Cost" := TotalCost;
         JobLedgerEntry."Entry No." := EntryNo;
-        JobLedgerEntry.Insert;
+        JobLedgerEntry.Insert();
     end;
 
     local procedure CreateSalesHeaderSimple(var SalesHeader: Record "Sales Header"; No: Code[20]; RecDate: Date)
     begin
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader."No." := No;
         SalesHeader."Document Type" := SalesHeader."Document Type"::Invoice;
         SalesHeader."Requested Delivery Date" := RecDate;
         SalesHeader."Shipment Date" := RecDate + 10;
         SalesHeader."Due Date" := RecDate + 20;
-        SalesHeader.Insert;
+        SalesHeader.Insert();
     end;
 
     local procedure CreateSalesLineSimple(var SalesHeader: Record "Sales Header"; LineNo: Integer; Quantity: Decimal)
     var
         SalesLine: Record "Sales Line";
     begin
-        SalesLine.Init;
+        SalesLine.Init();
         SalesLine."Document No." := SalesHeader."No.";
         SalesLine."Document Type" := SalesHeader."Document Type";
         SalesLine."Line No." := LineNo;
         SalesLine.Quantity := Quantity;
         SalesLine.Amount := Quantity * 10;
-        SalesLine.Insert;
+        SalesLine.Insert();
     end;
 
     local procedure CreatePurchaseHeaderSimple(var PurchaseHeader: Record "Purchase Header"; No: Code[20]; RecDate: Date)
     begin
-        PurchaseHeader.Init;
+        PurchaseHeader.Init();
         PurchaseHeader."No." := No;
         PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Invoice;
         PurchaseHeader."Order Date" := RecDate;
         PurchaseHeader."Expected Receipt Date" := RecDate + 10;
         PurchaseHeader."Due Date" := RecDate + 20;
         PurchaseHeader."Pmt. Discount Date" := RecDate + 30;
-        PurchaseHeader.Insert;
+        PurchaseHeader.Insert();
     end;
 
     local procedure CreatePurchaseLineSimple(var PurchaseHeader: Record "Purchase Header"; LineNo: Integer; Quantity: Decimal)
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        PurchaseLine.Init;
+        PurchaseLine.Init();
         PurchaseLine."Document No." := PurchaseHeader."No.";
         PurchaseLine."Document Type" := PurchaseHeader."Document Type";
         PurchaseLine."Line No." := LineNo;
         PurchaseLine.Quantity := Quantity;
         PurchaseLine.Amount := Quantity * 10;
-        PurchaseLine.Insert;
+        PurchaseLine.Insert();
     end;
 
     local procedure CreateGLAccountSimple(var GLAccount: Record "G/L Account"; No: Code[20])
     begin
-        GLAccount.Init;
+        GLAccount.Init();
         GLAccount."No." := No;
         GLAccount.Name := No;
         GLAccount."Account Type" := GLAccount."Account Type"::Posting;
-        GLAccount.Insert;
+        GLAccount.Insert();
     end;
 
     local procedure CreateGLEntrySimple(var GLAccount: Record "G/L Account"; EntryNo: Integer; Amount: Decimal; RecDate: Date)
     var
         GLEntry: Record "G/L Entry";
     begin
-        GLEntry.Init;
+        GLEntry.Init();
         GLEntry."G/L Account No." := GLAccount."No.";
         GLEntry."Posting Date" := RecDate;
         GLEntry.Amount := Amount;
         GLEntry."Entry No." := EntryNo;
-        GLEntry.Insert;
+        GLEntry.Insert();
     end;
 
     local procedure CreateGLBudgetAmountSimple(var GLAccount: Record "G/L Account"; EntryNo: Integer; Amount: Decimal; RecDate: Date)
     var
         GLBudgetEntry: Record "G/L Budget Entry";
     begin
-        GLBudgetEntry.Init;
+        GLBudgetEntry.Init();
         GLBudgetEntry."G/L Account No." := GLAccount."No.";
         GLBudgetEntry."Entry No." := EntryNo;
         GLBudgetEntry.Amount := Amount;
         GLBudgetEntry.Date := RecDate;
-        GLBudgetEntry.Insert;
-    end;
-
-    local procedure MockValueEntryForSales(var ValueEntry: Record "Value Entry"; CustomerNo: Code[20]; DocumentType: Option; ItemNo: Code[20]; Qty: Decimal)
-    var
-        ItemLedgerEntry: Record "Item Ledger Entry";
-    begin
-        with ValueEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(ValueEntry, FieldNo("Entry No."));
-            "Item Ledger Entry No." := LibraryUtility.GetNewRecNo(ItemLedgerEntry, ItemLedgerEntry.FieldNo("Entry No."));
-            "Source Type" := "Source Type"::Customer;
-            "Source No." := CustomerNo;
-            "Document Type" := DocumentType;
-            "Item No." := ItemNo;
-            "Item Ledger Entry Quantity" := Qty;
-            Insert();
-        end;
+        GLBudgetEntry.Insert();
     end;
 
     local procedure VerifyPowerBICustomerList(PowerBICustomerList: Query "Power BI Customer List"; No: Code[20]; CreditLimit: Decimal; BalanceDue: Decimal; PostDate: Date; CustLedgEntry: Integer; Amount: Decimal; TransactionNo: Integer; EntryNo: Integer)
@@ -613,7 +560,7 @@ codeunit 134764 TestPowerBIQueries
         Assert.AreEqual(PostDate, PowerBIItemSalesList.Sales_Post_Date, 'Unexpected sale posting date PowerBIItemSalesList');
     end;
 
-    local procedure VerifyPowerBIJobList(PowerBIJobsList: Query "Power BI Jobs List"; No: Code[20]; Complete: Boolean; Status: Option Planning,Quote,Open,Completed; PostDate: Date; TotalCost: Decimal; EntryNo: Integer)
+    local procedure VerifyPowerBIJobList(PowerBIJobsList: Query "Power BI Jobs List"; No: Code[20]; Complete: Boolean; Status: Enum "Job Status"; PostDate: Date; TotalCost: Decimal; EntryNo: Integer)
     begin
         Assert.IsTrue(PowerBIJobsList.Read, 'Expected record in Query PowerBIJobsList');
         Assert.AreEqual(No, PowerBIJobsList.Job_No, 'Unexpected Job No PowerBIJobsList');

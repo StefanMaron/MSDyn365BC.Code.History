@@ -84,7 +84,7 @@ codeunit 134986 "ERM Financial Reports II"
         LibraryVariableStorage.Enqueue(GenJournalLine."Bal. Account No.");
         LibraryVariableStorage.Enqueue(StatementNo);
 
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Bank Acc. Recon. - Test");
 
         // Verify.
@@ -107,7 +107,7 @@ codeunit 134986 "ERM Financial Reports II"
         // Exercise: Save Bank Account Check Details Report.
         LibraryVariableStorage.Enqueue(GenJournalLine."Bal. Account No.");
 
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Bank Account - Check Details");
 
         // Verify.
@@ -131,7 +131,7 @@ codeunit 134986 "ERM Financial Reports II"
         LibraryVariableStorage.Enqueue(ReminderHeader."No.");
         LibraryVariableStorage.Enqueue(false);
 
-        Commit;
+        Commit();
         asserterror REPORT.Run(REPORT::"Reminder - Test");
 
         // Verify: Verify Error Message.
@@ -157,7 +157,7 @@ codeunit 134986 "ERM Financial Reports II"
         LibraryVariableStorage.Enqueue(ReminderNo);
         LibraryVariableStorage.Enqueue(false);
 
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Reminder - Test");
 
         // Verify.
@@ -184,7 +184,7 @@ codeunit 134986 "ERM Financial Reports II"
         LibraryVariableStorage.Enqueue(ReminderNo);
         LibraryVariableStorage.Enqueue(true);
 
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Reminder - Test");
 
         // Verify.
@@ -212,7 +212,7 @@ codeunit 134986 "ERM Financial Reports II"
         LibraryVariableStorage.Enqueue(ReminderNo);
         LibraryVariableStorage.Enqueue(false);
 
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Reminder - Test");
 
         // Verify.
@@ -717,7 +717,7 @@ codeunit 134986 "ERM Financial Reports II"
 
         // Verify: Verify General Journal Test Report with Dimension.
         VerifyGeneralJournalTest(GenJournalLine);
-        LibraryReportDataset.Reset;
+        LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('DimensionsCaption', 'Dimensions');
         if not LibraryReportDataset.GetNextRow then
             Error(StrSubstNo(RowNotFoundErr, 'DimensionsCaption', 'Dimensions'));
@@ -1088,7 +1088,7 @@ codeunit 134986 "ERM Financial Reports II"
         // [GIVEN] Gen. Journal Template = "Y" has Gen. Journal Batch = "Y1" with Gen. Journal Lines
         LibraryJournals.CreateGenJournalLineWithBatch(GenJournalLine, GenJournalLine."Document Type"::Payment,
           GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, LibraryRandom.RandInt(1000));
-        Commit;
+        Commit();
 
         // [WHEN] Run "Gen. Journal - Test" report with filtered Gen. Journal Template "X"
         GenJournalLine.SetRange("Journal Template Name", GenJournalTemplateName);
@@ -1119,7 +1119,7 @@ codeunit 134986 "ERM Financial Reports II"
         // [GIVEN] Customer - "C" with Blocked = Ship
         LibrarySales.CreateCustomer(Customer);
         Customer.Blocked := Customer.Blocked::Ship;
-        Customer.Modify;
+        Customer.Modify();
 
         // [GIVEN] Gen. Journal Line with customer = "C", Document type = Invoice
         LibraryJournals.CreateGenJournalLineWithBatch(GenJournalLine, GenJournalLine."Document Type"::Invoice,
@@ -1188,7 +1188,7 @@ codeunit 134986 "ERM Financial Reports II"
           GenJournalLine, GenJournalLine."Account Type"::Customer, CustomerA."No.", CustomerB."No.",
           LibraryERM.CreateGLAccountWithSalesSetup, 1);
 
-        Commit;
+        Commit();
 
         // [GIVEN] Journal posting throws error "DOC1 posted on 27/01/2018 includes more than one customer or vendor. In order for the program to calculate VAT, the entries must be separated by another document number".
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -1231,7 +1231,7 @@ codeunit 134986 "ERM Financial Reports II"
           GenJournalLine, GenJournalLine."Account Type"::Vendor, VendorA."No.", VendorB."No.",
           LibraryERM.CreateGLAccountWithPurchSetup, -1);
 
-        Commit;
+        Commit();
 
         // [GIVEN] Journal posting throws error "DOC1 posted on 27/01/2018 includes more than one customer or vendor. In order for the program to calculate VAT, the entries must be separated by another document number".
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -1292,13 +1292,13 @@ codeunit 134986 "ERM Financial Reports II"
         Initialize;
 
         // [GIVEN] "Sales & Receivables Setup"."Logo Position on Document" = Left (the position is not matter)
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup."Logo Position on Documents" := SalesReceivablesSetup."Logo Position on Documents"::Left;
-        SalesReceivablesSetup.Modify;
+        SalesReceivablesSetup.Modify();
 
         // [GIVEN] Issued Reminder
         CreateIssuedReminderWithInterestAmount(IssuedReminderHeader, 1); // VAT Calculation type is not matter
-        Commit;
+        Commit();
 
         // [WHEN] Run report Reminder
         REPORT.Run(REPORT::Reminder, true, false, IssuedReminderHeader);
@@ -1337,7 +1337,7 @@ codeunit 134986 "ERM Financial Reports II"
         CreateInvoiceGenJnlLineWithAmount(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocNo, -GenJournalLine.Amount, WorkDate);
         GenJournalLine.SetRecFilter;
-        Commit;
+        Commit();
 
         // [WHEN] Run report General Journal - Test with filtered Gen. Journal Line "L2"
         REPORT.Run(REPORT::"General Journal - Test", true, false, GenJournalLine);
@@ -1372,7 +1372,7 @@ codeunit 134986 "ERM Financial Reports II"
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, LibraryUtility.GenerateGUID,
           -GenJournalLine.Amount, WorkDate);
         GenJournalLine.SetRecFilter;
-        Commit;
+        Commit();
 
         // [WHEN] Run report General Journal - Test with filtered Gen. Journal Line "L2"
         REPORT.Run(REPORT::"General Journal - Test", true, false, GenJournalLine);
@@ -1411,7 +1411,7 @@ codeunit 134986 "ERM Financial Reports II"
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocNo, -GenJournalLine.Amount,
           LibraryRandom.RandDateFrom(WorkDate, 10));
         GenJournalLine.SetRecFilter;
-        Commit;
+        Commit();
 
         // [WHEN] Run report General Journal - Test with filtered Gen. Journal Line "L2"
         REPORT.Run(REPORT::"General Journal - Test", true, false, GenJournalLine);
@@ -1455,7 +1455,7 @@ codeunit 134986 "ERM Financial Reports II"
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocNo, -GenJournalLine.Amount,
           WorkDate);
         GenJournalLine.SetRecFilter;
-        Commit;
+        Commit();
 
         // [WHEN] Run report General Journal - Test with filtered Gen. Journal Line "L3"
         REPORT.Run(REPORT::"General Journal - Test", true, false, GenJournalLine);
@@ -1493,7 +1493,7 @@ codeunit 134986 "ERM Financial Reports II"
         // [GIVEN] Gen. Journal Line "L2" with Bal. Account, Document No. = "X-01" and Amount = -1000.0
         CreateInvoiceGenJnlLineWithDocNoAndBalAccount(GenJournalLine, GenJournalBatch, DocNo, -GenJournalLine.Amount);
         GenJournalLine.SetRecFilter;
-        Commit;
+        Commit();
 
         // [WHEN] Run report General Journal - Test with filtered Gen. Journal Line "L2"
         REPORT.Run(REPORT::"General Journal - Test", true, false, GenJournalLine);
@@ -1530,7 +1530,7 @@ codeunit 134986 "ERM Financial Reports II"
         // [GIVEN] Gen. Journal Line "L2" with Bal. Account, Document No. = "X-01" and Amount = -1000.0
         CreateInvoiceGenJnlLineWithDocNoAndBalAccount(GenJournalLine, GenJournalBatch, DocNo, -GenJournalLine.Amount);
         GenJournalLine.SetRecFilter;
-        Commit;
+        Commit();
 
         // [WHEN] Run report General Journal - Test with filtered Gen. Journal Line "L2"
         REPORT.Run(REPORT::"General Journal - Test", true, false, GenJournalLine);
@@ -1567,7 +1567,7 @@ codeunit 134986 "ERM Financial Reports II"
         CreateInvoiceGenJnlLineWithDocNoAndBalAccount(GenJournalLine, GenJournalBatch, DocNo, -GenJournalLine.Amount);
         GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
-        Commit;
+        Commit();
 
         // [WHEN] Run report General Journal - Test
         REPORT.Run(REPORT::"General Journal - Test", true, false, GenJournalLine);
@@ -1606,7 +1606,7 @@ codeunit 134986 "ERM Financial Reports II"
         CreateInvoiceGenJnlLineWithDocNoAndBalAccount(
           GenJournalLine, GenJournalBatch, LibraryUtility.GenerateGUID, LibraryRandom.RandDecInRange(1000, 2000, 2));
         GenJournalLine.SetRecFilter;
-        Commit;
+        Commit();
 
         // [WHEN] Run report General Journal - Test
         REPORT.Run(REPORT::"General Journal - Test", true, false, GenJournalLine);
@@ -1641,7 +1641,7 @@ codeunit 134986 "ERM Financial Reports II"
         CreateInvoiceGenJnlLineWithDocNoAndBalAccount(
           GenJournalLine, GenJournalBatch, LibraryUtility.GenerateGUID, LibraryRandom.RandDecInRange(1000, 2000, 2));
         GenJournalLine.SetRecFilter;
-        Commit;
+        Commit();
 
         // [WHEN] Run report General Journal - Test
         REPORT.Run(REPORT::"General Journal - Test", true, false, GenJournalLine);
@@ -1703,7 +1703,7 @@ codeunit 134986 "ERM Financial Reports II"
         end;
 
         // [WHEN] Report Reminder is run.
-        Commit;
+        Commit();
         IssuedRmdrHdr.SetRecFilter;
         REPORT.Run(REPORT::Reminder, true, true, IssuedRmdrHdr);
 
@@ -1743,7 +1743,7 @@ codeunit 134986 "ERM Financial Reports II"
         MockCheckLedgerEntry(CheckLedgerEntry, BankAccountNo, Amount[4], CheckLedgerEntry."Entry Status"::Voided);
 
         // [WHEN] Report "Bank Account - Check Details" is run.
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(BankAccountNo);
         REPORT.Run(REPORT::"Bank Account - Check Details");
 
@@ -2151,11 +2151,11 @@ codeunit 134986 "ERM Financial Reports II"
     begin
         IssuedFinChargeMemoHeader."No." := LibraryUTUtility.GetNewCode;
         IssuedFinChargeMemoHeader."Customer Posting Group" := CustomerPostingGroupCode;
-        IssuedFinChargeMemoHeader.Insert;
+        IssuedFinChargeMemoHeader.Insert();
 
         IssuedFinChargeMemoLine."Finance Charge Memo No." := IssuedFinChargeMemoHeader."No.";
         IssuedFinChargeMemoLine."Line No." := LibraryRandom.RandInt(10);
-        IssuedFinChargeMemoLine.Insert;
+        IssuedFinChargeMemoLine.Insert();
         exit(IssuedFinChargeMemoHeader."No.")
     end;
 
@@ -2253,7 +2253,7 @@ codeunit 134986 "ERM Financial Reports II"
     begin
         Currency.Get(CurrencyCode);
         Currency."Invoice Rounding Precision" := 0; // skip validation
-        Currency.Modify;
+        Currency.Modify();
     end;
 
     local procedure AddReminderLineWithGLType(var ReminderLine: Record "Reminder Line"; ReminderNo: Code[20]; No: Code[20]; Amount: Decimal)
@@ -2422,13 +2422,13 @@ codeunit 134986 "ERM Financial Reports II"
         CheckLedgerEntry2: Record "Check Ledger Entry";
         NextCheckEntryNo: Integer;
     begin
-        CheckLedgerEntry2.Reset;
+        CheckLedgerEntry2.Reset();
         if CheckLedgerEntry2.FindLast then
             NextCheckEntryNo := CheckLedgerEntry2."Entry No." + 1
         else
             NextCheckEntryNo := 1;
 
-        CheckLedgerEntry.Init;
+        CheckLedgerEntry.Init();
         CheckLedgerEntry."Entry No." := NextCheckEntryNo;
         CheckLedgerEntry."Bank Account No." := BankAccountNo;
         CheckLedgerEntry.Amount := EntryAmount;
@@ -2440,20 +2440,20 @@ codeunit 134986 "ERM Financial Reports II"
     var
         CustomerPostingGroup: Record "Customer Posting Group";
     begin
-        IssuedReminderHeader.Init;
+        IssuedReminderHeader.Init();
         IssuedReminderHeader."No." :=
           LibraryUtility.GenerateRandomCode(IssuedReminderHeader.FieldNo("No."), DATABASE::"Issued Reminder Header");
         LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup);
         CustomerPostingGroup."Additional Fee Account" := '';
-        CustomerPostingGroup.Modify;
+        CustomerPostingGroup.Modify();
         IssuedReminderHeader."Customer Posting Group" := CustomerPostingGroup.Code;
         IssuedReminderHeader."Due Date" := LibraryRandom.RandDate(LibraryRandom.RandIntInRange(10, 100));
-        IssuedReminderHeader.Insert;
+        IssuedReminderHeader.Insert();
     end;
 
     local procedure MockIssuedReminderLine(var IssuedReminderLine: Record "Issued Reminder Line"; IssuedReminderHeader: Record "Issued Reminder Header"; IssuedReminderLineType: Option; RemainingAmount: Decimal; LineAmount: Decimal)
     begin
-        IssuedReminderLine.Init;
+        IssuedReminderLine.Init();
         IssuedReminderLine."Reminder No." := IssuedReminderHeader."No.";
         IssuedReminderLine."Line No." := LibraryUtility.GetNewRecNo(IssuedReminderLine, IssuedReminderLine.FieldNo("Line No."));
         IssuedReminderLine."Line Type" := IssuedReminderLine."Line Type"::"Reminder Line";
@@ -2461,7 +2461,7 @@ codeunit 134986 "ERM Financial Reports II"
         IssuedReminderLine."Remaining Amount" := RemainingAmount;
         IssuedReminderLine.Amount := LineAmount;
         IssuedReminderLine.Type := IssuedReminderLineType;
-        IssuedReminderLine.Insert;
+        IssuedReminderLine.Insert();
     end;
 
     local procedure OpenReminderStatisticsPage(var ReminderStatisticsPage: TestPage "Reminder Statistics"; ReminderHeaderNo: Code[20])
@@ -2646,7 +2646,7 @@ codeunit 134986 "ERM Financial Reports II"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Print VAT specification in LCY", VATSpecificationInLCY);
         GeneralLedgerSetup.Modify(true);
     end;
@@ -2663,7 +2663,7 @@ codeunit 134986 "ERM Financial Reports II"
 
         GLAccount.Get(GenJournalLine."Account No.");
         GLAccount."No. of Blank Lines" := NoOfBlankLines;
-        GLAccount.Modify;
+        GLAccount.Modify();
 
         RunReportTrialBalancePreviousYear(GenJournalLine."Account No.", WorkDate);
 
@@ -2706,7 +2706,7 @@ codeunit 134986 "ERM Financial Reports II"
         LibraryReportDataset.AssertCurrentRowValueEquals('Bank_Acc__Reconciliation_Line__Applied_Amount_', -GenJournalLine.Amount);
 
         // Verify Totals
-        LibraryReportDataset.Reset;
+        LibraryReportDataset.Reset();
         Assert.AreEqual(-GenJournalLine.Amount, LibraryReportDataset.Sum('Bank_Acc__Reconciliation_Line__Applied_Amount_'),
           StrSubstNo(ValidationErr, GenJournalLine.FieldCaption(Amount), -GenJournalLine.Amount));
         Assert.AreEqual(-GenJournalLine.Amount, LibraryReportDataset.Sum('Bank_Acc__Reconciliation_Line__Statement_Amount_'),
@@ -2765,7 +2765,7 @@ codeunit 134986 "ERM Financial Reports II"
         AddnlFeeAmount: Decimal;
         LineAmount: Decimal;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LineAmount := FindFinChargeMemoLine(IssuedFinChargeMemoLine, No, IssuedFinChargeMemoLine.Type::"Customer Ledger Entry");
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('DocDt_IssuFinChrgMemoLine', Format(IssuedFinChargeMemoLine."Document Date"));
@@ -2774,12 +2774,12 @@ codeunit 134986 "ERM Financial Reports II"
         LibraryReportDataset.AssertCurrentRowValueEquals('DocNo_IssuFinChrgMemoLine', IssuedFinChargeMemoLine."Document No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('Amt_IssuFinChrgMemoLine', IssuedFinChargeMemoLine.Amount);
         AddnlFeeAmount := FindFinChargeMemoLine(IssuedFinChargeMemoLine, No, IssuedFinChargeMemoLine.Type::"G/L Account");
-        LibraryReportDataset.Reset;
+        LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('Desc_IssuFinChrgMemoLine', AddnlFeeLabelTxt);
         if not LibraryReportDataset.GetNextRow then
             Error(StrSubstNo(RowNotFoundErr, 'Desc_IssuFinChrgMemoLine', AddnlFeeLabelTxt));
         LibraryReportDataset.AssertCurrentRowValueEquals('Amt_IssuFinChrgMemoLine', IssuedFinChargeMemoLine.Amount);
-        LibraryReportDataset.Reset;
+        LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('TotalText', StrSubstNo(TotalTxt, GeneralLedgerSetup."LCY Code"));
         while LibraryReportDataset.GetNextRow do;
         LibraryReportDataset.AssertCurrentRowValueEquals('TotalAmount', LineAmount + AddnlFeeAmount);
@@ -2817,7 +2817,7 @@ codeunit 134986 "ERM Financial Reports II"
         AddnlFeeAmount: Decimal;
         TotalAmt: Decimal;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GetFinanceChargeMemoLine(FinanceChargeMemoLine, No, FinanceChargeMemoLine.Type::"Customer Ledger Entry");
         LineAmount := FinanceChargeMemoLine.Amount;
         LibraryReportDataset.LoadDataSetFile;
@@ -2831,12 +2831,12 @@ codeunit 134986 "ERM Financial Reports II"
         LibraryReportDataset.AssertCurrentRowValueEquals('Finance_Charge_Memo_Line_Amount', FinanceChargeMemoLine.Amount);
         GetFinanceChargeMemoLine(FinanceChargeMemoLine, No, FinanceChargeMemoLine.Type::"G/L Account");
         AddnlFeeAmount := FinanceChargeMemoLine.Amount;
-        LibraryReportDataset.Reset;
+        LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('Finance_Charge_Memo_Line_Description', AddnlFeeLabelTxt);
         if not LibraryReportDataset.GetNextRow then
             Error(StrSubstNo(RowNotFoundErr, 'Finance_Charge_Memo_Line_Description', AddnlFeeLabelTxt));
         LibraryReportDataset.AssertCurrentRowValueEquals('Finance_Charge_Memo_Line_Amount', FinanceChargeMemoLine.Amount);
-        LibraryReportDataset.Reset;
+        LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('TotalText', StrSubstNo(TotalTxt, GeneralLedgerSetup."LCY Code"));
         LibraryReportDataset.SetRange('Finance_Charge_Memo_Line_Description', AddnlFeeLabelTxt);
         if not LibraryReportDataset.GetNextRow then
@@ -2880,7 +2880,7 @@ codeunit 134986 "ERM Financial Reports II"
         IssuedFinChargeMemoLine.FindSet;
         LibraryReportDataset.LoadDataSetFile;
 
-        LibraryReportDataset.Reset;
+        LibraryReportDataset.Reset();
         repeat
             LibraryReportDataset.SetRange('VATAmtSpecCaption', VATAmtSpecLabelTxt);
             LibraryReportDataset.SetRange('VatAmtLineVAT', Format(IssuedFinChargeMemoLine."VAT %"));
@@ -2952,7 +2952,7 @@ codeunit 134986 "ERM Financial Reports II"
         LibraryReportDataset.AssertCurrentRowValueEquals('Reminder_Line__Remaining_Amount_', ReminderHeader."Remaining Amount");
 
         FindReminderLevel(ReminderLevel, ReminderHeader."Reminder Terms Code");
-        LibraryReportDataset.Reset;
+        LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('Reminder_Line__No__', CustomerPostingGroup."Additional Fee Account");
         if not LibraryReportDataset.GetNextRow then
             Error(StrSubstNo(RowNotFoundErr, 'Reminder_Line__No__', CustomerPostingGroup."Additional Fee Account"));
@@ -3014,7 +3014,7 @@ codeunit 134986 "ERM Financial Reports II"
         LibraryVariableStorage.Enqueue(false);
 
         // Excercise: Run Reminder Test Report.
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Reminder - Test");
 
         // Verify: Verifying interest amount on Reminder Test Report.
@@ -3031,7 +3031,7 @@ codeunit 134986 "ERM Financial Reports II"
         LibraryVariableStorage.Enqueue(IssuedReminderHeader."No.");
 
         // Exercise: Run Reminder Report.
-        Commit;
+        Commit();
         REPORT.Run(REPORT::Reminder);
 
         // Verify: Verifying interest amount on Reminder Report.
@@ -3232,14 +3232,14 @@ codeunit 134986 "ERM Financial Reports II"
     begin
         LibraryVariableStorage.Enqueue(ReminderNo1);
         LibraryVariableStorage.Enqueue(ReminderNo2);
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Reminder Nos.");
     end;
 
     local procedure RunReportReminder(IssuedReminderNo: Code[20])
     begin
         LibraryVariableStorage.Enqueue(IssuedReminderNo);
-        Commit;
+        Commit();
         REPORT.Run(REPORT::Reminder);
     end;
 
@@ -3247,7 +3247,7 @@ codeunit 134986 "ERM Financial Reports II"
     begin
         LibraryVariableStorage.Enqueue(FinanceChargeMemoNo1);
         LibraryVariableStorage.Enqueue(FinanceChargeMemoNo2);
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Finance Charge Memo Nos.");
     end;
 
@@ -3256,7 +3256,7 @@ codeunit 134986 "ERM Financial Reports II"
         LibraryVariableStorage.Enqueue(FinanceChargeMemoNo);
         LibraryVariableStorage.Enqueue(ShowInternalInfo);
         LibraryVariableStorage.Enqueue(LogInteraction);
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Finance Charge Memo");
     end;
 
@@ -3264,7 +3264,7 @@ codeunit 134986 "ERM Financial Reports II"
     begin
         LibraryVariableStorage.Enqueue(FinanceChargeMemoNo);
         LibraryVariableStorage.Enqueue(ShowDimension);
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Finance Charge Memo - Test");
     end;
 
@@ -3273,7 +3273,7 @@ codeunit 134986 "ERM Financial Reports II"
         LibraryVariableStorage.Enqueue(StartingDate);
         LibraryVariableStorage.Enqueue(NoOfPeriods);
         LibraryVariableStorage.Enqueue(PeriodLength);
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Receivables-Payables");
     end;
 
@@ -3282,7 +3282,7 @@ codeunit 134986 "ERM Financial Reports II"
         LibraryVariableStorage.Enqueue(JournalTemplateName);
         LibraryVariableStorage.Enqueue(JournalBatchName);
         LibraryVariableStorage.Enqueue(ShowDimension);
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"General Journal - Test");
     end;
 
@@ -3290,7 +3290,7 @@ codeunit 134986 "ERM Financial Reports II"
     begin
         LibraryVariableStorage.Enqueue(GLAccountNo);
         LibraryVariableStorage.Enqueue(DateFilter);
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Trial Balance/Previous Year");
     end;
 

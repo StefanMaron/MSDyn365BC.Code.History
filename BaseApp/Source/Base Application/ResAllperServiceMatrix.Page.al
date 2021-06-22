@@ -622,7 +622,7 @@ page 9215 "Res. All. per Service  Matrix"
     var
         I: Integer;
     begin
-        MatrixRec.Reset;
+        MatrixRec.Reset();
 
         MatrixRec.SetRange("Document No.", "No.");
         MatrixRec.SetRange("Document Type", MatrixRec."Document Type"::Order);

@@ -76,10 +76,10 @@ codeunit 6153 "API Webhook Notification Mgt."
         repeat
             if ProcessSubscription(RecRef, APIWebhookSubscription, ChangeType) then
                 ScheduleJobQueue := true;
-        until APIWebhookSubscription.Next = 0;
+        until APIWebhookSubscription.Next() = 0;
 
         if ScheduleJobQueue then begin
-            EarliestStartDateTime := CurrentDateTime;
+            EarliestStartDateTime := CurrentDateTime();
             ScheduleJob(EarliestStartDateTime);
         end;
     end;
@@ -115,10 +115,10 @@ codeunit 6153 "API Webhook Notification Mgt."
         repeat
             if ProcessSubscriptionOnRename(RecRef, xRecRef, APIWebhookSubscription) then
                 ScheduleJobQueue := true;
-        until APIWebhookSubscription.Next = 0;
+        until APIWebhookSubscription.Next() = 0;
 
         if ScheduleJobQueue then begin
-            EarliestStartDateTime := CurrentDateTime;
+            EarliestStartDateTime := CurrentDateTime();
             ScheduleJob(EarliestStartDateTime);
         end;
     end;
@@ -152,16 +152,16 @@ codeunit 6153 "API Webhook Notification Mgt."
 
     local procedure GetSubscriptions(var APIWebhookSubscription: Record "API Webhook Subscription"; TableId: Integer): Boolean
     begin
-        if not IsApiSubscriptionEnabled then
+        if not IsApiSubscriptionEnabled() then
             exit(false);
 
-        if APIWebhookSubscription.IsEmpty then
+        if APIWebhookSubscription.IsEmpty() then
             exit(false);
 
-        APIWebhookSubscription.SetFilter("Expiration Date Time", '>%1', CurrentDateTime);
-        APIWebhookSubscription.SetFilter("Company Name", '%1|%2', CompanyName, '');
+        APIWebhookSubscription.SetFilter("Expiration Date Time", '>%1', CurrentDateTime());
+        APIWebhookSubscription.SetFilter("Company Name", '%1|%2', CompanyName(), '');
         APIWebhookSubscription.SetRange("Source Table Id", TableId);
-        exit(APIWebhookSubscription.FindSet);
+        exit(APIWebhookSubscription.FindSet());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 5150, 'OnEnabledDatabaseTriggersSetup', '', false, false)]
@@ -170,15 +170,15 @@ codeunit 6153 "API Webhook Notification Mgt."
         APIWebhookSubscription: Record "API Webhook Subscription";
         GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
     begin
-        if not GraphMgtGeneralTools.IsApiSubscriptionEnabled then begin
+        if not GraphMgtGeneralTools.IsApiSubscriptionEnabled() then begin
             Enabled := false;
             exit;
         end;
 
-        APIWebhookSubscription.SetFilter("Expiration Date Time", '>%1', CurrentDateTime);
+        APIWebhookSubscription.SetFilter("Expiration Date Time", '>%1', CurrentDateTime());
         APIWebhookSubscription.SetFilter("Company Name", '%1|%2', CompanyName, '');
         APIWebhookSubscription.SetRange("Source Table Id", TableID);
-        Enabled := not APIWebhookSubscription.IsEmpty;
+        Enabled := not APIWebhookSubscription.IsEmpty();
     end;
 
     [Scope('OnPrem')]
@@ -193,7 +193,7 @@ codeunit 6153 "API Webhook Notification Mgt."
         ApiWebhookEntity.SetRange(Version, APIWebhookSubscription."Entity Version");
         ApiWebhookEntity.SetRange(Name, APIWebhookSubscription."Entity Set Name");
         ApiWebhookEntity.SetRange("Table No.", APIWebhookSubscription."Source Table Id");
-        if not ApiWebhookEntity.FindFirst then begin
+        if not ApiWebhookEntity.FindFirst() then begin
             SendTraceTag('000029S', APIWebhookCategoryLbl, VERBOSITY::Warning,
               StrSubstNo(CannotFindEntityErr, APIWebhookSubscription."Source Table Id"), DATACLASSIFICATION::SystemMetadata);
             exit(false);
@@ -226,12 +226,12 @@ codeunit 6153 "API Webhook Notification Mgt."
 
         if TableFilters <> '' then begin
             TempRecRef.Open(RecRef.Number, true);
-            TempRecRef.Init;
+            TempRecRef.Init();
             CopyPrimaryKeyFields(RecRef, TempRecRef);
             CopyFilterFields(RecRef, TempRecRef, TableFilters);
-            TempRecRef.Insert;
+            TempRecRef.Insert();
             TempRecRef.SetView(TableFilters);
-            if TempRecRef.IsEmpty then begin
+            if TempRecRef.IsEmpty() then begin
                 SendTraceTag('00006ZO', APIWebhookCategoryLbl, VERBOSITY::Normal,
                   StrSubstNo(FilterMismatchingMsg, RecRef.Number, ApiWebhookEntity."Object Type", ApiWebhookEntity."Object ID"),
                   DATACLASSIFICATION::SystemMetadata);
@@ -251,7 +251,7 @@ codeunit 6153 "API Webhook Notification Mgt."
         I: Integer;
     begin
         KeyRef := FromRecRef.KeyIndex(1);
-        for I := 1 to KeyRef.FieldCount do begin
+        for I := 1 to KeyRef.FieldCount() do begin
             FromFieldRef := KeyRef.FieldIndex(I);
             CopyFieldValue(FromFieldRef, ToRecRef);
         end;
@@ -285,7 +285,7 @@ codeunit 6153 "API Webhook Notification Mgt."
                     if (EqPos > 1) and (EqPos < 12) then begin
                         FieldNoTxt := CopyStr(RemainingTableFilters, 1, EqPos - 1);
                         if Evaluate(FieldNo, FieldNoTxt) then
-                            if FieldNo <= ToRecRef.FieldCount then begin
+                            if FieldNo <= ToRecRef.FieldCount() then begin
                                 FromFieldRef := FromRecRef.Field(FieldNo);
                                 CopyFieldValue(FromFieldRef, ToRecRef);
                             end;
@@ -299,7 +299,7 @@ codeunit 6153 "API Webhook Notification Mgt."
     var
         ToFieldRef: FieldRef;
     begin
-        if Format(FromFieldRef.Class) = 'Normal' then begin
+        if FromFieldRef.Class = FieldClass::Normal then begin
             ToFieldRef := ToRecordRef.Field(FromFieldRef.Number);
             ToFieldRef.Value := FromFieldRef.Value;
         end;
@@ -316,14 +316,14 @@ codeunit 6153 "API Webhook Notification Mgt."
             DateTimeToString(APIWebhookSubscription."Expiration Date Time"), APIWebhookSubscription."Source Table Id"),
           DATACLASSIFICATION::SystemMetadata);
         APIWebhookNotification.SetRange("Subscription ID", APIWebhookSubscription."Subscription Id");
-        if not APIWebhookNotification.IsEmpty then
+        if not APIWebhookNotification.IsEmpty() then
             APIWebhookNotification.DeleteAll(true);
 
         APIWebhookNotificationAggr.SetRange("Subscription ID", APIWebhookSubscription."Subscription Id");
-        if not APIWebhookNotificationAggr.IsEmpty then
+        if not APIWebhookNotificationAggr.IsEmpty() then
             APIWebhookNotificationAggr.DeleteAll(true);
 
-        if not APIWebhookSubscription.Delete then;
+        if not APIWebhookSubscription.Delete() then;
     end;
 
     local procedure RegisterNotification(var ApiWebhookEntity: Record "Api Webhook Entity"; var APIWebhookSubscription: Record "API Webhook Subscription"; var RecRef: RecordRef; ChangeType: Option): Boolean
@@ -333,12 +333,12 @@ codeunit 6153 "API Webhook Notification Mgt."
         FieldValue: Text;
     begin
         if TryGetEntityKeyValue(ApiWebhookEntity, RecRef, FieldValue) then begin
-            APIWebhookNotification.ID := CreateGuid;
+            APIWebhookNotification.ID := CreateGuid();
             APIWebhookNotification."Subscription ID" := APIWebhookSubscription."Subscription Id";
-            APIWebhookNotification."Created By User SID" := UserSecurityId;
+            APIWebhookNotification."Created By User SID" := UserSecurityId();
             APIWebhookNotification."Change Type" := ChangeType;
             if APIWebhookNotification."Change Type" = APIWebhookNotification."Change Type"::Deleted then
-                APIWebhookNotification."Last Modified Date Time" := CurrentDateTime
+                APIWebhookNotification."Last Modified Date Time" := CurrentDateTime()
             else
                 APIWebhookNotification."Last Modified Date Time" := GetLastModifiedDateTime(RecRef, FieldRef);
             APIWebhookNotification."Entity Key Value" := CopyStr(FieldValue, 1, MaxStrLen(APIWebhookNotification."Entity Key Value"));
@@ -407,52 +407,52 @@ codeunit 6153 "API Webhook Notification Mgt."
         Guid: Guid;
         ErrorMessage: Text;
     begin
-        case Format(FieldRef.Type) of
-            'GUID':
+        case FieldRef.Type of
+            FieldType::GUID:
                 begin
                     Guid := FieldRef.Value;
                     Value := LowerCase(IntegrationManagement.GetIdWithoutBrackets(Guid));
                 end;
-            'Code', 'Text':
+            FieldType::Code, FieldType::Text:
                 begin
                     Value := FieldRef.Value;
                     if Value <> '' then
                         Value := Format(FieldRef.Value);
                 end;
-            'Option':
+            FieldType::Option:
                 Value := Format(FieldRef);
-            'Integer', 'BigInteger', 'Byte':
+            FieldType::Integer, FieldType::BigInteger:
                 Value := Format(FieldRef.Value);
-            'Boolean':
+            FieldType::Boolean:
                 begin
                     Bool := FieldRef.Value;
                     Value := SetBoolFormat(Bool);
                 end;
-            'Date':
+            FieldType::Date:
                 begin
                     Date := FieldRef.Value;
                     Value := SetDateFormat(Date);
                 end;
-            'Time':
+            FieldType::Time:
                 begin
                     Time := FieldRef.Value;
                     Value := SetTimeFormat(Time);
                 end;
-            'DateTime':
+            FieldType::DateTime:
                 begin
                     DateTime := FieldRef.Value;
                     Value := SetDateTimeFormat(DateTime);
                 end;
-            'Duration':
+            FieldType::Duration:
                 begin
                     BigInt := FieldRef.Value;
                     // Use round to avoid conversion errors due to the conversion from decimal to long.
                     BigInt := Round(BigInt / 60000, 1);
                     Value := Format(BigInt);
                 end;
-            'DateFormula':
+            FieldType::DateFormula:
                 Value := Format(FieldRef.Value);
-            'Decimal':
+            FieldType::Decimal:
                 begin
                     Decimal := FieldRef.Value;
                     Value := SetDecimalFormat(Decimal);
@@ -509,7 +509,7 @@ codeunit 6153 "API Webhook Notification Mgt."
         if FindLastModifiedDateTimeField(RecRef, FieldRef) then
             LastModifiedDateTime := FieldRef.Value
         else
-            LastModifiedDateTime := CurrentDateTime;
+            LastModifiedDateTime := CurrentDateTime();
         exit(LastModifiedDateTime);
     end;
 
@@ -524,7 +524,7 @@ codeunit 6153 "API Webhook Notification Mgt."
         Field.SetFilter(FieldName, '%1|%2|%3|%4',
           'Last Modified Date Time', 'Last Modified DateTime', 'Last DateTime Modified', 'Last Date Time Modified');
 
-        if not Field.FindFirst then
+        if not Field.FindFirst() then
             exit(false);
 
         FieldRef := RecRef.Field(Field."No.");
@@ -538,7 +538,7 @@ codeunit 6153 "API Webhook Notification Mgt."
         ProcessingDateTime: DateTime;
         LatestStartDateTime: DateTime;
     begin
-        ProcessingDateTime := CurrentDateTime;
+        ProcessingDateTime := CurrentDateTime();
         LatestStartDateTime := EarliestStartDateTime + GetDelayTime();
 
         SendTraceTag('000070M', APIWebhookCategoryLbl, VERBOSITY::Normal,
@@ -550,7 +550,7 @@ codeunit 6153 "API Webhook Notification Mgt."
         JobQueueEntry.SetRange("Job Queue Category Code", JobQueueCategoryCodeLbl);
         JobQueueEntry.SetRange(Status, JobQueueEntry.Status::Ready);
         JobQueueEntry.SetRange("Earliest Start Date/Time", EarliestStartDateTime, LatestStartDateTime);
-        if JobQueueEntry.FindFirst then begin
+        if JobQueueEntry.FindFirst() then begin
             JobQueueEntry.CalcFields(Scheduled);
             if JobQueueEntry.Scheduled then begin
                 SendTraceTag('000070O', APIWebhookCategoryLbl, VERBOSITY::Normal,
@@ -562,7 +562,7 @@ codeunit 6153 "API Webhook Notification Mgt."
 
         JobQueueEntry.SetRange(Status);
         JobQueueEntry.SetRange("Earliest Start Date/Time");
-        if JobQueueEntry.Count >= GetMaxNumberOfJobs then begin
+        if JobQueueEntry.Count() >= GetMaxNumberOfJobs then begin
             SendTraceTag('000070P', APIWebhookCategoryLbl, VERBOSITY::Normal, StrSubstNo(TooManyJobsMsg, GetMaxNumberOfJobs),
               DATACLASSIFICATION::SystemMetadata);
             exit;
@@ -576,7 +576,7 @@ codeunit 6153 "API Webhook Notification Mgt."
         JobQueueEntry: Record "Job Queue Entry";
     begin
         if EarliestStartDateTime = 0DT then
-            EarliestStartDateTime := CurrentDateTime + GetDelayTime;
+            EarliestStartDateTime := CurrentDateTime() + GetDelayTime();
 
         SendTraceTag('00006ZR', APIWebhookCategoryLbl, VERBOSITY::Normal,
           StrSubstNo(CreateJobMsg, DateTimeToString(EarliestStartDateTime)), DATACLASSIFICATION::SystemMetadata);
@@ -621,7 +621,7 @@ codeunit 6153 "API Webhook Notification Mgt."
         if Handled then
             exit(DelayTime);
 
-        DelayTime := ServerSetting.GetApiSubscriptionDelayTime;
+        DelayTime := ServerSetting.GetApiSubscriptionDelayTime();
         exit(DelayTime);
     end;
 

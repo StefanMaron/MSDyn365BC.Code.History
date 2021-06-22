@@ -353,7 +353,7 @@ codeunit 137929 "SCM Orders UI"
         Location.Modify(true);
 
         // [GIVEN] Warehouse Employee with Location
-        WarehouseEmployee.DeleteAll;
+        WarehouseEmployee.DeleteAll();
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
 
         CreateSalesOrderWithLocationAndItem(SalesHeader, Location.Code, LibraryInventory.CreateItemNo);
@@ -404,7 +404,7 @@ codeunit 137929 "SCM Orders UI"
         Location.Modify(true);
 
         // [GIVEN] Warehouse Employee with Location
-        WarehouseEmployee.DeleteAll;
+        WarehouseEmployee.DeleteAll();
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
 
         CreateSalesOrderWithLocationAndItem(SalesHeader, Location.Code, LibraryInventory.CreateItemNo);
@@ -453,7 +453,7 @@ codeunit 137929 "SCM Orders UI"
         Location.Modify(true);
 
         // [GIVEN] Warehouse Employee with Location
-        WarehouseEmployee.DeleteAll;
+        WarehouseEmployee.DeleteAll();
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
 
         CreatePurchOrderWithLocationAndItem(PurchaseHeader, Location.Code, LibraryInventory.CreateItemNo);
@@ -505,7 +505,7 @@ codeunit 137929 "SCM Orders UI"
         Location.Modify(true);
 
         // [GIVEN] Warehouse Employee with Location
-        WarehouseEmployee.DeleteAll;
+        WarehouseEmployee.DeleteAll();
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
 
         CreatePurchOrderWithLocationAndItem(PurchaseHeader, Location.Code, LibraryInventory.CreateItemNo);
@@ -555,7 +555,7 @@ codeunit 137929 "SCM Orders UI"
         LibraryWarehouse.CreateLocation(Location);
         Location.Validate("Require Shipment", true);
         Location.Modify(true);
-        WarehouseEmployee.DeleteAll;
+        WarehouseEmployee.DeleteAll();
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
 
         // [GIVEN] Released Sales Order with the Location and created Warehouse Shipment
@@ -609,7 +609,7 @@ codeunit 137929 "SCM Orders UI"
         LibraryWarehouse.CreateLocation(Location);
         Location.Validate("Require Shipment", true);
         Location.Modify(true);
-        WarehouseEmployee.DeleteAll;
+        WarehouseEmployee.DeleteAll();
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
 
         // [GIVEN] Released Sales Order with the Location and created Warehouse Shipment
@@ -662,7 +662,7 @@ codeunit 137929 "SCM Orders UI"
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         Location.Validate("Require Receive", true);
         Location.Modify(true);
-        WarehouseEmployee.DeleteAll;
+        WarehouseEmployee.DeleteAll();
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
 
         // [GIVEN] Released Purchase Order with the Location and posted Warehouse Receipt
@@ -720,7 +720,7 @@ codeunit 137929 "SCM Orders UI"
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         Location.Validate("Require Receive", true);
         Location.Modify(true);
-        WarehouseEmployee.DeleteAll;
+        WarehouseEmployee.DeleteAll();
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
 
         // [GIVEN] Released Purchase Order with the Location and posted Warehouse Receipt
@@ -867,7 +867,7 @@ codeunit 137929 "SCM Orders UI"
         LibraryVariableStorage.AssertEmpty;
 
         // Tear Down
-        ItemJournalLine.Delete;
+        ItemJournalLine.Delete();
     end;
 
     [Test]
@@ -937,7 +937,7 @@ codeunit 137929 "SCM Orders UI"
         LibraryVariableStorage.AssertEmpty;
 
         // Tear Down
-        ItemJournalLine.Delete;
+        ItemJournalLine.Delete();
     end;
 
     [Test]
@@ -1121,7 +1121,7 @@ codeunit 137929 "SCM Orders UI"
         LibrarySetupStorage.Save(DATABASE::"Manufacturing Setup");
         LibrarySetupStorage.Save(DATABASE::"Marketing Setup");
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Orders UI");
     end;
 
@@ -1132,7 +1132,7 @@ codeunit 137929 "SCM Orders UI"
         Bin: Record Bin;
     begin
         LibraryWarehouse.CreateLocationWMS(Location, true, false, false, false, false);
-        WarehouseEmployee.DeleteAll;
+        WarehouseEmployee.DeleteAll();
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
         LibraryWarehouse.CreateBin(Bin, Location.Code, '', '', '');
         LocationCode := Location.Code;
@@ -1141,31 +1141,31 @@ codeunit 137929 "SCM Orders UI"
 
     local procedure MockWhseShipmentLineWithQtyToShip(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; QtyOutstd: Decimal; QtyToShip: Decimal)
     begin
-        WarehouseShipmentLine.Init;
+        WarehouseShipmentLine.Init();
         WarehouseShipmentLine."No." := LibraryUtility.GenerateGUID;
         WarehouseShipmentLine."Line No." := LibraryRandom.RandInt(10);
         WarehouseShipmentLine."Qty. Outstanding (Base)" := QtyOutstd;
         WarehouseShipmentLine."Qty. Outstanding" := WarehouseShipmentLine."Qty. Outstanding (Base)";
         WarehouseShipmentLine."Qty. to Ship (Base)" := QtyToShip;
         WarehouseShipmentLine."Qty. to Ship" := WarehouseShipmentLine."Qty. to Ship (Base)";
-        WarehouseShipmentLine.Insert;
+        WarehouseShipmentLine.Insert();
     end;
 
     local procedure MockWhseReceiptLineWithQtyToReceive(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; QtyOutstd: Decimal; QtyToReceive: Decimal)
     begin
-        WarehouseReceiptLine.Init;
+        WarehouseReceiptLine.Init();
         WarehouseReceiptLine."No." := LibraryUtility.GenerateGUID;
         WarehouseReceiptLine."Line No." := LibraryRandom.RandInt(10);
         WarehouseReceiptLine."Qty. Outstanding (Base)" := QtyOutstd;
         WarehouseReceiptLine."Qty. Outstanding" := WarehouseReceiptLine."Qty. Outstanding (Base)";
         WarehouseReceiptLine."Qty. to Receive (Base)" := QtyToReceive;
         WarehouseReceiptLine."Qty. to Receive" := WarehouseReceiptLine."Qty. to Receive (Base)";
-        WarehouseReceiptLine.Insert;
+        WarehouseReceiptLine.Insert();
     end;
 
     local procedure MockWhseActivLineWithQtyToHandle(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Integer; QtyOutst: Decimal; QtyToHandle: Decimal)
     begin
-        WarehouseActivityLine.Init;
+        WarehouseActivityLine.Init();
         WarehouseActivityLine."Activity Type" := ActivityType;
         WarehouseActivityLine."No." := LibraryUtility.GenerateGUID;
         WarehouseActivityLine."Line No." := LibraryRandom.RandInt(10);
@@ -1173,7 +1173,7 @@ codeunit 137929 "SCM Orders UI"
         WarehouseActivityLine."Qty. Outstanding" := WarehouseActivityLine."Qty. Outstanding (Base)";
         WarehouseActivityLine."Qty. to Handle (Base)" := QtyToHandle;
         WarehouseActivityLine."Qty. to Handle" := WarehouseActivityLine."Qty. to Handle (Base)";
-        WarehouseActivityLine.Insert;
+        WarehouseActivityLine.Insert();
     end;
 
     local procedure CreateSalesOrderWithLocationAndItem(var SalesHeader: Record "Sales Header"; LocationCode: Code[10]; ItemNo: Code[20])
@@ -1198,9 +1198,9 @@ codeunit 137929 "SCM Orders UI"
     var
         MarketingSetup: Record "Marketing Setup";
     begin
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         MarketingSetup."Bus. Rel. Code for Customers" := '';
-        MarketingSetup.Modify;
+        MarketingSetup.Modify();
     end;
 
     local procedure CreateManufacturingItem(var Item: Record Item; ProductionBOMHeaderNo: Code[20])

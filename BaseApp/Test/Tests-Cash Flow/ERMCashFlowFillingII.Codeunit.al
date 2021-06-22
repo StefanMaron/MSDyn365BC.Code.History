@@ -164,7 +164,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
 
         // Setup
         Initialize;
-        GeneralLedgerSetup.Get; // keep current setup
+        GeneralLedgerSetup.Get(); // keep current setup
         LibraryCashFlowHelper.CreateRandomDateFormula(CustomDateFormula); // used as pmt discount grace period
         LibraryCashFlowHelper.SetupPmtDsctTolCustLETest(
           CashFlowForecast, Customer, PaymentTerms, CustomDateFormula, Amount, DiscountedAmount);
@@ -207,7 +207,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
 
         // Setup
         Initialize;
-        GeneralLedgerSetup.Get; // keep current setup
+        GeneralLedgerSetup.Get(); // keep current setup
         LibraryCashFlowHelper.CreateRandomDateFormula(PmtDiscountGracePeriod);
         LibraryCashFlowHelper.SetupPmtDsctTolCustLETest(
           CashFlowForecast, Customer, PaymentTerms, PmtDiscountGracePeriod, Amount, DiscountedAmount);
@@ -258,7 +258,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
 
         // Setup
         Initialize;
-        GeneralLedgerSetup.Get; // keep current setup
+        GeneralLedgerSetup.Get(); // keep current setup
         LibraryCashFlowHelper.CreateRandomDateFormula(PmtDiscountGracePeriod);
         LibraryCashFlowHelper.SetupPmtDsctTolCustLETest(
           CashFlowForecast, Customer, PaymentTerms, PmtDiscountGracePeriod, Amount, DiscountedAmount);
@@ -302,7 +302,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
 
         // Setup
         Initialize;
-        GeneralLedgerSetup.Get; // keep current setup
+        GeneralLedgerSetup.Get(); // keep current setup
         LibraryCashFlowHelper.CreateRandomDateFormula(PmtDiscountGracePeriod);
         LibraryCashFlowHelper.SetupPmtDsctTolCustLETest(
           CashFlowForecast, Customer, PaymentTerms, PmtDiscountGracePeriod, Amount, DiscountedAmount);
@@ -350,7 +350,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
 
         // Setup
         Initialize;
-        GeneralLedgerSetup.Get; // keep current setup
+        GeneralLedgerSetup.Get(); // keep current setup
         LibraryCashFlowHelper.CreateRandomDateFormula(PmtDiscountGracePeriod);
         LibraryCashFlowHelper.SetupPmtDsctTolCustLETest(
           CashFlowForecast, Customer, PaymentTerms, PmtDiscountGracePeriod, Amount, DiscountedAmount);
@@ -395,7 +395,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
 
         // Setup
         Initialize;
-        GeneralLedgerSetup.Get; // keep current setup
+        GeneralLedgerSetup.Get(); // keep current setup
         // max pmt tol amount should be 50% of the invoice amount
         LibraryCashFlowHelper.SetupCustomerPmtTolAmtTestCase(CashFlowForecast, Customer, Amount, 0.5, 50);
         LibraryCashFlowHelper.CreateAndApplySalesInvPayment(GenJournalLine, Customer."No.", Amount,
@@ -437,7 +437,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
 
         // Setup
         Initialize;
-        GeneralLedgerSetup.Get; // keep current setup
+        GeneralLedgerSetup.Get(); // keep current setup
         // max pmt tol amount should be 30% of the invoice amount
         LibraryCashFlowHelper.SetupCustomerPmtTolAmtTestCase(CashFlowForecast, Customer, Amount, 0.3, 30);
         ExpectedAmount := Amount - Round(Amount * 0.3);
@@ -481,7 +481,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
 
         // Setup
         Initialize;
-        GeneralLedgerSetup.Get; // keep current setup
+        GeneralLedgerSetup.Get(); // keep current setup
         LibraryCashFlowHelper.CreateRandomDateFormula(PmtDiscountGracePeriod);
         LibraryCashFlowHelper.SetupPmtDsctTolVendorLETest(
           CashFlowForecast, Vendor, PaymentTerms, PmtDiscountGracePeriod, Amount, DiscountedAmount);
@@ -524,7 +524,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
 
         // Setup
         Initialize;
-        GeneralLedgerSetup.Get; // keep current setup
+        GeneralLedgerSetup.Get(); // keep current setup
         LibraryCashFlowHelper.CreateRandomDateFormula(PmtDiscountGracePeriod);
         LibraryCashFlowHelper.SetupPmtDsctTolVendorLETest(
           CashFlowForecast, Vendor, PaymentTerms, PmtDiscountGracePeriod, Amount, DiscountedAmount);
@@ -572,7 +572,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
 
         // Setup
         Initialize;
-        GeneralLedgerSetup.Get; // keep current setup
+        GeneralLedgerSetup.Get(); // keep current setup
         LibraryCashFlowHelper.CreateRandomDateFormula(PmtDiscountGracePeriod);
         LibraryCashFlowHelper.SetupPmtDsctTolVendorLETest(
           CashFlowForecast, Vendor, PaymentTerms, PmtDiscountGracePeriod, Amount, DiscountedAmount);
@@ -615,7 +615,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
 
         // Setup
         Initialize;
-        GeneralLedgerSetup.Get; // keep current setup
+        GeneralLedgerSetup.Get(); // keep current setup
         LibraryCashFlowHelper.CreateRandomDateFormula(PmtDiscountGracePeriod);
         LibraryCashFlowHelper.SetupPmtDsctTolVendorLETest(
           CashFlowForecast, Vendor, PaymentTerms, PmtDiscountGracePeriod, Amount, DiscountedAmount);
@@ -660,7 +660,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
 
         // Setup
         Initialize;
-        GeneralLedgerSetup.Get; // keep current setup
+        GeneralLedgerSetup.Get(); // keep current setup
         // max pmt tol amount should be 50% of the invoice amount
         LibraryCashFlowForecast.ClearJournal;
         LibraryCashFlowHelper.SetupVendorPmtTolAmtTestCase(CashFlowForecast, Vendor, Amount, 0.5, 50);
@@ -704,7 +704,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
 
         // Setup
         Initialize;
-        GeneralLedgerSetup.Get; // keep current state
+        GeneralLedgerSetup.Get(); // keep current state
         // max pmt tol amount should be 30% of the invoice amount
         LibraryCashFlowHelper.SetupVendorPmtTolAmtTestCase(CashFlowForecast, Vendor, Amount, 0.3, 0);
         ExpectedAmount := Amount - Round(Amount * 0.3);
@@ -2051,7 +2051,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Cash Flow - Filling II");
     end;
 
@@ -2060,7 +2060,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         CashFlowWorksheetLine: Record "Cash Flow Worksheet Line";
     begin
         LibraryCashFlowHelper.CreateCashFlowForecastDefault(CashFlowForecast);
-        Commit;  // Commit Required for REPORT.RUN.
+        Commit();  // Commit Required for REPORT.RUN.
         LibraryVariableStorage.Enqueue(CashFlowForecast."No.");  // Enqueue SuggestWorksheetLinesReqPageHandler.
         REPORT.Run(REPORT::"Suggest Worksheet Lines");
         CashFlowWorksheetLine.SetRange("Cash Flow Forecast No.", CashFlowForecast."No.");
@@ -2231,7 +2231,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         "Count": Integer;
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
-        GLAccount.Init;
+        GLAccount.Init();
         for Count := 1 to LineCount do
             LibraryCashFlowHelper.CreateSalesLine(SalesHeader, GLAccount);
     end;
@@ -2256,7 +2256,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
         SalesHeader."Your Reference" := YourReference;
-        SalesHeader.Modify;
+        SalesHeader.Modify();
     end;
 
     local procedure CreateSalesOrderWithVAT(var SalesHeader: Record "Sales Header")
@@ -2279,7 +2279,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     begin
         CreateSalesOrderWithVAT(SalesHeader);
         SalesHeader."Your Reference" := YourReference;
-        SalesHeader.Modify;
+        SalesHeader.Modify();
     end;
 
     local procedure CreatePurchaseOrderWithLineCount(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; LineCount: Integer)
@@ -2288,7 +2288,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         "Count": Integer;
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
-        GLAccount.Init;
+        GLAccount.Init();
         for Count := 1 to LineCount do
             LibraryCashFlowHelper.CreatePurchaseLine(PurchaseHeader, GLAccount);
     end;
@@ -2313,7 +2313,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
         PurchaseHeader."Your Reference" := YourReference;
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
     end;
 
     local procedure CreatePurchaseOrderWithVAT(var PurchaseHeader: Record "Purchase Header")
@@ -2337,7 +2337,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     begin
         CreatePurchaseOrderWithVAT(PurchaseHeader);
         PurchaseHeader."Your Reference" := YourReference;
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
     end;
 
     local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
@@ -2366,7 +2366,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     var
         LibraryFiscalYear: Codeunit "Library - Fiscal Year";
     begin
-        CurrencyExchangeRate.Init;
+        CurrencyExchangeRate.Init();
         CurrencyExchangeRate.Validate("Currency Code", CurrencyCode);
         CurrencyExchangeRate.Validate("Starting Date", LibraryFiscalYear.GetFirstPostingDate(true));
         CurrencyExchangeRate.Insert(true);

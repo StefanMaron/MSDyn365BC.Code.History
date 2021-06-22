@@ -1,4 +1,4 @@
-﻿page 636 "IC Outbox Sales Doc."
+page 636 "IC Outbox Sales Doc."
 {
     Caption = 'IC Outbox Sales Doc.';
     DeleteAllowed = false;

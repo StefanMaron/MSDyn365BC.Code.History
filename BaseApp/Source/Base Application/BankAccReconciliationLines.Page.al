@@ -250,7 +250,7 @@ page 380 "Bank Acc. Reconciliation Lines"
     begin
         "Ready for Application" := true;
         CurrPage.SaveRecord;
-        Commit;
+        Commit();
         BankAccReconApplyEntries.ApplyEntries(Rec);
     end;
 
@@ -262,7 +262,7 @@ page 380 "Bank Acc. Reconciliation Lines"
         if BankAccReconciliationLine.FindSet then
             repeat
                 TempBankAccReconciliationLine := BankAccReconciliationLine;
-                TempBankAccReconciliationLine.Insert;
+                TempBankAccReconciliationLine.Insert();
             until BankAccReconciliationLine.Next = 0;
     end;
 

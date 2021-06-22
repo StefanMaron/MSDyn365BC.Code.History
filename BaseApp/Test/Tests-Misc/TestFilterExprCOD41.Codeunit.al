@@ -22,8 +22,8 @@ codeunit 139000 "Test Filter Expr. COD41"
         // USER
         // COMPANY
         CommentLine.SETRANGE("Table Name",99);
-        CommentLine.DELETEALL;
-        CommentLine.INIT;
+        CommentLine.DeleteAll();
+        CommentLine.Init();
 
         CommentLine."Table Name" := 99;
         i := i + 1;
@@ -58,9 +58,9 @@ codeunit 139000 "Test Filter Expr. COD41"
         WITH Customer DO BEGIN
           NoPrefix := 'UTEST';
           SETFILTER("No.",'UTEST' + '*');
-          DELETEALL;
+          DeleteAll();
           MyCustomer.SETRANGE("User ID",USERID);
-          MyCustomer.DELETEALL;
+          MyCustomer.DeleteAll();
           ExpectedFilter := '';
           FOR i := 1 TO 100 DO BEGIN
             InsertCustomer(Customer,NoPrefix + FORMAT(100000 + i),'Test Customer ' + FORMAT(i));
@@ -93,9 +93,9 @@ codeunit 139000 "Test Filter Expr. COD41"
         WITH Vendor DO BEGIN
           NoPrefix := 'UTEST';
           SETFILTER("No.",'UTEST' + '*');
-          DELETEALL;
+          DeleteAll();
           MyVendor.SETRANGE("User ID",USERID);
-          MyVendor.DELETEALL;
+          MyVendor.DeleteAll();
           ExpectedFilter := '';
           FOR i := 1 TO 2100 DO BEGIN
             InsertVendor(Vendor,NoPrefix + FORMAT(100000 + i),'Test Vendor ' + FORMAT(i));
@@ -124,9 +124,9 @@ codeunit 139000 "Test Filter Expr. COD41"
         WITH Item DO BEGIN
           NoPrefix := 'UTEST';
           SETFILTER("No.",'UTEST' + '*');
-          DELETEALL;
+          DeleteAll();
           MyItem.SETRANGE("User ID",USERID);
-          MyItem.DELETEALL;
+          MyItem.DeleteAll();
           ExpectedFilter := '';
           FOR i := 1 TO 100 DO BEGIN
             InsertItem(Item,NoPrefix + FORMAT(100000 + i),'Test Item ' + FORMAT(i));

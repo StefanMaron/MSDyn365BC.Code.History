@@ -1,8 +1,11 @@
 page 5331 "CRM Full Synch. Review"
 {
-    Caption = 'Dynamics 365 Sales Full Synch. Review';
+    Caption = 'Common Data Service Full Synch. Review';
     PageType = Worksheet;
     SourceTable = "CRM Full Synch. Review Line";
+    InsertAllowed = false;
+    ModifyAllowed = false;
+    DeleteAllowed = true;
 
     layout
     {
@@ -37,7 +40,7 @@ page 5331 "CRM Full Synch. Review"
                 {
                     ApplicationArea = Suite;
                     Caption = 'Active Session';
-                    ToolTip = 'Specifies if the session is active.';
+                    ToolTip = 'Specifies whether the session is active.';
                 }
                 field(Direction; Direction)
                 {
@@ -77,18 +80,65 @@ page 5331 "CRM Full Synch. Review"
             action(Start)
             {
                 ApplicationArea = Suite;
-                Caption = 'Start';
+                Caption = 'Sync All';
                 Enabled = ActionStartEnabled;
                 Image = Start;
                 Promoted = true;
                 PromotedCategory = Process;
                 PromotedIsBig = true;
-                ToolTip = 'Start all the default integration jobs for synchronizing Business Central record types and Dynamics 365 Sales entities, as defined on the Integration Table Mappings page.';
+                PromotedOnly = true;
+                ToolTip = 'Start all the default integration jobs for synchronizing Business Central record types and Common Data Service entities, as defined on the Integration Table Mappings page.';
 
                 trigger OnAction()
+                var
+                    CDSConnectionSetup: Record "CDS Connection Setup";
+                    CRMSynchHelper: Codeunit "CRM Synch. Helper";
+                    OwnershipModel: Option;
+                    handled: Boolean;
+                    QuestionTxt: Text;
                 begin
-                    if Confirm(StrSubstNo(StartInitialSynchQst, PRODUCTNAME.Short, CRMProductName.SHORT)) then
+                    CRMSynchHelper.OnGetCDSOwnershipModel(OwnershipModel, handled);
+                    if handled and (OwnershipModel = CDSConnectionSetup."Ownership Model"::Team) then
+                        QuestionTxt := StartInitialSynchTeamOwnershipModelQst
+                    else
+                        QuestionTxt := StrSubstNo(StartInitialSynchPersonOwnershipModelQst, PRODUCTNAME.Short, 'CDS');
+                    if Confirm(QuestionTxt) then
                         Start;
+                end;
+            }
+            action(Restart)
+            {
+                ApplicationArea = Suite;
+                Caption = 'Restart';
+                Enabled = ActionRestartEnabled;
+                Image = Refresh;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedIsBig = true;
+                PromotedOnly = true;
+                ToolTip = 'Restart the integration job for synchronizing Business Central record types and Common Data Service entities, as defined on the Integration Table Mappings page.';
+                trigger OnAction()
+                begin
+                    Delete();
+                    Generate();
+                    Start();
+                end;
+            }
+            action(Reset)
+            {
+                ApplicationArea = Suite;
+                Caption = 'Reset';
+                Enabled = ActionResetEnabled;
+                Image = ResetStatus;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedIsBig = true;
+                PromotedOnly = true;
+                ToolTip = 'Removes all lines and readds all Integration Table Mappings.';
+                trigger OnAction()
+                begin
+                    DeleteAll();
+                    Generate();
                 end;
             }
         }
@@ -97,6 +147,8 @@ page 5331 "CRM Full Synch. Review"
     trigger OnAfterGetRecord()
     begin
         ActionStartEnabled := (not IsThereActiveSessionInProgress) and IsThereBlankStatusLine;
+        ActionResetEnabled := (not IsThereActiveSessionInProgress());
+        ActionRestartEnabled := (not IsThereActiveSessionInProgress()) and (("Job Queue Entry Status" = "Job Queue Entry Status"::Error) or ("Job Queue Entry Status" = "Job Queue Entry Status"::Finished));
         JobQueueEntryStatusStyle := GetStatusStyleExpression(Format("Job Queue Entry Status"));
         ToIntTableJobStatusStyle := GetStatusStyleExpression(Format("To Int. Table Job Status"));
         FromIntTableJobStatusStyle := GetStatusStyleExpression(Format("From Int. Table Job Status"));
@@ -104,15 +156,24 @@ page 5331 "CRM Full Synch. Review"
 
     trigger OnOpenPage()
     begin
-        Generate;
+        Generate(SkipEntitiesNotFullSyncReady);
+    end;
+
+    [Scope('OnPrem')]
+    procedure SetSkipEntitiesNotFullSyncReady()
+    begin
+        SkipEntitiesNotFullSyncReady := true;
     end;
 
     var
-        CRMProductName: Codeunit "CRM Product Name";
         ActionStartEnabled: Boolean;
+        ActionResetEnabled: Boolean;
+        ActionRestartEnabled: Boolean;
+        SkipEntitiesNotFullSyncReady: Boolean;
         JobQueueEntryStatusStyle: Text;
         ToIntTableJobStatusStyle: Text;
         FromIntTableJobStatusStyle: Text;
-        StartInitialSynchQst: Label 'This will synchronize records in all integration table mappings, including uncoupled records.\\Before running full synchronization, you should couple all %1 salespeople to %2 users.\\To prevent data duplication, it is also recommended to couple and synchronize other existing records in advance.\\Do you want to continue?', Comment = '%1 - product name, %2 = CRM product name';
+        StartInitialSynchPersonOwnershipModelQst: Label 'Full synchronization will synchronize all coupled and uncoupled records.\You should use this option only when you are synchronizing data for the first time.\The synchronization will run in the background, so you can continue with other tasks.\To check the status, return to this page or refresh it.\\Before running full synchronization, you should couple all %1 salespeople to %2 users.\\Do you want to continue?', Comment = '%1 - product name, %2 = CRM product name';
+        StartInitialSynchTeamOwnershipModelQst: Label 'Full synchronization will synchronize all coupled and uncoupled records.\You should use this option only when you are synchronizing data for the first time.\The synchronization will run in the background, so you can continue with other tasks.\To check the status, return to this page or refresh it.\\Do you want to continue?';
 }
 

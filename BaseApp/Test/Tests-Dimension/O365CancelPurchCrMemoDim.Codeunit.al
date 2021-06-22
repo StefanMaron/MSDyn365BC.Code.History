@@ -219,7 +219,7 @@ codeunit 138037 "O365 Cancel Purch Cr Memo Dim."
 
         IsInitialized := true;
         LibraryERMCountryData.CreateVATData;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Cancel Purch Cr Memo Dim.");
     end;
 
@@ -230,7 +230,7 @@ codeunit 138037 "O365 Cancel Purch Cr Memo Dim."
         LibraryInventory.CreateItem(Item);
         Item.Validate("Global Dimension 1 Code", Dim1Code);
         Item.Validate("Global Dimension 2 Code", Dim2Code);
-        Item.Modify;
+        Item.Modify();
         exit(Item."No.");
     end;
 
@@ -345,7 +345,7 @@ codeunit 138037 "O365 Cancel Purch Cr Memo Dim."
     begin
         DimValue.Validate(Blocked, true);
         DimValue.Modify(true);
-        Commit;
+        Commit();
     end;
 
     local procedure BlockDimCombination(DimCode1: Code[20]; DimCode2: Code[20])
@@ -359,14 +359,14 @@ codeunit 138037 "O365 Cancel Purch Cr Memo Dim."
             Validate("Combination Restriction", "Combination Restriction"::Blocked);
             Insert;
         end;
-        Commit;
+        Commit();
     end;
 
     local procedure UnblockDimValue(var DimValue: Record "Dimension Value")
     begin
         DimValue.Validate(Blocked, false);
         DimValue.Modify(true);
-        Commit;
+        Commit();
     end;
 
     local procedure UnblockDimCombination(DimCode1: Code[20]; DimCode2: Code[20])
@@ -375,7 +375,7 @@ codeunit 138037 "O365 Cancel Purch Cr Memo Dim."
     begin
         DimCombination.Get(DimCode1, DimCode2);
         DimCombination.Delete(true);
-        Commit;
+        Commit();
     end;
 
     local procedure VerifyBlockedDimOnCancelCrMemo(var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; var DimValue: Record "Dimension Value")

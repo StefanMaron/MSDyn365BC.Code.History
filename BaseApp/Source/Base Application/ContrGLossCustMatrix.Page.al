@@ -522,7 +522,7 @@ page 9261 "Contr. G/Loss (Cust.) Matrix"
         MATRIX_CurrentNoOfMatrixColumn: Integer;
         ShipToFilter: Text[250];
         CustomerFilter: Text[250];
-        Text000: Label '<Sign><Integer Thousand><Decimals,3>';
+        Text000: Label '<Sign><Integer Thousand><Decimals,3>', Locked = true;
         [InDataSet]
         Field1Visible: Boolean;
         [InDataSet]
@@ -590,7 +590,7 @@ page 9261 "Contr. G/Loss (Cust.) Matrix"
 
     local procedure CalculateTotals()
     begin
-        ContractGainLossEntry.Reset;
+        ContractGainLossEntry.Reset();
         ContractGainLossEntry.SetCurrentKey("Customer No.", "Ship-to Code", "Change Date");
         if ShipToFilter <> '' then
             ContractGainLossEntry.SetFilter("Ship-to Code", ShipToFilter);
@@ -619,7 +619,7 @@ page 9261 "Contr. G/Loss (Cust.) Matrix"
 
     local procedure MATRIX_OnDrillDown(MATRIX_ColumnOrdinal: Integer)
     begin
-        ContractGainLossEntry.Reset;
+        ContractGainLossEntry.Reset();
         ContractGainLossEntry.SetCurrentKey("Customer No.", "Ship-to Code", "Change Date");
         ContractGainLossEntry.SetRange("Ship-to Code", MatrixRecords[MATRIX_ColumnOrdinal].Code);
         ContractGainLossEntry.SetRange("Customer No.", CustomerFilter);

@@ -1,4 +1,4 @@
-﻿page 49 "Purchase Quote"
+page 49 "Purchase Quote"
 {
     Caption = 'Purchase Quote';
     PageType = Document;
@@ -366,8 +366,8 @@
                             ApplicationArea = Basic, Suite;
                             Caption = 'Ship-to';
                             HideValue = NOT ShowShippingOptionsWithLocation AND (ShipToOptions = ShipToOptions::Location);
-                            OptionCaption = 'Default (Company Address),Location,Custom Address';
-                            ToolTip = 'Specifies the address that the products on the purchase document are shipped to. Default (Company Address): The same as the company address specified in the Company Information window. Location: One of the company''s location addresses. Custom Address: Any ship-to address that you specify in the fields below.';
+                            OptionCaption = 'Default (Company Address),Location,Customer Address,Custom Address';
+                            ToolTip = 'Specifies the address that the products on the purchase document are shipped to. Default (Company Address): The same as the company address specified in the Company Information window. Location: One of the company''s location addresses. Customer Address: Used in connection with drop shipment. Custom Address: Any ship-to address that you specify in the fields below.';
 
                             trigger OnValidate()
                             begin
@@ -725,7 +725,7 @@
                     trigger OnAction()
                     begin
                         CalcInvDiscForHeader;
-                        Commit;
+                        Commit();
                         PAGE.RunModal(PAGE::"Purchase Statistics", Rec);
                         PurchCalcDiscByType.ResetRecalculateInvoiceDisc(Rec);
                     end;
@@ -934,6 +934,26 @@
                         PurchaseHeader := Rec;
                         CurrPage.SetSelectionFilter(PurchaseHeader);
                         PurchaseHeader.SendRecords;
+                    end;
+                }
+                action(AttachAsPDF)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Attach as PDF';
+                    Image = PrintAttachment;
+                    Promoted = true;
+                    PromotedCategory = Category6;
+                    PromotedIsBig = true;
+                    PromotedOnly = true;
+                    ToolTip = 'Create a PDF file and attach it to the document.';
+
+                    trigger OnAction()
+                    var
+                        PurchaseHeader: Record "Purchase Header";
+                    begin
+                        PurchaseHeader := Rec;
+                        PurchaseHeader.SetRecFilter();
+                        DocPrint.PrintPurchaseHeaderToDocumentAttachment(PurchaseHeader);
                     end;
                 }
             }
@@ -1247,8 +1267,6 @@
         PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
         FormatAddress: Codeunit "Format Address";
         ChangeExchangeRate: Page "Change Exchange Rate";
-        ShipToOptions: Option "Default (Company Address)",Location,"Custom Address";
-        PayToOptions: Option "Default (Vendor)","Another Vendor","Custom Address";
         HasIncomingDocument: Boolean;
         DocNoVisible: Boolean;
         OpenApprovalEntriesExistForCurrUser: Boolean;
@@ -1259,6 +1277,10 @@
         IsBuyFromCountyVisible: Boolean;
         IsPayToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
+
+    protected var
+        ShipToOptions: Option "Default (Company Address)",Location,"Custom Address";
+        PayToOptions: Option "Default (Vendor)","Another Vendor","Custom Address";
 
     local procedure ActivateFields()
     begin

@@ -119,19 +119,19 @@ table 1106 "Cost Allocation Source"
     trigger OnDelete()
     begin
         CostAllocationTarget.SetRange(ID, ID);
-        CostAllocationTarget.DeleteAll;
+        CostAllocationTarget.DeleteAll();
     end;
 
     trigger OnInsert()
     begin
         // Get ID if empty.
         if ID = '' then begin
-            CostAccSetup.LockTable;
-            CostAccSetup.Get;
+            CostAccSetup.LockTable();
+            CostAccSetup.Get();
             if CostAccSetup."Last Allocation ID" = '' then
                 Error(Text000);
             CostAccSetup."Last Allocation ID" := IncStr(CostAccSetup."Last Allocation ID");
-            CostAccSetup.Modify;
+            CostAccSetup.Modify();
             ID := CostAccSetup."Last Allocation ID";
         end;
 

@@ -1,4 +1,4 @@
-﻿page 1008 "Job WIP Entries"
+page 1008 "Job WIP Entries"
 {
     ApplicationArea = Jobs;
     Caption = 'Job WIP Entries';

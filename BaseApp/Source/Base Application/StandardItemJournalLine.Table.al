@@ -32,6 +32,8 @@ table 753 "Standard Item Journal Line"
             end;
 
             trigger OnValidate()
+            var
+                PriceType: Enum "Price Type";
             begin
                 if "Item No." <> xRec."Item No." then begin
                     "Variant Code" := '';
@@ -80,14 +82,14 @@ table 753 "Standard Item Journal Line"
 
                 case "Entry Type" of
                     "Entry Type"::Purchase,
-                  "Entry Type"::Output:
-                        PurchPriceCalcMgt.FindStdItemJnlLinePrice(Rec, FieldNo("Item No."));
+                    "Entry Type"::Output:
+                        ApplyPrice(PriceType::Purchase, FieldNo("Item No."));
                     "Entry Type"::"Positive Adjmt.",
-                  "Entry Type"::"Negative Adjmt.",
-                  "Entry Type"::Consumption:
+                    "Entry Type"::"Negative Adjmt.",
+                    "Entry Type"::Consumption:
                         "Unit Amount" := UnitCost;
                     "Entry Type"::Sale:
-                        SalesPriceCalcMgt.FindStdItemJnlLinePrice(Rec, FieldNo("Item No."));
+                        ApplyPrice(PriceType::Sale, FieldNo("Item No."));
                     "Entry Type"::Transfer:
                         begin
                             "Unit Amount" := 0;
@@ -139,6 +141,7 @@ table 753 "Standard Item Journal Line"
                     Validate("Location Code");
 
                 Validate("Item No.");
+                SetDefaultPriceCalculationMethod();
             end;
         }
         field(8; Description; Text[100])
@@ -180,7 +183,8 @@ table 753 "Standard Item Journal Line"
                 if not PhysInvtEntered then
                     TestField("Phys. Inventory", false);
 
-                "Quantity (Base)" := UOMMgt.CalcBaseQty(Quantity, "Qty. per Unit of Measure");
+                "Quantity (Base)" :=
+                    UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", Quantity, "Qty. per Unit of Measure");
 
                 GetUnitAmount(FieldNo(Quantity));
                 UpdateAmount;
@@ -646,6 +650,10 @@ table 753 "Standard Item Journal Line"
             Caption = 'Return Reason Code';
             TableRelation = "Return Reason";
         }
+        field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
+        {
+            Caption = 'Price Calculation Method';
+        }
         field(99000755; "Overhead Rate"; Decimal)
         {
             Caption = 'Overhead Rate';
@@ -691,8 +699,6 @@ table 753 "Standard Item Journal Line"
         SKU: Record "Stockkeeping Unit";
         DimMgt: Codeunit DimensionManagement;
         WMSManagement: Codeunit "WMS Management";
-        PurchPriceCalcMgt: Codeunit "Purch. Price Calc. Mgt.";
-        SalesPriceCalcMgt: Codeunit "Sales Price Calc. Mgt.";
         UserMgt: Codeunit "User Setup Management";
         UOMMgt: Codeunit "Unit of Measure Management";
         UnitCost: Decimal;
@@ -700,6 +706,48 @@ table 753 "Standard Item Journal Line"
         Text002: Label 'You cannot change %1 when %2 is %3.';
         Text003: Label 'You cannot change %3 when %2 is %1.';
         PhysInvtEntered: Boolean;
+
+    local procedure SetDefaultPriceCalculationMethod()
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        case "Entry Type" of
+            "Entry Type"::Purchase,
+            "Entry Type"::Output:
+                begin
+                    PurchasesPayablesSetup.Get();
+                    "Price Calculation Method" := PurchasesPayablesSetup."Price Calculation Method";
+                end;
+            "Entry Type"::Sale:
+                begin
+                    SalesReceivablesSetup.Get();
+                    "Price Calculation Method" := SalesReceivablesSetup."Price Calculation Method";
+                end;
+            else
+                "Price Calculation Method" := "Price Calculation Method"::" ";
+        end;
+    end;
+
+    local procedure GetPriceCalculationHandler(PriceType: Enum "Price Type"; var PriceCalculation: Interface "Price Calculation")
+    var
+        PriceCalculationMgt: codeunit "Price Calculation Mgt.";
+        StdItemJournalLinePrice: Codeunit "Std. Item Jnl. Line - Price";
+    begin
+        StdItemJournalLinePrice.SetLine(PriceType, Rec);
+        PriceCalculationMgt.GetHandler(StdItemJournalLinePrice, PriceCalculation);
+    end;
+
+    local procedure ApplyPrice(PriceType: Enum "Price Type"; CalledByFieldNo: Integer)
+    var
+        PriceCalculation: Interface "Price Calculation";
+        Line: Variant;
+    begin
+        GetPriceCalculationHandler(PriceType, PriceCalculation);
+        PriceCalculation.ApplyPrice(CalledByFieldNo);
+        PriceCalculation.GetLine(Line);
+        Rec := Line;
+    end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
@@ -781,7 +829,7 @@ table 753 "Standard Item Journal Line"
     local procedure ReadGLSetup()
     begin
         if not GLSetupRead then begin
-            GLSetup.Get;
+            GLSetup.Get();
             GLSetupRead := true;
         end;
     end;
@@ -817,6 +865,7 @@ table 753 "Standard Item Journal Line"
 
     local procedure GetUnitAmount(CalledByFieldNo: Integer)
     var
+        PriceType: Enum "Price Type";
         UnitCostValue: Decimal;
     begin
         RetrieveCosts;
@@ -833,9 +882,9 @@ table 753 "Standard Item Journal Line"
 
         case "Entry Type" of
             "Entry Type"::Purchase:
-                PurchPriceCalcMgt.FindStdItemJnlLinePrice(Rec, CalledByFieldNo);
+                ApplyPrice(PriceType::Purchase, CalledByFieldNo);
             "Entry Type"::Sale:
-                SalesPriceCalcMgt.FindStdItemJnlLinePrice(Rec, CalledByFieldNo);
+                ApplyPrice(PriceType::Sale, CalledByFieldNo);
             "Entry Type"::"Positive Adjmt.":
                 "Unit Amount" := Round(
                     ((UnitCostValue - "Overhead Rate") * "Qty. per Unit of Measure") / (1 + "Indirect Cost %" / 100),

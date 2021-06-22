@@ -84,7 +84,7 @@ table 5062 Attachment
         "Last Date Modified" := Today;
         "Last Time Modified" := Time;
 
-        Attachment2.LockTable;
+        Attachment2.LockTable();
         if Attachment2.FindLast then
             NextAttachmentNo := Attachment2."No." + 1
         else
@@ -92,7 +92,7 @@ table 5062 Attachment
 
         "No." := NextAttachmentNo;
 
-        RMSetup.Get;
+        RMSetup.Get();
         "Storage Type" := RMSetup."Attachment Storage Type";
         if "Storage Type" = "Storage Type"::"Disk File" then begin
             RMSetup.TestField("Attachment Storage Location");
@@ -138,7 +138,7 @@ table 5062 Attachment
         FileName: Text;
     begin
         if IsHTML then begin
-            SegmentLine.Init;
+            SegmentLine.Init();
             SegmentLine."Language Code" := LanguageCode;
             SegmentLine.Date := WorkDate;
             PreviewHTMLContent(SegmentLine);
@@ -240,7 +240,7 @@ table 5062 Attachment
         Path: Text;
         Success: Boolean;
     begin
-        RMSetup.Get;
+        RMSetup.Get();
         if RMSetup."Attachment Storage Type" = RMSetup."Attachment Storage Type"::"Disk File" then
             RMSetup.TestField("Attachment Storage Location");
 
@@ -271,7 +271,7 @@ table 5062 Attachment
             exit(ImportTemporaryAttachmentFromClientFile(ImportFromFile));
 
         TestField("Read Only", false);
-        RMSetup.Get;
+        RMSetup.Get();
         if RMSetup."Attachment Storage Type" = RMSetup."Attachment Storage Type"::"Disk File" then
             RMSetup.TestField("Attachment Storage Location");
 
@@ -322,7 +322,7 @@ table 5062 Attachment
         TempBlob: Codeunit "Temp Blob";
     begin
         // This function assumes that CALCFIELDS on the attachment field has been called before
-        RMSetup.Get;
+        RMSetup.Get();
         if RMSetup."Attachment Storage Type" = RMSetup."Attachment Storage Type"::"Disk File" then
             RMSetup.TestField("Attachment Storage Location");
 
@@ -364,7 +364,7 @@ table 5062 Attachment
         if not Overwrite then
             TestField("Read Only", false);
 
-        RMSetup.Get;
+        RMSetup.Get();
         if RMSetup."Attachment Storage Type" = RMSetup."Attachment Storage Type"::"Disk File" then
             RMSetup.TestField("Attachment Storage Location");
 

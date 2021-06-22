@@ -917,6 +917,14 @@ table 5343 "CRM Opportunity"
             ExternalName = 'processid';
             ExternalType = 'Uniqueidentifier';
         }
+        field(111; CompanyId; Guid)
+        {
+            Caption = 'Company Id';
+            Description = 'Unique identifier of the company that owns the opportunity.';
+            ExternalName = 'bcbi_companyid';
+            ExternalType = 'Lookup';
+            TableRelation = "CDS Company".CompanyId;
+        }
     }
 
     keys

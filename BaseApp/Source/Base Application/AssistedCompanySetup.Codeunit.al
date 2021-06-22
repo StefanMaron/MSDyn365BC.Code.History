@@ -15,6 +15,8 @@ codeunit 1800 "Assisted Company Setup"
         CreatingCompanyMsg: Label 'Creating company...';
         NoPermissionsErr: Label 'You do not have permissions to create a new company. Contact your system administrator.';
         InitialCompanySetupTxt: Label 'Set up my company';
+        InitialCompanySetupHelpTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2115383', Locked = true;
+        InitialCompanySetupDescTxt: Label 'Tell us some basic information about your business so you can start work.';
 
     local procedure EnableAssistedCompanySetup(SetupCompanyName: Text[30]; AssistedSetupEnabled: Boolean)
     var
@@ -34,7 +36,6 @@ codeunit 1800 "Assisted Company Setup"
     var
         AssistedSetup: Codeunit "Assisted Setup";
         EnvInfoProxy: Codeunit "Env. Info Proxy";
-        Info: ModuleInfo;
     begin
         if not GuiAllowed then
             exit;
@@ -48,13 +49,12 @@ codeunit 1800 "Assisted Company Setup"
         if not AssistedSetupEnabled then
             exit;
 
-        NavApp.GetCurrentModuleInfo(Info);
-        if AssistedSetup.IsComplete(Info.Id(), PAGE::"Assisted Company Setup Wizard") then
+        if AssistedSetup.IsComplete(PAGE::"Assisted Company Setup Wizard") then
             exit;
 
-        Commit; // Make sure all data is committed before we run the wizard
+        Commit(); // Make sure all data is committed before we run the wizard
 
-        AssistedSetup.Run(Info.Id(), PAGE::"Assisted Company Setup Wizard");
+        AssistedSetup.Run(PAGE::"Assisted Company Setup Wizard");
     end;
 
     procedure ApplyUserInput(var TempConfigSetup: Record "Config. Setup" temporary; var BankAccount: Record "Bank Account"; AccountingPeriodStartDate: Date; SkipSetupCompanyInfo: Boolean)
@@ -104,7 +104,7 @@ codeunit 1800 "Assisted Company Setup"
         CompanyInformation: Record "Company Information";
         CompanyInformationMgt: Codeunit "Company Information Mgt.";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformationMgt.UpdateCompanyBankAccount(CompanyInformation, '', BankAccount);
     end;
 
@@ -195,7 +195,7 @@ codeunit 1800 "Assisted Company Setup"
         if NewCompanyData = NewCompanyData::"Evaluation Data" then begin
             Company.Get(NewCompanyName);
             Company."Evaluation Company" := true;
-            Company.Modify;
+            Company.Modify();
             DataClassificationEvalData.CreateEvaluationData;
         end;
 
@@ -247,13 +247,13 @@ codeunit 1800 "Assisted Company Setup"
         ImportSessionID: Integer;
     begin
         with AssistedCompanySetupStatus do begin
-            LockTable;
+            LockTable();
             Get(Name);
             OnBeforeScheduleTask(DoNotScheduleTask, TaskID, ImportSessionID);
             if DoNotScheduleTask then
                 "Task ID" := TaskID
             else begin
-                Commit;
+                Commit();
                 "Task ID" := CreateGuid();
                 ImportSessionID := 0;
                 StartSession(ImportSessionID, CODEUNIT::"Import Config. Package File", "Company Name", ConfigurationPackageFile);
@@ -262,7 +262,7 @@ codeunit 1800 "Assisted Company Setup"
             if "Company Setup Session ID" = 0 then
                 Clear("Task ID");
             Modify();
-            Commit;
+            Commit();
         end;
     end;
 
@@ -273,7 +273,7 @@ codeunit 1800 "Assisted Company Setup"
     begin
         ExperienceTierSetup."Company Name" := NewCompanyName;
         ExperienceTierSetup.Essential := true;
-        ExperienceTierSetup.Insert;
+        ExperienceTierSetup.Insert();
 
         ApplicationAreaMgmt.SetExperienceTierOtherCompany(ExperienceTierSetup, NewCompanyName);
     end;
@@ -297,17 +297,17 @@ codeunit 1800 "Assisted Company Setup"
     begin
         Window.Open(CreatingCompanyMsg);
 
-        Company.Init;
+        Company.Init();
         Company.Name := NewCompanyName;
         Company."Display Name" := NewCompanyName;
-        Company.Insert;
+        Company.Insert();
 
         if not GeneralLedgerSetup.ChangeCompany(NewCompanyName) then
             Error(NoPermissionsErr);
         if not GeneralLedgerSetup.WritePermission then
             Error(NoPermissionsErr);
 
-        Commit;
+        Commit();
 
         Window.Close;
     end;
@@ -319,11 +319,11 @@ codeunit 1800 "Assisted Company Setup"
         UserAccountHelper: DotNet NavUserAccountHelper;
         CompanyName: Text[30];
     begin
-        TempCompany.DeleteAll;
+        TempCompany.DeleteAll();
         foreach CompanyName in UserAccountHelper.GetAllowedCompanies() do
             if Company.Get(CompanyName) then begin
                 TempCompany := Company;
-                TempCompany.Insert;
+                TempCompany.Insert();
             end;
     end;
 
@@ -340,16 +340,18 @@ codeunit 1800 "Assisted Company Setup"
     procedure AddAssistedCompanySetup()
     var
         AssistedSetup: Codeunit "Assisted Setup";
+        Language: Codeunit Language;
         Info: ModuleInfo;
         AssistedSetupGroup: Enum "Assisted Setup Group";
+        VideoCategory: Enum "Video Category";
         CurrentGlobalLanguage: Integer;
     begin
         CurrentGlobalLanguage := GLOBALLANGUAGE;
         NavApp.GetCurrentModuleInfo(Info);
-        AssistedSetup.Add(Info.Id(), PAGE::"Assisted Company Setup Wizard", InitialCompanySetupTxt, AssistedSetupGroup::GettingStarted);
-        GLOBALLANGUAGE(1033);
+        AssistedSetup.Add(Info.Id(), PAGE::"Assisted Company Setup Wizard", InitialCompanySetupTxt, AssistedSetupGroup::GettingStarted, '', VideoCategory::GettingStarted, InitialCompanySetupHelpTxt, InitialCompanySetupDescTxt);
+        GlobalLanguage(Language.GetDefaultApplicationLanguageId());
 
-        AssistedSetup.AddTranslation(Info.Id(), PAGE::"Assisted Company Setup Wizard", 1033, InitialCompanySetupTxt);
+        AssistedSetup.AddTranslation(PAGE::"Assisted Company Setup Wizard", Language.GetDefaultApplicationLanguageId(), InitialCompanySetupTxt);
         GLOBALLANGUAGE(CurrentGlobalLanguage);
     end;
 

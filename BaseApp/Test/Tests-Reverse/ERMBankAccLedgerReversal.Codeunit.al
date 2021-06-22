@@ -218,7 +218,7 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
         Initialize;
         CreateBankAccountAndPostGenJnlLine(GenJournalLine, '', true);
         ReverseBankLedgerEntry;
-        Commit;  // Required to run the report.
+        Commit();  // Required to run the report.
 
         // Exercise.
         REPORT.Run(REPORT::"Bank Acc. - Detail Trial Bal.");
@@ -288,7 +288,7 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
         CreateBankAccountWithAddress(BankAccount3);
 
         // Exercise.
-        Commit;
+        Commit();
         Clear(BankAccountLabels);
         BankAccount.SetFilter("No.", '%1|%2|%3', BankAccount."No.", BankAccount2."No.", BankAccount3."No.");
         BankAccountLabels.SetTableView(BankAccount);
@@ -312,7 +312,7 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
         LibraryERMCountryData.UpdateLocalPostingSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Bank Acc Ledger Reversal");
     end;
 

@@ -124,7 +124,7 @@ table 95 "G/L Budget Name"
         TotalCount := Count;
         Window.Open(Text001);
         T0 := Time;
-        GLBudgetEntry.LockTable;
+        GLBudgetEntry.LockTable();
         if GLBudgetEntry.FindSet then
             repeat
                 i := i + 1;
@@ -136,7 +136,7 @@ table 95 "G/L Budget Name"
                 GLBudgetEntry."Budget Dimension 2 Code" := GetDimValCode(GLBudgetEntry."Dimension Set ID", "Budget Dimension 2 Code");
                 GLBudgetEntry."Budget Dimension 3 Code" := GetDimValCode(GLBudgetEntry."Dimension Set ID", "Budget Dimension 3 Code");
                 GLBudgetEntry."Budget Dimension 4 Code" := GetDimValCode(GLBudgetEntry."Dimension Set ID", "Budget Dimension 4 Code");
-                GLBudgetEntry.Modify;
+                GLBudgetEntry.Modify();
             until GLBudgetEntry.Next = 0;
         Window.Close;
     end;
@@ -150,11 +150,11 @@ table 95 "G/L Budget Name"
         if DimSetEntry.Get(DimSetID, DimCode) then
             TempDimSetEntry := DimSetEntry
         else begin
-            TempDimSetEntry.Init;
+            TempDimSetEntry.Init();
             TempDimSetEntry."Dimension Set ID" := DimSetID;
             TempDimSetEntry."Dimension Code" := DimCode;
         end;
-        TempDimSetEntry.Insert;
+        TempDimSetEntry.Insert();
         exit(TempDimSetEntry."Dimension Value Code")
     end;
 }

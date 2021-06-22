@@ -13,7 +13,7 @@ table 5076 "Segment Header"
             trigger OnValidate()
             begin
                 if "No." <> xRec."No." then begin
-                    RMSetup.Get;
+                    RMSetup.Get();
                     NoSeriesMgt.TestManual(RMSetup."Segment Nos.");
                     "No. Series" := '';
                 end;
@@ -48,11 +48,9 @@ table 5076 "Segment Header"
                 UpdateSegLinesByFieldNo(FieldNo("Salesperson Code"), CurrFieldNo <> 0);
             end;
         }
-        field(5; "Correspondence Type (Default)"; Option)
+        field(5; "Correspondence Type (Default)"; Enum "Correspondence Type")
         {
             Caption = 'Correspondence Type (Default)';
-            OptionCaption = ' ,Hard Copy,Email,Fax';
-            OptionMembers = " ","Hard Copy",Email,Fax;
 
             trigger OnValidate()
             var
@@ -206,7 +204,7 @@ table 5076 "Segment Header"
                 SegInteractLanguage: Record "Segment Interaction Language";
             begin
                 Modify;
-                Commit;
+                Commit();
 
                 SegInteractLanguage.SetRange("Segment No.", "No.");
                 SegInteractLanguage.SetRange("Segment Line No.", 0);
@@ -232,7 +230,7 @@ table 5076 "Segment Header"
                 if not SegInteractLanguage.Get("No.", 0, "Language Code (Default)") then begin
                     "Subject (Default)" := '';
                     if Confirm(Text010, true, SegInteractLanguage.TableCaption, "Language Code (Default)") then begin
-                        SegInteractLanguage.Init;
+                        SegInteractLanguage.Init();
                         SegInteractLanguage."Segment No." := "No.";
                         SegInteractLanguage."Segment Line No." := 0;
                         SegInteractLanguage."Language Code" := "Language Code (Default)";
@@ -284,7 +282,7 @@ table 5076 "Segment Header"
 
                 if SegInteractLanguage.Get("No.", 0, "Language Code (Default)") then begin
                     SegInteractLanguage.Subject := "Subject (Default)";
-                    SegInteractLanguage.Modify;
+                    SegInteractLanguage.Modify();
                     Modify;
                 end;
 
@@ -335,9 +333,9 @@ table 5076 "Segment Header"
         SegInteractLanguage: Record "Segment Interaction Language";
     begin
         SegCriteriaLine.SetRange("Segment No.", "No.");
-        SegCriteriaLine.DeleteAll; // Must be deleted first!
+        SegCriteriaLine.DeleteAll(); // Must be deleted first!
         SegHist.SetRange("Segment No.", "No.");
-        SegHist.DeleteAll;
+        SegHist.DeleteAll();
 
         SegInteractLanguage.SetRange("Segment No.", "No.");
         SegInteractLanguage.DeleteAll(true);
@@ -351,7 +349,7 @@ table 5076 "Segment Header"
     trigger OnInsert()
     begin
         if "No." = '' then begin
-            RMSetup.Get;
+            RMSetup.Get();
             RMSetup.TestField("Segment Nos.");
             NoSeriesMgt.InitSeries(RMSetup."Segment Nos.", xRec."No. Series", 0D, "No.", "No. Series");
         end;
@@ -382,10 +380,10 @@ table 5076 "Segment Header"
     begin
         with SegHeader do begin
             SegHeader := Rec;
-            RMSetup.Get;
+            RMSetup.Get();
             RMSetup.TestField("Segment Nos.");
             if NoSeriesMgt.SelectSeries(RMSetup."Segment Nos.", OldSegHeader."No. Series", "No. Series") then begin
-                RMSetup.Get;
+                RMSetup.Get();
                 RMSetup.TestField("Segment Nos.");
                 NoSeriesMgt.SetSeries("No.");
                 Rec := SegHeader;
@@ -417,11 +415,11 @@ table 5076 "Segment Header"
         SegInteractLanguage.SetRange("Segment Line No.", SegmentLineNo);
         SegInteractLanguage.DeleteAll(true);
 
-        InteractionTmplLanguage.Reset;
+        InteractionTmplLanguage.Reset();
         InteractionTmplLanguage.SetRange("Interaction Template Code", InteractionTemplateCode);
         if InteractionTmplLanguage.Find('-') then
             repeat
-                SegInteractLanguage.Init;
+                SegInteractLanguage.Init();
                 SegInteractLanguage."Segment No." := SegmentNo;
                 SegInteractLanguage."Segment Line No." := SegmentLineNo;
                 SegInteractLanguage."Language Code" := InteractionTmplLanguage."Language Code";
@@ -481,7 +479,7 @@ table 5076 "Segment Header"
             end;
         end;
 
-        SegLine.Reset;
+        SegLine.Reset();
         SegLine.SetRange("Segment No.", "No.");
         if ChangedFieldNo <> FieldNo("Interaction Template Code") then
             SegLine.SetRange("Interaction Template Code", "Interaction Template Code");
@@ -528,7 +526,7 @@ table 5076 "Segment Header"
 
     procedure SegLinesExist(ChangedFieldName: Text[100]): Boolean
     begin
-        SegLine.Reset;
+        SegLine.Reset();
         SegLine.SetRange("Segment No.", "No.");
         if ChangedFieldName <> FieldCaption("Interaction Template Code") then
             SegLine.SetRange("Interaction Template Code", "Interaction Template Code");
@@ -555,7 +553,7 @@ table 5076 "Segment Header"
         end else
             LoggedSeg.Get(LoggedSegEntryNo);
 
-        SegLine.LockTable;
+        SegLine.LockTable();
         SegLine.SetRange("Segment No.", "No.");
         if SegLine.FindLast then
             NextLineNo := SegLine."Line No.";
@@ -568,7 +566,7 @@ table 5076 "Segment Header"
         if InteractLogEntry.Find('-') then
             repeat
                 NextLineNo := NextLineNo + 10000;
-                SegLine.Init;
+                SegLine.Init();
                 SegLine."Segment No." := "No.";
                 SegLine."Line No." := NextLineNo;
                 SegLine.Validate("Contact No.", InteractLogEntry."Contact No.");
@@ -611,14 +609,14 @@ table 5076 "Segment Header"
         if SavedSegCriteriaLineAction.Find('-') then
             repeat
                 SegHeader.SetRange("No.", "No.");
-                Cont.Reset;
-                ContProfileAnswer.Reset;
-                ContMailingGrp.Reset;
-                InteractLogEntry.Reset;
-                ContJobResp.Reset;
-                ContIndustGrp.Reset;
-                ContBusRel.Reset;
-                ValueEntry.Reset;
+                Cont.Reset();
+                ContProfileAnswer.Reset();
+                ContMailingGrp.Reset();
+                InteractLogEntry.Reset();
+                ContJobResp.Reset();
+                ContIndustGrp.Reset();
+                ContBusRel.Reset();
+                ValueEntry.Reset();
                 SavedSegCriteriaLineFilter.SetRange("Segment Criteria Code", SavedSegCriteria.Code);
                 SavedSegCriteriaLineFilter.SetRange(
                   "Line No.", SavedSegCriteriaLineAction."Line No." + 1,
@@ -697,6 +695,8 @@ table 5076 "Segment Header"
                             RefineContacts.UseRequestPage(false);
                             RefineContacts.RunModal;
                         end;
+                    else
+                        OnReuseCriteriaSavedSegmentCriteriaLineCaseElse(SegHeader, SavedSegCriteriaLineAction);
                 end;
             until SavedSegCriteriaLineAction.Next = 0;
     end;
@@ -718,7 +718,7 @@ table 5076 "Segment Header"
             SegCriteriaLine.SetRange("Segment No.", "No.");
             SegCriteriaLine.Find('-');
             repeat
-                SavedSegCriteriaLine.Init;
+                SavedSegCriteriaLine.Init();
                 SavedSegCriteriaLine."Segment Criteria Code" := SavedSegCriteria.Code;
                 SavedSegCriteriaLine."Line No." := SegCriteriaLine."Line No.";
                 SavedSegCriteriaLine.Action := SegCriteriaLine.Action;
@@ -731,7 +731,7 @@ table 5076 "Segment Header"
                 SavedSegCriteriaLine."Ignore Exclusion" := SegCriteriaLine."Ignore Exclusion";
                 SavedSegCriteriaLine."Entire Companies" := SegCriteriaLine."Entire Companies";
                 SavedSegCriteriaLine."No. of Filters" := SegCriteriaLine."No. of Filters";
-                SavedSegCriteriaLine.Insert;
+                SavedSegCriteriaLine.Insert();
             until SegCriteriaLine.Next = 0;
         end;
     end;
@@ -756,7 +756,7 @@ table 5076 "Segment Header"
         SegInteractLanguage: Record "Segment Interaction Language";
     begin
         if not SegInteractLanguage.Get("No.", 0, "Language Code (Default)") then begin
-            SegInteractLanguage.Init;
+            SegInteractLanguage.Init();
             SegInteractLanguage."Segment No." := "No.";
             SegInteractLanguage."Segment Line No." := 0;
             SegInteractLanguage."Language Code" := "Language Code (Default)";
@@ -782,7 +782,7 @@ table 5076 "Segment Header"
         SegInteractLanguage: Record "Segment Interaction Language";
     begin
         if not SegInteractLanguage.Get("No.", 0, "Language Code (Default)") then begin
-            SegInteractLanguage.Init;
+            SegInteractLanguage.Init();
             SegInteractLanguage."Segment No." := "No.";
             SegInteractLanguage."Segment Line No." := 0;
             SegInteractLanguage."Language Code" := "Language Code (Default)";
@@ -868,6 +868,11 @@ table 5076 "Segment Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateSegHeader(var SegmentHeader: Record "Segment Header"; InteractTmplCode: Code[10]; InteractTmplChange: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReuseCriteriaSavedSegmentCriteriaLineCaseElse(var SegmentHeader: Record "Segment Header"; var SavedSegmentCriteriaLine: Record "Saved Segment Criteria Line")
     begin
     end;
 }

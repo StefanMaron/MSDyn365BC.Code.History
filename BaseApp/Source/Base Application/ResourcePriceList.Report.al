@@ -5,6 +5,9 @@ report 1115 "Resource - Price List"
     ApplicationArea = Jobs;
     Caption = 'Resource - Price List';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+    ObsoleteTag = '16.0';
 
     dataset
     {
@@ -122,9 +125,9 @@ report 1115 "Resource - Price List"
                     else
                         Ok := ResPriceBuffer.Next <> 0;
                     if not Ok then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     if ResPriceBuffer."Work Type Code" = '' then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     ResPrice.Type := ResPrice.Type::Resource;
                     ResPrice.Code := Resource."No.";
@@ -147,13 +150,13 @@ report 1115 "Resource - Price List"
                 trigger OnPostDataItem()
                 begin
                     ResPriceBuffer.SetRange(Type, ResPriceBuffer.Type::Resource, ResPriceBuffer.Type::"Group(Resource)");
-                    ResPriceBuffer.DeleteAll;
+                    ResPriceBuffer.DeleteAll();
                 end;
 
                 trigger OnPreDataItem()
                 begin
                     ResPrice.SetFilter(Code, '%1|%2', Resource."No.", '');
-                    ResPriceBuffer.Reset;
+                    ResPriceBuffer.Reset();
                 end;
             }
 
@@ -187,13 +190,13 @@ report 1115 "Resource - Price List"
             begin
                 ResPrice.SetFilter("Currency Code", '%1|%2', Currency.Code, '');
 
-                ResPriceBuffer.Init;
+                ResPriceBuffer.Init();
                 ResPrice.SetRange(Type, ResPrice.Type::All);
                 if ResPrice.Find('-') then
                     repeat
                         ResPriceBuffer.Type := ResPrice.Type;
                         ResPriceBuffer."Work Type Code" := ResPrice."Work Type Code";
-                        Ok := ResPriceBuffer.Insert;
+                        Ok := ResPriceBuffer.Insert();
                     until ResPrice.Next = 0;
             end;
         }
@@ -233,7 +236,7 @@ report 1115 "Resource - Price List"
 
     trigger OnPreReport()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         FormatAddr.Company(CompanyAddr, CompanyInfo);
         if Currency.Code <> '' then
             CurrencyText := ' (' + Currency.Code + ')';
@@ -271,7 +274,7 @@ report 1115 "Resource - Price List"
                 if not ResPriceBuffer.Find('-') then begin
                     ResPriceBuffer.Type := ResPrice.Type;
                     ResPriceBuffer."Work Type Code" := ResPrice."Work Type Code";
-                    Ok := ResPriceBuffer.Insert;
+                    Ok := ResPriceBuffer.Insert();
                 end;
             until ResPrice.Next = 0;
     end;

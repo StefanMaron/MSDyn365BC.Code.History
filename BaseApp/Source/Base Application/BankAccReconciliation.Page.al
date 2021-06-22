@@ -1,7 +1,7 @@
 page 379 "Bank Acc. Reconciliation"
 {
     Caption = 'Bank Acc. Reconciliation';
-    PageType = Document;
+    PageType = ListPlus;
     PromotedActionCategories = 'New,Process,Report,Bank,Matching,Posting';
     SaveValues = false;
     SourceTable = "Bank Acc. Reconciliation";
@@ -19,6 +19,13 @@ page 379 "Bank Acc. Reconciliation"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Bank Account No.';
                     ToolTip = 'Specifies the number of the bank account that you want to reconcile with the bank''s statement.';
+                    trigger OnValidate()
+                    var
+                        BankAccReconciliationLine: record "Bank Acc. Reconciliation Line";
+                    begin
+                        if BankAccReconciliationLine.BankStatementLinesListIsEmpty("Statement No.", "Statement Type", "Bank Account No.") then
+                            CreateEmptyListNotification();
+                    end;
                 }
                 field(StatementNo; "Statement No.")
                 {
@@ -157,9 +164,14 @@ page 379 "Bank Acc. Reconciliation"
                     ToolTip = 'Import electronic bank statements from your bank to populate with data about actual bank transactions.';
 
                     trigger OnAction()
+                    var
+                        Notification: Notification;
                     begin
                         CurrPage.Update;
                         ImportBankStatement;
+
+                        Notification.Id := NotificationID;
+                        if Notification.Recall then;
                     end;
                 }
             }
@@ -298,9 +310,33 @@ page 379 "Bank Acc. Reconciliation"
         }
     }
 
+    trigger OnOpenPage()
+    var
+        BankAccReconciliationLine: record "Bank Acc. Reconciliation Line";
+    begin
+        NotificationID := CreateGuid();
+
+        if BankAccReconciliationLine.BankStatementLinesListIsEmpty("Statement No.", "Statement Type", "Bank Account No.") then
+            CreateEmptyListNotification();
+
+    end;
+
+    local procedure CreateEmptyListNotification()
+    var
+        Notification: Notification;
+    begin
+        Notification.Id := NotificationID;
+        if Notification.Recall then;
+
+        Notification.Message := ListEmptyMsg;
+        Notification.Scope := NotificationScope::LocalScope;
+        Notification.Send;
+    end;
+
     var
         SuggestBankAccStatement: Report "Suggest Bank Acc. Recon. Lines";
         TransferToGLJnl: Report "Trans. Bank Rec. to Gen. Jnl.";
         ReportPrint: Codeunit "Test Report-Print";
+        NotificationID: Guid;
+        ListEmptyMsg: Label 'No bank statement lines exist. Choose the Import Bank Statement action to fill in the lines from a file, or enter lines manually.';
 }
-

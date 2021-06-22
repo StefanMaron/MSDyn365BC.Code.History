@@ -4,11 +4,9 @@ table 77 "Report Selections"
 
     fields
     {
-        field(1; Usage; Option)
+        field(1; Usage; Enum "Report Selection Usage")
         {
             Caption = 'Usage';
-            OptionCaption = 'S.Quote,S.Order,S.Invoice,S.Cr.Memo,S.Test,P.Quote,P.Order,P.Invoice,P.Cr.Memo,P.Receipt,P.Ret.Shpt.,P.Test,B.Stmt,B.Recon.Test,B.Check,Reminder,Fin.Charge,Rem.Test,F.C.Test,Prod.Order,S.Blanket,P.Blanket,M1,M2,M3,M4,Inv1,Inv2,Inv3,SM.Quote,SM.Order,SM.Invoice,SM.Credit Memo,SM.Contract Quote,SM.Contract,SM.Test,S.Return,P.Return,S.Shipment,S.Ret.Rcpt.,S.Work Order,Invt.Period Test,SM.Shipment,S.Test Prepmt.,P.Test Prepmt.,S.Arch.Quote,S.Arch.Order,P.Arch.Quote,P.Arch.Order,S.Arch.Return,P.Arch.Return,Asm.Order,P.Asm.Order,S.Order Pick Instruction,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,P.V.Remit.,C.Statement,V.Remittance,JQ,S.Invoice Draft,Pro Forma S. Invoice,S.Arch.Blanket,P.Arch.Blanket,Phys.Invt.Order Test,Phys.Invt.Order,P.Phys.Invt.Order,Phys.Invt.Rec.,P.Phys.Invt.Rec.';
-            OptionMembers = "S.Quote","S.Order","S.Invoice","S.Cr.Memo","S.Test","P.Quote","P.Order","P.Invoice","P.Cr.Memo","P.Receipt","P.Ret.Shpt.","P.Test","B.Stmt","B.Recon.Test","B.Check",Reminder,"Fin.Charge","Rem.Test","F.C.Test","Prod.Order","S.Blanket","P.Blanket",M1,M2,M3,M4,Inv1,Inv2,Inv3,"SM.Quote","SM.Order","SM.Invoice","SM.Credit Memo","SM.Contract Quote","SM.Contract","SM.Test","S.Return","P.Return","S.Shipment","S.Ret.Rcpt.","S.Work Order","Invt.Period Test","SM.Shipment","S.Test Prepmt.","P.Test Prepmt.","S.Arch.Quote","S.Arch.Order","P.Arch.Quote","P.Arch.Order","S.Arch.Return","P.Arch.Return","Asm.Order","P.Asm.Order","S.Order Pick Instruction",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"P.V.Remit.","C.Statement","V.Remittance",JQ,"S.Invoice Draft","Pro Forma S. Invoice","S.Arch.Blanket","P.Arch.Blanket","Phys.Invt.Order Test","Phys.Invt.Order","P.Phys.Invt.Order","Phys.Invt.Rec.","P.Phys.Invt.Rec.";
         }
         field(2; Sequence; Code[10])
         {
@@ -436,8 +434,8 @@ table 77 "Report Selections"
         if TempNameValueBuffer.FindSet then
             repeat
                 AccountNo := CopyStr(TempNameValueBuffer.Name, 1, MaxStrLen(AccountNo));
-                TempReportSelectionsAccount.Reset;
-                TempReportSelectionsAccount.DeleteAll;
+                TempReportSelectionsAccount.Reset();
+                TempReportSelectionsAccount.DeleteAll();
                 SelectTempReportSelections(TempReportSelectionsAccount, AccountNo, WithCheck, ReportUsage, TableNo);
                 if TempReportSelectionsAccount.FindSet then
                     repeat
@@ -448,7 +446,7 @@ table 77 "Report Selections"
                                 TempReportSelections.Sequence := '1'
                             else
                                 TempReportSelections.Sequence := IncStr(LastSequence);
-                            TempReportSelections.Insert;
+                            TempReportSelections.Insert();
                         end;
                     until TempReportSelectionsAccount.Next() = 0;
             until TempNameValueBuffer.Next() = 0;
@@ -636,7 +634,7 @@ table 77 "Report Selections"
     begin
         // Called from codeunit 260 OnRun trigger - in a background process.
         RecRef.Get(JobQueueEntry."Record ID to Process");
-        RecRef.LockTable;
+        RecRef.LockTable();
         RecRef.Find;
         RecRef.SetRecFilter;
         ParamString := JobQueueEntry."Parameter String";  // Are set in function SendEmailToCust
@@ -673,7 +671,7 @@ table 77 "Report Selections"
     var
         JobQueueEntry: Record "Job Queue Entry";
     begin
-        JobQueueEntry.Init;
+        JobQueueEntry.Init();
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
         JobQueueEntry."Object ID to Run" := CODEUNIT::"Document-Mailing";
         JobQueueEntry."Job Queue Category Code" := GetMailingJobCategory;
@@ -691,10 +689,10 @@ table 77 "Report Selections"
     begin
         MailingJobCategoryCode := GetMailingJobCategoryCode;
         if not JobQueueCategory.Get(MailingJobCategoryCode) then begin
-            JobQueueCategory.Init;
+            JobQueueCategory.Init();
             JobQueueCategory.Code := MailingJobCategoryCode;
             JobQueueCategory.Description := CopyStr(MailingJobCategoryTok, 1, MaxStrLen(JobQueueCategory.Description));
-            JobQueueCategory.Insert;
+            JobQueueCategory.Insert();
         end;
 
         exit(JobQueueCategory.Code);
@@ -703,6 +701,49 @@ table 77 "Report Selections"
     local procedure GetMailingJobCategoryCode(): Code[10]
     begin
         exit(CopyStr(MailingJobCategoryCodeTok, 1, 10));
+    end;
+
+    procedure SaveAsDocumentAttachment(ReportUsage: Integer; RecordVariant: Variant; DocumentNo: Code[20]; AccountNo: Code[20]; ShowNotificationAction: Boolean)
+    var
+        TempAttachReportSelections: Record "Report Selections" temporary;
+        DocumentAttachment: Record "Document Attachment";
+        DocumentAttachmentMgmt: Codeunit "Document Attachment Mgmt";
+        TempBlob: Codeunit "Temp Blob";
+        RecRef: RecordRef;
+        FileName: Text[250];
+        NumberOfReportsAttached: Integer;
+    begin
+        RecRef.GETTABLE(RecordVariant);
+        if not RecRef.Find() then
+            exit;
+
+        FindPrintUsageInternal(ReportUsage, AccountNo, TempAttachReportSelections, RecRef.Number());
+        with TempAttachReportSelections do
+            repeat
+                if CanSaveReportAsPDF(TempAttachReportSelections."Report ID") then begin
+                    FileManagement.BLOBImportFromServerFile(TempBlob, SaveReportAsPDF("Report ID", RecordVariant, "Custom Report Layout Code", ReportUsage));
+
+                    CLEAR(DocumentAttachment);
+                    DocumentAttachment.InitFieldsFromRecRef(RecRef);
+                    DocumentAttachment."Document Flow Sales" := RecRef.Number() = Database::"Sales Header";
+                    DocumentAttachment."Document Flow Purchase" := RecRef.Number() = Database::"Purchase Header";
+                    TempAttachReportSelections.CalcFields("Report Caption");
+                    FileName :=
+                        DocumentAttachment.FindUniqueFileName(
+                            STRSUBSTNO('%1 %2 %3', TempAttachReportSelections."Report ID", TempAttachReportSelections."Report Caption", DocumentNo), 'pdf');
+                    DocumentAttachment.SaveAttachment(RecRef, FileName, TempBlob);
+                    NumberOfReportsAttached += 1;
+                end;
+            until Next() = 0;
+
+        DocumentAttachmentMgmt.ShowNotification(RecordVariant, NumberOfReportsAttached, ShowNotificationAction)
+    end;
+
+    local procedure CanSaveReportAsPDF(ReportId: Integer): Boolean
+    var
+        DummyInStream: InStream;
+    begin
+        exit(Report.RdlcLayout(ReportId, DummyInStream) or Report.WordLayout(ReportId, DummyInStream));
     end;
 
     procedure SendEmailToCust(ReportUsage: Integer; RecordVariant: Variant; DocNo: Code[20]; DocName: Text[150]; ShowDialog: Boolean; CustNo: Code[20])
@@ -862,7 +903,7 @@ table 77 "Report Selections"
                 Usage := ReportUsage;
                 CustomReportSelection.SetFilter(Usage, GetFilter(Usage));
                 if CustomReportSelection.FindFirst then
-                    if CustomReportSelection."Send To Email" <> '' then
+                    if CustomReportSelection.GetSendToEmail(true) <> '' then
                         DefaultEmailAddress := CustomReportSelection."Send To Email";
             end;
 
@@ -1063,7 +1104,7 @@ table 77 "Report Selections"
             REPORT.SaveAsPdf(ReportID, FilePath, RecordVariant);
         ReportLayoutSelection.SetTempLayoutSelected('');
 
-        Commit;
+        Commit();
     end;
 
     local procedure SaveReportAsHTML(ReportID: Integer; RecordVariant: Variant; LayoutCode: Code[20]; ReportUsage: Integer) FilePath: Text[250]
@@ -1078,14 +1119,14 @@ table 77 "Report Selections"
         REPORT.SaveAsHtml(ReportID, FilePath, RecordVariant);
         ReportLayoutSelection.SetTempLayoutSelected('');
 
-        Commit;
+        Commit();
     end;
 
     local procedure FindReportSelections(var ReportSelections: Record "Report Selections"; AccountNo: Code[20]; TableNo: Integer): Boolean
     var
         Handled: Boolean;
     begin
-        OnFindReportSelections(ReportSelections, Handled, Rec);
+        OnFindReportSelections(ReportSelections, Handled, Rec, AccountNo, TableNo);
         if Handled then
             exit(true);
 
@@ -1109,8 +1150,8 @@ table 77 "Report Selections"
 
     local procedure CopyToReportSelection(var ToReportSelections: Record "Report Selections"; var CustomReportSelection: Record "Custom Report Selection")
     begin
-        ToReportSelections.Reset;
-        ToReportSelections.DeleteAll;
+        ToReportSelections.Reset();
+        ToReportSelections.DeleteAll();
         if CustomReportSelection.FindSet then
             repeat
                 ToReportSelections.Usage := CustomReportSelection.Usage;
@@ -1126,8 +1167,8 @@ table 77 "Report Selections"
 
     local procedure CopyReportSelectionToReportSelection(var ToReportSelections: Record "Report Selections"): Boolean
     begin
-        ToReportSelections.Reset;
-        ToReportSelections.DeleteAll;
+        ToReportSelections.Reset();
+        ToReportSelections.DeleteAll();
         if FindSet then
             repeat
                 ToReportSelections := Rec;
@@ -1178,7 +1219,7 @@ table 77 "Report Selections"
             CustomReportSelection.SetRange(Usage, UsageValue);
             CustomReportSelection.SetRange(Sequence, SequenceInteger);
             if CustomReportSelection.FindFirst then
-                if CustomReportSelection."Send To Email" <> '' then
+                if CustomReportSelection.GetSendToEmail(true) <> '' then
                     exit(CustomReportSelection."Send To Email");
         end;
         exit(DefaultEmailAddress);
@@ -1200,8 +1241,8 @@ table 77 "Report Selections"
                         TempNameValueBuffer.Insert();
                 until RecRef.Next() = 0;
         end else begin
-            TempNameValueBuffer.Init;
-            TempNameValueBuffer.Insert;
+            TempNameValueBuffer.Init();
+            TempNameValueBuffer.Insert();
         end;
     end;
 
@@ -1226,6 +1267,7 @@ table 77 "Report Selections"
     begin
         // Search for a potential email address from Custom Report Selections
         GetCustomReportSelectionByUsageOption(CustomReportSelection, AccountNo, ReportUsage, TableNo);
+        CustomReportSelection.UpdateSendtoEmail();
         CustomReportSelection.SetFilter("Send To Email", '<>%1', '');
         CustomReportSelection.SetRange("Email Body Layout Code", LayoutCode);
         if CustomReportSelection.FindFirst then
@@ -1276,7 +1318,7 @@ table 77 "Report Selections"
         if not RecRef.Get(DocRecordID) then
             exit(false);
 
-        RecRef.LockTable;
+        RecRef.LockTable();
         RecRef.Find;
         RecRef.SetRecFilter;
 
@@ -1377,7 +1419,7 @@ table 77 "Report Selections"
     end;
 
     [IntegrationEvent(TRUE, false)]
-    local procedure OnFindReportSelections(var FilterReportSelections: Record "Report Selections"; var IsHandled: Boolean; var ReturnReportSelections: Record "Report Selections")
+    local procedure OnFindReportSelections(var FilterReportSelections: Record "Report Selections"; var IsHandled: Boolean; var ReturnReportSelections: Record "Report Selections"; AccountNo: Code[20]; TableNo: Integer)
     begin
     end;
 

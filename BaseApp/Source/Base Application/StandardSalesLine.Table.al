@@ -15,11 +15,9 @@ table 171 "Standard Sales Line"
             Caption = 'Line No.';
             Editable = false;
         }
-        field(3; Type; Option)
+        field(3; Type; Enum "Sales Line Type")
         {
             Caption = 'Type';
-            OptionCaption = ' ,G/L Account,Item,Resource,Fixed Asset,Charge (Item)';
-            OptionMembers = " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)";
 
             trigger OnValidate()
             var
@@ -227,7 +225,7 @@ table 171 "Standard Sales Line"
 
     trigger OnInsert()
     begin
-        LockTable;
+        LockTable();
         StdSalesCode.Get("Standard Sales Code");
     end;
 

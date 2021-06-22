@@ -126,7 +126,7 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
         VerifyPurchaseReturnOrderIsPendingApproval(PurchaseHeader);
 
         // Exercise
-        Commit;
+        Commit();
         PurchaseReturnOrder.OpenView;
         PurchaseReturnOrder.GotoRecord(PurchaseHeader);
         asserterror PurchaseReturnOrder."Re&lease".Invoke;
@@ -233,7 +233,7 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
 
         // Verify - Approval requests and their data
         VerifyPurchaseReturnOrderIsReleased(PurchHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, PurchHeader.RecordId);
         VerifyApprovalEntryIsApproved(ApprovalEntry);
     end;
@@ -291,7 +291,7 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
 
         // Verify - Approval requests and their data
         VerifyPurchaseReturnOrderIsOpen(PurchHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, PurchHeader.RecordId);
         VerifyApprovalEntryIsRejected(ApprovalEntry);
     end;
@@ -360,7 +360,7 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
 
         // Verify - Approval requests and their data
         VerifyPurchaseReturnOrderIsPendingApproval(PurchHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, PurchHeader.RecordId);
         VerifyApprovalEntryIsOpen(ApprovalEntry);
         VerifyApprovalEntryApproverID(ApprovalEntry, FinalApproverUserSetup."User ID");
@@ -373,7 +373,7 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
 
         // Verify - Approval requests and their data
         VerifyPurchaseReturnOrderIsReleased(PurchHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, PurchHeader.RecordId);
         VerifyApprovalEntryIsApproved(ApprovalEntry);
     end;
@@ -428,7 +428,7 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
 
         // Verify - Approval requests and their data
         VerifyPurchaseReturnOrderIsOpen(PurchHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, PurchHeader.RecordId);
         VerifyApprovalEntryIsCancelled(ApprovalEntry);
     end;
@@ -450,7 +450,7 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
 
         // [WHEN] Purchase Header card is opened.
         CreatePurchaseReturnOrder(PurchHeader);
-        Commit;
+        Commit();
         PurchaseReturnOrder.OpenEdit;
         PurchaseReturnOrder.GotoRecord(PurchHeader);
 
@@ -529,7 +529,7 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
 
         // [WHEN] PurchHeader card is opened.
         CreatePurchaseReturnOrder(PurchHeader);
-        Commit;
+        Commit();
         PurchaseReturnOrderList.OpenEdit;
         PurchaseReturnOrderList.GotoRecord(PurchHeader);
 
@@ -633,7 +633,7 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
 
         // Verify - Approval requests and their data
         VerifyPurchaseReturnOrderIsReleased(PurchaseHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, PurchaseHeader.RecordId);
         VerifyApprovalEntryIsApproved(ApprovalEntry);
         CheckCommentsForDocumentOnApprovalEntriesPage(ApprovalEntry, 1);
@@ -706,7 +706,7 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
 
         // Verify - Approval requests and their data
         VerifyPurchaseReturnOrderIsOpen(PurchaseHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, PurchaseHeader.RecordId);
         VerifyApprovalEntryIsCancelled(ApprovalEntry);
     end;
@@ -726,7 +726,7 @@ codeunit 134182 "WF Demo Purch Rtrn Order Appr."
         UserSetup: Record "User Setup";
     begin
         LibraryVariableStorage.Clear;
-        UserSetup.DeleteAll;
+        UserSetup.DeleteAll();
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.CreateVATData;
         LibraryWorkflow.DisableAllWorkflows;

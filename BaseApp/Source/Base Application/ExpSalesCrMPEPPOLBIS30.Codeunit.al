@@ -5,13 +5,10 @@ codeunit 1611 "Exp. Sales CrM. PEPPOL BIS3.0"
     trigger OnRun()
     var
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-        PEPPOLValidation: Codeunit "PEPPOL Validation";
         RecordRef: RecordRef;
     begin
         RecordRef.Get(RecordID);
         RecordRef.SetTable(SalesCrMemoHeader);
-
-        PEPPOLValidation.CheckSalesCreditMemo(SalesCrMemoHeader);
 
         ServerFilePath := GenerateXMLFile(SalesCrMemoHeader);
 

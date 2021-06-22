@@ -122,7 +122,7 @@ codeunit 134607 "Test Report SaveAs"
         end;
 
         // Cleanup
-        ReportInbox.Delete;
+        ReportInbox.Delete();
     end;
 }
 

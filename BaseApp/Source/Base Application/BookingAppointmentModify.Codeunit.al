@@ -25,7 +25,7 @@ codeunit 6724 "Booking Appointment - Modify"
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         if not BookingItem.Get(InvoicedBookingItem."Booking Item ID") then begin
-            InvoicedBookingItem.Delete;
+            InvoicedBookingItem.Delete();
             exit;
         end;
 
@@ -35,7 +35,7 @@ codeunit 6724 "Booking Appointment - Modify"
         BookingItem."Invoice Status" := BookingItem."Invoice Status"::open;
         BookingItem."Invoice No." := SalesInvoiceHeader."No.";
         BookingItem.SetInvoiceDate(CreateDateTime(SalesInvoiceHeader."Document Date", 0T));
-        BookingItem.Modify;
+        BookingItem.Modify();
     end;
 
     local procedure HandleUnposted(var InvoicedBookingItem: Record "Invoiced Booking Item")
@@ -45,7 +45,7 @@ codeunit 6724 "Booking Appointment - Modify"
         OutStream: OutStream;
     begin
         if not BookingItem.Get(InvoicedBookingItem."Booking Item ID") then begin
-            InvoicedBookingItem.Delete;
+            InvoicedBookingItem.Delete();
             exit;
         end;
 
@@ -62,10 +62,10 @@ codeunit 6724 "Booking Appointment - Modify"
             OutStream.WriteText('null');
             Clear(BookingItem."Invoice No.");
             Clear(BookingItem."Invoice Status");
-            InvoicedBookingItem.Delete;
+            InvoicedBookingItem.Delete();
         end;
 
-        BookingItem.Modify;
+        BookingItem.Modify();
     end;
 }
 

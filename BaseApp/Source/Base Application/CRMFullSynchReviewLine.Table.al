@@ -82,6 +82,11 @@ table 5373 "CRM Full Synch. Review Line"
                     "Session ID" := 0;
             end;
         }
+        field(13; "Initial Synch Recommendation"; Option)
+        {
+            OptionCaption = 'Full Synchronization,Couple Records,No Records Found,Dependency not satisfied';
+            OptionMembers = "Full Synchronization","Couple Records","No Records Found","Dependency not satisfied";
+        }
     }
 
     keys
@@ -96,28 +101,55 @@ table 5373 "CRM Full Synch. Review Line"
     {
     }
 
+    [Scope('OnPrem')]
+    procedure Generate(SkipEntitiesNotFullSyncReady: Boolean)
+    begin
+        GenerateCRMSynchReviewLines(SkipEntitiesNotFullSyncReady);
+    end;
+
     procedure Generate()
+    begin
+        GenerateCRMSynchReviewLines(false);
+    end;
+
+    local procedure GenerateCRMSynchReviewLines(SkipNotFullSyncReady: Boolean)
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
         "Field": Record "Field";
+        CDSConnectionSetup: Record "CDS Connection Setup";
+        CRMSynchHelper: Codeunit "CRM Synch. Helper";
+        OwnershipModel: Option;
+        handled: Boolean;
     begin
+        CRMSynchHelper.OnGetCDSOwnershipModel(OwnershipModel, handled);
         IntegrationTableMapping.SetRange("Synch. Codeunit ID", CODEUNIT::"CRM Integration Table Synch.");
         IntegrationTableMapping.SetRange("Int. Table UID Field Type", Field.Type::GUID);
         IntegrationTableMapping.SetRange("Delete After Synchronization", false);
-        if IntegrationTableMapping.FindSet then
+        if handled and (OwnershipModel = CDSConnectionSetup."Ownership Model"::Team) then
+            IntegrationTableMapping.SetFilter(Name, '<>SALESPEOPLE');
+        if IntegrationTableMapping.FindSet() then
             repeat
-                Init;
-                Name := IntegrationTableMapping.Name;
-                if not Find('=') then begin
+                InsertOrModifyCRMFullSynchReviewLines(IntegrationTableMapping, SkipNotFullSyncReady)
+            until IntegrationTableMapping.Next() = 0;
+    end;
+
+    local procedure InsertOrModifyCRMFullSynchReviewLines(IntegrationTableMapping: Record "Integration Table Mapping"; SkipNotFullSyncReady: Boolean)
+    begin
+        if (not SkipNotFullSyncReady) or (GetInitialSynchRecommendation(IntegrationTableMapping) = "Initial Synch Recommendation"::"Full Synchronization") then begin
+            Init;
+            Name := IntegrationTableMapping.Name;
+            if not Find('=') then begin
+                Validate("Dependency Filter", IntegrationTableMapping."Dependency Filter");
+                Validate("Initial Synch Recommendation", GetInitialSynchRecommendation(IntegrationTableMapping));
+                Direction := IntegrationTableMapping.Direction;
+                Insert(true);
+            end else
+                if "Job Queue Entry Status" = "Job Queue Entry Status"::" " then begin
                     Validate("Dependency Filter", IntegrationTableMapping."Dependency Filter");
-                    Direction := IntegrationTableMapping.Direction;
-                    Insert(true);
-                end else
-                    if "Job Queue Entry Status" = "Job Queue Entry Status"::" " then begin
-                        Validate("Dependency Filter", IntegrationTableMapping."Dependency Filter");
-                        Modify(true);
-                    end;
-            until IntegrationTableMapping.Next = 0;
+                    Validate("Initial Synch Recommendation", GetInitialSynchRecommendation(IntegrationTableMapping));
+                    Modify(true);
+                end;
+        end;
     end;
 
     procedure Start()
@@ -133,8 +165,111 @@ table 5373 "CRM Full Synch. Review Line"
                 Get(TempCRMFullSynchReviewLine.Name);
                 Validate("Job Queue Entry ID", JobQueueEntryID);
                 Modify(true);
-                Commit;
+                Commit();
             until TempCRMFullSynchReviewLine.Next = 0;
+    end;
+
+
+    local procedure GetInitialSynchRecommendation(IntegrationTableMapping: Record "Integration Table Mapping"): Option
+    var
+        CRMAccount: Record "CRM Account";
+        CRMContact: Record "CRM Contact";
+        LookupCRMTables: Codeunit "Lookup CRM Tables";
+        CDSRecRef: RecordRef;
+        BCRecRef: RecordRef;
+        DependencyInitialSynchRecommendation: Option "Full Synchronization","Couple Records","No Records Found","Dependency not satisfied";
+    begin
+
+        if IntegrationTableMapping."Dependency Filter" <> '' then
+            if not IsDependencyFilterInitialSynchRecommendationFullSynchronization(IntegrationTableMapping."Dependency Filter") then
+                exit("Initial Synch Recommendation"::"Dependency not satisfied");
+
+        BCRecRef.Open(IntegrationTableMapping."Table ID");
+        CDSRecRef.Open(IntegrationTableMapping."Integration Table ID");
+
+        CODEUNIT.Run(CODEUNIT::"CRM Integration Management");
+
+        case IntegrationTableMapping.Name of
+            'SALESPEOPLE':
+                exit("Initial Synch Recommendation"::"Full Synchronization");
+            'CURRENCY':
+                begin
+                    DependencyInitialSynchRecommendation := GetCurrencyInitialSynchRecommendation();
+                    exit(DependencyInitialSynchRecommendation);
+                end;
+            'VENDOR':
+                begin
+                    CRMAccount.Reset();
+                    CRMAccount.SetView(LookupCRMTables.GetIntegrationTableMappingView(DATABASE::"CRM Account"));
+                    CRMAccount.SetRange(CustomerTypeCode, CRMAccount.CustomerTypeCode::Vendor);
+                    if BCRecRef.IsEmpty and CRMAccount.IsEmpty then
+                        exit("Initial Synch Recommendation"::"No Records Found");
+                    if (not BCRecRef.IsEmpty()) and (not CRMAccount.IsEmpty()) then
+                        exit("Initial Synch Recommendation"::"Couple Records");
+                end;
+            'CUSTOMER':
+                begin
+                    CRMAccount.Reset();
+                    CRMAccount.SetView(LookupCRMTables.GetIntegrationTableMappingView(DATABASE::"CRM Account"));
+                    CRMAccount.SetRange(CustomerTypeCode, CRMAccount.CustomerTypeCode::Customer);
+                    if BCRecRef.IsEmpty and CRMAccount.IsEmpty then
+                        exit("Initial Synch Recommendation"::"No Records Found");
+                    if (not BCRecRef.IsEmpty()) and (not CRMAccount.IsEmpty()) then
+                        exit("Initial Synch Recommendation"::"Couple Records");
+                end;
+            'CONTACT':
+                begin
+                    CRMContact.Reset();
+                    CRMContact.SetView(LookupCRMTables.GetIntegrationTableMappingView(DATABASE::"CRM Contact"));
+                    if BCRecRef.IsEmpty and CRMContact.IsEmpty then
+                        exit("Initial Synch Recommendation"::"No Records Found");
+                    if (not BCRecRef.IsEmpty()) and (not CRMContact.IsEmpty()) then
+                        exit("Initial Synch Recommendation"::"Couple Records");
+                end;
+            else begin
+                    if BCRecRef.IsEmpty and CDSRecRef.IsEmpty then
+                        exit("Initial Synch Recommendation"::"No Records Found");
+                    if (not BCRecRef.IsEmpty()) and (not CDSRecRef.IsEmpty()) then
+                        exit("Initial Synch Recommendation"::"Couple Records");
+                end;
+        end;
+
+        exit("Initial Synch Recommendation"::"Full Synchronization");
+    end;
+
+    local procedure IsDependencyFilterInitialSynchRecommendationFullSynchronization(DependencyFilter: Text): Boolean
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        DependencyInitialSynchRecommendation: Option "Full Synchronization","Couple Records","No Records Found","Dependency not satisfied";
+        SingleDependencyFilter: Text;
+    begin
+        DependencyFilter := DependencyFilter + '|';
+        while StrPos(DependencyFilter, '|') > 0 do begin
+            SingleDependencyFilter := CopyStr(DependencyFilter, 1, StrPos(DependencyFilter, '|') - 1);
+            if not (SingleDependencyFilter = 'SALESPEOPLE') then begin
+                IntegrationTableMapping.Get(SingleDependencyFilter);
+                DependencyInitialSynchRecommendation := GetInitialSynchRecommendation(IntegrationTableMapping);
+                if DependencyInitialSynchRecommendation <> DependencyInitialSynchRecommendation::"Full Synchronization" then
+                    exit(false);
+            end;
+            DependencyFilter := CopyStr(DependencyFilter, StrPos(DependencyFilter, '|') + 1);
+        end;
+        exit(true);
+    end;
+
+    local procedure GetCurrencyInitialSynchRecommendation(): Option
+    var
+        CRMTransactionCurrency: Record "CRM Transactioncurrency";
+        LookupCRMTables: Codeunit "Lookup CRM Tables";
+    begin
+        CODEUNIT.Run(CODEUNIT::"CRM Integration Management");
+        CRMTransactionCurrency.Reset();
+        CRMTransactionCurrency.SetView(LookupCRMTables.GetIntegrationTableMappingView(DATABASE::"CRM Transactioncurrency"));
+        if CRMTransactionCurrency.Count() = 1 then
+            if CRMTransactionCurrency.FindFirst() then
+                if CRMTransactionCurrency.ExchangeRate = 1.00 then
+                    exit("Initial Synch Recommendation"::"Full Synchronization");
+        exit("Initial Synch Recommendation"::"Couple Records");
     end;
 
     local procedure UpdateAsSynchJobStarted(MapName: Code[20]; JobID: Guid; SynchDirection: Option)
@@ -148,7 +283,7 @@ table 5373 "CRM Full Synch. Review Line"
                 Validate("To Int. Table Job ID", JobID);
         end;
         Modify(true);
-        Commit;
+        Commit();
     end;
 
     local procedure UpdateAsSynchJobFinished(MapName: Code[20]; SynchDirection: Option)
@@ -162,7 +297,7 @@ table 5373 "CRM Full Synch. Review Line"
                 Validate("To Int. Table Job ID");
         end;
         Modify(true);
-        Commit;
+        Commit();
     end;
 
     local procedure GetSynchJobStatus(JobID: Guid): Integer
@@ -186,8 +321,8 @@ table 5373 "CRM Full Synch. Review Line"
     var
         CRMFullSynchReviewLine: Record "CRM Full Synch. Review Line";
     begin
-        TempCRMFullSynchReviewLine.Reset;
-        TempCRMFullSynchReviewLine.DeleteAll;
+        TempCRMFullSynchReviewLine.Reset();
+        TempCRMFullSynchReviewLine.DeleteAll();
 
         CRMFullSynchReviewLine.SetRange(
           "Job Queue Entry Status", CRMFullSynchReviewLine."Job Queue Entry Status"::" ");
@@ -195,7 +330,7 @@ table 5373 "CRM Full Synch. Review Line"
             repeat
                 if AreAllParentalJobsFinished(CRMFullSynchReviewLine."Dependency Filter") then begin
                     TempCRMFullSynchReviewLine := CRMFullSynchReviewLine;
-                    TempCRMFullSynchReviewLine.Insert;
+                    TempCRMFullSynchReviewLine.Insert();
                 end;
             until CRMFullSynchReviewLine.Next = 0;
         exit(TempCRMFullSynchReviewLine.FindSet);
@@ -330,6 +465,19 @@ table 5373 "CRM Full Synch. Review Line"
                 exit('Favorable');
             'In Process':
                 exit('Ambiguous');
+            else
+                exit('Subordinate');
+        end;
+    end;
+
+    [Scope('OnPrem')]
+    procedure GetInitialSynchRecommendationStyleExpression(IntialSynchRecomeendation: Text): Text
+    begin
+        case IntialSynchRecomeendation of
+            'Couple Records', 'No Records Found', 'Dependency not satisfied':
+                exit('Unfavorable');
+            'Full Synchronization':
+                exit('Favorable');
             else
                 exit('Subordinate');
         end;

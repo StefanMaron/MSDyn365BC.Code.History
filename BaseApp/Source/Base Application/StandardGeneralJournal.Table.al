@@ -98,7 +98,7 @@ table 750 "Standard General Journal"
         ShowBalance: Boolean;
         ShowTotalBalance: Boolean;
     begin
-        GenJnlLine.Init;
+        GenJnlLine.Init();
         GenJnlLine."Line No." := 0;
         GenJnlManagement.CalcBalance(GenJnlLine, LastGenJnlLine, Balance, TotalBalance, ShowBalance, ShowTotalBalance);
         GenJnlLine.SetUpNewLine(LastGenJnlLine, Balance, true);

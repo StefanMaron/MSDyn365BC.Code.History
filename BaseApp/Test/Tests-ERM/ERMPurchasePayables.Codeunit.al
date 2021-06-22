@@ -13,7 +13,6 @@ codeunit 134331 "ERM Purchase Payables"
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryInventory: Codeunit "Library - Inventory";
-        LibraryPermissions: Codeunit "Library - Permissions";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryERM: Codeunit "Library - ERM";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
@@ -28,6 +27,8 @@ codeunit 134331 "ERM Purchase Payables"
         LibraryIncomingDocuments: Codeunit "Library - Incoming Documents";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryApplicationArea: Codeunit "Library - Application Area";
+        LibraryPriceCalculation: codeunit "Library - Price Calculation";
+        LibraryResource: Codeunit "Library - Resource";
         IsInitialized: Boolean;
         MustNotBeEqualErr: Label 'Transaction No. %1 and %2 must not be equal.', Comment = '%1=Transaction1;%2=Transaction2';
         PostingDateErr: Label 'Enter the posting date.';
@@ -67,7 +68,7 @@ codeunit 134331 "ERM Purchase Payables"
         CreateOneItemPurchDoc(PurchHeader, PurchHeader."Document Type"::"Blanket Order");
 
         // Find the number series used and gather the next value in advance.
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         expectedOrderNo := NoSeriesManagement.GetNextNo(PurchasesPayablesSetup."Order Nos.", WorkDate, false);
 
         // Make an order
@@ -107,6 +108,7 @@ codeunit 134331 "ERM Purchase Payables"
         PurchLineGLAcc: Record "Purchase Line";
         PurchLineFixedAsset: Record "Purchase Line";
         PurchLineChargeItem: Record "Purchase Line";
+        PurchLineResource: Record "Purchase Line";
         ArchiveManagement: Codeunit ArchiveManagement;
     begin
         // 1. Setup
@@ -124,6 +126,8 @@ codeunit 134331 "ERM Purchase Payables"
           LibraryRandom.RandInt(100));
         LibraryPurchase.CreatePurchaseLine(PurchLineChargeItem, PurchHeader, PurchLineFixedAsset.Type::"Charge (Item)",
           LibraryInventory.CreateItemChargeNo, LibraryRandom.RandInt(100));
+        LibraryPurchase.CreatePurchaseLine(
+            PurchLineResource, PurchHeader, PurchLineResource.Type::Resource, LibraryResource.CreateResourceNo(), LibraryRandom.RandInt(100));
 
         // 2. Exercise
         ArchiveManagement.ArchivePurchDocument(PurchHeader);
@@ -139,6 +143,7 @@ codeunit 134331 "ERM Purchase Payables"
         VerifyArchPurchaseOrderLine(PurchLineGLAcc);
         VerifyArchPurchaseOrderLine(PurchLineFixedAsset);
         VerifyArchPurchaseOrderLine(PurchLineChargeItem);
+        VerifyArchPurchaseOrderLine(PurchLineResource);
 
         // 4. Clean-up
     end;
@@ -338,11 +343,11 @@ codeunit 134331 "ERM Purchase Payables"
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
         // [GIVEN] no unposted purchase invoices
         PurchaseHeader[1].SetRange("Document Type", PurchaseHeader[1]."Document Type"::Invoice);
-        PurchaseHeader[1].DeleteAll;
+        PurchaseHeader[1].DeleteAll();
         // [GIVEN] Created Purchase Invoice '1001', where "Vendor Invoice No." is blank
         CreatePurchaseDocument(PurchaseHeader[1], PurchaseLine, PurchaseHeader[1]."Document Type"::Invoice);
         PurchaseHeader[1]."Vendor Invoice No." := '';
-        PurchaseHeader[1].Modify;
+        PurchaseHeader[1].Modify();
         // [GIVEN] Created Purchase Invoice '1002'
         CreatePurchaseDocument(PurchaseHeader[2], PurchaseLine, PurchaseHeader[2]."Document Type"::Invoice);
 
@@ -487,7 +492,7 @@ codeunit 134331 "ERM Purchase Payables"
         LibraryPurchase.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
-        PurchaseHeader[1].DeleteAll;
+        PurchaseHeader[1].DeleteAll();
         // [GIVEN] Created Purchase Document 'A', where dimension error will be
         CreatePurchaseDocument(PurchaseHeader[1], PurchaseLine, PurchaseHeader[2]."Document Type"::Order);
         LibraryDimension.CreateDimWithDimValue(DimensionValue);
@@ -580,7 +585,7 @@ codeunit 134331 "ERM Purchase Payables"
         LibraryPurchase.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
-        PurchaseHeader.DeleteAll;
+        PurchaseHeader.DeleteAll();
 
         // [GIVEN] Turn on "Calc. Inv. Discount" in Purchases & Payables Setup
         LibraryPurchase.SetCalcInvDiscount(true);
@@ -975,6 +980,7 @@ codeunit 134331 "ERM Purchase Payables"
         CreatePurchaseLineDiscount(PurchaseLineDiscount, PurchasePrice);
 
         // Exercise: Create Purchase Order.
+        CopyAllPriceDiscToPriceListLine();
         CreatePurchaseOrder(PurchaseLine, PurchasePrice);
 
         // Verify: Verify Purchase Price and Line Discount on Purchase Line.
@@ -982,6 +988,17 @@ codeunit 134331 "ERM Purchase Payables"
         VerifyPriceAndLineDiscountOnPurchaseLine(PurchaseLine, PurchasePrice."Minimum Quantity", PurchasePrice."Direct Unit Cost", 0);
         VerifyPriceAndLineDiscountOnPurchaseLine(
           PurchaseLine, PurchasePrice."Minimum Quantity" * 2, PurchasePrice."Direct Unit Cost", PurchaseLineDiscount."Line Discount %");
+    end;
+
+    local procedure CopyAllPriceDiscToPriceListLine()
+    var
+        PurchasePrice: Record "Purchase Price";
+        PurchaseLineDiscount: Record "Purchase Line Discount";
+        PriceListLine: Record "Price List Line";
+        CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
+    begin
+        CopyFromToPriceListLine.CopyFrom(PurchasePrice, PriceListLine);
+        CopyFromToPriceListLine.CopyFrom(PurchaseLineDiscount, PriceListLine);
     end;
 
     [Test]
@@ -1273,9 +1290,11 @@ codeunit 134331 "ERM Purchase Payables"
         // [SCENARIO 382356] It should be possible to update direct unit cost via Purchase Line Factbox after reopening a released purchase order
 
         Initialize;
+        LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V15");
 
         // [GIVEN] Purchase price "P" for item "I"
         CreatePurchasePrice(PurchasePrice);
+        CopyAllPriceDiscToPriceListLine();
 
         // [GIVEN] Purchase order "PO" for item "I"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, PurchasePrice."Vendor No.");
@@ -1288,7 +1307,7 @@ codeunit 134331 "ERM Purchase Payables"
         PurchaseOrder.OpenEdit;
         PurchaseOrder.GotoRecord(PurchaseHeader);
         // COMMIT required to preserve the purchase order from rollback after the first error
-        Commit;
+        Commit();
 
         // [GIVEN] Drill down to purchase prices from the Purchase Line Factbox and try to update the unit cost
         // [GIVEN] Update fails, because the order is not in "Open" status
@@ -1320,9 +1339,98 @@ codeunit 134331 "ERM Purchase Payables"
         // [SCENARIO 382356] It should not be possible to update direct unit cost via Purchase Line Factbox after releasing the purchase order
 
         Initialize;
+        LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V15");
 
         // [GIVEN] Purchase price "P" for item "I"
         CreatePurchasePrice(PurchasePrice);
+        CopyAllPriceDiscToPriceListLine();
+
+        // [GIVEN] Purchase order "PO" for item "I"
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, PurchasePrice."Vendor No.");
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, PurchasePrice."Item No.", LibraryRandom.RandInt(10));
+
+        PurchaseOrder.OpenEdit;
+        PurchaseOrder.GotoRecord(PurchaseHeader);
+
+        // [GIVEN] Release the purchase order
+        PurchaseOrder.Release.Invoke;
+
+        // [WHEN] Drill down to purchase prices from the Purchase Line Factbox and try to update the direct unit cost
+        asserterror PurchaseOrder.Control3.PurchasePrices.DrillDown;
+
+        // [THEN] Update fails with an error: "Status must be equal to Open in Purchase Header"
+        Assert.ExpectedError(StrSubstNo(PurchaseDocStatusErr, PurchaseHeader."Document Type", PurchaseHeader."No."));
+    end;
+
+    [Test]
+    [HandlerFunctions('GetPurchasePricePageHandler')]
+    [Scope('OnPrem')]
+    procedure PurchaseLineFactboxUnitCostUpdatedInReopenedOrderBestPrice()
+    var
+        PurchasePrice: Record "Purchase Price";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseOrder: TestPage "Purchase Order";
+    begin
+        // [FEATURE] [Order] [Purchase Price] [Purchase Line Factbox] [UI]
+        // [SCENARIO 382356] It should be possible to update direct unit cost via Purchase Line Factbox after reopening a released purchase order
+
+        Initialize;
+        LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V16");
+
+        // [GIVEN] Purchase price "P" for item "I"
+        CreatePurchasePrice(PurchasePrice);
+        CopyAllPriceDiscToPriceListLine();
+
+        // [GIVEN] Purchase order "PO" for item "I"
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, PurchasePrice."Vendor No.");
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, PurchasePrice."Item No.", LibraryRandom.RandInt(10));
+
+        // [GIVEN] Release the purchase order
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        PurchaseOrder.OpenEdit;
+        PurchaseOrder.GotoRecord(PurchaseHeader);
+        // COMMIT required to preserve the purchase order from rollback after the first error
+        Commit();
+
+        // [GIVEN] Drill down to purchase prices from the Purchase Line Factbox and try to update the unit cost
+        // [GIVEN] Update fails, because the order is not in "Open" status
+        // This action initializes the internal variable PurchaseHeader in Purchase Lines Factbox
+        asserterror PurchaseOrder.Control3.PurchasePrices.DrillDown;
+
+        // [GIVEN] Reopen the purchase order
+        PurchaseOrder.Reopen.Invoke;
+
+        // [WHEN] Drill down to purchase prices from the Purchase Line Factbox and try to update the unit cost
+        PurchaseOrder.Control3.PurchasePrices.DrillDown;
+
+        // [THEN] Direct unit cost in the purchase order line is successfully updated
+        PurchaseLine.Find;
+        PurchaseLine.TestField("Direct Unit Cost", PurchasePrice."Direct Unit Cost");
+    end;
+
+    [Test]
+    [HandlerFunctions('GetPurchasePricePageHandler')]
+    [Scope('OnPrem')]
+    procedure PurchaseLineFactboxUnitCostNotUpdatedInReleasedOrderBestPrice()
+    var
+        PurchasePrice: Record "Purchase Price";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseOrder: TestPage "Purchase Order";
+    begin
+        // [FEATURE] [Order] [Purchase Price] [Purchase Line Factbox] [UI]
+        // [SCENARIO 382356] It should not be possible to update direct unit cost via Purchase Line Factbox after releasing the purchase order
+
+        Initialize;
+        LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V16");
+
+        // [GIVEN] Purchase price "P" for item "I"
+        CreatePurchasePrice(PurchasePrice);
+        CopyAllPriceDiscToPriceListLine();
 
         // [GIVEN] Purchase order "PO" for item "I"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, PurchasePrice."Vendor No.");
@@ -1359,7 +1467,7 @@ codeunit 134331 "ERM Purchase Payables"
         LibraryInventory.CreateItem(Item);
         MockPurchaseLine(PurchLine, PurchLine.Type::Item, Item."No.");
 
-        InventorySetup.Get;
+        InventorySetup.Get();
         Item.Rename(LibraryUtility.GetNextNoFromNoSeries(InventorySetup."Item Nos.", WorkDate));
 
         PurchLine.Find;
@@ -1447,10 +1555,10 @@ codeunit 134331 "ERM Purchase Payables"
         Initialize;
 
         LibrarySales.CreateStandardTextWithExtendedText(StandardText, DummyText);
-        PurchaseLine.Init;
+        PurchaseLine.Init();
         PurchaseLine.Type := PurchaseLine.Type::" ";
         PurchaseLine."No." := StandardText.Code;
-        PurchaseLine.Insert;
+        PurchaseLine.Insert();
 
         StandardText.Rename(LibraryUtility.GenerateGUID);
 
@@ -1542,7 +1650,7 @@ codeunit 134331 "ERM Purchase Payables"
         // [GIVEN] Two identical Purchase Prices for Vendors "X" and "Y"
         CreatePurchPrice(PurchasePrice, CopyFromVendorNo);
         PurchasePrice."Vendor No." := CopyToVendorNo;
-        PurchasePrice.Insert;
+        PurchasePrice.Insert();
 
         // [GIVEN] Opened "Purchase Prices" page and "Vendor No. Filter" is "X"
         PurchasePrices.OpenEdit;
@@ -1612,7 +1720,7 @@ codeunit 134331 "ERM Purchase Payables"
         CreatePurchPrice(PurchasePrice, CopyFromVendorNo);
         ExistingPurchasePrice := PurchasePrice;
         ExistingPurchasePrice."Vendor No." := CopyToVendorNo;
-        ExistingPurchasePrice.Insert;
+        ExistingPurchasePrice.Insert();
 
         PurchasePrice.SetRange("Vendor No.", CopyFromVendorNo);
         PurchasePrice.CopyPurchPriceToVendorsPurchPrice(PurchasePrice, CopyToVendorNo);
@@ -2265,12 +2373,13 @@ codeunit 134331 "ERM Purchase Payables"
         // [GIVEN] Create item "ITEM" with "Last Direct Cost" = 100
         LibraryInventory.CreateItem(Item);
         Item."Last Direct Cost" := LibraryRandom.RandDecInRange(10, 100, 2);
-        Item.Modify;
+        Item.Modify();
 
         // [GIVEN] Create purchase price for vendor "VEND" and item "ITEM" with Minimum Qty=0; Direct Unit Cost = 0;
         LibraryCosting.CreatePurchasePrice(PurchasePrice, Vendor."No.", Item."No.", 0D, '', '', Item."Base Unit of Measure", 0);
 
         // [GIVEN] Create purchase order for vendor "VEND" with line Qty = 10
+        CopyAllPriceDiscToPriceListLine();
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
 
         // [WHEN] Purchase line with Qty = 10 is being created
@@ -2280,37 +2389,15 @@ codeunit 134331 "ERM Purchase Payables"
         PurchaseLine.TestField("Direct Unit Cost", 0);
     end;
 
-    [Test]
-    [Scope('OnPrem')]
-    procedure TariffNumbersApplicationArea()
-    var
-        TariffNumbersPage: TestPage "Tariff Numbers";
-    begin
-        // [FEATURE] [UI] [Application Area]
-        // [SCENARIO 343372] Tariff Numbers controls are enabled in SaaS
-        Initialize();
-
-        // [GIVEN] Enabled SaaS setup
-        LibraryPermissions.SetTestabilitySoftwareAsAService(true);
-        
-        // [WHEN] Open Tariff Numbers page
-        TariffNumbersPage.OpenNew();
-
-        // [THEN] "No.", Description, "Supplementary Units" controls are enabled
-        Assert.IsTrue(TariffNumbersPage."No.".Enabled(), '');
-        Assert.IsTrue(TariffNumbersPage.Description.Enabled(), '');
-        Assert.IsTrue(TariffNumbersPage."Supplementary Units".Enabled(), '');
-        TariffNumbersPage.Close();
-        LibraryPermissions.SetTestabilitySoftwareAsAService(false);
-    end;
-
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        PriceListLine: Record "Price List Line";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Purchase Payables");
         LibrarySetupStorage.Restore;
         LibraryVariableStorage.Clear;
+        PriceListLine.DeleteAll();
 
         if IsInitialized then
             exit;
@@ -2320,7 +2407,7 @@ codeunit 134331 "ERM Purchase Payables"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
@@ -2398,7 +2485,7 @@ codeunit 134331 "ERM Purchase Payables"
     var
         BatchPostPurchaseOrders: Report "Batch Post Purchase Orders";
     begin
-        Commit; // COMMIT is required here.
+        Commit(); // COMMIT is required here.
         Clear(BatchPostPurchaseOrders);
         BatchPostPurchaseOrders.Run;
     end;
@@ -2407,7 +2494,7 @@ codeunit 134331 "ERM Purchase Payables"
     var
         BatchPostPurchaseInvoices: Report "Batch Post Purchase Invoices";
     begin
-        Commit; // COMMIT is required here.
+        Commit(); // COMMIT is required here.
         Clear(BatchPostPurchaseInvoices);
         BatchPostPurchaseInvoices.Run;
     end;
@@ -2425,7 +2512,7 @@ codeunit 134331 "ERM Purchase Payables"
     var
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         ManufacturingSetup.Validate("Default Safety Lead Time", DefaultSafetyLeadTime);
         ManufacturingSetup.Modify(true);
     end;
@@ -2434,7 +2521,7 @@ codeunit 134331 "ERM Purchase Payables"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         OldAllowVATDifference := PurchasesPayablesSetup."Allow VAT Difference";
         PurchasesPayablesSetup.Validate("Allow VAT Difference", AllowVATDifference);
         PurchasesPayablesSetup.Modify(true);
@@ -2666,7 +2753,7 @@ codeunit 134331 "ERM Purchase Payables"
 
     local procedure DeleteVATPostingSetup(VATPostingSetup: Record "VAT Posting Setup")
     begin
-        VATPostingSetup.Delete;
+        VATPostingSetup.Delete();
     end;
 
     local procedure DeleteUserSetup(var UserSetup: Record "User Setup"; ResponsibilityCenterCode: Code[10])
@@ -2861,7 +2948,7 @@ codeunit 134331 "ERM Purchase Payables"
 
     local procedure CreatePurchasePriceWithMinimumQuantity(var PurchasePrice: Record "Purchase Price"; MinQty: Decimal)
     begin
-        PurchasePrice.Init;
+        PurchasePrice.Init();
         PurchasePrice.Validate("Vendor No.", LibraryPurchase.CreateVendorNo);
         PurchasePrice.Validate("Item No.", LibraryInventory.CreateItemNo);
         PurchasePrice.Validate("Minimum Quantity", MinQty);
@@ -2961,7 +3048,7 @@ codeunit 134331 "ERM Purchase Payables"
         // Create General Journal Template and General Journal Batch.
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine.Validate("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.Validate("Journal Batch Name", GenJournalBatch.Name);
 
@@ -3263,10 +3350,18 @@ codeunit 134331 "ERM Purchase Payables"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure GetPurchasePricePageHandler(var GetPurchasePrice: TestPage "Get Purchase Price")
+    procedure GetPurchasePricePageHandler(var GetPurchasePrice: TestPage "Get Purchase Price") // Native
     begin
         GetPurchasePrice.First;
         GetPurchasePrice.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure GetPriceLinePageHandler(var GetPriceLine: TestPage "Get Price Line")
+    begin
+        GetPriceLine.First;
+        GetPriceLine.OK.Invoke;
     end;
 
     [ModalPageHandler]

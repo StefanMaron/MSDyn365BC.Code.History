@@ -36,7 +36,7 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
         LibraryERMCountryData.CreateGeneralPostingSetupData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         IsInitialized := true;
-        Commit;
+        Commit();
     end;
 
     [Test]
@@ -156,7 +156,7 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
         LibraryInventory.CreateItem(Item);
 
         InvoiceLineJSON := CreateInvoiceLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100));
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSON to the web service
         TargetURL := LibraryGraphMgt
@@ -202,7 +202,7 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
         InvoiceLineJSON := CreateInvoiceLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100));
         LineNo := 500;
         InvoiceLineJSON := LibraryGraphMgt.AddPropertytoJSON(InvoiceLineJSON, 'sequence', LineNo);
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSON to the web service
         TargetURL := LibraryGraphMgt
@@ -267,7 +267,7 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
         // [THEN] the line should be changed in the table and the response JSON text should contain our changed field
         Assert.AreNotEqual('', ResponseText, 'Response JSON should not be blank');
 
-        PurchaseLine.Reset;
+        PurchaseLine.Reset();
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type"::Invoice);
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange("Line No.", LineNo);
@@ -339,7 +339,7 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
         PurchaseLine.FindFirst;
         LineNo := PurchaseLine."Line No.";
 
-        Commit;
+        Commit();
 
         // [WHEN] we DELETE the first line of that invoice
         TargetURL := LibraryGraphMgt
@@ -351,7 +351,7 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
         LibraryGraphMgt.DeleteFromWebService(TargetURL, '', ResponseText);
 
         // [THEN] the line should no longer exist in the database
-        PurchaseLine.Reset;
+        PurchaseLine.Reset();
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type"::Invoice);
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange("Line No.", LineNo);
@@ -388,7 +388,7 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
         asserterror LibraryGraphMgt.DeleteFromWebService(TargetURL, '', ResponseText);
 
         // [THEN] the line should still exist, since it's not allowed to delete lines in posted invoices
-        PurchInvLine.Reset;
+        PurchInvLine.Reset();
         PurchInvLine.SetRange("Document No.", PurchInvHeader."No.");
         PurchInvLine.SetRange("Line No.", LineNo);
         Assert.IsTrue(PurchInvLine.FindFirst, 'The invoice line should still exist');
@@ -427,7 +427,7 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
         InvoiceID := PurchaseHeader.Id;
         ItemQuantity := LibraryRandom.RandIntInRange(1, 100);
         InvoiceLineJSON := CreateInvoiceLineJSON(Item.Id, ItemQuantity);
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSON to the web service and when we create an invoice through the client UI
         TargetURL := LibraryGraphMgt
@@ -493,7 +493,7 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
         DiscountPct := LibraryRandom.RandDecInDecimalRange(1, 90, 2);
         LibrarySmallBusiness.SetInvoiceDiscountToVendor(Vendor, DiscountPct, MinAmount, PurchaseHeader."Currency Code");
         InvoiceLineJSON := CreateInvoiceLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100));
-        Commit;
+        Commit();
 
         // [WHEN] We create a line through API
         TargetURL := LibraryGraphMgt
@@ -538,7 +538,7 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
         FindFirstPurchaseLine(PurchaseHeader, PurchaseLine);
         PurchaseQuantity := PurchaseLine.Quantity * 2;
 
-        Commit;
+        Commit();
 
         InvoiceLineJSON := LibraryGraphMgt.AddComplexTypetoJSON('{}', 'quantity', Format(PurchaseQuantity));
 
@@ -585,7 +585,7 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
         CODEUNIT.Run(CODEUNIT::"Purch - Calc Disc. By Type", PurchaseLine);
         PurchaseHeader.Find;
         Assert.AreEqual(PurchaseHeader."Invoice Discount Value", DiscountPct, 'Discount Pct was not assigned');
-        Commit;
+        Commit();
 
         // [WHEN] we DELETE the line
         TargetURL := LibraryGraphMgt
@@ -618,7 +618,7 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
         SetupAmountDiscountTest(PurchaseHeader, DiscountAmount);
         InvoiceLineJSON := CreateInvoiceLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100));
 
-        Commit;
+        Commit();
 
         // [WHEN] We create a line through API
         TargetURL := LibraryGraphMgt
@@ -650,7 +650,7 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
         Initialize();
         CreatePurchaseInvoiceWithLines(PurchaseHeader);
 
-        Commit;
+        Commit();
 
         InvoiceLineJSON := '{"description":"test"}';
 
@@ -694,7 +694,7 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
 
         InvoiceLineJSON := '{"' + LineTypeFieldNameTxt + '":"Comment","description":"test"}';
 
-        Commit;
+        Commit();
 
         // [WHEN] we just POST a blank line
         TargetURL := LibraryGraphMgt
@@ -769,7 +769,7 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
         LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
         LibraryInventory.CreateItem(Item);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 2);
-        Commit;
+        Commit();
         exit(PurchaseHeader.Id);
     end;
 
@@ -787,9 +787,9 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 2);
         PostedPurchaseInvoiceID := PurchaseHeader.Id;
         NewNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
-        Commit;
+        Commit();
 
-        PurchInvHeader.Reset;
+        PurchInvHeader.Reset();
         PurchInvHeader.SetFilter("No.", NewNo);
         PurchInvHeader.FindFirst;
 

@@ -32,7 +32,7 @@ report 7323 "Create Invt Put-away/Pick/Mvmt"
                 end;
 
                 if CheckWhseRequest("Warehouse Request") then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 if ((Type = Type::Inbound) and (WhseActivHeader.Type <> WhseActivHeader.Type::"Invt. Put-away")) or
                    ((Type = Type::Outbound) and ((WhseActivHeader.Type <> WhseActivHeader.Type::"Invt. Pick") and
@@ -45,10 +45,10 @@ report 7323 "Create Invt Put-away/Pick/Mvmt"
                     case Type of
                         Type::Inbound:
                             if not CreateInvtPutAway.CheckSourceDoc("Warehouse Request") then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                         Type::Outbound:
                             if not CreateInvtPickMovement.CheckSourceDoc("Warehouse Request") then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                     end;
                     InitWhseActivHeader;
                 end;
@@ -83,7 +83,7 @@ report 7323 "Create Invt Put-away/Pick/Mvmt"
                     end;
                     if PrintDocument then
                         InsertTempWhseActivHdr;
-                    Commit;
+                    Commit();
                 end;
             end;
 
@@ -223,7 +223,7 @@ report 7323 "Create Invt Put-away/Pick/Mvmt"
 
     trigger OnPostReport()
     begin
-        TempWhseActivHdr.DeleteAll;
+        TempWhseActivHdr.DeleteAll();
     end;
 
     trigger OnPreReport()
@@ -287,9 +287,9 @@ report 7323 "Create Invt Put-away/Pick/Mvmt"
 
     local procedure InsertTempWhseActivHdr()
     begin
-        TempWhseActivHdr.Init;
+        TempWhseActivHdr.Init();
         TempWhseActivHdr := WhseActivHeader;
-        TempWhseActivHdr.Insert;
+        TempWhseActivHdr.Insert();
     end;
 
     local procedure PrintNewDocuments()

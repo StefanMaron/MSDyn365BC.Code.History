@@ -159,7 +159,7 @@ page 6037 "Service Shipment Lines Subform"
     var
         ServShptLine: Record "Service Shipment Line";
     begin
-        TempServShptLine.Reset;
+        TempServShptLine.Reset();
         TempServShptLine.CopyFilters(Rec);
         TempServShptLine.SetRange("Document No.", "Document No.");
         if not TempServShptLine.FindFirst then begin
@@ -168,7 +168,7 @@ page 6037 "Service Shipment Lines Subform"
             if not ServShptLine.FindFirst then
                 exit(false);
             TempServShptLine := ServShptLine;
-            TempServShptLine.Insert;
+            TempServShptLine.Insert();
         end;
         if "Line No." = TempServShptLine."Line No." then
             exit(true);

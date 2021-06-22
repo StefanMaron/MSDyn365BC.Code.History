@@ -40,7 +40,7 @@ codeunit 134106 "ERM Prepayment V"
         // Check VAT Amount on Purchase Order Statistics Page after Create Purchase Order with Prepayment 100% and  Compress Prepayment as FALSE.
 
         // Setup: Find VAT Posting Setup, create Purchase Order with Prepayment.
-        Initialize;
+        Initialize();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         CreatePurchaseDocument(PurchaseLine, VATPostingSetup, false);
 
@@ -71,7 +71,7 @@ codeunit 134106 "ERM Prepayment V"
         // Check VAT Amount on G/L Entry after Posting Purchase Prepayment Invoice with Prepayment 100% and  Compress Prepayment as TRUE.
 
         // Setup: Find VAT Posting Setup, create Purchase Order with Prepayment and post Prepayment Invoice and Credit Memo.
-        Initialize;
+        Initialize();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         CreatePurchaseDocument(PurchaseLine, VATPostingSetup, true);
         GeneralPostingSetup.Get(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
@@ -110,7 +110,7 @@ codeunit 134106 "ERM Prepayment V"
         // Check VAT Amount on Posted Purchase Credit Memo Statistics page using Compress Prepayment as TRUE.
 
         // Setup: Find VAT Posting Setup, create Purchase Order with Prepayment and post Prepayment Invoice and Credit Memo.
-        Initialize;
+        Initialize();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         CreatePurchaseDocument(PurchaseLine, VATPostingSetup, true);
         GeneralPostingSetup.Get(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
@@ -150,7 +150,7 @@ codeunit 134106 "ERM Prepayment V"
         // Check VAT Amount on Sales Order Statistics Page after Create Sales Order with Prepayment 100% and  Compress Prepayment as FALSE.
 
         // Setup: Find VAT Posting Setup, create Sales Order with Prepayment.
-        Initialize;
+        Initialize();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         CreateSalesDocument(SalesLine, VATPostingSetup, false);
 
@@ -181,7 +181,7 @@ codeunit 134106 "ERM Prepayment V"
         // Check VAT Amount on G/L Entry after Posting Sales Prepayment Invoice with Prepayment 100% and  Compress Prepayment as TRUE.
 
         // Setup: Find VAT Posting Setup, create Sales Order with Prepayment and post Prepayment Invoice and Credit Memo.
-        Initialize;
+        Initialize();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         CreateSalesDocument(SalesLine, VATPostingSetup, true);
         GeneralPostingSetup.Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
@@ -219,7 +219,7 @@ codeunit 134106 "ERM Prepayment V"
         // Check VAT Amount on Posted Sales Credit Memo Statistics page using Compress Prepayment as TRUE.
 
         // Setup: Find VAT Posting Setup, create Sales Order with Prepayment and post Prepayment Invoice and Credit Memo.
-        Initialize;
+        Initialize();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         CreateSalesDocument(SalesLine, VATPostingSetup, true);
         GeneralPostingSetup.Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
@@ -256,7 +256,7 @@ codeunit 134106 "ERM Prepayment V"
         // in case of several document lines
 
         // Setup: create sales order with 2 lines and post prepayment invoice
-        Initialize;
+        Initialize();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         CreateSalesDocumentWithTwoLines(SalesHeader, SalesLine, VATPostingSetup);
         UpdateSalesPrepmtAccount(CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group"),
@@ -282,7 +282,7 @@ codeunit 134106 "ERM Prepayment V"
         // in case of several document lines
 
         // Setup: create purchase order with 2 lines and post prepayment invoice
-        Initialize;
+        Initialize();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         CreatePurchDocumentWithTwoLines(PurchaseHeader, PurchaseLine, VATPostingSetup);
         UpdatePurchasePrepmtAccount(CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group"),
@@ -308,7 +308,7 @@ codeunit 134106 "ERM Prepayment V"
         // [FEATURE] [Sales]
         // [SCENARIO 362757] Manually settled full prepayment deduction posted for partial sales order
 
-        Initialize;
+        Initialize();
         // [GIVEN] Sales Order with Prepayment and Qty. to Invoice < Quantity
         SalesPrepaymentsAccount := CreatePartialSalesOrder(SalesHeader, SalesLine);
 
@@ -342,7 +342,7 @@ codeunit 134106 "ERM Prepayment V"
         // [FEATURE] [Purchase]
         // [SCENARIO 362757] Manually settled full prepayment deduction posted for partial purchase order
 
-        Initialize;
+        Initialize();
         // [GIVEN] Purchase Order with Prepayment and Qty. to Invoice < Quantity
         PurchPrepaymentsAccount := CreatePartialPurchOrder(PurchHeader, PurchLine);
 
@@ -352,7 +352,7 @@ codeunit 134106 "ERM Prepayment V"
         // [GIVEN] "Prepmt. Amount to Deduct" = Quantity * "Prepmt. Amount Inv." = X (full prepayment deduction)
         UpdatePurchPrepmtAmtToDeductWithPrepmtAmtInvoiced(PurchLine);
         PurchHeader."Vendor Invoice No." := IncStr(PurchHeader."Vendor Invoice No.");
-        PurchHeader.Modify;
+        PurchHeader.Modify();
 
         // [WHEN] Post Invoice
         DocNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
@@ -381,7 +381,7 @@ codeunit 134106 "ERM Prepayment V"
         // [FEATURE] [Sales][Default Dimension]
         // [SCENARIO 363725] Dimension Sets is created for different setups of Purchase line of Posting groups if "Purch. Prepayments Account" of groups have account with default dimension value.
 
-        Initialize;
+        Initialize();
         // [GIVEN] "G/L Account" = "A1" without default dimension
         // [GIVEN] "G/L Account" = "A2" with Default Dimension = "DD1" and Default Dimension Value = "DDV1"
         // [GIVEN] "G/L Account" = "A3" with Default Dimension = "DD2" and Default Dimension Value = "DDV2"
@@ -412,7 +412,7 @@ codeunit 134106 "ERM Prepayment V"
         // [GIVEN] Dimension Set Entry with "Dimension Code" = "DD2" and "Dimension Value Code" = "DDV2" not exists
         VerifyDimensionSetEntryIsNotExists(DimensionValue2."Dimension Code", DimensionValue2.Code);
         // [GIVEN] Total count of Dimension set entries = "X"
-        TotalCountDimSetEntries := DimensionSetEntry.Count;
+        TotalCountDimSetEntries := DimensionSetEntry.Count();
 
         // [WHEN] Invoke "CreateDimSetForPrepmtAccDefaultDim" on Purchase Header
         PurchaseHeader.CreateDimSetForPrepmtAccDefaultDim;
@@ -440,7 +440,7 @@ codeunit 134106 "ERM Prepayment V"
         // [FEATURE] [Sales][Default Dimension]
         // [SCENARIO 363725] Dimension Sets is created for different setups of Sales line of Posting groups if "Sales Prepayments Account" of groups have account with default dimension value.
 
-        Initialize;
+        Initialize();
         // [GIVEN] "G/L Account" = "A1" without default dimension
         // [GIVEN] "G/L Account" = "A2" with Default Dimension = "DD1" and Default Dimension Value = "DDV1"
         // [GIVEN] "G/L Account" = "A3" with Default Dimension = "DD2" and Default Dimension Value = "DDV2"
@@ -471,7 +471,7 @@ codeunit 134106 "ERM Prepayment V"
         // [GIVEN] Dimension Set Entry with "Dimension Code" = "DD2" and "Dimension Value Code" = "DDV2" not exists
         VerifyDimensionSetEntryIsNotExists(DimensionValue2."Dimension Code", DimensionValue2.Code);
         // [GIVEN] Total count of Dimension set entries = "X"
-        TotalCountDimSetEntries := DimensionSetEntry.Count;
+        TotalCountDimSetEntries := DimensionSetEntry.Count();
 
         // [WHEN] Invoke "CreateDimSetForPrepmtAccDefaultDim" on Sales Header
         SalesHeader.CreateDimSetForPrepmtAccDefaultDim;
@@ -496,7 +496,7 @@ codeunit 134106 "ERM Prepayment V"
         // [FEATURE] [Purchase] [Default Dimension]
         // [SCENARIO 363725] Show error when creating dimension set for prepayment invoice for Purchase line and "Purch. Prepayments Account" of posting groups not set.
 
-        Initialize;
+        Initialize();
         // [GIVEN] "Gen. Bus. Posting Group" and "Gen. Prod. Posting Group" = "SET" without "Purch. Prepayments Account"
         MockGenBusProdPostingGroups(GenPostingSetup, GenBusPostingGroupCode, GenProdPostingGroupCode);
         // [GIVEN] Purchase order with purchase line with prepayment invoice
@@ -523,7 +523,7 @@ codeunit 134106 "ERM Prepayment V"
         // [FEATURE] [Sales] [Default Dimension]
         // [SCENARIO 363725] Show error when creating dimension set for prepayment invoice for Sales line and "Sales Prepayments Account" of posting groups not set.
 
-        Initialize;
+        Initialize();
         // [GIVEN] "Gen. Bus. Posting Group" and "Gen. Prod. Posting Group" = "SET" without "Sales Prepayments Account"
         MockGenBusProdPostingGroups(GenPostingSetup, GenBusPostingGroupCode, GenProdPostingGroupCode);
         // [GIVEN] Sales order with sales line with prepayment invoice
@@ -554,7 +554,7 @@ codeunit 134106 "ERM Prepayment V"
         // [FEATURE] [Purchase] [Default Dimension]
         // [SCENARIO 363725] Dimension Sets is created for different "Job No." of Purchase Line.
 
-        Initialize;
+        Initialize();
         // [GIVEN] "Gen. Bus. Posting Group" and "Gen. Prod. Posting Group" = "SET" with "Dimension Code" = "DDAcc" and "Dimension Value Code" = "DDVAcc"
         MockGenBusProdPostingGroupWithPrepmtAcc(DimensionValueAcc, GenBusPostingGroupCode, GenProdPostingGroupCode, true);
 
@@ -605,7 +605,7 @@ codeunit 134106 "ERM Prepayment V"
         // [FEATURE] [Sales] [Default Dimension]
         // [SCENARIO 363725] Dimension Sets is created for different "Job No." of Sales Line.
 
-        Initialize;
+        Initialize();
         // [GIVEN] "Gen. Bus. Posting Group" and "Gen. Prod. Posting Group" = "SET" with "Dimension Code" = "DDAcc" and "Dimension Value Code" = "DDVAcc"
         MockGenBusProdPostingGroupWithPrepmtAcc(DimensionValueAcc, GenBusPostingGroupCode, GenProdPostingGroupCode, true);
 
@@ -652,7 +652,7 @@ codeunit 134106 "ERM Prepayment V"
         // [FEATURE] [Sales] [Default Dimension]
         // [SCENARIO 363725] Default Dimension Set is created on open "Purchase Order Statistics" where prepayment account has default dimensions and order has posted prepayment invoice.
 
-        Initialize;
+        Initialize();
         // [GIVEN] Purchase order with prepayment
         CreatePartialPurchOrder(PurchaseHeader, PurchaseLine);
 
@@ -687,7 +687,7 @@ codeunit 134106 "ERM Prepayment V"
         // [FEATURE] [Sales][Default Dimension]
         // [SCENARIO 363725] Default Dimension Set is created on open "Sales Order Statistics" where prepayment account has default dimensions and order has posted prepayment invoice.
 
-        Initialize;
+        Initialize();
         // [GIVEN] Sales order with prepayment
         CreatePartialSalesOrder(SalesHeader, SalesLine);
 
@@ -722,7 +722,7 @@ codeunit 134106 "ERM Prepayment V"
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
     begin
         // [SCENARIO 377768] Posting of Return order with the same No. of Sales Order when Prepayment Invoice is posted for Sales Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Check Prepmt. when Posting" is Yes in Sales & Receivables Setup
         SetCheckPrepaymentinSalesSetup(true);
@@ -761,7 +761,7 @@ codeunit 134106 "ERM Prepayment V"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 377768] Posting of Prepayment Credit Memo from sales order wich was copied from another order
-        Initialize;
+        Initialize();
         LibrarySales.SetCreditWarningsToNoWarnings;
 
         // [GIVEN] Sales Order "X" with Posted Prepayment Invoice
@@ -795,7 +795,7 @@ codeunit 134106 "ERM Prepayment V"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 377768] Posting of Prepayment Credit Memo from purchase order wich was copied from another order
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order "X" with Posted Prepayment Invoice
         PurchaseHeader[1]."No." := LibraryUtility.GenerateGUID;
@@ -807,14 +807,14 @@ codeunit 134106 "ERM Prepayment V"
           PurchaseHeader[2], PurchaseHeader[2]."Document Type"::Order, PurchaseHeader[1]."Sell-to Customer No.");
         CopyPurchOrderFromPurchOrder(PurchaseHeader[1]."No.", PurchaseHeader[2]);
         PurchaseHeader[2]."Vendor Invoice No." := LibraryUtility.GenerateGUID;
-        PurchaseHeader[2].Modify;
+        PurchaseHeader[2].Modify();
 
         // [GIVEN] Posted Prepayment Invoice for order "Y"
         LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader[2]);
 
         // [WHEN] Prepayment Credit Memo is being posted
         PurchaseHeader[2]."Vendor Cr. Memo No." := LibraryUtility.GenerateGUID;
-        PurchaseHeader[2].Modify;
+        PurchaseHeader[2].Modify();
         LibraryPurchase.PostPurchasePrepaymentCrMemo(PurchaseHeader[2]);
 
         // [THEN] Created VAT Entry has proper value of VAT amount
@@ -834,7 +834,7 @@ codeunit 134106 "ERM Prepayment V"
     begin
         // [FEATURE] [Purchase] [Invoice]
         // [SCENARIO 222891] Posted prepayment purchase invoice has "Vendor Ledger Entry No." value
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase order with prepayment percent
         CreatePrepmtPurchOrder(PurchaseHeader);
@@ -866,7 +866,7 @@ codeunit 134106 "ERM Prepayment V"
     begin
         // [FEATURE] [Purchase] [Credit Memo]
         // [SCENARIO 222891] Posted prepayment purchase credit memo has "Vendor Ledger Entry No." value
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase order with prepayment percent
         CreatePrepmtPurchOrder(PurchaseHeader);
@@ -902,7 +902,7 @@ codeunit 134106 "ERM Prepayment V"
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 222891] Posted prepayment sales invoice has "Cust. Ledger Entry No." value
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales order with prepayment percent
         CreatePrepmtSalesOrder(SalesHeader, SalesLine);
@@ -935,7 +935,7 @@ codeunit 134106 "ERM Prepayment V"
     begin
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 222891] Posted prepayment sales credit memo has "Cust. Ledger Entry No." value
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales order with prepayment percent
         CreatePrepmtSalesOrder(SalesHeader, SalesLine);
@@ -973,7 +973,7 @@ codeunit 134106 "ERM Prepayment V"
     begin
         // [FEATURE] [Rounding] [Purchase]
         // [SCENARIO 261533] Posting of partial and final purchase invoice with custom prepayment, amounts, integer precision
-        Initialize;
+        Initialize();
         PrepareVendorAndTwoGLAccWithSetup(VATPostingSetup, VendorNo, GLAccountNo, 10);
 
         // [GIVEN] GLSetup "Amount Decimal Places" = "0:2", "Unit Amount Decimal Places" = "0:2", "Amount Rounding Precision" = "1", "Unit Amount Rounding Precision" = "1"
@@ -1028,7 +1028,7 @@ codeunit 134106 "ERM Prepayment V"
     begin
         // [FEATURE] [Rounding] [Sales]
         // [SCENARIO 261533] Posting of partial and final sales invoice with custom prepayment, amounts, integer precision
-        Initialize;
+        Initialize();
         PrepareCustomerAndTwoGLAccWithSetup(VATPostingSetup, CustomerNo, GLAccountNo, 10);
 
         // [GIVEN] GLSetup "Amount Decimal Places" = "0:2", "Unit Amount Decimal Places" = "0:2", "Amount Rounding Precision" = "1", "Unit Amount Rounding Precision" = "1"
@@ -1083,7 +1083,7 @@ codeunit 134106 "ERM Prepayment V"
     begin
         // [FEATURE] [Rounding] [Purchase]
         // [SCENARIO 261533] Posting of partial and final purchase invoice with custom prepayment, amounts, two lines, integer precision
-        Initialize;
+        Initialize();
         PrepareVendorAndTwoGLAccWithSetup(VATPostingSetup, VendorNo, GLAccountNo, 10);
 
         // [GIVEN] GLSetup "Amount Decimal Places" = "0:2", "Unit Amount Decimal Places" = "0:2", "Amount Rounding Precision" = "1", "Unit Amount Rounding Precision" = "1"
@@ -1142,7 +1142,7 @@ codeunit 134106 "ERM Prepayment V"
     begin
         // [FEATURE] [Rounding] [Sales]
         // [SCENARIO 261533] Posting of partial and final sales invoice with custom prepayment, amounts, two lines, integer precision
-        Initialize;
+        Initialize();
         PrepareCustomerAndTwoGLAccWithSetup(VATPostingSetup, CustomerNo, GLAccountNo, 10);
 
         // [GIVEN] GLSetup "Amount Decimal Places" = "0:2", "Unit Amount Decimal Places" = "0:2", "Amount Rounding Precision" = "1", "Unit Amount Rounding Precision" = "1"
@@ -1201,7 +1201,7 @@ codeunit 134106 "ERM Prepayment V"
     begin
         // [FEATURE] [Purchase] [Invoice Discount]
         // [SCENARIO 267789] Posting of a purchase order with prepayment, two item lines with custom amounts, invoice discount amount
-        Initialize;
+        Initialize();
         LibraryPurchase.SetInvoiceRounding(false);
         PrepareVendorAndTwoItemsWithSetup(VATPostingSetup, VendorNo, ItemNo, 19);
 
@@ -1241,7 +1241,7 @@ codeunit 134106 "ERM Prepayment V"
     begin
         // [FEATURE] [Sales] [Invoice Discount]
         // [SCENARIO 267789] Posting of a sales order with prepayment, two item lines with custom amounts, invoice discount amount
-        Initialize;
+        Initialize();
         LibrarySales.SetInvoiceRounding(false);
         PrepareCustomerAndTwoItemsWithSetup(VATPostingSetup, CustomerNo, ItemNo, 19);
 
@@ -1278,14 +1278,14 @@ codeunit 134106 "ERM Prepayment V"
     begin
         // [FEATURE] [Purchase] [UT] [Prices Excl. VAT]
         // [SCENARIO 267789] PurchaseLine.UpdateVATOnLines() updates "Prepmt. Line Amount" to be <= "Amount" in case of Prices Excluding VAT
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Line with "Line Amount" = 1000, "Prepmt. Line Amount" = 500, "Inv. Discount Amount" = 0
         CreatePurchLineAndCalcVATAmountLine(PurchaseHeader, PurchaseLine, VATAmountLine, false, 50, 1000);
 
         // [GIVEN] Update Purchase Line's "Inv. Discount Amount" = 600
         PurchaseLine."Inv. Discount Amount" := 600;
-        PurchaseLine.Modify;
+        PurchaseLine.Modify();
 
         // [WHEN] Call PurchaseLine.UpdateVATOnLines()
         PurchaseLine.UpdateVATOnLines(0, PurchaseHeader, PurchaseLine, VATAmountLine);
@@ -1305,14 +1305,14 @@ codeunit 134106 "ERM Prepayment V"
     begin
         // [FEATURE] [Purchase] [UT] [Prices Incl. VAT]
         // [SCENARIO 267789] PurchaseLine.UpdateVATOnLines() updates "Prepmt. Line Amount" to be <= "Amount Including VAT" in case of Prices Including VAT
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Line with "Line Amount" = 1000, "Prepmt. Line Amount" = 500, "Inv. Discount Amount" = 0
         CreatePurchLineAndCalcVATAmountLine(PurchaseHeader, PurchaseLine, VATAmountLine, true, 50, 1000);
 
         // [GIVEN] Update Purchase Line's "Inv. Discount Amount" = 600
         PurchaseLine."Inv. Discount Amount" := 600;
-        PurchaseLine.Modify;
+        PurchaseLine.Modify();
 
         // [WHEN] Call PurchaseLine.UpdateVATOnLines()
         PurchaseLine.UpdateVATOnLines(0, PurchaseHeader, PurchaseLine, VATAmountLine);
@@ -1332,14 +1332,14 @@ codeunit 134106 "ERM Prepayment V"
     begin
         // [FEATURE] [Purchase] [UT]
         // [SCENARIO 267789] PurchaseLine."Prepmt. Line Amount" remains zero after UpdateVATOnLines() with negative Amount
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Line with "Line Amount" = -1000, "Prepmt. Line Amount" = 0, "Inv. Discount Amount" = 0
         CreatePurchLineAndCalcVATAmountLine(PurchaseHeader, PurchaseLine, VATAmountLine, false, 0, -1000);
 
         // [GIVEN] Update Purchase Line's "Inv. Discount Amount" = -600
         PurchaseLine."Inv. Discount Amount" := -600;
-        PurchaseLine.Modify;
+        PurchaseLine.Modify();
 
         // [WHEN] Call PurchaseLine.UpdateVATOnLines()
         PurchaseLine.UpdateVATOnLines(0, PurchaseHeader, PurchaseLine, VATAmountLine);
@@ -1359,14 +1359,14 @@ codeunit 134106 "ERM Prepayment V"
     begin
         // [FEATURE] [Sales] [UT] [Prices Excl. VAT]
         // [SCENARIO 267789] SalesLine.UpdateVATOnLines() updates "Prepmt. Line Amount" to be <= "Amount" in case of Prices Excluding VAT
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Line with "Line Amount" = 1000, "Prepmt. Line Amount" = 500, "Inv. Discount Amount" = 0
         CreateCustomSalesLineAndCalcVATAmountLine(SalesHeader, SalesLine, VATAmountLine, false, 50, 1000);
 
         // [GIVEN] Update Sales Line's "Inv. Discount Amount" = 600
         SalesLine."Inv. Discount Amount" := 600;
-        SalesLine.Modify;
+        SalesLine.Modify();
 
         // [WHEN] Call SalesLine.UpdateVATOnLines()
         SalesLine.UpdateVATOnLines(0, SalesHeader, SalesLine, VATAmountLine);
@@ -1386,14 +1386,14 @@ codeunit 134106 "ERM Prepayment V"
     begin
         // [FEATURE] [Sales] [UT] [Prices Incl. VAT]
         // [SCENARIO 267789] SalesLine.UpdateVATOnLines() updates "Prepmt. Line Amount" to be <= "Amount Including VAT" in case of Prices Including VAT
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Line with "Line Amount" = 1000, "Prepmt. Line Amount" = 500, "Inv. Discount Amount" = 0
         CreateCustomSalesLineAndCalcVATAmountLine(SalesHeader, SalesLine, VATAmountLine, true, 50, 1000);
 
         // [GIVEN] Update Sales Line's "Inv. Discount Amount" = 600
         SalesLine."Inv. Discount Amount" := 600;
-        SalesLine.Modify;
+        SalesLine.Modify();
 
         // [WHEN] Call SalesLine.UpdateVATOnLines()
         SalesLine.UpdateVATOnLines(0, SalesHeader, SalesLine, VATAmountLine);
@@ -1413,14 +1413,14 @@ codeunit 134106 "ERM Prepayment V"
     begin
         // [FEATURE] [Sales] [UT]
         // [SCENARIO 267789] SalesLine."Prepmt. Line Amount" remains zero after UpdateVATOnLines() with negative Amount
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Line with "Line Amount" = -1000, "Prepmt. Line Amount" = 0, "Inv. Discount Amount" = 0
         CreateCustomSalesLineAndCalcVATAmountLine(SalesHeader, SalesLine, VATAmountLine, false, 0, -1000);
 
         // [GIVEN] Update Sales Line's "Inv. Discount Amount" = -600
         SalesLine."Inv. Discount Amount" := -600;
-        SalesLine.Modify;
+        SalesLine.Modify();
 
         // [WHEN] Call SalesLine.UpdateVATOnLines()
         SalesLine.UpdateVATOnLines(0, SalesHeader, SalesLine, VATAmountLine);
@@ -1446,7 +1446,7 @@ codeunit 134106 "ERM Prepayment V"
         // [FEATURE] [Sales] [Invoice Discount]
         // [SCENARIO 273512] Stan can post sales invoice with "Prepayment %" = 100 and non-zero "Invoice Discount %"
 
-        Initialize;
+        Initialize();
         LibrarySales.SetInvoiceRounding(false);
         PrepareCustomerAndTwoItemsWithSetup(VATPostingSetup, CustomerNo, ItemNo, 19);
 
@@ -1503,7 +1503,7 @@ codeunit 134106 "ERM Prepayment V"
         // [FEATURE] [Sales] [Invoice Discount]
         // [SCENARIO 273512] Stan can post sales invoice with "Prepayment %" = 100 and non-zero "Invoice Discount %" open and reopen Statistics Page without issues
 
-        Initialize;
+        Initialize();
         LibrarySales.SetInvoiceRounding(false);
         PrepareCustomerAndTwoItemsWithSetup(VATPostingSetup, CustomerNo, ItemNo, 19);
 
@@ -1542,7 +1542,7 @@ codeunit 134106 "ERM Prepayment V"
         // [FEATURE] [Purchase] [Invoice Discount]
         // [SCENARIO 273512] Stan can post purchase invoice with "Prepayment %" = 100 and non-zero "Invoice Discount %"
 
-        Initialize;
+        Initialize();
         LibraryPurchase.SetInvoiceRounding(false);
         PrepareVendorAndTwoItemsWithSetup(VATPostingSetup, VendorNo, ItemNo, 19);
 
@@ -1557,7 +1557,7 @@ codeunit 134106 "ERM Prepayment V"
         LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
         PurchaseHeader.Find;
         PurchaseHeader."Vendor Invoice No." := IncStr(PurchaseHeader."Vendor Invoice No.");
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
 
         // [WHEN] Post final invoice
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -1596,7 +1596,7 @@ codeunit 134106 "ERM Prepayment V"
     begin
         // [FEATURE] [Purchase] [Receipt]
         // [SCENARIO 278361] Purchase Invoice posting created with GetReceiptLines from posted receipts linked with prepayment Purchase Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with VAT % = 24
         PrepareVendorAndTwoItemsWithSetup(VATPostingSetup, VendorNo, ItemNo, 24);
@@ -1643,7 +1643,7 @@ codeunit 134106 "ERM Prepayment V"
     begin
         // [FEATURE] [Sales] [Shipment]
         // [SCENARIO 278361] Sales Invoice posting created with GetShipmentLines from posted shipments linked with prepayment Sales Order
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with VAT % = 24
         PrepareCustomerAndTwoItemsWithSetup(VATPostingSetup, CustomerNo, ItemNo, 24);
@@ -1686,7 +1686,7 @@ codeunit 134106 "ERM Prepayment V"
     begin
         // [FEATURE] [Sales] [Invoice Discount] [Prepayment]
         // [SCENARIO 291647] Prepayment Amount on Sales Order takes Invoice Discount into account when validated second
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with one Sales Line
         CreateSalesOrderWithOneLine(SalesHeader);
@@ -1709,7 +1709,7 @@ codeunit 134106 "ERM Prepayment V"
     begin
         // [FEATURE] [Sales] [Invoice Discount] [Prepayment]
         // [SCENARIO 291647] Prepayment Amount on Sales Order takes Invoice Discount into account when validated first
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with one Sales Line
         CreateSalesOrderWithOneLine(SalesHeader);
@@ -1732,7 +1732,7 @@ codeunit 134106 "ERM Prepayment V"
     begin
         // [FEATURE] [Purchase] [Invoice Discount] [Prepayment]
         // [SCENARIO 291647] Prepayment Amount on Purchase Order takes Invoice Discount into account when validated second
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order with one Purchase Line
         CreatePurchaseOrderWithOneLine(PurchaseHeader);
@@ -1755,7 +1755,7 @@ codeunit 134106 "ERM Prepayment V"
     begin
         // [FEATURE] [Purchase] [Invoice Discount] [Prepayment]
         // [SCENARIO 291647] Prepayment Amount on Purchase Order takes Invoice Discount into account when validated first
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order with one Purchase Line
         CreatePurchaseOrderWithOneLine(PurchaseHeader);
@@ -1779,7 +1779,7 @@ codeunit 134106 "ERM Prepayment V"
     begin
         // [FEATURE] [Sales] [Order] [Statistics] [Line Discount]
         // [SCENARIO 335740] Line Amount on Sales Order Statistics page is equal to sum of line amounts in sales order, for which line amount is increased after 100% prepayment is invoiced.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales order set up for 100% prepayment.
         // [GIVEN] Set line discount 10% on the sales line.
@@ -1820,7 +1820,7 @@ codeunit 134106 "ERM Prepayment V"
     begin
         // [FEATURE] [Purchase] [Order] [Statistics] [Line Discount]
         // [SCENARIO 335740] Line Amount on Purchase Order Statistics page is equal to sum of line amounts in purchase order, for which line amount is increased after 100% prepayment is invoiced.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase order set up for 100% prepayment.
         // [GIVEN] Set line discount 10% on the purchase line.
@@ -1917,9 +1917,8 @@ codeunit 134106 "ERM Prepayment V"
         PostedCreditMemoNo: Code[20];
         ExpectedComment: array[2] of Text[80];
     begin
-        // [FEATURE] [Comments]
         // [SCENARIO 337525] System copies sales order's comments to posted prepayment invoices and credit memos when setup is enabled.
-        Initialize;
+        Initialize();
         LibrarySales.SetCopyCommentsOrderToInvoiceInSetup(true);
 
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
@@ -1946,10 +1945,10 @@ codeunit 134106 "ERM Prepayment V"
         PostedInvoiceNo[2] := LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
         PostedCreditMemoNo := LibrarySales.PostSalesPrepaymentCreditMemo(SalesHeader);
 
-        VerifyPostedSalesInvoiceCommentLine(PostedInvoiceNo[1], ExpectedComment[1], 2, 1);
-        VerifyPostedSalesInvoiceCommentLine(PostedInvoiceNo[2], ExpectedComment[2], 2, 1);
-        VerifyPostedSalesCreditMemoCommentLine(PostedCreditMemoNo, ExpectedComment[1], 10000, 3, 2);
-        VerifyPostedSalesCreditMemoCommentLine(PostedCreditMemoNo, ExpectedComment[2], 30000, 3, 2);
+        VerifyPostedSalesInvoiceCommentLine(PostedInvoiceNo[1], ExpectedComment[1], 1 + 1, 1);
+        VerifyPostedSalesInvoiceCommentLine(PostedInvoiceNo[2], ExpectedComment[2], 1 + 1, 1);
+        VerifyPostedSalesCreditMemoCommentLine(PostedCreditMemoNo, ExpectedComment[1], 10000, 1 + ArrayLen(SalesLine), 1);
+        VerifyPostedSalesCreditMemoCommentLine(PostedCreditMemoNo, ExpectedComment[2], 30000, 1 + ArrayLen(SalesLine), 1);
     end;
 
     [Test]
@@ -1964,9 +1963,8 @@ codeunit 134106 "ERM Prepayment V"
         PostedCreditMemoNo: Code[20];
         ExpectedComment: array[2] of Text[80];
     begin
-        // [FEATURE] [Comments]
         // [SCENARIO 337525] System copies purchase order's comments to posted prepayment invoices and credit memos when setup is enabled.
-        Initialize;
+        Initialize();
         LibraryPurchase.SetCopyCommentsOrderToInvoiceInSetup(true);
 
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
@@ -1997,10 +1995,10 @@ codeunit 134106 "ERM Prepayment V"
         PostedInvoiceNo[2] := LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
         PostedCreditMemoNo := LibraryPurchase.PostPurchasePrepaymentCreditMemo(PurchaseHeader);
 
-        VerifyPostedPurchaseInvoiceCommentLine(PostedInvoiceNo[1], ExpectedComment[1], 2, 1);
-        VerifyPostedPurchaseInvoiceCommentLine(PostedInvoiceNo[2], ExpectedComment[2], 2, 1);
-        VerifyPostedPurchaseCreditMemoCommentLine(PostedCreditMemoNo, ExpectedComment[1], 10000, 3, 2);
-        VerifyPostedPurchaseCreditMemoCommentLine(PostedCreditMemoNo, ExpectedComment[2], 30000, 3, 2);
+        VerifyPostedPurchaseInvoiceCommentLine(PostedInvoiceNo[1], ExpectedComment[1], 1 + 1, 1);
+        VerifyPostedPurchaseInvoiceCommentLine(PostedInvoiceNo[2], ExpectedComment[2], 1 + 1, 1);
+        VerifyPostedPurchaseCreditMemoCommentLine(PostedCreditMemoNo, ExpectedComment[1], 10000, ArrayLen(PurchaseLine) + 1, 1);
+        VerifyPostedPurchaseCreditMemoCommentLine(PostedCreditMemoNo, ExpectedComment[2], 30000, ArrayLen(PurchaseLine) + 1, 1);
     end;
 
     [Test]
@@ -2015,9 +2013,8 @@ codeunit 134106 "ERM Prepayment V"
         PostedCreditMemoNo: Code[20];
         ExpectedComment: array[2] of Text[80];
     begin
-        // [FEATURE] [Comments]
         // [SCENARIO 337525] System does not copy sales order's comments to posted prepayment invoices and credit memos when setup is disabled.
-        Initialize;
+        Initialize();
         LibrarySales.SetCopyCommentsOrderToInvoiceInSetup(false);
 
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
@@ -2062,9 +2059,8 @@ codeunit 134106 "ERM Prepayment V"
         PostedCreditMemoNo: Code[20];
         ExpectedComment: array[2] of Text[80];
     begin
-        // [FEATURE] [Comments]
         // [SCENARIO 337525] System does not copy purchase order's comments to posted prepayment invoices and credit memos when setup is disabled.
-        Initialize;
+        Initialize();
         LibraryPurchase.SetCopyCommentsOrderToInvoiceInSetup(false);
 
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
@@ -2101,222 +2097,26 @@ codeunit 134106 "ERM Prepayment V"
         VerifyPostedPurchaseCreditMemoCommentLine(PostedCreditMemoNo, ExpectedComment[2], 30000, 0, 0);
     end;
 
-    [Test]
-    [Scope('Internal')]
-    procedure SalesOrderConsequentCompressedPrepaymentPostingWithCommentLines()
-    var
-        SalesHeader: Record "Sales Header";
-        SalesLine: array[2] of Record "Sales Line";
-        VATPostingSetup: Record "VAT Posting Setup";
-        SalesCommentLine: Record "Sales Comment Line";
-        PostedInvoiceNo: array[2] of Code[20];
-        PostedCreditMemoNo: Code[20];
-        ExpectedComment: array[2] of Text[80];
-    begin
-        // [FEATURE] [Comments]
-        // [SCENARIO 342788] System copies sales order's comments to posted prepayment invoices and credit memos when setup is enabled.
-        Initialize;
-        LibrarySales.SetCopyCommentsOrderToInvoiceInSetup(true);
-
-        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-
-        CreateFullPrepaymentSalesHeader(SalesHeader, VATPostingSetup."VAT Bus. Posting Group", true);
-        LibrarySales.CreateSalesCommentLine(SalesCommentLine, SalesHeader."Document Type", SalesHeader."No.", 0);
-
-        CreateSalesLine(SalesLine[1], SalesHeader);
-        LibrarySales.CreateSalesCommentLine(SalesCommentLine, SalesHeader."Document Type", SalesHeader."No.", SalesLine[1]."Line No.");
-        ExpectedComment[1] := SalesCommentLine.Comment;
-
-        UpdateSalesPrepmtAccount(
-          CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group"),
-          SalesLine[1]."Gen. Bus. Posting Group", SalesLine[1]."Gen. Prod. Posting Group");
-
-        PostedInvoiceNo[1] := LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
-
-        LibrarySales.ReopenSalesDocument(SalesHeader);
-
-        CreateSalesLine(SalesLine[2], SalesHeader);
-        LibrarySales.CreateSalesCommentLine(SalesCommentLine, SalesHeader."Document Type", SalesHeader."No.", SalesLine[2]."Line No.");
-        ExpectedComment[2] := SalesCommentLine.Comment;
-
-        PostedInvoiceNo[2] := LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
-        PostedCreditMemoNo := LibrarySales.PostSalesPrepaymentCreditMemo(SalesHeader);
-
-        VerifyPostedSalesInvoiceCommentLine(PostedInvoiceNo[1], ExpectedComment[1], 1 + 1, 0);
-        VerifyPostedSalesInvoiceCommentLine(PostedInvoiceNo[2], ExpectedComment[2], 1 + 1, 0);
-        VerifyPostedSalesCreditMemoCommentLine(PostedCreditMemoNo, ExpectedComment[1], 10000, 1 + ArrayLen(SalesLine), 0);
-        VerifyPostedSalesCreditMemoCommentLine(PostedCreditMemoNo, ExpectedComment[2], 20000, 1 + ArrayLen(SalesLine), 0);
-    end;
-
-    [Test]
-    [Scope('Internal')]
-    procedure PurchaseOrderConsequentCompressedPrepaymentPostingWithCommentLines()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: array[2] of Record "Purchase Line";
-        VATPostingSetup: Record "VAT Posting Setup";
-        PurchCommentLine: Record "Purch. Comment Line";
-        PostedInvoiceNo: array[2] of Code[20];
-        PostedCreditMemoNo: Code[20];
-        ExpectedComment: array[2] of Text[80];
-    begin
-        // [FEATURE] [Comments]
-        // [SCENARIO 342788] System copies purchase order's comments to posted prepayment invoices and credit memos when setup is enabled.
-        Initialize;
-        LibraryPurchase.SetCopyCommentsOrderToInvoiceInSetup(true);
-
-        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-
-        CreateFullPrepaymentPurchHeader(PurchaseHeader, VATPostingSetup."VAT Bus. Posting Group", true);
-        LibraryPurchase.CreatePurchCommentLine(PurchCommentLine, PurchaseHeader."Document Type", PurchaseHeader."No.", 0);
-
-        CreatePurchLine(PurchaseLine[1], PurchaseHeader);
-        LibraryPurchase.CreatePurchCommentLine(
-          PurchCommentLine, PurchaseHeader."Document Type", PurchaseHeader."No.", PurchaseLine[1]."Line No.");
-        ExpectedComment[1] := PurchCommentLine.Comment;
-
-        UpdatePurchasePrepmtAccount(
-          CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group"),
-          PurchaseLine[1]."Gen. Bus. Posting Group", PurchaseLine[1]."Gen. Prod. Posting Group");
-
-        PostedInvoiceNo[1] := LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
-
-        LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
-        PurchaseHeader.Modify(true);
-
-        CreatePurchLine(PurchaseLine[2], PurchaseHeader);
-        LibraryPurchase.CreatePurchCommentLine(
-          PurchCommentLine, PurchaseHeader."Document Type", PurchaseHeader."No.", PurchaseLine[2]."Line No.");
-        ExpectedComment[2] := PurchCommentLine.Comment;
-
-        PostedInvoiceNo[2] := LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
-        PostedCreditMemoNo := LibraryPurchase.PostPurchasePrepaymentCreditMemo(PurchaseHeader);
-
-        VerifyPostedPurchaseInvoiceCommentLine(PostedInvoiceNo[1], ExpectedComment[1], 1 + 1, 0);
-        VerifyPostedPurchaseInvoiceCommentLine(PostedInvoiceNo[2], ExpectedComment[2], 1 + 1, 0);
-        VerifyPostedPurchaseCreditMemoCommentLine(PostedCreditMemoNo, ExpectedComment[1], 10000, ArrayLen(PurchaseLine) + 1, 0);
-        VerifyPostedPurchaseCreditMemoCommentLine(PostedCreditMemoNo, ExpectedComment[2], 20000, ArrayLen(PurchaseLine) + 1, 0);
-    end;
-
-    [Test]
-    [Scope('Internal')]
-    procedure SalesOrderConsequentCompressedPrepaymentPostingWithCommentLines_SetupDisabled()
-    var
-        SalesHeader: Record "Sales Header";
-        SalesLine: array[2] of Record "Sales Line";
-        VATPostingSetup: Record "VAT Posting Setup";
-        SalesCommentLine: Record "Sales Comment Line";
-        PostedInvoiceNo: array[2] of Code[20];
-        PostedCreditMemoNo: Code[20];
-        ExpectedComment: array[2] of Text[80];
-    begin
-        // [FEATURE] [Comments]
-        // [SCENARIO 342788] System does not copy sales order's comments to posted prepayment invoices and credit memos when setup is disabled.
-        Initialize;
-        LibrarySales.SetCopyCommentsOrderToInvoiceInSetup(false);
-
-        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-
-        CreateFullPrepaymentSalesHeader(SalesHeader, VATPostingSetup."VAT Bus. Posting Group", true);
-        LibrarySales.CreateSalesCommentLine(SalesCommentLine, SalesHeader."Document Type", SalesHeader."No.", 0);
-
-        CreateSalesLine(SalesLine[1], SalesHeader);
-        LibrarySales.CreateSalesCommentLine(SalesCommentLine, SalesHeader."Document Type", SalesHeader."No.", SalesLine[1]."Line No.");
-        ExpectedComment[1] := SalesCommentLine.Comment;
-
-        UpdateSalesPrepmtAccount(
-          CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group"),
-          SalesLine[1]."Gen. Bus. Posting Group", SalesLine[1]."Gen. Prod. Posting Group");
-
-        PostedInvoiceNo[1] := LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
-
-        LibrarySales.ReopenSalesDocument(SalesHeader);
-
-        CreateSalesLine(SalesLine[2], SalesHeader);
-        LibrarySales.CreateSalesCommentLine(SalesCommentLine, SalesHeader."Document Type", SalesHeader."No.", SalesLine[2]."Line No.");
-        ExpectedComment[2] := SalesCommentLine.Comment;
-
-        PostedInvoiceNo[2] := LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
-        PostedCreditMemoNo := LibrarySales.PostSalesPrepaymentCreditMemo(SalesHeader);
-
-        VerifyPostedSalesInvoiceCommentLine(PostedInvoiceNo[1], ExpectedComment[1], 0, 0);
-        VerifyPostedSalesInvoiceCommentLine(PostedInvoiceNo[2], ExpectedComment[2], 0, 0);
-        VerifyPostedSalesCreditMemoCommentLine(PostedCreditMemoNo, ExpectedComment[1], 10000, 0, 0);
-        VerifyPostedSalesCreditMemoCommentLine(PostedCreditMemoNo, ExpectedComment[2], 30000, 0, 0);
-    end;
-
-    [Test]
-    [Scope('Internal')]
-    procedure PurchaseOrderConsequentCompressedPrepaymentPostingWithCommentLines_SetupDisabled()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: array[2] of Record "Purchase Line";
-        VATPostingSetup: Record "VAT Posting Setup";
-        PurchCommentLine: Record "Purch. Comment Line";
-        PostedInvoiceNo: array[2] of Code[20];
-        PostedCreditMemoNo: Code[20];
-        ExpectedComment: array[2] of Text[80];
-    begin
-        // [FEATURE] [Comments]
-        // [SCENARIO 342788] System does not copy purchase order's comments to posted prepayment invoices and credit memos when setup is disabled.
-        Initialize;
-        LibraryPurchase.SetCopyCommentsOrderToInvoiceInSetup(false);
-
-        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-
-        CreateFullPrepaymentPurchHeader(PurchaseHeader, VATPostingSetup."VAT Bus. Posting Group", true);
-        LibraryPurchase.CreatePurchCommentLine(PurchCommentLine, PurchaseHeader."Document Type", PurchaseHeader."No.", 0);
-
-        CreatePurchLine(PurchaseLine[1], PurchaseHeader);
-        LibraryPurchase.CreatePurchCommentLine(
-          PurchCommentLine, PurchaseHeader."Document Type", PurchaseHeader."No.", PurchaseLine[1]."Line No.");
-        ExpectedComment[1] := PurchCommentLine.Comment;
-
-        UpdatePurchasePrepmtAccount(
-          CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group"),
-          PurchaseLine[1]."Gen. Bus. Posting Group", PurchaseLine[1]."Gen. Prod. Posting Group");
-
-        PostedInvoiceNo[1] := LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
-
-        LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
-        PurchaseHeader.Modify(true);
-
-        CreatePurchLine(PurchaseLine[2], PurchaseHeader);
-        LibraryPurchase.CreatePurchCommentLine(
-          PurchCommentLine, PurchaseHeader."Document Type", PurchaseHeader."No.", PurchaseLine[2]."Line No.");
-        ExpectedComment[2] := PurchCommentLine.Comment;
-
-        PostedInvoiceNo[2] := LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
-        PostedCreditMemoNo := LibraryPurchase.PostPurchasePrepaymentCreditMemo(PurchaseHeader);
-
-        VerifyPostedPurchaseInvoiceCommentLine(PostedInvoiceNo[1], ExpectedComment[1], 0, 0);
-        VerifyPostedPurchaseInvoiceCommentLine(PostedInvoiceNo[2], ExpectedComment[2], 0, 0);
-        VerifyPostedPurchaseCreditMemoCommentLine(PostedCreditMemoNo, ExpectedComment[1], 10000, 0, 0);
-        VerifyPostedPurchaseCreditMemoCommentLine(PostedCreditMemoNo, ExpectedComment[2], 30000, 0, 0);
-    end;
-
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Prepayment V");
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Prepayment V");
 
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.UpdatePrepaymentAccounts;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdatePrepaymentAccounts();
 
-        LibrarySetupStorage.SavePurchasesSetup;
-        LibrarySetupStorage.SaveSalesSetup;
-        LibrarySetupStorage.SaveGeneralLedgerSetup;
+        LibrarySetupStorage.SavePurchasesSetup();
+        LibrarySetupStorage.SaveSalesSetup();
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
 
         isInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Prepayment V");
@@ -2754,10 +2554,10 @@ codeunit 134106 "ERM Prepayment V"
 
     local procedure MockPurchaseHeader(var PurchaseHeader: Record "Purchase Header")
     begin
-        PurchaseHeader.Init;
+        PurchaseHeader.Init();
         PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Order;
         PurchaseHeader."No." := LibraryUtility.GenerateRandomCode(PurchaseHeader.FieldNo("No."), DATABASE::"Purchase Header");
-        PurchaseHeader.Insert;
+        PurchaseHeader.Insert();
     end;
 
     local procedure MockPurchaseLineWithPrepmtAmtInv(PurchaseHeader: Record "Purchase Header"; GenBusPostingGroupCode: Code[20]; GenProdPostingGroupCode: Code[20]; JobNo: Code[20])
@@ -2782,10 +2582,10 @@ codeunit 134106 "ERM Prepayment V"
 
     local procedure MockSalesHeader(var SalesHeader: Record "Sales Header")
     begin
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
         SalesHeader."No." := LibraryUtility.GenerateRandomCode(SalesHeader.FieldNo("No."), DATABASE::"Sales Header");
-        SalesHeader.Insert;
+        SalesHeader.Insert();
     end;
 
     local procedure MockSalesLineWithPrepmtAmtInv(SalesHeader: Record "Sales Header"; GenBusPostingGroupCode: Code[20]; GenProdPostingGroupCode: Code[20]; JobNo: Code[20])
@@ -2835,7 +2635,7 @@ codeunit 134106 "ERM Prepayment V"
         end;
         GenPostingSetup."Sales Prepayments Account" := GLAccountNo;
         GenPostingSetup."Purch. Prepayments Account" := GLAccountNo;
-        GenPostingSetup.Modify;
+        GenPostingSetup.Modify();
     end;
 
     local procedure MockJobWithDfltDimension(var DimensionValue: Record "Dimension Value"): Code[20]
@@ -2956,7 +2756,7 @@ codeunit 134106 "ERM Prepayment V"
             until Next = 0;
         end;
         PurchaseHeader."Vendor Invoice No." := IncStr(PurchaseHeader."Vendor Invoice No.");
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
@@ -3136,7 +2936,7 @@ codeunit 134106 "ERM Prepayment V"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Check Prepmt. when Posting", CheckPrepmt);
         SalesReceivablesSetup.Modify(true);
     end;
@@ -3162,7 +2962,7 @@ codeunit 134106 "ERM Prepayment V"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         VATPostingSetup.SetRange("VAT Bus. Posting Group", VATBusPostingGroup);
-        VATPostingSetup.DeleteAll;
+        VATPostingSetup.DeleteAll();
     end;
 
     local procedure VerifyGLEntry(Amount: Decimal; DocumentNo: Code[20]; GLAccountNo: Code[20])
@@ -3326,7 +3126,7 @@ codeunit 134106 "ERM Prepayment V"
         Assert.RecordCount(SalesCommentLine, ExpectedNoOfAllComments);
 
         SalesCommentLine.SetRange("Document Line No.", 0);
-        Assert.RecordCount(SalesCommentLine, ExpectedNoOfAllComments - ExpectedNoOfLineComments);
+        Assert.RecordCount(SalesCommentLine, ExpectedNoOfLineComments);
 
         if ExpectedNoOfLineComments > 0 then begin
             SalesCommentLine.SetFilter("Document Line No.", '>0');
@@ -3344,7 +3144,7 @@ codeunit 134106 "ERM Prepayment V"
         Assert.RecordCount(PurchCommentLine, ExpectedNoOfAllComments);
 
         PurchCommentLine.SetRange("Document Line No.", 0);
-        Assert.RecordCount(PurchCommentLine, ExpectedNoOfAllComments - ExpectedNoOfLineComments);
+        Assert.RecordCount(PurchCommentLine, ExpectedNoOfLineComments);
 
         if ExpectedNoOfLineComments > 0 then begin
             PurchCommentLine.SetFilter("Document Line No.", '>0');
@@ -3362,7 +3162,7 @@ codeunit 134106 "ERM Prepayment V"
         Assert.RecordCount(SalesCommentLine, ExpectedNoOfAllComments);
 
         SalesCommentLine.SetRange("Document Line No.", 0);
-        Assert.RecordCount(SalesCommentLine, ExpectedNoOfAllComments - ExpectedNoOfLineComments);
+        Assert.RecordCount(SalesCommentLine, ExpectedNoOfLineComments);
 
         if ExpectedNoOfLineComments > 0 then begin
             SalesCommentLine.SetRange("Document Line No.", LineNo);
@@ -3380,7 +3180,7 @@ codeunit 134106 "ERM Prepayment V"
         Assert.RecordCount(PurchCommentLine, ExpectedNoOfAllComments);
 
         PurchCommentLine.SetRange("Document Line No.", 0);
-        Assert.RecordCount(PurchCommentLine, ExpectedNoOfAllComments - ExpectedNoOfLineComments);
+        Assert.RecordCount(PurchCommentLine, ExpectedNoOfLineComments);
 
         if ExpectedNoOfLineComments > 0 then begin
             PurchCommentLine.SetRange("Document Line No.", LineNo);

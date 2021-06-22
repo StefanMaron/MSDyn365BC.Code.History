@@ -265,7 +265,7 @@ page 5489 "Dimension Lines Entity"
         if GenJournalLine.GetBySystemId(ParentSystemId) then begin
             GenJournalLine."Dimension Set ID" := DimensionManagement.GetDimensionSetID(TempDimensionSetEntry);
             DimensionManagement.UpdateGlobalDimFromDimSetID(
-              GenJournalLine."Dimension Set ID", GenJournalLine."Shortcut Dimension 1 Code", GenJournalLine."Shortcut Dimension 2 Code");
+                      GenJournalLine."Dimension Set ID", GenJournalLine."Shortcut Dimension 1 Code", GenJournalLine."Shortcut Dimension 2 Code");
             GenJournalLine.Modify(true);
         end else
             Error(RecordDoesntExistErr);

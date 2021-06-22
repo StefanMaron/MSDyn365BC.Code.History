@@ -90,7 +90,7 @@ codeunit 134988 "ERM Purchase Reports III"
         Clear(VendorTrialBalance);
 
         // [WHEN] Try to Save Vendor Trial Balance Report without any Filter.
-        Commit;
+        Commit();
         asserterror VendorTrialBalance.Run;
 
         // [THEN] Error raised during save Vendor Trial Balance Report.
@@ -305,7 +305,7 @@ codeunit 134988 "ERM Purchase Reports III"
           VendorNo, -GenJournalLine.Amount / LibraryRandom.RandIntInRange(2, 5)); // Take Random Amount.
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         ApplyVendLedgerEntry(GenJournalLine."Document Type", GenJournalLine."Account No.");
-        Commit;
+        Commit();
         Vendor.Get(VendorNo);
         Vendor.CalcFields(Balance);
 
@@ -459,7 +459,7 @@ codeunit 134988 "ERM Purchase Reports III"
         PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
         PurchaseHeader.SetRange("No.", PurchaseHeader."No.");
         Order.SetTableView(PurchaseHeader);
-        Commit;
+        Commit();
         Order.Run;
 
         // Verify: Verify that Saved files have some data.
@@ -521,7 +521,7 @@ codeunit 134988 "ERM Purchase Reports III"
         Vendor.SetFilter("No.", '%1|%2|%3', VendorNo1, VendorNo2, VendorNo3);
         VendorSummaryAging.SetTableView(Vendor);
         VendorSummaryAging.InitializeRequest(GenJournalLine."Due Date", '<1M>', false);
-        Commit;
+        Commit();
         VendorSummaryAging.Run;
 
         // Verify: Verify Saved Report Data.
@@ -530,12 +530,12 @@ codeunit 134988 "ERM Purchase Reports III"
         if not LibraryReportDataset.GetNextRow then
             Error(StrSubstNo(RowNotFoundErr, 'Vendor__No__', VendorNo2));
         LibraryReportDataset.AssertCurrentRowValueEquals('VendBalanceDueLCY_1_', -RemainingAmountVendor2);
-        LibraryReportDataset.Reset;
+        LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('Vendor__No__', VendorNo3);
         if not LibraryReportDataset.GetNextRow then
             Error(StrSubstNo(RowNotFoundErr, 'Vendor__No__', VendorNo3));
         LibraryReportDataset.AssertCurrentRowValueEquals('VendBalanceDueLCY_2_', -RemainingAmountVendor3);
-        LibraryReportDataset.Reset;
+        LibraryReportDataset.Reset();
         Assert.AreNearlyEqual(
           -RemainingAmountVendor2 - RemainingAmountVendor3, LibraryReportDataset.Sum('TotalVendAmtDueLCY'),
           LibraryERM.GetAmountRoundingPrecision, SameAmountErr);
@@ -1044,14 +1044,14 @@ codeunit 134988 "ERM Purchase Reports III"
         // [GIVEN] Posted Purchase Invoice with Global Dimension 1 = "D1" where Amount = "A1"
         // [GIVEN] Posted Purchase Invoice with Global Dimension 1 = "D2" where Amount = "A2"
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         VendorNo := CreateVendor;
         Vendor.Get(VendorNo);
         LibraryDimension.FindDimensionValue(DimensionValue, GeneralLedgerSetup."Global Dimension 1 Code");
         DimensionNo[1] := DimensionValue.Code;
         DimensionNo[2] := LibraryDimension.FindDifferentDimensionValue(GeneralLedgerSetup."Global Dimension 1 Code", DimensionNo[1]);
         Vendor.Validate("Global Dimension 1 Code", DimensionNo[1]);
-        Vendor.Modify;
+        Vendor.Modify();
         CreateCustomerAndPostGenJnlLinesWithFilters(VendorNo, DimensionNo[1], '', '');
         CreateCustomerAndPostGenJnlLinesWithFilters(VendorNo, DimensionNo[2], '', '');
 
@@ -1078,14 +1078,14 @@ codeunit 134988 "ERM Purchase Reports III"
         // [GIVEN] Posted Purchase Invoice with Global Dimension 2 = "D1" where Amount = "A1"
         // [GIVEN] Posted Purchase Invoice with Global Dimension 2 = "D2" where Amount = "A2"
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         VendorNo := CreateVendor;
         Vendor.Get(VendorNo);
         LibraryDimension.FindDimensionValue(DimensionValue, GeneralLedgerSetup."Global Dimension 2 Code");
         DimensionNo[1] := DimensionValue.Code;
         DimensionNo[2] := LibraryDimension.FindDifferentDimensionValue(GeneralLedgerSetup."Global Dimension 2 Code", DimensionNo[1]);
         Vendor.Validate("Global Dimension 2 Code", DimensionNo[1]);
-        Vendor.Modify;
+        Vendor.Modify();
         CreateCustomerAndPostGenJnlLinesWithFilters(VendorNo, '', DimensionNo[1], '');
         CreateCustomerAndPostGenJnlLinesWithFilters(VendorNo, '', DimensionNo[2], '');
 
@@ -1139,7 +1139,7 @@ codeunit 134988 "ERM Purchase Reports III"
         Clear(AgedAccountsPayable);
         AgedAccountsPayable.SetTableView(Vendor);
         AgedAccountsPayable.InitializeRequest(WorkDate, 0, PeriodLength, false, false, 0, false);
-        Commit;
+        Commit();
         asserterror AgedAccountsPayable.Run;
         Assert.ExpectedError(EnterDateFormulaErr);
     end;
@@ -1161,7 +1161,7 @@ codeunit 134988 "ERM Purchase Reports III"
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.SetRecFilter;
 
-        Commit;
+        Commit();
         SaveAgedAccountsPayable(Vendor, AgingBy::"Due Date", HeadingType::"Date Interval", PeriodLength, false, false);
 
         Evaluate(PeriodLength, LibraryVariableStorage.DequeueText);
@@ -1597,7 +1597,7 @@ codeunit 134988 "ERM Purchase Reports III"
         end;
         PrepareAgedAccPayableReportForDimRun(
           Vendor, PeriodLength, GenJournalLine."Shortcut Dimension 1 Code", GenJournalLine."Shortcut Dimension 2 Code");
-        Commit;
+        Commit();
 
         // [WHEN] Run Aged Account Payable Report with "Global Dimension 1 Filter" = "X2" and "Global Dimension 2 Filter" = "Y2"
         SaveAgedAccountsPayable(
@@ -1670,7 +1670,7 @@ codeunit 134988 "ERM Purchase Reports III"
             LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(Vendor.Contact), 0),
             1,
             MaxStrLen(Vendor.Contact)));
-        Vendor.Modify;
+        Vendor.Modify();
         CreatePostPurchaseInvoiceWithDueDateCalc(Vendor."No.");
 
         // [WHEN] Run report Aged Accounts Payable with "Print Details" = "Yes"
@@ -1754,7 +1754,7 @@ codeunit 134988 "ERM Purchase Reports III"
         UpdatePurchaseLineReceiptDates(PurchaseLine);
 
         // [WHEN] Report Standard Purchase - Order is being printed
-        Commit;
+        Commit();
         Report.Run(Report::"Standard Purchase - Order", true, false, PurchaseHeader);
 
         // [THEN] Report dataset has Planned/Expected/Promised/Requested Receipt Dates = 01.01, 02.01, 03.01, 04.01
@@ -1781,7 +1781,7 @@ codeunit 134988 "ERM Purchase Reports III"
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Purchase Reports III");
     end;
 
@@ -1821,7 +1821,7 @@ codeunit 134988 "ERM Purchase Reports III"
           CreateMultiplePurchaseLinesWithChargeItem(PurchaseHeader, ItemChargeNo);
 
         // Exercise: Save Purchase Docment Test Report using Purchase Document Test Request Page Handler.
-        Commit;  // Due to limitation in Report Commit is required for this Test case.
+        Commit();  // Due to limitation in Report Commit is required for this Test case.
         RunPurchaseDocumentTestReport(PurchaseHeader);
 
         // Verify: Verify Assignable Quantity on Purchase Document Test Report.
@@ -1992,7 +1992,7 @@ codeunit 134988 "ERM Purchase Reports III"
         CreateAndPostItemJournalLine(ItemJournalLine, LocationFrom);
 
         // Update Number Series of Posted Transfer Receipt Number. Create and post Transfer Order as Ship and Receive.
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.Validate("Posted Transfer Rcpt. Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         InventorySetup.Modify(true);
         LibraryWarehouse.CreateTransferHeader(TransferHeader, LocationFrom, LocationTo, LocationInTransit.Code);
@@ -2038,7 +2038,7 @@ codeunit 134988 "ERM Purchase Reports III"
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
         PurchaseHeader.Validate("Due Date", CalcDate('<1M>', PurchaseHeader."Posting Date"));
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandDec(10, 2));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
@@ -2064,7 +2064,7 @@ codeunit 134988 "ERM Purchase Reports III"
         PurchaseHeader.SetRange("No.", PurchaseHeader."No.");
         PurchaseDocumentTest.SetTableView(PurchaseHeader);
         PurchaseDocumentTest.InitializeRequest(true, true, false, false);
-        Commit;
+        Commit();
         PurchaseDocumentTest.Run;
     end;
 
@@ -2267,7 +2267,7 @@ codeunit 134988 "ERM Purchase Reports III"
         GeneralLedgerSetup: Record "General Ledger Setup";
         DimensionValue: Record "Dimension Value";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryDimension.CreateDimensionValue(DimensionValue, GeneralLedgerSetup."Global Dimension 1 Code");
         GlobalDim1Value := DimensionValue.Code;
         LibraryDimension.CreateDimensionValue(DimensionValue, GeneralLedgerSetup."Global Dimension 2 Code");
@@ -2324,7 +2324,7 @@ codeunit 134988 "ERM Purchase Reports III"
         GenJournalLine.Validate("Shortcut Dimension 1 Code", GlobalDimension1Code);
         GenJournalLine.Validate("Shortcut Dimension 2 Code", GlobalDimension2Code);
         GenJournalLine.Validate("Currency Code", CurrencyCode);
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
@@ -2453,7 +2453,7 @@ codeunit 134988 "ERM Purchase Reports III"
         CreateItemJournalBatch(ItemJournalBatch);
 
         // Calculate Inventory and Post Item Journal Line.
-        ItemJournalLine.Init;
+        ItemJournalLine.Init();
         ItemJournalLine.Validate("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.Validate("Journal Batch Name", ItemJournalBatch.Name);
         LibraryInventory.CalculateInventoryForSingleItem(ItemJournalLine, ItemNo, WorkDate, true, false);
@@ -2558,7 +2558,7 @@ codeunit 134988 "ERM Purchase Reports III"
 
         // Exercise.
         PurchaseHeader.SetRange("No.", PurchaseHeader."No.");
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Purchase Prepmt. Doc. - Test", true, false, PurchaseHeader);
     end;
 
@@ -2629,7 +2629,7 @@ codeunit 134988 "ERM Purchase Reports III"
         LibraryVariableStorage.Enqueue(LogInteraction);
         PurchaseHeader.SetRange("No.", No);
         PurchaseHeader.SetRange("Buy-from Vendor No.", VendorNo);
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Purchase - Quote", true, false, PurchaseHeader);
     end;
 
@@ -2645,7 +2645,7 @@ codeunit 134988 "ERM Purchase Reports III"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Default Posting Date", DefaultPostingDate);
         PurchasesPayablesSetup.Modify(true);
     end;
@@ -2654,7 +2654,7 @@ codeunit 134988 "ERM Purchase Reports III"
     var
         PurchasePayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasePayablesSetup.Get;
+        PurchasePayablesSetup.Get();
         PurchasePayablesSetup.Validate("Calc. Inv. Discount", CalcInvDiscount);
         PurchasePayablesSetup.Modify(true);
     end;
@@ -2689,7 +2689,7 @@ codeunit 134988 "ERM Purchase Reports III"
         PurchaseHeader.SetRange("No.", No);
         PurchaseDocumentTest.SetTableView(PurchaseHeader);
         PurchaseDocumentTest.InitializeRequest(true, true, false, false);
-        Commit;
+        Commit();
         PurchaseDocumentTest.Run;
     end;
 
@@ -2699,7 +2699,7 @@ codeunit 134988 "ERM Purchase Reports III"
         GenJournalBatch: Record "Gen. Journal Batch";
         DimensionValue: array[2] of Record "Dimension Value";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryDimension.CreateDimensionValue(DimensionValue[1], GeneralLedgerSetup."Global Dimension 1 Code");
         LibraryDimension.CreateDimensionValue(DimensionValue[2], GeneralLedgerSetup."Global Dimension 2 Code");
         LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
@@ -2890,7 +2890,7 @@ codeunit 134988 "ERM Purchase Reports III"
         LibraryReportDataset.AssertCurrentRowValueEquals('Purchase_Line___Allow_Invoice_Disc__', PurchaseLine."Allow Invoice Disc.");
         LibraryReportDataset.AssertCurrentRowValueEquals('Purchase_Line___VAT_Identifier_', PurchaseLine."VAT Identifier");
 
-        LibraryReportDataset.Reset;
+        LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('Purchase_Line___Line_Discount___', PurchaseLine."Line Discount %");
         LibraryReportDataset.GetNextRow;
         LibraryReportDataset.AssertCurrentRowValueEquals('Purchase_Line___Inv__Discount_Amount_', PurchaseLine."Inv. Discount Amount");
@@ -3136,7 +3136,7 @@ codeunit 134988 "ERM Purchase Reports III"
     begin
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
         LibraryVariableStorage.Enqueue(LibraryReportValidation.GetFileName);
-        Commit;
+        Commit();
 
         PurchInvHeader.SetRange("No.", DocumentNo);
         REPORT.Run(REPORT::"Purchase - Invoice", true, false, PurchInvHeader);

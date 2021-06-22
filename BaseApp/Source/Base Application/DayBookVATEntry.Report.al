@@ -15,7 +15,7 @@ report 2500 "Day Book VAT Entry"
 
             trigger OnPreDataItem()
             begin
-                CurrReport.Break;
+                CurrReport.Break();
             end;
         }
         dataitem(Date; Date)
@@ -314,7 +314,7 @@ report 2500 "Day Book VAT Entry"
     trigger OnPreReport()
     begin
         VATEntryFilter := ReqVATEntry.GetFilters;
-        GLSetup.Get;
+        GLSetup.Get();
     end;
 
     var

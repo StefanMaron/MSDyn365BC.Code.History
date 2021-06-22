@@ -89,7 +89,7 @@ page 9082 "Customer Statistics FactBox"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the sum of refunds received from the customer.';
                 }
-                field(LastPaymentReceiptDate; CalcLastPaymentDate)
+                field(LastPaymentReceiptDate; LastPaymentDate)
                 {
                     AccessByPermission = TableData "Cust. Ledger Entry" = R;
                     ApplicationArea = Basic, Suite;
@@ -110,7 +110,7 @@ page 9082 "Customer Statistics FactBox"
                     end;
                 }
             }
-            field("Total (LCY)"; GetTotalAmountLCY)
+            field("Total (LCY)"; TotalAmountLCY)
             {
                 AccessByPermission = TableData "Sales Line" = R;
                 ApplicationArea = Basic, Suite;
@@ -126,7 +126,7 @@ page 9082 "Customer Statistics FactBox"
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the maximum amount you allow the customer to exceed the payment balance before warnings are issued.';
             }
-            field("Balance Due (LCY)"; CalcOverdueBalance)
+            field("Balance Due (LCY)"; OverdueBalance)
             {
                 ApplicationArea = Basic, Suite;
                 CaptionClass = Format(StrSubstNo(Text000, Format(WorkDate)));
@@ -144,7 +144,7 @@ page 9082 "Customer Statistics FactBox"
                     CustLedgEntry.DrillDownOnOverdueEntries(DtldCustLedgEntry);
                 end;
             }
-            field("Sales (LCY)"; GetSalesLCY)
+            field("Sales (LCY)"; SalesLCY)
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Total Sales (LCY)';
@@ -155,14 +155,14 @@ page 9082 "Customer Statistics FactBox"
                     CustLedgEntry: Record "Cust. Ledger Entry";
                     AccountingPeriod: Record "Accounting Period";
                 begin
-                    CustLedgEntry.Reset;
+                    CustLedgEntry.Reset();
                     CustLedgEntry.SetRange("Customer No.", "No.");
                     CustLedgEntry.SetRange(
                       "Posting Date", AccountingPeriod.GetFiscalYearStartDate(WorkDate), AccountingPeriod.GetFiscalYearEndDate(WorkDate));
                     PAGE.RunModal(PAGE::"Customer Ledger Entries", CustLedgEntry);
                 end;
             }
-            field(GetInvoicedPrepmtAmountLCY; GetInvoicedPrepmtAmountLCY)
+            field(GetInvoicedPrepmtAmountLCY; InvoicedPrepmtAmountLCY)
             {
                 AccessByPermission = TableData "Sales Line" = R;
                 ApplicationArea = Prepayments;
@@ -176,9 +176,26 @@ page 9082 "Customer Statistics FactBox"
     {
     }
 
-    trigger OnAfterGetRecord()
+    trigger OnAfterGetCurrRecord()
+    var
+        CustomerNo: Code[20];
+        CustomerNoFilter: Text;
     begin
         FilterGroup(4);
+        // Get the customer number and set the current customer number
+        CustomerNoFilter := GetFilter("No.");
+        if (CustomerNoFilter = '') then begin
+            FilterGroup(0);
+            CustomerNoFilter := GetFilter("No.");
+        end;
+
+        if (CustomerNoFilter <> '') then begin
+            CustomerNo := CopyStr(CustomerNoFilter, 1, MaxStrLen(CustomerNo));
+            if CustomerNo <> CurrCustomerNo then begin
+                CurrCustomerNo := CustomerNo;
+                CalculateFieldValues(CurrCustomerNo);
+            end;
+        end;
     end;
 
     trigger OnInit()
@@ -189,6 +206,60 @@ page 9082 "Customer Statistics FactBox"
     var
         Text000: Label 'Overdue Amounts (LCY) as of %1';
         ShowCustomerNo: Boolean;
+        LastPaymentDate: Date;
+        TotalAmountLCY: Decimal;
+        OverdueBalance: Decimal;
+        SalesLCY: Decimal;
+        InvoicedPrepmtAmountLCY: Decimal;
+        TaskIdCalculateCue: Integer;
+        CurrCustomerNo: Code[20];
+
+    procedure CalculateFieldValues(CustomerNo: Code[20])
+    var
+        CalculateCustomerStats: Codeunit "Calculate Customer Stats.";
+        Args: Dictionary of [Text, Text];
+    begin
+        if (TaskIdCalculateCue <> 0) then
+            CurrPage.CancelBackgroundTask(TaskIdCalculateCue);
+
+        LastPaymentDate := WorkDate();
+        TotalAmountLCY := 0.0;
+        OverdueBalance := 0.0;
+        SalesLCY := 0.0;
+        InvoicedPrepmtAmountLCY := 0.0;
+
+        Args.Add(CalculateCustomerStats.GetCustomerNoLabel(), CustomerNo);
+        CurrPage.EnqueueBackgroundTask(TaskIdCalculateCue, Codeunit::"Calculate Customer Stats.", Args);
+    end;
+
+    trigger OnPageBackgroundTaskCompleted(TaskId: Integer; Results: Dictionary of [Text, Text])
+    var
+        CalculateCustomerStats: Codeunit "Calculate Customer Stats.";
+        DictionaryValue: Text;
+    begin
+        if (TaskId = TaskIdCalculateCue) then begin
+            if TryGetDictionaryValueFromKey(Results, CalculateCustomerStats.GetLastPaymentDateLabel(), DictionaryValue) then
+                Evaluate(LastPaymentDate, DictionaryValue);
+
+            if TryGetDictionaryValueFromKey(Results, CalculateCustomerStats.GetTotalAmountLCYLabel(), DictionaryValue) then
+                Evaluate(TotalAmountLCY, DictionaryValue);
+
+            if TryGetDictionaryValueFromKey(Results, CalculateCustomerStats.GetOverdueBalanceLabel(), DictionaryValue) then
+                Evaluate(OverdueBalance, DictionaryValue);
+
+            if TryGetDictionaryValueFromKey(Results, CalculateCustomerStats.GetSalesLCYLabel(), DictionaryValue) then
+                Evaluate(SalesLCY, DictionaryValue);
+
+            if TryGetDictionaryValueFromKey(Results, CalculateCustomerStats.GetInvoicedPrepmtAmountLCYLabel(), DictionaryValue) then
+                Evaluate(InvoicedPrepmtAmountLCY, DictionaryValue);
+        end;
+    end;
+
+    [TryFunction]
+    local procedure TryGetDictionaryValueFromKey(var DictionaryToLookIn: Dictionary of [Text, Text]; KeyToSearchFor: Text; var ReturnValue: Text)
+    begin
+        ReturnValue := DictionaryToLookIn.Get(KeyToSearchFor);
+    end;
 
     local procedure ShowDetails()
     begin
@@ -206,15 +277,6 @@ page 9082 "Customer Statistics FactBox"
         CustLedgerEntry.SetRange("Customer No.", "No.");
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Payment);
         CustLedgerEntry.SetRange(Reversed, false);
-    end;
-
-    local procedure CalcLastPaymentDate(): Date
-    var
-        CustLedgerEntry: Record "Cust. Ledger Entry";
-    begin
-        SetFilterLastPaymentDateEntry(CustLedgerEntry);
-        if CustLedgerEntry.FindLast then;
-        exit(CustLedgerEntry."Posting Date");
     end;
 }
 

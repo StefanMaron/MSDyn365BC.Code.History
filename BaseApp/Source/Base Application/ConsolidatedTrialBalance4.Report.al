@@ -265,7 +265,7 @@ report 18 "Consolidated Trial Balance (4)"
                 NextPageGroupNo := 1;
 
                 if j = 0 then
-                    CurrReport.Break;
+                    CurrReport.Break();
             end;
         }
     }

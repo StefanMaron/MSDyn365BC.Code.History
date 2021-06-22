@@ -26,13 +26,13 @@ page 5169 "Profile Questn. Line Subform"
                         TestField(Type, Type::Answer);
 
                         if Set then begin
-                            TempProfileQuestionnaireLine.Init;
+                            TempProfileQuestionnaireLine.Init();
                             TempProfileQuestionnaireLine.Validate("Profile Questionnaire Code", "Profile Questionnaire Code");
                             TempProfileQuestionnaireLine.Validate("Line No.", "Line No.");
-                            TempProfileQuestionnaireLine.Insert;
+                            TempProfileQuestionnaireLine.Insert();
                         end else begin
                             TempProfileQuestionnaireLine.Get("Profile Questionnaire Code", "Line No.");
-                            TempProfileQuestionnaireLine.Delete;
+                            TempProfileQuestionnaireLine.Delete();
                         end;
                     end;
                 }
@@ -71,7 +71,7 @@ page 5169 "Profile Questn. Line Subform"
             if Find('-') then
                 repeat
                     TempProfileQuestionnaireLine := FromProfileQuestionnaireLine;
-                    TempProfileQuestionnaireLine.Insert;
+                    TempProfileQuestionnaireLine.Insert();
                 until Next = 0;
         end;
     end;
@@ -79,7 +79,7 @@ page 5169 "Profile Questn. Line Subform"
     local procedure ClearSettings()
     begin
         if TempProfileQuestionnaireLine.FindFirst then
-            TempProfileQuestionnaireLine.DeleteAll;
+            TempProfileQuestionnaireLine.DeleteAll();
     end;
 }
 

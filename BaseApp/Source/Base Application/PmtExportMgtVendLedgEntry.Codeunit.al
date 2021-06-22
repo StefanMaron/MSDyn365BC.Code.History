@@ -130,7 +130,7 @@ codeunit 1207 "Pmt Export Mgt Vend Ledg Entry"
         BankAccount: Record "Bank Account";
         BankExportImportSetup: Record "Bank Export/Import Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Vendor.Get(VendorLedgerEntry."Vendor No.");
 
         with TempPaymentExportData do begin
@@ -143,16 +143,9 @@ codeunit 1207 "Pmt Export Mgt Vend Ledg Entry"
             "Sender Bank Account Code" := VendorLedgerEntry."Bal. Account No.";
 
             if VendorBankAccount.Get(VendorLedgerEntry."Vendor No.", VendorLedgerEntry."Recipient Bank Account") then begin
-                if BankAccount."Country/Region Code" = VendorBankAccount."Country/Region Code" then begin
-                    VendorLedgerEntry.CalcFields("Amount (LCY)");
-                    Amount := VendorLedgerEntry."Amount (LCY)";
-                    "Currency Code" := GeneralLedgerSetup."LCY Code";
-                end else begin
-                    VendorLedgerEntry.CalcFields(Amount);
-                    Amount := VendorLedgerEntry.Amount;
-                    "Currency Code" := GeneralLedgerSetup.GetCurrencyCode(VendorLedgerEntry."Currency Code");
-                end;
-
+                VendorLedgerEntry.CalcFields(Amount);
+                Amount := VendorLedgerEntry.Amount;
+                "Currency Code" := GeneralLedgerSetup.GetCurrencyCode(VendorLedgerEntry."Currency Code");
                 "Recipient Bank Acc. No." :=
                   CopyStr(VendorBankAccount.GetBankAccountNo, 1, MaxStrLen("Recipient Bank Acc. No."));
                 "Recipient Reg. No." := VendorBankAccount."Bank Branch No.";

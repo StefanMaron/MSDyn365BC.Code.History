@@ -36,6 +36,7 @@ codeunit 8614 "Config. XML Exchange"
         AddPrefixMode: Boolean;
         WorkingFolder: Text;
         PackageCodesMustMatchErr: Label 'The package code specified on the configuration package must be the same as the package name in the imported package.';
+        ProgressStatusTxt: Label '%1: %2 records out of %3', Comment = '%1 = table name; %2 = number of processed records (integer); %3 = total number records (integer).';
 
     local procedure AddXMLComment(var PackageXML: DotNet XmlDocument; var Node: DotNet XmlNode; Comment: Text[250])
     var
@@ -155,7 +156,7 @@ codeunit 8614 "Config. XML Exchange"
                   Dimension.Code, Dimension."Code Caption", true, false, false, true);
                 if FieldNodeExists(RecordNode, GetElementName(TempConfigPackageField."Field Name")) then begin
                     ConfigPackageField := TempConfigPackageField;
-                    ConfigPackageField.Insert;
+                    ConfigPackageField.Insert();
                     DimsAsColumns := true;
                     i := i + 1;
                 end;
@@ -163,7 +164,7 @@ codeunit 8614 "Config. XML Exchange"
 
         if DimsAsColumns then begin
             ConfigPackageTable."Dimensions as Columns" := true;
-            ConfigPackageTable.Modify;
+            ConfigPackageTable.Modify();
         end;
     end;
 
@@ -271,7 +272,7 @@ codeunit 8614 "Config. XML Exchange"
                 ProcessedRecordCount += 1;
 
                 if ShowDialog then
-                    ConfigProgressBarRecord.Update(StrSubstNo('%1: %2 records out of %3', ConfigPackageTable."Table Name", ProcessedRecordCount, RecordCount));
+                    ConfigProgressBarRecord.Update(StrSubstNo(ProgressStatusTxt, ConfigPackageTable."Table Name", ProcessedRecordCount, RecordCount));
             until RecRef.Next = 0;
             if ShowDialog then
                 ConfigProgressBarRecord.Close();
@@ -417,14 +418,14 @@ codeunit 8614 "Config. XML Exchange"
         end;
 
         if not HideDialog then
-            ConfigProgressBar.Close;
+            ConfigProgressBar.Close();
     end;
 
     local procedure ExportConfigTableToXML(var ConfigPackageTable: Record "Config. Package Table"; var PackageXML: DotNet XmlDocument)
     begin
         CreateRecordNodes(PackageXML, ConfigPackageTable);
         ConfigPackageTable."Exported Date and Time" := CreateDateTime(Today, Time);
-        ConfigPackageTable.Modify;
+        ConfigPackageTable.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -515,11 +516,11 @@ codeunit 8614 "Config. XML Exchange"
                     if not Confirmed then
                         exit(false);
                     ConfigPackage.Delete(true);
-                    Commit;
+                    Commit();
                 end;
-                ConfigPackage.Init;
+                ConfigPackage.Init();
                 ConfigPackage.Code := PackageCode;
-                ConfigPackage.Insert;
+                ConfigPackage.Insert();
             end else
                 ConfigPackage.Get(PackageCode);
 
@@ -543,9 +544,9 @@ codeunit 8614 "Config. XML Exchange"
             Value := GetAttribute(GetElementName(ConfigPackage.FieldName("Min. Count For Async Import")), DocumentElement);
             if Value <> '' then
                 Evaluate(ConfigPackage."Min. Count For Async Import", Value);
-            ConfigPackage.Modify;
+            ConfigPackage.Modify();
         end;
-        Commit; // to enable background processes to reference the ConfigPackage
+        Commit(); // to enable background processes to reference the ConfigPackage
 
         TableNodes := DocumentElement.ChildNodes;
         if not HideDialog then
@@ -553,7 +554,7 @@ codeunit 8614 "Config. XML Exchange"
         for NodeCount := 0 to (TableNodes.Count - 1) do begin
             TableNode := TableNodes.Item(NodeCount);
             if Evaluate(TableID, Format(TableNode.FirstChild.InnerText)) then begin
-                NoOfChildNodes := TableNode.ChildNodes.Count;
+                NoOfChildNodes := TableNode.ChildNodes.Count();
                 if (NoOfChildNodes < ConfigPackage."Min. Count For Async Import") or ExcelMode then
                     ImportTableFromXMLNode(TableNode, PackageCode)
                 else begin
@@ -682,7 +683,7 @@ codeunit 8614 "Config. XML Exchange"
         end;
         if (TableID > 0) and (not ConfigPackageTable.Get(PackageCode, TableID)) then begin
             if not ExcelMode then begin
-                ConfigPackageTable.Init;
+                ConfigPackageTable.Init();
                 ConfigPackageTable."Package Code" := PackageCode;
                 ConfigPackageTable."Table ID" := TableID;
                 Value := GetNodeValue(TableNode, GetElementName(ConfigPackageTable.FieldName("Page ID")));
@@ -727,11 +728,11 @@ codeunit 8614 "Config. XML Exchange"
                 ConfigPackageMgt.SelectAllPackageFields(ConfigPackageField, false);
             end else begin // Excel import
                 if not ConfigPackage.Get(PackageCode) then begin
-                    ConfigPackage.Init;
+                    ConfigPackage.Init();
                     ConfigPackage.Validate(Code, PackageCode);
                     ConfigPackage.Insert(true);
                 end;
-                ConfigPackageTable.Init;
+                ConfigPackageTable.Init();
                 ConfigPackageTable."Package Code" := PackageCode;
                 ConfigPackageTable."Table ID" := TableID;
                 ConfigPackageTable.Insert(true);
@@ -765,7 +766,7 @@ codeunit 8614 "Config. XML Exchange"
                                         if Value <> '' then
                                             Evaluate(ConfigPackageField."Processing Order", Value);
                                     end;
-                                    ConfigPackageField.Modify;
+                                    ConfigPackageField.Modify();
                                 end;
                             until Field.Next = 0;
                         if IsTableInserted then
@@ -810,7 +811,7 @@ codeunit 8614 "Config. XML Exchange"
             if not HideDialog then
                 ConfigProgressBar.Update(ConfigPackageTable."Table Name");
             RecordNodes := TableNode.SelectNodes(GetElementName(ConfigPackageTable."Table Name"));
-            RecordCount := RecordNodes.Count;
+            RecordCount := RecordNodes.Count();
 
             if not HideDialog and (RecordCount > 1000) then begin
                 StepCount := Round(RecordCount / 100, 1);
@@ -824,7 +825,7 @@ codeunit 8614 "Config. XML Exchange"
             if ConfigPackageField.FindSet then
                 repeat
                     TempConfigPackageField := ConfigPackageField;
-                    TempConfigPackageField.Insert;
+                    TempConfigPackageField.Insert();
                 until ConfigPackageField.Next = 0;
 
             for NodeCount := 0 to RecordCount - 1 do begin
@@ -836,7 +837,7 @@ codeunit 8614 "Config. XML Exchange"
                     RecRef.Open(ConfigPackageTable."Table ID");
                     if TempConfigPackageField.FindSet then
                         repeat
-                            ConfigPackageData.Init;
+                            ConfigPackageData.Init();
                             ConfigPackageData."Package Code" := TempConfigPackageField."Package Code";
                             ConfigPackageData."Table ID" := TempConfigPackageField."Table ID";
                             ConfigPackageData."Field ID" := TempConfigPackageField."Field ID";
@@ -845,7 +846,7 @@ codeunit 8614 "Config. XML Exchange"
                                TempConfigPackageField.Dimension
                             then
                                 GetConfigPackageDataValue(ConfigPackageData, RecordNode, GetElementName(TempConfigPackageField."Field Name"));
-                            ConfigPackageData.Insert;
+                            ConfigPackageData.Insert();
 
                             if not TempConfigPackageField.Dimension then begin
                                 FieldRef := RecRef.Field(ConfigPackageData."Field ID");
@@ -856,13 +857,13 @@ codeunit 8614 "Config. XML Exchange"
                                     else
                                         ConfigPackageData.Value := Format(FieldRef.Value);
 
-                                    ConfigPackageData.Modify;
+                                    ConfigPackageData.Modify();
                                 end;
                             end;
                         until TempConfigPackageField.Next = 0;
                     ConfigPackageTable."Imported Date and Time" := CurrentDateTime;
                     ConfigPackageTable."Imported by User ID" := UserId;
-                    ConfigPackageTable.Modify;
+                    ConfigPackageTable.Modify();
                     if not HideDialog and (RecordCount > 1000) then
                         ConfigProgressBarRecord.Update(
                           StrSubstNo('Records: %1 of %2', ConfigPackageRecord."No.", RecordCount));
@@ -884,7 +885,7 @@ codeunit 8614 "Config. XML Exchange"
             repeat
                 if ConfigPackageField.Get(ConfigPackageTable."Package Code", Field.TableNo, Field."No.") then begin
                     ConfigPackageField.Validate("Include Field", false);
-                    ConfigPackageField.Modify;
+                    ConfigPackageField.Modify();
                 end;
             until Field.Next = 0;
     end;
@@ -904,30 +905,35 @@ codeunit 8614 "Config. XML Exchange"
         TypeHelper: Codeunit "Type Helper";
         Date: Date;
     begin
-        if not (((Format(FieldRef.Type) = 'Integer') or (Format(FieldRef.Type) = 'BLOB')) and
+        if not ((FieldRef.Type in [FieldType::Integer, FieldType::BLOB]) and
                 (FieldRef.Relation <> 0) and (Format(FieldRef.Value) = '0'))
         then
             InnerText := Format(FieldRef.Value, 0, ConfigValidateMgt.XMLFormat);
 
-        if not ExcelMode then begin
-            if (Format(FieldRef.Type) = 'Boolean') or (Format(FieldRef.Type) = 'Option') then
-                InnerText := Format(FieldRef.Value, 0, 2);
-            if (Format(FieldRef.Type) = 'DateFormula') and (Format(FieldRef.Value) <> '') then
-                InnerText := '<' + Format(FieldRef.Value, 0, ConfigValidateMgt.XMLFormat) + '>';
-            if Format(FieldRef.Type) = 'BLOB' then
-                InnerText := ConvertBLOBToBase64String(FieldRef);
-            if Format(FieldRef.Type) = 'MediaSet' then
-                InnerText := ExportMediaSet(FieldRef);
-            if Format(FieldRef.Type) = 'Media' then
-                InnerText := ExportMedia(FieldRef, ConfigPackage);
-        end else begin
-            if Format(FieldRef.Type) = 'Option' then
-                InnerText := Format(FieldRef.Value);
-            if (Format(FieldRef.Type) = 'Date') and (ConfigPackage."Language ID" <> 0) and (InnerText <> '') then begin
-                Evaluate(Date, Format(FieldRef.Value));
-                InnerText := TypeHelper.FormatDate(Date, ConfigPackage."Language ID");
+        if not ExcelMode then
+            case FieldRef.Type of
+                FieldType::Boolean, FieldType::Option:
+                    InnerText := Format(FieldRef.Value, 0, 2);
+                FieldType::DateFormula:
+                    if Format(FieldRef.Value) <> '' then
+                        InnerText := '<' + Format(FieldRef.Value, 0, ConfigValidateMgt.XMLFormat) + '>';
+                FieldType::BLOB:
+                    InnerText := ConvertBLOBToBase64String(FieldRef);
+                FieldType::MediaSet:
+                    InnerText := ExportMediaSet(FieldRef);
+                FieldType::Media:
+                    InnerText := ExportMedia(FieldRef, ConfigPackage);
+            end
+        else
+            case FieldRef.Type of
+                FieldType::Option:
+                    InnerText := Format(FieldRef.Value);
+                FieldType::Date:
+                    if (ConfigPackage."Language ID" <> 0) and (InnerText <> '') then begin
+                        Evaluate(Date, Format(FieldRef.Value));
+                        InnerText := TypeHelper.FormatDate(Date, ConfigPackage."Language ID");
+                    end;
             end;
-        end;
 
         exit(InnerText);
     end;
@@ -1209,9 +1215,9 @@ codeunit 8614 "Config. XML Exchange"
         if not GetMediaFolder(MediaFolder, WorkingFolder) then
             exit('');
 
-        TempConfigMediaBuffer.Init;
+        TempConfigMediaBuffer.Init();
         TempConfigMediaBuffer."Media Set" := FieldRef.Value;
-        TempConfigMediaBuffer.Insert;
+        TempConfigMediaBuffer.Insert();
         if TempConfigMediaBuffer."Media Set".Count = 0 then
             exit;
 
@@ -1238,20 +1244,20 @@ codeunit 8614 "Config. XML Exchange"
         if (MediaIDGuidText = '') or (MediaIDGuidText = Format(BlankGuid)) then
             exit;
 
-        ConfigMediaBuffer.Init;
+        ConfigMediaBuffer.Init();
         ConfigMediaBuffer."Package Code" := ConfigPackage.Code;
         ConfigMediaBuffer."Media ID" := MediaIDGuidText;
         ConfigMediaBuffer."No." := ConfigMediaBuffer.GetNextNo;
-        ConfigMediaBuffer.Insert;
+        ConfigMediaBuffer.Insert();
 
         ConfigMediaBuffer."Media Blob".CreateOutStream(MediaOutStream);
 
-        TempConfigMediaBuffer.Init;
+        TempConfigMediaBuffer.Init();
         TempConfigMediaBuffer.Media := FieldRef.Value;
-        TempConfigMediaBuffer.Insert;
+        TempConfigMediaBuffer.Insert();
         TempConfigMediaBuffer.Media.ExportStream(MediaOutStream);
 
-        ConfigMediaBuffer.Modify;
+        ConfigMediaBuffer.Modify();
 
         exit(MediaIDGuidText);
     end;
@@ -1311,7 +1317,7 @@ codeunit 8614 "Config. XML Exchange"
         RecordRef: RecordRef;
         DummyGuid: Guid;
     begin
-        ConfigMediaBuffer.Init;
+        ConfigMediaBuffer.Init();
         FileManagement.BLOBImportFromServerFile(TempBlob, FileName);
 
         RecordRef.GetTable(ConfigMediaBuffer);
@@ -1321,7 +1327,7 @@ codeunit 8614 "Config. XML Exchange"
         ConfigMediaBuffer."Package Code" := ConfigPackage.Code;
         ConfigMediaBuffer."Media Set ID" := CopyStr(FileManagement.GetFileNameWithoutExtension(FileName), 1, StrLen(Format(DummyGuid)));
         ConfigMediaBuffer."No." := ConfigMediaBuffer.GetNextNo;
-        ConfigMediaBuffer.Insert;
+        ConfigMediaBuffer.Insert();
     end;
 
     local procedure CleanUpConfigPackageData(ConfigPackage: Record "Config. Package")
@@ -1329,7 +1335,7 @@ codeunit 8614 "Config. XML Exchange"
         ConfigMediaBuffer: Record "Config. Media Buffer";
     begin
         ConfigMediaBuffer.SetRange("Package Code", ConfigPackage.Code);
-        ConfigMediaBuffer.DeleteAll;
+        ConfigMediaBuffer.DeleteAll();
     end;
 
     [IntegrationEvent(false, false)]

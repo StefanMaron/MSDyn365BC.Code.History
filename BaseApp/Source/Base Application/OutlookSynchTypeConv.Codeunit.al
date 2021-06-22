@@ -78,11 +78,11 @@ codeunit 5302 "Outlook Synch. Type Conv"
         TextVar: Text;
         TextVar1: Text;
     begin
-        if (Format(FieldRef.Class) = 'FlowField') or (Format(FieldRef.Class) = 'FlowFilter') then
+        if FieldRef.Class in [FieldClass::FlowField, FieldClass::FlowFilter] then
             exit(true);
 
-        case Format(FieldRef.Type) of
-            'Option':
+        case FieldRef.Type of
+            FieldType::Option:
                 begin
                     if not Evaluate(IntVar, InputText) then
                         IntVar := TextToOptionValue(InputText, FieldRef.OptionCaption);
@@ -96,7 +96,7 @@ codeunit 5302 "Outlook Synch. Type Conv"
                     end else
                         FieldRef.Value := IntVar;
                 end;
-            'Integer':
+            FieldType::Integer:
                 if TextToInteger(InputText, IntVar) then begin
                     if ToValidate then begin
                         IntVar1 := FieldRef.Value;
@@ -106,7 +106,7 @@ codeunit 5302 "Outlook Synch. Type Conv"
                         FieldRef.Value := IntVar;
                 end else
                     exit(false);
-            'Decimal':
+            FieldType::Decimal:
                 if TextToDecimal(InputText, DecimalVar) then begin
                     if ToValidate then begin
                         DecimalVar1 := FieldRef.Value;
@@ -116,7 +116,7 @@ codeunit 5302 "Outlook Synch. Type Conv"
                         FieldRef.Value := DecimalVar;
                 end else
                     exit(false);
-            'Date':
+            FieldType::Date:
                 if TextToDate(InputText, DateVar, true) then begin
                     if ToValidate then begin
                         DateVar1 := FieldRef.Value;
@@ -126,7 +126,7 @@ codeunit 5302 "Outlook Synch. Type Conv"
                         FieldRef.Value := DateVar;
                 end else
                     exit(false);
-            'Time':
+            FieldType::Time:
                 if TextToTime(InputText, TimeVar, true) then begin
                     if ToValidate then begin
                         TimeVar1 := FieldRef.Value;
@@ -136,7 +136,7 @@ codeunit 5302 "Outlook Synch. Type Conv"
                         FieldRef.Value := TimeVar;
                 end else
                     exit(false);
-            'DateTime':
+            FieldType::DateTime:
                 if TextToDateTime(InputText, DateTimeVar) then begin
                     if ToValidate then begin
                         DateTimeVar1 := FieldRef.Value;
@@ -146,7 +146,7 @@ codeunit 5302 "Outlook Synch. Type Conv"
                         FieldRef.Value := DateTimeVar;
                 end else
                     exit(false);
-            'Boolean':
+            FieldType::Boolean:
                 if TextToBoolean(InputText, BoolVar) then begin
                     if ToValidate then begin
                         BoolVar1 := FieldRef.Value;
@@ -156,7 +156,7 @@ codeunit 5302 "Outlook Synch. Type Conv"
                         FieldRef.Value := BoolVar;
                 end else
                     exit(false);
-            'Duration':
+            FieldType::Duration:
                 if TextToDuration(InputText, DurationVar) then begin
                     if ToValidate then begin
                         DurationVar1 := FieldRef.Value;
@@ -166,7 +166,7 @@ codeunit 5302 "Outlook Synch. Type Conv"
                         FieldRef.Value := DurationVar;
                 end else
                     exit(false);
-            'BigInteger':
+            FieldType::BigInteger:
                 if TextToBigInteger(InputText, BigIntVar) then begin
                     if ToValidate then begin
                         BigIntVar1 := FieldRef.Value;
@@ -176,7 +176,7 @@ codeunit 5302 "Outlook Synch. Type Conv"
                         FieldRef.Value := BigIntVar;
                 end else
                     exit(false);
-            'GUID':
+            FieldType::GUID:
                 if TextToGUID(InputText, GUIDVar) then begin
                     if ToValidate then begin
                         GUIDVar1 := FieldRef.Value;
@@ -186,7 +186,7 @@ codeunit 5302 "Outlook Synch. Type Conv"
                         FieldRef.Value := GUIDVar;
                 end else
                     exit(false);
-            'Code', 'Text':
+            FieldType::Code, FieldType::Text:
                 if StrLen(InputText) > FieldRef.Length then begin
                     if ToValidate then begin
                         TextVar := FieldRef.Value;
@@ -203,7 +203,7 @@ codeunit 5302 "Outlook Synch. Type Conv"
                     end else
                         FieldRef.Value := InputText;
                 end;
-            'DateFormula':
+            FieldType::DateFormula:
                 begin
                     if TextToDateFormula(InputText, DateFormulaVar) then begin
                         if ToValidate then begin
@@ -611,55 +611,55 @@ codeunit 5302 "Outlook Synch. Type Conv"
         Decimal: Decimal;
         Bool: Boolean;
     begin
-        if Format(FldRef.Class) = 'FlowField' then
+        if FldRef.Class = FieldClass::FlowField then
             FldRef.CalcField;
 
-        case Format(FldRef.Type) of
-            'Option':
+        case FldRef.Type of
+            FieldType::Option:
                 OutText := Format(FldRef);
-            'Text', 'Code':
+            FieldType::Text, FieldType::Code:
                 OutText := Format(FldRef.Value);
-            'Date':
+            FieldType::Date:
                 begin
                     Evaluate(Date, Format(FldRef.Value));
                     DateTime := CreateDateTime(Date, 0T);
                     Date := DT2Date(LocalDT2UTC(DateTime));
                     OutText := SetDateFormat(Date);
                 end;
-            'Time':
+            FieldType::Time:
                 begin
                     Evaluate(Time, Format(FldRef.Value));
                     DateTime := CreateDateTime(Today, Time);
                     Time := DT2Time(LocalDT2UTC(DateTime));
                     OutText := SetTimeFormat(Time);
                 end;
-            'DateTime':
+            FieldType::DateTime:
                 begin
                     Evaluate(DateTime, Format(FldRef.Value));
                     OutText := SetDateTimeFormat(LocalDT2UTC(DateTime));
                 end;
-            'Integer', 'BigInteger':
+            FieldType::Integer, FieldType::BigInteger:
                 OutText := Format(FldRef.Value);
-            'Duration':
+            FieldType::Duration:
                 begin
                     BigInt := FldRef.Value;
                     // Use round to avoid conversion errors due to the conversion from decimal to long.
                     BigInt := Round(BigInt / 60000, 1);
                     OutText := Format(BigInt);
                 end;
-            'Decimal':
+            FieldType::Decimal:
                 begin
                     Evaluate(Decimal, Format(FldRef.Value));
                     OutText := SetDecimalFormat(Decimal);
                 end;
-            'DateFormula':
+            FieldType::DateFormula:
                 OutText := Format(FldRef.Value);
-            'Boolean':
+            FieldType::Boolean:
                 begin
                     Evaluate(Bool, Format(FldRef.Value));
                     OutText := SetBoolFormat(Bool);
                 end;
-            'GUID':
+            FieldType::GUID:
                 OutText := Format(FldRef.Value);
             else begin
                     RecID := FldRef.Record.RecordId;
@@ -681,38 +681,38 @@ codeunit 5302 "Outlook Synch. Type Conv"
         Bool: Boolean;
         DurationVar: Duration;
     begin
-        case Format(FldRef.Type) of
-            'Text', 'Code', 'Option', 'DateFormula', 'GUID':
+        case FldRef.Type of
+            FieldType::Text, FieldType::Code, FieldType::Option, FieldType::DateFormula, FieldType::GUID:
                 OutText := FormattedValue;
-            'Date':
+            FieldType::Date:
                 begin
                     Evaluate(Date, FormattedValue, 9);
                     if Date <> 0D then
                         OutText := SetDateTimeFormat(CreateDateTime(Date, 000000T));
                 end;
-            'Time':
+            FieldType::Time:
                 begin
                     Evaluate(Time, FormattedValue, 9);
                     OutText := SetDateTimeFormat(CreateDateTime(45010101D, Time));
                 end;
-            'DateTime':
+            FieldType::DateTime:
                 begin
                     Evaluate(DateTime, FormattedValue, 9);
                     OutText := SetDateTimeFormat(DateTime);
                 end;
-            'Integer', 'BigInteger':
+            FieldType::Integer, FieldType::BigInteger:
                 OutText := FormattedValue;
-            'Decimal':
+            FieldType::Decimal:
                 begin
                     Evaluate(Decimal, FormattedValue, 9);
                     OutText := SetDecimalFormat(Decimal);
                 end;
-            'Boolean':
+            FieldType::Boolean:
                 begin
                     Evaluate(Bool, FormattedValue, 9);
                     OutText := SetBoolFormat(Bool);
                 end;
-            'Duration':
+            FieldType::Duration:
                 begin
                     Evaluate(DurationVar, FormattedValue, 9);
                     BigInt := DurationVar / 60000;

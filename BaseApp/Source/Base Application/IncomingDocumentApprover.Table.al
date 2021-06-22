@@ -29,13 +29,13 @@ table 132 "Incoming Document Approver"
         IncomingDocumentApprover: Record "Incoming Document Approver";
         WasApprover: Boolean;
     begin
-        IncomingDocumentApprover.LockTable;
+        IncomingDocumentApprover.LockTable();
         WasApprover := IncomingDocumentApprover.Get(User."User Security ID");
         if WasApprover and not IsApprover then
-            IncomingDocumentApprover.Delete;
+            IncomingDocumentApprover.Delete();
         if not WasApprover and IsApprover then begin
             IncomingDocumentApprover."User ID" := User."User Security ID";
-            IncomingDocumentApprover.Insert;
+            IncomingDocumentApprover.Insert();
         end;
     end;
 }

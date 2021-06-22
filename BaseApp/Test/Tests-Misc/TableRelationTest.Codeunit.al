@@ -108,12 +108,12 @@ codeunit 134926 "Table Relation Test"
     begin
         RemoveTableRelation(TableRelationsMetadata, 0, 0, 17359, 1);
         OnAfterRemoveTableRelation(TableRelationsMetadata);
-        TableRelationsMetadata.Reset;
+        TableRelationsMetadata.Reset();
     end;
 
     procedure RemoveTableRelation(var TableRelationsMetadata: Record "Table Relations Metadata" temporary; TableID: Integer; FieldID: Integer; RelatedTableID: Integer; RelatedFieldID: Integer)
     begin
-        TableRelationsMetadata.Reset;
+        TableRelationsMetadata.Reset();
         if TableID <> 0 then
             TableRelationsMetadata.SetRange("Table ID", TableID);
         if FieldID <> 0 then
@@ -122,7 +122,7 @@ codeunit 134926 "Table Relation Test"
             TableRelationsMetadata.SetRange("Related Table ID", RelatedTableID);
         if RelatedFieldID <> 0 then
             TableRelationsMetadata.SetRange("Related Field No.", RelatedFieldID);
-        TableRelationsMetadata.DeleteAll;
+        TableRelationsMetadata.DeleteAll();
     end;
 
     local procedure CreateTemporaryTablerelations(var TempTableRelationsMetadata: Record "Table Relations Metadata" temporary)
@@ -134,7 +134,7 @@ codeunit 134926 "Table Relation Test"
 
         repeat
             TempTableRelationsMetadata := TableRelationsMetadata;
-            TempTableRelationsMetadata.Insert;
+            TempTableRelationsMetadata.Insert();
         until TableRelationsMetadata.Next = 0;
     end;
 

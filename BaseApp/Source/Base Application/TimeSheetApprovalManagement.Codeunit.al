@@ -150,7 +150,7 @@ codeunit 951 "Time Sheet Approval Management"
         TimeSheetDetail.SetRange("Time Sheet Line No.", TimeSheetLine."Line No.");
         if TimeSheetDetail.FindSet(true) then
             repeat
-                EmployeeAbsence.Init;
+                EmployeeAbsence.Init();
                 EmployeeAbsence.Validate("Employee No.", Employee."No.");
                 EmployeeAbsence.Validate("From Date", TimeSheetDetail.Date);
                 EmployeeAbsence.Validate("Cause of Absence Code", TimeSheetDetail."Cause of Absence Code");
@@ -160,7 +160,7 @@ codeunit 951 "Time Sheet Approval Management"
                 EmployeeAbsence.Insert(true);
 
                 TimeSheetDetail.Posted := true;
-                TimeSheetDetail.Modify;
+                TimeSheetDetail.Modify();
                 TimeSheetMgt.CreateTSPostingEntry(
                   TimeSheetDetail,
                   TimeSheetDetail.Quantity,
@@ -170,7 +170,7 @@ codeunit 951 "Time Sheet Approval Management"
             until TimeSheetDetail.Next = 0;
 
         TimeSheetLine.Posted := true;
-        TimeSheetLine.Modify;
+        TimeSheetLine.Modify();
     end;
 
     local procedure CheckApproverPermissions(TimeSheetLine: Record "Time Sheet Line")

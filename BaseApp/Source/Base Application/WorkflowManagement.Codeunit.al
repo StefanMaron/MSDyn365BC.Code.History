@@ -96,11 +96,11 @@ codeunit 1501 "Workflow Management"
         if ActiveStepInstanceFound then
             exit(false);
 
-        WorkflowStepInstance.Reset;
+        WorkflowStepInstance.Reset();
         if FindMatchingWorkflowStepInstance(RecRef, xRecRef, WorkflowStepInstance, FunctionName) then
             exit(true);
 
-        WorkflowStepInstance.Reset;
+        WorkflowStepInstance.Reset();
         if FindWorkflow(RecRef, xRecRef, FunctionName, Workflow) then begin
             if StartWorkflow then
                 InstantiateWorkflow(Workflow, FunctionName, WorkflowStepInstance);
@@ -298,13 +298,13 @@ codeunit 1501 "Workflow Management"
 
         if ToArchiveWorkflowStepInstance.FindSet then begin
             repeat
-                WorkflowStepInstanceArchive.Init;
+                WorkflowStepInstanceArchive.Init();
                 WorkflowStepInstanceArchive.TransferFields(ToArchiveWorkflowStepInstance);
                 if ToArchiveWorkflowStepArgument.Get(ToArchiveWorkflowStepInstance.Argument) then begin
                     WorkflowStepInstanceArchive.Argument := CreateWorkflowStepArgumentArchive(ToArchiveWorkflowStepArgument);
                     ToArchiveWorkflowStepArgument.Delete(true);
                 end;
-                WorkflowStepInstanceArchive.Insert;
+                WorkflowStepInstanceArchive.Insert();
             until ToArchiveWorkflowStepInstance.Next = 0;
 
             ToArchiveWorkflowStepInstance.DeleteAll(true);
@@ -314,9 +314,9 @@ codeunit 1501 "Workflow Management"
 
         if ToArchiveWorkflowRecordChange.FindSet then begin
             repeat
-                WorkflowRecordChangeArchive.Init;
+                WorkflowRecordChangeArchive.Init();
                 WorkflowRecordChangeArchive.TransferFields(ToArchiveWorkflowRecordChange);
-                WorkflowRecordChangeArchive.Insert;
+                WorkflowRecordChangeArchive.Insert();
             until ToArchiveWorkflowRecordChange.Next = 0;
 
             ToArchiveWorkflowRecordChange.DeleteAll(true);
@@ -509,7 +509,7 @@ codeunit 1501 "Workflow Management"
     begin
         RecRef.GetTable(Variant);
 
-        WorkflowEventQueue.Init;
+        WorkflowEventQueue.Init();
         WorkflowEventQueue."Session ID" := SessionId;
         WorkflowEventQueue."Step Record ID" := WorkflowStepInstance.RecordId;
         WorkflowEventQueue."Record ID" := RecRef.RecordId;
@@ -540,7 +540,7 @@ codeunit 1501 "Workflow Management"
                     WorkflowStepInstance.FindWorkflowRules(WorkflowRule);
                     if EvaluateCondition(RecRef, xRecRef, WorkflowStepInstance.Argument, WorkflowRule) then begin
                         ExecuteResponses(RecRef, xRecRef, WorkflowStepInstance);
-                        WorkflowEventQueue.Delete;
+                        WorkflowEventQueue.Delete();
                     end;
                 end;
             until WorkflowEventQueue.Next = 0;
@@ -668,7 +668,7 @@ codeunit 1501 "Workflow Management"
     var
         WorkflowStepArgumentArchive: Record "Workflow Step Argument Archive";
     begin
-        WorkflowStepArgumentArchive.Init;
+        WorkflowStepArgumentArchive.Init();
         WorkflowStepArgumentArchive.TransferFields(ToArchiveWorkflowStepArgument);
         WorkflowStepArgumentArchive."Original Record ID" := ToArchiveWorkflowStepArgument.RecordId;
         WorkflowStepArgumentArchive.Insert(true);
@@ -701,7 +701,7 @@ codeunit 1501 "Workflow Management"
         if not WFEventResponseCombination.IsEmpty then
             WFEventResponseCombination.DeleteAll(true);
 
-        WFEventResponseCombination.Reset;
+        WFEventResponseCombination.Reset();
         WFEventResponseCombination.SetRange("Predecessor Type", WFEventResponseCombinationType);
         WFEventResponseCombination.SetRange("Predecessor Function Name", FunctionName);
         if not WFEventResponseCombination.IsEmpty then

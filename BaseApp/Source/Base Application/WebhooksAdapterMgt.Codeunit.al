@@ -30,6 +30,7 @@ codeunit 2201 "Webhooks Adapter Mgt."
 
     procedure DeleteWebhookSubscription(SubscriptionUri: Text[250])
     begin
+        error(FunctionNotSupportedErr);
     end;
 
     procedure SetAzureKeyVaultManagement(NewAzureKeyVaultManagement: Codeunit 2200)

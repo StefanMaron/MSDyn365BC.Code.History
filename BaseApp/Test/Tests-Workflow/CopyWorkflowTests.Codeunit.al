@@ -41,7 +41,7 @@ codeunit 134306 "Copy Workflow Tests"
             FromWorkflow, WorkflowEvent,
             WorkflowResponseHandling.CreateNotificationEntryCode);
         FromWorkflow.Validate(Template, true);
-        FromWorkflow.Modify;
+        FromWorkflow.Modify();
 
         WorkflowTemplatesPage.OpenView;
         WorkflowTemplatesPage.FILTER.SetFilter(Description, FromWorkflow.Description);
@@ -85,7 +85,7 @@ codeunit 134306 "Copy Workflow Tests"
             FromWorkflow, WorkflowEvent,
             WorkflowResponseHandling.CreateNotificationEntryCode);
         FromWorkflow.Validate(Template, false);
-        FromWorkflow.Modify;
+        FromWorkflow.Modify();
 
         WorkflowsPage.OpenView;
         WorkflowsPage.FILTER.SetFilter(Description, FromWorkflow.Description);
@@ -130,9 +130,9 @@ codeunit 134306 "Copy Workflow Tests"
             FromWorkflow, WorkflowEvent,
             WorkflowResponseHandling.CreateNotificationEntryCode);
         FromWorkflow.Validate(Template, false);
-        FromWorkflow.Modify;
+        FromWorkflow.Modify();
         FromWorkflow.Enabled := true;
-        FromWorkflow.Modify;
+        FromWorkflow.Modify();
 
         WorkflowsPage.OpenView;
         WorkflowsPage.FILTER.SetFilter(Description, FromWorkflow.Description);
@@ -179,14 +179,14 @@ codeunit 134306 "Copy Workflow Tests"
             FromWorkflow, WorkflowEvent,
             WorkflowResponseHandling.CreateNotificationEntryCode);
         FromWorkflow.Validate(Template, false);
-        FromWorkflow.Modify;
+        FromWorkflow.Modify();
 
         EventConditions :=
           CreateTwoStepsWorkflow(
             FromWorkflow, WorkflowEvent,
             WorkflowResponseHandling.CreateNotificationEntryCode);
         FromWorkflow.Validate(Template, false);
-        FromWorkflow.Modify;
+        FromWorkflow.Modify();
 
         // create workflow template to be copied.
         EventConditions :=
@@ -194,7 +194,7 @@ codeunit 134306 "Copy Workflow Tests"
             FromWorkflow, WorkflowEvent,
             WorkflowResponseHandling.CreateNotificationEntryCode);
         FromWorkflow.Validate(Template, true);
-        FromWorkflow.Modify;
+        FromWorkflow.Modify();
 
         WorkflowTemplatesPage.OpenView;
         WorkflowTemplatesPage.FILTER.SetFilter(Description, FromWorkflow.Description);
@@ -239,14 +239,14 @@ codeunit 134306 "Copy Workflow Tests"
             FromWorkflow, WorkflowEvent,
             WorkflowResponseHandling.CreateNotificationEntryCode);
         FromWorkflow.Validate(Template, false);
-        FromWorkflow.Modify;
+        FromWorkflow.Modify();
 
         EventConditions :=
           CreateTwoStepsWorkflow(
             FromWorkflow, WorkflowEvent,
             WorkflowResponseHandling.CreateNotificationEntryCode);
         FromWorkflow.Validate(Template, false);
-        FromWorkflow.Modify;
+        FromWorkflow.Modify();
 
         // create workflow to be copied.
         EventConditions :=
@@ -254,7 +254,7 @@ codeunit 134306 "Copy Workflow Tests"
             FromWorkflow, WorkflowEvent,
             WorkflowResponseHandling.CreateNotificationEntryCode);
         FromWorkflow.Validate(Template, false);
-        FromWorkflow.Modify;
+        FromWorkflow.Modify();
 
         WorkflowsPage.OpenView;
         WorkflowsPage.FILTER.SetFilter(Description, FromWorkflow.Description);
@@ -294,7 +294,7 @@ codeunit 134306 "Copy Workflow Tests"
           FromWorkflow, WorkflowEvent,
           WorkflowResponseHandling.CreateNotificationEntryCode);
         FromWorkflow.Validate(Template, false);
-        FromWorkflow.Modify;
+        FromWorkflow.Modify();
 
         WorkflowsPage.OpenView;
         WorkflowsPage.FILTER.SetFilter("Workflow Code", '');
@@ -306,7 +306,7 @@ codeunit 134306 "Copy Workflow Tests"
 
         // Verify.
         Assert.AreEqual('', GetLastErrorText, 'An unexpected error was thrown');
-        FromWorkflow.Reset;
+        FromWorkflow.Reset();
         FromWorkflow.SetRange(Template, false);
         Assert.AreEqual(1, FromWorkflow.Count, 'A new workflow was created.')
     end;
@@ -333,7 +333,7 @@ codeunit 134306 "Copy Workflow Tests"
           FromWorkflow, WorkflowEvent,
           WorkflowResponseHandling.CreateNotificationEntryCode);
         FromWorkflow.Validate(Template, true);
-        FromWorkflow.Modify;
+        FromWorkflow.Modify();
 
         WorkflowTemplatesPage.OpenView;
         WorkflowTemplatesPage.FILTER.SetFilter("Workflow Code", '');
@@ -345,7 +345,7 @@ codeunit 134306 "Copy Workflow Tests"
 
         // Verify.
         Assert.AreEqual('', GetLastErrorText, 'An unexpected error was thrown.');
-        FromWorkflow.Reset;
+        FromWorkflow.Reset();
         FromWorkflow.SetRange(Template, false);
         Assert.AreEqual(0, FromWorkflow.Count, 'A new workflow was created.')
     end;
@@ -380,7 +380,7 @@ codeunit 134306 "Copy Workflow Tests"
 
     local procedure CreateAnyPurchaseHeaderEvent(var WorkflowEvent: Record "Workflow Event")
     begin
-        WorkflowEvent.Init;
+        WorkflowEvent.Init();
         WorkflowEvent."Function Name" := LibraryUtility.GenerateGUID;
         WorkflowEvent.Description := LibraryUtility.GenerateGUID;
         WorkflowEvent."Table ID" := DATABASE::"Purchase Header";

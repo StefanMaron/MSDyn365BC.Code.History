@@ -23,7 +23,7 @@ codeunit 134208 "Workflow Imp./Exp. Tests"
         LibraryERMCountryData.CreateVATData;
         LibraryWorkflow.DisableAllWorkflows;
 
-        UserSetup.DeleteAll;
+        UserSetup.DeleteAll();
     end;
 
     [Test]
@@ -301,7 +301,7 @@ codeunit 134208 "Workflow Imp./Exp. Tests"
         Workflow.Delete(true);
 
         // [GIVEN] User Setup deleted.
-        UserSetup.Delete;
+        UserSetup.Delete();
 
         // [WHEN] Workflow imported to database
         Workflow.ImportFromBlob(TempBlob);

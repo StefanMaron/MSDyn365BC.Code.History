@@ -83,7 +83,7 @@ codeunit 871 "Social Listening Management"
     var
         SocialListeningSetup: Record "Social Listening Setup";
     begin
-        SocialListeningSetup.Get;
+        SocialListeningSetup.Get();
         SocialListeningSetup.TestField("Solution ID");
         exit(SocialListeningSetup."Solution ID");
     end;
@@ -186,7 +186,7 @@ codeunit 871 "Social Listening Management"
         if EnvironmentInfo.IsSaaS then
             exit;
 
-        SocialListeningSetup.Get;
+        SocialListeningSetup.Get();
         RecRef.GetTable(SocialListeningSetup);
 
         with SocialListeningSetup do begin

@@ -369,7 +369,7 @@ codeunit 481 "Check Dimensions"
                     if RecRef.Find then
                         RecRef.SetTable(SalesLine);
                     if SalesLine.ShowDimensions then
-                        SalesLine.Modify;
+                        SalesLine.Modify();
                 end;
             DATABASE::"Purchase Header":
                 begin
@@ -384,7 +384,7 @@ codeunit 481 "Check Dimensions"
                     if RecRef.Find then
                         RecRef.SetTable(PurchaseLine);
                     if PurchaseLine.ShowDimensions then
-                        PurchaseLine.Modify;
+                        PurchaseLine.Modify();
                 end;
             else
                 exit(false);

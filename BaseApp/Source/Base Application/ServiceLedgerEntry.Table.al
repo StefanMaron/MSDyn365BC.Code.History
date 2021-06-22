@@ -105,11 +105,9 @@ table 5907 "Service Ledger Entry"
             Caption = 'Contract Group Code';
             TableRelation = "Contract Group".Code;
         }
-        field(23; Type; Option)
+        field(23; Type; Enum "Service Ledger Entry Type")
         {
             Caption = 'Type';
-            OptionCaption = ' ,Resource,Item,Service Cost,Service Contract,G/L Account';
-            OptionMembers = " ",Resource,Item,"Service Cost","Service Contract","G/L Account";
         }
         field(24; "No."; Code[20])
         {
@@ -351,6 +349,13 @@ table 5907 "Service Ledger Entry"
     var
         ServOrderMgt: Codeunit ServOrderManagement;
         DimMgt: Codeunit DimensionManagement;
+
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
+    end;
 
     procedure ShowDimensions()
     begin

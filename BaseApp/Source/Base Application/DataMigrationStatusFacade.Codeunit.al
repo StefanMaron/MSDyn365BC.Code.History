@@ -13,9 +13,9 @@ codeunit 6101 "Data Migration Status Facade"
             exit;
 
         if DataMigrationStatus.Get(MigrationType, DestinationTableId) then
-            DataMigrationStatus.Delete;
+            DataMigrationStatus.Delete();
 
-        DataMigrationStatus.Init;
+        DataMigrationStatus.Init();
         DataMigrationStatus.Validate("Migration Type", MigrationType);
         DataMigrationStatus.Validate("Destination Table ID", DestinationTableId);
         DataMigrationStatus.Validate("Total Number", TotalNumber);
@@ -24,7 +24,7 @@ codeunit 6101 "Data Migration Status Facade"
         DataMigrationStatus.Validate(Status, DataMigrationStatus.Status::Pending);
         DataMigrationStatus.Validate("Source Staging Table ID", StagingTableId);
         DataMigrationStatus.Validate("Migration Codeunit To Run", MigrationCodeunitId);
-        DataMigrationStatus.Insert;
+        DataMigrationStatus.Insert();
     end;
 
     procedure IncrementMigratedRecordCount(MigrationType: Text[250]; DestinationTableId: Integer; MigratedEntities: Integer)

@@ -30,7 +30,7 @@ codeunit 1233 "SEPA DD-Check Line"
         GLSetup: Record "General Ledger Setup";
         SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         with DirectDebitCollectionEntry do begin
             if "Transfer Amount" <= 0 then
                 InsertPaymentFileError(MustBePositiveErr);
@@ -83,12 +83,11 @@ codeunit 1233 "SEPA DD-Check Line"
                             AddFieldEmptyError(
                               DirectDebitCollectionEntry, CustomerBankAccount.TableCaption, CustomerBankAccount.FieldCaption(IBAN),
                               CustomerBankAccount.Code);
-                    end else begin
+                    end else
                         if (CustomerBankAccount."Bank Account No." = '') or (CustomerBankAccount."Bank Branch No." = '') then
                             if (CustomerBankAccount."SWIFT Code" = '') or (CustomerBankAccount.IBAN = '') then
                                 InsertPaymentFileError(
-                                  StrSubstNo(ExportWithoutIBANAndSWIFTErr, CustomerBankAccount.TableCaption, CustomerBankAccount.Code));
-                    end;
+                                  StrSubstNo(ExportWithoutIBANAndSWIFTErr, CustomerBankAccount.TableCaption(), CustomerBankAccount.Code));
                 end;
             end;
         end;

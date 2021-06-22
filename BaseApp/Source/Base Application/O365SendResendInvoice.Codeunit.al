@@ -168,7 +168,7 @@ codeunit 2104 "O365 Send + Resend Invoice"
             if not Confirm(ConfirmConvertToInvoiceQst, false) then
                 exit(false);
 
-        SalesHeaderQuote.LockTable;
+        SalesHeaderQuote.LockTable();
         SalesHeaderQuote.Find;
         SalesQuoteToInvoice.Run(SalesHeaderQuote);
         SalesQuoteToInvoice.GetSalesInvoiceHeader(SalesHeaderInvoice);
@@ -267,7 +267,7 @@ codeunit 2104 "O365 Send + Resend Invoice"
         NoSeriesManagement: Codeunit NoSeriesManagement;
         NextNoSeries: Code[20];
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
 
         case DocumentType of
             DummyO365SalesDocument."Document Type"::Quote:

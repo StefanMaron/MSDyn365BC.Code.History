@@ -14,9 +14,9 @@ codeunit 131020 "Library - Azure AD User Mgmt."
     begin
         MockGraphQuery := MockGraphQuery.MockGraphQuery;
 
-        AzureADMgtSetup.Get;
+        AzureADMgtSetup.Get();
         AzureADMgtSetup."Azure AD User Mgt. Codeunit ID" := CODEUNIT::"Library - Azure AD User Mgmt.";
-        AzureADMgtSetup.Modify;
+        AzureADMgtSetup.Modify();
     end;
 
     local procedure CanHandle(): Boolean

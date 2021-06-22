@@ -287,7 +287,7 @@ codeunit 134408 "Incom. Doc. Attach. FactBox"
 
         GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
-        Commit;
+        Commit();
     end;
 
     local procedure PrepareAttachmentRecordForGenJournalLine(var GenJournalLine: Record "Gen. Journal Line")
@@ -318,7 +318,7 @@ codeunit 134408 "Incom. Doc. Attach. FactBox"
         ImportAttachmentIncDoc.ImportAttachment(IncomingDocumentAttachment, FileName);
 
         LibraryVariableStorage.Enqueue(FileManagement.GetFileNameWithoutExtension(FileName));
-        Commit;
+        Commit();
     end;
 }
 

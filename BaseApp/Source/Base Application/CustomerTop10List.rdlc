@@ -1950,7 +1950,7 @@
                   </Group>
                   <SortExpressions>
                     <SortExpression>
-                      <Value>=IIF(Fields!ShowTypeNo.Value = 0,Fields!SalesLCY_Customer.Value,Fields!BalanceLCY_Customer.Value)</Value>
+                      <Value>=Fields!SalesLCY_Customer.Value</Value>
                       <Direction>Descending</Direction>
                     </SortExpression>
                   </SortExpressions>
@@ -2005,7 +2005,7 @@
                   </Group>
                   <SortExpressions>
                     <SortExpression>
-                      <Value>=IIF(Fields!ShowTypeNo.Value = 0,Fields!SalesLCY_Customer.Value,Fields!BalanceLCY_Customer.Value)</Value>
+                      <Value>=Fields!SalesLCY_Customer.Value</Value>
                       <Direction>Descending</Direction>
                     </SortExpression>
                   </SortExpressions>
@@ -2016,7 +2016,7 @@
             <ChartSeriesHierarchy>
               <ChartMembers>
                 <ChartMember>
-                  <Label>=IIF(Fields!ShowTypeNo.Value = 0,Parameters!SalesLCY_CustomerCaption.Value,Parameters!BalanceLCY_CustomerCaption.Value)</Label>
+                  <Label>Balance LCY Customer</Label>
                 </ChartMember>
               </ChartMembers>
             </ChartSeriesHierarchy>
@@ -2340,7 +2340,7 @@
             <ChartSeriesHierarchy>
               <ChartMembers>
                 <ChartMember>
-                  <Label>=IIF(Fields!ShowTypeNo.Value = 0,Parameters!SalesLCY_CustomerCaption.Value,Parameters!BalanceLCY_CustomerCaption.Value)</Label>
+                  <Label>Balance LCY Customer</Label>
                 </ChartMember>
               </ChartMembers>
             </ChartSeriesHierarchy>

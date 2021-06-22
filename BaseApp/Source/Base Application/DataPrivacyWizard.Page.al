@@ -108,7 +108,7 @@ page 1180 "Data Privacy Wizard"
                         trigger OnLookup(var Text: Text): Boolean
                         begin
                             Reset;
-                            DeleteAll;
+                            DeleteAll();
                             if PAGE.RunModal(PAGE::"Data Subject", Rec) = ACTION::LookupOK then begin
                                 EntityType := "Table Caption";
                                 EntityTypeTableNo := "Table No.";

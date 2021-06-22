@@ -25,6 +25,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
+        CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
         isInitialized: Boolean;
         AmountError: Label 'Amount must be equal.';
         ItemVariantExistError: Label 'The Item Variant does not exist. Identification fields and values: Item No.=''%1'',Code=''%2''';
@@ -514,6 +515,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         // [GIVEN]
         Initialize;
         CreatePurchasePrice(PurchasePrice, '', CreateVendor, WorkDate);
+        CopyAllPurchPriceToPriceListLine();
 
         // [WHEN] Create Purchase Order.
         CreatePurchaseDocument(
@@ -522,6 +524,17 @@ codeunit 137296 "SCM Inventory Misc. IV"
 
         // [THEN] Verify Direct Unit Cost on Purchase Line.
         PurchaseLine.TestField("Direct Unit Cost", PurchasePrice."Direct Unit Cost");
+    end;
+
+    local procedure CopyAllPurchPriceToPriceListLine()
+    var
+        PurchPrice: Record "Purchase Price";
+        PurchLineDiscount: Record "Purchase Line Discount";
+        PriceListLine: Record "Price List Line";
+    begin
+        PriceListLine.DeleteAll();
+        CopyFromToPriceListLine.CopyFrom(PurchPrice, PriceListLine);
+        CopyFromToPriceListLine.CopyFrom(PurchLineDiscount, PriceListLine);
     end;
 
     [Test]
@@ -562,6 +575,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         Initialize;
         Currency.Get(CreateCurrency);
         CreatePurchasePrice(PurchasePrice, Currency.Code, CreateAndModifyVendor(Currency.Code), WorkDate);
+        CopyAllPurchPriceToPriceListLine();
 
         // [WHEN] Create Purchase Order.
         CreatePurchaseDocument(
@@ -585,10 +599,12 @@ codeunit 137296 "SCM Inventory Misc. IV"
         // [GIVEN]
         Initialize;
         CreatePurchasePrice(PurchasePrice, '', CreateVendor, WorkDate);
+        CopyAllPurchPriceToPriceListLine();
         CreatePurchaseDocument(
           PurchaseLine, PurchaseLine."Document Type"::Order, PurchasePrice."Item No.", '', PurchasePrice."Vendor No.",
           PurchasePrice."Minimum Quantity", WorkDate);
         UpdateUnitCostOnPurchasePrice(PurchasePrice);
+        CopyAllPurchPriceToPriceListLine();
         UpdatePurchLineQtyForPartialPost(PurchaseLine);
 
         // [WHEN] Post Purchase Order.
@@ -614,6 +630,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         // [GIVEN] Create Purchase Price, create and Receive Purchase order.
         Initialize;
         CreatePurchasePrice(PurchasePrice, '', CreateVendor, WorkDate);
+        CopyAllPurchPriceToPriceListLine();
         CreatePurchaseDocument(
           PurchaseLine, PurchaseLine."Document Type"::Order, PurchasePrice."Item No.", '', PurchasePrice."Vendor No.",
           PurchasePrice."Minimum Quantity", WorkDate);
@@ -621,6 +638,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
 
         // Update Unit Cost on Purchase Price, create Purchase Invoice using Copy Document.
         DirectUnitCost := UpdateUnitCostOnPurchasePrice(PurchasePrice);
+        CopyAllPurchPriceToPriceListLine();
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, PurchasePrice."Vendor No.");
         LibraryPurchase.CopyPurchaseDocument(PurchaseHeader, DocType::"Posted Receipt", DocumentNo, false, true);
 
@@ -644,6 +662,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         // [GIVEN] Create Item, create Purchase Price, create Sales order.
         Initialize;
         CreatePurchasePrice(PurchasePrice, '', CreateVendor, CalcDate('<-1D>', WorkDate));
+        CopyAllPurchPriceToPriceListLine();
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::Order, PurchasePrice."Item No.", '', PurchasePrice."Minimum Quantity");
 
         // [WHEN] Calculate Regenerative Plan and carry Out Action Message.
@@ -661,12 +680,14 @@ codeunit 137296 "SCM Inventory Misc. IV"
     var
         PurchaseLineDiscount: Record "Purchase Line Discount";
         PurchaseLine: Record "Purchase Line";
+        PriceListLine: Record "Price List Line";
     begin
         // [SCENARIO] Line Discount on Purchase Line when Order Date is same as Starting Date of Purchase Price.
 
         // [GIVEN] Create Purchase Line Discount.
         Initialize;
         CreatePurchaseLineDiscount(PurchaseLineDiscount);
+        CopyFromToPriceListLine.CopyFrom(PurchaseLineDiscount, PriceListLine);
 
         // [WHEN] Create Purchase Order.
         CreatePurchaseDocument(
@@ -683,12 +704,14 @@ codeunit 137296 "SCM Inventory Misc. IV"
     var
         PurchaseLineDiscount: Record "Purchase Line Discount";
         PurchaseLine: Record "Purchase Line";
+        PriceListLine: Record "Price List Line";
     begin
         // [SCENARIO] Line Discount on Purchase Line when Order Date is before Starting Date of Purchase Price.
 
         // [GIVEN] Create Purchase Line Discount.
         Initialize;
         CreatePurchaseLineDiscount(PurchaseLineDiscount);
+        CopyFromToPriceListLine.CopyFrom(PurchaseLineDiscount, PriceListLine);
 
         // [WHEN] Create Purchase Order.
         CreatePurchaseDocument(
@@ -706,6 +729,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
     var
         PurchaseLineDiscount: Record "Purchase Line Discount";
         PurchaseLine: Record "Purchase Line";
+        PriceListLine: Record "Price List Line";
         Item: Record Item;
         DocumentNo: Code[20];
     begin
@@ -714,6 +738,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         // [GIVEN] Create Purchase Line Discount, create Purchase Order, Update Line Discount.
         Initialize;
         CreatePurchaseLineDiscount(PurchaseLineDiscount);
+        CopyFromToPriceListLine.CopyFrom(PurchaseLineDiscount, PriceListLine);
         Item.Get(PurchaseLineDiscount."Item No.");
         CreatePurchaseDocument(
           PurchaseLine, PurchaseLine."Document Type"::Order, PurchaseLineDiscount."Item No.", '', PurchaseLineDiscount."Vendor No.",
@@ -736,6 +761,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         PurchaseLineDiscount: Record "Purchase Line Discount";
         PurchaseLine: Record "Purchase Line";
         PurchaseHeader: Record "Purchase Header";
+        PriceListLine: Record "Price List Line";
         DocumentNo: Code[20];
         DocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
         LineDiscountPct: Decimal;
@@ -753,6 +779,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
 
         // Update Line Discount Pct on Purchase Price, create Purchase Invoice using Copy Document.
         LineDiscountPct := UpdateLineDiscOnPurchLineDisc(PurchaseLineDiscount);
+        CopyFromToPriceListLine.CopyFrom(PurchaseLineDiscount, PriceListLine);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, PurchaseLineDiscount."Vendor No.");
         LibraryPurchase.CopyPurchaseDocument(PurchaseHeader, DocType::"Posted Receipt", DocumentNo, false, true);
 
@@ -1637,10 +1664,11 @@ codeunit 137296 "SCM Inventory Misc. IV"
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        PriceListLine: Record "Price List Line";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Inventory Misc. IV");
         LibraryVariableStorage.Clear;
-
+        PriceListLine.DeleteAll();
         // Lazy Setup.
         if isInitialized then
             exit;
@@ -1651,7 +1679,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Inventory Misc. IV");
     end;
 
@@ -2083,7 +2111,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
     var
         ItemAvailabilityFormsMgt: Codeunit "Item Availability Forms Mgt";
     begin
-        Item.Init;
+        Item.Init();
         Item.SetFilter("Location Filter", LocationFilter);
         ItemAvailabilityFormsMgt.CalculateNeed(Item, GrossRequirement, PlannedOrderReceipt, ScheduledReceipt, PlannedOrderReleases);
     end;
@@ -2092,7 +2120,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
     var
         ItemAvailabilityFormsMgt: Codeunit "Item Availability Forms Mgt";
     begin
-        Item.Init;
+        Item.Init();
         Item.SetRange("Date Filter", WorkDate);
         Item.SetFilter("Location Filter", LocationFilter);
         ItemAvailabilityFormsMgt.ShowItemAvailLineList(Item, 4);

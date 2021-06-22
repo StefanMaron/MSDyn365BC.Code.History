@@ -1,4 +1,4 @@
-﻿page 9309 "Purchase Credit Memos"
+page 9309 "Purchase Credit Memos"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Purchase Credit Memos';
@@ -275,7 +275,7 @@
                     trigger OnAction()
                     begin
                         CalcInvDiscForHeader;
-                        Commit;
+                        Commit();
                         PAGE.RunModal(PAGE::"Purchase Statistics", Rec);
                     end;
                 }

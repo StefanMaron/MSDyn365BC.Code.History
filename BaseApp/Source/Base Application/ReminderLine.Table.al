@@ -119,11 +119,9 @@ table 296 "Reminder Line"
             Caption = 'Due Date';
             Editable = false;
         }
-        field(10; "Document Type"; Option)
+        field(10; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
 
             trigger OnValidate()
             begin
@@ -294,12 +292,10 @@ table 296 "Reminder Line"
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
-        field(20; "VAT Calculation Type"; Option)
+        field(20; "VAT Calculation Type"; Enum "Tax Calculation Type")
         {
             Caption = 'VAT Calculation Type';
             Editable = false;
-            OptionCaption = 'Normal VAT,Reverse Charge VAT,Full VAT,Sales Tax';
-            OptionMembers = "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
         }
         field(21; "VAT Amount"; Decimal)
         {
@@ -373,11 +369,9 @@ table 296 "Reminder Line"
             Caption = 'VAT Clause Code';
             TableRelation = "VAT Clause";
         }
-        field(27; "Applies-to Document Type"; Option)
+        field(27; "Applies-to Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Applies-to Document Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
 
             trigger OnValidate()
             begin
@@ -513,7 +507,7 @@ table 296 "Reminder Line"
     begin
         ReminderLine.SetRange("Reminder No.", "Reminder No.");
         ReminderLine.SetRange("Attached to Line No.", "Line No.");
-        ReminderLine.DeleteAll;
+        ReminderLine.DeleteAll();
     end;
 
     trigger OnInsert()
@@ -585,7 +579,7 @@ table 296 "Reminder Line"
         ExtraReminderLine.SetRange("Reminder No.", "Reminder No.");
         ExtraReminderLine.SetRange("Detailed Interest Rates Entry", true);
         ExtraReminderLine.SetRange("Entry No.", "Entry No.");
-        ExtraReminderLine.DeleteAll;
+        ExtraReminderLine.DeleteAll();
         CustLedgEntry.Get("Entry No.");
         if (CustLedgEntry."On Hold" <> '') or ("Due Date" >= ReminderHeader."Document Date") then
             exit;
@@ -596,7 +590,7 @@ table 296 "Reminder Line"
         else
             ReminderLevel.SetRange("No.", 1, "No. of Reminders");
         if not ReminderLevel.FindLast then
-            ReminderLevel.Init;
+            ReminderLevel.Init();
         if (not ReminderLevel."Calculate Interest") or (ReminderHeader."Fin. Charge Terms Code" = '') then
             exit;
         FinChrgTerms.Get(ReminderHeader."Fin. Charge Terms Code");
@@ -767,7 +761,7 @@ table 296 "Reminder Line"
     begin
         CustLedgerEntry.Get(EntryNo);
         NoOfReminders := 0;
-        ReminderEntry.Reset;
+        ReminderEntry.Reset();
         ReminderEntry.SetCurrentKey("Customer Entry No.");
         ReminderEntry.SetRange("Customer Entry No.", EntryNo);
         ReminderEntry.SetRange(Type, ReminderEntry.Type::Reminder);
@@ -799,7 +793,7 @@ table 296 "Reminder Line"
         else
             ReminderLevel.SetRange("No.", LevelStart, LevelEnd);
         if not ReminderLevel.FindLast then
-            ReminderLevel.Init;
+            ReminderLevel.Init();
     end;
 
     procedure CumulateDetailedEntries(var CumAmount: Decimal; UseDueDate: Date; UseCalcDate: Date; UseInterestRate: Decimal; UseInterestPeriod: Decimal)
@@ -879,7 +873,7 @@ table 296 "Reminder Line"
         UseCalcDate := 0D;
         NrOfLinesToInsert := 0;
 
-        FinanceChargeInterestRate.Init;
+        FinanceChargeInterestRate.Init();
         FinanceChargeInterestRate.SetRange("Fin. Charge Terms Code", ReminderHeader."Fin. Charge Terms Code");
         FinanceChargeInterestRate."Fin. Charge Terms Code" := ReminderHeader."Fin. Charge Terms Code";
         if FinChrgTerms."Interest Calculation Method" = FinChrgTerms."Interest Calculation Method"::"Average Daily Balance" then
@@ -917,7 +911,7 @@ table 296 "Reminder Line"
         UseInterestPeriod: Integer;
         CurrInterestRateStartDate: Date;
     begin
-        ExtraReminderLine.Reset;
+        ExtraReminderLine.Reset();
         ExtraReminderLine.SetRange("Reminder No.", "Reminder No.");
         ExtraReminderLine := Rec;
         if ExtraReminderLine.Find('>') then begin
@@ -928,7 +922,7 @@ table 296 "Reminder Line"
         end else
             LineSpacing := 10000;
         NextLineNo := "Line No." + LineSpacing;
-        FinanceChargeInterestRate.Init;
+        FinanceChargeInterestRate.Init();
         FinanceChargeInterestRate.SetRange("Fin. Charge Terms Code", ReminderHeader."Fin. Charge Terms Code");
         FinanceChargeInterestRate."Fin. Charge Terms Code" := ReminderHeader."Fin. Charge Terms Code";
         FinanceChargeInterestRate."Start Date" := CalcDate('<+1D>', CustLedgEntry."Due Date");
@@ -956,7 +950,7 @@ table 296 "Reminder Line"
                 if ExtraReminderLine.Amount <> 0 then begin
                     CumAmount := CumAmount + ExtraReminderLine.Amount;
                     ExtraReminderLine."Detailed Interest Rates Entry" := true;
-                    ExtraReminderLine.Insert;
+                    ExtraReminderLine.Insert();
                     NextLineNo := ExtraReminderLine."Line No." + LineSpacing;
                 end;
                 NrOfLinesToInsert := NrOfLinesToInsert - 1;

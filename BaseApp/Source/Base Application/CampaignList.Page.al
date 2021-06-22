@@ -1,4 +1,4 @@
-﻿page 5087 "Campaign List"
+page 5087 "Campaign List"
 {
     ApplicationArea = RelationshipMgmt;
     Caption = 'Campaigns';

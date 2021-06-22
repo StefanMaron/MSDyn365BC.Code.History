@@ -38,10 +38,10 @@ report 81 "Import Budget from Excel"
                 end;
 
                 if Amount = 0 then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 if not IsPostingAccount("G/L Account No.") then
-                    CurrReport.Skip;
-                GLBudgetEntry.Init;
+                    CurrReport.Skip();
+                GLBudgetEntry.Init();
                 GLBudgetEntry."Entry No." := EntryNo;
                 GLBudgetEntry."Budget Name" := ToGLBudgetName;
                 GLBudgetEntry."G/L Account No." := "G/L Account No.";
@@ -84,7 +84,7 @@ report 81 "Import Budget from Excel"
                     if AnalysisView.FindSet(true, false) then
                         repeat
                             AnalysisView.AnalysisviewBudgetReset;
-                            AnalysisView.Modify;
+                            AnalysisView.Modify();
                         until AnalysisView.Next = 0;
                 end;
             end;
@@ -99,26 +99,23 @@ report 81 "Import Budget from Excel"
                     if not ConfirmManagement.GetResponseOrDefault(
                          StrSubstNo(Text001, GLBudgetName.TableCaption, ToGLBudgetName), true)
                     then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     GLBudgetName.Name := ToGLBudgetName;
-                    GLBudgetName.Insert;
+                    GLBudgetName.Insert();
                 end else begin
                     if GLBudgetName.Blocked then begin
                         Message(Text002,
                           GLBudgetEntry.FieldCaption("Budget Name"), ToGLBudgetName);
-                        CurrReport.Break;
+                        CurrReport.Break();
                     end;
                     if not ConfirmManagement.GetResponseOrDefault(
                          StrSubstNo(Text003, LowerCase(Format(SelectStr(ImportOption + 1, Text027))), ToGLBudgetName), true)
                     then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
 
-                if GLBudgetEntry3.FindLast then
-                    EntryNo := GLBudgetEntry3."Entry No." + 1
-                else
-                    EntryNo := 1;
-                LastEntryNoBeforeImport := GLBudgetEntry3."Entry No.";
+                LastEntryNoBeforeImport := GLBudgetEntry3.GetLastEntryNo();
+                EntryNo := LastEntryNoBeforeImport + 1;
             end;
         }
     }
@@ -186,8 +183,8 @@ report 81 "Import Budget from Excel"
 
     trigger OnPostReport()
     begin
-        ExcelBuf.DeleteAll;
-        BudgetBuf.DeleteAll;
+        ExcelBuf.DeleteAll();
+        BudgetBuf.DeleteAll();
     end;
 
     trigger OnPreReport()
@@ -201,35 +198,35 @@ report 81 "Import Budget from Excel"
             SheetName := ExcelBuf.SelectSheetsName(ServerFileName);
 
         BusUnitDimCode := 'BUSINESSUNIT_TAB220';
-        TempDim.Init;
+        TempDim.Init();
         TempDim.Code := BusUnitDimCode;
         TempDim."Code Caption" := UpperCase(BusUnit.TableCaption);
-        TempDim.Insert;
+        TempDim.Insert();
 
         if Dim.Find('-') then begin
             repeat
-                TempDim.Init;
+                TempDim.Init();
                 TempDim := Dim;
                 TempDim."Code Caption" := UpperCase(TempDim."Code Caption");
-                TempDim.Insert;
+                TempDim.Insert();
             until Dim.Next = 0;
         end;
 
         if GLAcc.Find('-') then begin
             repeat
-                TempGLAcc.Init;
+                TempGLAcc.Init();
                 TempGLAcc := GLAcc;
-                TempGLAcc.Insert;
+                TempGLAcc.Insert();
             until GLAcc.Next = 0;
         end;
 
-        ExcelBuf.LockTable;
-        BudgetBuf.LockTable;
+        ExcelBuf.LockTable();
+        BudgetBuf.LockTable();
         GLBudgetEntry.SetRange("Budget Name", ToGLBudgetName);
         if not GLBudgetName.Get(ToGLBudgetName) then
             Clear(GLBudgetName);
 
-        GLSetup.Get;
+        GLSetup.Get();
         GlobalDim1Code := GLSetup."Global Dimension 1 Code";
         GlobalDim2Code := GLSetup."Global Dimension 2 Code";
         BudgetDim1Code := GLBudgetName."Budget Dimension 1 Code";
@@ -322,10 +319,10 @@ report 81 "Import Budget from Excel"
           Text007 +
           '@1@@@@@@@@@@@@@@@@@@@@@@@@@\');
         Window.Update(1, 0);
-        TotalRecNo := ExcelBuf.Count;
+        TotalRecNo := ExcelBuf.Count();
         RecNo := 0;
         CountDim := 0;
-        BudgetBuf.DeleteAll;
+        BudgetBuf.DeleteAll();
 
         if ExcelBuf.Find('-') then begin
             repeat
@@ -340,7 +337,7 @@ report 81 "Import Budget from Excel"
                                 HeaderRowNo := ExcelBuf."Row No.";
                                 TempExcelBuf := ExcelBuf;
                                 TempExcelBuf.Comment := Text010;
-                                TempExcelBuf.Insert;
+                                TempExcelBuf.Insert();
                             end else
                                 Error(Text011);
                         end;
@@ -380,14 +377,14 @@ report 81 "Import Budget from Excel"
                                         TempDim.Mark(false);
                                         IncreaseAndCheckCountDim(CountDim);
                                         TempExcelBuf.Comment := Text013 + Format(CountDim);
-                                        TempExcelBuf.Insert;
+                                        TempExcelBuf.Insert();
                                         DimCode[CountDim] := TempDim.Code;
                                     end;
                                 Evaluate(TestDateTime, TempExcelBuf."Cell Value as Text"):
                                     begin
                                         TempExcelBuf."Cell Value as Text" := Format(DT2Date(TestDateTime));
                                         TempExcelBuf.Comment := Text014;
-                                        TempExcelBuf.Insert;
+                                        TempExcelBuf.Insert();
                                     end;
                             end;
                         end;
@@ -494,7 +491,7 @@ report 81 "Import Budget from Excel"
         end;
 
         Window.Close;
-        TempExcelBuf.Reset;
+        TempExcelBuf.Reset();
         TempExcelBuf.SetRange(Comment, Text010);
         if not TempExcelBuf.FindFirst then
             Error(Text025);
@@ -519,11 +516,11 @@ report 81 "Import Budget from Excel"
     begin
         if DimCode2 <> BusUnitDimCode then begin
             DimValue.Get(DimCode2, DimValCode2);
-            TempDimSetEntry.Init;
+            TempDimSetEntry.Init();
             TempDimSetEntry.Validate("Dimension Code", DimCode2);
             TempDimSetEntry.Validate("Dimension Value Code", DimValCode2);
             TempDimSetEntry.Validate("Dimension Value ID", DimValue."Dimension Value ID");
-            TempDimSetEntry.Insert;
+            TempDimSetEntry.Insert();
         end;
         case DimCode2 of
             BusUnitDimCode:

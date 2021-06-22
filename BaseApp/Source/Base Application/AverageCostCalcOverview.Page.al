@@ -1,4 +1,4 @@
-﻿page 5847 "Average Cost Calc. Overview"
+page 5847 "Average Cost Calc. Overview"
 {
     Caption = 'Average Cost Calc. Overview';
     DataCaptionExpression = ItemName;
@@ -299,10 +299,10 @@
         AvgCostCalcOverview.SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
 
         GetAvgCostCalcOverview.Run(AvgCostCalcOverview);
-        AvgCostCalcOverview.Reset;
+        AvgCostCalcOverview.Reset();
         AvgCostCalcOverviewFilters.CopyFilters(Rec);
         Reset;
-        DeleteAll;
+        DeleteAll();
         if AvgCostCalcOverview.Find('-') then
             repeat
                 if AvgCostCalcOverview.Level = 0 then begin
@@ -325,13 +325,13 @@
         GetAvgCostCalcOverview.Run(AvgCostCalcOverview);
         AvgCostCalcOverviewFilters.CopyFilters(Rec);
         Reset;
-        DeleteAll;
+        DeleteAll();
 
         if AvgCostCalcOverview.Find('+') then
             repeat
                 Rec := AvgCostCalcOverview;
                 GetAvgCostCalcOverview.Calculate(AvgCostCalcOverview);
-                AvgCostCalcOverview.Reset;
+                AvgCostCalcOverview.Reset();
                 AvgCostCalcOverview := Rec;
             until AvgCostCalcOverview.Next(-1) = 0;
 

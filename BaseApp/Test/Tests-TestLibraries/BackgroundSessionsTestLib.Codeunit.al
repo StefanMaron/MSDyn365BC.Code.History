@@ -69,7 +69,7 @@ codeunit 132460 "Background Sessions Test Lib"
         SessionEvent: Record "Session Event";
     begin
         // Selects all sessions from the ALTest session onwards.
-        SessionEvent.LockTable;
+        SessionEvent.LockTable();
         SessionEvent.SetRange("Server Instance ID", ServiceInstanceId);
         SessionEvent.SetRange("User ID", UserId);
         SessionEvent.SetFilter("Session ID", '>=%1', SessionId);

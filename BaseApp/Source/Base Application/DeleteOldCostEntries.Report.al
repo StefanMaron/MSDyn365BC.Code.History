@@ -34,7 +34,7 @@ report 1141 "Delete Old Cost Entries"
                         CostEntry.SetCurrentKey("Cost Type No.", "Posting Date");
                         CostEntry.SetRange("Posting Date", 0D, YearEndDate);
                         if not CostEntry.IsEmpty then begin
-                            CostEntry.DeleteAll;
+                            CostEntry.DeleteAll();
                             Message(Text004, YearEndDate);
                         end else
                             Error(Text005, YearEndDate);

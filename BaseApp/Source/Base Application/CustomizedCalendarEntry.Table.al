@@ -4,12 +4,10 @@ table 7603 "Customized Calendar Entry"
 
     fields
     {
-        field(1; "Source Type"; Option)
+        field(1; "Source Type"; Enum "Calendar Source Type")
         {
             Caption = 'Source Type';
             Editable = false;
-            OptionCaption = 'Company,Customer,Vendor,Location,Shipping Agent,Service';
-            OptionMembers = Company,Customer,Vendor,Location,"Shipping Agent",Service;
         }
         field(2; "Source Code"; Code[20])
         {
@@ -72,16 +70,16 @@ table 7603 "Customized Calendar Entry"
         CustomizedCalendarChange.SetRange("Source Code", "Source Code");
         CustomizedCalendarChange.SetRange("Base Calendar Code", "Base Calendar Code");
         CustomizedCalendarChange.SetRange(Date, Date);
-        CustomizedCalendarChange.DeleteAll;
+        CustomizedCalendarChange.DeleteAll();
 
-        CustomizedCalendarChange.Init;
+        CustomizedCalendarChange.Init();
         CustomizedCalendarChange."Source Type" := "Source Type";
         CustomizedCalendarChange."Source Code" := "Source Code";
         CustomizedCalendarChange."Base Calendar Code" := "Base Calendar Code";
         CustomizedCalendarChange.Validate(Date, Date);
         CustomizedCalendarChange.Nonworking := Nonworking;
         CustomizedCalendarChange.Description := Description;
-        CustomizedCalendarChange.Insert;
+        CustomizedCalendarChange.Insert();
 
         OnAfterUpdateExceptionEntry(CustomizedCalendarChange, Rec);
     end;

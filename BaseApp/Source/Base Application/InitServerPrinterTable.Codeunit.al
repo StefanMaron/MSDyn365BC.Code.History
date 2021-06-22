@@ -24,7 +24,7 @@ codeunit 9655 "Init. Server Printer Table"
             PrinterSettings.PrinterName := PrinterName;
             Printer.ID := CopyStr(PrinterName, 1, MaxStrLen(Printer.ID));
             if PrinterSettings.MaximumCopies > 1 then
-                Printer.Insert;
+                Printer.Insert();
         end;
     end;
 

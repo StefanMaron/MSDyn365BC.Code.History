@@ -370,11 +370,11 @@ report 707 "Inventory - Availability Plan"
 
                     if "Replenishment System" = "Replenishment System"::Purchase then begin
                         if not Vend.Get("Vendor No.") then
-                            Vend.Init;
+                            Vend.Init();
                     end else
                         if not TransferRoute.Get("Transfer-from Code", "Location Code") then begin
                             if not Location.Get("Transfer-from Code") then
-                                Location.Init;
+                                Location.Init();
                         end else begin
                             if ShippingAgentServices.Get(
                                  TransferRoute."Shipping Agent Code", TransferRoute."Shipping Agent Service Code")
@@ -386,13 +386,13 @@ report 707 "Inventory - Availability Plan"
                         CalcNeed(Item, "Location Code", "Variant Code");
 
                     if not Print then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
 
                 trigger OnPreDataItem()
                 begin
                     if not UseStockkeepingUnit then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SKUPrintLoop := 0;
                 end;
@@ -402,13 +402,13 @@ report 707 "Inventory - Availability Plan"
             begin
                 if not UseStockkeepingUnit then begin
                     if not Vend.Get("Vendor No.") then
-                        Vend.Init;
+                        Vend.Init();
                     Print := false;
                     for i := 1 to 8 do
                         CalcNeed(Item, GetFilter("Location Filter"), GetFilter("Variant Filter"));
 
                     if not Print then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
             end;
         }

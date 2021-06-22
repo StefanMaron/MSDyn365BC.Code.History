@@ -38,7 +38,7 @@ codeunit 137205 "SCM Move Neg. Purch. Lines"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.CreateVATData;
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Move Neg. Purch. Lines");
     end;
 
@@ -127,7 +127,7 @@ codeunit 137205 "SCM Move Neg. Purch. Lines"
         i: Integer;
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, '');
-        TempPurchaseLine.DeleteAll;
+        TempPurchaseLine.DeleteAll();
 
         // Create a Purchase document with mixed lines: alternating positive and negative quantities.
         Count := 5 + LibraryRandom.RandInt(8);
@@ -137,7 +137,7 @@ codeunit 137205 "SCM Move Neg. Purch. Lines"
               Power(InitialSign, i) * LibraryRandom.RandDec(10, 2));
             if PurchaseLine.Quantity < 0 then begin
                 TempPurchaseLine := PurchaseLine;
-                TempPurchaseLine.Insert;
+                TempPurchaseLine.Insert();
             end;
         end;
     end;
@@ -183,7 +183,7 @@ codeunit 137205 "SCM Move Neg. Purch. Lines"
         until PurchaseLine.Next = 0;
 
         // Check there are no un-migrated lines.
-        TempPurchaseLine.Reset;
+        TempPurchaseLine.Reset();
         Assert.AreEqual(0, TempPurchaseLine.Count, 'Remaining un-migrated lines.');
     end;
 
@@ -200,7 +200,7 @@ codeunit 137205 "SCM Move Neg. Purch. Lines"
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        PurchaseHeader.Init;
+        PurchaseHeader.Init();
         PurchaseOrder.GetRecord(PurchaseHeader);
         PurchaseHeaderNo := PurchaseHeader."No.";
     end;
@@ -211,7 +211,7 @@ codeunit 137205 "SCM Move Neg. Purch. Lines"
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        PurchaseHeader.Init;
+        PurchaseHeader.Init();
         PurchaseReturnOrder.GetRecord(PurchaseHeader);
         PurchaseHeaderNo := PurchaseHeader."No.";
     end;
@@ -222,7 +222,7 @@ codeunit 137205 "SCM Move Neg. Purch. Lines"
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        PurchaseHeader.Init;
+        PurchaseHeader.Init();
         PurchaseInvoice.GetRecord(PurchaseHeader);
         PurchaseHeaderNo := PurchaseHeader."No.";
     end;
@@ -233,7 +233,7 @@ codeunit 137205 "SCM Move Neg. Purch. Lines"
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        PurchaseHeader.Init;
+        PurchaseHeader.Init();
         PurchaseCreditMemo.GetRecord(PurchaseHeader);
         PurchaseHeaderNo := PurchaseHeader."No.";
     end;

@@ -1362,7 +1362,7 @@ codeunit 137073 "SCM Supply Planning -III"
           SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", CalcDate('<1D>', WorkDate), Qty);
 
         // [GIVEN] Second blanket sales order. 1 line: Quantity = "X", "Shipment Date" = WORKDATE
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader."No." := '';
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Blanket Order", SalesHeader."Sell-to Customer No.");
         LibrarySales.CreateSalesLineWithShipmentDate(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", WorkDate, Qty);
@@ -2109,7 +2109,7 @@ codeunit 137073 "SCM Supply Planning -III"
         CalculatePlanPlanWksh.SetTemplAndWorksheet(RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name, false);
         ChildItem.SetRange("No.", ChildItem."No.");
         CalculatePlanPlanWksh.SetTableView(ChildItem);
-        Commit;
+        Commit();
         CalculatePlanPlanWksh.Run;
 
         // [THEN] Requisition Line with BOM Component Item is created
@@ -2266,7 +2266,7 @@ codeunit 137073 "SCM Supply Planning -III"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(5));
 
         // [GIVEN] Production order
-        ProductionOrder.Init;
+        ProductionOrder.Init();
         ProductionOrder.Validate(Status, ProductionOrder.Status::Released);
         ProductionOrder."No." := '';
         ProductionOrder.Insert(true);
@@ -2306,7 +2306,7 @@ codeunit 137073 "SCM Supply Planning -III"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(5));
 
         // [GIVEN] Production order
-        ProductionOrder.Init;
+        ProductionOrder.Init();
         ProductionOrder.Validate(Status, ProductionOrder.Status::Released);
         ProductionOrder."No." := '';
         ProductionOrder.Insert(true);
@@ -2335,7 +2335,7 @@ codeunit 137073 "SCM Supply Planning -III"
         LibraryInventory.CreateItem(Item);
 
         // [GIVEN] Production order
-        ProductionOrder.Init;
+        ProductionOrder.Init();
         ProductionOrder.Validate(Status, ProductionOrder.Status::Released);
         ProductionOrder."No." := '';
         ProductionOrder.Insert(true);
@@ -2385,9 +2385,9 @@ codeunit 137073 "SCM Supply Planning -III"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Supply Planning -III");
         LibrarySetupStorage.Restore;
         LibraryVariableStorage.Clear;
-        UntrackedPlanningElement.DeleteAll;
-        RequisitionLine.DeleteAll;
-        ReservationEntry.DeleteAll;
+        UntrackedPlanningElement.DeleteAll();
+        RequisitionLine.DeleteAll();
+        ReservationEntry.DeleteAll();
 
         LibraryApplicationArea.EnableEssentialSetup;
 
@@ -2404,7 +2404,7 @@ codeunit 137073 "SCM Supply Planning -III"
         CreateLocationSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
         LibrarySetupStorage.Save(DATABASE::"Manufacturing Setup");
@@ -2417,23 +2417,23 @@ codeunit 137073 "SCM Supply Planning -III"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesReceivablesSetup.Modify(true);
 
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchasesPayablesSetup.Modify(true);
     end;
 
     local procedure ItemJournalSetup()
     begin
-        ItemJournalTemplate.Init;
+        ItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
         ItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
         ItemJournalTemplate.Modify(true);
 
-        ItemJournalBatch.Init;
+        ItemJournalBatch.Init();
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
         ItemJournalBatch.Validate("No. Series", '');  // Required to avoid Document No. mismatch.
         ItemJournalBatch.Modify(true);
@@ -2441,10 +2441,10 @@ codeunit 137073 "SCM Supply Planning -III"
 
     local procedure OutputJournalSetup()
     begin
-        OutputItemJournalTemplate.Init;
+        OutputItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(OutputItemJournalTemplate, OutputItemJournalTemplate.Type::Output);
 
-        OutputItemJournalBatch.Init;
+        OutputItemJournalBatch.Init();
         LibraryInventory.SelectItemJournalBatchName(
           OutputItemJournalBatch, OutputItemJournalTemplate.Type, OutputItemJournalTemplate.Name);
     end;
@@ -2461,7 +2461,7 @@ codeunit 137073 "SCM Supply Planning -III"
     var
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         NewDocNoIsProdOrderNo := ManufacturingSetup."Doc. No. Is Prod. Order No.";
         ManufacturingSetup.Validate("Doc. No. Is Prod. Order No.", DocNoIsProdOrderNo);
         ManufacturingSetup.Modify(true);
@@ -2472,7 +2472,7 @@ codeunit 137073 "SCM Supply Planning -III"
     var
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         OldCombinedMPSMRPCalculation := ManufacturingSetup."Combined MPS/MRP Calculation";
         ManufacturingSetup.Validate("Combined MPS/MRP Calculation", NewCombinedMPSMRPCalculation);
         ManufacturingSetup.Modify(true);
@@ -2644,7 +2644,7 @@ codeunit 137073 "SCM Supply Planning -III"
         i: Integer;
     begin
         LibraryService.CreateBaseCalendar(BaseCalendar);
-        BaseCalendarChange.Init;
+        BaseCalendarChange.Init();
         BaseCalendarChange."Base Calendar Code" := BaseCalendar.Code;
         NWDate := EndDate;
         for i := 1 to NonWorkDays do begin
@@ -2880,7 +2880,7 @@ codeunit 137073 "SCM Supply Planning -III"
         SelectRequisitionLine(RequisitionLine, ItemNo);
         repeat
             TempRequisitionLine := RequisitionLine;
-            TempRequisitionLine.Insert;
+            TempRequisitionLine.Insert();
         until RequisitionLine.Next = 0;
     end;
 
@@ -2994,7 +2994,7 @@ codeunit 137073 "SCM Supply Planning -III"
     begin
         RequisitionWkshName.SetRange("Template Type", TemplateType);
         RequisitionWkshName.FindFirst;
-        RequisitionLine.Init;
+        RequisitionLine.Init();
         RequisitionLine.Validate("Worksheet Template Name", RequisitionWkshName."Worksheet Template Name");
         RequisitionLine.Validate("Journal Batch Name", RequisitionWkshName.Name);
     end;
@@ -3034,7 +3034,7 @@ codeunit 137073 "SCM Supply Planning -III"
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
         // Add Safety lead time to the required date and return the Date value.
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         if SignFactor < 0 then
             exit(CalcDate('<-' + Format(ManufacturingSetup."Default Safety Lead Time") + '>', DateValue));
         exit(CalcDate('<' + Format(ManufacturingSetup."Default Safety Lead Time") + '>', DateValue));
@@ -3082,7 +3082,7 @@ codeunit 137073 "SCM Supply Planning -III"
     var
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         ManufacturingSetup.Validate("Current Production Forecast", CurrentProductionForecast);
         ManufacturingSetup.Modify(true);
     end;
@@ -3129,7 +3129,7 @@ codeunit 137073 "SCM Supply Planning -III"
         CreateRequisitionWorksheetName(RequisitionWkshName);
         LibraryVariableStorage.Enqueue(ItemNo);  // Enqueue Item No to be used on page for filtering.
         LibraryVariableStorage.Enqueue(ItemNo2);  // Enqueue Item No to be used on page for filtering.
-        Commit;  // Required for Test.
+        Commit();  // Required for Test.
         PlanningWorksheet.OpenEdit;
         PlanningWorksheet.CurrentWkshBatchName.SetValue(RequisitionWkshName.Name);
         PlanningWorksheet.CalculateRegenerativePlan.Invoke;  // Open Regenerative Planning report. Handler - CalculatePlanPlanWkshRequestPageHandler.
@@ -3328,7 +3328,7 @@ codeunit 137073 "SCM Supply Planning -III"
     var
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         ManufacturingSetup.Validate("Components at Location", NewComponentsAtLocation);
         ManufacturingSetup.Modify(true);
     end;
@@ -3337,7 +3337,7 @@ codeunit 137073 "SCM Supply Planning -III"
     var
         InvtSetup: Record "Inventory Setup";
     begin
-        InvtSetup.Get;
+        InvtSetup.Get();
         InvtSetup.Validate("Location Mandatory", NewLocationMandatory);
         InvtSetup.Modify(true);
     end;

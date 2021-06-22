@@ -85,12 +85,12 @@ report 93 "Create Fiscal Year"
             if (FiscalYearStartDate <= FirstPeriodStartDate) and (i = NoOfPeriods + 1) then
                 exit;
 
-            AccountingPeriod.Init;
+            AccountingPeriod.Init();
             AccountingPeriod."Starting Date" := FiscalYearStartDate;
             AccountingPeriod.Validate("Starting Date");
             if (i = 1) or (i = NoOfPeriods + 1) then begin
                 AccountingPeriod."New Fiscal Year" := true;
-                InvtSetup.Get;
+                InvtSetup.Get();
                 AccountingPeriod."Average Cost Calc. Type" := InvtSetup."Average Cost Calc. Type";
                 AccountingPeriod."Average Cost Period" := InvtSetup."Average Cost Period";
             end;
@@ -101,7 +101,7 @@ report 93 "Create Fiscal Year"
                 AccountingPeriod."Date Locked" := true;
             end;
             if not AccountingPeriod.Find('=') then
-                AccountingPeriod.Insert;
+                AccountingPeriod.Insert();
             FiscalYearStartDate := CalcDate(PeriodLength, FiscalYearStartDate);
         end;
 

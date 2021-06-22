@@ -171,7 +171,14 @@ table 91 "User Setup"
             ExtendedDatatype = PhoneNo;
 
             trigger OnValidate()
+            var
+                Char: DotNet Char;
+                i: Integer;
             begin
+                for i := 1 to StrLen("Phone No.") do
+                    if Char.IsLetter("Phone No."[i]) then
+                        FieldError("Phone No.", PhoneNoCannotContainLettersErr);
+
                 UpdateSalesPerson(FieldNo("Phone No."));
             end;
         }
@@ -299,13 +306,14 @@ table 91 "User Setup"
         SalesPersonPurchaser: Record "Salesperson/Purchaser";
         PrivacyBlockedGenericErr: Label 'Privacy Blocked must not be true for Salesperson / Purchaser %1.', Comment = '%1 = salesperson / purchaser code.';
         UserSetupManagement: Codeunit "User Setup Management";
+        PhoneNoCannotContainLettersErr: Label 'must not contain letters';
 
     procedure CreateApprovalUserSetup(User: Record User)
     var
         UserSetup: Record "User Setup";
         ApprovalUserSetup: Record "User Setup";
     begin
-        ApprovalUserSetup.Init;
+        ApprovalUserSetup.Init();
         ApprovalUserSetup.Validate("User ID", User."User Name");
         ApprovalUserSetup.Validate("Sales Amount Approval Limit", GetDefaultSalesAmountApprovalLimit);
         ApprovalUserSetup.Validate("Purchase Amount Approval Limit", GetDefaultPurchaseAmountApprovalLimit);
@@ -313,7 +321,7 @@ table 91 "User Setup"
         UserSetup.SetRange("Sales Amount Approval Limit", UserSetup.GetDefaultSalesAmountApprovalLimit);
         if UserSetup.FindFirst then
             ApprovalUserSetup.Validate("Approver ID", UserSetup."Approver ID");
-        if ApprovalUserSetup.Insert then;
+        if ApprovalUserSetup.Insert() then;
     end;
 
     procedure GetDefaultSalesAmountApprovalLimit(): Integer
@@ -326,7 +334,7 @@ table 91 "User Setup"
 
         if UserSetup.FindFirst then begin
             DefaultApprovalLimit := UserSetup."Sales Amount Approval Limit";
-            LimitedApprovers := UserSetup.Count;
+            LimitedApprovers := UserSetup.Count();
             UserSetup.SetRange("Sales Amount Approval Limit", DefaultApprovalLimit);
             if LimitedApprovers = UserSetup.Count then
                 exit(DefaultApprovalLimit);
@@ -346,7 +354,7 @@ table 91 "User Setup"
 
         if UserSetup.FindFirst then begin
             DefaultApprovalLimit := UserSetup."Purchase Amount Approval Limit";
-            LimitedApprovers := UserSetup.Count;
+            LimitedApprovers := UserSetup.Count();
             UserSetup.SetRange("Purchase Amount Approval Limit", DefaultApprovalLimit);
             if LimitedApprovers = UserSetup.Count then
                 exit(DefaultApprovalLimit);
@@ -388,7 +396,7 @@ table 91 "User Setup"
             if (SalespersonPurchaser."E-Mail" <> xSalespersonPurchaser."E-Mail") or
                 (SalespersonPurchaser."Phone No." <> xSalespersonPurchaser."Phone No.")
             then
-                SalespersonPurchaser.Modify;
+                SalespersonPurchaser.Modify();
         end;
     end;
 

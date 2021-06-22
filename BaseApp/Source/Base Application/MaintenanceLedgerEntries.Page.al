@@ -1,4 +1,4 @@
-﻿page 5641 "Maintenance Ledger Entries"
+page 5641 "Maintenance Ledger Entries"
 {
     ApplicationArea = FixedAssets;
     Caption = 'Maintenance Ledger Entries';

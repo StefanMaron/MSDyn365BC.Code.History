@@ -1,4 +1,4 @@
-﻿codeunit 93 "Purch.-Quote to Order (Yes/No)"
+codeunit 93 "Purch.-Quote to Order (Yes/No)"
 {
     TableNo = "Purchase Header";
 

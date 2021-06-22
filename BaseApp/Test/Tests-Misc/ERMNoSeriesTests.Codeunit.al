@@ -120,13 +120,67 @@ codeunit 134370 "ERM No. Series Tests"
         DeleteNumberSeries('TEST');
     end;
 
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure TestChangingStartNoAfterUsingNoSeries()
+    var
+        NoSeriesLine: Record "No. Series Line";
+        FormattedNo: Code[20];
+    begin
+        Initialize;
+        CreateNewNumberSeries('TEST', 10, FALSE, NoSeriesLine);
+        NoSeriesLine."Starting No." := 'A000001';
+        NoSeriesLine."Last No. Used" := 'A900001';
+        NoSeriesLine.Validate("Allow Gaps in Nos.", true);
+        NoSeriesLine.Modify();
+
+        // test - getting formatted number still works
+        FormattedNo := NoSeriesLine.GetLastNoUsed();
+        Assert.AreEqual('A900001', FormattedNo, 'Init didnt work...');
+        NoSeriesLine."Starting No." := 'A';
+        NoSeriesLine.Modify();
+        FormattedNo := NoSeriesLine.GetLastNoUsed();
+        Assert.AreEqual('A900001', FormattedNo, 'Default didnt work');
+
+        // clean up
+        DeleteNumberSeries('TEST');
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure TestChangingStartNoAfterUsingNoSeriesTooLong()
+    var
+        NoSeriesLine: Record "No. Series Line";
+        FormattedNo: Code[20];
+    begin
+        Initialize;
+        CreateNewNumberSeries('TEST', 10, FALSE, NoSeriesLine);
+        NoSeriesLine."Starting No." := 'ABC00000000000000001';
+        NoSeriesLine."Last No. Used" := 'ABC10000000000000001';
+        NoSeriesLine.Validate("Allow Gaps in Nos.", true);
+        NoSeriesLine.Modify();
+
+        // test - getting formatted number still works
+        FormattedNo := NoSeriesLine.GetLastNoUsed();
+        Assert.AreEqual('ABC10000000000000001', FormattedNo, 'Init didnt work...');
+        NoSeriesLine."Starting No." := 'ABCD';
+        NoSeriesLine.Modify();
+        FormattedNo := NoSeriesLine.GetLastNoUsed(); // will become too long, so we truncate the prefix
+        Assert.AreEqual('A10000000000000001', FormattedNo, 'Default didnt work');
+
+        // clean up
+        DeleteNumberSeries('TEST');
+    end;
+
     local procedure CreateNewNumberSeries(NewName: Code[20]; IncrementBy: Integer; AllowGaps: Boolean; var NoSeriesLine: Record "No. Series Line")
     var
         NoSeries: Record "No. Series";
     begin
         NoSeries.Code := NewName;
         NoSeries.Description := NewName;
-        NoSeries.INSERT;
+        NoSeries.Insert();
 
         NoSeriesLine."Series Code" := NoSeries.Code;
         NoSeriesLine."Line No." := 10000;

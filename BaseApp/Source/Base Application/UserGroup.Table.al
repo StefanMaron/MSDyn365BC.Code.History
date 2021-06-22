@@ -131,7 +131,7 @@ table 9000 "User Group"
         end;
         if not NewUserGroupMembership then
             exit;
-        UserGroupMember.Init;
+        UserGroupMember.Init();
         UserGroupMember."User Group Code" := Code;
         UserGroupMember."User Security ID" := User."User Security ID";
         UserGroupMember."Company Name" := SelectedCompany;

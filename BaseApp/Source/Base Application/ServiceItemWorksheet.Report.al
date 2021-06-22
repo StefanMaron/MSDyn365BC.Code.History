@@ -138,7 +138,7 @@ report 5936 "Service Item Worksheet"
                 trigger OnPreDataItem()
                 begin
                     if not ShowComments then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
             dataitem("Resolution Comment"; "Service Comment Line")
@@ -161,7 +161,7 @@ report 5936 "Service Item Worksheet"
                 trigger OnPreDataItem()
                 begin
                     if not ShowComments then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
             dataitem("Service Line"; "Service Line")
@@ -261,7 +261,7 @@ report 5936 "Service Item Worksheet"
 
             trigger OnPreDataItem()
             begin
-                CompanyInfo.Get;
+                CompanyInfo.Get();
             end;
         }
         dataitem(Shipto; "Integer")
@@ -295,7 +295,7 @@ report 5936 "Service Item Worksheet"
             trigger OnPreDataItem()
             begin
                 if not ShowShippingAddr then
-                    CurrReport.Break;
+                    CurrReport.Break();
             end;
         }
     }

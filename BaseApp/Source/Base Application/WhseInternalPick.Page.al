@@ -1,4 +1,4 @@
-﻿page 7357 "Whse. Internal Pick"
+page 7357 "Whse. Internal Pick"
 {
     Caption = 'Whse. Internal Pick';
     PageType = Document;

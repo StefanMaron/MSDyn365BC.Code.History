@@ -157,7 +157,7 @@ codeunit 134101 "ERM Prepayment II"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [THEN] Verify GL Entry with Posted Payment Amount,
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::Payment);
         GLEntry.SetRange("Document No.", GenJournalLine."Document No.");
         GLEntry.FindFirst;
@@ -372,7 +372,7 @@ codeunit 134101 "ERM Prepayment II"
         PrepaymentPercent := (PurchaseLine."Prepmt. Line Amount" / PurchaseLine."Line Amount") * 100;
 
         // [THEN] Verify Purchase Line "Prepayment %" field.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Assert.AreNearlyEqual(
           PrepaymentPercent, PurchaseLine."Prepayment %", GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(ValidationErr, PurchaseLine.FieldCaption("Prepayment %"), PrepaymentPercent));
@@ -455,7 +455,7 @@ codeunit 134101 "ERM Prepayment II"
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
 
         // [THEN] Verify GL Entry with Modified Amount.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.FindFirst;
@@ -842,7 +842,7 @@ codeunit 134101 "ERM Prepayment II"
         PrepaymentPercent := (SalesLine."Prepmt. Line Amount" / SalesLine."Line Amount") * 100;
 
         // [THEN] Verify Sales Line "Prepayment %" field.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Assert.AreNearlyEqual(
           PrepaymentPercent, SalesLine."Prepayment %", GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(ValidationErr, SalesLine.FieldCaption("Prepayment %"), PrepaymentPercent));
@@ -1327,7 +1327,7 @@ codeunit 134101 "ERM Prepayment II"
         // [GIVEN] Update General Ledger, Inventory Setup and Create Sales Prepayment Invoice.
         Initialize;
         LibraryERM.SetUseLegacyGLEntryLocking(true);
-        InventorySetup.Get;
+        InventorySetup.Get();
         UpdateInventorySetup(true, InventorySetup."Automatic Cost Adjustment"::Always);
         GLAccountNo := SetupAndCreateSalesPrepayment(SalesLine, LibraryRandom.RandDec(10, 2));
 
@@ -1365,7 +1365,7 @@ codeunit 134101 "ERM Prepayment II"
         // [GIVEN] Update General Ledger, Inventory Setup and Create Sales Prepayment Invoice.
         Initialize;
         LibraryERM.SetUseLegacyGLEntryLocking(true);
-        InventorySetup.Get;
+        InventorySetup.Get();
         UpdateInventorySetup(true, InventorySetup."Automatic Cost Adjustment"::Always);
         SalesPrepaymentsAccount := SetupAndCreateSalesPrepayment(SalesLine, LibraryRandom.RandDec(10, 2));
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
@@ -1580,7 +1580,7 @@ codeunit 134101 "ERM Prepayment II"
         // [GIVEN] Sales Order with prepayment
         SetupAndCreateSalesPrepayment(SalesLine, LibraryRandom.RandDec(100, 2));
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
-        Commit;
+        Commit();
 
         // [WHEN] Release Sales Order
         asserterror LibrarySales.ReleaseSalesDocument(SalesHeader);
@@ -1625,7 +1625,7 @@ codeunit 134101 "ERM Prepayment II"
         // [GIVEN] Purchase Order with prepayment
         SetupAndCreatePurchasePrepayment(PurchaseLine, LibraryRandom.RandDec(100, 2));
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
-        Commit;
+        Commit();
 
         // [WHEN] Release Purchase Order
         asserterror LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
@@ -1847,7 +1847,7 @@ codeunit 134101 "ERM Prepayment II"
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Prepayment II");
     end;
 
@@ -1925,7 +1925,7 @@ codeunit 134101 "ERM Prepayment II"
         CurrencyExchangeRateCopy."Starting Date" := PostingDate;
         CurrencyExchangeRateCopy."Exchange Rate Amount" := CurrencyExchangeRate."Exchange Rate Amount" / 2;
         CurrencyExchangeRateCopy."Adjustment Exch. Rate Amount" := CurrencyExchangeRate."Adjustment Exch. Rate Amount" / 2;
-        CurrencyExchangeRateCopy.Insert;
+        CurrencyExchangeRateCopy.Insert();
         Currency.Get(CurrencyCode);
         Currency.Validate("Realized Gains Acc.", LibraryERM.CreateGLAccountNo);
         Currency.Validate("Realized Losses Acc.", LibraryERM.CreateGLAccountNo);
@@ -2372,7 +2372,7 @@ codeunit 134101 "ERM Prepayment II"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.Validate("Automatic Cost Posting", AutomaticCostPosting);
         InventorySetup.Validate("Automatic Cost Adjustment", AutomaticCostAdjustment);
         InventorySetup.Modify(true);
@@ -2382,7 +2382,7 @@ codeunit 134101 "ERM Prepayment II"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Check Prepmt. when Posting", CheckPrepmtwhenPosting);
         SalesReceivablesSetup.Modify(true);
     end;
@@ -2391,7 +2391,7 @@ codeunit 134101 "ERM Prepayment II"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Check Prepmt. when Posting", CheckPrepmtwhenPosting);
         PurchasesPayablesSetup.Modify(true);
     end;
@@ -2408,7 +2408,7 @@ codeunit 134101 "ERM Prepayment II"
         GeneralLedgerSetup: Record "General Ledger Setup";
         GLEntry: Record "G/L Entry";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         FindGLEntry(GLEntry, DocumentNo, GLAccountNo);
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, GeneralLedgerSetup."Amount Rounding Precision",
@@ -2424,7 +2424,7 @@ codeunit 134101 "ERM Prepayment II"
         GeneralLedgerSetup: Record "General Ledger Setup";
         GLEntry: Record "G/L Entry";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         FindGLEntry(GLEntry, DocumentNo, GLAccountNo);
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, GeneralLedgerSetup."Amount Rounding Precision",
@@ -2444,7 +2444,7 @@ codeunit 134101 "ERM Prepayment II"
         GeneralLedgerSetup: Record "General Ledger Setup";
         PurchInvLine: Record "Purch. Inv. Line";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         PurchInvLine.SetRange("Document No.", DocumentNo);
         PurchInvLine.SetRange(Type, Type);
         PurchInvLine.SetRange("No.", No);
@@ -2484,7 +2484,7 @@ codeunit 134101 "ERM Prepayment II"
         GeneralLedgerSetup: Record "General Ledger Setup";
         SalesInvoiceLine: Record "Sales Invoice Line";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         SalesInvoiceLine.SetRange("Document No.", DocumentNo);
         SalesInvoiceLine.SetRange(Type, Type);
         SalesInvoiceLine.SetRange("No.", No);
@@ -2557,7 +2557,7 @@ codeunit 134101 "ERM Prepayment II"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         with PurchLine do begin
             Get("Document Type", "Document No.", "Line No.");
             Validate("Qty. to Invoice", QtyToReceive);
@@ -2718,7 +2718,7 @@ codeunit 134101 "ERM Prepayment II"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.Validate("Automatic Cost Posting", false);
         InventorySetup.Modify(true);
     end;

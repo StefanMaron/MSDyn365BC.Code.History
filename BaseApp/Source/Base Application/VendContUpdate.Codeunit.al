@@ -12,7 +12,7 @@ codeunit 5057 "VendCont-Update"
 
     procedure OnInsert(var Vend: Record Vendor)
     begin
-        RMSetup.Get;
+        RMSetup.Get();
         if RMSetup."Bus. Rel. Code for Vendors" = '' then
             exit;
 
@@ -97,7 +97,7 @@ codeunit 5057 "VendCont-Update"
             exit;
 
         if not LocalCall then begin
-            RMSetup.Get;
+            RMSetup.Get();
             RMSetup.TestField("Bus. Rel. Code for Vendors");
         end;
 
@@ -142,7 +142,7 @@ codeunit 5057 "VendCont-Update"
         ContBusRel: Record "Contact Business Relation";
     begin
         if not LocalCall then begin
-            RMSetup.Get;
+            RMSetup.Get();
             RMSetup.TestField("Bus. Rel. Code for Vendors");
         end;
 

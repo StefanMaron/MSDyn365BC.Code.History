@@ -18,7 +18,7 @@ codeunit 2100 "O365 Sales Statistics"
         TotalMonthsInCurrentFY: Integer;
         AutoFormatType: Enum "Auto Format";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         GetCurrentAccountingPeriod(AccountingPeriod);
 
         TotalMonthsInCurrentFY := GetNumberOfElapsedMonthsInFYByDate(WorkDate, AccountingPeriod);
@@ -31,12 +31,12 @@ codeunit 2100 "O365 Sales Statistics"
             O365SalesCue.CalcFields("Invoiced CM");
 
             // Insert aggregate data
-            TempNameValueBuffer.Init;
+            TempNameValueBuffer.Init();
             TempNameValueBuffer.ID := Month;
             TempNameValueBuffer.Name := Format(CalcDate(StrSubstNo('<%1M>', Month - 1), AccountingPeriod."Starting Date"), 0, '<Month Text>');
             TempNameValueBuffer.Value := GLSetup.GetCurrencySymbol + ' ' +
               Format(O365SalesCue."Invoiced CM", 0, AutoFormat.ResolveAutoFormat(AutoFormatType::AmountFormat, GLSetup.GetCurrencyCode('')));
-            TempNameValueBuffer.Insert;
+            TempNameValueBuffer.Insert();
         end;
     end;
 
@@ -50,7 +50,7 @@ codeunit 2100 "O365 Sales Statistics"
         CurrentWeek: Integer;
         MonthOfStartingFY: Integer;
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         GetCurrentAccountingPeriod(AccountingPeriod);
         CurrentWeek := 0;
 
@@ -68,12 +68,12 @@ codeunit 2100 "O365 Sales Statistics"
               EndDate);
             O365SalesCue.CalcFields("Invoiced CM");
 
-            TempNameValueBuffer.Init;
+            TempNameValueBuffer.Init();
             TempNameValueBuffer.ID := CurrentWeek;
             TempNameValueBuffer.Name :=
               Format(CalcDate(StrSubstNo('<%1M+%2W+1D>', Month, CurrentWeek), CalcDate('<CM>', AccountingPeriod."Starting Date")));
             TempNameValueBuffer.Value := GLSetup.GetCurrencySymbol + ' ' + Format(O365SalesCue."Invoiced CM");
-            TempNameValueBuffer.Insert;
+            TempNameValueBuffer.Insert();
 
             // Ensure next week is still the same month
             CurrentWeek += 1;
@@ -92,7 +92,7 @@ codeunit 2100 "O365 Sales Statistics"
         Amount: Decimal;
         I: Integer;
     begin
-        GLSetup.Get;
+        GLSetup.Get();
 
         TempBusinessChartBuffer.Initialize;
         TempBusinessChartBuffer.SetXAxis(XCaption, TempBusinessChartBuffer."Data Type"::String);
@@ -135,7 +135,7 @@ codeunit 2100 "O365 Sales Statistics"
         AccountingPeriodMgt: Codeunit "Accounting Period Mgt.";
     begin
         if IsEmptyAccountingPeriod then begin
-            AccountingPeriod.Reset;
+            AccountingPeriod.Reset();
             AccountingPeriodMgt.InitStartYearAccountingPeriod(AccountingPeriod, WorkDate);
             exit;
         end;

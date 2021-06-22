@@ -94,8 +94,8 @@ table 5640 "Main Asset Component"
 
     local procedure LockFixedAsset()
     begin
-        FA.LockTable;
-        FADeprBook.LockTable;
+        FA.LockTable();
+        FADeprBook.LockTable();
     end;
 
     local procedure UpdateMainAsset(var FA: Record "Fixed Asset"; ComponentType: Option " ","Main Asset",Component)
@@ -113,7 +113,7 @@ table 5640 "Main Asset Component"
         FA.Modify(true);
         UpdateFADeprBooks(FA);
 
-        FA.Reset;
+        FA.Reset();
         FA.SetCurrentKey("Component of Main Asset");
         FA.SetRange("Component of Main Asset", "Main Asset No.");
         FA.SetRange("Main Asset/Component", FA2."Main Asset/Component"::Component);

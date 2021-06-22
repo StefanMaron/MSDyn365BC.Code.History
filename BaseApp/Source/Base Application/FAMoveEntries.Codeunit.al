@@ -23,10 +23,10 @@ codeunit 5623 "FA MoveEntries"
     procedure MoveFAEntries(FADeprBook: Record "FA Depreciation Book")
     begin
         ClearAll;
-        FA.LockTable;
-        FALedgEntry.LockTable;
-        MaintenanceLedgEntry.LockTable;
-        InsCoverageLedgEntry.LockTable;
+        FA.LockTable();
+        FALedgEntry.LockTable();
+        MaintenanceLedgEntry.LockTable();
+        InsCoverageLedgEntry.LockTable();
         FA.Get(FADeprBook."FA No.");
 
         AccountingPeriod.SetCurrentKey(Closed);
@@ -96,7 +96,7 @@ codeunit 5623 "FA MoveEntries"
     begin
         with InsCoverageLedgEntry do begin
             Reset;
-            LockTable;
+            LockTable();
             SetCurrentKey("Insurance No.");
             SetRange("Insurance No.", Insurance."No.");
             if Find('-') then
@@ -124,13 +124,13 @@ codeunit 5623 "FA MoveEntries"
 
     procedure ChangeBudget(FA: Record "Fixed Asset")
     begin
-        FALedgEntry.Reset;
-        MaintenanceLedgEntry.Reset;
-        InsCoverageLedgEntry.Reset;
+        FALedgEntry.Reset();
+        MaintenanceLedgEntry.Reset();
+        InsCoverageLedgEntry.Reset();
 
-        FALedgEntry.LockTable;
-        MaintenanceLedgEntry.LockTable;
-        InsCoverageLedgEntry.LockTable;
+        FALedgEntry.LockTable();
+        MaintenanceLedgEntry.LockTable();
+        InsCoverageLedgEntry.LockTable();
 
         FALedgEntry.SetCurrentKey("FA No.", "Depreciation Book Code", "FA Posting Date");
         MaintenanceLedgEntry.SetCurrentKey("FA No.", "Depreciation Book Code", "FA Posting Date");

@@ -54,7 +54,7 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
             ItemChargeAssgntSales.Validate("Qty. to Assign", QtyToAssign);
         end;
         OnBeforeInsertItemChargeAssgntWithAssignValues(ItemChargeAssgntSales, FromItemChargeAssgntSales);
-        ItemChargeAssgntSales.Insert;
+        ItemChargeAssgntSales.Insert();
     end;
 
     procedure Summarize(var TempToItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)" temporary; var ToItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)")
@@ -68,7 +68,7 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
                        ("Applies-to Doc. Line No." <> ToItemChargeAssignmentSales."Applies-to Doc. Line No.")
                     then begin
                         if ToItemChargeAssignmentSales."Line No." <> 0 then
-                            ToItemChargeAssignmentSales.Insert;
+                            ToItemChargeAssignmentSales.Insert();
                         ToItemChargeAssignmentSales := TempToItemChargeAssignmentSales;
                         ToItemChargeAssignmentSales."Qty. to Assign" := 0;
                         ToItemChargeAssignmentSales."Amount to Assign" := 0;
@@ -77,7 +77,7 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
                     ToItemChargeAssignmentSales."Amount to Assign" += "Amount to Assign";
                 until Next = 0;
             if ToItemChargeAssignmentSales."Line No." <> 0 then
-                ToItemChargeAssignmentSales.Insert;
+                ToItemChargeAssignmentSales.Insert();
         end;
     end;
 
@@ -275,14 +275,14 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
     begin
         repeat
             if not ItemChargeAssignmentSales.SalesLineInvoiced then begin
-                TempItemChargeAssgntSales.Init;
+                TempItemChargeAssgntSales.Init();
                 TempItemChargeAssgntSales := ItemChargeAssignmentSales;
-                TempItemChargeAssgntSales.Insert;
+                TempItemChargeAssgntSales.Insert();
             end;
         until ItemChargeAssignmentSales.Next = 0;
 
         if TempItemChargeAssgntSales.FindSet(true) then begin
-            RemainingNumOfLines := TempItemChargeAssgntSales.Count;
+            RemainingNumOfLines := TempItemChargeAssgntSales.Count();
             repeat
                 ItemChargeAssignmentSales.Get(
                   TempItemChargeAssgntSales."Document Type",
@@ -299,10 +299,10 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
                 TotalAmtToAssign -= ItemChargeAssignmentSales."Amount to Assign";
                 RemainingNumOfLines := RemainingNumOfLines - 1;
                 OnAssignEquallyOnBeforeItemChargeAssignmentSalesModify(ItemChargeAssignmentSales);
-                ItemChargeAssignmentSales.Modify;
+                ItemChargeAssignmentSales.Modify();
             until TempItemChargeAssgntSales.Next = 0;
         end;
-        TempItemChargeAssgntSales.DeleteAll;
+        TempItemChargeAssgntSales.DeleteAll();
     end;
 
     local procedure AssignByAmount(var ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)"; Currency: Record Currency; SalesHeader: Record "Sales Header"; TotalQtyToAssign: Decimal; TotalAmtToAssign: Decimal)
@@ -317,7 +317,7 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
     begin
         repeat
             if not ItemChargeAssignmentSales.SalesLineInvoiced then begin
-                TempItemChargeAssgntSales.Init;
+                TempItemChargeAssgntSales.Init();
                 TempItemChargeAssgntSales := ItemChargeAssignmentSales;
                 case ItemChargeAssignmentSales."Applies-to Doc. Type" of
                     ItemChargeAssignmentSales."Applies-to Doc. Type"::Quote,
@@ -369,7 +369,7 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
                 else begin
                     ItemChargeAssignmentSales."Amount to Assign" := 0;
                     ItemChargeAssignmentSales."Qty. to Assign" := 0;
-                    ItemChargeAssignmentSales.Modify;
+                    ItemChargeAssignmentSales.Modify();
                 end;
                 TotalAppliesToDocLineAmount += TempItemChargeAssgntSales."Applies-to Doc. Line Amount";
             end;
@@ -395,11 +395,11 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
                     TotalAmtToAssign -= ItemChargeAssignmentSales."Amount to Assign";
                     TotalAppliesToDocLineAmount -= TempItemChargeAssgntSales."Applies-to Doc. Line Amount";
                     OnAssignByAmountOnBeforeItemChargeAssignmentSalesModify(ItemChargeAssignmentSales);
-                    ItemChargeAssignmentSales.Modify;
+                    ItemChargeAssignmentSales.Modify();
                 end;
             until TempItemChargeAssgntSales.Next = 0;
 
-        TempItemChargeAssgntSales.DeleteAll;
+        TempItemChargeAssgntSales.DeleteAll();
     end;
 
     local procedure AssignByWeight(var ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)"; Currency: Record Currency; TotalQtyToAssign: Decimal)
@@ -412,9 +412,9 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
     begin
         repeat
             if not ItemChargeAssignmentSales.SalesLineInvoiced then begin
-                TempItemChargeAssgntSales.Init;
+                TempItemChargeAssgntSales.Init();
                 TempItemChargeAssgntSales := ItemChargeAssignmentSales;
-                TempItemChargeAssgntSales.Insert;
+                TempItemChargeAssgntSales.Insert();
                 GetItemValues(TempItemChargeAssgntSales, LineArray);
                 TotalGrossWeight := TotalGrossWeight + (LineArray[2] * LineArray[1]);
             end;
@@ -430,7 +430,7 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
                     TempItemChargeAssgntSales."Qty. to Assign" := 0;
                 AssignSalesItemCharge(ItemChargeAssignmentSales, TempItemChargeAssgntSales, Currency, QtyRemaining, AmountRemaining);
             until TempItemChargeAssgntSales.Next = 0;
-        TempItemChargeAssgntSales.DeleteAll;
+        TempItemChargeAssgntSales.DeleteAll();
     end;
 
     local procedure AssignByVolume(var ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)"; Currency: Record Currency; TotalQtyToAssign: Decimal)
@@ -443,9 +443,9 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
     begin
         repeat
             if not ItemChargeAssignmentSales.SalesLineInvoiced then begin
-                TempItemChargeAssgntSales.Init;
+                TempItemChargeAssgntSales.Init();
                 TempItemChargeAssgntSales := ItemChargeAssignmentSales;
-                TempItemChargeAssgntSales.Insert;
+                TempItemChargeAssgntSales.Insert();
                 GetItemValues(TempItemChargeAssgntSales, LineArray);
                 TotalUnitVolume := TotalUnitVolume + (LineArray[3] * LineArray[1]);
             end;
@@ -461,7 +461,7 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
                     TempItemChargeAssgntSales."Qty. to Assign" := 0;
                 AssignSalesItemCharge(ItemChargeAssignmentSales, TempItemChargeAssgntSales, Currency, QtyRemaining, AmountRemaining);
             until TempItemChargeAssgntSales.Next = 0;
-        TempItemChargeAssgntSales.DeleteAll;
+        TempItemChargeAssgntSales.DeleteAll();
     end;
 
     local procedure AssignSalesItemCharge(var ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)"; ItemChargeAssignmentSales2: Record "Item Charge Assignment (Sales)"; Currency: Record Currency; var QtyRemaining: Decimal; var AmountRemaining: Decimal)
@@ -480,7 +480,7 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
         QtyRemaining := ItemChargeAssignmentSales2."Qty. to Assign" - ItemChargeAssignmentSales."Qty. to Assign";
         ItemChargeAssignmentSales."Amount to Assign" :=
           Round(ItemChargeAssignmentSales."Amount to Assign", Currency."Amount Rounding Precision");
-        ItemChargeAssignmentSales.Modify;
+        ItemChargeAssignmentSales.Modify();
     end;
 
     procedure GetItemValues(TempItemChargeAssgntSales: Record "Item Charge Assignment (Sales)" temporary; var DecimalArray: array[3] of Decimal)
@@ -544,7 +544,7 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
 
             ItemChargeAssignmentSales."Qty. to Assign" := "Qty. to Assign";
             ItemChargeAssignmentSales."Amount to Assign" := "Amount to Assign";
-            ItemChargeAssignmentSales.Modify;
+            ItemChargeAssignmentSales.Modify();
 
             ItemChargeAssignmentSales.SetRange("Document Type", "Document Type");
             ItemChargeAssignmentSales.SetRange("Document No.", "Document No.");
@@ -562,7 +562,7 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
                 repeat
                     if not ItemChargeAssignmentSales.SalesLineInvoiced then begin
                         TempItemChargeAssgntSales := ItemChargeAssignmentSales;
-                        TempItemChargeAssgntSales.Insert;
+                        TempItemChargeAssgntSales.Insert();
                     end;
                 until ItemChargeAssignmentSales.Next = 0;
 
@@ -580,7 +580,7 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
                                 Currency."Amount Rounding Precision");
                             TotalQtyToAssign -= ItemChargeAssignmentSales."Qty. to Assign";
                             TotalAmountToAssign -= ItemChargeAssignmentSales."Amount to Assign";
-                            ItemChargeAssignmentSales.Modify;
+                            ItemChargeAssignmentSales.Modify();
                         end;
                     until TempItemChargeAssgntSales.Next = 0;
                 end;

@@ -22,8 +22,8 @@ codeunit 5540 "Calc. Item Avail. Timeline"
 
     procedure Initialize(var Item: Record Item; ForecastName: Code[10]; IncludeBlanketOrders: Boolean; ExcludeForecastBefore: Date; IncludePlan: Boolean)
     begin
-        TempInventoryEventBuffer.Reset;
-        TempInventoryEventBuffer.DeleteAll;
+        TempInventoryEventBuffer.Reset();
+        TempInventoryEventBuffer.DeleteAll();
 
         CalcItemAvailEventBuf.CalcNewInvtEventBuf(Item, ForecastName, IncludeBlanketOrders, ExcludeForecastBefore, IncludePlan);
         CalcItemAvailEventBuf.GetInvEventBuffer(TempInventoryEventBuffer);
@@ -91,7 +91,7 @@ codeunit 5540 "Calc. Item Avail. Timeline"
 
     procedure InsertTimelineEvent(var TempToTimelineEvent: Record "Timeline Event" temporary; TempFromInventoryEventBuffer: Record "Inventory Event Buffer" temporary)
     begin
-        TempToTimelineEvent.Init;
+        TempToTimelineEvent.Init();
         TempToTimelineEvent.ID := TempFromInventoryEventBuffer."Entry No.";
         TempToTimelineEvent."Source Line ID" := TempFromInventoryEventBuffer."Source Line ID";
         TempToTimelineEvent."Original Date" := TempFromInventoryEventBuffer."Availability Date";
@@ -111,7 +111,7 @@ codeunit 5540 "Calc. Item Avail. Timeline"
             TempToTimelineEvent."Original Quantity" := 0;
         end;
 
-        TempToTimelineEvent.Insert;
+        TempToTimelineEvent.Insert();
     end;
 
     local procedure MapToTimelineTransactionType(var TempToTimelineEvent: Record "Timeline Event" temporary; TempInventoryEventBuffer: Record "Inventory Event Buffer" temporary)
@@ -297,7 +297,7 @@ codeunit 5540 "Calc. Item Avail. Timeline"
           TempFromInventoryEventBuffer."Source Line ID", 0, SourceType, SourceSubtype, SourceID, SourceBatchName, SourceProdOrderLine,
           SourceRefNo);
 
-        ReqLine.Reset;
+        ReqLine.Reset();
         ReqLine.SetCurrentKey("Ref. Order Type", "Ref. Order Status", "Ref. Order No.", "Ref. Line No.");
         ReqLine.SetRange("Ref. Order Type", MapToRefOrderType(SourceType));
         ReqLine.SetRange("Ref. Order No.", SourceID);
@@ -457,7 +457,7 @@ codeunit 5540 "Calc. Item Avail. Timeline"
                 CurrTemplateName := "Worksheet Template Name";
                 CurrWorksheetName := "Journal Batch Name";
             end else begin
-                ReqWkshTemplate.Reset;
+                ReqWkshTemplate.Reset();
                 if HasLicensePermission(LicensePermission."Object Type"::Page, PAGE::"Planning Worksheet") then
                     ReqWkshTemplate.SetRange(Type, ReqWkshTemplate.Type::Planning)
                 else
@@ -524,8 +524,8 @@ codeunit 5540 "Calc. Item Avail. Timeline"
         Location: Record Location;
         TempEmptyLocation: Record Location temporary;
     begin
-        TempEmptyLocation.Init;
-        TempEmptyLocation.Insert;
+        TempEmptyLocation.Init();
+        TempEmptyLocation.Insert();
         TempEmptyLocation.SetFilter(Code, LocationFilter);
         if not TempEmptyLocation.IsEmpty then
             exit('');
@@ -543,9 +543,9 @@ codeunit 5540 "Calc. Item Avail. Timeline"
         ItemVariant: Record "Item Variant";
         TempEmptyItemVariant: Record "Item Variant" temporary;
     begin
-        TempEmptyItemVariant.Init;
+        TempEmptyItemVariant.Init();
         TempEmptyItemVariant."Item No." := ItemNo;
-        TempEmptyItemVariant.Insert;
+        TempEmptyItemVariant.Insert();
         TempEmptyItemVariant.SetRange("Item No.", ItemNo);
         TempEmptyItemVariant.SetFilter(Code, VariantFilter);
         if not TempEmptyItemVariant.IsEmpty then
@@ -602,13 +602,13 @@ codeunit 5540 "Calc. Item Avail. Timeline"
 
     local procedure InsertInventoryEvent(var TempTimelineEvent: Record "Timeline Event" temporary; ID: Integer; TransactionType: Integer; InventoryDate: Date)
     begin
-        TempTimelineEvent.Init;
+        TempTimelineEvent.Init();
         TempTimelineEvent.ID := ID;
         TempTimelineEvent."Transaction Type" := TransactionType;
         TempTimelineEvent."Original Date" := InventoryDate;
         TempTimelineEvent."New Date" := TempTimelineEvent."Original Date";
         TempTimelineEvent.Description := TXT010;
-        TempTimelineEvent.Insert;
+        TempTimelineEvent.Insert();
     end;
 
     local procedure GetSourcePlanningLine(TempTimelineEventChange: Record "Timeline Event Change" temporary; var RecRef: RecordRef): Boolean

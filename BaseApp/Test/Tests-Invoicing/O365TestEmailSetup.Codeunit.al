@@ -30,7 +30,7 @@ codeunit 138900 "O365 Test Email Setup"
             O365C2GraphEventSettings.Insert(true);
 
         O365C2GraphEventSettings.SetEventsEnabled(false);
-        O365C2GraphEventSettings.Modify;
+        O365C2GraphEventSettings.Modify();
 
         EventSubscriberInvoicingApp.Clear;
         EventSubscriberInvoicingApp.SetClientType(CLIENTTYPE::Phone);
@@ -65,7 +65,7 @@ codeunit 138900 "O365 Test Email Setup"
         O365EmailAccountSettings.Close;
 
         // [THEN] A setup record is created with proper O365 settings
-        SMTPMailSetup.Get;
+        SMTPMailSetup.Get();
         AssertO365DefaultSettings(SMTPMailSetup);
         Assert.AreEqual('', SMTPMailSetup.GetPassword, '');
         if User.Get(UserSecurityId) then;
@@ -84,9 +84,9 @@ codeunit 138900 "O365 Test Email Setup"
         // [GIVEN] Existing email setup (smtp)
         Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
-        SMTPMailSetup.Init;
+        SMTPMailSetup.Init();
         SMTPMail.ApplyOffice365Smtp(SMTPMailSetup);
-        SMTPMailSetup.Insert;
+        SMTPMailSetup.Insert();
 
         // [WHEN] User opens settings page and enters user id and password
         O365EmailAccountSettings.OpenEdit;
@@ -95,7 +95,7 @@ codeunit 138900 "O365 Test Email Setup"
         O365EmailAccountSettings.Close;
 
         // [THEN] The setup record is created with proper O365 settings and credentials
-        SMTPMailSetup.Get;
+        SMTPMailSetup.Get();
         AssertO365DefaultSettings(SMTPMailSetup);
         Assert.AreEqual(UserId + '@' + UserId, SMTPMailSetup."User ID", '');
         Assert.AreEqual(PassWordTxt, SMTPMailSetup.GetPassword, '');
@@ -246,20 +246,20 @@ codeunit 138900 "O365 Test Email Setup"
         // [GIVEN] User setup has been created with an email
         UserSetup."User ID" := UserId;
         UserSetup."E-Mail" := 'userSetupEmail@cronusus.com';
-        UserSetup.Insert;
+        UserSetup.Insert();
 
         // [GIVEN] User has been created with a contact and authentication email
         User."User Security ID" := CreateGuid;
         User."Contact Email" := 'userContactEmail@cronusus.com';
         User."Authentication Email" := 'userAuthenticationEmail@cronusus.com';
-        User.Insert;
+        User.Insert();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] SMTP has been set up with an email
         SMTPMailSetup.Authentication := SMTPMailSetup.Authentication::Basic;
         SMTPMailSetup."User ID" := 'smtpMailSetupUserID@cronusus.com';
         SMTPMailSetup."SMTP Server" := 'cronusus.com';
-        SMTPMailSetup.Insert;
+        SMTPMailSetup.Insert();
 
         // [WHEN] Finding the sender email address to user for emails
         // [THEN] The SMTP email is chosen
@@ -285,7 +285,7 @@ codeunit 138900 "O365 Test Email Setup"
         O365SalesEmailDialogTestPage.Trap;
         O365SalesEmailDialog.HideBody;
         TempEmailItem.SetBodyText('this is a test');
-        TempEmailItem.Insert;
+        TempEmailItem.Insert();
         O365SalesEmailDialog.SetValues(DummyVar, TempEmailItem);
         O365SalesEmailDialog.Run;
 
@@ -312,7 +312,7 @@ codeunit 138900 "O365 Test Email Setup"
         LibraryLowerPermissions.SetO365Basic;
         O365SalesEmailDialogTestPage.Trap;
         TempEmailItem.SetBodyText('<html>this is a test</html>');
-        TempEmailItem.Insert;
+        TempEmailItem.Insert();
         O365SalesEmailDialog.SetValues(DummyVar, TempEmailItem);
         O365SalesEmailDialog.Run;
 

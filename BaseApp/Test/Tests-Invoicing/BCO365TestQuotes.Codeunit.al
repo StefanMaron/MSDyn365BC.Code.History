@@ -201,11 +201,11 @@ codeunit 138941 "BC O365 Test Quotes"
         LibrarySales.CreateCustomer(Customer);
         Customer.Address := CopyStr(Format(CreateGuid), 1, MaxStrLen(Customer.Address));
         Customer."E-Mail" := 'a@b.c';
-        Customer.Modify;
+        Customer.Modify();
 
         LibraryInventory.CreateItem(Item);
         Item."Unit Price" := 1;
-        Item.Modify;
+        Item.Modify();
     end;
 
     local procedure CreateQuote(var Customer: Record Customer; var Item: Record Item; var BCO365SalesQuote: TestPage "BC O365 Sales Quote")
@@ -222,10 +222,10 @@ codeunit 138941 "BC O365 Test Quotes"
 
     local procedure CreateUOM(var UnitOfMeasure: Record "Unit of Measure")
     begin
-        UnitOfMeasure.Init;
+        UnitOfMeasure.Init();
         UnitOfMeasure.Description := CopyStr(LibraryRandom.RandText(10), 1, MaxStrLen(UnitOfMeasure.Description));
         UnitOfMeasure.Code := UpperCase(UnitOfMeasure.Description);
-        UnitOfMeasure.Insert;
+        UnitOfMeasure.Insert();
     end;
 
     local procedure Initialize()
@@ -242,20 +242,20 @@ codeunit 138941 "BC O365 Test Quotes"
         Initialized := true;
 
         if SMTPMailSetup.Get then
-            SMTPMailSetup.Delete;
-        SMTPMailSetup.Init;
+            SMTPMailSetup.Delete();
+        SMTPMailSetup.Init();
         SMTPMailSetup."SMTP Server" := 'smtp.office365.com';
         SMTPMailSetup.Authentication := SMTPMailSetup.Authentication::Basic;
         SMTPMailSetup."User ID" := 'test@ms.com';
         SMTPMailSetup.SetPassword('pswd1');
-        SMTPMailSetup.Insert;
+        SMTPMailSetup.Insert();
 
         ReportSelections.SetRange(Usage, 0); // "S.Quote". work-around to avoid RU modification
-        ReportSelections.DeleteAll;
-        ReportSelections.Init;
+        ReportSelections.DeleteAll();
+        ReportSelections.Init();
         ReportSelections.Usage := 0; // "S.Quote"
         ReportSelections."Report ID" := REPORT::"Standard Sales - Quote";
-        ReportSelections.Insert;
+        ReportSelections.Insert();
     end;
 
     local procedure CleanUp()

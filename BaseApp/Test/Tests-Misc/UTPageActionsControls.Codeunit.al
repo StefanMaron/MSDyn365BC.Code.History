@@ -1580,7 +1580,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [SCENARIO 258864] There is a "#Basic,#Suite" application area for "Amount Rounding Precision (LCY)", "Amount Decimal Places (LCY)",
         // [SCENARIO 258864] "Unit-Amount Rounding Precision (LCY)" and "Unit-Amount Decimal Places (LCY)" fields in general ledger setup page
         MockRecordWithKeyValue(GLEntry);
-        Commit;
+        Commit();
 
         LibraryApplicationArea.EnableFoundationSetup;
         SetBasicUserExperience;
@@ -2052,7 +2052,7 @@ codeunit 134341 "UT Page Actions & Controls"
 
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         PurchaseHeader.Invoice := false;
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
 
         // [WHEN] When open "Purchase Order List" with filters "Partially invoiced"
         OpenPurchaseOrderListWithPartialInvoiceFilter(PurchaseOrderListTestPage, true);
@@ -2083,7 +2083,7 @@ codeunit 134341 "UT Page Actions & Controls"
 
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         PurchaseHeader.Invoice := false;
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
 
         // [WHEN] When open "Purchase Order List" with filters "Delivered, not invoiced"
         OpenPurchaseOrderListWithPartialInvoiceFilter(PurchaseOrderListTestPage, false);
@@ -2131,6 +2131,7 @@ codeunit 134341 "UT Page Actions & Controls"
 
     [Test]
     [Scope('OnPrem')]
+    [HandlerFunctions('VerifyMinimumQuantityInSalesPriceAndLineDiscountsPageHandler')]
     procedure OpenSalesPrLineDiscPartFromCustomerCard()
     var
         Customer: Record Customer;
@@ -2150,9 +2151,10 @@ codeunit 134341 "UT Page Actions & Controls"
         // [WHEN] Open customer card
         OpenCustomerCard(CustomerCard, Customer."No.");
 
-        // [THEN] Part Sales Pr. & Discounts shows the Sales Line Discount with Code = Item."No." and "Minimum Quantity" = 15
-        CustomerCard.PriceAndLineDisc.FILTER.SetFilter(Code, SalesLineDiscount.Code);
-        CustomerCard.PriceAndLineDisc."Minimum Quantity".AssertEquals(SalesLineDiscount."Minimum Quantity");
+        // [THEN] Sales Pr. & Discounts overview shows the Sales Line Discount with Code = Item."No." and "Minimum Quantity" = 15
+        LibraryVariableStorage.Enqueue(SalesLineDiscount.Code);
+        LibraryVariableStorage.Enqueue(SalesLineDiscount."Minimum Quantity");
+        CustomerCard."Prices and Discounts Overview".Invoke();
 
         LibraryApplicationArea.DisableApplicationAreaSetup;
     end;
@@ -2168,10 +2170,10 @@ codeunit 134341 "UT Page Actions & Controls"
         // [FEATURE] [Analysis View]
         // [SCENARIO 264348] Analisys View Entry has default page
         LibraryERM.CreateAnalysisView(AnalysisView);
-        AnalysisViewEntry.Init;
+        AnalysisViewEntry.Init();
         AnalysisViewEntry."Analysis View Code" := AnalysisView.Code;
         AnalysisViewEntry."Account No." := LibraryUtility.GenerateGUID;
-        AnalysisViewEntry.Insert;
+        AnalysisViewEntry.Insert();
         AnalysisViewEntry.SetRecFilter;
         AnalysisViewEntries.Trap;
         PAGE.Run(0, AnalysisViewEntry);
@@ -2187,10 +2189,10 @@ codeunit 134341 "UT Page Actions & Controls"
     begin
         // [FEATURE] [Analysis View] [Budget]
         // [SCENARIO 264348] Analisys View Budget Entry has default page
-        AnalysisViewBudgetEntry.Init;
+        AnalysisViewBudgetEntry.Init();
         AnalysisViewBudgetEntry."Budget Name" := LibraryUtility.GenerateGUID;
         AnalysisViewBudgetEntry."G/L Account No." := LibraryUtility.GenerateGUID;
-        AnalysisViewBudgetEntry.Insert;
+        AnalysisViewBudgetEntry.Insert();
         AnalysisViewBudgetEntry.SetRecFilter;
         AnalysisViewBudgetEntries.Trap;
         PAGE.Run(0, AnalysisViewBudgetEntry);
@@ -2218,7 +2220,7 @@ codeunit 134341 "UT Page Actions & Controls"
         TempTask.CreateTaskFromTask(Task);
 
         // [THEN] One Task was created for Contact.
-        Task.Reset;
+        Task.Reset();
         Task.SetRange("Contact No.", Contact."No.");
         Assert.AreEqual(1, Task.Count, TaskNoErr);
     end;
@@ -2873,7 +2875,7 @@ codeunit 134341 "UT Page Actions & Controls"
 
         // [GIVEN] Inventory Posting Setup
         LibraryInventory.CreateInventoryPostingGroup(InventoryPostingGroup);
-        InventoryPostingSetup.Init;
+        InventoryPostingSetup.Init();
         InventoryPostingSetup.Validate("Invt. Posting Group Code", InventoryPostingGroup.Code);
         InventoryPostingSetup.Insert(true);
 
@@ -2903,7 +2905,7 @@ codeunit 134341 "UT Page Actions & Controls"
 
         // [GIVEN] Inventory Posting Setup
         LibraryInventory.CreateInventoryPostingGroup(InventoryPostingGroup);
-        InventoryPostingSetup.Init;
+        InventoryPostingSetup.Init();
         InventoryPostingSetup.Validate("Invt. Posting Group Code", InventoryPostingGroup.Code);
         InventoryPostingSetup.Insert(true);
 
@@ -3069,7 +3071,7 @@ codeunit 134341 "UT Page Actions & Controls"
         Customer."Post Code" := PostCode.Code;
         Customer.City := PostCode.City;
         Customer.County := PostCode.County;
-        Customer.Modify;
+        Customer.Modify();
 
         // [GIVEN] Customer card page with created customer
         CustomerCard.OpenEdit;
@@ -3490,7 +3492,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [WHEN] Create document for the Customer with custom Bill-to address fields
         LibrarySales.CreateSalesInvoiceForCustomerNo(SalesInvoiceHeader, Customer."No.");
         SalesInvoiceHeader.Validate("Bill-to Address 2", CopyStr(LibraryUtility.GenerateGUID, 1, MaxStrLen(Customer."Address 2")));
-        SalesInvoiceHeader.Modify;
+        SalesInvoiceHeader.Modify();
 
         // [THEN] Bill-to address doesn't equal Sell-to address
         Assert.IsFalse(SalesInvoiceHeader.BillToAddressEqualsSellToAddress, '');
@@ -3532,7 +3534,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [WHEN] Create document for the Vendor with custom Pay-to address fields
         LibraryPurchase.CreatePurchaseInvoiceForVendorNo(PurchaseInvoiceHeader, Vendor."No.");
         PurchaseInvoiceHeader.Validate("Pay-to Address 2", CopyStr(LibraryUtility.GenerateGUID, 1, MaxStrLen(Vendor."Address 2")));
-        PurchaseInvoiceHeader.Modify;
+        PurchaseInvoiceHeader.Modify();
 
         // [THEN] Pay-to address doesn't equal Buy-from address
         Assert.IsFalse(PurchaseInvoiceHeader.BuyFromAddressEqualsPayToAddress, '');
@@ -3551,7 +3553,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [GIVEN] Item with "Extended Text" equal "X" and "Automatic Ext. Texts" set to TRUE
         LibraryInventory.CreateItem(Item);
         Item.Validate("Automatic Ext. Texts", true);
-        Item.Modify;
+        Item.Modify();
         ExtendedText := LibraryService.CreateExtendedTextForItem(Item."No.");
 
         // [GIVEN] Sales Document "Y"
@@ -3585,7 +3587,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [GIVEN] Item with "Extended Text" equal "X" and "Automatic Ext. Texts" set to TRUE
         LibraryInventory.CreateItem(Item);
         Item.Validate("Automatic Ext. Texts", true);
-        Item.Modify;
+        Item.Modify();
         ExtendedText := LibraryService.CreateExtendedTextForItem(Item."No.");
 
         // [GIVEN] Purchase Document "Y"
@@ -3885,74 +3887,6 @@ codeunit 134341 "UT Page Actions & Controls"
         PostCode.TestField("Time Zone", TimeZone.ID);
     end;
 
-    [Test]
-    [Scope('OnPrem')]
-    procedure ShipToOptionsOnPurchaseQuotePage()
-    var
-        PurchaseQuoteHeader: Record "Purchase Header";
-        PurchaseQuotePage: TestPage "Purchase Quote";
-        ShipToOptions: Option "Default (Company Address)",Location,"Custom Address";
-    begin
-        // [FEATURE] [Purchase] [Quote] [Ship-to-Address]
-        // [SCENARIO 343963] Ship-to options on Purchase Quote page consist of: Default (Company Address), Location, Custom Address
-
-        // [GIVEN] Created Purchase Quote
-        LibraryPurchase.CreatePurchaseQuote(PurchaseQuoteHeader);
-
-        // [WHEN] Opened th page
-        PurchaseQuotePage.OpenEdit();
-        PurchaseQuotePage.FILTER.SetFilter("No.", PurchaseQuoteHeader."No.");
-
-        // [THEN] Ship-to options consist of: Default (Company Address), Location, Custom Address
-        PurchaseQuotePage.ShippingOptionWithLocation.SetValue(ShipToOptions::"Default (Company Address)");
-        PurchaseQuotePage.ShippingOptionWithLocation.SetValue(ShipToOptions::Location);
-        PurchaseQuotePage.ShippingOptionWithLocation.SetValue(ShipToOptions::"Custom Address");
-    end;
-
-    [Test]
-    [HandlerFunctions('ConfirmHandlerTrue,MessageHandler,LogSegmentHandler')]
-    [Scope('OnPrem')]
-    procedure CheckNewSegmentLoggedSuccessfully()
-    var
-        Contact: Record Contact;
-        InteractionTemplate: Record "Interaction Template";
-        LoggedSegment: Record "Logged Segment";
-
-        Segment: TestPage Segment;
-        Description: Code[20];
-        SegmentNo: Code[20];
-    begin
-        // [FEATURE] [Segment]
-        // [SCENARIO 346492] Create New Segment with Segment Line
-        // [GIVEN] Created Interaction Template
-        CreateInteractionTemplate(InteractionTemplate);
-
-        // [GIVEN] Created Contact with SalesPerson
-        CreateContactWithSalesperson(Contact);
-
-        // [GIVEN] Created new segment with page
-        Segment.OpenNew();
-        Description := LibraryUtility.GenerateGUID;
-        Segment.Description.SetValue(Description);
-        Segment.SegLines."Contact No.".SETVALUE(Contact."No.");
-        Segment."Interaction Template Code".SETVALUE(InteractionTemplate.Code);
-
-        SegmentNo := Segment."No.".Value();
-        Segment.Close();
-        Segment.OpenEdit();
-        Segment.Filter.SetFilter("No.", SegmentNo);
-        Segment.First();
-        Commit();
-
-        // [WHEN] Log Segment
-        Segment.LogSegment.Invoke();
-
-        // [THEN] The page Segment Closed successfully 
-        // [THEN] The Segment logged successfully 
-        LoggedSegment.SetRange(Description, Description);
-        LoggedSegment.FindFirst();
-    end;
-
     local procedure CreatePostCodeFields(var City: Text[30]; var "Code": Code[20]; var County: Text[30]; var CountryCode: Code[10])
     var
         PostCode: Record "Post Code";
@@ -4044,7 +3978,7 @@ codeunit 134341 "UT Page Actions & Controls"
             LibraryUtility.GenerateRandomCode(PostCode.FieldNo(County), DATABASE::"Post Code"),
             1,
             LibraryUtility.GetFieldLength(DATABASE::"Post Code", PostCode.FieldNo(County))));
-        PostCode.Modify;
+        PostCode.Modify();
     end;
 
     local procedure MockThreeRecordsAndOpenFilteredPage(RecVar: Variant; PageNo: Integer)
@@ -4065,7 +3999,6 @@ codeunit 134341 "UT Page Actions & Controls"
 
     local procedure MockRecordWithKeyValue(RecVar: Variant): Code[10]
     var
-        "Field": Record "Field";
         RecRef: RecordRef;
         KeyRef: KeyRef;
         FieldRef: FieldRef;
@@ -4073,14 +4006,13 @@ codeunit 134341 "UT Page Actions & Controls"
         RecRef.GetTable(RecVar);
         KeyRef := RecRef.KeyIndex(1);
         FieldRef := KeyRef.FieldIndex(1);
-        Evaluate(Field.Type, Format(FieldRef.Type));
-        case Field.Type of
-            Field.Type::Code:
+        case FieldRef.Type of
+            FieldType::Code:
                 FieldRef.Value := LibraryUtility.GenerateGUID;
-            Field.Type::Integer:
+            FieldType::Integer:
                 FieldRef.Value := LibraryUtility.GetNewRecNo(RecRef, FieldRef.Number);
         end;
-        RecRef.Insert;
+        RecRef.Insert();
         exit(Format(FieldRef.Value));
     end;
 
@@ -4098,7 +4030,7 @@ codeunit 134341 "UT Page Actions & Controls"
 
     local procedure CreateItemWithSalesLineDiscount(var SalesLineDiscount: Record "Sales Line Discount")
     begin
-        SalesLineDiscount.Init;
+        SalesLineDiscount.Init();
         SalesLineDiscount.Code := LibraryInventory.CreateItemNo;
         SalesLineDiscount.Type := SalesLineDiscount.Type::Item;
         SalesLineDiscount."Sales Type" := SalesLineDiscount."Sales Type"::"All Customers";
@@ -4312,10 +4244,10 @@ codeunit 134341 "UT Page Actions & Controls"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup."Post with Job Queue" := PostWithQueue;
         SalesReceivablesSetup."Post & Print with Job Queue" := PostAndPrintWithQueue;
-        SalesReceivablesSetup.Modify;
+        SalesReceivablesSetup.Modify();
 
         UpdateNoSeriesOnSalesSetup;
     end;
@@ -4324,10 +4256,10 @@ codeunit 134341 "UT Page Actions & Controls"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup."Post with Job Queue" := PostWithQueue;
         PurchasesPayablesSetup."Post & Print with Job Queue" := PostAndPrintWithQueue;
-        PurchasesPayablesSetup.Modify;
+        PurchasesPayablesSetup.Modify();
 
         UpdateNoSeriesOnPurchaseSetup;
     end;
@@ -4336,18 +4268,18 @@ codeunit 134341 "UT Page Actions & Controls"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup."Return Order Nos." := LibraryERM.CreateNoSeriesCode;
-        SalesReceivablesSetup.Modify;
+        SalesReceivablesSetup.Modify();
     end;
 
     local procedure UpdateNoSeriesOnPurchaseSetup()
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup."Return Order Nos." := LibraryERM.CreateNoSeriesCode;
-        PurchasesPayablesSetup.Modify;
+        PurchasesPayablesSetup.Modify();
     end;
 
     local procedure VerifyInventoryPostingSetupInserted(GLAccountNo: Code[20])
@@ -4356,24 +4288,6 @@ codeunit 134341 "UT Page Actions & Controls"
     begin
         InventoryPostingSetup.SetRange("Inventory Account (Interim)", GLAccountNo);
         Assert.RecordIsNotEmpty(InventoryPostingSetup);
-    end;
-
-    local procedure CreateContactWithSalesperson(var Contact: Record Contact)
-    var
-        SalespersonPurchaser: Record "Salesperson/Purchaser";
-    begin
-        LibrarySales.CreateSalesperson(SalespersonPurchaser);
-        Contact.Init();
-        Contact."No." := LibraryUtility.GenerateGUID;
-        Contact."Salesperson Code" := SalespersonPurchaser.Code;
-        Contact.Insert();
-    end;
-
-    local procedure CreateInteractionTemplate(var InteractionTemplate: Record "Interaction Template")
-    begin
-        InteractionTemplate.Init();
-        InteractionTemplate.Code := LibraryUtility.GenerateGUID;
-        InteractionTemplate.Insert(false);
     end;
 
     [ModalPageHandler]
@@ -4769,25 +4683,19 @@ codeunit 134341 "UT Page Actions & Controls"
         TimeZones.OK.Invoke;
     end;
 
-    [MessageHandler]
+    [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure MessageHandler(Message: Text[1024])
+    procedure VerifyMinimumQuantityInSalesPriceAndLineDiscountsPageHandler(var SalesPrLineDisc: TestPage "Sales Price and Line Discounts")
+    var
+        DiscountCode: Code[20];
+        MinimumQuantity: Decimal;
     begin
-        //MessageHandler
-    end;
+        DiscountCode := LibraryVariableStorage.DequeueText();
+        MinimumQuantity := LibraryVariableStorage.DequeueDecimal();
 
-    [ConfirmHandler]
-    [Scope('OnPrem')]
-    procedure ConfirmHandlerTrue(Message: Text[1024]; var Response: Boolean)
-    begin
-        Response := true;
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure LogSegmentHandler(var LogSegment: TestRequestPage "Log Segment")
-    begin
-        LogSegment.OK.Invoke();
+        SalesPrLineDisc.Filter.SetFilter(Code, DiscountCode);
+        SalesPrLineDisc."Minimum Quantity".AssertEquals(MinimumQuantity);
+        SalesPrLineDisc.OK().Invoke();
     end;
 }
 

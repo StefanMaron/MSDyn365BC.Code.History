@@ -25,11 +25,9 @@ table 1293 "Payment Application Proposal"
             OptionCaption = 'Bank Reconciliation,Payment Application';
             OptionMembers = "Bank Reconciliation","Payment Application";
         }
-        field(21; "Account Type"; Option)
+        field(21; "Account Type"; Enum "Gen. Journal Account Type")
         {
             Caption = 'Account Type';
-            OptionCaption = 'G/L Account,Customer,Vendor,Bank Account,Fixed Asset,IC Partner';
-            OptionMembers = "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset","IC Partner";
 
             trigger OnValidate()
             begin
@@ -120,11 +118,9 @@ table 1293 "Payment Application Proposal"
         {
             Caption = 'Posting Date';
         }
-        field(32; "Document Type"; Option)
+        field(32; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(33; "Document No."; Code[20])
         {

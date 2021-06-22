@@ -4,7 +4,8 @@ page 351 "Customer Sales Lines"
     Editable = false;
     LinksAllowed = false;
     PageType = ListPart;
-    SourceTable = Date;
+    SourceTable = "Customer Sales Buffer";
+    SourceTableTemporary = true;
 
     layout
     {
@@ -26,7 +27,7 @@ page 351 "Customer Sales Lines"
                     Caption = 'Period Name';
                     ToolTip = 'Specifies the name of the period that you want to view.';
                 }
-                field(BalanceDueLCY; Cust."Balance Due (LCY)")
+                field(BalanceDueLCY; "Balance Due (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatType = 1;
@@ -36,10 +37,10 @@ page 351 "Customer Sales Lines"
 
                     trigger OnDrillDown()
                     begin
-                        ShowCustEntriesDue;
+                        ShowCustEntriesDue();
                     end;
                 }
-                field("Cust.""Sales (LCY)"""; Cust."Sales (LCY)")
+                field("Cust.""Sales (LCY)"""; "Sales (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatType = 1;
@@ -49,10 +50,10 @@ page 351 "Customer Sales Lines"
 
                     trigger OnDrillDown()
                     begin
-                        ShowCustEntries;
+                        ShowCustEntries();
                     end;
                 }
-                field("Cust.""Profit (LCY)"""; Cust."Profit (LCY)")
+                field("Cust.""Profit (LCY)"""; "Profit (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatType = 1;
@@ -62,7 +63,7 @@ page 351 "Customer Sales Lines"
 
                     trigger OnDrillDown()
                     begin
-                        ShowCustEntries;
+                        ShowCustEntries();
                     end;
                 }
             }
@@ -75,35 +76,45 @@ page 351 "Customer Sales Lines"
 
     trigger OnAfterGetRecord()
     begin
-        SetDateFilter;
-        Cust.CalcFields("Balance Due (LCY)", "Sales (LCY)", "Profit (LCY)");
+        if DateRec.Get("Period Type", "Period Start") then;
+        CalcLine();
     end;
 
-    trigger OnFindRecord(Which: Text): Boolean
+    trigger OnFindRecord(Which: Text) FoundDate: Boolean
+    var
+        VariantRec: Variant;
     begin
-        exit(PeriodFormMgt.FindDate(Which, Rec, PeriodType));
+        VariantRec := Rec;
+        FoundDate := PeriodFormLinesMgt.FindDate(VariantRec, DateRec, Which, PeriodType);
+        Rec := VariantRec;
     end;
 
-    trigger OnNextRecord(Steps: Integer): Integer
+    trigger OnNextRecord(Steps: Integer) ResultSteps: Integer
+    var
+        VariantRec: Variant;
     begin
-        exit(PeriodFormMgt.NextDate(Steps, Rec, PeriodType));
+        VariantRec := Rec;
+        ResultSteps := PeriodFormLinesMgt.NextDate(VariantRec, DateRec, Steps, PeriodType);
+        Rec := VariantRec;
     end;
 
     trigger OnOpenPage()
     begin
-        Reset;
+        Reset();
     end;
 
     var
         Cust: Record Customer;
         CustLedgEntry: Record "Cust. Ledger Entry";
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        DateRec: Record Date;
+        PeriodFormLinesMgt: Codeunit "Period Form Lines Mgt.";
         PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
         AmountType: Option "Net Change","Balance at Date";
 
     procedure Set(var NewCust: Record Customer; NewPeriodType: Integer; NewAmountType: Option "Net Change","Balance at Date")
     begin
         Cust.Copy(NewCust);
+        DeleteAll();
         PeriodType := NewPeriodType;
         AmountType := NewAmountType;
         CurrPage.Update(false);
@@ -111,8 +122,8 @@ page 351 "Customer Sales Lines"
 
     local procedure ShowCustEntries()
     begin
-        SetDateFilter;
-        CustLedgEntry.Reset;
+        SetDateFilter();
+        CustLedgEntry.Reset();
         CustLedgEntry.SetCurrentKey("Customer No.", "Posting Date");
         CustLedgEntry.SetRange("Customer No.", Cust."No.");
         CustLedgEntry.SetFilter("Posting Date", Cust.GetFilter("Date Filter"));
@@ -125,8 +136,8 @@ page 351 "Customer Sales Lines"
     var
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
-        SetDateFilter;
-        DtldCustLedgEntry.Reset;
+        SetDateFilter();
+        DtldCustLedgEntry.Reset();
         DtldCustLedgEntry.SetCurrentKey("Customer No.", "Initial Entry Due Date", "Posting Date", "Currency Code");
         DtldCustLedgEntry.SetRange("Customer No.", Cust."No.");
         DtldCustLedgEntry.SetFilter("Initial Entry Due Date", Cust.GetFilter("Date Filter"));
@@ -136,12 +147,28 @@ page 351 "Customer Sales Lines"
         PAGE.Run(0, DtldCustLedgEntry)
     end;
 
+    local procedure CalcLine()
+    begin
+        SetDateFilter();
+        Cust.CalcFields("Balance Due (LCY)", "Sales (LCY)", "Profit (LCY)");
+        "Balance Due (LCY)" := Cust."Balance Due (LCY)";
+        "Sales (LCY)" := Cust."Sales (LCY)";
+        "Profit (LCY)" := Cust."Profit (LCY)";
+
+        OnAfterCalcLine(Cust, Rec);
+    end;
+
     local procedure SetDateFilter()
     begin
         if AmountType = AmountType::"Net Change" then
             Cust.SetRange("Date Filter", "Period Start", "Period End")
         else
             Cust.SetRange("Date Filter", 0D, "Period End");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcLine(var Customer: Record Customer; var CustomerSalesBuffer: Record "Customer Sales Buffer")
+    begin
     end;
 }
 

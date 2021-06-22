@@ -31,8 +31,8 @@ codeunit 138031 "O365 Adjust Inv. on Empty DB"
     begin
         Initialize;
 
-        ItemJnlTemplate.DeleteAll;
-        ItemJnlBatch.DeleteAll;
+        ItemJnlTemplate.DeleteAll();
+        ItemJnlBatch.DeleteAll();
 
         CreateNumberOfItem(Item);
 
@@ -59,8 +59,8 @@ codeunit 138031 "O365 Adjust Inv. on Empty DB"
     begin
         Initialize;
 
-        ItemJnlTemplate.DeleteAll;
-        ItemJnlBatch.DeleteAll;
+        ItemJnlTemplate.DeleteAll();
+        ItemJnlBatch.DeleteAll();
 
         CreateNumberOfItem(Item);
 
@@ -90,7 +90,7 @@ codeunit 138031 "O365 Adjust Inv. on Empty DB"
             LibraryFiscalYear.CreateFiscalYear;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Adjust Inv. on Empty DB");
     end;
 
@@ -107,7 +107,7 @@ codeunit 138031 "O365 Adjust Inv. on Empty DB"
     local procedure UpdateInventoryField(var AdjustInventory: TestPage "Adjust Inventory"; NewInventory: Decimal): Decimal
     begin
         AdjustInventory.NewInventory.Value := Format(NewInventory);
-        Commit;
+        Commit();
         AdjustInventory.OK.Invoke;
 
         exit(NewInventory)

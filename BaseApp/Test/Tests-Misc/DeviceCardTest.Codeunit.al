@@ -50,7 +50,7 @@ codeunit 132906 DeviceCardTest
         DeviceCardPage."MAC Address".AssertEquals(Device005Txt);
         DeviceCardPage.Close;
 
-        DeviceTable.DeleteAll;
+        DeviceTable.DeleteAll();
     end;
 
     [Test]
@@ -71,7 +71,7 @@ codeunit 132906 DeviceCardTest
         end;
         DeviceCardPage.Close;
 
-        DeviceTable.DeleteAll;
+        DeviceTable.DeleteAll();
     end;
 
     [Test]
@@ -96,18 +96,18 @@ codeunit 132906 DeviceCardTest
         // Workaround deleting the Device from the table
         DeviceTable.SetFilter("MAC Address", Device002Txt);
         if DeviceTable.FindFirst then
-            DeviceTable.Delete;
+            DeviceTable.Delete();
         DeviceTable.SetRange("MAC Address");
         DeviceCardPage.Trap;
         DeviceCardPage.OpenView;
         asserterror DeviceCardPage.FindFirstField("MAC Address", Device002Txt);
         if GetLastErrorText <> RowNotfound001Err then begin
-            DeviceTable.DeleteAll;
+            DeviceTable.DeleteAll();
             ValidationError := GetLastErrorText;
             DeviceCardPage.Close;
             Error(ErrorStringCom001Err, RowNotfound001Err, ValidationError);
         end;
-        DeviceTable.DeleteAll;
+        DeviceTable.DeleteAll();
     end;
 
     [Normal]

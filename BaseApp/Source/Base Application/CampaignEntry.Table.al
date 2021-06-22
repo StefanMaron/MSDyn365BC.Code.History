@@ -82,11 +82,9 @@ table 5072 "Campaign Entry"
             Caption = 'Register No.';
             TableRelation = "Logged Segment";
         }
-        field(14; "Document Type"; Option)
+        field(14; "Document Type"; Enum "Interaction Log Entry Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = ' ,Sales Qte.,Sales Blnkt. Ord,Sales Ord. Cnfrmn.,Sales Inv.,Sales Shpt. Note,Sales Cr. Memo,Sales Stmnt.,Sales Rmdr.,Serv. Ord. Create,Serv. Ord. Post,Purch.Qte.,Purch. Blnkt. Ord.,Purch. Ord.,Purch. Inv.,Purch. Rcpt.,Purch. Cr. Memo,Cover Sheet';
-            OptionMembers = " ","Sales Qte.","Sales Blnkt. Ord","Sales Ord. Cnfrmn.","Sales Inv.","Sales Shpt. Note","Sales Cr. Memo","Sales Stmnt.","Sales Rmdr.","Serv. Ord. Create","Serv. Ord. Post","Purch.Qte.","Purch. Blnkt. Ord.","Purch. Ord.","Purch. Inv.","Purch. Rcpt.","Purch. Cr. Memo","Cover Sheet";
         }
     }
 
@@ -118,7 +116,7 @@ table 5072 "Campaign Entry"
         InteractLogEntry.SetCurrentKey("Campaign No.", "Campaign Entry No.");
         InteractLogEntry.SetRange("Campaign No.", "Campaign No.");
         InteractLogEntry.SetRange("Campaign Entry No.", "Entry No.");
-        InteractLogEntry.DeleteAll;
+        InteractLogEntry.DeleteAll();
     end;
 
     var

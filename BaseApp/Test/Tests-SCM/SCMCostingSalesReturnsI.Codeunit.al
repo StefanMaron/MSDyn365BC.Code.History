@@ -59,7 +59,7 @@ codeunit 137012 "SCM Costing Sales Returns I"
 
         // Run Adjust Cost Batch job.
         LibraryCosting.AdjustCostItemEntries(SalesLine."No.", '');
-        Commit;
+        Commit();
 
         // 3. Verify: Verify customer ledger entry for total amount including VAT.
         VerifyCustomerLedgerEntry(TempSalesLine2, TempSalesLine);
@@ -432,7 +432,7 @@ codeunit 137012 "SCM Costing Sales Returns I"
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Costing Sales Returns I");
     end;
 
@@ -449,7 +449,7 @@ codeunit 137012 "SCM Costing Sales Returns I"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Stockout Warning", false);
         SalesReceivablesSetup.Validate("Exact Cost Reversing Mandatory", ExactCostReversingMandatory);
         SalesReceivablesSetup.Validate("Return Receipt on Credit Memo", true);
@@ -638,7 +638,7 @@ codeunit 137012 "SCM Costing Sales Returns I"
         SalesLine.FindSet;
         repeat
             TempSalesLine := SalesLine;
-            TempSalesLine.Insert;
+            TempSalesLine.Insert();
         until SalesLine.Next = 0;
     end;
 
@@ -689,7 +689,7 @@ codeunit 137012 "SCM Costing Sales Returns I"
               (TempSalesLine.Quantity * TempSalesLine."Unit Price") / 100;
         until TempSalesLine.Next = 0;
 
-        TempSalesLine2.Reset;
+        TempSalesLine2.Reset();
         TempSalesLine2.FindSet;
         repeat
             ExpectedSalesCrMemoAmount +=

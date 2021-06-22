@@ -80,7 +80,7 @@ table 299 "Reminder Comment Line"
                 ReminderCommentLine2 := ReminderCommentLine;
                 ReminderCommentLine2.Type := ToType;
                 ReminderCommentLine2."No." := ToNumber;
-                ReminderCommentLine2.Insert;
+                ReminderCommentLine2.Insert();
             until ReminderCommentLine.Next = 0;
     end;
 
@@ -89,7 +89,7 @@ table 299 "Reminder Comment Line"
         SetRange(Type, DocType);
         SetRange("No.", DocNo);
         if not IsEmpty then
-            DeleteAll;
+            DeleteAll();
     end;
 
     procedure ShowComments(DocType: Option; DocNo: Code[20]; DocLineNo: Integer)

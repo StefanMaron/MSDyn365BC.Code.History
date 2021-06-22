@@ -80,7 +80,7 @@ page 2321 "BC O365 Payment Method Card"
         // Handle the description
         if PaymentMethodDescription <> PaymentMethod.Description then begin
             PaymentMethodTranslation.SetRange("Payment Method Code", PaymentMethod.Code);
-            PaymentMethodTranslation.DeleteAll;
+            PaymentMethodTranslation.DeleteAll();
             PaymentMethod.Validate(Description, PaymentMethodDescription);
             PaymentMethod.Modify(true);
         end;

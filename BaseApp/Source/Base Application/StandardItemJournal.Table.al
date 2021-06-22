@@ -96,7 +96,7 @@ table 752 "Standard Item Journal"
 
     local procedure CopyItemJnlFromStdJnl(StdItemJnlLine: Record "Standard Item Journal Line")
     begin
-        ItemJnlLine.Init;
+        ItemJnlLine.Init();
         ItemJnlLine."Line No." := 0;
         ItemJnlLine.SetUpNewLine(LastItemJnlLine);
         if LastItemJnlLine."Line No." <> 0 then

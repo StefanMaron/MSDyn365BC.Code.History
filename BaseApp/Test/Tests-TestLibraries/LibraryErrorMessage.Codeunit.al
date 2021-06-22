@@ -24,8 +24,8 @@ codeunit 132215 "Library - Error Message"
 
     procedure Clear()
     begin
-        TempErrorMessage.Reset;
-        TempErrorMessage.DeleteAll;
+        TempErrorMessage.Reset();
+        TempErrorMessage.DeleteAll();
         SYSTEM.Clear(TempErrorMessage);
     end;
 
@@ -48,7 +48,7 @@ codeunit 132215 "Library - Error Message"
     begin
         if ErrorMessages.First then
             repeat
-                TempErrorMessage.Init;
+                TempErrorMessage.Init();
                 TempErrorMessage.ID += 1;
                 Evaluate(TempErrorMessage."Message Type", ErrorMessages."Message Type".Value);
                 TempErrorMessage.Description := ErrorMessages.Description.Value;
@@ -61,7 +61,7 @@ codeunit 132215 "Library - Error Message"
                   "Context Field Number", GetFieldNo(TempErrorMessage."Context Table Number", ErrorMessages."Context Field Name".Value));
                 TempErrorMessage."Additional Information" := ErrorMessages."Additional Information".Value;
                 TempErrorMessage."Support Url" := ErrorMessages."Support Url".Value;
-                TempErrorMessage.Insert;
+                TempErrorMessage.Insert();
             until not ErrorMessages.Next;
     end;
 
@@ -195,7 +195,7 @@ codeunit 132215 "Library - Error Message"
 
     local procedure AssertMessageExists(ExpectedDescription: Text; MessageType: Option)
     begin
-        TempErrorMessage.Reset;
+        TempErrorMessage.Reset();
         TempErrorMessage.SetRange(Description, ExpectedDescription);
         TempErrorMessage.SetRange("Message Type", MessageType);
         Assert.IsFalse(TempErrorMessage.IsEmpty,

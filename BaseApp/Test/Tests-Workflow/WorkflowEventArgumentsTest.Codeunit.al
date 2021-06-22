@@ -203,7 +203,7 @@ codeunit 134304 "Workflow Event Arguments Test"
         WorkflowCode := CreateWorkflow;
         CreateWorkflowStep(WorkflowStep, WorkflowCode, ZeroGUID);
         WorkflowStep."Function Name" := '';
-        WorkflowStep.Modify;
+        WorkflowStep.Modify();
 
         // Exercise
         asserterror WorkflowStep.OpenEventConditions;
@@ -243,7 +243,7 @@ codeunit 134304 "Workflow Event Arguments Test"
 
         // Setup
         CreateWorkflowWithStepAndAnyEvent(WorkflowStep);
-        Commit;
+        Commit();
 
         // Exercise
         WorkflowStep.OpenEventConditions;
@@ -264,7 +264,7 @@ codeunit 134304 "Workflow Event Arguments Test"
 
         // Setup
         CreateWorkflowWithStepAndAnyEvent(WorkflowStep);
-        Commit;
+        Commit();
 
         // Exercise
         WorkflowStep.OpenEventConditions;
@@ -348,7 +348,7 @@ codeunit 134304 "Workflow Event Arguments Test"
         LibraryVariableStorage.Enqueue(Amount);
         LibraryVariableStorage.Enqueue(UnitOfMeasure.Code);
         LibraryVariableStorage.Enqueue(LibraryPurchase.CreateVendorNo);
-        Commit;
+        Commit();
 
         // Exercise
         WorkflowStep.OpenEventConditions;
@@ -498,7 +498,7 @@ codeunit 134304 "Workflow Event Arguments Test"
         // Setup
         CreateWorkflowWithStepAndAnyEvent(WorkflowStep);
         EnableWorkflow(WorkflowStep."Workflow Code");
-        Commit;
+        Commit();
 
         // Exercise
         WorkflowStep.OpenEventConditions;
@@ -528,7 +528,7 @@ codeunit 134304 "Workflow Event Arguments Test"
         CreateWorkflowWithStepAndAnyEvent(WorkflowStep);
         CreateWorkflowStepEventArgument(WorkflowStepArgument);
         WorkflowStep.Argument := WorkflowStepArgument.ID;
-        WorkflowStep.Modify;
+        WorkflowStep.Modify();
         Workflow.Get(WorkflowStep."Workflow Code");
         LibraryWorkflow.EnableWorkflow(Workflow);
 
@@ -536,7 +536,7 @@ codeunit 134304 "Workflow Event Arguments Test"
         LibraryVariableStorage.Enqueue(Amount);
         LibraryVariableStorage.Enqueue(UnitOfMeasure.Code);
         LibraryVariableStorage.Enqueue(LibraryPurchase.CreateVendorNo);
-        Commit;
+        Commit();
 
         asserterror WorkflowStep.OpenEventConditions;
 
@@ -855,18 +855,18 @@ codeunit 134304 "Workflow Event Arguments Test"
 
     local procedure CreateWorkflowStep(var WorkflowStep: Record "Workflow Step"; WorkflowCode: Code[20]; ActivityArgument: Guid)
     begin
-        WorkflowStep.Init;
+        WorkflowStep.Init();
         WorkflowStep."Workflow Code" := WorkflowCode;
         WorkflowStep.Type := WorkflowStep.Type::"Event";
         WorkflowStep."Function Name" :=
           LibraryUtility.GenerateRandomCode(WorkflowStep.FieldNo("Function Name"), DATABASE::"Workflow Step");
         WorkflowStep.Argument := ActivityArgument;
-        WorkflowStep.Insert;
+        WorkflowStep.Insert();
     end;
 
     local procedure CreateWorkflowStepEventArgument(var WorkflowStepArgument: Record "Workflow Step Argument")
     begin
-        WorkflowStepArgument.Init;
+        WorkflowStepArgument.Init();
         WorkflowStepArgument.Type := WorkflowStepArgument.Type::"Event";
         WorkflowStepArgument.Insert(true);
     end;
@@ -875,9 +875,9 @@ codeunit 134304 "Workflow Event Arguments Test"
     var
         WorkflowEvent: Record "Workflow Event";
     begin
-        WorkflowEvent.Init;
+        WorkflowEvent.Init();
         WorkflowEvent."Function Name" := FunctionName;
-        WorkflowEvent.Insert;
+        WorkflowEvent.Insert();
     end;
 
     local procedure CreateDummyWorkflowEventWithTableAndPageID(FunctionName: Code[128]; TableID: Integer; RequestPageID: Integer)
@@ -888,7 +888,7 @@ codeunit 134304 "Workflow Event Arguments Test"
         WorkflowEvent.Get(FunctionName);
         WorkflowEvent."Table ID" := TableID;
         WorkflowEvent."Request Page ID" := RequestPageID;
-        WorkflowEvent.Modify;
+        WorkflowEvent.Modify();
     end;
 
     local procedure VerifyPurchaseHeaderFilters(WorkflowStep: Record "Workflow Step")
@@ -1102,7 +1102,7 @@ codeunit 134304 "Workflow Event Arguments Test"
         LibraryVariableStorage.Enqueue(Amount);
         LibraryVariableStorage.Enqueue(UnitOfMeasureCode);
         LibraryVariableStorage.Enqueue(VendorFilter);
-        Commit;
+        Commit();
         WorkflowStep.OpenEventConditions;
     end;
 

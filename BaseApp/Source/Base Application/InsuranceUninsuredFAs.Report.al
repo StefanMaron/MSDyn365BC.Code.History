@@ -77,10 +77,10 @@ report 5626 "Insurance - Uninsured FAs"
             trigger OnAfterGetRecord()
             begin
                 if not FADeprBook.Get("No.", DeprBook.Code) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 CalcFields(Insured);
                 if (FADeprBook."Disposal Date" > 0D) or Insured or Inactive then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 FADeprBook.CalcFields("Acquisition Cost", Depreciation, "Book Value");
 
                 Amounts[1] := FADeprBook."Acquisition Cost";
@@ -114,7 +114,7 @@ report 5626 "Insurance - Uninsured FAs"
     begin
         FAFilter := "Fixed Asset".GetFilters;
         MakeAmountHeadLine;
-        FASetup.Get;
+        FASetup.Get();
         FASetup.TestField("Insurance Depr. Book");
         DeprBook.Get(FASetup."Insurance Depr. Book");
     end;

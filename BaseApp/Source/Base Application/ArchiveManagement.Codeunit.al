@@ -29,7 +29,7 @@ codeunit 5063 ArchiveManagement
         if IsHandled then
             exit;
 
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
 
         with SalesHeader do
             case "Document Type" of
@@ -66,7 +66,7 @@ codeunit 5063 ArchiveManagement
         if IsHandled then
             exit;
 
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
 
         with PurchaseHeader do
             case "Document Type" of
@@ -139,7 +139,7 @@ codeunit 5063 ArchiveManagement
         SalesHeaderArchive."Interaction Exist" := InteractionExist;
         RecordLinkManagement.CopyLinks(SalesHeader, SalesHeaderArchive);
         OnBeforeSalesHeaderArchiveInsert(SalesHeaderArchive, SalesHeader);
-        SalesHeaderArchive.Insert;
+        SalesHeaderArchive.Insert();
         OnAfterSalesHeaderArchiveInsert(SalesHeaderArchive, SalesHeader);
 
         StoreSalesDocumentComments(
@@ -175,7 +175,7 @@ codeunit 5063 ArchiveManagement
         PurchHeaderArchive: Record "Purchase Header Archive";
         PurchLineArchive: Record "Purchase Line Archive";
     begin
-        PurchHeaderArchive.Init;
+        PurchHeaderArchive.Init();
         PurchHeaderArchive.TransferFields(PurchHeader);
         PurchHeaderArchive."Archived By" := UserId;
         PurchHeaderArchive."Date Archived" := WorkDate;
@@ -185,7 +185,7 @@ codeunit 5063 ArchiveManagement
         PurchHeaderArchive."Interaction Exist" := InteractionExist;
         RecordLinkManagement.CopyLinks(PurchHeader, PurchHeaderArchive);
         OnBeforePurchHeaderArchiveInsert(PurchHeaderArchive, PurchHeader);
-        PurchHeaderArchive.Insert;
+        PurchHeaderArchive.Insert();
         OnAfterPurchHeaderArchiveInsert(PurchHeaderArchive, PurchHeader);
 
         StorePurchDocumentComments(
@@ -242,12 +242,12 @@ codeunit 5063 ArchiveManagement
         OnBeforeCheckIfDocumentIsPartiallyPosted(SalesHeaderArchive, DoCheck);
 
         if (SalesHeader."Document Type" = SalesHeader."Document Type"::Order) and DoCheck then begin
-            SalesShptHeader.Reset;
+            SalesShptHeader.Reset();
             SalesShptHeader.SetCurrentKey("Order No.");
             SalesShptHeader.SetRange("Order No.", SalesHeader."No.");
             if not SalesShptHeader.IsEmpty then
                 Error(Text005, SalesHeader."Document Type", SalesHeader."No.");
-            SalesInvHeader.Reset;
+            SalesInvHeader.Reset();
             SalesInvHeader.SetCurrentKey("Order No.");
             SalesInvHeader.SetRange("Order No.", SalesHeader."No.");
             if not SalesInvHeader.IsEmpty then
@@ -255,7 +255,7 @@ codeunit 5063 ArchiveManagement
         end;
 
         ConfirmRequired := false;
-        ReservEntry.Reset;
+        ReservEntry.Reset();
         ReservEntry.SetCurrentKey("Source ID", "Source Ref. No.", "Source Type", "Source Subtype");
         ReservEntry.SetRange("Source ID", SalesHeader."No.");
         ReservEntry.SetRange("Source Type", DATABASE::"Sales Line");
@@ -263,7 +263,7 @@ codeunit 5063 ArchiveManagement
         if ReservEntry.FindFirst then
             ConfirmRequired := true;
 
-        ItemChargeAssgntSales.Reset;
+        ItemChargeAssgntSales.Reset();
         ItemChargeAssgntSales.SetRange("Document Type", SalesHeader."Document Type");
         ItemChargeAssgntSales.SetRange("Document No.", SalesHeader."No.");
         if ItemChargeAssgntSales.FindFirst then
@@ -295,7 +295,7 @@ codeunit 5063 ArchiveManagement
             SalesHeader.Delete(true);
             OnRestoreDocumentOnAfterDeleteSalesHeader(SalesHeader);
 
-            SalesHeader.Init;
+            SalesHeader.Init();
             SalesHeader.SetHideValidationDialog(true);
             SalesHeader."Document Type" := SalesHeaderArchive."Document Type";
             SalesHeader."No." := SalesHeaderArchive."No.";
@@ -395,7 +395,7 @@ codeunit 5063 ArchiveManagement
         case TableId of
             DATABASE::"Sales Header":
                 begin
-                    SalesHeaderArchive.LockTable;
+                    SalesHeaderArchive.LockTable();
                     SalesHeaderArchive.SetRange("Document Type", DocType);
                     SalesHeaderArchive.SetRange("No.", DocNo);
                     if SalesHeaderArchive.FindLast then
@@ -405,7 +405,7 @@ codeunit 5063 ArchiveManagement
                 end;
             DATABASE::"Purchase Header":
                 begin
-                    PurchHeaderArchive.LockTable;
+                    PurchHeaderArchive.LockTable();
                     PurchHeaderArchive.SetRange("Document Type", DocType);
                     PurchHeaderArchive.SetRange("No.", DocNo);
                     if PurchHeaderArchive.FindLast then
@@ -424,7 +424,7 @@ codeunit 5063 ArchiveManagement
         case TableId of
             DATABASE::"Sales Header":
                 begin
-                    SalesHeaderArchive.LockTable;
+                    SalesHeaderArchive.LockTable();
                     SalesHeaderArchive.SetRange("Document Type", DocType);
                     SalesHeaderArchive.SetRange("No.", DocNo);
                     SalesHeaderArchive.SetRange("Doc. No. Occurrence", DocNoOccurrence);
@@ -435,7 +435,7 @@ codeunit 5063 ArchiveManagement
                 end;
             DATABASE::"Purchase Header":
                 begin
-                    PurchHeaderArchive.LockTable;
+                    PurchHeaderArchive.LockTable();
                     PurchHeaderArchive.SetRange("Document Type", DocType);
                     PurchHeaderArchive.SetRange("No.", DocNo);
                     PurchHeaderArchive.SetRange("Doc. No. Occurrence", DocNoOccurrence);
@@ -470,11 +470,11 @@ codeunit 5063 ArchiveManagement
         SalesCommentLine.SetRange("No.", DocNo);
         if SalesCommentLine.FindSet then
             repeat
-                SalesCommentLineArch.Init;
+                SalesCommentLineArch.Init();
                 SalesCommentLineArch.TransferFields(SalesCommentLine);
                 SalesCommentLineArch."Doc. No. Occurrence" := DocNoOccurrence;
                 SalesCommentLineArch."Version No." := VersionNo;
-                SalesCommentLineArch.Insert;
+                SalesCommentLineArch.Insert();
             until SalesCommentLine.Next = 0;
     end;
 
@@ -487,11 +487,11 @@ codeunit 5063 ArchiveManagement
         PurchCommentLine.SetRange("No.", DocNo);
         if PurchCommentLine.FindSet then
             repeat
-                PurchCommentLineArch.Init;
+                PurchCommentLineArch.Init();
                 PurchCommentLineArch.TransferFields(PurchCommentLine);
                 PurchCommentLineArch."Doc. No. Occurrence" := DocNoOccurrence;
                 PurchCommentLineArch."Version No." := VersionNo;
-                PurchCommentLineArch.Insert;
+                PurchCommentLineArch.Insert();
             until PurchCommentLine.Next = 0;
     end;
 
@@ -513,11 +513,11 @@ codeunit 5063 ArchiveManagement
         DeferralLine: Record "Deferral Line";
     begin
         if DeferralHeader.Get(DeferralDocType, '', '', DocType, DocNo, LineNo) then begin
-            DeferralHeaderArchive.Init;
+            DeferralHeaderArchive.Init();
             DeferralHeaderArchive.TransferFields(DeferralHeader);
             DeferralHeaderArchive."Doc. No. Occurrence" := DocNoOccurrence;
             DeferralHeaderArchive."Version No." := VersionNo;
-            DeferralHeaderArchive.Insert;
+            DeferralHeaderArchive.Insert();
 
             DeferralLine.SetRange("Deferral Doc. Type", DeferralDocType);
             DeferralLine.SetRange("Gen. Jnl. Template Name", '');
@@ -527,11 +527,11 @@ codeunit 5063 ArchiveManagement
             DeferralLine.SetRange("Line No.", LineNo);
             if DeferralLine.FindSet then
                 repeat
-                    DeferralLineArchive.Init;
+                    DeferralLineArchive.Init();
                     DeferralLineArchive.TransferFields(DeferralLine);
                     DeferralLineArchive."Doc. No. Occurrence" := DocNoOccurrence;
                     DeferralLineArchive."Version No." := VersionNo;
-                    DeferralLineArchive.Insert;
+                    DeferralLineArchive.Insert();
                 until DeferralLine.Next = 0;
         end;
     end;
@@ -567,9 +567,9 @@ codeunit 5063 ArchiveManagement
             DeferralLineArchive.SetRange("Line No.", LineNo);
             if DeferralLineArchive.FindSet then
                 repeat
-                    DeferralLine.Init;
+                    DeferralLine.Init();
                     DeferralLine.TransferFields(DeferralLineArchive);
-                    DeferralLine.Insert;
+                    DeferralLine.Insert();
                 until DeferralLineArchive.Next = 0;
         end else
             // Removes any lines that may have been defaulted
@@ -588,9 +588,9 @@ codeunit 5063 ArchiveManagement
         SalesCommentLineArchive.SetRange("Version No.", SalesHeaderArchive."Version No.");
         if SalesCommentLineArchive.FindSet then
             repeat
-                SalesCommentLine.Init;
+                SalesCommentLine.Init();
                 SalesCommentLine.TransferFields(SalesCommentLineArchive);
-                SalesCommentLine.Insert;
+                SalesCommentLine.Insert();
             until SalesCommentLineArchive.Next = 0;
 
         SalesCommentLine.SetRange("Document Type", SalesHeader."Document Type");
@@ -599,14 +599,14 @@ codeunit 5063 ArchiveManagement
         if SalesCommentLine.FindLast then
             NextLine := SalesCommentLine."Line No.";
         NextLine += 10000;
-        SalesCommentLine.Init;
+        SalesCommentLine.Init();
         SalesCommentLine."Document Type" := SalesHeader."Document Type";
         SalesCommentLine."No." := SalesHeader."No.";
         SalesCommentLine."Document Line No." := 0;
         SalesCommentLine."Line No." := NextLine;
         SalesCommentLine.Date := WorkDate;
         SalesCommentLine.Comment := StrSubstNo(Text004, Format(SalesHeaderArchive."Version No."));
-        SalesCommentLine.Insert;
+        SalesCommentLine.Insert();
     end;
 
     procedure RoundSalesDeferralsForArchive(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
@@ -653,7 +653,7 @@ codeunit 5063 ArchiveManagement
         SalesLine: Record "Sales Line";
     begin
         if SalesHeader."Document Type" = SalesHeader."Document Type"::Order then begin
-            SalesLine.Reset;
+            SalesLine.Reset();
             SalesLine.SetRange("Document Type", SalesHeader."Document Type");
             SalesLine.SetRange("Document No.", SalesHeader."No.");
             SalesLine.SetFilter("Qty. Invoiced (Base)", '<>%1', 0);
@@ -668,7 +668,7 @@ codeunit 5063 ArchiveManagement
         PurchaseLine: Record "Purchase Line";
     begin
         if PurchaseHeader."Document Type" = PurchaseHeader."Document Type"::Order then begin
-            PurchaseLine.Reset;
+            PurchaseLine.Reset();
             PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
             PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
             PurchaseLine.SetFilter("Qty. Invoiced (Base)", '<>%1', 0);

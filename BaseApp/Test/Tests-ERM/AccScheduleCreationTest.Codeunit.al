@@ -24,10 +24,10 @@ codeunit 134443 "Acc. Schedule Creation Test"
     begin
         // Setup - Setup a new acc. schedule
         LibraryERM.CreateAccScheduleName(AccScheduleName);
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Acc. Sched. for Balance Sheet", AccScheduleName.Name);
         GeneralLedgerSetup.Modify(true);
-        AccScheduleLine.DeleteAll;
+        AccScheduleLine.DeleteAll();
 
         // Execute - Run the codeunit to generate the account schedules
         CODEUNIT.Run(CODEUNIT::"Categ. Generate Acc. Schedules");
@@ -61,10 +61,10 @@ codeunit 134443 "Acc. Schedule Creation Test"
     begin
         // Setup - Setup a new acc. schedule
         LibraryERM.CreateAccScheduleName(AccScheduleName);
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Acc. Sched. for Income Stmt.", AccScheduleName.Name);
         GeneralLedgerSetup.Modify(true);
-        AccScheduleLine1.DeleteAll;
+        AccScheduleLine1.DeleteAll();
 
         // Execute - Run the codeunit to generate the account schedules
         CODEUNIT.Run(CODEUNIT::"Categ. Generate Acc. Schedules");
@@ -93,6 +93,7 @@ codeunit 134443 "Acc. Schedule Creation Test"
     var
         AccScheduleLine: Record "Acc. Schedule Line";
         AccScheduleLineDescription: Text[80];
+        Changed: Boolean;
     begin
         // [SCENARIO 257783] Existing Acc. Schedule Lines after "Company-Initialize" is called.
 
@@ -104,7 +105,10 @@ codeunit 134443 "Acc. Schedule Creation Test"
         CreateAccScheduleWithOneLine(AccScheduleLineDescription);
 
         // [WHEN] Run codeunit "Company-Initialize"
+        Changed := SetAPIInitialized(true); // skip not needed API setup on company initialize
         CODEUNIT.Run(CODEUNIT::"Company-Initialize");
+        if Changed then
+            SetAPIInitialized(false);
 
         // [THEN] Five Account Schedule Lines exists with Description "Descr"
         AccScheduleLine.SetRange(Description, AccScheduleLineDescription);
@@ -122,8 +126,8 @@ codeunit 134443 "Acc. Schedule Creation Test"
         // [SCENARIO 269236] "Acc. Sched. for Balance Sheet" is updated via InitializeStandardAccountSchedules if it is empty
         // [GIVEN] General Ledger Setup with Acc. Schedules filled in
         UpdateGLSetupAccSheduleReporting(LibraryUtility.GenerateGUID);
-        GeneralLedgerSetupOld.Get;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetupOld.Get();
+        GeneralLedgerSetup.Get();
         // [GIVEN] User clears "Acc. Sched. for Balance Sheet"
         GeneralLedgerSetup.Validate("Acc. Sched. for Balance Sheet", '');
         GeneralLedgerSetup.Modify(true);
@@ -133,7 +137,7 @@ codeunit 134443 "Acc. Schedule Creation Test"
 
         // [THEN] "Acc. Sched. for Balance Sheet" is updated in General Ledger Setup
         // [THEN] Other Acc. schedules stayed unchanged
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.TestField("Acc. Sched. for Balance Sheet");
         GeneralLedgerSetup.TestField("Acc. Sched. for Income Stmt.", GeneralLedgerSetupOld."Acc. Sched. for Income Stmt.");
         GeneralLedgerSetup.TestField("Acc. Sched. for Cash Flow Stmt", GeneralLedgerSetupOld."Acc. Sched. for Cash Flow Stmt");
@@ -151,8 +155,8 @@ codeunit 134443 "Acc. Schedule Creation Test"
         // [SCENARIO 269236] "Acc. Sched. for Income Stmt." is updated via InitializeStandardAccountSchedules if it is empty
         // [GIVEN] General Ledger Setup with Acc. Schedules filled in
         UpdateGLSetupAccSheduleReporting(LibraryUtility.GenerateGUID);
-        GeneralLedgerSetupOld.Get;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetupOld.Get();
+        GeneralLedgerSetup.Get();
         // [GIVEN] User clears "Acc. Sched. for Income Stmt."
         GeneralLedgerSetup.Validate("Acc. Sched. for Income Stmt.", '');
         GeneralLedgerSetup.Modify(true);
@@ -162,7 +166,7 @@ codeunit 134443 "Acc. Schedule Creation Test"
 
         // [THEN] "Acc. Sched. for Income Stmt." is updated in General Ledger Setup
         // [THEN] Other Acc. schedules stayed unchanged
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.TestField("Acc. Sched. for Balance Sheet", GeneralLedgerSetupOld."Acc. Sched. for Balance Sheet");
         GeneralLedgerSetup.TestField("Acc. Sched. for Income Stmt.");
         GeneralLedgerSetup.TestField("Acc. Sched. for Cash Flow Stmt", GeneralLedgerSetupOld."Acc. Sched. for Cash Flow Stmt");
@@ -180,8 +184,8 @@ codeunit 134443 "Acc. Schedule Creation Test"
         // [SCENARIO 269236] "Acc. Sched. for Cash Flow Stmt" is updated via InitializeStandardAccountSchedules if it is empty
         // [GIVEN] General Ledger Setup with Acc. Schedules filled in
         UpdateGLSetupAccSheduleReporting(LibraryUtility.GenerateGUID);
-        GeneralLedgerSetupOld.Get;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetupOld.Get();
+        GeneralLedgerSetup.Get();
         // [GIVEN] User clears "Acc. Sched. for Cash Flow Stmt"
         GeneralLedgerSetup.Validate("Acc. Sched. for Cash Flow Stmt", '');
         GeneralLedgerSetup.Modify(true);
@@ -191,7 +195,7 @@ codeunit 134443 "Acc. Schedule Creation Test"
 
         // [THEN] "Acc. Sched. for Cash Flow Stmt" is updated in General Ledger Setup
         // [THEN] Other Acc. schedules stayed unchanged
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.TestField("Acc. Sched. for Balance Sheet", GeneralLedgerSetupOld."Acc. Sched. for Balance Sheet");
         GeneralLedgerSetup.TestField("Acc. Sched. for Income Stmt.", GeneralLedgerSetupOld."Acc. Sched. for Income Stmt.");
         GeneralLedgerSetup.TestField("Acc. Sched. for Cash Flow Stmt");
@@ -209,8 +213,8 @@ codeunit 134443 "Acc. Schedule Creation Test"
         // [SCENARIO 269236] "Acc. Sched. for Retained Earn." is updated via InitializeStandardAccountSchedules if it is empty
         // [GIVEN] General Ledger Setup with Acc. Schedules filled in
         UpdateGLSetupAccSheduleReporting(LibraryUtility.GenerateGUID);
-        GeneralLedgerSetupOld.Get;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetupOld.Get();
+        GeneralLedgerSetup.Get();
         // [GIVEN] User clears "Acc. Sched. for Retained Earn."
         GeneralLedgerSetup.Validate("Acc. Sched. for Retained Earn.", '');
         GeneralLedgerSetup.Modify(true);
@@ -220,7 +224,7 @@ codeunit 134443 "Acc. Schedule Creation Test"
 
         // [THEN] "Acc. Sched. for Retained Earn." is updated in General Ledger Setup
         // [THEN] Other Acc. schedules stayed unchanged
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.TestField("Acc. Sched. for Balance Sheet", GeneralLedgerSetupOld."Acc. Sched. for Balance Sheet");
         GeneralLedgerSetup.TestField("Acc. Sched. for Income Stmt.", GeneralLedgerSetupOld."Acc. Sched. for Income Stmt.");
         GeneralLedgerSetup.TestField("Acc. Sched. for Cash Flow Stmt", GeneralLedgerSetupOld."Acc. Sched. for Cash Flow Stmt");
@@ -243,7 +247,7 @@ codeunit 134443 "Acc. Schedule Creation Test"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Acc. Sched. for Balance Sheet", CreateAccScheduleWithOneLine(AccScheduleLineDescription));
         GeneralLedgerSetup.Validate("Acc. Sched. for Cash Flow Stmt", CreateAccScheduleWithOneLine(AccScheduleLineDescription));
         GeneralLedgerSetup.Validate("Acc. Sched. for Income Stmt.", CreateAccScheduleWithOneLine(AccScheduleLineDescription));
@@ -255,7 +259,7 @@ codeunit 134443 "Acc. Schedule Creation Test"
     var
         GLAccountCategory: Record "G/L Account Category";
     begin
-        GLAccountCategory.Init;
+        GLAccountCategory.Init();
         GLAccountCategory.SetRange("Account Category", AccountCategory);
 
         if GLAccountCategory.FindFirst then
@@ -290,6 +294,17 @@ codeunit 134443 "Acc. Schedule Creation Test"
             if (AccScheduleLine.Description <> '') and (AccScheduleLine."Totaling Type" <> AccScheduleLine."Totaling Type"::Formula) then
                 exit;
         until AccScheduleLine.Next = 0;
+    end;
+
+    local procedure SetAPIInitialized(Initialized: Boolean): Boolean
+    var
+        APIEntitiesSetup: Record "API Entities Setup";
+    begin
+        APIEntitiesSetup.SafeGet;
+        if Initialized = APIEntitiesSetup."Demo Company API Initialized" then
+            exit(false);
+        APIEntitiesSetup.Validate("Demo Company API Initialized", Initialized);
+        exit(APIEntitiesSetup.Modify(true));
     end;
 }
 

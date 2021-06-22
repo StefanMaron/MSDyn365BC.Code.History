@@ -45,7 +45,7 @@ table 5307 "Outlook Synch. Option Correl."
                 OutlookValue: Text[80];
                 EnumerationNo: Integer;
             begin
-                OSynchField.Reset;
+                OSynchField.Reset();
                 OSynchField.Get("Synch. Entity Code", "Element No.", "Field Line No.");
                 if not OSynchSetupMgt.CheckOEnumeration(OSynchField) then
                     Error(Text003);
@@ -73,7 +73,7 @@ table 5307 "Outlook Synch. Option Correl."
             var
                 IntVar: Integer;
             begin
-                OSynchField.Reset;
+                OSynchField.Reset();
                 OSynchField.Get("Synch. Entity Code", "Element No.", "Field Line No.");
 
                 if OSynchSetupMgt.CheckOEnumeration(OSynchField) then begin
@@ -180,7 +180,7 @@ table 5307 "Outlook Synch. Option Correl."
     var
         OSynchOptionCorrel: Record "Outlook Synch. Option Correl.";
     begin
-        OSynchOptionCorrel.Reset;
+        OSynchOptionCorrel.Reset();
         OSynchOptionCorrel.SetRange("Synch. Entity Code", "Synch. Entity Code");
         OSynchOptionCorrel.SetRange("Element No.", "Element No.");
         OSynchOptionCorrel.SetRange("Field Line No.", "Field Line No.");

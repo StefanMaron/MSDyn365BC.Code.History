@@ -148,9 +148,9 @@ report 409 "Purchase Reservation Avail."
                     LineStatus := LineStatus::Shipped
                 else begin
                     if ReservePurchLine.ReservQuantity("Purchase Line") > 0 then begin
-                        ReservEntry.Reset;
-                        ReservEngineMgt.InitFilterAndSortingLookupFor(ReservEntry, true);
-                        ReservePurchLine.FilterReservFor(ReservEntry, "Purchase Line");
+                        ReservEntry.Reset();
+                        ReservEntry.InitSortingAndFilters(true);
+                        SetReservationFilters(ReservEntry);
                         ReservEntry.SetFilter("Source Type", '<>%1', DATABASE::"Item Ledger Entry");
                         if ReservEntry.Find('+') then begin
                             LineReceiptDate := ReservEntry."Expected Receipt Date";

@@ -19,6 +19,7 @@ codeunit 136201 "Marketing Contacts"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryRandom: Codeunit "Library - Random";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
+        LibraryNotificationMgt: codeunit "Library - Notification Mgt.";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         ActiveDirectoryMockEvents: Codeunit "Active Directory Mock Events";
@@ -45,6 +46,7 @@ codeunit 136201 "Marketing Contacts"
         ContactNotRelatedToVendorErr: Label 'Contact %1 %2 is not related to vendor %3 %4.';
         ContactNotRelatedToCustomerErr: Label 'Contact %1 %2 is not related to customer %3 %4.';
         ExpectedToFindRecErr: Label 'Expected to find Contact Business Relation record.';
+        DuplicateContactsMsg: Label 'There are duplicate contacts.';
 
     [Test]
     [Scope('OnPrem')]
@@ -712,6 +714,55 @@ codeunit 136201 "Marketing Contacts"
     end;
 
     [Test]
+    [HandlerFunctions('DuplicateContactsNotificationHandler')]
+    [Scope('OnPrem')]
+    procedure CreateDuplicateContactFromCustomer()
+    var
+        Customer: Array[2] of Record Customer;
+        ContactBusinessRelation: Record "Contact Business Relation";
+        DummyRecID: RecordId;
+    begin
+        // [SCENARIO] Report "Create Conts. from Customers" shows notification if there are duplicate contacts
+        Initialize;
+        // [GIVEN] Two new Customers that share the same Name, Address, Phone No.
+        LibrarySales.CreateCustomer(Customer[1]);
+        Customer[1].Name := LibraryUtility.GenerateGUID();
+        Customer[1].Address := LibraryUtility.GenerateGUID();
+        Customer[1]."Address 2" := LibraryUtility.GenerateGUID();
+        Customer[1]."Phone No." := LibraryUtility.GenerateGUID();
+        Customer[1].Modify();
+        LibrarySales.CreateCustomer(Customer[2]);
+        Customer[2].TransferFields(Customer[1], false);
+        Customer[2].Modify();
+        // [GIVEN] Both customers have none linked contacts
+        ContactBusinessRelation.SetRange("No.", Customer[1]."No.", Customer[2]."No.");
+        ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
+        ContactBusinessRelation.DeleteAll();
+
+        // [GIVEN] "Autosearch for Duplicates" is on.
+        MaximizeDuplicateAutosearch();
+
+        // [WHEN] Running the report "Create Conts. from Customers".
+        Customer[1].SetFilter("No.", '%1|%2', Customer[1]."No.", Customer[2]."No.");
+        RunCreateContsFromCustomersReport(Customer[1]);
+
+        // [THEN] Notification is shown: "There are duplicate contacts"
+        Assert.ExpectedMessage(DuplicateContactsMsg, LibraryVariableStorage.DequeueText()); // Notification message from DuplicateContactsNotificationHandler
+        LibraryNotificationMgt.RecallNotificationsForRecordID(DummyRecID);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    local procedure MaximizeDuplicateAutosearch()
+    var
+        MarketingSetup: Record "Marketing Setup";
+    begin
+        MarketingSetup.Get();
+        MarketingSetup."Autosearch for Duplicates" := true;
+        MarketingSetup."Search Hit %" := 10;
+        MarketingSetup.Modify();
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure CreateContactFromVendor()
     var
@@ -743,6 +794,45 @@ codeunit 136201 "Marketing Contacts"
     end;
 
     [Test]
+    [HandlerFunctions('DuplicateContactsNotificationHandler')]
+    [Scope('OnPrem')]
+    procedure CreateDuplicateContactFromVendor()
+    var
+        Vendor: Array[2] of Record Vendor;
+        ContactBusinessRelation: Record "Contact Business Relation";
+        DummyRecID: RecordId;
+    begin
+        // [SCENARIO] Report "Create Conts. from Vendors" shows notification if there are duplicate contacts
+        Initialize;
+        // [GIVEN] Two new Vendors that share the same Name, Address, Phone No.
+        LibraryPurchase.CreateVendor(Vendor[1]);
+        Vendor[1].Name := LibraryUtility.GenerateGUID();
+        Vendor[1].Address := LibraryUtility.GenerateGUID();
+        Vendor[1]."Address 2" := LibraryUtility.GenerateGUID();
+        Vendor[1]."Phone No." := LibraryUtility.GenerateGUID();
+        Vendor[1].Modify();
+        LibraryPurchase.CreateVendor(Vendor[2]);
+        Vendor[2].TransferFields(Vendor[1], false);
+        Vendor[2].Modify();
+        // [GIVEN] Both Vendors have none linked contacts
+        ContactBusinessRelation.SetRange("No.", Vendor[1]."No.", Vendor[2]."No.");
+        ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Vendor);
+        ContactBusinessRelation.DeleteAll();
+
+        // [GIVEN] "Autosearch for Duplicates" is on.
+        MaximizeDuplicateAutosearch();
+
+        // [WHEN] Running the report "Create Conts. from Vendors".
+        Vendor[1].SetFilter("No.", '%1|%2', Vendor[1]."No.", Vendor[2]."No.");
+        RunCreateContsFromVendorsReport(Vendor[1]);
+
+        // [THEN] Notification is shown: "There are duplicate contacts"
+        Assert.ExpectedMessage(DuplicateContactsMsg, LibraryVariableStorage.DequeueText()); // Notification message from DuplicateContactsNotificationHandler
+        LibraryNotificationMgt.RecallNotificationsForRecordID(DummyRecID);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
     [HandlerFunctions('ConfirmHandlerTrue')]
     [Scope('OnPrem')]
     procedure CreateContactFromBankAcc()
@@ -751,7 +841,6 @@ codeunit 136201 "Marketing Contacts"
         Contact: Record Contact;
         BusinessRelation: Record "Business Relation";
         ContactBusinessRelation: Record "Contact Business Relation";
-        CreateContsFromBankAccs: Report "Create Conts. from Bank Accs.";
         BusRelCodeForBankAccs: Code[10];
     begin
         // Covers document number TC0060 - refer to TFS ID 21740.
@@ -767,9 +856,7 @@ codeunit 136201 "Marketing Contacts"
 
         // 2. Exercise: Create Contact from Bank Account by running the report Create Conts. from Bank Account.
         BankAccount.SetRange("No.", BankAccount."No.");
-        CreateContsFromBankAccs.UseRequestPage(false);
-        CreateContsFromBankAccs.SetTableView(BankAccount);
-        CreateContsFromBankAccs.Run;
+        RunCreateContsFromBankAccountsReport(BankAccount);
 
         // 3. Verify: Check that the Contact has been created from the Bank Account.
         ContactBusinessRelation.SetRange("Business Relation Code", BusinessRelation.Code);
@@ -780,6 +867,54 @@ codeunit 136201 "Marketing Contacts"
 
         // 4. Cleanup: Input the original value of the field Bus. Rel. Code for Bank Accs. in Marketing Setup.
         ChangeBusinessRelationCodeForBankAccount(BusRelCodeForBankAccs);
+    end;
+
+    local procedure RunCreateContsFromBankAccountsReport(var BankAccount: Record "Bank Account")
+    var
+        CreateContsFromBankAccs: Report "Create Conts. from Bank Accs.";
+    begin
+        CreateContsFromBankAccs.UseRequestPage(false);
+        CreateContsFromBankAccs.SetTableView(BankAccount);
+        CreateContsFromBankAccs.Run;
+    end;
+
+    [Test]
+    [HandlerFunctions('DuplicateContactsNotificationHandler')]
+    [Scope('OnPrem')]
+    procedure CreateDuplicateContactFromBankAcc()
+    var
+        BankAccount: Array[2] of Record "Bank Account";
+        ContactBusinessRelation: Record "Contact Business Relation";
+        DummyRecID: RecordId;
+    begin
+        // [SCENARIO] Report "Create Conts. from Bank Accounts" shows notification if there are duplicate contacts
+        Initialize;
+        // [GIVEN] Two new BankAccounts that share the same Name, Address, Phone No.
+        LibraryERM.CreateBankAccount(BankAccount[1]);
+        BankAccount[1].Name := LibraryUtility.GenerateGUID();
+        BankAccount[1].Address := LibraryUtility.GenerateGUID();
+        BankAccount[1]."Address 2" := LibraryUtility.GenerateGUID();
+        BankAccount[1]."Phone No." := LibraryUtility.GenerateGUID();
+        BankAccount[1].Modify();
+        LibraryERM.CreateBankAccount(BankAccount[2]);
+        BankAccount[2].TransferFields(BankAccount[1], false);
+        BankAccount[2].Modify();
+        // [GIVEN] Both BankAccounts have none linked contacts
+        ContactBusinessRelation.SetRange("No.", BankAccount[1]."No.", BankAccount[2]."No.");
+        ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::"Bank Account");
+        ContactBusinessRelation.DeleteAll();
+
+        // [GIVEN] "Autosearch for Duplicates" is on.
+        MaximizeDuplicateAutosearch();
+
+        // [WHEN] Running the report "Create Conts. from BankAccounts".
+        BankAccount[1].SetFilter("No.", '%1|%2', BankAccount[1]."No.", BankAccount[2]."No.");
+        RunCreateContsFromBankAccountsReport(BankAccount[1]);
+
+        // [THEN] Notification is shown: "There are duplicate contacts"
+        Assert.ExpectedMessage(DuplicateContactsMsg, LibraryVariableStorage.DequeueText()); // Notification message from DuplicateContactsNotificationHandler
+        LibraryNotificationMgt.RecallNotificationsForRecordID(DummyRecID);
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1046,7 +1181,7 @@ codeunit 136201 "Marketing Contacts"
 
         // 1. Setup:
         Initialize;
-        MarketingSetup2.Get;
+        MarketingSetup2.Get();
 
         // 2. Exercise: Change the Location for the Attachments.
         Clear(MarketingSetup);
@@ -1871,7 +2006,7 @@ codeunit 136201 "Marketing Contacts"
         Initialize;
 
         // 1. Setup: Find a Contact that is having Customer as Business Relation.
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         FindContactBusinessRelation(
           ContactBusinessRelation, MarketingSetup."Bus. Rel. Code for Customers", ContactBusinessRelation."Link to Table"::Customer,
           '<>''''');
@@ -1895,7 +2030,7 @@ codeunit 136201 "Marketing Contacts"
         Initialize;
 
         // 1. Setup: Find a Contact that is having Vendor as Business Relation.
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         FindContactBusinessRelation(
           ContactBusinessRelation, MarketingSetup."Bus. Rel. Code for Vendors", ContactBusinessRelation."Link to Table"::Vendor, '<>''''');
         Contact.Get(ContactBusinessRelation."Contact No.");
@@ -1918,7 +2053,7 @@ codeunit 136201 "Marketing Contacts"
         Initialize;
 
         // 1. Setup: Find a Contact that is having Bank Account as Business Relation.
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         FindContactBusinessRelation(
           ContactBusinessRelation, MarketingSetup."Bus. Rel. Code for Bank Accs.",
           ContactBusinessRelation."Link to Table"::"Bank Account", '<>''''');
@@ -1980,7 +2115,7 @@ codeunit 136201 "Marketing Contacts"
         ContactCard.OK.Invoke;
 
         // Tear Down
-        Contact.Delete;
+        Contact.Delete();
     end;
 
     [Test]
@@ -2003,7 +2138,7 @@ codeunit 136201 "Marketing Contacts"
         TaskList.Close;
 
         // Tear Down
-        Contact.Delete;
+        Contact.Delete();
     end;
 
     [Test]
@@ -2020,7 +2155,7 @@ codeunit 136201 "Marketing Contacts"
         // [GIVEN] Filter "X" on field "Company No." of Contact Page
         CompanyFilter := LibraryUtility.GenerateGUID;
         CreateCompanyContact(CompanyFilter);
-        Contact.Init;
+        Contact.Init();
         Contact.SetRange("Company No.", CompanyFilter);
 
         // [WHEN] Insert Contact
@@ -2043,7 +2178,7 @@ codeunit 136201 "Marketing Contacts"
         Initialize;
 
         // [GIVEN] No filters applied on field "Company No." of Contact Page
-        Contact.Init;
+        Contact.Init();
 
         // [WHEN] Insert Contact
         LibraryVariableStorage.Enqueue(''); // Enqueue for ContactHandler
@@ -2197,10 +2332,10 @@ codeunit 136201 "Marketing Contacts"
         Initialize;
         CreateContactAsPerson(Contact);
         Contact.Validate("Company No.", '');
-        Contact.Modify;
+        Contact.Modify();
         CompanyContact.Get(CreateCompanyContact(LibraryUtility.GenerateGUID));
         SetAddress(CompanyContact);
-        CompanyContact.Modify;
+        CompanyContact.Modify();
 
         // [WHEN] Person contact is assigned to the company contact
         Contact.Validate("Company No.", CompanyContact."No.");
@@ -2224,10 +2359,10 @@ codeunit 136201 "Marketing Contacts"
         CreateContactAsPerson(Contact);
         CompanyContact.Get(CreateCompanyContact(LibraryUtility.GenerateGUID));
         SetAddress(CompanyContact);
-        CompanyContact.Modify;
+        CompanyContact.Modify();
         SetAddress(Contact);
         Contact.Validate("Company No.", '');
-        Contact.Modify;
+        Contact.Modify();
         OldContact.TransferFields(Contact);
 
         // [WHEN] Person contact is assigned to the company contact
@@ -2251,15 +2386,15 @@ codeunit 136201 "Marketing Contacts"
         Initialize;
         CreateContactAsPerson(Contact);
         Contact.Validate("Company No.", '');
-        Contact.Modify;
+        Contact.Modify();
         CompanyContact1.Get(CreateCompanyContact(LibraryUtility.GenerateGUID));
         CompanyContact2.Get(CreateCompanyContact(LibraryUtility.GenerateGUID));
 
         // [WHEN] Company contacts are given different addresses
         SetAddress(CompanyContact1);
         SetAddress(CompanyContact2);
-        CompanyContact1.Modify;
-        CompanyContact2.Modify;
+        CompanyContact1.Modify();
+        CompanyContact2.Modify();
 
         // [WHEN] Person contact is assigned to a company
         Contact.Validate("Company No.", CompanyContact1."No.");
@@ -2336,7 +2471,7 @@ codeunit 136201 "Marketing Contacts"
         // [GIVEN] Contact "C2" with type Person and Company No = "C1"
         CreateContactAsPerson(ContactPerson);
         ContactPerson."Company No." := ContactCompany."No.";
-        ContactPerson.Modify;
+        ContactPerson.Modify();
         LibraryVariableStorage.Enqueue(ContactPerson."No.");
 
         // [GIVEN] Customer Template "CT"
@@ -2524,7 +2659,7 @@ codeunit 136201 "Marketing Contacts"
         CreateVATPostingSetup(VATPostingSetup);
         LibraryMarketing.CreateCompanyContact(Contact);
         Contact.Validate("E-Mail", LibraryUtility.GenerateRandomEmail);
-        Contact.Modify;
+        Contact.Modify();
         LibraryVariableStorage.Enqueue(Contact."No.");
         CreateCustomerTemplateForContact(VATPostingSetup."VAT Bus. Posting Group");
         LibraryVariableStorage.Enqueue(Contact."E-Mail");
@@ -2571,7 +2706,7 @@ codeunit 136201 "Marketing Contacts"
         CreateSalesQuote(SalesHeader);
         SalesHeader.Validate("Bill-to Contact No.", Contact."No.");
         SalesHeader.Validate("Bill-to Customer Template Code", CustomerTemplateCode);
-        SalesHeader.Modify;
+        SalesHeader.Modify();
 
         // [WHEN] GetBillToNo run
         // [THEN] Return value = "C"
@@ -2580,20 +2715,20 @@ codeunit 136201 "Marketing Contacts"
         // [WHEN] Bill-to Customer Template Code = '' and GetBillToNo run
         // [THEN] Return value = ""
         SalesHeader.Validate("Bill-to Customer Template Code", '');
-        SalesHeader.Modify;
+        SalesHeader.Modify();
         Assert.AreEqual('', SalesHeader.GetBillToNo, WrongValueErr);
 
         // [WHEN] Bill-to Customer Template Code = "CT", "Bill-to Contact No." = '' and GetBillToNo run
         // [THEN] Return value = ""
         SalesHeader.Validate("Bill-to Customer Template Code", CustomerTemplateCode);
         SalesHeader.Validate("Bill-to Contact No.", '');
-        SalesHeader.Modify;
+        SalesHeader.Modify();
         Assert.AreEqual('', SalesHeader.GetBillToNo, WrongValueErr);
 
         // [WHEN] Bill-to Customer No. = "CUST" and GetBillToNo run
         // [THEN] Return value = "CUST"
         SalesHeader.Validate("Bill-to Customer No.", CustomerNo);
-        SalesHeader.Modify;
+        SalesHeader.Modify();
 
         Assert.AreEqual(CustomerNo, SalesHeader.GetBillToNo, WrongValueErr);
     end;
@@ -2618,7 +2753,7 @@ codeunit 136201 "Marketing Contacts"
         // [WHEN] Report is printed from Contact Card Page, Log Interaction = TRUE
         OpenContactCard(ContactCard, Contact);
         LibraryVariableStorage.Enqueue(true);
-        Commit;
+        Commit();
         ContactCard.ContactCoverSheet.Invoke;
         LibraryReportDataset.LoadDataSetFile;
 
@@ -2627,7 +2762,7 @@ codeunit 136201 "Marketing Contacts"
         VerifyContactCoverSheetContactInfoReport(Contact);
 
         // [THEN] Interation Log Entries created for "C1" Contact
-        InteractionTemplateSetup.Get;
+        InteractionTemplateSetup.Get();
         InteractionLogEntry.SetRange("Contact No.", Contact."No.");
         InteractionLogEntry.SetRange("Interaction Template Code", InteractionTemplateSetup."Cover Sheets");
         Assert.RecordIsNotEmpty(InteractionLogEntry);
@@ -2653,13 +2788,13 @@ codeunit 136201 "Marketing Contacts"
         // [WHEN] Report is printed from Contact Card Page, Log Interaction = FALSE
         OpenContactCard(ContactCard, Contact);
         LibraryVariableStorage.Enqueue(false);
-        Commit;
+        Commit();
         ContactCard.ContactCoverSheet.Invoke;
         LibraryReportDataset.LoadDataSetFile;
 
         // [THEN] No Interation Log Entries created for "C1" Contact
         VerifyContactCoverSheetCompanyInfoReport;
-        InteractionTemplateSetup.Get;
+        InteractionTemplateSetup.Get();
         InteractionLogEntry.SetRange("Contact No.", Contact."No.");
         InteractionLogEntry.SetRange("Interaction Template Code", InteractionTemplateSetup."Cover Sheets");
         Assert.RecordIsEmpty(InteractionLogEntry);
@@ -2685,7 +2820,7 @@ codeunit 136201 "Marketing Contacts"
         // [WHEN] Report Contact Cover Sheet is printed for Contacts "C1" and "C2"
         Contact.SetFilter("No.", '%1|%2', Contact1."No.", Contact2."No.");
         LibraryVariableStorage.Enqueue(false);
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Contact Cover Sheet", true, false, Contact);
         LibraryReportDataset.LoadDataSetFile;
 
@@ -2723,7 +2858,7 @@ codeunit 136201 "Marketing Contacts"
 
         // [WHEN] Customer Primary Contact No. changed to "PC"
         Customer.Validate("Primary Contact No.", PersonContact."No.");
-        Customer.Modify;
+        Customer.Modify();
 
         // [THEN] Customer E-Mail = "EMAIL", Phone No. = "PHONENO"
         Customer.TestField("E-Mail", PersonContact."E-Mail");
@@ -2759,7 +2894,7 @@ codeunit 136201 "Marketing Contacts"
 
         // [WHEN] Vendor Primary Contact No. changed to "PC"
         Vendor.Validate("Primary Contact No.", PersonContact."No.");
-        Vendor.Modify;
+        Vendor.Modify();
 
         // [THEN] Vendor E-Mail = "EMAIL", Phone No. = "PHONENO"
         Vendor.TestField("E-Mail", PersonContact."E-Mail");
@@ -2782,12 +2917,12 @@ codeunit 136201 "Marketing Contacts"
         LibraryERM.CreateCountryRegion(CountryRegion);
         LibraryMarketing.CreateCompanyContact(Contact);
         Contact.Validate("Country/Region Code", CountryRegion.Code);
-        Contact.Modify;
+        Contact.Modify();
 
         // [GIVEN] Customer Template "CT" with Country/Region Code = ''
         CustomerTemplate.Get(CreateCustomerTemplateForContact(''));
         CustomerTemplate.Validate("Country/Region Code", '');
-        CustomerTemplate.Modify;
+        CustomerTemplate.Modify();
 
         // [WHEN] Create Customer "CU" from Contact "C" with Customer Template "CT"
         CreateCustomerFromContact(Contact, CustomerTemplate.Code, Customer);
@@ -2811,13 +2946,13 @@ codeunit 136201 "Marketing Contacts"
         // [GIVEN] Contact "C" with Country/Region Code = ''
         LibraryMarketing.CreateCompanyContact(Contact);
         Contact.Validate("Country/Region Code", '');
-        Contact.Modify;
+        Contact.Modify();
 
         // [GIVEN] Customer Template "CT" with Country/Region Code = "CRC"
         LibraryERM.CreateCountryRegion(CountryRegion);
         CustomerTemplate.Get(CreateCustomerTemplateForContact(''));
         CustomerTemplate.Validate("Country/Region Code", CountryRegion.Code);
-        CustomerTemplate.Modify;
+        CustomerTemplate.Modify();
 
         // [WHEN] Create Customer "CU" from Contact "C" with Customer Template "CT"
         CreateCustomerFromContact(Contact, CustomerTemplate.Code, Customer);
@@ -2843,13 +2978,13 @@ codeunit 136201 "Marketing Contacts"
         LibraryERM.CreateCountryRegion(ContactCountryRegion);
         LibraryMarketing.CreateCompanyContact(Contact);
         Contact.Validate("Country/Region Code", ContactCountryRegion.Code);
-        Contact.Modify;
+        Contact.Modify();
 
         // [GIVEN] Customer Template "CT" with Country/Region Code = "CRC2"
         LibraryERM.CreateCountryRegion(TemplateCountryRegion);
         CustomerTemplate.Get(CreateCustomerTemplateForContact(''));
         CustomerTemplate.Validate("Country/Region Code", TemplateCountryRegion.Code);
-        CustomerTemplate.Modify;
+        CustomerTemplate.Modify();
 
         // [WHEN] Create Customer "CU" from Contact "C" with Customer Template "CT"
         CreateCustomerFromContact(Contact, CustomerTemplate.Code, Customer);
@@ -2872,12 +3007,12 @@ codeunit 136201 "Marketing Contacts"
         // [GIVEN] Contact "C" with Country/Region Code = ''
         LibraryMarketing.CreateCompanyContact(Contact);
         Contact.Validate("Country/Region Code", '');
-        Contact.Modify;
+        Contact.Modify();
 
         // [GIVEN] Customer Template "CT" with Country/Region Code = ''
         CustomerTemplate.Get(CreateCustomerTemplateForContact(''));
         CustomerTemplate.Validate("Country/Region Code", '');
-        CustomerTemplate.Modify;
+        CustomerTemplate.Modify();
 
         // [WHEN] Create Customer "CU" from Contact "C" with Customer Template "CT"
         CreateCustomerFromContact(Contact, CustomerTemplate.Code, Customer);
@@ -2917,7 +3052,7 @@ codeunit 136201 "Marketing Contacts"
         // [GIVEN] Customer Template with empty "Country/Region Code".
         CustomerTemplate.Get(CreateCustomerTemplateForContact(''));
         CustomerTemplate.Validate("Country/Region Code", '');
-        CustomerTemplate.Modify;
+        CustomerTemplate.Modify();
 
         // [WHEN] Create Customer from Contact with Customer Template.
         CreateCustomerFromContact(Contact, CustomerTemplate.Code, Customer);
@@ -3204,7 +3339,7 @@ codeunit 136201 "Marketing Contacts"
 
         // [THEN] Notification is shown
         Assert.ExpectedMessage(YouCanGetContactFromCustTxt, LibraryVariableStorage.DequeueText);
-        Customer.Delete;
+        Customer.Delete();
     end;
 
     [Test]
@@ -3236,7 +3371,7 @@ codeunit 136201 "Marketing Contacts"
 
         // [THEN] Notification is shown
         Assert.ExpectedMessage(YouCanGetContactFromVendTxt, LibraryVariableStorage.DequeueText);
-        Vendor.Delete;
+        Vendor.Delete();
     end;
 
     [Test]
@@ -3259,7 +3394,7 @@ codeunit 136201 "Marketing Contacts"
 
         // [THEN] Notification is shown
         Assert.ExpectedMessage(YouCanGetContactFromCustTxt, LibraryVariableStorage.DequeueText);
-        Customer.Delete;
+        Customer.Delete();
         SalesRelationshipMgrAct.Close;
     end;
 
@@ -3275,14 +3410,14 @@ codeunit 136201 "Marketing Contacts"
         // [FEATURE] [Notification] [Vendor]
         // [SCENARIO 216150] Notifications suggesting to create Contacts for Vendor appear in Sales & Relationship Manager role center
         Initialize;
-        Customer.DeleteAll;
+        Customer.DeleteAll();
         // [WHEN] Vendor "V" exist with no Contact assigned and Sales & Relationship Manager role center is opened
         CreateVendor(Vendor);
         SalesRelationshipMgrAct.OpenView;
 
         // [THEN] Notification is shown
         Assert.ExpectedMessage(YouCanGetContactFromVendTxt, LibraryVariableStorage.DequeueText);
-        Vendor.Delete;
+        Vendor.Delete();
         SalesRelationshipMgrAct.Close;
     end;
 
@@ -3842,7 +3977,7 @@ codeunit 136201 "Marketing Contacts"
         Initialize;
 
         CreateVendorWithContactPerson(Vendor, ContactPerson, ContactBusinessRelation);
-        ContactBusinessRelation.Delete;
+        ContactBusinessRelation.Delete();
 
         ContactBusinessRelation.FindOrRestoreContactBusinessRelation(
           ContactPerson, Vendor, ContactBusinessRelation."Link to Table"::Vendor);
@@ -3865,7 +4000,7 @@ codeunit 136201 "Marketing Contacts"
         Initialize;
 
         CreateCustomerWithContactPerson(Customer, ContactPerson, ContactBusinessRelation);
-        ContactBusinessRelation.Delete;
+        ContactBusinessRelation.Delete();
 
         ContactBusinessRelation.FindOrRestoreContactBusinessRelation(
           ContactPerson, Customer, ContactBusinessRelation."Link to Table"::Customer);
@@ -3995,7 +4130,7 @@ codeunit 136201 "Marketing Contacts"
         LibraryMarketing.CreatePersonContact(PersonContact);
 
         // [GIVEN] Customer is initialized and "Primary Contact No." validated
-        Customer.Init;
+        Customer.Init();
         Customer.Validate("Primary Contact No.", PersonContact."No.");
 
         // [GIVEN] Company Contact created for initialized Customer with Company Contact and with Contact Business Relations with blank "No."
@@ -4029,7 +4164,7 @@ codeunit 136201 "Marketing Contacts"
         LibraryMarketing.CreatePersonContact(PersonContact);
 
         // [GIVEN] Vendor is initialized and "Primary Contact No." validated
-        Vendor.Init;
+        Vendor.Init();
         Vendor.Validate("Primary Contact No.", PersonContact."No.");
 
         // [GIVEN] Company Contact created for initialized Vendor with Company Contact and with Contact Business Relations with blank "No."
@@ -4141,7 +4276,7 @@ codeunit 136201 "Marketing Contacts"
           GetBusinessRelationCodeFromSetup(ContactBusinessRelation."Link to Table"::Customer));
         ContactBusinessRelation."Link to Table" := ContactBusinessRelation."Link to Table"::Customer;
         ContactBusinessRelation."No." := LibrarySales.CreateCustomerNo;
-        ContactBusinessRelation.Modify;
+        ContactBusinessRelation.Modify();
 
         Assert.IsFalse(
           ContactBusinessRelation.UpdateEmptyNoForContact(
@@ -4166,7 +4301,7 @@ codeunit 136201 "Marketing Contacts"
           ContactBusinessRelation, PersonContact."Company No.",
           GetBusinessRelationCodeFromSetup(ContactBusinessRelation."Link to Table"::Customer));
         ContactBusinessRelation."Link to Table" := ContactBusinessRelation."Link to Table"::Customer;
-        ContactBusinessRelation.Modify;
+        ContactBusinessRelation.Modify();
 
         Assert.IsTrue(
           ContactBusinessRelation.UpdateEmptyNoForContact(
@@ -4175,61 +4310,6 @@ codeunit 136201 "Marketing Contacts"
 
         ContactBusinessRelation.Find;
         ContactBusinessRelation.TestField("No.", Customer."No.");
-    end;
-
-    [Test]
-    [HandlerFunctions('ContactListLookupModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure UI_ContactCard_CompanyName_Lookup()
-    var
-        ContactCompany: Record Contact;
-        ContactPerson: Record Contact;
-        ContactCard: TestPage "Contact Card";
-    begin
-        // [FEATURE] [UI]
-        // [SCENARIO 345031] Stan can select Contact with type "Company" via lookup of "Company Name" field. "Company No." is validated after selection.
-        Initialize;
-
-        LibraryMarketing.CreateCompanyContact(ContactCompany);
-        LibraryMarketing.CreatePersonContact(ContactPerson);
-
-        ContactCompany.TestField(Name);
-        ContactPerson.TestField("Company No.", '');
-        ContactPerson.TestField("Company Name", '');
-
-        LibraryVariableStorage.Enqueue(ContactCompany."No.");
-
-        ContactCard.OpenEdit();
-        ContactCard.FILTER.SetFilter("No.", ContactPerson."No.");
-        ContactCard."Company No.".AssertEquals('');
-        ContactCard."Company Name".AssertEquals('');
-        ContactCard."Company Name".Lookup();
-        ContactCard.Close();
-
-        ContactPerson.Find();
-        ContactPerson.TestField("Company No.", ContactCompany."No.");
-        ContactPerson.TestField("Company Name", ContactCompany.Name);
-
-        LibraryVariableStorage.AssertEmpty();
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure UT_Contact_CompanyName_Relation()
-    var
-        Contact: Record Contact;
-        TableRelationsMetadata: Record "Table Relations Metadata";
-    begin
-        // [FEATURE] [UT]
-        // [SCENARIO 345031] Contact."Company Name" field's relation is Contact.Name
-        Initialize;
-
-        TableRelationsMetadata.SetRange("Table ID", DATABASE::Contact);
-        TableRelationsMetadata.SetRange("Field No.", Contact.FieldNo("Company Name"));
-        TableRelationsMetadata.FindFirst();
-        TableRelationsMetadata.TestField("Related Table ID", DATABASE::Contact);
-        TableRelationsMetadata.TestField("Related Field No.", Contact.FieldNo(Name));
-        TableRelationsMetadata.TestField("Condition Type", TableRelationsMetadata."Condition Type"::CONST);
     end;
 
     local procedure Initialize()
@@ -4250,7 +4330,7 @@ codeunit 136201 "Marketing Contacts"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.CreateGeneralPostingSetupData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         MarketingSetup.Validate("Maintain Dupl. Search Strings", false);
         MarketingSetup.Modify(true);
 
@@ -4258,23 +4338,15 @@ codeunit 136201 "Marketing Contacts"
         LibrarySetupStorage.Save(DATABASE::"Company Information");
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Marketing Contacts");
-    end;
-
-    local procedure BindActiveDirectoryMockEvents()
-    begin
-        if ActiveDirectoryMockEvents.Enabled() then
-            exit;
-        BindSubscription(ActiveDirectoryMockEvents);
-        ActiveDirectoryMockEvents.Enable();
     end;
 
     local procedure ChangeBusinessRelationCodeForCustomers(BusRelCodeForCustomers: Code[10])
     var
         MarketingSetup: Record "Marketing Setup";
     begin
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         MarketingSetup.Validate("Bus. Rel. Code for Customers", BusRelCodeForCustomers);
         MarketingSetup.Modify(true);
     end;
@@ -4283,7 +4355,7 @@ codeunit 136201 "Marketing Contacts"
     var
         MarketingSetup: Record "Marketing Setup";
     begin
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         MarketingSetup.Validate("Bus. Rel. Code for Vendors", BusRelCodeForVendors);
         MarketingSetup.Modify(true);
     end;
@@ -4292,7 +4364,7 @@ codeunit 136201 "Marketing Contacts"
     var
         MarketingSetup: Record "Marketing Setup";
     begin
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         OriginalBusRelCodeForBankAccs := MarketingSetup."Bus. Rel. Code for Bank Accs.";
         MarketingSetup.Validate("Bus. Rel. Code for Bank Accs.", BusRelCodeForBankAccs);
         MarketingSetup.Modify(true);
@@ -4318,14 +4390,14 @@ codeunit 136201 "Marketing Contacts"
 
     local procedure CreateSalesQuote(var SalesHeader: Record "Sales Header")
     begin
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Quote);
         SalesHeader.Insert(true);
     end;
 
     local procedure CreateSimpleContact(var Contact: Record Contact; ContactNo: Code[20])
     begin
-        Contact.Init;
+        Contact.Init();
         Contact.Validate("No.", ContactNo);
         Contact.Insert(true);
     end;
@@ -4359,7 +4431,7 @@ codeunit 136201 "Marketing Contacts"
         Customer.Get(ContBusRel."No.");
         Customer.Validate("Gen. Bus. Posting Group", GenBusinessPostingGroup.Code);
         Customer.Validate("Payment Terms Code", PaymentTerms.Code);
-        Customer.Modify;
+        Customer.Modify();
         exit(Customer."No.");
     end;
 
@@ -4433,7 +4505,7 @@ codeunit 136201 "Marketing Contacts"
         CustomerTemplate.Validate("Gen. Bus. Posting Group", GenBusPostingGroup.Code);
         CustomerTemplate.Validate("Customer Posting Group", CustomerPostingGroup.Code);
         CustomerTemplate.Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
-        CustomerTemplate.Modify;
+        CustomerTemplate.Modify();
         LibraryVariableStorage.Enqueue(CustomerTemplate.Code);
         exit(CustomerTemplate.Code);
     end;
@@ -4542,10 +4614,10 @@ codeunit 136201 "Marketing Contacts"
     begin
         if Attachment.FindLast then
             LastNo := Attachment."No.";
-        Attachment.Init;
+        Attachment.Init();
         Attachment."No." := LastNo + 1;
         Attachment."Attachment File".Import(CreateWriteTempFile);
-        Attachment.Insert;
+        Attachment.Insert();
     end;
 
     local procedure CreateWriteTempFile() FileName: Text
@@ -4604,20 +4676,20 @@ codeunit 136201 "Marketing Contacts"
 
     local procedure CreatePostCode(var PostCode: Record "Post Code"; "Code": Code[20]; City: Text[30]; CountryCode: Code[10]; County: Text[30])
     begin
-        PostCode.Init;
+        PostCode.Init();
         PostCode.Code := Code;
         PostCode.City := City;
         PostCode."Search City" := City;
         PostCode."Country/Region Code" := CountryCode;
         PostCode.County := County;
-        PostCode.Insert;
+        PostCode.Insert();
     end;
 
     local procedure DeleteCustomerTemplates()
     var
         CustomerTemplate: Record "Customer Template";
     begin
-        CustomerTemplate.DeleteAll;
+        CustomerTemplate.DeleteAll();
     end;
 
     local procedure FindContactBusinessRelation(var ContactBusinessRelation: Record "Contact Business Relation"; BusinessRelationCode: Code[20]; LinkToTable: Option; No: Code[20])
@@ -4649,13 +4721,13 @@ codeunit 136201 "Marketing Contacts"
             ContactBusinessRelation."Link to Table"::Customer:
                 begin
                     ChangeBusinessRelationCodeForCustomers(BusinessRelation.Code);
-                    MarketingSetup.Get;
+                    MarketingSetup.Get();
                     exit(MarketingSetup."Bus. Rel. Code for Customers");
                 end;
             ContactBusinessRelation."Link to Table"::Vendor:
                 begin
                     ChangeBusinessRelationCodeForVendors(BusinessRelation.Code);
-                    MarketingSetup.Get;
+                    MarketingSetup.Get();
                     exit(MarketingSetup."Bus. Rel. Code for Vendors");
                 end;
         end;
@@ -4669,7 +4741,7 @@ codeunit 136201 "Marketing Contacts"
 
     local procedure NextStepMakePhoneCallWizard(var TempSegmentLine: Record "Segment Line" temporary)
     begin
-        TempSegmentLine.Modify;
+        TempSegmentLine.Modify();
         TempSegmentLine.CheckPhoneCallStatus;
     end;
 
@@ -4679,23 +4751,13 @@ codeunit 136201 "Marketing Contacts"
         ContactCard.GotoRecord(Contact);
     end;
 
-    [HandlerFunctions('MyNotificationsModalPageHandler')]
-    local procedure OpenMyNotificationsFromSettings()
-    var
-        MySettings: TestPage "My Settings";
-    begin
-        MySettings.OpenEdit();
-        MySettings.MyNotificationsLbl.DrillDown();
-        MySettings.Close();
-    end;
-
     local procedure PrintSalesQuoteReport(SalesHeader: Record "Sales Header")
     var
         SalesQuote: TestPage "Sales Quote";
     begin
         SalesQuote.OpenEdit;
         SalesQuote.GotoRecord(SalesHeader);
-        Commit;
+        Commit();
         SalesQuote.Print.Invoke;
     end;
 
@@ -4750,15 +4812,6 @@ codeunit 136201 "Marketing Contacts"
         SalesHeader.Get(SalesHeader."Document Type"::Quote, SalesHeader."No.");
     end;
 
-    local procedure SetAddress(var Contact: Record Contact)
-    begin
-        Contact.Address := CopyStr(CreateGuid, 2, 30);
-        Contact."Address 2" := CopyStr(CreateGuid, 2, 30);
-        Contact.City := CopyStr(CreateGuid, 2, 30);
-        Contact.County := CopyStr(CreateGuid, 2, 30);
-        Contact."Post Code" := CopyStr(CreateGuid, 2, 20);
-    end;
-
     local procedure UpdateContactCompanyDetails(var Contact: Record Contact; ContactPostCode: Code[20]; ContactCountryRegionCode: Code[10]; ContactPhoneNumber: Text[30])
     begin
         Contact.Validate("Country/Region Code", ContactCountryRegionCode);
@@ -4788,15 +4841,6 @@ codeunit 136201 "Marketing Contacts"
         ContactCard.FILTER.SetFilter("No.", No);
         ContactCard.Name.SetValue(Name);
         ContactCard.OK.Invoke;
-    end;
-
-    local procedure VerifySameAddress(ExpectedContact: Record Contact; ActualContact: Record Contact)
-    begin
-        Assert.AreEqual(ExpectedContact.Address, ActualContact.Address, 'Field value didn''t get updated.');
-        Assert.AreEqual(ExpectedContact."Address 2", ActualContact."Address 2", 'Field value didn''t get updated.');
-        Assert.AreEqual(ExpectedContact.City, ActualContact.City, 'Field value didn''t get updated.');
-        Assert.AreEqual(ExpectedContact.County, ActualContact.County, 'Field value didn''t get updated.');
-        Assert.AreEqual(ExpectedContact."Post Code", ActualContact."Post Code", 'Field value didn''t get updated.');
     end;
 
     local procedure VerifyContactCompanyDetails(var Contact: Record Contact; ContactPostCode: Code[20]; ContactCountryRegionCode: Code[10]; ContactPhoneNumber: Text[30])
@@ -4913,16 +4957,16 @@ codeunit 136201 "Marketing Contacts"
     var
         CompanyInformation: Record "Company Information";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation.Validate("Allow Blank Payment Info.", AllowBlankPaymentInfo);
-        CompanyInformation.Modify;
+        CompanyInformation.Modify();
     end;
 
     local procedure VerifyContactCoverSheetCompanyInfoReport()
     var
         CompanyInformation: Record "Company Information";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         LibraryReportDataset.AssertElementWithValueExists('CompanyAddress1', CompanyInformation.Name);
         LibraryReportDataset.AssertElementWithValueExists('CompanyAddress2', CompanyInformation.Address);
         LibraryReportDataset.AssertElementWithValueExists('CompanyInformationPhoneNo', CompanyInformation."Phone No.");
@@ -4952,7 +4996,7 @@ codeunit 136201 "Marketing Contacts"
     var
         Contact: Record Contact;
     begin
-        Contact.Init;  // Required to initialize the variable.
+        Contact.Init();  // Required to initialize the variable.
         NameDetails.GetRecord(Contact);
         UpdateContactNameDetails(Contact,
           CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(Contact."Salutation Code")),
@@ -4966,7 +5010,7 @@ codeunit 136201 "Marketing Contacts"
     var
         Contact: Record Contact;
     begin
-        Contact.Init;  // Required to initialize the variable.
+        Contact.Init();  // Required to initialize the variable.
         NameDetails.GetRecord(Contact);
         VerifyContactNameDetails(Contact,
           CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(Contact."Salutation Code")),
@@ -4994,7 +5038,7 @@ codeunit 136201 "Marketing Contacts"
     var
         Contact: Record Contact;
     begin
-        Contact.Init;  // Required to initialize the variable.
+        Contact.Init();  // Required to initialize the variable.
         CompanyDetails.GetRecord(Contact);
         UpdateContactCompanyDetails(
           Contact,
@@ -5010,7 +5054,7 @@ codeunit 136201 "Marketing Contacts"
     var
         Contact: Record Contact;
     begin
-        Contact.Init;  // Required to initialize the variable.
+        Contact.Init();  // Required to initialize the variable.
         CompanyDetails.GetRecord(Contact);
         VerifyContactCompanyDetails(
           Contact,
@@ -5026,7 +5070,7 @@ codeunit 136201 "Marketing Contacts"
     var
         CustomerTemplate: Record "Customer Template";
     begin
-        CustomerTemplate.Init;  // Required to initialize the variable.
+        CustomerTemplate.Init();  // Required to initialize the variable.
         CustomerTemplate.Get(LibraryVariableStorage.DequeueText);
         CustomerTemplateList.SetRecord(CustomerTemplate);
         Reply := ACTION::LookupOK;
@@ -5039,9 +5083,9 @@ codeunit 136201 "Marketing Contacts"
         TempSegmentLine: Record "Segment Line" temporary;
         InteractionTemplateCode: Code[10];
     begin
-        TempSegmentLine.Init;  // Required to initialize the variable.
+        TempSegmentLine.Init();  // Required to initialize the variable.
         CreateInteraction.GetRecord(TempSegmentLine);
-        TempSegmentLine.Insert;  // Insert temporary Segment Line to modify fields later.
+        TempSegmentLine.Insert();  // Insert temporary Segment Line to modify fields later.
         InteractionTemplateCode :=
           CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(TempSegmentLine."Interaction Template Code"));
         TempSegmentLine.Validate("Interaction Template Code", InteractionTemplateCode);
@@ -5062,9 +5106,9 @@ codeunit 136201 "Marketing Contacts"
         TempOpportunity: Record Opportunity temporary;
         SalesCycleCode: Code[10];
     begin
-        TempOpportunity.Init;  // Required to initialize the variable.
+        TempOpportunity.Init();  // Required to initialize the variable.
         CreateOpportunity.GetRecord(TempOpportunity);
-        TempOpportunity.Insert;  // Insert temporary Opportunity to modify fields later.
+        TempOpportunity.Insert();  // Insert temporary Opportunity to modify fields later.
         SalesCycleCode :=
           CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(TempOpportunity."Sales Cycle Code"));
         TempOpportunity.Validate(Description, SalesCycleCode);
@@ -5072,7 +5116,7 @@ codeunit 136201 "Marketing Contacts"
         TempOpportunity.Validate("Activate First Stage", true);
         TempOpportunity.Validate("Wizard Estimated Value (LCY)", LibraryVariableStorage.DequeueDecimal);
         TempOpportunity.Validate("Wizard Chances of Success %", LibraryVariableStorage.DequeueDecimal);
-        TempOpportunity.Modify;
+        TempOpportunity.Modify();
         TempOpportunity.FinishWizard;
     end;
 
@@ -5082,14 +5126,14 @@ codeunit 136201 "Marketing Contacts"
     var
         TempOpportunityEntry: Record "Opportunity Entry" temporary;
     begin
-        TempOpportunityEntry.Init;  // Required to initialize the variable.
+        TempOpportunityEntry.Init();  // Required to initialize the variable.
         CloseOpportunity.GetRecord(TempOpportunityEntry);
-        TempOpportunityEntry.Insert;
+        TempOpportunityEntry.Insert();
         TempOpportunityEntry.Validate("Action Taken", TempOpportunityEntry."Action Taken"::Won);
         TempOpportunityEntry.Validate("Close Opportunity Code",
           CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(TempOpportunityEntry."Close Opportunity Code")));
         TempOpportunityEntry.Validate("Calcd. Current Value (LCY)", LibraryVariableStorage.DequeueDecimal);
-        TempOpportunityEntry.Modify;
+        TempOpportunityEntry.Modify();
         TempOpportunityEntry.CheckStatus;
         TempOpportunityEntry.FinishWizard;
     end;
@@ -5158,7 +5202,7 @@ codeunit 136201 "Marketing Contacts"
         MarketingSetup.SetRecord(MarketingSetup2);
         MarketingSetup.SetAttachmentStorageType;
 
-        MarketingSetup2.Get;
+        MarketingSetup2.Get();
         MarketingSetup2."Attachment Storage Location" := TemporaryPath;
         MarketingSetup.SetRecord(MarketingSetup2);
         MarketingSetup.SetAttachmentStorageLocation;
@@ -5225,6 +5269,24 @@ codeunit 136201 "Marketing Contacts"
         CoverSheet.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
+    local procedure SetAddress(var Contact: Record Contact)
+    begin
+        Contact.Address := CopyStr(CreateGuid, 2, 30);
+        Contact."Address 2" := CopyStr(CreateGuid, 2, 30);
+        Contact.City := CopyStr(CreateGuid, 2, 30);
+        Contact.County := CopyStr(CreateGuid, 2, 30);
+        Contact."Post Code" := CopyStr(CreateGuid, 2, 20);
+    end;
+
+    local procedure VerifySameAddress(ExpectedContact: Record Contact; ActualContact: Record Contact)
+    begin
+        Assert.AreEqual(ExpectedContact.Address, ActualContact.Address, 'Field value didn''t get updated.');
+        Assert.AreEqual(ExpectedContact."Address 2", ActualContact."Address 2", 'Field value didn''t get updated.');
+        Assert.AreEqual(ExpectedContact.City, ActualContact.City, 'Field value didn''t get updated.');
+        Assert.AreEqual(ExpectedContact.County, ActualContact.County, 'Field value didn''t get updated.');
+        Assert.AreEqual(ExpectedContact."Post Code", ActualContact."Post Code", 'Field value didn''t get updated.');
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure CustomerTemplateListPageHandler(var CustomerTemplateList: TestPage "Customer Template List")
@@ -5233,6 +5295,14 @@ codeunit 136201 "Marketing Contacts"
         Assert.AreEqual(LibraryVariableStorage.DequeueText, CustomerTemplateList.Code.Value, CustTemplateListErr);
         Assert.IsFalse(CustomerTemplateList.Next, CustTemplateListErr);
         CustomerTemplateList.OK.Invoke;
+    end;
+
+    local procedure BindActiveDirectoryMockEvents()
+    begin
+        if ActiveDirectoryMockEvents.Enabled then
+            exit;
+        BindSubscription(ActiveDirectoryMockEvents);
+        ActiveDirectoryMockEvents.Enable;
     end;
 
     [SendNotificationHandler]
@@ -5252,12 +5322,21 @@ codeunit 136201 "Marketing Contacts"
         MyNotifications.Enabled.SetValue(LibraryVariableStorage.DequeueBoolean);
     end;
 
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure ContactListLookupModalPageHandler(var ContactList: TestPage "Contact List")
+    [HandlerFunctions('MyNotificationsModalPageHandler')]
+    local procedure OpenMyNotificationsFromSettings()
+    var
+        MySettings: TestPage "My Settings";
     begin
-        ContactList.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText());
-        ContactList.OK.Invoke();
+        MySettings.OpenEdit;
+        MySettings.MyNotificationsLbl.DrillDown;
+        MySettings.Close;
     end;
+
+    [SendNotificationHandler]
+    procedure DuplicateContactsNotificationHandler(var Notification: Notification): Boolean
+    begin
+        LibraryVariableStorage.Enqueue(Notification.Message);
+    end;
+
 }
 

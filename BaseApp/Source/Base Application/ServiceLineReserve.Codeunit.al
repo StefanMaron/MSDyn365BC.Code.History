@@ -11,30 +11,20 @@ codeunit 99000842 "Service Line-Reserve"
         Text001: Label 'Reserved quantity cannot be greater than %1';
         Text002: Label 'must be filled in when a quantity is reserved';
         Text003: Label 'must not be changed when a quantity is reserved';
+        FromTrackingSpecification: Record "Tracking Specification";
         CreateReservEntry: Codeunit "Create Reserv. Entry";
         ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
         ReservMgt: Codeunit "Reservation Management";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         UOMMgt: Codeunit "Unit of Measure Management";
-        SetFromType: Option " ",Sales,"Requisition Line",Purchase,"Item Journal","BOM Journal","Item Ledger Entry",Service,Job;
-        SetFromSubtype: Integer;
-        SetFromID: Code[20];
-        SetFromBatchName: Code[10];
-        SetFromProdOrderLine: Integer;
-        SetFromRefNo: Integer;
-        SetFromVariantCode: Code[10];
-        SetFromLocationCode: Code[10];
-        SetFromSerialNo: Code[50];
-        SetFromLotNo: Code[50];
-        SetFromQtyPerUOM: Decimal;
         DeleteItemTracking: Boolean;
         Text004: Label 'must not be filled in when a quantity is reserved';
 
-    procedure CreateReservation(ServiceLine: Record "Service Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForSerialNo: Code[50]; ForLotNo: Code[50])
+    procedure CreateReservation(ServiceLine: Record "Service Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForReservEntry: Record "Reservation Entry")
     var
         ShipmentDate: Date;
     begin
-        if SetFromType = 0 then
+        if FromTrackingSpecification."Source Type" = 0 then
             Error(Text000);
 
         ServiceLine.TestField(Type, ServiceLine.Type::Item);
@@ -46,8 +36,8 @@ codeunit 99000842 "Service Line-Reserve"
               Text001,
               Abs(ServiceLine."Outstanding Qty. (Base)") - Abs(ServiceLine."Reserved Qty. (Base)"));
 
-        ServiceLine.TestField("Variant Code", SetFromVariantCode);
-        ServiceLine.TestField("Location Code", SetFromLocationCode);
+        ServiceLine.TestField("Variant Code", FromTrackingSpecification."Variant Code");
+        ServiceLine.TestField("Location Code", FromTrackingSpecification."Location Code");
 
         if QuantityBase > 0 then
             ShipmentDate := ServiceLine."Needed by Date"
@@ -59,37 +49,35 @@ codeunit 99000842 "Service Line-Reserve"
         CreateReservEntry.CreateReservEntryFor(
           DATABASE::"Service Line", ServiceLine."Document Type",
           ServiceLine."Document No.", '', 0, ServiceLine."Line No.",
-          ServiceLine."Qty. per Unit of Measure", Quantity, QuantityBase, ForSerialNo, ForLotNo);
-        CreateReservEntry.CreateReservEntryFrom(
-          SetFromType, SetFromSubtype, SetFromID, SetFromBatchName, SetFromProdOrderLine, SetFromRefNo,
-          SetFromQtyPerUOM, SetFromSerialNo, SetFromLotNo);
+          ServiceLine."Qty. per Unit of Measure", Quantity, QuantityBase, ForReservEntry);
+        CreateReservEntry.CreateReservEntryFrom(FromTrackingSpecification);
         CreateReservEntry.CreateReservEntry(
           ServiceLine."No.", ServiceLine."Variant Code", ServiceLine."Location Code",
-          Description, ExpectedReceiptDate, ShipmentDate);
+          Description, ExpectedReceiptDate, ShipmentDate, 0);
 
-        SetFromType := 0;
+        FromTrackingSpecification."Source Type" := 0;
+    end;
+
+    [Obsolete('Replaced by CreateReservation(ServiceLine, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry)','16.0')]
+    procedure CreateReservation(ServiceLine: Record "Service Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForSerialNo: Code[50]; ForLotNo: Code[50])
+    var
+        ForReservEntry: Record "Reservation Entry";
+    begin
+        ForReservEntry."Serial No." := ForSerialNo;
+        ForReservEntry."Lot No." := ForLotNo;
+        CreateReservation(ServiceLine, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry);
     end;
 
     local procedure CreateBindingReservation(ServiceLine: Record "Service Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal)
+    var
+        DummyReservEntry: Record "Reservation Entry";
     begin
-        CreateReservation(ServiceLine, Description, ExpectedReceiptDate, Quantity, QuantityBase, '', '');
+        CreateReservation(ServiceLine, Description, ExpectedReceiptDate, Quantity, QuantityBase, DummyReservEntry);
     end;
 
-    procedure CreateReservationSetFrom(TrackingSpecificationFrom: Record "Tracking Specification")
+    procedure CreateReservationSetFrom(TrackingSpecification: Record "Tracking Specification")
     begin
-        with TrackingSpecificationFrom do begin
-            SetFromType := "Source Type";
-            SetFromSubtype := "Source Subtype";
-            SetFromID := "Source ID";
-            SetFromBatchName := "Source Batch Name";
-            SetFromProdOrderLine := "Source Prod. Order Line";
-            SetFromRefNo := "Source Ref. No.";
-            SetFromVariantCode := "Variant Code";
-            SetFromLocationCode := "Location Code";
-            SetFromSerialNo := "Serial No.";
-            SetFromLotNo := "Lot No.";
-            SetFromQtyPerUOM := "Qty. per Unit of Measure";
-        end;
+        FromTrackingSpecification := TrackingSpecification;
     end;
 
     procedure SetBinding(Binding: Option " ","Order-to-Order")
@@ -97,33 +85,22 @@ codeunit 99000842 "Service Line-Reserve"
         CreateReservEntry.SetBinding(Binding);
     end;
 
+    [Obsolete('Replaced ServiceLine.SetReservationFilters(FilterReservEntry)','16.0')]
     procedure FilterReservFor(var FilterReservEntry: Record "Reservation Entry"; ServiceLine: Record "Service Line")
     begin
-        FilterReservEntry.SetSourceFilter(
-          DATABASE::"Service Line", ServiceLine."Document Type", ServiceLine."Document No.", ServiceLine."Line No.", false);
-        FilterReservEntry.SetSourceFilter('', 0);
+        ServiceLine.SetReservationFilters(FilterReservEntry);
     end;
 
     procedure Caption(ServiceLine: Record "Service Line") CaptionText: Text
     begin
-        CaptionText :=
-          StrSubstNo('%1 %2 %3', ServiceLine."Document Type", ServiceLine."Document No.", ServiceLine."No.");
+        CaptionText := ServiceLine.GetSourceCaption;
     end;
 
     procedure FindReservEntry(ServiceLine: Record "Service Line"; var ReservEntry: Record "Reservation Entry"): Boolean
     begin
-        ReservEngineMgt.InitFilterAndSortingLookupFor(ReservEntry, false);
-        FilterReservFor(ReservEntry, ServiceLine);
+        ReservEntry.InitSortingAndFilters(false);
+        ServiceLine.SetReservationFilters(ReservEntry);
         exit(ReservEntry.FindLast);
-    end;
-
-    local procedure ReservEntryExist(ServLine: Record "Service Line"): Boolean
-    var
-        ReservEntry: Record "Reservation Entry";
-    begin
-        ReservEngineMgt.InitFilterAndSortingLookupFor(ReservEntry, false);
-        FilterReservFor(ReservEntry, ServLine);
-        exit(not ReservEntry.IsEmpty);
     end;
 
     procedure ReservQuantity(ServLine: Record "Service Line"; var QtyToReserve: Decimal; var QtyToReserveBase: Decimal)
@@ -147,7 +124,6 @@ codeunit 99000842 "Service Line-Reserve"
     procedure VerifyChange(var NewServiceLine: Record "Service Line"; var OldServiceLine: Record "Service Line")
     var
         ServiceLine: Record "Service Line";
-        TempReservEntry: Record "Reservation Entry";
         ShowError: Boolean;
         HasError: Boolean;
     begin
@@ -210,15 +186,13 @@ codeunit 99000842 "Service Line-Reserve"
         OnVerifyChangeOnBeforeHasError(NewServiceLine, OldServiceLine, HasError, ShowError);
 
         if HasError then
-            if (NewServiceLine."No." <> OldServiceLine."No.") or
-               FindReservEntry(NewServiceLine, TempReservEntry)
-            then begin
+            if (NewServiceLine."No." <> OldServiceLine."No.") or NewServiceLine.ReservEntryExist() then begin
                 if NewServiceLine."No." <> OldServiceLine."No." then begin
-                    ReservMgt.SetServLine(OldServiceLine);
+                    ReservMgt.SetReservSource(OldServiceLine);
                     ReservMgt.DeleteReservEntries(true, 0);
-                    ReservMgt.SetServLine(NewServiceLine);
+                    ReservMgt.SetReservSource(NewServiceLine);
                 end else begin
-                    ReservMgt.SetServLine(NewServiceLine);
+                    ReservMgt.SetReservSource(NewServiceLine);
                     ReservMgt.DeleteReservEntries(true, 0);
                 end;
                 ReservMgt.AutoTrack(NewServiceLine."Outstanding Qty. (Base)");
@@ -254,7 +228,7 @@ codeunit 99000842 "Service Line-Reserve"
             if "Line No." = 0 then
                 if not ServiceLine.Get("Document Type", "Document No.", "Line No.") then
                     exit;
-            ReservMgt.SetServLine(NewServiceLine);
+            ReservMgt.SetReservSource(NewServiceLine);
             if "Qty. per Unit of Measure" <> OldServiceLine."Qty. per Unit of Measure" then
                 ReservMgt.ModifyUnitOfMeasure;
             if "Outstanding Qty. (Base)" * OldServiceLine."Outstanding Qty. (Base)" < 0 then
@@ -284,10 +258,10 @@ codeunit 99000842 "Service Line-Reserve"
     procedure DeleteLineConfirm(var ServLine: Record "Service Line"): Boolean
     begin
         with ServLine do begin
-            if not ReservEntryExist(ServLine) then
+            if not ReservEntryExist then
                 exit(true);
 
-            ReservMgt.SetServLine(ServLine);
+            ReservMgt.SetReservSource(ServLine);
             if ReservMgt.DeleteItemTrackingConfirm then
                 DeleteItemTracking := true;
         end;
@@ -298,7 +272,7 @@ codeunit 99000842 "Service Line-Reserve"
     procedure DeleteLine(var ServLine: Record "Service Line")
     begin
         with ServLine do begin
-            ReservMgt.SetServLine(ServLine);
+            ReservMgt.SetReservSource(ServLine);
             if DeleteItemTracking then
                 ReservMgt.SetItemTrackingHandling(1); // Allow Deletion
             ReservMgt.DeleteReservEntries(true, 0);
@@ -325,7 +299,7 @@ codeunit 99000842 "Service Line-Reserve"
     procedure TransServLineToServLine(var OldServLine: Record "Service Line"; var NewServLine: Record "Service Line"; TransferQty: Decimal)
     var
         OldReservEntry: Record "Reservation Entry";
-        Status: Option Reservation,Tracking,Surplus,Prospect;
+        ReservStatus: Enum "Reservation Status";
     begin
         if not FindReservEntry(OldServLine, OldReservEntry) then
             exit;
@@ -334,10 +308,10 @@ codeunit 99000842 "Service Line-Reserve"
 
         NewServLine.TestItemFields(OldServLine."No.", OldServLine."Variant Code", OldServLine."Location Code");
 
-        for Status := Status::Reservation to Status::Prospect do begin
+        for ReservStatus := ReservStatus::Reservation to ReservStatus::Prospect do begin
             if TransferQty = 0 then
                 exit;
-            OldReservEntry.SetRange("Reservation Status", Status);
+            OldReservEntry.SetRange("Reservation Status", ReservStatus);
             if OldReservEntry.FindSet then
                 repeat
                     OldReservEntry.TestItemFields(OldServLine."No.", OldServLine."Variant Code", OldServLine."Location Code");
@@ -388,8 +362,8 @@ codeunit 99000842 "Service Line-Reserve"
             TempInvoicingSpecification."Qty. to Invoice" :=
               Round(ReservEntry."Qty. to Invoice (Base)" / ReservEntry."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
             TempInvoicingSpecification."Buffer Status" := TempInvoicingSpecification."Buffer Status"::MODIFY;
-            TempInvoicingSpecification.Insert;
-            ReservEntry.Delete;
+            TempInvoicingSpecification.Insert();
+            ReservEntry.Delete();
         until ReservEntry.Next = 0;
 
         OK := TempInvoicingSpecification.FindFirst;
@@ -483,9 +457,212 @@ codeunit 99000842 "Service Line-Reserve"
         CreateBindingReservation(ServiceLine, ReqLine.Description, ReqLine."Due Date", ReservQty, ReservQtyBase);
     end;
 
+    [EventSubscriber(ObjectType::Page, PAGE::Reservation, 'OnGetQtyPerUOMFromSourceRecRef', '', false, false)]
+    local procedure OnGetQtyPerUOMFromSourceRecRef(SourceRecRef: RecordRef; var QtyPerUOM: Decimal; var QtyReserved: Decimal; var QtyReservedBase: Decimal; var QtyToReserve: Decimal; var QtyToReserveBase: Decimal)
+    var
+        ServiceLine: Record "Service Line";
+    begin
+        if MatchThisTable(SourceRecRef.Number) then begin
+            SourceRecRef.SetTable(ServiceLine);
+            ServiceLine.Find;
+            QtyPerUOM := ServiceLine.GetReservationQty(QtyReserved, QtyReservedBase, QtyToReserve, QtyToReserveBase);
+        end;
+    end;
+
+    local procedure SetReservSourceFor(SourceRecRef: RecordRef; var ReservEntry: record "Reservation Entry"; var CaptionText: Text)
+    var
+        ServiceLine: Record "Service Line";
+    begin
+        SourceRecRef.SetTable(ServiceLine);
+        ServiceLine.TestField(Type, ServiceLine.Type::Item);
+        ServiceLine.TestField("Needed by Date");
+
+        ServiceLine.SetReservationEntry(ReservEntry);
+
+        CaptionText := ServiceLine.GetSourceCaption;
+    end;
+
+    local procedure EntryStartNo(): Integer
+    begin
+        exit(109);
+    end;
+
+    local procedure MatchThisEntry(EntryNo: Integer): Boolean
+    begin
+        exit(EntryNo = 110);
+    end;
+
+    local procedure MatchThisTable(TableID: Integer): Boolean
+    begin
+        exit(TableID = 5902); // DATABASE::"Service Line"
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::Reservation, 'OnSetReservSource', '', false, false)]
+    local procedure OnSetReservSource(SourceRecRef: RecordRef; var ReservEntry: Record "Reservation Entry"; var CaptionText: Text)
+    begin
+        if MatchThisTable(SourceRecRef.Number) then
+            SetReservSourceFor(SourceRecRef, ReservEntry, CaptionText);
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::Reservation, 'OnDrillDownTotalQuantity', '', false, false)]
+    local procedure OnDrillDownTotalQuantity(SourceRecRef: RecordRef; ReservEntry: Record "Reservation Entry"; EntrySummary: Record "Entry Summary"; Location: Record Location; MaxQtyToReserve: Decimal)
+    var
+        AvailableServiceLines: page "Available - Service Lines";
+    begin
+        if MatchThisEntry(EntrySummary."Entry No.") then begin
+            Clear(AvailableServiceLines);
+            AvailableServiceLines.SetCurrentSubType(EntrySummary."Entry No." - EntryStartNo());
+            AvailableServiceLines.SetSource(SourceRecRef, ReservEntry, ReservEntry."Source Subtype");
+            AvailableServiceLines.RunModal;
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::Reservation, 'OnFilterReservEntry', '', false, false)]
+    local procedure OnFilterReservEntry(var FilterReservEntry: Record "Reservation Entry"; ReservEntrySummary: Record "Entry Summary")
+    begin
+        if MatchThisEntry(ReservEntrySummary."Entry No.") then begin
+            FilterReservEntry.SetRange("Source Type", DATABASE::"Service Line");
+            FilterReservEntry.SetRange("Source Subtype", ReservEntrySummary."Entry No." - EntryStartNo());
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::Reservation, 'OnAfterRelatesToSummEntry', '', false, false)]
+    local procedure OnRelatesToEntrySummary(var FilterReservEntry: Record "Reservation Entry"; FromEntrySummary: Record "Entry Summary"; var IsHandled: Boolean)
+    begin
+        if MatchThisEntry(FromEntrySummary."Entry No.") then
+            IsHandled :=
+                (FilterReservEntry."Source Type" = DATABASE::"Service Line") and
+                (FilterReservEntry."Source Subtype" = FromEntrySummary."Entry No." - EntryStartNo());
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnCreateReservation', '', false, false)]
+    local procedure OnCreateReservation(SourceRecRef: RecordRef; TrackingSpecification: Record "Tracking Specification"; ForReservEntry: Record "Reservation Entry"; Description: Text[100]; ExpectedDate: Date; Quantity: Decimal; QuantityBase: Decimal)
+    var
+        ServiceLine: Record "Service Line";
+    begin
+        if MatchThisTable(ForReservEntry."Source Type") then begin
+            CreateReservationSetFrom(TrackingSpecification);
+            SourceRecRef.SetTable(ServiceLine);
+            CreateReservation(ServiceLine, Description, ExpectedDate, Quantity, QuantityBase, ForReservEntry);
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnLookupDocument', '', false, false)]
+    local procedure OnLookupDocument(SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20])
+    var
+        ServiceHeader: Record "Service Header";
+    begin
+        if MatchThisTable(SourceType) then begin
+            ServiceHeader.Reset();
+            ServiceHeader.SetRange("Document Type", SourceSubtype);
+            ServiceHeader.SetRange("No.", SourceID);
+            if SourceSubtype = 0 then
+                PAGE.RunModal(PAGE::"Service Quote", ServiceHeader)
+            else
+                PAGE.RunModal(PAGE::"Service Order", ServiceHeader);
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnLookupLine', '', false, false)]
+    local procedure OnLookupLine(SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceRefNo: Integer)
+    var
+        ServiceLine: Record "Service Line";
+    begin
+        if MatchThisTable(SourceType) then begin
+            ServiceLine.Reset();
+            ServiceLine.SetRange("Document Type", SourceSubtype);
+            ServiceLine.SetRange("Document No.", SourceID);
+            ServiceLine.SetRange("Line No.", SourceRefNo);
+            PAGE.Run(0, ServiceLine);
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnFilterReservFor', '', false, false)]
+    local procedure OnFilterReservFor(SourceRecRef: RecordRef; var ReservEntry: Record "Reservation Entry"; var CaptionText: Text)
+    var
+        ServiceLine: Record "Service Line";
+    begin
+        if MatchThisTable(SourceRecRef.Number) then begin
+            SourceRecRef.SetTable(ServiceLine);
+            ServiceLine.SetReservationFilters(ReservEntry);
+            CaptionText := ServiceLine.GetSourceCaption;
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnCalculateRemainingQty', '', false, false)]
+    local procedure OnCalculateRemainingQty(SourceRecRef: RecordRef; var ReservEntry: Record "Reservation Entry"; var RemainingQty: Decimal; var RemainingQtyBase: Decimal)
+    var
+        ServiceLine: Record "Service Line";
+    begin
+        if MatchThisTable(ReservEntry."Source Type") then begin
+            SourceRecRef.SetTable(ServiceLine);
+            ServiceLine.GetRemainingQty(RemainingQty, RemainingQtyBase);
+        end;
+    end;
+
+    local procedure GetSourceValue(ReservEntry: Record "Reservation Entry"; var SourceRecRef: RecordRef; ReturnOption: Option "Net Qty. (Base)","Gross Qty. (Base)"): Decimal
+    var
+        ServLine: Record "Service Line";
+    begin
+        ServLine.Get(ReservEntry."Source Subtype", ReservEntry."Source ID", ReservEntry."Source Ref. No.");
+        SourceRecRef.GetTable(ServLine);
+        case ReturnOption of
+            ReturnOption::"Net Qty. (Base)":
+                exit(ServLine."Outstanding Qty. (Base)");
+            ReturnOption::"Gross Qty. (Base)":
+                exit(ServLine."Quantity (Base)");
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnGetSourceRecordValue', '', false, false)]
+    local procedure OnGetSourceRecordValue(var ReservEntry: Record "Reservation Entry"; ReturnOption: Option; var ReturnQty: Decimal; var SourceRecRef: RecordRef)
+    begin
+        if MatchThisTable(ReservEntry."Source Type") then
+            ReturnQty := GetSourceValue(ReservEntry, SourceRecRef, ReturnOption);
+    end;
+
+    local procedure UpdateStatistics(CalcReservEntry: Record "Reservation Entry"; var TempEntrySummary: Record "Entry Summary" temporary; AvailabilityDate: Date; Positive: Boolean; var TotalQuantity: Decimal)
+    var
+        ServiceLine: Record "Service Line";
+        AvailabilityFilter: Text;
+    begin
+        if not ServiceLine.ReadPermission then
+            exit;
+
+        AvailabilityFilter := CalcReservEntry.GetAvailabilityFilter(AvailabilityDate, Positive);
+        ServiceLine.FindLinesForReservation(CalcReservEntry, AvailabilityFilter, Positive);
+        if ServiceLine.FindSet then
+            repeat
+                ServiceLine.CalcFields("Reserved Qty. (Base)");
+                TempEntrySummary."Total Reserved Quantity" -= ServiceLine."Reserved Qty. (Base)";
+                TotalQuantity += ServiceLine."Outstanding Qty. (Base)";
+            until ServiceLine.Next = 0;
+
+        if TotalQuantity = 0 then
+            exit;
+
+        with TempEntrySummary do
+            if (TotalQuantity < 0) = Positive then begin
+                "Table ID" := DATABASE::"Service Line";
+                "Summary Type" :=
+                    CopyStr(StrSubstNo('%1', ServiceLine.TableCaption), 1, MaxStrLen("Summary Type"));
+                "Total Quantity" := -TotalQuantity;
+                "Total Available Quantity" := "Total Quantity" - "Total Reserved Quantity";
+                if not Insert() then
+                    Modify;
+            end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnUpdateStatistics', '', false, false)]
+    local procedure OnUpdateStatistics(CalcReservEntry: Record "Reservation Entry"; var ReservSummEntry: Record "Entry Summary"; AvailabilityDate: Date; Positive: Boolean; var TotalQuantity: Decimal)
+    begin
+        if ReservSummEntry."Entry No." = 110 then
+            UpdateStatistics(
+                CalcReservEntry, ReservSummEntry, AvailabilityDate, Positive, TotalQuantity);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnVerifyChangeOnBeforeHasError(NewServiceLine: Record "Service Line"; OldServiceLine: Record "Service Line"; var HasError: Boolean; var ShowError: Boolean)
     begin
     end;
 }
-

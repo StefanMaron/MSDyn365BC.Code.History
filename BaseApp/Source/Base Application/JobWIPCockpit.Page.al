@@ -247,7 +247,7 @@ page 1027 "Job WIP Cockpit"
                                 if JobWIPWarning.FindSet then
                                     repeat
                                         TempJobWIPWarning := JobWIPWarning;
-                                        TempJobWIPWarning.Insert;
+                                        TempJobWIPWarning.Insert();
                                     until JobWIPWarning.Next = 0;
                             until Job.Next = 0;
                         PAGE.RunModal(PAGE::"Job WIP Warnings", TempJobWIPWarning);

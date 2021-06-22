@@ -162,7 +162,7 @@ report 6521 "Item Tracking Appendix"
                     trigger OnPreDataItem()
                     begin
                         if TrackingSpecCount = 0 then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         SetRange(Number, 1, TrackingSpecCount);
                         TrackingSpecBuffer.SetCurrentKey("Source ID", "Source Type", "Source Subtype", "Source Batch Name",
                           "Source Prod. Order Line", "Source Ref. No.");
@@ -173,7 +173,7 @@ report 6521 "Item Tracking Appendix"
                 begin
                     // exclude documents without Item Tracking
                     if TrackingSpecCount = 0 then begin
-                        CurrReport.Break;
+                        CurrReport.Break();
                     end;
                     OldRefNo := 0;
                     ShowGroup := false;
@@ -188,7 +188,7 @@ report 6521 "Item Tracking Appendix"
             trigger OnPreDataItem()
             begin
                 if MainRecCount = 0 then
-                    CurrReport.Break;
+                    CurrReport.Break();
                 SetRange(Number, 1, MainRecCount);
             end;
         }
@@ -475,21 +475,21 @@ report 6521 "Item Tracking Appendix"
         end;
         if DocNo <> '' then
             SalesHeader.SetFilter("No.", DocNo);
-        MainRecCount := SalesHeader.Count;
+        MainRecCount := SalesHeader.Count();
     end;
 
     local procedure FilterSalesShip()
     begin
         if DocNo <> '' then
             SalesShipmentHdr.SetRange("No.", DocNo);
-        MainRecCount := SalesShipmentHdr.Count;
+        MainRecCount := SalesShipmentHdr.Count();
     end;
 
     local procedure FilterSalesInv()
     begin
         if DocNo <> '' then
             SalesInvoiceHdr.SetRange("No.", DocNo);
-        MainRecCount := SalesInvoiceHdr.Count;
+        MainRecCount := SalesInvoiceHdr.Count();
     end;
 
     local procedure FilterPurchHdr()
@@ -508,7 +508,7 @@ report 6521 "Item Tracking Appendix"
         end;
         if DocNo <> '' then
             PurchaseHeader.SetFilter("No.", DocNo);
-        MainRecCount := PurchaseHeader.Count;
+        MainRecCount := PurchaseHeader.Count();
     end;
 }
 

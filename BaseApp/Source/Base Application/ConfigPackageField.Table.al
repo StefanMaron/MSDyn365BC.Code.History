@@ -188,8 +188,8 @@ table 8616 "Config. Package Field"
                         ConfigPackageMgt.FieldError(ConfigPackageData, ConfigValidateMgt.EvaluateValue(FieldRef, ConfigPackageData.Value, false), 0);
                         if "Validate Field" then begin
                             Clear(TempConfigPackageTable);
-                            ConfigPackageField.Init;
-                            ConfigPackageField.Reset;
+                            ConfigPackageField.Init();
+                            ConfigPackageField.Reset();
                             ConfigPackageField.SetRange("Package Code", "Package Code");
                             ConfigPackageField.SetRange("Table ID", "Table ID");
                             ConfigPackageField.SetRange("Field ID", "Field ID");
@@ -210,7 +210,7 @@ table 8616 "Config. Package Field"
         ConfigFieldMapping.SetRange("Package Code", "Package Code");
         ConfigFieldMapping.SetRange("Table ID", "Table ID");
         ConfigFieldMapping.SetRange("Field ID", "Field ID");
-        ConfigFieldMapping.DeleteAll;
+        ConfigFieldMapping.DeleteAll();
     end;
 
     procedure GetRelationTablesID() Result: Text

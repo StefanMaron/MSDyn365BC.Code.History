@@ -198,7 +198,7 @@ codeunit 134975 "ERM Dimension Report"
         end;
 
         // 12. TearDown: Delete all lines/Cleare Selected Dimension
-        ItemJournalLine.DeleteAll;
+        ItemJournalLine.DeleteAll();
         CleanSelectedDimension(SelectedDimension, UserId, ObjectType, ObjectID);
     end;
 
@@ -217,7 +217,7 @@ codeunit 134975 "ERM Dimension Report"
         Assert.ExpectedError(AnalysisCodeMissing);
     end;
 
-    //[Test]
+    [Test]
     [Scope('OnPrem')]
     procedure DimensionCheckCalcInvtReportForMultipleLines()
     var
@@ -263,7 +263,7 @@ codeunit 134975 "ERM Dimension Report"
         SetDimensionDetailParameters(AnalysisView.Code, '');
 
         // Exercise & Verify:
-        Commit;
+        Commit();
         asserterror REPORT.Run(REPORT::"Dimensions - Detail");
         Assert.ExpectedError(DateFilterMissing);
     end;
@@ -290,7 +290,7 @@ codeunit 134975 "ERM Dimension Report"
 
         // Exercise:
         SetDimensionDetailParameters(AnalysisView.Code, Format(WorkDate));
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Dimensions - Detail");
 
         // Verify:
@@ -308,7 +308,7 @@ codeunit 134975 "ERM Dimension Report"
         SetDimensionTotalParameters('', CreateColumnLayout, Format(WorkDate));
 
         // Exercise & Verify:
-        Commit;
+        Commit();
         asserterror REPORT.Run(REPORT::"Dimensions - Total");
         Assert.ExpectedError(AnalysisCodeMissing);
     end;
@@ -329,7 +329,7 @@ codeunit 134975 "ERM Dimension Report"
         SetDimensionTotalParameters(AnalysisView.Code, '', Format(WorkDate));
 
         // Exercise & Verify:
-        Commit;
+        Commit();
         asserterror REPORT.Run(REPORT::"Dimensions - Total");
         Assert.ExpectedError(ColumnLayoutNameMissing);
     end;
@@ -350,7 +350,7 @@ codeunit 134975 "ERM Dimension Report"
         SetDimensionTotalParameters(AnalysisView.Code, CreateColumnLayout, '');
 
         // Exercise & Verify:
-        Commit;
+        Commit();
         asserterror REPORT.Run(REPORT::"Dimensions - Total");
         Assert.ExpectedError(DateFilterMissing);
     end;
@@ -377,7 +377,7 @@ codeunit 134975 "ERM Dimension Report"
 
         // Exercise:
         SetDimensionTotalParameters(AnalysisView.Code, CreateColumnLayout, Format(WorkDate));
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Dimensions - Total");
 
         // Verify:
@@ -406,7 +406,7 @@ codeunit 134975 "ERM Dimension Report"
 
         // Exercise:
         SetDimensionTotalParameters(AnalysisView.Code, CreateColumnLayout, Format(WorkDate));
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Dimensions - Total");
 
         // Verify:
@@ -554,7 +554,7 @@ codeunit 134975 "ERM Dimension Report"
         // [SCENARIO 296470] Item Journal Lines posted for Locations without transactions in 'Calculate Inventory' have 'Dimension Set ID' = 0
 
         Initialize;
-        Location[1].DeleteAll;
+        Location[1].DeleteAll();
 
         // [GIVEN] Locations: L1,L2
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location[1]);
@@ -630,9 +630,9 @@ codeunit 134975 "ERM Dimension Report"
         // [GIVEN] Dimension "Dim3" is blocked
         LibraryDimension.CreateDimensionCombination(DimensionCombination, Dimension[1].Code, Dimension[2].Code);
         DimensionCombination."Combination Restriction" := DimensionCombination."Combination Restriction"::Blocked;
-        DimensionCombination.Modify;
+        DimensionCombination.Modify();
         LibraryDimension.BlockDimension(Dimension[3]);
-        Commit;
+        Commit();
 
         // [WHEN] Run 'Bank Acc. Recon. - Test' report
         BankAccReconciliation.SetRecFilter;
@@ -663,7 +663,7 @@ codeunit 134975 "ERM Dimension Report"
         ClearDimensionCombinations;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Dimension Report");
     end;
 
@@ -721,14 +721,14 @@ codeunit 134975 "ERM Dimension Report"
         QtyPercent: Integer;
     begin
         Clear(GenJournalLine);
-        GenJournalLine.DeleteAll;
+        GenJournalLine.DeleteAll();
 
         CreateRecurringGeneralJournal(GenJournalLine, GLAccount[1]."No.");
         GenJournalLine.Validate("Dimension Set ID", DimSetID[1]);
         GenJournalLine.Modify(true);
 
         Clear(GenJnlAllocation);
-        GenJnlAllocation.DeleteAll;
+        GenJnlAllocation.DeleteAll();
 
         QtyPercent := LibraryRandom.RandInt(99);
 
@@ -740,7 +740,7 @@ codeunit 134975 "ERM Dimension Report"
         GenJnlAllocation.Validate("Dimension Set ID", DimSetID[3]);
         GenJnlAllocation.Modify(true);
 
-        Commit;
+        Commit();
     end;
 
     local procedure GetExpectResultForSingleDim(Dimension: array[3] of Record Dimension; DimensionValue: array[3] of Record "Dimension Value"; var ExpectedResult: array[3, 2] of Text)
@@ -814,7 +814,7 @@ codeunit 134975 "ERM Dimension Report"
     local procedure VerifyValuePostingReport(Customer: Record Customer)
     begin
         LibraryVariableStorage.Enqueue(DATABASE::Customer);
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Check Value Posting");
 
         LibraryReportDataset.LoadDataSetFile;
@@ -894,9 +894,9 @@ codeunit 134975 "ERM Dimension Report"
         GLAccount: Record "G/L Account";
         Dimension: Record Dimension;
     begin
-        Dimension.Init;
+        Dimension.Init();
         Dimension.Code := GLAccount.TableCaption + Format(DimNumber);
-        Dimension.Insert;
+        Dimension.Insert();
         exit(Dimension.Code);
     end;
 
@@ -958,14 +958,14 @@ codeunit 134975 "ERM Dimension Report"
 
     local procedure RunCheckValuePosting(DimensionCode: Code[20])
     begin
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(DimensionCode);
         REPORT.Run(REPORT::"Check Value Posting");
     end;
 
     local procedure FindItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; TemplateType: Option; Clear: Boolean)
     begin
-        ItemJournalBatch.Reset;
+        ItemJournalBatch.Reset();
         ItemJournalBatch.SetRange("Template Type", TemplateType);
         ItemJournalBatch.Next(LibraryRandom.RandInt(ItemJournalBatch.Count));
         if Clear then
@@ -988,7 +988,7 @@ codeunit 134975 "ERM Dimension Report"
           ItemJournalBatch.Name, EntryType, ItemNo, LibraryRandom.RandInt(10));
         ItemJnlLine."Posting Date" := PostingDate;
         ItemJnlLine."Dimension Set ID" := DimSetID;
-        ItemJnlLine.Modify;
+        ItemJnlLine.Modify();
     end;
 
     local procedure CreateTwoJrnlLinesItemsWithDefaultDimension(var ItemJournalLine: Record "Item Journal Line"; var DefaultDimension: array[2] of Record "Default Dimension"; var ItemNo: array[2] of Code[20])
@@ -1031,12 +1031,12 @@ codeunit 134975 "ERM Dimension Report"
     begin
         // Fill Selected Dimension Table
         CleanSelectedDimension(SelectedDimension, UserId, ObjectType, ObjectID);
-        SelectedDimension.Init;
+        SelectedDimension.Init();
         SelectedDimension."User ID" := UserId;
         SelectedDimension."Object Type" := ObjectType;
         SelectedDimension."Object ID" := ObjectID;
         SelectedDimension."Dimension Code" := DimensionCode;
-        SelectedDimension.Insert;
+        SelectedDimension.Insert();
     end;
 
     local procedure CalculateInventory(var ItemJournalLine: Record "Item Journal Line"; ItemFilter: Text; LocationFilter: Text; PostingDate: Date; ItemsNotOnInvt: Boolean; ItemsWithNoTransactions: Boolean)
@@ -1047,11 +1047,11 @@ codeunit 134975 "ERM Dimension Report"
         // Preparations
         FindItemJournalBatch(ItemJournalBatch, ItemJournalBatch."Template Type"::"Phys. Inventory", true);
 
-        ItemJournalLine.Reset;
+        ItemJournalLine.Reset();
         ItemJournalLine."Journal Template Name" := ItemJournalBatch."Journal Template Name";
         ItemJournalLine."Journal Batch Name" := ItemJournalBatch.Name;
 
-        Item.Reset;
+        Item.Reset();
         Item.SetFilter("No.", ItemFilter);
         if LocationFilter <> '' then
             Item.SetFilter("Location Filter", LocationFilter);
@@ -1060,7 +1060,7 @@ codeunit 134975 "ERM Dimension Report"
         LibraryInventory.CalculateInventory(ItemJournalLine, Item, PostingDate, ItemsNotOnInvt, ItemsWithNoTransactions);
 
         // Restore ItemJournalLine Ranges
-        ItemJournalLine.Reset;
+        ItemJournalLine.Reset();
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
         ItemJournalLine.SetFilter("Item No.", ItemFilter);

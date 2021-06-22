@@ -130,7 +130,7 @@ page 121 "G/L Budget Names"
 
     trigger OnOpenPage()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
     end;
 
     var

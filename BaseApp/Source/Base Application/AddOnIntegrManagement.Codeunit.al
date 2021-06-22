@@ -117,7 +117,7 @@ codeunit 5403 AddOnIntegrManagement
                     if WorkCenter."Unit Cost Calculation" = WorkCenter."Unit Cost Calculation"::Time then begin
                         ProdOrderRtngLine.Get(
                           ProdOrderRtngLine.Status::Released, "Prod. Order No.", "Routing Reference No.", "Routing No.", "Operation No.");
-                        MfgSetup.Get;
+                        MfgSetup.Get();
                         CostCalcMgt.GetRndgSetup(GLSetup, Currency, RndgSetupRead);
                         if MfgSetup."Cost Incl. Setup" and (Quantity <> 0) then begin
                             PurchOrderLine."Overhead Rate" :=

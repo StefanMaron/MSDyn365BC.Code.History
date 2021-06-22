@@ -9,11 +9,11 @@ codeunit 130640 "Library - Graph Mock"
         ClearMockTables;
         RemoveComplexTypes;
         RegisterComplexTypes;
-        ExchangeContactMock.DeleteAll;
+        ExchangeContactMock.DeleteAll();
 
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         MarketingSetup."Sync with Microsoft Graph" := true;
-        MarketingSetup.Modify;
+        MarketingSetup.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -22,7 +22,7 @@ codeunit 130640 "Library - Graph Mock"
         ODataTestMetrics: Record "OData Test Metrics";
     begin
         EnsureRecordsCreated;
-        ODataTestMetrics.Get;
+        ODataTestMetrics.Get();
         Count := ODataTestMetrics.GetCount
     end;
 
@@ -32,9 +32,9 @@ codeunit 130640 "Library - Graph Mock"
         ODataTestMetrics: Record "OData Test Metrics";
     begin
         EnsureRecordsCreated;
-        ODataTestMetrics.Get;
+        ODataTestMetrics.Get();
         ODataTestMetrics.GetCount += 1;
-        ODataTestMetrics.Modify;
+        ODataTestMetrics.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -43,7 +43,7 @@ codeunit 130640 "Library - Graph Mock"
         ODataTestMetrics: Record "OData Test Metrics";
     begin
         EnsureRecordsCreated;
-        ODataTestMetrics.Get;
+        ODataTestMetrics.Get();
         Count := ODataTestMetrics.InsertCount
     end;
 
@@ -53,9 +53,9 @@ codeunit 130640 "Library - Graph Mock"
         ODataTestMetrics: Record "OData Test Metrics";
     begin
         EnsureRecordsCreated;
-        ODataTestMetrics.Get;
+        ODataTestMetrics.Get();
         ODataTestMetrics.InsertCount += 1;
-        ODataTestMetrics.Modify;
+        ODataTestMetrics.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -64,7 +64,7 @@ codeunit 130640 "Library - Graph Mock"
         ODataTestMetrics: Record "OData Test Metrics";
     begin
         EnsureRecordsCreated;
-        ODataTestMetrics.Get;
+        ODataTestMetrics.Get();
         Count := ODataTestMetrics.DeleteCount
     end;
 
@@ -74,9 +74,9 @@ codeunit 130640 "Library - Graph Mock"
         ODataTestMetrics: Record "OData Test Metrics";
     begin
         EnsureRecordsCreated;
-        ODataTestMetrics.Get;
+        ODataTestMetrics.Get();
         ODataTestMetrics.DeleteCount += 1;
-        ODataTestMetrics.Modify;
+        ODataTestMetrics.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -85,7 +85,7 @@ codeunit 130640 "Library - Graph Mock"
         ODataTestMetrics: Record "OData Test Metrics";
     begin
         EnsureRecordsCreated;
-        ODataTestMetrics.Get;
+        ODataTestMetrics.Get();
         Count := ODataTestMetrics.ModifyCount
     end;
 
@@ -95,9 +95,9 @@ codeunit 130640 "Library - Graph Mock"
         ODataTestMetrics: Record "OData Test Metrics";
     begin
         EnsureRecordsCreated;
-        ODataTestMetrics.Get;
+        ODataTestMetrics.Get();
         ODataTestMetrics.ModifyCount += 1;
-        ODataTestMetrics.Modify;
+        ODataTestMetrics.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -106,7 +106,7 @@ codeunit 130640 "Library - Graph Mock"
         WebhookTestMetrics: Record "Webhook Test Metrics";
     begin
         EnsureRecordsCreated;
-        WebhookTestMetrics.Get;
+        WebhookTestMetrics.Get();
         Count := WebhookTestMetrics.CreatedCount;
     end;
 
@@ -135,15 +135,15 @@ codeunit 130640 "Library - Graph Mock"
         WebhookTestMetrics: Record "Webhook Test Metrics";
     begin
         if ODataTestMetrics.IsEmpty then begin
-            ODataTestMetrics.Init;
+            ODataTestMetrics.Init();
             ODataTestMetrics.Insert(true);
-            Commit;
+            Commit();
         end;
 
         if WebhookTestMetrics.IsEmpty then begin
-            WebhookTestMetrics.Init;
+            WebhookTestMetrics.Init();
             WebhookTestMetrics.Insert(true);
-            Commit;
+            Commit();
         end;
     end;
 
@@ -195,15 +195,15 @@ codeunit 130640 "Library - Graph Mock"
         ODataEdmType: Record "OData Edm Type";
     begin
         if ODataEdmType.Get('OutlookEmailAddress') then
-            ODataEdmType.Delete;
+            ODataEdmType.Delete();
         if ODataEdmType.Get('OutlookPhysicalAddress') then
-            ODataEdmType.Delete;
+            ODataEdmType.Delete();
         if ODataEdmType.Get('SingleValueExtProp') then
-            ODataEdmType.Delete;
+            ODataEdmType.Delete();
         if ODataEdmType.Get('OutlookPhone') then
-            ODataEdmType.Delete;
+            ODataEdmType.Delete();
         if ODataEdmType.Get('OutlookWebsite') then
-            ODataEdmType.Delete;
+            ODataEdmType.Delete();
     end;
 
     [Scope('OnPrem')]
@@ -218,7 +218,7 @@ codeunit 130640 "Library - Graph Mock"
         WebhookTestMetrics.FindLast;
         WebhookTestMetrics.UpdatedCount += 1;
         WebhookTestMetrics.Modify(true);
-        Commit;
+        Commit();
     end;
 
     [Scope('OnPrem')]
@@ -233,7 +233,7 @@ codeunit 130640 "Library - Graph Mock"
         WebhookTestMetrics.FindLast;
         WebhookTestMetrics.CreatedCount += 1;
         WebhookTestMetrics.Modify(true);
-        Commit;
+        Commit();
     end;
 
     [Scope('OnPrem')]
@@ -248,7 +248,7 @@ codeunit 130640 "Library - Graph Mock"
         WebhookTestMetrics.FindLast;
         WebhookTestMetrics.DeletedCount += 1;
         WebhookTestMetrics.Modify(true);
-        Commit;
+        Commit();
     end;
 
     [Scope('OnPrem')]
@@ -263,7 +263,7 @@ codeunit 130640 "Library - Graph Mock"
         WebhookTestMetrics.FindLast;
         WebhookTestMetrics.MissedCount += 1;
         WebhookTestMetrics.Modify(true);
-        Commit;
+        Commit();
     end;
 }
 

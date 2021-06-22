@@ -221,7 +221,7 @@ codeunit 137035 "SCM PS Bugs-I"
         // 1. Setup : Update Sales Setup.Create Item and Update Inventory.Random values used are not important for test.
         Initialize;
 
-        InventorySetup.Get;
+        InventorySetup.Get();
         LibraryInventory.SetAverageCostSetup(InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Day);
 
         CreateItem(
@@ -250,7 +250,7 @@ codeunit 137035 "SCM PS Bugs-I"
         // 3. Verify : Inventory Value (Calculated) in Revaluation Journal with Inventory Value at Item card.
         InventoryValueCalculated := GetInventoryValue(Item."No.");
         Item.CalcFields(Inventory);
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Assert.AreNearlyEqual(
           InventoryValueCalculated, Item."Unit Cost" * Item.Inventory, GeneralLedgerSetup."Amount Rounding Precision",
           ErrInventoryValueCalculated);
@@ -282,7 +282,7 @@ codeunit 137035 "SCM PS Bugs-I"
 
         // 3 : Verify Item Last Direct Cost.
         Item.Get(Item."No.");
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Assert.AreNearlyEqual(
           PurchaseDirectCost, Item."Last Direct Cost", GeneralLedgerSetup."Amount Rounding Precision", ErrMessageCostNotSame);
     end;
@@ -912,7 +912,7 @@ codeunit 137035 "SCM PS Bugs-I"
         ProdOrderLine2 := ProdOrderLine;
         ProdOrderLine2."Line No." := ProdOrderLine."Line No." + 10000;
         ProdOrderLine2.Quantity := 2 * ProdOrderLine.Quantity;
-        ProdOrderLine2.Insert;
+        ProdOrderLine2.Insert();
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, false, true, true, false);
 
         // Create Output Journal and Post it.
@@ -1008,7 +1008,7 @@ codeunit 137035 "SCM PS Bugs-I"
         // [GIVEN] Nothing is left to output in the order.
         FindProdOrderLine(ProdOrderLine, ProductionOrder."No.", ProductionOrder.Status);
         ProdOrderLine."Remaining Quantity" := 0;
-        ProdOrderLine.Modify;
+        ProdOrderLine.Modify();
 
         // [GIVEN] A component is not consumed yet.
         CreateProdOrderComponent(ProdOrderComponent, ProdOrderLine);
@@ -1042,7 +1042,7 @@ codeunit 137035 "SCM PS Bugs-I"
         // [GIVEN] Nothing is left to output in the order.
         FindProdOrderLine(ProdOrderLine, ProductionOrder."No.", ProductionOrder.Status);
         ProdOrderLine."Remaining Quantity" := 0;
-        ProdOrderLine.Modify;
+        ProdOrderLine.Modify();
 
         // [GIVEN] First prod. order component is not consumed and does not have outstanding pick lines.
         CreateProdOrderComponent(ProdOrderComponent, ProdOrderLine);
@@ -1113,7 +1113,7 @@ codeunit 137035 "SCM PS Bugs-I"
         LibraryManufacturing.CreateProdOrderLine(
           ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.", LibraryInventory.CreateItemNo, '', '', LibraryRandom.RandInt(10));
         ProdOrderLine."Remaining Quantity" := 0;
-        ProdOrderLine.Modify;
+        ProdOrderLine.Modify();
         MockProdOrderRoutingLine(ProdOrderRoutingLine, ProdOrderLine, ProdOrderRoutingLine."Flushing Method"::Manual);
 
         // [WHEN] Change status of the production order to "Finished".
@@ -1152,7 +1152,7 @@ codeunit 137035 "SCM PS Bugs-I"
         LibrarySetupStorage.Save(DATABASE::"Manufacturing Setup");
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM PS Bugs-I");
     end;
 
@@ -1253,7 +1253,7 @@ codeunit 137035 "SCM PS Bugs-I"
         LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
         CreateAndModifyItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, ItemNo2, LocationCode, Quantity);
         CreateAndModifyItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, ItemNo, LocationCode, Quantity);
-        Commit;  // Due to a limitation in Page Testability, COMMIT is needed in this case.
+        Commit();  // Due to a limitation in Page Testability, COMMIT is needed in this case.
         ItemJournal.OpenEdit;
         ItemJournal.CurrentJnlBatchName.SetValue(ItemJournalBatch.Name);
         ItemJournal.ItemTrackingLines.Invoke;
@@ -1288,7 +1288,7 @@ codeunit 137035 "SCM PS Bugs-I"
         WarehouseActivityLine.Modify(true);
         WarehouseActivityLine.SetRange("Item No.", ItemNo2);
         WarehouseActivityLine.FindFirst;
-        WarehouseActivityLine.Delete;
+        WarehouseActivityLine.Delete();
         LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, true);
         exit(WarehouseActivityHeader."Source No.");
     end;
@@ -1441,7 +1441,7 @@ codeunit 137035 "SCM PS Bugs-I"
         RequisitionWkshName.SetRange("Template Type", TemplateType);
         RequisitionWkshName.FindFirst;
 
-        RequisitionLine.Init;
+        RequisitionLine.Init();
         RequisitionLine.Validate("Worksheet Template Name", RequisitionWkshName."Worksheet Template Name");
         RequisitionLine.Validate("Journal Batch Name", RequisitionWkshName.Name);
     end;
@@ -1506,13 +1506,13 @@ codeunit 137035 "SCM PS Bugs-I"
 
     local procedure MockProdOrderRoutingLine(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProdOrderLine: Record "Prod. Order Line"; FlushingMethod: Option)
     begin
-        ProdOrderRoutingLine.Init;
+        ProdOrderRoutingLine.Init();
         ProdOrderRoutingLine.Status := ProdOrderLine.Status;
         ProdOrderRoutingLine."Prod. Order No." := ProdOrderLine."Prod. Order No.";
         ProdOrderRoutingLine."Routing Reference No." := ProdOrderLine."Line No.";
         ProdOrderRoutingLine."Routing No." := LibraryUtility.GenerateGUID;
         ProdOrderRoutingLine."Flushing Method" := FlushingMethod;
-        ProdOrderRoutingLine.Insert;
+        ProdOrderRoutingLine.Insert();
     end;
 
     local procedure MockWhsePickForProdOrderComponent(ProdOrderComponent: Record "Prod. Order Component")
@@ -1526,7 +1526,7 @@ codeunit 137035 "SCM PS Bugs-I"
         WarehouseActivityLine."Source Line No." := ProdOrderComponent."Prod. Order Line No.";
         WarehouseActivityLine."Source Subline No." := ProdOrderComponent."Line No.";
         WarehouseActivityLine."Qty. Outstanding (Base)" := ProdOrderComponent."Remaining Qty. (Base)";
-        WarehouseActivityLine.Insert;
+        WarehouseActivityLine.Insert();
     end;
 
     local procedure DeleteProdOrderLine(ProdOrderNo: Code[20])
@@ -1636,13 +1636,13 @@ codeunit 137035 "SCM PS Bugs-I"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesReceivablesSetup.Validate("Posted Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesReceivablesSetup.Validate("Posted Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesReceivablesSetup.Modify(true);
 
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchasesPayablesSetup.Validate("Posted Receipt Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchasesPayablesSetup.Validate("Posted Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode);
@@ -1691,7 +1691,7 @@ codeunit 137035 "SCM PS Bugs-I"
         Item.SetRange("No.", Item."No.");
         Item.FindFirst;
         TempItem := Item;
-        TempItem.Insert;
+        TempItem.Insert();
     end;
 
     local procedure UpdateDirectUnitCostPurchaseLine(var PurchaseLine: Record "Purchase Line"; DirectUnitCost: Decimal)
@@ -1839,7 +1839,7 @@ codeunit 137035 "SCM PS Bugs-I"
         repeat
             ExpComponentCost += ProdOrderComponent."Unit Cost";
         until ProdOrderComponent.Next = 0;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Assert.AreNearlyEqual(UnitCost, ExpComponentCost, GeneralLedgerSetup."Amount Rounding Precision", ErrMessageCostNotSame);
     end;
 
@@ -1882,7 +1882,7 @@ codeunit 137035 "SCM PS Bugs-I"
 
         ProductionOrder.Get(ProductionOrder.Status::Finished, ProdOrderNo);
         Item.Get(ItemNo);
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Assert.AreNearlyEqual(
           ProductionOrder.Quantity * Item."Unit Cost", ValueEntryActCost, GeneralLedgerSetup."Amount Rounding Precision",
           ErrMessageCostNotSame);

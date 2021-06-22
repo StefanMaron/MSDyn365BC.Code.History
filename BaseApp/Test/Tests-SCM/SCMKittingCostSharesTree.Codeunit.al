@@ -456,7 +456,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
 
         Item."No." := LibraryUtility.GenerateGUID;
         Item."Replenishment System" := Item."Replenishment System"::"Prod. Order";
-        Item.Insert;
+        Item.Insert();
 
         Item.SetFilter(
           "Location Filter", StrSubstNo('%1..%2', LibraryUtility.GenerateRandomCode(Item.FieldNo("Location Filter"), DATABASE::Item)));
@@ -485,13 +485,13 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
 
         Initialize;
         Item."No." := LibraryUtility.GenerateGUID;
-        Item.Insert;
+        Item.Insert();
 
         SKU."Location Code" := LibraryUtility.GenerateRandomCode(SKU.FieldNo("Location Code"), DATABASE::"Stockkeeping Unit");
         SKU."Variant Code" := LibraryUtility.GenerateRandomCode(SKU.FieldNo("Variant Code"), DATABASE::"Stockkeeping Unit");
         SKU."Item No." := Item."No.";
         SKU."Replenishment System" := SKU."Replenishment System"::"Prod. Order";
-        SKU.Insert;
+        SKU.Insert();
 
         Item.SetFilter("Location Filter", SKU."Location Code");
         Item.SetFilter("Variant Filter", SKU."Variant Code");
@@ -596,7 +596,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
         // [GIVEN] A Prodiction BOM Line with Calculation = Width*Length and Scrap % not zero
         CreateProductionBOMLineWithCalculation(ProductionBOMLine);
         ProductionBOMLine.Validate("Scrap %", LibraryRandom.RandDecInDecimalRange(5, 10, 1));
-        ProductionBOMLine.Modify;
+        ProductionBOMLine.Modify();
 
         // [GIVEN] EntryNo for BOM Buffer and Item needed to invoke TransferFromProdComp
         EntryNo := LibraryUtility.GetNewRecNo(BOMBuffer, BOMBuffer.FieldNo("Entry No."));
@@ -624,7 +624,7 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Kitting - Cost Shares Tree");
     end;
 
@@ -729,11 +729,11 @@ codeunit 137110 "SCM Kitting - Cost Shares Tree"
                     TempItem.Next(LibraryRandom.RandInt(TempItem.Count));
                     WarningItem.Get(TempItem."No.");
                     BOMComponent.SetRange("Parent Item No.", WarningItem."No.");
-                    BOMComponent.DeleteAll;
+                    BOMComponent.DeleteAll();
                 end;
         end;
 
-        WarningItem.Modify;
+        WarningItem.Modify();
         WarningText := WarningItem."No.";
     end;
 

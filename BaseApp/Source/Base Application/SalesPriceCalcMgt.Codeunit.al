@@ -1,5 +1,8 @@
 codeunit 7000 "Sales Price Calc. Mgt."
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+    ObsoleteTag = '16.0';
 
     trigger OnRun()
     begin
@@ -60,7 +63,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
                         Item.Get("No.");
                         SalesLinePriceExists(SalesHeader, SalesLine, false);
                         CalcBestUnitPrice(TempSalesPrice);
-                        OnAfterFindSalesLineItemPrice(SalesLine, TempSalesPrice, FoundSalesPrice);
+                        OnAfterFindSalesLineItemPrice(SalesLine, TempSalesPrice, FoundSalesPrice, CalledByFieldNo);
                         if FoundSalesPrice or
                            not ((CalledByFieldNo = FieldNo(Quantity)) or
                                 (CalledByFieldNo = FieldNo("Variant Code")))
@@ -409,8 +412,8 @@ codeunit 7000 "Sales Price Calc. Mgt."
         if not ToSalesPrice.IsTemporary then
             Error(TempTableErr);
 
-        ToSalesPrice.Reset;
-        ToSalesPrice.DeleteAll;
+        ToSalesPrice.Reset();
+        ToSalesPrice.DeleteAll();
 
         OnBeforeFindSalesPrice(
           ToSalesPrice, FromSalesPrice, QtyPerUOM, Qty, CustNo, ContNo, CustPriceGrCode, CampaignNo,
@@ -479,8 +482,8 @@ codeunit 7000 "Sales Price Calc. Mgt."
                     SetFilter("Unit of Measure Code", '%1|%2', UOM, '');
             end;
 
-            ToSalesLineDisc.Reset;
-            ToSalesLineDisc.DeleteAll;
+            ToSalesLineDisc.Reset();
+            ToSalesLineDisc.DeleteAll();
             for "Sales Type" := "Sales Type"::Customer to "Sales Type"::Campaign do
                 if ("Sales Type" = "Sales Type"::"All Customers") or
                    (("Sales Type" = "Sales Type"::Customer) and (CustNo <> '')) or
@@ -531,30 +534,28 @@ codeunit 7000 "Sales Price Calc. Mgt."
 
     procedure CopySalesPrice(var SalesPrice: Record "Sales Price")
     begin
-        SalesPrice.DeleteAll;
+        SalesPrice.DeleteAll();
         CopySalesPriceToSalesPrice(TempSalesPrice, SalesPrice);
     end;
 
     local procedure CopySalesPriceToSalesPrice(var FromSalesPrice: Record "Sales Price"; var ToSalesPrice: Record "Sales Price")
     begin
-        with ToSalesPrice do begin
+        with ToSalesPrice do
             if FromSalesPrice.FindSet then
                 repeat
                     ToSalesPrice := FromSalesPrice;
                     Insert;
                 until FromSalesPrice.Next = 0;
-        end;
     end;
 
     local procedure CopySalesDiscToSalesDisc(var FromSalesLineDisc: Record "Sales Line Discount"; var ToSalesLineDisc: Record "Sales Line Discount")
     begin
-        with ToSalesLineDisc do begin
+        with ToSalesLineDisc do
             if FromSalesLineDisc.FindSet then
                 repeat
                     ToSalesLineDisc := FromSalesLineDisc;
                     Insert;
                 until FromSalesLineDisc.Next = 0;
-        end;
     end;
 
     procedure SetItem(ItemNo: Code[20])
@@ -581,7 +582,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
             CurrencyFactor := CurrencyFactor2;
             ExchRateDate := ExchRateDate2;
         end else
-            GLSetup.Get;
+            GLSetup.Get();
     end;
 
     procedure SetVAT(PriceInclVAT2: Boolean; VATPerCent2: Decimal; VATCalcType2: Option; VATBusPostingGr2: Code[20])
@@ -668,13 +669,14 @@ codeunit 7000 "Sales Price Calc. Mgt."
             UnitPrice := Round(UnitPrice, GLSetup."Unit-Amount Rounding Precision");
     end;
 
-    local procedure CalcLineAmount(SalesPrice: Record "Sales Price"): Decimal
+    local procedure CalcLineAmount(SalesPrice: Record "Sales Price") LineAmount: Decimal
     begin
-        with SalesPrice do begin
+        with SalesPrice do
             if "Allow Line Disc." then
-                exit("Unit Price" * (1 - LineDiscPerCent / 100));
-            exit("Unit Price");
-        end;
+                LineAmount := "Unit Price" * (1 - LineDiscPerCent / 100)
+            else
+                LineAmount := "Unit Price";
+        OnAfterCalcLineAmount(SalesPrice, LineAmount);
     end;
 
     procedure GetSalesLinePrice(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
@@ -933,7 +935,8 @@ codeunit 7000 "Sales Price Calc. Mgt."
         exit(CustNo);
     end;
 
-    local procedure ServLinePriceExists(ServHeader: Record "Service Header"; var ServLine: Record "Service Line"; ShowAll: Boolean): Boolean
+    [Scope('OnPrem')]
+    procedure ServLinePriceExists(ServHeader: Record "Service Header"; var ServLine: Record "Service Line"; ShowAll: Boolean): Boolean
     var
         IsHandled: Boolean;
     begin
@@ -952,7 +955,8 @@ codeunit 7000 "Sales Price Calc. Mgt."
         exit(false);
     end;
 
-    local procedure ServLineLineDiscExists(ServHeader: Record "Service Header"; var ServLine: Record "Service Line"; ShowAll: Boolean): Boolean
+    [Scope('OnPrem')]
+    procedure ServLineLineDiscExists(ServHeader: Record "Service Header"; var ServLine: Record "Service Line"; ShowAll: Boolean): Boolean
     begin
         with ServLine do
             if (Type = Type::Item) and Item.Get("No.") then begin
@@ -982,19 +986,19 @@ codeunit 7000 "Sales Price Calc. Mgt."
             exit;
 
         with FromCampaignTargetGr do begin
-            ToCampaignTargetGr.Reset;
-            ToCampaignTargetGr.DeleteAll;
+            ToCampaignTargetGr.Reset();
+            ToCampaignTargetGr.DeleteAll();
 
             if CampaignNo <> '' then begin
                 ToCampaignTargetGr."Campaign No." := CampaignNo;
-                ToCampaignTargetGr.Insert;
+                ToCampaignTargetGr.Insert();
             end else begin
                 SetRange(Type, Type::Customer);
                 SetRange("No.", CustNo);
                 if FindSet then
                     repeat
                         ToCampaignTargetGr := FromCampaignTargetGr;
-                        ToCampaignTargetGr.Insert;
+                        ToCampaignTargetGr.Insert();
                     until Next = 0
                 else
                     if Cont.Get(ContNo) then begin
@@ -1003,7 +1007,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
                         if FindSet then
                             repeat
                                 ToCampaignTargetGr := FromCampaignTargetGr;
-                                ToCampaignTargetGr.Insert;
+                                ToCampaignTargetGr.Insert();
                             until Next = 0;
                     end;
             end;
@@ -1549,6 +1553,11 @@ codeunit 7000 "Sales Price Calc. Mgt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcLineAmount(SalesPrice: Record "Sales Price"; var LineAmount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterFindItemJnlLinePrice(var ItemJournalLine: Record "Item Journal Line"; var SalesPrice: Record "Sales Price"; CalledByFieldNo: Integer; FoundSalesPrice: Boolean)
     begin
     end;
@@ -1594,7 +1603,7 @@ codeunit 7000 "Sales Price Calc. Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterFindSalesLineItemPrice(var SalesLine: Record "Sales Line"; var TempSalesPrice: Record "Sales Price" temporary; var FoundSalesPrice: Boolean)
+    local procedure OnAfterFindSalesLineItemPrice(var SalesLine: Record "Sales Line"; var TempSalesPrice: Record "Sales Price" temporary; var FoundSalesPrice: Boolean; CalledByFieldNo: Integer)
     begin
     end;
 

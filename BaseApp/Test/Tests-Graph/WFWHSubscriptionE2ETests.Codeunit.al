@@ -16,6 +16,7 @@ codeunit 135528 "WFWH Subscription E2E Tests"
         LibraryRandom: Codeunit "Library - Random";
         LibrarySales: Codeunit "Library - Sales";
         LibraryWorkflow: Codeunit "Library - Workflow";
+        LibraryApplicationArea: Codeunit "Library - Application Area";
         MockOnFindTaskSchedulerAllowed: Codeunit MockOnFindTaskSchedulerAllowed;
         MockOnPostNotificationRequest: Codeunit MockOnPostNotificationRequest;
         MockOnFetchInitParams: Codeunit MockOnFetchInitParams;
@@ -38,8 +39,9 @@ codeunit 135528 "WFWH Subscription E2E Tests"
 
     local procedure Initialize()
     begin
+        LibraryApplicationArea.EnableFoundationSetup;
         LibraryWorkflow.DisableAllWorkflows;
-        WorkflowWebhookSubscription.DeleteAll;
+        WorkflowWebhookSubscription.DeleteAll();
         UnbindSubscription(MockOnFindTaskSchedulerAllowed);
         BindSubscription(MockOnFindTaskSchedulerAllowed);
         UnbindSubscription(MockOnPostNotificationRequest);
@@ -52,7 +54,7 @@ codeunit 135528 "WFWH Subscription E2E Tests"
             exit;
         IsInitialized := true;
 
-        Commit;
+        Commit();
     end;
 
     [Test]
@@ -140,7 +142,7 @@ codeunit 135528 "WFWH Subscription E2E Tests"
 
         // [WHEN] The user makes a DELETE request to the service.
         ResponseText := MockDeleteFromWebService(WorkflowWebhookSubscription);
-        Commit;
+        Commit();
 
         // [THEN] The response text is empty
         Assert.AreEqual('', ResponseText, 'DELETE response should be empty.');
@@ -175,7 +177,7 @@ codeunit 135528 "WFWH Subscription E2E Tests"
 
         // [WHEN] The user makes a DELETE request to the service.
         ResponseText := MockDeleteFromWebService(WorkflowWebhookSubscription);
-        Commit;
+        Commit();
 
         // [THEN] The response text is empty. No error from not being able to delete workflow with active steps.
         Assert.AreEqual('', ResponseText, 'DELETE response should be empty.');
@@ -286,7 +288,7 @@ codeunit 135528 "WFWH Subscription E2E Tests"
 
         // [WHEN] The user makes a  corresponding DELETE request to the service thereby completing the Update.
         ResponseText := MockDeleteFromWebService(WorkflowWebhookSubscription);
-        Commit;
+        Commit();
 
         // [THEN] The previous WorkflowWebhookSubscripiton is no longer in the database.
         Assert.IsFalse(WorkflowWebhookSubscription.Get(WorkflowWebhookSubscriptionId), 'WorkflowWebhookSubscripiton should be deleted.');
@@ -337,7 +339,7 @@ codeunit 135528 "WFWH Subscription E2E Tests"
 
         // [WHEN] The user makes a  DELETE request to the service to delete the previous subscription.
         ResponseText := MockDeleteFromWebService(WorkflowWebhookSubscription);
-        Commit;
+        Commit();
 
         // [WHEN] The user makes a corresponding POST to the service with the JSON as the body thereby completing the update.
         TargetURL := CreateTargetURL('', PAGE::"Workflow Webhook Subscriptions",
@@ -455,7 +457,7 @@ codeunit 135528 "WFWH Subscription E2E Tests"
             ConditionsInputTxt, WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode);
 
         // [THEN] Generate expected results.
-        SalesHeader.Reset;
+        SalesHeader.Reset();
         SalesHeader.SetFilter("Quote No.", '%1', '100');
         TableMetadata.Get(DATABASE::"Sales Header");
         EventConditions.AddTable(TableMetadata.Caption, DATABASE::"Sales Header");
@@ -495,7 +497,7 @@ codeunit 135528 "WFWH Subscription E2E Tests"
             ConditionsInputTxt, WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode);
 
         // [THEN] Generate expected results.
-        SalesLine.Reset;
+        SalesLine.Reset();
         SalesLine.SetFilter(Amount, '%1', 1000);
         TableMetadata.Get(DATABASE::"Sales Line");
         EventConditions.AddTable(TableMetadata.Caption, DATABASE::"Sales Line");
@@ -544,13 +546,13 @@ codeunit 135528 "WFWH Subscription E2E Tests"
             ConditionsInput2Txt, WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode);
 
         // [THEN] Generate expected results.
-        SalesHeader.Reset;
+        SalesHeader.Reset();
         SalesHeader.SetFilter("Quote No.", '%1', '100');
         TableMetadata.Get(DATABASE::"Sales Header");
         EventConditions.AddTable(TableMetadata.Caption, DATABASE::"Sales Header");
         EventConditions.SetView(EventConditions.Name(1), SalesHeader.GetView);
 
-        SalesLine.Reset;
+        SalesLine.Reset();
         SalesLine.SetFilter(Amount, '%1', 1000);
         TableMetadata.Get(DATABASE::"Sales Line");
         EventConditions.AddTable(TableMetadata.Caption, DATABASE::"Sales Line");
@@ -592,8 +594,8 @@ codeunit 135528 "WFWH Subscription E2E Tests"
             ConditionsInputTxt, WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode);
 
         // [THEN] Generate expected results.
-        SalesHeader.Reset;
-        SalesLine.Reset;
+        SalesHeader.Reset();
+        SalesLine.Reset();
 
         SalesHeader.SetFilter("Package Tracking No.", '%1', '100');
         SalesLine.SetFilter(Amount, '%1', 1000);
@@ -805,7 +807,7 @@ codeunit 135528 "WFWH Subscription E2E Tests"
         // [THEN] Generate expected results.
         DateTimeSampleValue := CreateDateTime(20080101D, 093500T);
 
-        SalesHeader.Reset;
+        SalesHeader.Reset();
         SalesHeader.SetFilter("Document Type", '%1', SalesHeader."Document Type"::Order);
         SalesHeader.SetFilter("No.", '>2000');
         SalesHeader.SetFilter("Your Reference", '%1', 'sample text');
@@ -820,7 +822,7 @@ codeunit 135528 "WFWH Subscription E2E Tests"
         EventConditions.AddTable(TableMetadata.Caption, DATABASE::"Sales Header");
         EventConditions.SetView(EventConditions.Name(1), SalesHeader.GetView);
 
-        SalesLine.Reset;
+        SalesLine.Reset();
         SalesLine.SetFilter("Price description", '%1', 'sample text');
         TableMetadata.Get(DATABASE::"Sales Line");
         EventConditions.AddTable(TableMetadata.Caption, DATABASE::"Sales Line");
@@ -1056,13 +1058,13 @@ codeunit 135528 "WFWH Subscription E2E Tests"
             ConditionsInputTxt, WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode);
 
         // [THEN] Generate expected results.
-        SalesHeader.Reset;
+        SalesHeader.Reset();
         SalesHeader.SetFilter("Bill-to City", '%1', 'City Name');
         TableMetadata.Get(DATABASE::"Sales Header");
         EventConditions.AddTable(TableMetadata.Caption, DATABASE::"Sales Header");
         EventConditions.SetView(EventConditions.Name(1), SalesHeader.GetView);
 
-        SalesLine.Reset;
+        SalesLine.Reset();
         SalesLine.SetFilter("Shipment Date", '010116');
         TableMetadata.Get(DATABASE::"Sales Line");
         EventConditions.AddTable(TableMetadata.Caption, DATABASE::"Sales Line");
@@ -1102,13 +1104,13 @@ codeunit 135528 "WFWH Subscription E2E Tests"
             ConditionsInputTxt, WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode);
 
         // [THEN] Generate expected results.
-        PurchaseHeader.Reset;
+        PurchaseHeader.Reset();
         PurchaseHeader.SetFilter("Creditor No.", '%1', '001');
         TableMetadata.Get(DATABASE::"Purchase Header");
         EventConditions.AddTable(TableMetadata.Caption, DATABASE::"Purchase Header");
         EventConditions.SetView(EventConditions.Name(1), PurchaseHeader.GetView);
 
-        PurchaseLine.Reset;
+        PurchaseLine.Reset();
         PurchaseLine.SetFilter("A. Rcd. Not Inv. Ex. VAT (LCY)", '%1', 100);
         TableMetadata.Get(DATABASE::"Purchase Line");
         EventConditions.AddTable(TableMetadata.Caption, DATABASE::"Purchase Line");
@@ -1147,7 +1149,7 @@ codeunit 135528 "WFWH Subscription E2E Tests"
             ConditionsInputTxt, WorkflowEventHandling.RunWorkflowOnSendGeneralJournalBatchForApprovalCode);
 
         // [THEN] Generate expected results.
-        GenJournalBatch.Reset;
+        GenJournalBatch.Reset();
         GenJournalBatch.SetFilter("Template Type", 'General');
         TableMetadata.Get(DATABASE::"Gen. Journal Batch");
         EventConditions.AddTable(TableMetadata.Caption, DATABASE::"Gen. Journal Batch");
@@ -1187,7 +1189,7 @@ codeunit 135528 "WFWH Subscription E2E Tests"
             ConditionsInputTxt, WorkflowEventHandling.RunWorkflowOnSendGeneralJournalLineForApprovalCode);
 
         // [THEN] Generate expected results.
-        GenJournalLine.Reset;
+        GenJournalLine.Reset();
         GenJournalLine.SetFilter("Data Exch. Line No.", '1000');
         TableMetadata.Get(DATABASE::"Gen. Journal Line");
         EventConditions.AddTable(TableMetadata.Caption, DATABASE::"Gen. Journal Line");
@@ -1227,7 +1229,7 @@ codeunit 135528 "WFWH Subscription E2E Tests"
             ConditionsInputTxt, WorkflowEventHandling.RunWorkflowOnSendCustomerForApprovalCode);
 
         // [THEN] Generate expected results.
-        Customer.Reset;
+        Customer.Reset();
         Customer.SetFilter("Search Name", 'name to search');
         TableMetadata.Get(DATABASE::Customer);
         EventConditions.AddTable(TableMetadata.Caption, DATABASE::Customer);
@@ -1267,7 +1269,7 @@ codeunit 135528 "WFWH Subscription E2E Tests"
             ConditionsInputTxt, WorkflowEventHandling.RunWorkflowOnSendItemForApprovalCode);
 
         // [THEN] Generate expected results.
-        Item.Reset;
+        Item.Reset();
         Item.SetFilter("Assembly BOM", 'TRUE');
         TableMetadata.Get(DATABASE::Item);
         EventConditions.AddTable(TableMetadata.Caption, DATABASE::Item);
@@ -1307,7 +1309,7 @@ codeunit 135528 "WFWH Subscription E2E Tests"
             ConditionsInputTxt, WorkflowEventHandling.RunWorkflowOnSendVendorForApprovalCode);
 
         // [THEN] Generate expected results.
-        Vendor.Reset;
+        Vendor.Reset();
         Vendor.SetFilter("No. of Pstd. Receipts", '%1', 75);
         TableMetadata.Get(DATABASE::Vendor);
         EventConditions.AddTable(TableMetadata.Caption, DATABASE::Vendor);
@@ -1332,19 +1334,19 @@ codeunit 135528 "WFWH Subscription E2E Tests"
         // workflow is created in addition to worflowwebhook subscription
         CreateTempWorkflowWebhookSubscription(WorkflowWebhookSubscription, DummyConditionsTxt);
         WorkflowWebhookSubscription.Modify(true);
-        Commit;
+        Commit();
     end;
 
     local procedure CreateTempWorkflowWebhookSubscription(var WorkflowWebhookSubscriptionRec: Record "Workflow Webhook Subscription"; NewConditionsTxt: Text)
     begin
-        WorkflowWebhookSubscriptionRec.Init;
+        WorkflowWebhookSubscriptionRec.Init();
         WorkflowWebhookSubscriptionRec."Client Type" := DummyClientTypeTxt;
         WorkflowWebhookSubscriptionRec."Client Id" := DummyClientIdTxt;
         WorkflowWebhookSubscriptionRec."Event Code" := WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode;
         WorkflowWebhookSubscriptionRec.SetConditions(NewConditionsTxt);
         WorkflowWebhookSubscriptionRec.SetNotificationUrl(DummyNotificationUrlTxt);
         WorkflowWebhookSubscriptionRec.Insert(true);
-        Commit;
+        Commit();
     end;
 
     local procedure CreateSalesOrderAndSendForApproval()
@@ -1369,7 +1371,7 @@ codeunit 135528 "WFWH Subscription E2E Tests"
         SalesHeader.SetRecFilter;
         SalesHeader.FindFirst;
         SalesHeader.TestField(Status, SalesHeader.Status::"Pending Approval");
-        Commit;
+        Commit();
     end;
 
     local procedure VerifyWorkflowWebhookSubscriptionNoWorkflowProperties(WorkflowWebhookSubscriptionJSON: Text; var WorkflowWebhookSubscriptionRec: Record "Workflow Webhook Subscription")

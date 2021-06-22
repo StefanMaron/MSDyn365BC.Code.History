@@ -26,7 +26,7 @@ codeunit 131101 "Library - Workflow"
 
     procedure CreateWorkflow(var Workflow: Record Workflow)
     begin
-        Workflow.Init;
+        Workflow.Init();
         Workflow.Code := GenerateRandomWorkflowCode;
         Workflow.Description := DelChr(LibraryUtility.GenerateRandomText(MaxStrLen(Workflow.Description)), '=', '''()&|<>'); // remove invalid filter chars
         Workflow.Category := CreateWorkflowCategory;
@@ -38,7 +38,7 @@ codeunit 131101 "Library - Workflow"
     begin
         CreateWorkflow(Workflow);
         Workflow.Validate(Template, true);
-        Workflow.Modify;
+        Workflow.Modify();
     end;
 
     procedure CreateEnabledWorkflow(var Workflow: Record Workflow; WorkflowCode: Code[17])
@@ -51,7 +51,7 @@ codeunit 131101 "Library - Workflow"
 
     procedure CreateWorkflowTableRelation(var WorkflowTableRelation: Record "Workflow - Table Relation"; TableId: Integer; FieldId: Integer; RelatedTableId: Integer; RelatedFieldId: Integer)
     begin
-        WorkflowTableRelation.Init;
+        WorkflowTableRelation.Init();
         WorkflowTableRelation."Table ID" := TableId;
         WorkflowTableRelation."Field ID" := FieldId;
         WorkflowTableRelation."Related Table ID" := RelatedTableId;
@@ -61,7 +61,7 @@ codeunit 131101 "Library - Workflow"
 
     procedure CreateWorkflowStepArgument(var WorkflowStepArgument: Record "Workflow Step Argument"; Type: Option; UserID: Code[50]; TemplateName: Code[10]; BatchName: Code[10]; ApproverType: Option; InformUser: Boolean)
     begin
-        WorkflowStepArgument.Init;
+        WorkflowStepArgument.Init();
         WorkflowStepArgument.Type := Type;
         WorkflowStepArgument."General Journal Template Name" := TemplateName;
         WorkflowStepArgument."General Journal Batch Name" := BatchName;
@@ -74,7 +74,7 @@ codeunit 131101 "Library - Workflow"
 
     procedure CreateNotificationSetup(var NotificationSetup: Record "Notification Setup"; UserID: Code[50]; NotificationType: Option; NotificationMethod: Option Email,Note)
     begin
-        NotificationSetup.Init;
+        NotificationSetup.Init();
         NotificationSetup."User ID" := UserID;
         NotificationSetup."Notification Type" := NotificationType;
         NotificationSetup."Notification Method" := NotificationMethod;
@@ -96,15 +96,15 @@ codeunit 131101 "Library - Workflow"
     var
         SMTPMailSetup: Record "SMTP Mail Setup";
     begin
-        SMTPMailSetup.DeleteAll;
+        SMTPMailSetup.DeleteAll();
 
-        SMTPMailSetup.Init;
+        SMTPMailSetup.Init();
         SMTPMailSetup."SMTP Server" := 'localhost';
         SMTPMailSetup."SMTP Server Port" := 8081;
         SMTPMailSetup."User ID" := 'testuser@microsoft.com';
         SMTPMailSetup.SetPassword('TestPassword');
         SMTPMailSetup.Authentication := SMTPMailSetup.Authentication::Basic;
-        SMTPMailSetup.Insert;
+        SMTPMailSetup.Insert();
     end;
 
     procedure VerifyEmailWithMockService(UserId: Code[50]; NotificationBodyText: Text)
@@ -209,21 +209,21 @@ codeunit 131101 "Library - Workflow"
         WorkflowRecordChange: Record "Workflow - Record Change";
         WorkflowRecordChangeArchive: Record "Workflow Record Change Archive";
     begin
-        WorkflowRecordChange.DeleteAll;
-        WorkflowRecordChangeArchive.DeleteAll;
+        WorkflowRecordChange.DeleteAll();
+        WorkflowRecordChangeArchive.DeleteAll();
 
-        WorkflowTableRelationValue.DeleteAll;
+        WorkflowTableRelationValue.DeleteAll();
 
-        WorkflowStepArgument.DeleteAll;
-        WorkflowStepArgumentArchive.DeleteAll;
+        WorkflowStepArgument.DeleteAll();
+        WorkflowStepArgumentArchive.DeleteAll();
 
-        WorkflowRule.DeleteAll;
-        WorkflowStepInstanceArchive.DeleteAll;
+        WorkflowRule.DeleteAll();
+        WorkflowStepInstanceArchive.DeleteAll();
 
-        WorkflowStepInstance.DeleteAll;
-        WorkflowStep.DeleteAll;
+        WorkflowStepInstance.DeleteAll();
+        WorkflowStep.DeleteAll();
 
-        Workflow.DeleteAll;
+        Workflow.DeleteAll();
     end;
 
     procedure DisableAllWorkflows()
@@ -244,7 +244,7 @@ codeunit 131101 "Library - Workflow"
     var
         NotificationEntry: Record "Notification Entry";
     begin
-        NotificationEntry.DeleteAll;
+        NotificationEntry.DeleteAll();
     end;
 
     procedure GetGeneralJournalTemplateAndBatch(var GeneralJnlTemplateCode: Code[10]; var GeneralJnlBatchCode: Code[10])
@@ -394,7 +394,7 @@ codeunit 131101 "Library - Workflow"
         WorkflowStepArgument."Approver Limit Type" := ApproverLimitType;
         WorkflowStepArgument."Workflow User Group Code" := WorkflowUserGroupCode;
         WorkflowStepArgument."Approver User ID" := ApproverUserID;
-        WorkflowStepArgument.Modify;
+        WorkflowStepArgument.Modify();
     end;
 
     procedure SetWorkflowDirectApprover(WorkflowCode: Code[20])
@@ -445,12 +445,12 @@ codeunit 131101 "Library - Workflow"
     var
         WorkflowTableRelation: Record "Workflow - Table Relation";
     begin
-        WorkflowTableRelation.Init;
+        WorkflowTableRelation.Init();
         WorkflowTableRelation."Table ID" := TableId;
         WorkflowTableRelation."Field ID" := FieldId;
         WorkflowTableRelation."Related Table ID" := RelatedTableId;
         WorkflowTableRelation."Related Field ID" := RelatedFieldId;
-        WorkflowTableRelation.Insert;
+        WorkflowTableRelation.Insert();
     end;
 
     procedure InsertEventArgument(WorkflowStepID: Integer; EventConditions: Text)
@@ -555,7 +555,7 @@ codeunit 131101 "Library - Workflow"
         WorkflowStep.SetRange(ID, WorkflowStepId);
         WorkflowStep.FindFirst;
 
-        WorkflowRule.Init;
+        WorkflowRule.Init();
         WorkflowRule."Workflow Code" := WorkflowStep."Workflow Code";
         WorkflowRule."Workflow Step ID" := WorkflowStep.ID;
         WorkflowRule.Operator := Operator;
@@ -570,7 +570,7 @@ codeunit 131101 "Library - Workflow"
     var
         DynamicRequestPageEntity: Record "Dynamic Request Page Entity";
     begin
-        DynamicRequestPageEntity.Init;
+        DynamicRequestPageEntity.Init();
         DynamicRequestPageEntity.Validate(Name, Name);
         DynamicRequestPageEntity.Validate("Table ID", TableID);
         DynamicRequestPageEntity.Validate("Related Table ID", RelatedTableID);
@@ -582,7 +582,7 @@ codeunit 131101 "Library - Workflow"
     var
         DynamicRequestPageField: Record "Dynamic Request Page Field";
     begin
-        DynamicRequestPageField.Init;
+        DynamicRequestPageField.Init();
         DynamicRequestPageField.Validate("Table ID", TableID);
         DynamicRequestPageField.Validate("Field ID", FieldID);
         DynamicRequestPageField.Insert(true);
@@ -606,7 +606,7 @@ codeunit 131101 "Library - Workflow"
 
         if Workflow.Description = '' then
             Workflow.Description := FromWorkflow.Description;
-        Workflow.Modify;
+        Workflow.Modify();
 
         CopyWorkflowSteps(Workflow, FromWorkflowCode);
     end;
@@ -622,7 +622,7 @@ codeunit 131101 "Library - Workflow"
 
         if Workflow.Description = '' then
             Workflow.Description := FromWorkflow.Description;
-        Workflow.Modify;
+        Workflow.Modify();
 
         CopyWorkflowSteps(Workflow, FromWorkflow.Code);
     end;
@@ -670,12 +670,12 @@ codeunit 131101 "Library - Workflow"
     var
         WFEventResponseCombination: Record "WF Event/Response Combination";
     begin
-        WFEventResponseCombination.Init;
+        WFEventResponseCombination.Init();
         WFEventResponseCombination.Type := Type;
         WFEventResponseCombination."Function Name" := FunctionName;
         WFEventResponseCombination."Predecessor Type" := PredecessorType;
         WFEventResponseCombination."Predecessor Function Name" := PredecessorFunctionName;
-        if WFEventResponseCombination.Insert then;
+        if WFEventResponseCombination.Insert() then;
     end;
 
     procedure CreateEventPredecessor(FunctionName: Code[128]; PredecessorFunctionName: Code[128])
@@ -701,7 +701,7 @@ codeunit 131101 "Library - Workflow"
         WorkflowCategory.Code := LibraryUtility.GenerateRandomCode(WorkflowCategory.FieldNo(Code), DATABASE::"Workflow Category");
         WorkflowCategory.Description :=
           DelChr(LibraryUtility.GenerateRandomText(MaxStrLen(WorkflowCategory.Description)), '=', '''()&|<>');
-        WorkflowCategory.Insert;
+        WorkflowCategory.Insert();
         exit(WorkflowCategory.Code);
     end;
 

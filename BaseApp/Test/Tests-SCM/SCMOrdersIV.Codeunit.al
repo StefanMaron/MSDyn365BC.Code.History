@@ -35,6 +35,7 @@ codeunit 137156 "SCM Orders IV"
         LibraryAccountSchedule: Codeunit "Library - Account Schedule";
         LibraryDimension: Codeunit "Library - Dimension";
         LibrarySmallBusiness: Codeunit "Library - Small Business";
+        CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
         isInitialized: Boolean;
         ReserveItemsManuallyConfirmQst: Label 'Automatic reservation is not possible.\Do you want to reserve items manually?';
         ShipmentDateBeforeWorkDateMsg: Label '%1 %2 is before work date %3', Comment = '%1 = Shipment Date, %2 = Shipment Date value, %3 = Work Date value';
@@ -469,12 +470,33 @@ codeunit 137156 "SCM Orders IV"
         CreateCustomerDiscountGroupWithSalesLineDiscount(CustomerDiscountGroup, SalesLineDiscount, Item);
 
         // Exercise: Create Sales Order.
+        CopyAllSalesPriceToPriceListLine();
         CreateSalesOrder(
           SalesHeader, SalesLine, SalesLine.Type::Item, CreateCustomerWithCustomerDiscountGroup(CustomerDiscountGroup.Code), Item."No.",
           SalesLineDiscount."Minimum Quantity", '');
 
         // Verify: Verify Sales Line for Line Discount Amount.
         VerifySalesLineForLineDiscount(SalesLine, SalesLineDiscount);
+    end;
+
+    local procedure CopyAllSalesPriceToPriceListLine()
+    var
+        SalesPrice: Record "Sales Price";
+        SalesLineDiscount: Record "Sales Line Discount";
+        PriceListLine: Record "Price List Line";
+    begin
+        CopyFromToPriceListLine.CopyFrom(SalesPrice, PriceListLine);
+        CopyFromToPriceListLine.CopyFrom(SalesLineDiscount, PriceListLine);
+    end;
+
+    local procedure CopyAllPurchPriceToPriceListLine()
+    var
+        PurchPrice: Record "Purchase Price";
+        PurchLineDiscount: Record "Purchase Line Discount";
+        PriceListLine: Record "Price List Line";
+    begin
+        CopyFromToPriceListLine.CopyFrom(PurchPrice, PriceListLine);
+        CopyFromToPriceListLine.CopyFrom(PurchLineDiscount, PriceListLine);
     end;
 
     [Test]
@@ -947,7 +969,7 @@ codeunit 137156 "SCM Orders IV"
     begin
         // Setup: Create Item. Create and release Purchase Order.
         Initialize;
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         LibraryInventory.CreateItem(Item);
         CreateAndReleasePurchaseOrder(PurchaseHeader, PurchaseLine, Item."No.", LocationWhite.Code);
 
@@ -971,7 +993,7 @@ codeunit 137156 "SCM Orders IV"
     begin
         // Setup: Create Item. Create and release Purchase Order. Create and post Warehouse Receipt from Purchase Order.
         Initialize;
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         LibraryInventory.CreateItem(Item);
         CreateAndReleasePurchaseOrder(PurchaseHeader, PurchaseLine, Item."No.", LocationWhite.Code);
         CreateAndPostWarehouseReceiptFromPO(PurchaseHeader);
@@ -1003,7 +1025,7 @@ codeunit 137156 "SCM Orders IV"
     begin
         // Setup: Create Item. Create and release Purchase Order. Create and register Put Away after post Warehouse Receipt from Purchase Order.
         Initialize;
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         LibraryInventory.CreateItem(Item);
         CreateAndReleasePurchaseOrder(PurchaseHeader, PurchaseLine, Item."No.", LocationWhite.Code);
         RegisterPutAwayAfterPostWarehouseReceiptFromPO(PurchaseLine);
@@ -1030,7 +1052,7 @@ codeunit 137156 "SCM Orders IV"
     begin
         // Setup: Create Item. Create and release Purchase Order. Create and register Put Away after post Warehouse Receipt from Purchase Order. Create and register Pick from Sales Order.
         Initialize;
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         LibraryInventory.CreateItem(Item);
         CreateAndReleasePurchaseOrder(PurchaseHeader, PurchaseLine, Item."No.", LocationWhite.Code);
         RegisterPutAwayAfterPostWarehouseReceiptFromPO(PurchaseLine);
@@ -1056,7 +1078,7 @@ codeunit 137156 "SCM Orders IV"
     begin
         // Setup: Update Inventory using Warehouse Journal. Create Movement from Movement Worksheet Line. Find Bin.
         Initialize;
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         Quantity := LibraryRandom.RandDec(10, 2);
         LibraryInventory.CreateItem(Item);
         FindBinForPickZone(Bin, LocationWhite.Code, true);
@@ -1675,7 +1697,7 @@ codeunit 137156 "SCM Orders IV"
           LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10), '');
 
         // Commit is required so the sales order will not be rolled back on posting error.
-        Commit;
+        Commit();
 
         // [WHEN] Post the sales order with "Ship" option.
         asserterror LibrarySales.PostSalesDocument(SalesHeader, true, false);
@@ -2676,13 +2698,14 @@ codeunit 137156 "SCM Orders IV"
     local procedure Initialize()
     var
         InstructionMgt: Codeunit "Instruction Mgt.";
+        PriceListLine: Record "Price List Line";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Orders IV");
         LibrarySetupStorage.Restore;
         LibraryVariableStorage.Clear;
         LibraryERM.SetWorkDate; // IT.
         InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.QueryPostOnCloseCode);
-
+        PriceListLine.DeleteAll();
         // Lazy Setup.
         if isInitialized then
             exit;
@@ -2695,7 +2718,7 @@ codeunit 137156 "SCM Orders IV"
         LocationSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
@@ -2726,7 +2749,7 @@ codeunit 137156 "SCM Orders IV"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Default Item Quantity", true);
         SalesReceivablesSetup.Modify(true);
     end;
@@ -3719,6 +3742,8 @@ codeunit 137156 "SCM Orders IV"
         CreateSalesLineDiscount(SalesLineDiscount, Item, SalesLineDiscount."Sales Type"::Customer, Customer."No.", 0D, Quantity);  // Use 0D for Blank Date.
         CreatePurchasePriceForVendor(PurchasePrice, Item, Quantity);
         CreatePurchaseLineDiscount(PurchaseLineDiscount, Item, Quantity);
+        CopyAllSalesPriceToPriceListLine();
+        CopyAllPurchPriceToPriceListLine();
         if SpecialOrder then
             CreateSalesOrderWithSpecialOrder(SalesHeader, Customer."No.", Item."No.", Quantity)
         else
@@ -4381,7 +4406,7 @@ codeunit 137156 "SCM Orders IV"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         OldExactCostReversingMandatory := SalesReceivablesSetup."Exact Cost Reversing Mandatory";
         SalesReceivablesSetup.Validate("Exact Cost Reversing Mandatory", NewExactCostReversingMandatory);
         SalesReceivablesSetup.Modify(true);
@@ -4448,7 +4473,7 @@ codeunit 137156 "SCM Orders IV"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         OldCreditWarning := SalesReceivablesSetup."Credit Warnings";
         SalesReceivablesSetup.Validate("Credit Warnings", NewCreditWarnings);
         SalesReceivablesSetup.Modify(true);
@@ -4458,7 +4483,7 @@ codeunit 137156 "SCM Orders IV"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         OldStockOutWarning := SalesReceivablesSetup."Stockout Warning";
         SalesReceivablesSetup.Validate("Stockout Warning", NewStockOutWarning);
         SalesReceivablesSetup.Modify(true);
@@ -5129,7 +5154,7 @@ codeunit 137156 "SCM Orders IV"
     begin
         SalesReturnOrder.OpenEdit;
         SalesReturnOrder.FILTER.SetFilter("No.", No);
-        Commit; // Commit required before invoke Move Negative Lines.
+        Commit(); // Commit required before invoke Move Negative Lines.
         SalesReturnOrder.MoveNegativeLines.Invoke;
     end;
 

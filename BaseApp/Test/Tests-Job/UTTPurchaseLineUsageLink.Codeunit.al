@@ -32,21 +32,21 @@ codeunit 136358 "UT T Purchase Line Usage Link"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryJob.CreateJob(Job);
         Job.Validate("Apply Usage Link", true);
-        Job.Modify;
+        Job.Modify();
         LibraryJob.CreateJobTask(Job, JobTask);
         LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Budget, JobPlanningLine.Type::Item, JobTask, JobPlanningLine);
         JobPlanningLine.Validate("No.", LibraryInventory.CreateItem(Item));
         JobPlanningLine.Validate(Quantity, LibraryRandom.RandInt(1000));
-        JobPlanningLine.Modify;
+        JobPlanningLine.Modify();
 
         LibraryPurchase.CreateVendor(Vendor);
 
-        PurchaseHeader.Init;
+        PurchaseHeader.Init();
         PurchaseHeader.Validate("Document Type", PurchaseHeader."Document Type"::Order);
         PurchaseHeader.Validate("Buy-from Vendor No.", Vendor."No.");
         PurchaseHeader.Insert(true);
 
-        PurchaseLine.Init;
+        PurchaseLine.Init();
         PurchaseLine.Validate("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.Validate("Document No.", PurchaseHeader."No.");
         case JobPlanningLine.Type of

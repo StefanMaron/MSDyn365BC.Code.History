@@ -1,4 +1,4 @@
-﻿page 5970 "Posted Service Shipment Lines"
+page 5970 "Posted Service Shipment Lines"
 {
     AutoSplitKey = true;
     Caption = 'Posted Service Shipment Lines';

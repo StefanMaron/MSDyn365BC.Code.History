@@ -85,7 +85,7 @@ page 194 "Incoming Document Attachments"
 
     procedure LoadDataIntoPart(IncomingDocument: Record "Incoming Document")
     begin
-        DeleteAll;
+        DeleteAll();
         InsertSupportingAttachmentsFromIncomingDocument(IncomingDocument, Rec);
         CurrPage.Update(false);
     end;

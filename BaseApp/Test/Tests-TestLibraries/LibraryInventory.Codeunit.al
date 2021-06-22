@@ -17,7 +17,7 @@ codeunit 132201 "Library - Inventory"
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
         JOURNAL: Label ' journal';
-        ReserveConfirmMsg: Label 'Do you want to reserve specific serial or lot numbers?';
+        ReserveConfirmMsg: Label 'Do you want to reserve specific tracking numbers?';
 
     procedure CalculateInventory(ItemJournalLine: Record "Item Journal Line"; var Item: Record Item; PostingDate: Date; ItemsNotOnInvt: Boolean; ItemsWithNoTransactions: Boolean)
     var
@@ -41,7 +41,7 @@ codeunit 132201 "Library - Inventory"
 
     procedure CreateAnalysisColumnTemplate(var AnalysisColumnTemplate: Record "Analysis Column Template"; AnalysisArea: Option)
     begin
-        AnalysisColumnTemplate.Init;
+        AnalysisColumnTemplate.Init();
         AnalysisColumnTemplate.Validate("Analysis Area", AnalysisArea);
         AnalysisColumnTemplate.Validate(
           Name, LibraryUtility.GenerateRandomCode(AnalysisColumnTemplate.FieldNo(Name), DATABASE::"Analysis Column Template"));
@@ -52,7 +52,7 @@ codeunit 132201 "Library - Inventory"
     var
         RecRef: RecordRef;
     begin
-        AnalysisColumn.Init;
+        AnalysisColumn.Init();
         AnalysisColumn.Validate("Analysis Area", AnalysisArea);
         AnalysisColumn.Validate("Analysis Column Template", AnalysisColumnTemplateName);
         RecRef.GetTable(AnalysisColumn);
@@ -62,7 +62,7 @@ codeunit 132201 "Library - Inventory"
 
     procedure CreateBaseCalendarChange(var BaseCalendarChange: Record "Base Calendar Change"; BaseCalendarCode: Code[10]; RecurringSystem: Option; Date: Date; Day: Option)
     begin
-        BaseCalendarChange.Init;
+        BaseCalendarChange.Init();
         BaseCalendarChange.Validate("Base Calendar Code", BaseCalendarCode);
         BaseCalendarChange.Validate("Recurring System", RecurringSystem);
         BaseCalendarChange.Validate(Date, Date);
@@ -77,14 +77,14 @@ codeunit 132201 "Library - Inventory"
         Clear(ItemJournalLine);
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalTemplate.Name);
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
-        ItemJournalLine.DeleteAll;
+        ItemJournalLine.DeleteAll();
     end;
 
     procedure CreateAnalysisLine(var AnalysisLine: Record "Analysis Line"; AnalysisArea: Option; AnalysisLineTemplateName: Code[10])
     var
         RecRef: RecordRef;
     begin
-        AnalysisLine.Init;
+        AnalysisLine.Init();
         AnalysisLine.Validate("Analysis Area", AnalysisArea);
         AnalysisLine.Validate("Analysis Line Template Name", AnalysisLineTemplateName);
         RecRef.GetTable(AnalysisLine);
@@ -94,7 +94,7 @@ codeunit 132201 "Library - Inventory"
 
     procedure CreateAnalysisLineTemplate(var AnalysisLineTemplate: Record "Analysis Line Template"; AnalysisArea: Option)
     begin
-        AnalysisLineTemplate.Init;
+        AnalysisLineTemplate.Init();
         AnalysisLineTemplate.Validate("Analysis Area", AnalysisArea);
         AnalysisLineTemplate.Validate(
           Name, LibraryUtility.GenerateRandomCode(AnalysisLineTemplate.FieldNo(Name), DATABASE::"Analysis Line Template"));
@@ -103,7 +103,7 @@ codeunit 132201 "Library - Inventory"
 
     procedure CreateAnalysisReportName(var AnalysisReportName: Record "Analysis Report Name"; AnalysisArea: Option)
     begin
-        AnalysisReportName.Init;
+        AnalysisReportName.Init();
         AnalysisReportName.Validate("Analysis Area", AnalysisArea);
         AnalysisReportName.Validate(
           Name, LibraryUtility.GenerateRandomCode(AnalysisReportName.FieldNo(Name), DATABASE::"Analysis Report Name"));
@@ -122,7 +122,7 @@ codeunit 132201 "Library - Inventory"
     procedure CreateSerialNoInformation(var SerialNoInformation: Record "Serial No. Information"; ItemNo: Code[20]; VariantCode: Code[10]; SerialNo: Code[20])
     begin
         Clear(SerialNoInformation);
-        SerialNoInformation.Init;
+        SerialNoInformation.Init();
         SerialNoInformation.Validate("Item No.", ItemNo);
         SerialNoInformation.Validate("Variant Code", VariantCode);
         SerialNoInformation.Validate("Serial No.", SerialNo);
@@ -132,7 +132,7 @@ codeunit 132201 "Library - Inventory"
     procedure CreateLotNoInformation(var LotNoInformation: Record "Lot No. Information"; ItemNo: Code[20]; VariantCode: Code[10]; LotNo: Code[20])
     begin
         Clear(LotNoInformation);
-        LotNoInformation.Init;
+        LotNoInformation.Init();
         LotNoInformation.Validate("Item No.", ItemNo);
         LotNoInformation.Validate("Variant Code", VariantCode);
         LotNoInformation.Validate("Lot No.", LotNo);
@@ -142,7 +142,7 @@ codeunit 132201 "Library - Inventory"
     procedure CreateInventoryPostingGroup(var InventoryPostingGroup: Record "Inventory Posting Group")
     begin
         Clear(InventoryPostingGroup);
-        InventoryPostingGroup.Init;
+        InventoryPostingGroup.Init();
         InventoryPostingGroup.Validate(Code,
           LibraryUtility.GenerateRandomCode(InventoryPostingGroup.FieldNo(Code), DATABASE::"Inventory Posting Group"));
         InventoryPostingGroup.Validate(Description, InventoryPostingGroup.Code);
@@ -154,7 +154,7 @@ codeunit 132201 "Library - Inventory"
         Clear(InventoryPeriod);
         if InventoryPeriod.Get(EndingDate) then
             exit;
-        InventoryPeriod.Init;
+        InventoryPeriod.Init();
         InventoryPeriod.Validate("Ending Date", EndingDate);
         InventoryPeriod.Insert(true);
     end;
@@ -162,7 +162,7 @@ codeunit 132201 "Library - Inventory"
     procedure CreateInventoryPostingSetup(var InventoryPostingSetup: Record "Inventory Posting Setup"; LocationCode: Text[10]; PostingGroupCode: Text[20])
     begin
         Clear(InventoryPostingSetup);
-        InventoryPostingSetup.Init;
+        InventoryPostingSetup.Init();
         InventoryPostingSetup.Validate("Location Code", LocationCode);
         InventoryPostingSetup.Validate("Invt. Posting Group Code", PostingGroupCode);
         InventoryPostingSetup.Insert(true);
@@ -366,7 +366,7 @@ codeunit 132201 "Library - Inventory"
 
     procedure CreateItemCategory(var ItemCategory: Record "Item Category")
     begin
-        ItemCategory.Init;
+        ItemCategory.Init();
         ItemCategory.Validate(Code, LibraryUtility.GenerateRandomCode(ItemCategory.FieldNo(Code), DATABASE::"Item Category"));
         ItemCategory.Insert(true);
     end;
@@ -381,7 +381,7 @@ codeunit 132201 "Library - Inventory"
         LibraryERM.FindVATPostingSetupInvt(VATPostingSetup);
         InventoryPostingGroup.FindFirst;
 
-        ItemTemplate.Init;
+        ItemTemplate.Init();
         ItemTemplate.Validate(Code, LibraryUtility.GenerateRandomCode(ItemTemplate.FieldNo(Code), DATABASE::"Item Template"));
         ItemTemplate.Validate("Template Name", LibraryUtility.GenerateGUID);
         ItemTemplate.Insert(true);
@@ -396,7 +396,7 @@ codeunit 132201 "Library - Inventory"
         GeneralPostingSetup: Record "General Posting Setup";
     begin
         Clear(ItemCharge);
-        ItemCharge.Init;
+        ItemCharge.Init();
         ItemCharge.Validate("No.", LibraryUtility.GenerateRandomCode(ItemCharge.FieldNo("No."), DATABASE::"Item Charge"));
         ItemCharge.Insert(true);
 
@@ -440,7 +440,7 @@ codeunit 132201 "Library - Inventory"
         RecRef: RecordRef;
         LineNo: Integer;
     begin
-        ItemChargeAssignmentSales.Init;
+        ItemChargeAssignmentSales.Init();
 
         with ItemChargeAssignmentSales do begin
             "Document Type" := SalesLine."Document Type";
@@ -467,7 +467,7 @@ codeunit 132201 "Library - Inventory"
         RecRef: RecordRef;
         LineNo: Integer;
     begin
-        ItemChargeAssignmentPurch.Init;
+        ItemChargeAssignmentPurch.Init();
 
         with ItemChargeAssignmentPurch do begin
             "Document Type" := PurchaseLine."Document Type";
@@ -497,7 +497,7 @@ codeunit 132201 "Library - Inventory"
     [Scope('OnPrem')]
     procedure CreateItemCrossReferenceWithNo(var ItemCrossReference: Record "Item Cross Reference"; CrossRefNo: Code[20]; ItemNo: Code[20]; CrossRefType: Integer; CrossRefTypeNo: Code[30])
     begin
-        ItemCrossReference.Init;
+        ItemCrossReference.Init();
         ItemCrossReference.Validate("Item No.", ItemNo);
         ItemCrossReference.Validate("Cross-Reference Type", CrossRefType);
         ItemCrossReference.Validate("Cross-Reference Type No.", CrossRefTypeNo);
@@ -524,7 +524,7 @@ codeunit 132201 "Library - Inventory"
 
     procedure CreateItemJournalTemplate(var ItemJournalTemplate: Record "Item Journal Template")
     begin
-        ItemJournalTemplate.Init;
+        ItemJournalTemplate.Init();
         ItemJournalTemplate.Validate(
           Name,
           CopyStr(
@@ -546,7 +546,7 @@ codeunit 132201 "Library - Inventory"
     procedure CreateItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; ItemJournalTemplateName: Code[10])
     begin
         // Create Item Journal Batch with a random Name of String length less than 10.
-        ItemJournalBatch.Init;
+        ItemJournalBatch.Init();
         ItemJournalBatch.Validate("Journal Template Name", ItemJournalTemplateName);
         ItemJournalBatch.Validate(
           Name, CopyStr(LibraryUtility.GenerateRandomCode(ItemJournalBatch.FieldNo(Name), DATABASE::"Item Journal Batch"), 1,
@@ -570,7 +570,7 @@ codeunit 132201 "Library - Inventory"
         ItemJournalBatch: Record "Item Journal Batch";
     begin
         if not ItemJournalBatch.Get(JournalTemplateName, JournalBatchName) then begin
-            ItemJournalBatch.Init;
+            ItemJournalBatch.Init();
             ItemJournalBatch.Validate("Journal Template Name", JournalTemplateName);
             ItemJournalBatch.SetupNewBatch;
             ItemJournalBatch.Validate(Name, JournalBatchName);
@@ -605,7 +605,7 @@ codeunit 132201 "Library - Inventory"
         DocumentNo: Code[20];
     begin
         Clear(ItemJournalLine);
-        ItemJournalLine.Init;
+        ItemJournalLine.Init();
         ItemJournalLine.Validate("Journal Template Name", JournalTemplateName);
         ItemJournalLine.Validate("Journal Batch Name", JournalBatchName);
         RecRef.GetTable(ItemJournalLine);
@@ -658,7 +658,7 @@ codeunit 132201 "Library - Inventory"
 
     procedure CreateItemTrackingCode(var ItemTrackingCode: Record "Item Tracking Code")
     begin
-        ItemTrackingCode.Init;
+        ItemTrackingCode.Init();
         ItemTrackingCode.Validate(Code, LibraryUtility.GenerateRandomCode(ItemTrackingCode.FieldNo(Code), DATABASE::"Item Tracking Code"));
         ItemTrackingCode.Insert(true);
     end;
@@ -667,7 +667,7 @@ codeunit 132201 "Library - Inventory"
     var
         UnitOfMeasure: Record "Unit of Measure";
     begin
-        ItemUnitOfMeasure.Init;
+        ItemUnitOfMeasure.Init();
         ItemUnitOfMeasure.Validate("Item No.", ItemNo);
 
         // The IF condition is important because it grants flexibility to the function.
@@ -699,7 +699,7 @@ codeunit 132201 "Library - Inventory"
         if Handled then
             exit(ItemVariant.Code);
 
-        ItemVariant.Init;
+        ItemVariant.Init();
         ItemVariant.Validate("Item No.", ItemNo);
         ItemVariant.Validate(Code, LibraryUtility.GenerateRandomCode(ItemVariant.FieldNo(Code), DATABASE::"Item Variant"));
         ItemVariant.Validate(Description, ItemVariant.Code);
@@ -711,7 +711,7 @@ codeunit 132201 "Library - Inventory"
 
     procedure CreateItemVendor(var ItemVendor: Record "Item Vendor"; VendorNo: Code[20]; ItemNo: Code[20])
     begin
-        ItemVendor.Init;
+        ItemVendor.Init();
         ItemVendor.Validate("Vendor No.", VendorNo);
         ItemVendor.Validate("Item No.", ItemNo);
         ItemVendor.Insert(true);
@@ -719,7 +719,7 @@ codeunit 132201 "Library - Inventory"
 
     procedure CreateNonStock(var NonstockItem: Record "Nonstock Item")
     begin
-        NonstockItem.Init;
+        NonstockItem.Init();
         NonstockItem.Validate(
           "Entry No.", LibraryUtility.GenerateRandomCode(NonstockItem.FieldNo("Entry No."), DATABASE::"Nonstock Item"));
         NonstockItem.Insert(true);
@@ -781,7 +781,7 @@ codeunit 132201 "Library - Inventory"
 
     procedure CreateStockkeepingUnitForLocationAndVariant(var StockkeepingUnit: Record "Stockkeeping Unit"; LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10])
     begin
-        StockkeepingUnit.Init;
+        StockkeepingUnit.Init();
         StockkeepingUnit.Validate("Location Code", LocationCode);
         StockkeepingUnit.Validate("Item No.", ItemNo);
         StockkeepingUnit.Validate("Variant Code", VariantCode);
@@ -790,14 +790,14 @@ codeunit 132201 "Library - Inventory"
 
     procedure CreateShippingAgent(var ShippingAgent: Record "Shipping Agent")
     begin
-        ShippingAgent.Init;
+        ShippingAgent.Init();
         ShippingAgent.Validate(Code, LibraryUtility.GenerateRandomCode(ShippingAgent.FieldNo(Code), DATABASE::"Shipping Agent"));
         ShippingAgent.Insert(true);
     end;
 
     procedure CreateShippingAgentService(var ShippingAgentServices: Record "Shipping Agent Services"; ShippingAgentCode: Code[10]; ShippingTime: DateFormula)
     begin
-        ShippingAgentServices.Init;
+        ShippingAgentServices.Init();
         ShippingAgentServices.Validate("Shipping Agent Code", ShippingAgentCode);
         ShippingAgentServices.Validate(
           Code, LibraryUtility.GenerateRandomCode(ShippingAgentServices.FieldNo(Code), DATABASE::"Shipping Agent Services"));
@@ -832,7 +832,7 @@ codeunit 132201 "Library - Inventory"
 
     procedure CreateStandardCostWorksheetName(var StandardCostWorksheetName: Record "Standard Cost Worksheet Name")
     begin
-        StandardCostWorksheetName.Init;
+        StandardCostWorksheetName.Init();
         StandardCostWorksheetName.Validate(
           Name, LibraryUtility.GenerateRandomCode(StandardCostWorksheetName.FieldNo(Name), DATABASE::"Standard Cost Worksheet Name"));
         StandardCostWorksheetName.Insert(true);
@@ -856,7 +856,7 @@ codeunit 132201 "Library - Inventory"
             exit;
 
         Clear(TransferHeader);
-        TransferHeader.Init;
+        TransferHeader.Init();
         TransferHeader.Insert(true);
         TransferHeader.Validate("Transfer-from Code", FromLocation);
         TransferHeader.Validate("Transfer-to Code", ToLocation);
@@ -871,7 +871,7 @@ codeunit 132201 "Library - Inventory"
         RecRef: RecordRef;
     begin
         Clear(TransferLine);
-        TransferLine.Init;
+        TransferLine.Init();
         TransferLine.Validate("Document No.", TransferHeader."No.");
         RecRef.GetTable(TransferLine);
         TransferLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, TransferLine.FieldNo("Line No.")));
@@ -884,7 +884,7 @@ codeunit 132201 "Library - Inventory"
     procedure CreateTransferRoute(var TransferRoute: Record "Transfer Route"; TransferFrom: Code[10]; TransferTo: Code[10])
     begin
         Clear(TransferRoute);
-        TransferRoute.Init;
+        TransferRoute.Init();
         TransferRoute.Validate("Transfer-from Code", TransferFrom);
         TransferRoute.Validate("Transfer-to Code", TransferTo);
         TransferRoute.Insert(true);
@@ -892,7 +892,7 @@ codeunit 132201 "Library - Inventory"
 
     procedure CreateUnitOfMeasureCode(var UnitOfMeasure: Record "Unit of Measure")
     begin
-        UnitOfMeasure.Init;
+        UnitOfMeasure.Init();
         UnitOfMeasure.Validate(Code, LibraryUtility.GenerateRandomCode(UnitOfMeasure.FieldNo(Code), DATABASE::"Unit of Measure"));
         UnitOfMeasure.Validate(Description, UnitOfMeasure.Code);
         UnitOfMeasure.Validate("International Standard Code",
@@ -911,11 +911,11 @@ codeunit 132201 "Library - Inventory"
             exit;
 
         Clear(ItemVariant);
-        ItemVariant.Init;
+        ItemVariant.Init();
         ItemVariant.Validate("Item No.", Item."No.");
         ItemVariant.Validate(Code, LibraryUtility.GenerateRandomCode(ItemVariant.FieldNo(Code), DATABASE::"Item Variant"));
         ItemVariant.Validate(Description, ItemVariant.Code);
-        ItemVariant.Insert;
+        ItemVariant.Insert();
 
         OnAfterCreateVariant(ItemVariant, Item);
     end;
@@ -923,7 +923,7 @@ codeunit 132201 "Library - Inventory"
     procedure CreatePhysicalInventoryCountingPeriod(var PhysInvtCountingPeriod: Record "Phys. Invt. Counting Period")
     begin
         Clear(PhysInvtCountingPeriod);
-        PhysInvtCountingPeriod.Init;
+        PhysInvtCountingPeriod.Init();
         PhysInvtCountingPeriod.Validate(
           Code, LibraryUtility.GenerateRandomCode(PhysInvtCountingPeriod.FieldNo(Code), DATABASE::"Phys. Invt. Counting Period"));
         PhysInvtCountingPeriod.Insert(true);
@@ -931,7 +931,7 @@ codeunit 132201 "Library - Inventory"
 
     procedure CreatePaymentTerms(var PaymentTerms: Record "Payment Terms")
     begin
-        PaymentTerms.Init;
+        PaymentTerms.Init();
         PaymentTerms.Validate(Code, LibraryUtility.GenerateRandomCode(PaymentTerms.FieldNo(Code), DATABASE::"Payment Terms"));
         PaymentTerms.Validate(Description, PaymentTerms.Code);
         PaymentTerms.Insert(true);
@@ -939,7 +939,7 @@ codeunit 132201 "Library - Inventory"
 
     procedure CreatePaymentMethod(var PaymentMethod: Record "Payment Method")
     begin
-        PaymentMethod.Init;
+        PaymentMethod.Init();
         PaymentMethod.Validate(Code, LibraryUtility.GenerateRandomCode(PaymentMethod.FieldNo(Code), DATABASE::"Payment Method"));
         PaymentMethod.Validate(Description, PaymentMethod.Code);
         PaymentMethod.Insert(true);
@@ -948,10 +948,10 @@ codeunit 132201 "Library - Inventory"
     procedure CopyItemAttributeToFilterItemAttributesBuffer(var TempFilterItemAttributesBuffer: Record "Filter Item Attributes Buffer" temporary; ItemAttributeValue: Record "Item Attribute Value")
     begin
         ItemAttributeValue.CalcFields("Attribute Name");
-        TempFilterItemAttributesBuffer.Init;
+        TempFilterItemAttributesBuffer.Init();
         TempFilterItemAttributesBuffer.Attribute := ItemAttributeValue."Attribute Name";
         TempFilterItemAttributesBuffer.Value := ItemAttributeValue.Value;
-        TempFilterItemAttributesBuffer.Insert;
+        TempFilterItemAttributesBuffer.Insert();
     end;
 
     procedure CalculateCountingPeriod(var ItemJournalLine: Record "Item Journal Line")
@@ -1033,7 +1033,7 @@ codeunit 132201 "Library - Inventory"
 
     procedure NoSeriesSetup(var InventorySetup: Record "Inventory Setup")
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.Validate("Internal Movement Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         InventorySetup.Validate("Inventory Movement Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         InventorySetup.Validate("Inventory Pick Nos.", LibraryUtility.GetGlobalNoSeriesCode);
@@ -1050,7 +1050,7 @@ codeunit 132201 "Library - Inventory"
     var
         NoSeriesCode: Code[20];
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         NoSeriesCode := LibraryUtility.GetGlobalNoSeriesCode;
         if NoSeriesCode <> InventorySetup."Item Nos." then begin
             InventorySetup.Validate("Item Nos.", LibraryUtility.GetGlobalNoSeriesCode);
@@ -1102,7 +1102,7 @@ codeunit 132201 "Library - Inventory"
     var
         ItemJournalLine: Record "Item Journal Line";
     begin
-        ItemJournalLine.Init;
+        ItemJournalLine.Init();
         ItemJournalLine.Validate("Journal Template Name", JournalTemplateName);
         ItemJournalLine.Validate("Journal Batch Name", JournalBatchName);
         CODEUNIT.Run(CODEUNIT::"Item Jnl.-Post Batch", ItemJournalLine);
@@ -1176,31 +1176,31 @@ codeunit 132201 "Library - Inventory"
 
     procedure SetAutomaticCostAdjmtAlways()
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup."Automatic Cost Adjustment" := InventorySetup."Automatic Cost Adjustment"::Always;
-        InventorySetup.Modify;
+        InventorySetup.Modify();
     end;
 
     procedure SetAutomaticCostAdjmtNever()
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup."Automatic Cost Adjustment" := InventorySetup."Automatic Cost Adjustment"::Never;
-        InventorySetup.Modify;
+        InventorySetup.Modify();
     end;
 
     procedure SetAutomaticCostPosting(AutomaticCostPosting: Boolean)
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup."Automatic Cost Posting" := AutomaticCostPosting;
-        InventorySetup.Modify;
+        InventorySetup.Modify();
     end;
 
     procedure SetAverageCostSetup(AverageCostCalcType: Option; AverageCostPeriod: Option)
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup."Average Cost Calc. Type" := AverageCostCalcType;
         InventorySetup."Average Cost Period" := AverageCostPeriod;
-        InventorySetup.Modify;
+        InventorySetup.Modify();
     end;
 
     procedure SetAverageCostSetupInAccPeriods(AverageCostCalcType: Option; AverageCostPeriod: Option)
@@ -1214,30 +1214,30 @@ codeunit 132201 "Library - Inventory"
 
     procedure SetExpectedCostPosting(ExpectedCostPosting: Boolean)
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup."Expected Cost Posting to G/L" := ExpectedCostPosting;
-        InventorySetup.Modify;
+        InventorySetup.Modify();
     end;
 
     procedure SetLocationMandatory(LocationMandatory: Boolean)
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup."Location Mandatory" := LocationMandatory;
-        InventorySetup.Modify;
+        InventorySetup.Modify();
     end;
 
     procedure SetPreventNegativeInventory(PreventNegativeInventory: Boolean)
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup."Prevent Negative Inventory" := PreventNegativeInventory;
-        InventorySetup.Modify;
+        InventorySetup.Modify();
     end;
 
     procedure UpdateAverageCostSettings(AverageCostCalcType: Option; AverageCostPeriod: Option)
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup."Average Cost Calc. Type" := AverageCostCalcType;
         InventorySetup."Average Cost Period" := AverageCostPeriod;
         CODEUNIT.Run(CODEUNIT::"Change Average Cost Setting", InventorySetup);
@@ -1277,7 +1277,7 @@ codeunit 132201 "Library - Inventory"
 
     procedure UpdateInventorySetup(var InventorySetup: Record "Inventory Setup"; AutomaticCostPosting: Boolean; ExpectedCostPostingtoGL: Boolean; AutomaticCostAdjustment: Option; AverageCostCalcType: Option; AverageCostPeriod: Option)
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.Validate("Automatic Cost Posting", AutomaticCostPosting);
         InventorySetup.Validate("Expected Cost Posting to G/L", ExpectedCostPostingtoGL);
         InventorySetup.Validate("Automatic Cost Adjustment", AutomaticCostAdjustment);
@@ -1322,13 +1322,13 @@ codeunit 132201 "Library - Inventory"
     procedure ItemJournalSetup(var ItemJournalTemplate: Record "Item Journal Template"; var ItemJournalBatch: Record "Item Journal Batch")
     begin
         Clear(ItemJournalTemplate);
-        ItemJournalTemplate.Init;
+        ItemJournalTemplate.Init();
         SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
         ItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
         ItemJournalTemplate.Modify(true);
 
         Clear(ItemJournalBatch);
-        ItemJournalBatch.Init;
+        ItemJournalBatch.Init();
         SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
         ItemJournalBatch.Validate("No. Series", '');  // Value required to avoid the Document No mismatch.
         ItemJournalBatch.Modify(true);

@@ -202,7 +202,7 @@ report 5601 "Fixed Asset - List"
             trigger OnAfterGetRecord()
             begin
                 if Inactive then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 if "Main Asset/Component" <> "Main Asset/Component"::" " then
                     ComponentFieldname := FieldCaption("Component of Main Asset")
                 else
@@ -257,7 +257,7 @@ report 5601 "Fixed Asset - List"
         trigger OnOpenPage()
         begin
             if DeprBookCode = '' then begin
-                FASetup.Get;
+                FASetup.Get();
                 DeprBookCode := FASetup."Default Depr. Book";
             end;
         end;
@@ -277,7 +277,7 @@ report 5601 "Fixed Asset - List"
         DeprBookText := StrSubstNo('%1%2 %3', DeprBook.TableCaption, ':', DeprBookCode);
         GlobalDim1CodeCaption := '';
         GlobalDim2CodeCaption := '';
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         if GeneralLedgerSetup."Global Dimension 1 Code" <> '' then begin
             Dimension.Get(GeneralLedgerSetup."Global Dimension 1 Code");
             GlobalDim1CodeCaption := Dimension."Code Caption";

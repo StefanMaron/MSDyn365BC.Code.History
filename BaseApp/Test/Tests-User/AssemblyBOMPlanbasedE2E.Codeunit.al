@@ -27,7 +27,6 @@ codeunit 135403 "Assembly BOM Plan-based E2E"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        AzureADPlanTestLibrary: Codeunit "Azure AD Plan Test Library";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Assembly BOM Plan-based E2E");
 
@@ -45,12 +44,9 @@ codeunit 135403 "Assembly BOM Plan-based E2E"
         CreateCustomer;
 
         IsInitialized := true;
-        Commit;
+        Commit();
 
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Assembly BOM Plan-based E2E");
-
-        // Populate table Plan if empty
-        AzureADPlanTestLibrary.PopulatePlanTable();
     end;
 
     [Test]

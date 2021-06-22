@@ -44,7 +44,7 @@ codeunit 1371 "Sales Batch Post Mgt."
         BatchProcessingMgt.AddParameter(BatchPostParameterTypes.ReplaceDocumentDate, ReplaceDocumentDate);
 
         SalesBatchPostMgt.SetBatchProcessor(BatchProcessingMgt);
-        Commit;
+        Commit();
         if SalesBatchPostMgt.Run(SalesHeader) then;
         BatchProcessingMgt.ResetBatchID;
         if GuiAllowed then begin
@@ -70,7 +70,7 @@ codeunit 1371 "Sales Batch Post Mgt."
         ErrorMessageMgt.Activate(ErrorMessageHandler);
         ErrorMessageMgt.PushContext(ErrorContextElement, DATABASE::"Sales Header", 0, BatchPostingMsg);
         SalesBatchPostMgt.SetBatchProcessor(BatchProcessingMgt);
-        Commit;
+        Commit();
         if SalesBatchPostMgt.Run(SalesHeader) then;
         BatchProcessingMgt.ResetBatchID;
 
@@ -136,12 +136,12 @@ codeunit 1371 "Sales Batch Post Mgt."
     var
         SalesLine: Record "Sales Line";
     begin
-        SalesLine.Reset;
+        SalesLine.Reset();
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         if SalesLine.FindFirst then begin
             CODEUNIT.Run(CODEUNIT::"Sales-Calc. Discount", SalesLine);
-            Commit;
+            Commit();
             SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
         end;
     end;

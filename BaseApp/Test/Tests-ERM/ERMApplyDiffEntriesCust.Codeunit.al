@@ -67,7 +67,7 @@ codeunit 134019 "ERM Apply Diff Entries - Cust."
         RemainingAmount: Decimal;
     begin
         // Setup: Create Invoice and Credit Memo Entries for Customer. Take Random Amount for Invoice and Credit Memo.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         CreateAndPostMultipleJnlLines(GenJournalLine, CurrencyCode, Amount, Amount2);
         PaymentDiscountAmount := ComputePaymentDiscountAmount(Amount);
         AmountFCY := ComputeAmountFCY(CurrencyCode, Abs(Amount2));
@@ -115,7 +115,7 @@ codeunit 134019 "ERM Apply Diff Entries - Cust."
         // Payment Entry for the Remaining Amount. Take Random Decimal Amount for Invoice Amount. Deduct Integer Value from Amount
         // because sometimes Random Decimal Produces very less Amount for which Payment Discount can not be calculated.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Amount := 100 + LibraryRandom.RandDec(100, 2);
         PartialAmount := Amount - LibraryRandom.RandInt(10);
         CreateAndPostMultipleJnlLines(GenJournalLine, '', Amount, -PartialAmount);
@@ -163,7 +163,7 @@ codeunit 134019 "ERM Apply Diff Entries - Cust."
 
         // Setup: Post Invocie, Credit Memo and Payment Line.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
         SelectGenJournalBatch(GenJournalBatch);
         Amount := LibraryRandom.RandDec(1000, 2);  // Using Random value for Amount.
@@ -197,7 +197,7 @@ codeunit 134019 "ERM Apply Diff Entries - Cust."
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Apply Diff Entries - Cust.");
     end;
@@ -353,7 +353,7 @@ codeunit 134019 "ERM Apply Diff Entries - Cust."
         GLEntry: Record "G/L Entry";
         SourceCodeSetup: Record "Source Code Setup";
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("Source Code", SourceCodeSetup."Unapplied Sales Entry Appln.");
         GLEntry.FindSet;

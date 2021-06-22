@@ -41,7 +41,7 @@ codeunit 138999 "O365 Test Block Fin SharedDb"
 
     [EventSubscriber(ObjectType::Page, 2500, 'OnOpenPageEvent', '', true, true)]
     [Scope('OnPrem')]
-    procedure BlockUserOnOpenExtensionManagement(var Rec: Record "NAV App")
+    procedure BlockUserOnOpenExtensionManagement(var Rec: Record "Published Application")
     begin
         Error(ExtensionManagementBlockedErr);
     end;

@@ -768,11 +768,11 @@ codeunit 132590 "Type Helper Unit Tests"
         RecordLink: Record "Record Link";
         RecordLinkManagement: Codeunit "Record Link Management";
     begin
-        RecordLink.DeleteAll;
+        RecordLink.DeleteAll();
 
         RecordLinkManagement.WriteNote(RecordLink, 'This is a test');
 
-        RecordLink.Insert;
+        RecordLink.Insert();
         Assert.AreEqual(RecordLinkManagement.ReadNote(RecordLink), 'This is a test',
           'The value in the Note field was read incorrectly');
     end;
@@ -784,9 +784,9 @@ codeunit 132590 "Type Helper Unit Tests"
         RecordLink: Record "Record Link";
         RecordLinkManagement: Codeunit "Record Link Management";
     begin
-        RecordLink.DeleteAll;
+        RecordLink.DeleteAll();
 
-        RecordLink.Insert;
+        RecordLink.Insert();
         Assert.AreEqual(RecordLinkManagement.ReadNote(RecordLink), '', 'The value in the Note field was read incorrectly');
     end;
 

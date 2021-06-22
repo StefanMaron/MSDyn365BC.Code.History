@@ -16,7 +16,7 @@ codeunit 5442 "Graph Int - Business Profile"
         Company.Get(CompanyName);
         if Company."Business Profile Id" <> BusinessProfileId then begin
             Company."Business Profile Id" := BusinessProfileId;
-            Company.Modify;
+            Company.Modify();
         end;
     end;
 
@@ -195,7 +195,7 @@ codeunit 5442 "Graph Int - Business Profile"
                     CompanyInformation.CalcFields(Picture);
                     Clear(GraphBusinessProfile.Logo);
                     GraphBusinessProfile.LogoContent := CompanyInformation.Picture;
-                    GraphBusinessProfile.Modify;
+                    GraphBusinessProfile.Modify();
                 end;
 
             if (not GraphBusinessProfile.Logo.HasValue) and (not GraphBusinessProfile.LogoContent.HasValue) then begin

@@ -35,7 +35,7 @@ codeunit 137209 "SCM Get Item Entries"
     begin
         // Setup: Add country info and additional currency.
         Initialize;
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         TempCompanyInformation := CompanyInformation;
         TempCompanyInformation.Insert(true);
         UpdateCompanyInfo;
@@ -101,7 +101,7 @@ codeunit 137209 "SCM Get Item Entries"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Get Item Entries");
     end;
 
@@ -158,7 +158,7 @@ codeunit 137209 "SCM Get Item Entries"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         // Set additional currency reporting in the GL setup.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup."Additional Reporting Currency" := CreateCurrencyAndExchangeRate;
         GeneralLedgerSetup.Modify(true);
         exit(GeneralLedgerSetup."Additional Reporting Currency");
@@ -166,7 +166,7 @@ codeunit 137209 "SCM Get Item Entries"
 
     local procedure CreateIntrastatJnlTemplate(var IntrastatJnlTemplate: Record "Intrastat Jnl. Template")
     begin
-        IntrastatJnlTemplate.Init;
+        IntrastatJnlTemplate.Init();
         IntrastatJnlTemplate.Validate(Name, LibraryUtility.GenerateRandomCode(IntrastatJnlTemplate.FieldNo(Name),
             DATABASE::"Intrastat Jnl. Template"));
         IntrastatJnlTemplate.Validate(Description, LibraryUtility.GenerateRandomCode(IntrastatJnlTemplate.FieldNo(Description),
@@ -178,7 +178,7 @@ codeunit 137209 "SCM Get Item Entries"
 
     local procedure CreateIntrastatJnlBatch(var IntrastatJnlBatch: Record "Intrastat Jnl. Batch"; IntrastatJnlTemplate: Record "Intrastat Jnl. Template"; CurrencyID: Code[10]; AmountInAddCurr: Boolean)
     begin
-        IntrastatJnlBatch.Init;
+        IntrastatJnlBatch.Init();
         IntrastatJnlBatch.Validate("Journal Template Name", IntrastatJnlTemplate.Name);
         IntrastatJnlBatch.Validate(Name, LibraryUtility.GenerateRandomCode(IntrastatJnlBatch.FieldNo(Name),
             DATABASE::"Intrastat Jnl. Batch"));
@@ -192,7 +192,7 @@ codeunit 137209 "SCM Get Item Entries"
 
     local procedure CreateIntrastatJnlLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; IntrastatJnlBatch: Record "Intrastat Jnl. Batch")
     begin
-        IntrastatJnlLine.Init;
+        IntrastatJnlLine.Init();
         IntrastatJnlLine.Validate("Journal Template Name", IntrastatJnlBatch."Journal Template Name");
         IntrastatJnlLine.Validate("Journal Batch Name", IntrastatJnlBatch.Name);
         IntrastatJnlLine.Insert(true);
@@ -271,7 +271,7 @@ codeunit 137209 "SCM Get Item Entries"
     var
         CountryRegion: Record "Country/Region";
     begin
-        CountryRegion.Init;
+        CountryRegion.Init();
         CountryCode := CopyStr(
             LibraryUtility.GenerateRandomCode(CountryRegion.FieldNo(Code), DATABASE::"Country/Region"), 1, 10);
         CountryRegion.Validate(Code, CountryCode);
@@ -287,7 +287,7 @@ codeunit 137209 "SCM Get Item Entries"
         CountryRegionCode: Code[10];
     begin
         CountryRegionCode := CreateEUCountryRegion;
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation.Validate("Country/Region Code", CountryRegionCode);
         CompanyInformation.Validate("Ship-to Country/Region Code", CountryRegionCode);
         CompanyInformation.Modify(true);
@@ -297,7 +297,7 @@ codeunit 137209 "SCM Get Item Entries"
     var
         CompanyInformation: Record "Company Information";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation.Validate("Country/Region Code", BaseCompanyInformation."Country/Region Code");
         CompanyInformation.Validate("Ship-to Country/Region Code", BaseCompanyInformation."Ship-to Country/Region Code");
         CompanyInformation.Modify(true);
@@ -329,7 +329,7 @@ codeunit 137209 "SCM Get Item Entries"
             IntrastatJnlLine.SetRange("Source Entry No.", ItemLedgerEntry."Entry No.");
             IntrastatJnlLine.SetRange("Document No.", DocumentNo);
             IntrastatJnlLine.SetRange("Item No.", ItemLedgerEntry."Item No.");
-            RetrievedLines += IntrastatJnlLine.Count;
+            RetrievedLines += IntrastatJnlLine.Count();
             if IntrastatJnlLine.FindFirst then begin
                 Assert.AreEqual(1, IntrastatJnlLine.Count, 'Too many intrastat entries for ' + Format(ItemLedgerEntry."Entry No."));
                 Item.Get(ItemLedgerEntry."Item No.");

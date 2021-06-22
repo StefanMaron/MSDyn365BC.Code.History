@@ -209,7 +209,7 @@ codeunit 134442 "GL Acct. Categories Page Tests"
         ChildGLAccountCategory.Get(UserGLAccountCategory.InsertRow);
         ChildGLAccountCategory.MakeChildOfPreviousSibling;
         Clear(GLAccountCategory);
-        BeforeDelCategoriesCount := GLAccountCategory.Count;
+        BeforeDelCategoriesCount := GLAccountCategory.Count();
 
         // Exercise - Delete user created parent category
         // Child categories are not deleted.
@@ -226,7 +226,7 @@ codeunit 134442 "GL Acct. Categories Page Tests"
         GLAccountCategory: Record "G/L Account Category";
     begin
         // Setup
-        GLAccountCategory.Init;
+        GLAccountCategory.Init();
 
         // Exercise and Verify
         SetAccountCategoryAndValidateIncomeBalanceField(GLAccountCategory, GLAccountCategory."Account Category"::Assets,
@@ -425,7 +425,7 @@ codeunit 134442 "GL Acct. Categories Page Tests"
         AccScheduleLine: Record "Acc. Schedule Line";
         AccScheduleLineArray: array[3] of Record "Acc. Schedule Line";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
 
         AccScheduleLine.SetRange("Schedule Name", GeneralLedgerSetup."Acc. Sched. for Cash Flow Stmt");
         AccScheduleLine.FindSet;

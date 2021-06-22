@@ -258,9 +258,9 @@ codeunit 228 "Test Report-Print"
         SalesLine: Record "Sales Line";
         SalesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         if SalesSetup."Calc. Inv. Discount" then begin
-            SalesLine.Reset;
+            SalesLine.Reset();
             SalesLine.SetRange("Document Type", SalesHeader."Document Type");
             SalesLine.SetRange("Document No.", SalesHeader."No.");
             OnCalcSalesDiscOnAfterSetFilters(SalesLine, SalesHeader);
@@ -268,7 +268,7 @@ codeunit 228 "Test Report-Print"
             OnCalcSalesDiscOnBeforeRun(SalesHeader, SalesLine);
             CODEUNIT.Run(CODEUNIT::"Sales-Calc. Discount", SalesLine);
             SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
-            Commit;
+            Commit();
         end;
 
         OnAfterCalcSalesDiscount(SalesHeader, SalesLine);
@@ -279,9 +279,9 @@ codeunit 228 "Test Report-Print"
         PurchLine: Record "Purchase Line";
         PurchSetup: Record "Purchases & Payables Setup";
     begin
-        PurchSetup.Get;
+        PurchSetup.Get();
         if PurchSetup."Calc. Inv. Discount" then begin
-            PurchLine.Reset;
+            PurchLine.Reset();
             PurchLine.SetRange("Document Type", PurchHeader."Document Type");
             PurchLine.SetRange("Document No.", PurchHeader."No.");
             OnCalcPurchDiscOnAfterSetFilters(PurchLine, PurchHeader);
@@ -289,7 +289,7 @@ codeunit 228 "Test Report-Print"
             OnCalcPurchDiscOnBeforeRun(PurchHeader, PurchLine);
             CODEUNIT.Run(CODEUNIT::"Purch.-Calc.Discount", PurchLine);
             PurchHeader.Get(PurchHeader."Document Type", PurchHeader."No.");
-            Commit;
+            Commit();
         end;
 
         OnAfterCalcPurchDiscount(PurchHeader, PurchLine);
@@ -300,16 +300,16 @@ codeunit 228 "Test Report-Print"
         ServLine: Record "Service Line";
         SalesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         if SalesSetup."Calc. Inv. Discount" then begin
-            ServLine.Reset;
+            ServLine.Reset();
             ServLine.SetRange("Document Type", ServHeader."Document Type");
             ServLine.SetRange("Document No.", ServHeader."No.");
             ServLine.FindFirst;
             OnCalcServDiscOnBeforeRun(ServHeader, ServLine);
             CODEUNIT.Run(CODEUNIT::"Service-Calc. Discount", ServLine);
             ServHeader.Get(ServHeader."Document Type", ServHeader."No.");
-            Commit;
+            Commit();
         end;
     end;
 

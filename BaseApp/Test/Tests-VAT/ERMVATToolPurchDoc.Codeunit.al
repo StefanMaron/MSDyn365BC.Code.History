@@ -39,7 +39,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         ERMVATToolHelper.ResetToolSetup;  // This resets setup table for the first test case after database is restored.
 
         isInitialized := true;
-        Commit;
+        Commit();
     end;
 
     [Test]
@@ -395,7 +395,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
 
         // SETUP: Change VAT Prod. Posting Group to new on one of the lines.
         GetPurchaseLine(PurchaseHeader, PurchaseLine);
-        LineCount := PurchaseLine.Count;
+        LineCount := PurchaseLine.Count();
         if First then
             PurchaseLine.Next
         else
@@ -761,7 +761,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         ERMVATToolHelper.CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, '', 1);
         AddLineWithNextLineNo(PurchaseHeader);
         GetPurchaseLine(PurchaseHeader, PurchaseLine);
-        LineCount := PurchaseLine.Count;
+        LineCount := PurchaseLine.Count();
 
         // SETUP: Receive
         ERMVATToolHelper.UpdateQtyToReceive(PurchaseHeader);
@@ -1558,7 +1558,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
     local procedure SetTempTablePurch(TempRecRef: RecordRef; var TempPurchLn: Record "Purchase Line" temporary)
     begin
         // SETTABLE call required for each record of the temporary table.
-        TempRecRef.Reset;
+        TempRecRef.Reset();
         if TempRecRef.FindSet then begin
             TempPurchLn.SetView(TempRecRef.GetView);
             repeat
@@ -1670,11 +1670,11 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         VATProdPostingGroupNew: Code[20];
         GenProdPostingGroupNew: Code[20];
     begin
-        VATRateChangeSetup.Get;
+        VATRateChangeSetup.Get();
         ERMVATToolHelper.GetGroupsBefore(VATProdPostingGroupOld, GenProdPostingGroupOld);
         ERMVATToolHelper.GetGroupsAfter(VATProdPostingGroupNew, GenProdPostingGroupNew, TempRecRef.Number);
 
-        PurchLn.Reset;
+        PurchLn.Reset();
         PurchLn.SetFilter("VAT Prod. Posting Group", StrSubstNo(GroupFilter, VATProdPostingGroupOld, VATProdPostingGroupNew));
         PurchLn.SetFilter("Gen. Prod. Posting Group", StrSubstNo(GroupFilter, GenProdPostingGroupOld, GenProdPostingGroupNew));
         PurchLn.FindSet;
@@ -1682,7 +1682,7 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         // Compare Number of lines.
         Assert.AreEqual(TempRecRef.Count, PurchLn.Count, StrSubstNo(ERMVATToolHelper.GetConversionErrorCount, PurchLn.GetFilters));
 
-        TempRecRef.Reset;
+        TempRecRef.Reset();
         SetTempTablePurch(TempRecRef, TempPurchLn);
         TempPurchLn.FindSet;
 

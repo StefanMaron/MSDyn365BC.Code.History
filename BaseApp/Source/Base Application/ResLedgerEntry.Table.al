@@ -10,11 +10,9 @@ table 203 "Res. Ledger Entry"
         {
             Caption = 'Entry No.';
         }
-        field(2; "Entry Type"; Option)
+        field(2; "Entry Type"; Enum "Res. Journal Line Entry Type")
         {
             Caption = 'Entry Type';
-            OptionCaption = 'Usage,Sale';
-            OptionMembers = Usage,Sale;
         }
         field(3; "Document No."; Code[20])
         {
@@ -164,11 +162,9 @@ table 203 "Res. Ledger Entry"
         {
             Caption = 'Quantity (Base)';
         }
-        field(90; "Order Type"; Option)
+        field(90; "Order Type"; Enum "Inventory Order Type")
         {
             Caption = 'Order Type';
-            OptionCaption = ' ,Production,Transfer,Service,Assembly';
-            OptionMembers = " ",Production,Transfer,Service,Assembly;
         }
         field(91; "Order No."; Code[20])
         {
@@ -226,6 +222,13 @@ table 203 "Res. Ledger Entry"
 
     var
         DimMgt: Codeunit DimensionManagement;
+
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
+    end;
 
     procedure CopyFromResJnlLine(ResJnlLine: Record "Res. Journal Line")
     begin

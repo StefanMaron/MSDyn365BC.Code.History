@@ -705,7 +705,7 @@ page 9850 "Tenant Permissions"
             "Delete Permission" := "Delete Permission"::" ";
         end;
         TenantPermission := Rec;
-        TenantPermission.Insert;
+        TenantPermission.Insert();
         if AddRelatedTables then
             DoAddRelatedTables(Rec);
         Rec := TenantPermission;
@@ -800,8 +800,8 @@ page 9850 "Tenant Permissions"
         TenantPermission: Record "Tenant Permission";
     begin
         TempTenantPermission.Copy(Rec, true);
-        TempTenantPermission.Reset;
-        TempTenantPermission.DeleteAll;
+        TempTenantPermission.Reset();
+        TempTenantPermission.DeleteAll();
         FilterGroup(2);
         SetFilter("Role ID", CurrentRoleID);
         TenantPermission.SetFilter("Role ID", CurrentRoleID);
@@ -810,7 +810,7 @@ page 9850 "Tenant Permissions"
         if TenantPermission.FindSet then
             repeat
                 TempTenantPermission := TenantPermission;
-                TempTenantPermission.Insert;
+                TempTenantPermission.Insert();
             until TenantPermission.Next = 0;
 
         if Show = Show::All then
@@ -836,7 +836,7 @@ page 9850 "Tenant Permissions"
           TenantPermission."Object Type"::Query,
           TenantPermission."Object Type"::System);
         TempTenantPermission.Copy(TenantPermission, true);
-        TempTenantPermission.Init;
+        TempTenantPermission.Init();
         if AllObj.FindSet then
             repeat
                 TempTenantPermission."Object Type" := AllObj."Object Type";
@@ -847,7 +847,7 @@ page 9850 "Tenant Permissions"
                 TempTenantPermission."Delete Permission" := "Delete Permission"::" ";
                 TempTenantPermission."Execute Permission" := "Execute Permission"::" ";
                 SetObjectZeroName(TempTenantPermission);
-                if TempTenantPermission.Insert then;
+                if TempTenantPermission.Insert() then;
             until AllObj.Next = 0;
     end;
 
@@ -861,16 +861,16 @@ page 9850 "Tenant Permissions"
         TenantPermission: Record "Tenant Permission";
         IsNewPermission: Boolean;
     begin
-        TenantPermission.LockTable;
+        TenantPermission.LockTable();
         IsNewPermission :=
           not TenantPermission.Get(ModifiedTenantPermission."App ID", ModifiedTenantPermission."Role ID",
             ModifiedTenantPermission."Object Type", ModifiedTenantPermission."Object ID");
         if IsNewPermission then begin
             TenantPermission.TransferFields(ModifiedTenantPermission, true);
-            TenantPermission.Insert;
+            TenantPermission.Insert();
         end else begin
             TenantPermission.TransferFields(ModifiedTenantPermission, false);
-            TenantPermission.Modify;
+            TenantPermission.Modify();
         end;
 
         if (TenantPermission."Read Permission" = 0) and
@@ -879,9 +879,9 @@ page 9850 "Tenant Permissions"
            (TenantPermission."Delete Permission" = 0) and
            (TenantPermission."Execute Permission" = 0)
         then begin
-            TenantPermission.Delete;
+            TenantPermission.Delete();
             if Show = Show::"Only In Permission Set" then
-                ModifiedTenantPermission.Delete;
+                ModifiedTenantPermission.Delete();
             IsNewPermission := false;
         end;
         if IsNewPermission and AddRelatedTables then
@@ -966,7 +966,7 @@ page 9850 "Tenant Permissions"
                   TablePermissionBuffer."Delete Permission",
                   TablePermissionBuffer."Execute Permission");
             until TablePermissionBuffer.Next = 0;
-        TablePermissionBuffer.DeleteAll;
+        TablePermissionBuffer.DeleteAll();
     end;
 
     local procedure DoAddRelatedTables(var TenantPermission: Record "Tenant Permission")
@@ -1006,7 +1006,7 @@ page 9850 "Tenant Permissions"
             "Execute Permission" := "Execute Permission"::" ";
             Insert;
             TenantPermission.TransferFields(Rec, true);
-            TenantPermission.Insert;
+            TenantPermission.Insert();
         end;
 
         "Read Permission" := LogTablePermissions.GetMaxPermission("Read Permission", AddRead);
@@ -1017,13 +1017,13 @@ page 9850 "Tenant Permissions"
 
         SetObjectZeroName(Rec);
         Modify;
-        TenantPermission.LockTable;
+        TenantPermission.LockTable();
         if not TenantPermission.Get(AppID, RoleID, ObjectType, ObjectID) then begin
             TenantPermission.TransferFields(Rec, true);
-            TenantPermission.Insert;
+            TenantPermission.Insert();
         end else begin
             TenantPermission.TransferFields(Rec, false);
-            TenantPermission.Modify;
+            TenantPermission.Modify();
         end;
         exit(true);
     end;

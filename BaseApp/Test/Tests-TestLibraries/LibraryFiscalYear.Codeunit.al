@@ -24,7 +24,7 @@ codeunit 131302 "Library - Fiscal Year"
             if Counter < AccountingPeriod.Count then
                 AccountingPeriod.Next;
         end;
-        Commit;  // Required because Modal Page Pops Up.
+        Commit();  // Required because Modal Page Pops Up.
     end;
 
     procedure CloseAccountingPeriod()
@@ -110,9 +110,9 @@ codeunit 131302 "Library - Fiscal Year"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup."Allow G/L Acc. Deletion Before" := NewDate;
-        GeneralLedgerSetup.Modify;
+        GeneralLedgerSetup.Modify();
     end;
 
     procedure IdentifyOpenAccountingPeriod(): Date
@@ -121,7 +121,7 @@ codeunit 131302 "Library - Fiscal Year"
     begin
         Clear(AccountingPeriod);
         CloseAccountingPeriod;
-        AccountingPeriod.Init;
+        AccountingPeriod.Init();
         AccountingPeriod.Validate("Starting Date", CalcDate('<+1M>', GetLastPostingDate(true)));
         AccountingPeriod.Insert(true);
         exit(AccountingPeriod."Starting Date");

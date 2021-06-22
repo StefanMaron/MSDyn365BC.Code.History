@@ -5,6 +5,9 @@ page 493 "Resource Price Changes"
     PageType = List;
     SourceTable = "Resource Price Change";
     UsageCategory = Tasks;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+    ObsoleteTag = '16.0';
 
     layout
     {

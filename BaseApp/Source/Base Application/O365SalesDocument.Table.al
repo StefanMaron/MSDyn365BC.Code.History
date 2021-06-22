@@ -190,7 +190,7 @@ table 2103 "O365 Sales Document"
     var
         OverdueTxt: Label 'Overdue';
         AmountTxt: Label '%1%2', Comment = '%1=Currency symbol %2= amount';
-        FormatTxt: Label '<Precision,2:2><Standard Format,0>', Comment = '{LOCKED} Do not translate';
+        FormatTxt: Label '<Precision,2:2><Standard Format,0>', Locked = true;
         PaidTxt: Label 'Paid';
         CanceledTxt: Label 'Canceled';
         SortByDueDate: Boolean;

@@ -32,7 +32,7 @@ codeunit 96 "Purch.-Quote to Order"
         TransferQuoteToOrderLines(PurchQuoteLine, Rec, PurchOrderLine, PurchOrderHeader, Vend);
         OnAfterInsertAllPurchOrderLines(PurchOrderLine, Rec);
 
-        PurchSetup.Get;
+        PurchSetup.Get();
         case PurchSetup."Archive Quotes" of
             PurchSetup."Archive Quotes"::Always:
                 ArchiveManagement.ArchPurchDocumentNoConfirm(Rec);
@@ -42,7 +42,7 @@ codeunit 96 "Purch.-Quote to Order"
 
         if PurchSetup."Default Posting Date" = PurchSetup."Default Posting Date"::"No Date" then begin
             PurchOrderHeader."Posting Date" := 0D;
-            PurchOrderHeader.Modify;
+            PurchOrderHeader.Modify();
         end;
 
         PurchCommentLine.CopyComments("Document Type", PurchOrderHeader."Document Type", "No.", PurchOrderHeader."No.");
@@ -58,7 +58,7 @@ codeunit 96 "Purch.-Quote to Order"
             ApprovalsMgmt.DeleteApprovalEntries(RecordId);
             DeleteLinks;
             Delete;
-            PurchQuoteLine.DeleteAll;
+            PurchQuoteLine.DeleteAll();
         end;
 
         if not ShouldRedistributeInvoiceAmount then
@@ -103,7 +103,7 @@ codeunit 96 "Purch.-Quote to Order"
             if PurchOrderHeader."Posting Date" = 0D then
                 PurchOrderHeader."Posting Date" := WorkDate;
             OnBeforeInsertPurchOrderHeader(PurchOrderHeader, PurchHeader);
-            PurchOrderHeader.Modify;
+            PurchOrderHeader.Modify();
         end;
     end;
 
@@ -111,11 +111,11 @@ codeunit 96 "Purch.-Quote to Order"
     var
         ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)";
     begin
-        ItemChargeAssgntPurch.Reset;
+        ItemChargeAssgntPurch.Reset();
         ItemChargeAssgntPurch.SetRange("Document Type", FromDocType);
         ItemChargeAssgntPurch.SetRange("Document No.", FromDocNo);
         while ItemChargeAssgntPurch.FindFirst do begin
-            ItemChargeAssgntPurch.Delete;
+            ItemChargeAssgntPurch.Delete();
             ItemChargeAssgntPurch."Document Type" := PurchOrderHeader."Document Type";
             ItemChargeAssgntPurch."Document No." := PurchOrderHeader."No.";
             if not (ItemChargeAssgntPurch."Applies-to Doc. Type" in
@@ -125,7 +125,7 @@ codeunit 96 "Purch.-Quote to Order"
                 ItemChargeAssgntPurch."Applies-to Doc. Type" := ToDocType;
                 ItemChargeAssgntPurch."Applies-to Doc. No." := ToDocNo;
             end;
-            ItemChargeAssgntPurch.Insert;
+            ItemChargeAssgntPurch.Insert();
         end;
     end;
 
@@ -160,7 +160,7 @@ codeunit 96 "Purch.-Quote to Order"
                     PurchOrderLine.Validate("Prepayment %");
                     PurchOrderLine.DefaultDeferralCode;
                     OnBeforeInsertPurchOrderLine(PurchOrderLine, PurchOrderHeader, PurchQuoteLine, PurchQuoteHeader);
-                    PurchOrderLine.Insert;
+                    PurchOrderLine.Insert();
                     OnAfterInsertPurchOrderLine(PurchQuoteLine, PurchOrderLine);
                     PurchLineReserve.VerifyQuantity(PurchOrderLine, PurchQuoteLine);
                 end;

@@ -5,11 +5,9 @@ table 5956 "Resource Skill"
 
     fields
     {
-        field(1; Type; Option)
+        field(1; Type; Enum "Resource Skill Type")
         {
             Caption = 'Type';
-            OptionCaption = 'Resource,Service Item Group,Item,Service Item';
-            OptionMembers = Resource,"Service Item Group",Item,"Service Item";
         }
         field(2; "No."; Code[20])
         {
@@ -43,17 +41,13 @@ table 5956 "Resource Skill"
                 end
             end;
         }
-        field(4; "Assigned From"; Option)
+        field(4; "Assigned From"; Enum "Resource Skill Assigned From")
         {
             Caption = 'Assigned From';
-            OptionCaption = ' ,Service Item Group,Item';
-            OptionMembers = " ","Service Item Group",Item;
         }
-        field(5; "Source Type"; Option)
+        field(5; "Source Type"; Enum "Resource Skill Source Type")
         {
             Caption = 'Source Type';
-            OptionCaption = ' ,Service Item Group,Item';
-            OptionMembers = " ","Service Item Group",Item;
         }
         field(6; "Source Code"; Code[20])
         {

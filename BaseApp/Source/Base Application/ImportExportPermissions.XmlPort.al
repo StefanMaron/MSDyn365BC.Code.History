@@ -86,10 +86,10 @@ xmlport 9172 "Import/Export Permissions"
         PermissionSet: Record "Permission Set";
     begin
         if not PermissionSet.Get(Permission."Role ID") then begin
-            PermissionSet.Init;
+            PermissionSet.Init();
             PermissionSet."Role ID" := Permission."Role ID";
             PermissionSet.Name := Permission."Role Name";
-            PermissionSet.Insert;
+            PermissionSet.Insert();
         end;
     end;
 }

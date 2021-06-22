@@ -367,11 +367,11 @@ codeunit 134930 "ERM Applies-To Doc. No."
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        CustLedgerEntry.Init;
+        CustLedgerEntry.Init();
         CustLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, CustLedgerEntry.FieldNo("Entry No."));
         CustLedgerEntry."Document No." := DocNo;
         CustLedgerEntry.Open := true;
-        CustLedgerEntry.Insert;
+        CustLedgerEntry.Insert();
     end;
 
     [ModalPageHandler]

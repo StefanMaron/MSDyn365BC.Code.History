@@ -20,7 +20,6 @@ codeunit 139309 "Email Setup Wizard Tests"
     procedure VerifyStatusNotCompletedWhenNotFinished()
     var
         AssistedSetup: Codeunit "Assisted Setup";
-        BaseAppID: Codeunit "BaseApp ID";
         EmailSetupWizard: TestPage "Email Setup Wizard";
     begin
         // [GIVEN] A newly setup company
@@ -31,7 +30,7 @@ codeunit 139309 "Email Setup Wizard Tests"
         EmailSetupWizard.Close;
 
         // [THEN] Status of assisted setup remains Not Completed
-        Assert.IsFalse(AssistedSetup.IsComplete(BaseAppID.Get(), PAGE::"Email Setup Wizard"), 'Email Setup status should not be completed.');
+        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"Email Setup Wizard"), 'Email Setup status should not be completed.');
     end;
 
     [Test]
@@ -41,7 +40,6 @@ codeunit 139309 "Email Setup Wizard Tests"
     procedure VerifyStatusNotCompletedWhenExitRightAway()
     var
         AssistedSetup: Codeunit "Assisted Setup";
-        BaseAppID: Codeunit "BaseApp ID";
         EmailSetupWizard: TestPage "Email Setup Wizard";
     begin
         // [GIVEN] A newly setup company
@@ -53,7 +51,7 @@ codeunit 139309 "Email Setup Wizard Tests"
         EmailSetupWizard.Close;
 
         // [THEN] Status of assisted setup remains Not Completed
-        Assert.IsFalse(AssistedSetup.IsComplete(BaseAppID.Get(), PAGE::"Email Setup Wizard"), 'Email Setup status should not be completed.');
+        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"Email Setup Wizard"), 'Email Setup status should not be completed.');
     end;
 
     [Test]
@@ -63,7 +61,6 @@ codeunit 139309 "Email Setup Wizard Tests"
     procedure VerifyWizardNotExitedWhenConfirmIsNo()
     var
         AssistedSetup: Codeunit "Assisted Setup";
-        BaseAppID: Codeunit "BaseApp ID";
         EmailSetupWizard: TestPage "Email Setup Wizard";
     begin
         // [GIVEN] A newly setup company
@@ -75,7 +72,7 @@ codeunit 139309 "Email Setup Wizard Tests"
         EmailSetupWizard.Close;
 
         // [THEN] Status of assisted setup remains Not Completed
-        Assert.IsFalse(AssistedSetup.IsComplete(BaseAppID.Get(), PAGE::"Email Setup Wizard"), 'Email Setup status should not be completed.');
+        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"Email Setup Wizard"), 'Email Setup status should not be completed.');
     end;
 
     [Test]
@@ -106,7 +103,6 @@ codeunit 139309 "Email Setup Wizard Tests"
     procedure VerifyStatusCompletedWhenFinished()
     var
         AssistedSetup: Codeunit "Assisted Setup";
-        BaseAppID: Codeunit "BaseApp ID";
         EmailSetupWizard: TestPage "Email Setup Wizard";
     begin
         // [GIVEN] A newly setup company
@@ -117,7 +113,7 @@ codeunit 139309 "Email Setup Wizard Tests"
         EmailSetupWizard.ActionFinish.Invoke;
 
         // [THEN] Status of the setup step is set to Completed
-        Assert.IsTrue(AssistedSetup.IsComplete(BaseAppID.Get(), PAGE::"Email Setup Wizard"), 'Email Setup status should be completed.');
+        Assert.IsTrue(AssistedSetup.IsComplete(PAGE::"Email Setup Wizard"), 'Email Setup status should be completed.');
     end;
 
     local procedure RunWizardToCompletion(var EmailSetupWizard: TestPage "Email Setup Wizard")

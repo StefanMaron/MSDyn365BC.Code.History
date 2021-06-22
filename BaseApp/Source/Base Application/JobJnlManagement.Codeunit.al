@@ -24,14 +24,14 @@ codeunit 1020 JobJnlManagement
     begin
         JnlSelected := true;
 
-        JobJnlTemplate.Reset;
+        JobJnlTemplate.Reset();
         JobJnlTemplate.SetRange("Page ID", PageID);
         JobJnlTemplate.SetRange(Recurring, RecurringJnl);
 
         case JobJnlTemplate.Count of
             0:
                 begin
-                    JobJnlTemplate.Init;
+                    JobJnlTemplate.Init();
                     JobJnlTemplate.Recurring := RecurringJnl;
                     if not RecurringJnl then begin
                         JobJnlTemplate.Name := Text000;
@@ -41,8 +41,8 @@ codeunit 1020 JobJnlManagement
                         JobJnlTemplate.Description := Text003;
                     end;
                     JobJnlTemplate.Validate("Page ID");
-                    JobJnlTemplate.Insert;
-                    Commit;
+                    JobJnlTemplate.Insert();
+                    Commit();
                 end;
             1:
                 JobJnlTemplate.FindFirst;
@@ -141,13 +141,13 @@ codeunit 1020 JobJnlManagement
         JobJnlBatch.SetRange("Journal Template Name", CurrentJnlTemplateName);
         if not JobJnlBatch.Get(CurrentJnlTemplateName, CurrentJnlBatchName) then begin
             if not JobJnlBatch.FindFirst then begin
-                JobJnlBatch.Init;
+                JobJnlBatch.Init();
                 JobJnlBatch."Journal Template Name" := CurrentJnlTemplateName;
                 JobJnlBatch.SetupNewBatch;
                 JobJnlBatch.Name := Text004;
                 JobJnlBatch.Description := Text005;
                 JobJnlBatch.Insert(true);
-                Commit;
+                Commit();
             end;
             CurrentJnlBatchName := JobJnlBatch.Name;
         end;
@@ -172,7 +172,7 @@ codeunit 1020 JobJnlManagement
     var
         JobJnlBatch: Record "Job Journal Batch";
     begin
-        Commit;
+        Commit();
         JobJnlBatch."Journal Template Name" := JobJnlLine.GetRangeMax("Journal Template Name");
         JobJnlBatch.Name := JobJnlLine.GetRangeMax("Journal Batch Name");
         JobJnlBatch.FilterGroup(2);
@@ -226,7 +226,7 @@ codeunit 1020 JobJnlManagement
         JobEntryNo: Record "Job Entry No.";
     begin
         with JobEntryNo do begin
-            LockTable;
+            LockTable();
             if not Get then
                 Insert;
             "Entry No." := "Entry No." + 1;

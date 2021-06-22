@@ -37,7 +37,7 @@ report 95 "Date Compress VAT Entries"
 
                     LastVATEntryNo := LastVATEntryNo + 1;
 
-                    NewVATEntry.Init;
+                    NewVATEntry.Init();
                     NewVATEntry."Entry No." := LastVATEntryNo;
                     NewVATEntry.Type := Type;
                     NewVATEntry.Closed := Closed;
@@ -105,14 +105,14 @@ report 95 "Date Compress VAT Entries"
                         if GLEntryVATEntryLink.FindSet then
                             repeat
                                 GLEntryVATEntryLink2 := GLEntryVATEntryLink;
-                                GLEntryVATEntryLink2.Delete;
+                                GLEntryVATEntryLink2.Delete();
                                 GLEntryVATEntryLink2."VAT Entry No." := NewVATEntry."Entry No.";
-                                if GLEntryVATEntryLink2.Insert then;
+                                if GLEntryVATEntryLink2.Insert() then;
                             until GLEntryVATEntryLink.Next = 0;
                         DateComprReg."No. Records Deleted" := DateComprReg."No. Records Deleted" + 1;
                         Window.Update(8, DateComprReg."No. Records Deleted");
                     until Next = 0;
-                    NewVATEntry.Insert;
+                    NewVATEntry.Insert();
                 end;
 
                 if DateComprReg."No. Records Deleted" >= NoOfDeleted + 10 then begin
@@ -130,9 +130,10 @@ report 95 "Date Compress VAT Entries"
             trigger OnPreDataItem()
             var
                 ConfirmManagement: Codeunit "Confirm Management";
+                LastTransactionNo: Integer;
             begin
                 if not ConfirmManagement.GetResponseOrDefault(CompressEntriesQst, true) then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 if EntrdDateComprReg."Ending Date" = 0D then
                     Error(Text003, EntrdDateComprReg.FieldCaption("Ending Date"));
@@ -148,19 +149,17 @@ report 95 "Date Compress VAT Entries"
                   Text011 +
                   Text012);
 
-                SourceCodeSetup.Get;
+                SourceCodeSetup.Get();
                 SourceCodeSetup.TestField("Compress VAT Entries");
 
-                GLEntry.LockTable;
-                NewVATEntry.LockTable;
-                GLReg.LockTable;
-                DateComprReg.LockTable;
+                GLEntry.LockTable();
+                NewVATEntry.LockTable();
+                GLReg.LockTable();
+                DateComprReg.LockTable();
 
-                if GLEntry.FindLast then;
-                LastGLEntryNo := GLEntry."Entry No.";
-                NextTransactionNo := GLEntry."Transaction No." + 1;
-                if NewVATEntry.FindLast then;
-                LastVATEntryNo := NewVATEntry."Entry No.";
+                GLEntry.GetLastEntry(LastGLEntryNo, LastTransactionNo);
+                NextTransactionNo := LastTransactionNo + 1;
+                LastVATEntryNo := NewVATEntry.GetLastEntryNo();
                 SetRange("Entry No.", 0, LastVATEntryNo);
                 SetRange("Posting Date", EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
 
@@ -302,12 +301,10 @@ report 95 "Date Compress VAT Entries"
 
     local procedure InitRegisters()
     begin
-        if GLReg.Find('+') then;
-        GLReg.Initialize(GLReg."No." + 1, LastGLEntryNo + 1, LastVATEntryNo + 1, SourceCodeSetup."Compress Vend. Ledger", '', '');
+        GLReg.Initialize(GLReg.GetLastEntryNo() + 1, LastGLEntryNo + 1, LastVATEntryNo + 1, SourceCodeSetup."Compress Vend. Ledger", '', '');
 
-        if DateComprReg.FindLast then;
         DateComprReg.InitRegister(
-          DATABASE::"VAT Entry", DateComprReg."No." + 1, EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date",
+          DATABASE::"VAT Entry", DateComprReg.GetLastEntryNo() + 1, EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date",
           EntrdDateComprReg."Period Length", VATEntryFilter, GLReg."No.", SourceCodeSetup."Compress VAT Entries");
         for i := 1 to NoOfFields do
             if Retain[i] then
@@ -322,8 +319,12 @@ report 95 "Date Compress VAT Entries"
     end;
 
     local procedure InsertRegisters(var GLReg: Record "G/L Register"; var DateComprReg: Record "Date Compr. Register")
+    var
+        FoundLastEntryNo: Integer;
+        FoundLastVATEntryNo: Integer;
+        LastTransactionNo: Integer;
     begin
-        GLEntry.Init;
+        GLEntry.Init();
         LastGLEntryNo := LastGLEntryNo + 1;
         GLEntry."Entry No." := LastGLEntryNo;
         GLEntry."Posting Date" := Today;
@@ -331,34 +332,34 @@ report 95 "Date Compress VAT Entries"
         GLEntry."System-Created Entry" := true;
         GLEntry."User ID" := UserId;
         GLEntry."Transaction No." := NextTransactionNo;
-        GLEntry.Insert;
+        GLEntry.Insert();
         GLEntry.Consistent(GLEntry.Amount = 0);
-        GLReg."To Entry No." := GLEntry."Entry No.";
+        GLReg."To Entry No." := LastGLEntryNo;
         GLReg."To VAT Entry No." := NewVATEntry."Entry No.";
 
         if GLRegExists then begin
-            GLReg.Modify;
-            DateComprReg.Modify;
+            GLReg.Modify();
+            DateComprReg.Modify();
         end else begin
-            GLReg.Insert;
-            DateComprReg.Insert;
+            GLReg.Insert();
+            DateComprReg.Insert();
             GLRegExists := true;
         end;
-        Commit;
+        Commit();
 
-        GLEntry.LockTable;
-        NewVATEntry.LockTable;
-        GLReg.LockTable;
-        DateComprReg.LockTable;
+        GLEntry.LockTable();
+        NewVATEntry.LockTable();
+        GLReg.LockTable();
+        DateComprReg.LockTable();
 
-        if GLEntry.FindLast then;
-        if NewVATEntry.FindLast then;
-        if (LastGLEntryNo <> GLEntry."Entry No.") or
-           (LastVATEntryNo <> NewVATEntry."Entry No.")
+        GLentry.GetLastEntry(FoundLastEntryNo, LastTransactionNo);
+        FoundLastVATEntryNo := NewVATEntry.GetLastEntryNo();
+        if (LastGLEntryNo <> FoundLastEntryNo) or
+           (LastVATEntryNo <> FoundLastVATEntryNo)
         then begin
-            LastGLEntryNo := GLEntry."Entry No.";
-            LastVATEntryNo := NewVATEntry."Entry No.";
-            NextTransactionNo := GLEntry."Transaction No." + 1;
+            LastGLEntryNo := FoundLastEntryNo;
+            LastVATEntryNo := FoundLastVATEntryNo;
+            NextTransactionNo := LastTransactionNo + 1;
             InitRegisters;
         end;
     end;

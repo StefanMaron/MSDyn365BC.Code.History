@@ -38,7 +38,7 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
         isInitialized := true;
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM - BOM Cost Shares Report");
     end;
 
@@ -397,7 +397,7 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
         Item1: Record Item;
     begin
         Item1.SetRange("No.", Item."No.");
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(ShowCostShareAs);
         LibraryVariableStorage.Enqueue(ShowLevelAs);
         LibraryVariableStorage.Enqueue(ShowDetails);
@@ -531,7 +531,7 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
         VerifyBOMCostSharesPage(BOMCostShares, Item."No.", Item."Rolled-up Material Cost", Item."Rolled-up Capacity Cost",
           Item."Rolled-up Mfg. Ovhd Cost", Item."Rolled-up Cap. Overhead Cost", Item."Rolled-up Subcontracted Cost", Item."Unit Cost");
 
-        Commit;
+        Commit();
         BOMCostShares."Show Warnings".Invoke; // Call Show Warnings for code coverage purposes.
 
         // Enqueue parameters for report.
@@ -590,7 +590,7 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
             Assert.AreEqual(false, BOMStructure.HasWarning.AsBoolean, 'Unexpected warning present in item ' + Format(BOMStructure."No."));
         end;
 
-        Commit;
+        Commit();
         BOMStructure."Show Warnings".Invoke; // Call Show Warnings for code coverage purposes.
 
         // Enqueue parameters for report.

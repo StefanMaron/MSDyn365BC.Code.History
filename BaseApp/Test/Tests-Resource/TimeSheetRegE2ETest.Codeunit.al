@@ -28,9 +28,9 @@ codeunit 135930 "Time Sheet Reg. E2E Test"
         if IsInitialized then
             exit;
 
-        UserSetup.DeleteAll;
-        ConfigTemplateHeader.DeleteAll;
-        ConfigTmplSelectionRules.DeleteAll;
+        UserSetup.DeleteAll();
+        ConfigTemplateHeader.DeleteAll();
+        ConfigTmplSelectionRules.DeleteAll();
 
         GraphMgtTimeRegistration.InitUserSetup;
 
@@ -47,7 +47,7 @@ codeunit 135930 "Time Sheet Reg. E2E Test"
         ConfigTmplSelectionRules.Modify(true);
 
         IsInitialized := true;
-        Commit;
+        Commit();
     end;
 
     [Test]
@@ -310,7 +310,7 @@ codeunit 135930 "Time Sheet Reg. E2E Test"
         Assert.AreNotEqual('', ResponseText, 'JSON Should not be blank');
         VerifyEmployeeTimeRegBuffIdInJson(ResponseText);
 
-        TimeSheetDetail.Reset;
+        TimeSheetDetail.Reset();
         TimeSheetDetail.SetRange("Time Sheet No.", TimeSheetHeaderNo);
         TimeSheetDetail.SetRange("Time Sheet Line No.", TimeSheetLineNo);
         TimeSheetDetail.SetRange(Date, Date);
@@ -670,7 +670,7 @@ codeunit 135930 "Time Sheet Reg. E2E Test"
         TimeSheetRegJSON[3] := CreateMinimalTimeSheetRegJSON(Date, Employee.SystemId);
         TimeSheetRegJSON[3] := LibraryGraphMgt.AddPropertytoJSON(TimeSheetRegJSON[3], 'employeeNumber', Employee."No.");
 
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSONs to the web service
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Time Registration Entity", '');
@@ -708,7 +708,7 @@ codeunit 135930 "Time Sheet Reg. E2E Test"
 
         CreateEmployee(Employee, '');
         EmployeeId := Employee.SystemId;
-        Employee.Delete;
+        Employee.Delete();
 
         // [GIVEN] JSON texts for time reg. entries with and without EmployeeNumber and EmployeeId
         TimeSheetRegJSON[1] := CreateMinimalTimeSheetRegJSON(Date, EmployeeId);
@@ -716,7 +716,7 @@ codeunit 135930 "Time Sheet Reg. E2E Test"
         TimeSheetRegJSON[2] := LibraryGraphMgt.AddPropertytoJSON('', 'employeeNumber', Employee."No.");
         TimeSheetRegJSON[2] := LibraryGraphMgt.AddPropertytoJSON(TimeSheetRegJSON[2], 'date', Date);
 
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSONs to the web service
         // [THEN] we will get errors because the Employee doesn't exist
@@ -776,7 +776,7 @@ codeunit 135930 "Time Sheet Reg. E2E Test"
         TimeSheetHeader.Validate("Owner User ID", UserId);
         TimeSheetHeader.Validate("Approver User ID", UserId);
         TimeSheetHeader.Insert(true);
-        Commit;
+        Commit();
     end;
 
     local procedure CreateTimeSheetLine(TimeSheetHeaderNo: Code[20]; Type: Option): Integer
@@ -784,13 +784,13 @@ codeunit 135930 "Time Sheet Reg. E2E Test"
         TimeSheetLine: Record "Time Sheet Line";
         TimeSheetHeader: Record "Time Sheet Header";
     begin
-        TimeSheetLine.Init;
+        TimeSheetLine.Init();
         TimeSheetLine.Validate("Time Sheet No.", TimeSheetHeaderNo);
         TimeSheetLine.Validate("Line No.", TimeSheetHeader.GetLastLineNo + 10000);
         TimeSheetLine.Validate(Type, Type);
         TimeSheetLine.Validate(Status, TimeSheetLine.Status::Open);
         TimeSheetLine.Insert(true);
-        Commit;
+        Commit();
 
         exit(TimeSheetLine."Line No.");
     end;
@@ -799,14 +799,14 @@ codeunit 135930 "Time Sheet Reg. E2E Test"
     var
         TimeSheetDetail: Record "Time Sheet Detail";
     begin
-        TimeSheetDetail.Init;
+        TimeSheetDetail.Init();
         TimeSheetDetail.Validate("Time Sheet No.", TimeSheetHeaderNo);
         TimeSheetDetail.Validate("Time Sheet Line No.", TimeSheetLineNo);
         TimeSheetDetail.Validate(Date, Date);
         TimeSheetDetail.Validate(Quantity, Quantity);
         TimeSheetDetail.Validate(Status, TimeSheetDetail.Status::Open);
         TimeSheetDetail.Insert(true);
-        Commit;
+        Commit();
 
         exit(TimeSheetDetail.Id);
     end;
@@ -818,7 +818,7 @@ codeunit 135930 "Time Sheet Reg. E2E Test"
     begin
         // AccountingPeriod.DELETEALL(TRUE);
         LibraryTimeSheet.GetAccountingPeriod(AccountingPeriod);
-        Commit;
+        Commit();
         exit(AccountingPeriod."Starting Date");
     end;
 
@@ -828,9 +828,9 @@ codeunit 135930 "Time Sheet Reg. E2E Test"
         UnitOfMeasure: Record "Unit of Measure";
         GraphMgtTimeRegistration: Codeunit "Graph Mgt - Time Registration";
     begin
-        Resource.Init;
+        Resource.Init();
         Resource.Validate("No.", ResourceNo);
-        Resource.Insert;
+        Resource.Insert();
         if not UnitOfMeasure.Get('HOUR') then begin
             UnitOfMeasure.Validate(Code, 'HOUR');
             UnitOfMeasure.Insert(true);
@@ -838,7 +838,7 @@ codeunit 135930 "Time Sheet Reg. E2E Test"
         Resource.Validate("Base Unit of Measure", UnitOfMeasure.Code);
         Resource.Modify(true);
         GraphMgtTimeRegistration.ModifyResourceToUseTimeSheet(Resource);
-        Commit;
+        Commit();
     end;
 
     local procedure CreateEmployee(var Employee: Record Employee; ResourceNo: Code[20])
@@ -846,7 +846,7 @@ codeunit 135930 "Time Sheet Reg. E2E Test"
         if ResourceNo <> '' then
             Employee.Validate("Resource No.", ResourceNo);
         Employee.Insert(true);
-        Commit;
+        Commit();
     end;
 
     local procedure CleanTableData()
@@ -857,11 +857,11 @@ codeunit 135930 "Time Sheet Reg. E2E Test"
         Employee: Record Employee;
         Resource: Record Resource;
     begin
-        TimeSheetDetail.DeleteAll;
-        TimeSheetLine.DeleteAll;
-        TimeSheetHeader.DeleteAll;
-        Employee.DeleteAll;
-        Resource.DeleteAll;
+        TimeSheetDetail.DeleteAll();
+        TimeSheetLine.DeleteAll();
+        TimeSheetHeader.DeleteAll();
+        Employee.DeleteAll();
+        Resource.DeleteAll();
     end;
 
     local procedure VerifyTimeSheetSync(EmployeeTimeRegBuffId: Guid; NewResource: Boolean)
@@ -871,10 +871,10 @@ codeunit 135930 "Time Sheet Reg. E2E Test"
         TimeSheetHeader: Record "Time Sheet Header";
         Resource: Record Resource;
     begin
-        Resource.Reset;
-        TimeSheetHeader.Reset;
-        TimeSheetLine.Reset;
-        TimeSheetDetail.Reset;
+        Resource.Reset();
+        TimeSheetHeader.Reset();
+        TimeSheetLine.Reset();
+        TimeSheetDetail.Reset();
 
         TimeSheetDetail.SetRange(Id, EmployeeTimeRegBuffId);
         Assert.IsTrue(TimeSheetDetail.FindFirst, 'Time Sheet Detail was not created');
@@ -916,7 +916,7 @@ codeunit 135930 "Time Sheet Reg. E2E Test"
         Assert.AreEqual(CopyStr(RespDate, 3), Format(Date, 0, '<Closing><Year,2>-<Month,2>-<Day,2>'), 'Incorrect date');
         Assert.AreEqual(RespEmployeeId, LowerCase(LibraryGraphMgt.StripBrackets(Format(EmployeeId))), 'Incorrect employee ID');
 
-        Employee.Reset;
+        Employee.Reset();
         Employee.SetRange(Id, RespEmployeeId);
         Employee.FindFirst;
         Assert.AreEqual(RespEmployeeNumber, Employee."No.", 'Incorrect employee number');
@@ -955,13 +955,13 @@ codeunit 135930 "Time Sheet Reg. E2E Test"
         ConfigTemplateHeader.Code := ConfigTemplateManagement.GetNextAvailableCode(DATABASE::Resource);
         ConfigTemplateHeader.Description := Description;
         ConfigTemplateHeader."Table ID" := DATABASE::Resource;
-        ConfigTemplateHeader.Insert;
+        ConfigTemplateHeader.Insert();
         NextLineNo := 10000;
         ConfigTemplateLine.SetRange("Data Template Code", ConfigTemplateHeader.Code);
         if ConfigTemplateLine.FindLast then
             NextLineNo := ConfigTemplateLine."Line No." + 10000;
 
-        ConfigTemplateLine.Init;
+        ConfigTemplateLine.Init();
         ConfigTemplateLine.Validate("Data Template Code", ConfigTemplateHeader.Code);
         ConfigTemplateLine.Validate("Line No.", NextLineNo);
         ConfigTemplateLine.Validate(Type, ConfigTemplateLine.Type::Field);
@@ -974,7 +974,7 @@ codeunit 135930 "Time Sheet Reg. E2E Test"
         if ConfigTemplateLine.FindLast then
             NextLineNo := ConfigTemplateLine."Line No." + 10000;
 
-        ConfigTemplateLine.Init;
+        ConfigTemplateLine.Init();
         ConfigTemplateLine.Validate("Data Template Code", ConfigTemplateHeader.Code);
         ConfigTemplateLine.Validate("Line No.", NextLineNo);
         ConfigTemplateLine.Validate(Type, ConfigTemplateLine.Type::Field);

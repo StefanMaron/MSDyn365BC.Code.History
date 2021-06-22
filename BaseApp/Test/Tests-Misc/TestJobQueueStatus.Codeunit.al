@@ -376,14 +376,14 @@ codeunit 139033 "Test Job Queue Status"
         SalesSetup: Record "Sales & Receivables Setup";
         PurchSetup: Record "Purchases & Payables Setup";
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup."Post with Job Queue" := true;
         SalesSetup."Ext. Doc. No. Mandatory" := true;
-        SalesSetup.Modify;
-        PurchSetup.Get;
+        SalesSetup.Modify();
+        PurchSetup.Get();
         PurchSetup."Post with Job Queue" := true;
         PurchSetup."Ext. Doc. No. Mandatory" := true;
-        PurchSetup.Modify;
+        PurchSetup.Modify();
     end;
 
     local procedure DeleteAllJobQueueEntries()
@@ -391,15 +391,15 @@ codeunit 139033 "Test Job Queue Status"
         JobQueueEntry: Record "Job Queue Entry";
         JobQueueLogEntry: Record "Job Queue Log Entry";
     begin
-        JobQueueEntry.DeleteAll;
-        JobQueueLogEntry.DeleteAll;
+        JobQueueEntry.DeleteAll();
+        JobQueueLogEntry.DeleteAll();
     end;
 
     local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Integer)
     var
         SalesLine: Record "Sales Line";
     begin
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader."Document Type" := DocumentType;
         SalesHeader.Insert(true);
         SalesHeader.Validate("Sell-to Customer No.", LibrarySales.CreateCustomerNo);
@@ -408,7 +408,7 @@ codeunit 139033 "Test Job Queue Status"
         SalesHeader.Invoice := true;
         SalesHeader.Modify(true);
 
-        SalesLine.Init;
+        SalesLine.Init();
         SalesLine."Document Type" := SalesHeader."Document Type";
         SalesLine."Document No." := SalesHeader."No.";
         SalesLine."Line No." := 10000;
@@ -449,7 +449,7 @@ codeunit 139033 "Test Job Queue Status"
         CreateJobQueueEntryWithStatus(JobQueueEntry, GetJobQueueEntryStatusFromDocJobQueueStatus(JobQueueStatus), JobQueueErrorMsg);
         SalesHeader."Job Queue Entry ID" := JobQueueEntry.ID;
         SalesHeader."Job Queue Status" := JobQueueStatus;
-        SalesHeader.Modify;
+        SalesHeader.Modify();
 
         InvokeJobStatusStateOnSalesDocument(SalesHeader);
     end;
@@ -464,7 +464,7 @@ codeunit 139033 "Test Job Queue Status"
         PurchaseHeader."Vendor Invoice No." := '';
         PurchaseHeader."Job Queue Entry ID" := JobQueueEntry.ID;
         PurchaseHeader."Job Queue Status" := JobQueueStatus;
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
 
         InvokeJobStatusStateOnPurchaseDocument(PurchaseHeader);
     end;
@@ -552,14 +552,14 @@ codeunit 139033 "Test Job Queue Status"
 
     local procedure CreateJobQueueEntryWithStatus(var JobQueueEntry: Record "Job Queue Entry"; Status: Option; StatusMessage: Text)
     begin
-        JobQueueEntry.Init;
+        JobQueueEntry.Init();
         JobQueueEntry.ID := CreateGuid;
 
         JobQueueEntry.Status := Status;
         if Status = JobQueueEntry.Status::Error then
             JobQueueEntry."Error Message" := CopyStr(StatusMessage, 1, MaxStrLen(JobQueueEntry."Error Message"));
 
-        JobQueueEntry.Insert;
+        JobQueueEntry.Insert();
     end;
 
     local procedure GetJobQueueEntryStatusFromDocJobQueueStatus(DocumentJobQueueStatus: Option): Integer

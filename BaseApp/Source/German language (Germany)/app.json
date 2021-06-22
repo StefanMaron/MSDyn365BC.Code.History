@@ -1,0 +1,23 @@
+{
+    "id":  "e2d4cb5e-9120-4a92-824d-2e1e5dc1a699",
+    "name":  "German language (Germany)",
+    "publisher":  "Microsoft",
+    "version":  "16.0.11240.12076",
+    "dependencies":  [
+                         {
+                             "id":  "437dbf0e-84ff-417a-965d-ed2bb9650972",
+                             "name":  "Base Application",
+                             "publisher":  "Microsoft",
+                             "version":  "16.0.0.0"
+                         }
+                     ],
+    "target":  "Cloud",
+    "showMyCode":  true,
+    "brief":  "This application adds the German language (Germany) to Dynamics 365 Business Central",
+    "description":  "Dynamics 365 Business Central is available in many languages. By installing this application you add the capability of showing the base application in the German language (Germany)",
+    "logo":  "ExtensionLogo.png",
+    "privacyStatement":  "https://go.microsoft.com/fwlink/?LinkId=724009",
+    "EULA":  "https://www.microsoft.com/en-us/download/details.aspx?id=56765",
+    "help":  "https://go.microsoft.com/fwlink/?linkid=2115116",
+    "url":  "https://www.microsoft.com/en-us/dynamics365/contact-us"
+}

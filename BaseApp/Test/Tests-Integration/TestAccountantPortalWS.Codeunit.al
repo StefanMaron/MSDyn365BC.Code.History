@@ -473,35 +473,35 @@ codeunit 134765 TestAccountantPortalWS
     [Normal]
     local procedure CreateBankAccountReconciliation(StatementType: Integer; BankAccountNo: Code[20]; StatementNo: Code[20])
     begin
-        BankAccReconciliation.Init;
+        BankAccReconciliation.Init();
         BankAccReconciliation."Statement Type" := StatementType;
         BankAccReconciliation."Bank Account No." := BankAccountNo;
         BankAccReconciliation."Statement No." := StatementNo;
-        BankAccReconciliation.Insert;
+        BankAccReconciliation.Insert();
     end;
 
     [Normal]
     local procedure CreateVendorLedgerEntry(EntryNumber: Integer; DocumentType: Integer; DueDate: Date; Open: Boolean)
     begin
-        VendorLedgerEntry.Init;
+        VendorLedgerEntry.Init();
         VendorLedgerEntry."Entry No." := EntryNumber;
         VendorLedgerEntry."Document Type" := DocumentType;
         VendorLedgerEntry."Due Date" := DueDate;
         VendorLedgerEntry."Pmt. Discount Date" := DueDate;
         VendorLedgerEntry.Open := Open;
         VendorLedgerEntry."Posting Date" := DueDate;
-        VendorLedgerEntry.Insert;
+        VendorLedgerEntry.Insert();
     end;
 
     [Normal]
     local procedure CreateCustomerLedgerEntry(EntryNo: Integer; DocumentType: Integer; DueDate: Date; Open: Boolean)
     begin
-        CustLedgerEntry.Init;
+        CustLedgerEntry.Init();
         CustLedgerEntry."Entry No." := EntryNo;
         CustLedgerEntry."Document Type" := DocumentType;
         CustLedgerEntry."Due Date" := DueDate;
         CustLedgerEntry.Open := Open;
-        CustLedgerEntry.Insert;
+        CustLedgerEntry.Insert();
     end;
 
     [Normal]
@@ -510,10 +510,10 @@ codeunit 134765 TestAccountantPortalWS
         SalesHeader.SetRange("Document Type", DocumentType);
         SalesHeader.SetRange("No.", No);
         if not SalesHeader.FindFirst then begin
-            SalesHeader.Init;
+            SalesHeader.Init();
             SalesHeader."Document Type" := DocumentType;
             SalesHeader."No." := No;
-            SalesHeader.Insert;
+            SalesHeader.Insert();
         end;
     end;
 
@@ -523,49 +523,49 @@ codeunit 134765 TestAccountantPortalWS
         PurchaseHeader.SetRange("Document Type", DocumentType);
         PurchaseHeader.SetRange("No.", No);
         if not PurchaseHeader.FindFirst then begin
-            PurchaseHeader.Init;
+            PurchaseHeader.Init();
             PurchaseHeader."Document Type" := DocumentType;
             PurchaseHeader."No." := No;
-            PurchaseHeader.Insert;
+            PurchaseHeader.Insert();
         end;
     end;
 
     [Normal]
     local procedure CreateSalesInvoiceHeader(No: Text[20]; DocExchangeStatus: Integer)
     begin
-        SalesInvoiceHeader.Init;
+        SalesInvoiceHeader.Init();
         SalesInvoiceHeader."No." := No;
         SalesInvoiceHeader."Document Exchange Status" := DocExchangeStatus;
-        SalesInvoiceHeader.Insert;
+        SalesInvoiceHeader.Insert();
     end;
 
     [Normal]
     local procedure CreateIncomingDocument(EntryNo: Integer; Processed: Boolean; OCRStatus: Integer)
     begin
-        IncomingDocument.Init;
+        IncomingDocument.Init();
         IncomingDocument."Entry No." := EntryNo;
         IncomingDocument.Processed := Processed;
         IncomingDocument."OCR Status" := OCRStatus;
-        IncomingDocument.Insert;
+        IncomingDocument.Insert();
     end;
 
     [Normal]
     local procedure CreateApprovalEntry(EntryNo: Integer; ApproverID: Text[50]; Status: Integer)
     begin
-        ApprovalEntry.Init;
+        ApprovalEntry.Init();
         ApprovalEntry."Entry No." := EntryNo;
         ApprovalEntry."Approver ID" := ApproverID;
         ApprovalEntry.Status := Status;
-        ApprovalEntry.Insert;
+        ApprovalEntry.Insert();
     end;
 
     [Normal]
     local procedure CreateSalesCrMemoHeader(No: Text[20]; DocExchangeStatus: Integer)
     begin
-        SalesCrMemoHeader.Init;
+        SalesCrMemoHeader.Init();
         SalesCrMemoHeader."No." := No;
         SalesCrMemoHeader."Document Exchange Status" := DocExchangeStatus;
-        SalesCrMemoHeader.Insert;
+        SalesCrMemoHeader.Insert();
     end;
 
     [Normal]
@@ -573,54 +573,54 @@ codeunit 134765 TestAccountantPortalWS
     begin
         Vendor.SetRange("No.", No);
         if not Vendor.FindFirst then begin
-            Vendor.Init;
+            Vendor.Init();
             Vendor."No." := No;
             Vendor.Blocked := Blocked;
-            Vendor.Insert;
+            Vendor.Insert();
         end;
     end;
 
     [Normal]
     local procedure CreateDetailedVendorLedgEntry(VendorEntryNo: Integer; PostingDate: Date; AmountLCY: Decimal; DocumentType: Integer)
     begin
-        DetailedVendorLedgEntry.Init;
+        DetailedVendorLedgEntry.Init();
         DetailedVendorLedgEntry."Vendor Ledger Entry No." := VendorEntryNo;
         DetailedVendorLedgEntry."Posting Date" := PostingDate;
         DetailedVendorLedgEntry."Amount (LCY)" := AmountLCY;
         DetailedVendorLedgEntry."Document Type" := DocumentType;
         DetailedVendorLedgEntry."Initial Document Type" := DocumentType;
         DetailedVendorLedgEntry."Initial Entry Due Date" := PostingDate;
-        DetailedVendorLedgEntry.Insert;
+        DetailedVendorLedgEntry.Insert();
     end;
 
     [Normal]
     local procedure CreateDetailedCustLedgEntry(CustEntryNo: Integer; PostingDate: Date; AmountLCY: Decimal; DocumentType: Integer)
     begin
-        DetailedCustLedgEntry.Init;
+        DetailedCustLedgEntry.Init();
         DetailedCustLedgEntry."Cust. Ledger Entry No." := CustEntryNo;
         DetailedCustLedgEntry."Posting Date" := PostingDate;
         DetailedCustLedgEntry."Amount (LCY)" := AmountLCY;
         DetailedCustLedgEntry."Document Type" := DocumentType;
         DetailedCustLedgEntry."Initial Document Type" := DocumentType;
         DetailedCustLedgEntry."Initial Entry Due Date" := PostingDate;
-        DetailedCustLedgEntry.Insert;
+        DetailedCustLedgEntry.Insert();
     end;
 
     [Normal]
     local procedure SetupData()
     begin
-        BankAccReconciliation.DeleteAll;
-        VendorLedgerEntry.DeleteAll;
-        CustLedgerEntry.DeleteAll;
-        // SalesHeader.DELETEALL;
-        // PurchaseHeader.DELETEALL;
-        SalesInvoiceHeader.DeleteAll;
-        IncomingDocument.DeleteAll;
-        ApprovalEntry.DeleteAll;
-        SalesCrMemoHeader.DeleteAll;
-        // Vendor.DELETEALL;
-        DetailedVendorLedgEntry.DeleteAll;
-        DetailedCustLedgEntry.DeleteAll;
+        BankAccReconciliation.DeleteAll();
+        VendorLedgerEntry.DeleteAll();
+        CustLedgerEntry.DeleteAll();
+        // SalesHeader.DeleteAll();
+        // PurchaseHeader.DeleteAll();
+        SalesInvoiceHeader.DeleteAll();
+        IncomingDocument.DeleteAll();
+        ApprovalEntry.DeleteAll();
+        SalesCrMemoHeader.DeleteAll();
+        // Vendor.DeleteAll();
+        DetailedVendorLedgEntry.DeleteAll();
+        DetailedCustLedgEntry.DeleteAll();
 
         // Non Applied Documents (Unprocessed Payments)
         CreateBankAccountReconciliation(1, 'GIRO', '1234');

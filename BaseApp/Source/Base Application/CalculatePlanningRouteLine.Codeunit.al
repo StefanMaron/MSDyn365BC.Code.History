@@ -96,9 +96,9 @@ codeunit 99000810 "Calculate Planning Route Line"
         end;
     end;
 
-    local procedure CreatePlanningCapNeed(NeedDate: Date; StartingTime: Time; EndingTime: Time; NeedQty: Decimal; TimeType: Option "Setup Time","Run Time"; Direction: Option Forward,Backward)
+    local procedure CreatePlanningCapNeed(NeedDate: Date; StartingTime: Time; EndingTime: Time; NeedQty: Decimal; TimeType: Enum "Routing Time Type"; Direction: Option Forward,Backward)
     begin
-        ProdOrderCapNeed.Init;
+        ProdOrderCapNeed.Init();
         ProdOrderCapNeed."Worksheet Template Name" := ReqLine."Worksheet Template Name";
         ProdOrderCapNeed."Worksheet Batch Name" := ReqLine."Journal Batch Name";
         ProdOrderCapNeed."Worksheet Line No." := ReqLine."Line No.";
@@ -173,12 +173,16 @@ codeunit 99000810 "Calculate Planning Route Line"
 
         ProdOrderCapNeed.UpdateDatetime();
 
-        ProdOrderCapNeed.Insert;
+        ProdOrderCapNeed.Insert();
 
         NextCapNeedLineNo := NextCapNeedLineNo + 1;
+
+        OnAfterCreatePlanningCapNeed(
+            NextCapNeedLineNo, PlanningRoutingLine, ReqLine, NeedDate, StartingTime, EndingTime, TimeType, NeedQty,
+            ConCurrCap, CalendarEntry, LotSize, RemainNeedQty, FirstInBatch, Direction);
     end;
 
-    local procedure CreateLoadBack(TimeType: Option "Setup Time","Run Time","Wait Time","Move Time","Queue Time"; Write: Boolean)
+    local procedure CreateLoadBack(TimeType: Enum "Routing Time Type"; Write: Boolean)
     var
         OldCalendarEntry: Record "Calendar Entry";
         AvQtyBase: Decimal;
@@ -261,7 +265,7 @@ codeunit 99000810 "Calculate Planning Route Line"
         end;
     end;
 
-    local procedure CreateLoadForward(TimeType: Option "Setup Time","Run Time","Wait Time","Move Time","Queue Time"; Write: Boolean)
+    local procedure CreateLoadForward(TimeType: Enum "Routing Time Type"; Write: Boolean)
     var
         OldCalendarEntry: Record "Calendar Entry";
         AvQtyBase: Decimal;
@@ -338,7 +342,7 @@ codeunit 99000810 "Calculate Planning Route Line"
         end;
     end;
 
-    local procedure LoadCapBack(CapType: Option "Work Center","Machine Center"; CapNo: Code[20]; TimeType: Option "Setup Time","Run Time","Wait Time","Move Time","Queue Time"; Write: Boolean)
+    local procedure LoadCapBack(CapType: Enum "Capacity Type"; CapNo: Code[20]; TimeType: Enum "Routing Time Type"; Write: Boolean)
     begin
         PlanningRoutingLine."Starting Date" := ProdEndingDate;
         PlanningRoutingLine."Starting Time" := ProdEndingTime;
@@ -355,7 +359,7 @@ codeunit 99000810 "Calculate Planning Route Line"
         TestForError(Text001, Text002, PlanningRoutingLine."Starting Date");
     end;
 
-    local procedure LoadCapForward(CapType: Option "Work Center","Machine Center"; CapNo: Code[20]; TimeType: Option "Setup Time","Run Time","Wait Time","Move Time","Queue Time"; Write: Boolean)
+    local procedure LoadCapForward(CapType: Option "Work Center","Machine Center"; CapNo: Code[20]; TimeType: Enum "Routing Time Type"; Write: Boolean)
     var
         IsHandled: Boolean;
     begin
@@ -453,7 +457,7 @@ codeunit 99000810 "Calculate Planning Route Line"
                 TotalLotSize := TotalLotSize + SendAheadLotSize;
             end;
 
-            ProdOrderCapNeed2.Reset;
+            ProdOrderCapNeed2.Reset();
             ProdOrderCapNeed2.SetCurrentKey(
               "Worksheet Template Name", "Worksheet Batch Name", "Worksheet Line No.", "Operation No.", Date, "Starting Time");
             ProdOrderCapNeed2.SetRange("Worksheet Template Name", "Worksheet Template Name");
@@ -533,8 +537,8 @@ codeunit 99000810 "Calculate Planning Route Line"
         then begin
             Clear(PlanningRoutingLine3);
 
-            TmpPlanRtngLine.Reset;
-            TmpPlanRtngLine.DeleteAll;
+            TmpPlanRtngLine.Reset();
+            TmpPlanRtngLine.DeleteAll();
 
             PlanningRoutingLine2.SetRange("Worksheet Template Name", PlanningRoutingLine."Worksheet Template Name");
             PlanningRoutingLine2.SetRange("Worksheet Batch Name", PlanningRoutingLine."Worksheet Batch Name");
@@ -546,7 +550,7 @@ codeunit 99000810 "Calculate Planning Route Line"
                     GetSendAheadStartingTime(PlanningRoutingLine2, SendAheadLotSize);
 
                     TmpPlanRtngLine.Copy(PlanningRoutingLine2);
-                    TmpPlanRtngLine.Insert;
+                    TmpPlanRtngLine.Insert();
 
                     if ProdEndingDate > ProdStartingDate then begin
                         ProdEndingDate := ProdStartingDate;
@@ -564,7 +568,7 @@ codeunit 99000810 "Calculate Planning Route Line"
                 WorkCenter2.Get(PlanningRoutingLine3."Work Center No.");
                 PlanningRoutingLine3."Critical Path" := true;
                 PlanningRoutingLine3.UpdateDatetime;
-                PlanningRoutingLine3.Modify;
+                PlanningRoutingLine3.Modify();
                 if PlanningRoutingLine3.Type = PlanningRoutingLine3.Type::"Machine Center" then begin
                     MachineCenter.Get(PlanningRoutingLine3."No.");
                     WorkCenter2."Queue Time" := MachineCenter."Queue Time";
@@ -637,7 +641,7 @@ codeunit 99000810 "Calculate Planning Route Line"
         PlanningRoutingLine."Starting Date" := ProdEndingDate;
         PlanningRoutingLine."Starting Time" := ProdEndingTime;
         PlanningRoutingLine.UpdateDatetime;
-        PlanningRoutingLine.Modify;
+        PlanningRoutingLine.Modify();
     end;
 
     local procedure GetSendAheadEndingTime(PlanningRoutingLine2: Record "Planning Routing Line"; var SendAheadLotSize: Decimal): Boolean
@@ -677,7 +681,7 @@ codeunit 99000810 "Calculate Planning Route Line"
                 TotalLotSize += SendAheadLotSize;
             end;
 
-            ProdOrderCapNeed2.Reset;
+            ProdOrderCapNeed2.Reset();
             ProdOrderCapNeed2.SetCurrentKey(
               "Worksheet Template Name", "Worksheet Batch Name", "Worksheet Line No.", "Operation No.", Date, "Starting Time");
             ProdOrderCapNeed2.SetRange("Worksheet Template Name", "Worksheet Template Name");
@@ -818,8 +822,8 @@ codeunit 99000810 "Calculate Planning Route Line"
         then begin
             Clear(PlanningRoutingLine3);
 
-            TmpPlanRtngLine.Reset;
-            TmpPlanRtngLine.DeleteAll;
+            TmpPlanRtngLine.Reset();
+            TmpPlanRtngLine.DeleteAll();
 
             PlanningRoutingLine2.SetRange("Worksheet Template Name", PlanningRoutingLine."Worksheet Template Name");
             PlanningRoutingLine2.SetRange("Worksheet Batch Name", PlanningRoutingLine."Worksheet Batch Name");
@@ -831,7 +835,7 @@ codeunit 99000810 "Calculate Planning Route Line"
                     GetSendAheadEndingTime(PlanningRoutingLine2, SendAheadLotSize);
 
                     TmpPlanRtngLine.Copy(PlanningRoutingLine2);
-                    TmpPlanRtngLine.Insert;
+                    TmpPlanRtngLine.Insert();
 
                     if ProdStartingDate < ProdEndingDate then begin
                         ProdStartingDate := ProdEndingDate;
@@ -863,7 +867,7 @@ codeunit 99000810 "Calculate Planning Route Line"
             if PlanningRoutingLine3."Worksheet Template Name" <> '' then begin
                 PlanningRoutingLine3."Critical Path" := true;
                 PlanningRoutingLine3.UpdateDatetime;
-                PlanningRoutingLine3.Modify;
+                PlanningRoutingLine3.Modify();
             end;
         end else begin
             TotalLotSize := MaxLotSize;
@@ -939,14 +943,14 @@ codeunit 99000810 "Calculate Planning Route Line"
         LoadCapForward(PlanningRoutingLine.Type, PlanningRoutingLine."No.", 3, false);
 
         PlanningRoutingLine.UpdateDatetime;
-        PlanningRoutingLine.Modify;
+        PlanningRoutingLine.Modify();
     end;
 
     procedure CalculateRouteLine(var PlanningRoutingLine2: Record "Planning Routing Line"; Direction: Option Forward,Backward; CalcStartEndDate: Boolean; ReqLine2: Record "Requisition Line")
     var
         ProdOrderCapNeed: Record "Prod. Order Capacity Need";
     begin
-        MfgSetup.Get;
+        MfgSetup.Get();
 
         PlanningRoutingLine := PlanningRoutingLine2;
 
@@ -984,12 +988,12 @@ codeunit 99000810 "Calculate Planning Route Line"
         PlanningRoutingLine."Expected Operation Cost Amt." := 0;
         PlanningRoutingLine."Expected Capacity Ovhd. Cost" := 0;
 
-        ProdOrderCapNeed.Reset;
+        ProdOrderCapNeed.Reset();
         ProdOrderCapNeed.SetRange("Worksheet Template Name", PlanningRoutingLine."Worksheet Template Name");
         ProdOrderCapNeed.SetRange("Worksheet Batch Name", PlanningRoutingLine."Worksheet Batch Name");
         ProdOrderCapNeed.SetRange("Worksheet Line No.", PlanningRoutingLine."Worksheet Line No.");
         ProdOrderCapNeed.SetRange("Operation No.", PlanningRoutingLine."Operation No.");
-        ProdOrderCapNeed.DeleteAll;
+        ProdOrderCapNeed.DeleteAll();
 
         NextCapNeedLineNo := 1;
 
@@ -1013,7 +1017,7 @@ codeunit 99000810 "Calculate Planning Route Line"
         PlanningRoutingLine2 := PlanningRoutingLine;
     end;
 
-    local procedure FinitelyLoadCapBack(TimeType: Option "Setup Time","Run Time"; ConstrainedCapacity: Record "Capacity Constrained Resource"; ResourceIsConstrained: Boolean; ParentWorkCenter: Record "Capacity Constrained Resource"; ParentIsConstrained: Boolean)
+    local procedure FinitelyLoadCapBack(TimeType: Enum "Routing Time Type"; ConstrainedCapacity: Record "Capacity Constrained Resource"; ResourceIsConstrained: Boolean; ParentWorkCenter: Record "Capacity Constrained Resource"; ParentIsConstrained: Boolean)
     var
         LastProdOrderCapNeed: Record "Prod. Order Capacity Need";
         AvailTime: Decimal;
@@ -1130,7 +1134,7 @@ codeunit 99000810 "Calculate Planning Route Line"
             WorkCenter."Calendar Rounding Precision"));
     end;
 
-    local procedure GetConstrainedAvailCapBaseUOM(TimeType: Option "Setup Time","Run Time"; CapacityConstrainedResource: Record "Capacity Constrained Resource"; ResourceIsConstrained: Boolean; ParentCapacityConstrainedResource: Record "Capacity Constrained Resource"; ParentIsConstrained: Boolean; IsForward: Boolean) AvailCap: Decimal
+    local procedure GetConstrainedAvailCapBaseUOM(TimeType: Enum "Routing Time Type"; CapacityConstrainedResource: Record "Capacity Constrained Resource"; ResourceIsConstrained: Boolean; ParentCapacityConstrainedResource: Record "Capacity Constrained Resource"; ParentIsConstrained: Boolean; IsForward: Boolean) AvailCap: Decimal
     var
         AbscenseAvailCap: Decimal;
         SetupTime: Decimal;
@@ -1156,7 +1160,7 @@ codeunit 99000810 "Calculate Planning Route Line"
         AvailCap := Min(AbscenseAvailCap, AvailCap);
     end;
 
-    local procedure FinitelyLoadCapForward(TimeType: Option "Setup Time","Run Time"; ConstrainedCapacity: Record "Capacity Constrained Resource"; ResourceIsConstrained: Boolean; ParentWorkCenter: Record "Capacity Constrained Resource"; ParentIsConstrained: Boolean)
+    local procedure FinitelyLoadCapForward(TimeType: Enum "Routing Time Type"; ConstrainedCapacity: Record "Capacity Constrained Resource"; ResourceIsConstrained: Boolean; ParentWorkCenter: Record "Capacity Constrained Resource"; ParentIsConstrained: Boolean)
     var
         NextProdOrderCapNeed: Record "Prod. Order Capacity Need";
         AvailTime: Decimal;
@@ -1467,7 +1471,7 @@ codeunit 99000810 "Calculate Planning Route Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeLoadCapForward(var PlanningRoutingLine: Record "Planning Routing Line"; TimeType: Option; var ProdStartingDate: Date; ProdStartingTime: Time; var IsHandled: Boolean)
+    local procedure OnBeforeLoadCapForward(var PlanningRoutingLine: Record "Planning Routing Line"; TimeType: Enum "Routing Time Type"; var ProdStartingDate: Date; ProdStartingTime: Time; var IsHandled: Boolean)
     begin
     end;
 

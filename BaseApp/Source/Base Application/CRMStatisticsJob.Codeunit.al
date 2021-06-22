@@ -19,7 +19,7 @@ codeunit 5350 "CRM Statistics Job"
         CRMConnectionSetup: Record "CRM Connection Setup";
         ConnectionName: Text;
     begin
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
         if not CRMConnectionSetup."Is Enabled" then
             Error(ConnectionNotEnabledErr, CRMProductName.FULL);
 
@@ -56,7 +56,7 @@ codeunit 5350 "CRM Statistics Job"
                     CRMIntegrationRecord."Last Synch. CRM Job ID" := IntegrationTableSynch.LogSynchError(RecRef[1], RecRef[2], ErrorText);
                     CRMIntegrationRecord."Last Synch. CRM Result" := CRMIntegrationRecord."Last Synch. CRM Result"::Failure;
                     CRMIntegrationRecord.Skipped := true;
-                    CRMIntegrationRecord.Modify;
+                    CRMIntegrationRecord.Modify();
                 end else
                     IntegrationTableSynch.IncrementSynchJobCounters(SynchActionType);
             until CRMIntegrationRecord.Next = 0;
@@ -83,13 +83,13 @@ codeunit 5350 "CRM Statistics Job"
     var
         Customer: Record Customer;
         CRMAccount: Record "CRM Account";
-        IntegrationRecord: Record "Integration Record";
+        RecId: RecordId;
         SynchActionType: Option "None",Insert,Modify,ForceModify,IgnoreUnchanged,Fail,Skip,Delete;
         CustomerExists: Boolean;
         CRMAccountExists: Boolean;
     begin
-        IntegrationRecord.Get(CRMIntegrationRecord."Integration ID");
-        CustomerExists := CustomerRecRef.Get(IntegrationRecord."Record ID");
+        CRMIntegrationRecord.FindRecordId(RecId);
+        CustomerExists := CustomerRecRef.Get(RecId);
         if CustomerExists then
             CustomerRecRef.SetTable(Customer);
         CRMAccountExists := CRMAccount.Get(CRMIntegrationRecord."CRM ID");
@@ -101,7 +101,7 @@ codeunit 5350 "CRM Statistics Job"
         if not CRMAccountExists then
             ErrorText := StrSubstNo(RecordFoundTxt, CRMAccount.TableCaption, CRMIntegrationRecord."CRM ID");
         if not CustomerExists then
-            ErrorText := StrSubstNo(RecordFoundTxt, Customer.TableCaption, IntegrationRecord."Record ID");
+            ErrorText := StrSubstNo(RecordFoundTxt, Customer.TableCaption, RecId);
 
         exit(SynchActionType::Fail);
     end;

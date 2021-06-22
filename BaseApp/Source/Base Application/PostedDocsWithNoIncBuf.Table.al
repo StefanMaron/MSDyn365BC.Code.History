@@ -77,9 +77,9 @@ table 134 "Posted Docs. With No Inc. Buf."
         TableFilters: Text;
     begin
         TableFilters := PostedDocsWithNoIncBuf.GetView;
-        PostedDocsWithNoIncBuf.Reset;
-        PostedDocsWithNoIncBuf.DeleteAll;
-        PostedDocsWithNoIncBuf.Init;
+        PostedDocsWithNoIncBuf.Reset();
+        PostedDocsWithNoIncBuf.DeleteAll();
+        PostedDocsWithNoIncBuf.Init();
         if DateFilter <> '' then
             PostedDocsWithNoIncDocQry.SetFilter(PostingDate, DateFilter);
 
@@ -107,9 +107,9 @@ table 134 "Posted Docs. With No Inc. Buf."
                 PostedDocsWithNoIncBuf."External Document No." := PostedDocsWithNoIncDocQry.ExternalDocumentNo;
                 PostedDocsWithNoIncBuf."Debit Amount" := PostedDocsWithNoIncDocQry.DebitAmount;
                 PostedDocsWithNoIncBuf."Credit Amount" := PostedDocsWithNoIncDocQry.CreditAmount;
-                PostedDocsWithNoIncBuf.Insert;
+                PostedDocsWithNoIncBuf.Insert();
             end;
-        PostedDocsWithNoIncBuf.Reset;
+        PostedDocsWithNoIncBuf.Reset();
         PostedDocsWithNoIncBuf.SetView(TableFilters);
     end;
 

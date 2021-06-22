@@ -40,7 +40,7 @@ codeunit 136213 "Marketing Segment"
         // Exercise : Create Segment and add Contact through Report.
         Segment.OpenNew;  // Open New Segment.
         Segment.Description.Activate;  // Used to generate the Segment No.
-        Commit;  // Commit required to run the report.
+        Commit();  // Commit required to run the report.
         Segment.AddContacts.Invoke;
 
         // Verify : Verify Segment Line.
@@ -270,7 +270,7 @@ codeunit 136213 "Marketing Segment"
         Segment.OpenEdit;
         Segment.GotoRecord(SegmentHeader);
         LibraryVariableStorage.Enqueue(true);
-        Commit;
+        Commit();
 
         // [WHEN] Cover Sheet report printed for Segment "S" with Log Interaction = TRUE
         Segment.CoverSheet.Invoke;
@@ -282,7 +282,7 @@ codeunit 136213 "Marketing Segment"
         VerifyContactCoverSheetContactInfoReport(Contact2);
 
         // [THEN] Interaction Log Entry created for Contacts "C1" and "C2"
-        InteractionTemplateSetup.Get;
+        InteractionTemplateSetup.Get();
         InteractionLogEntry.SetFilter("Contact No.", '%1|%2', Contact1."No.", Contact2."No.");
         InteractionLogEntry.SetRange("Interaction Template Code", InteractionTemplateSetup."Cover Sheets");
         Assert.RecordCount(InteractionLogEntry, 2);
@@ -312,7 +312,7 @@ codeunit 136213 "Marketing Segment"
         Segment.OpenEdit;
         Segment.GotoRecord(SegmentHeader);
         LibraryVariableStorage.Enqueue(false);
-        Commit;
+        Commit();
 
         // [WHEN] Cover Sheet report printed for Segment "S" with Log Interaction = FALSE
         Segment.CoverSheet.Invoke;
@@ -322,7 +322,7 @@ codeunit 136213 "Marketing Segment"
         VerifyContactCoverSheetContactInfoReport(Contact);
 
         // [THEN] No Interaction Log Entries created
-        InteractionTemplateSetup.Get;
+        InteractionTemplateSetup.Get();
         InteractionLogEntry.SetFilter("Contact No.", Contact."No.");
         InteractionLogEntry.SetRange("Interaction Template Code", InteractionTemplateSetup."Cover Sheets");
         Assert.RecordIsEmpty(InteractionLogEntry);
@@ -441,7 +441,7 @@ codeunit 136213 "Marketing Segment"
     begin
         LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
 
-        InteractionTmplLanguage.Init;
+        InteractionTmplLanguage.Init();
         InteractionTmplLanguage.Validate("Interaction Template Code", InteractionTemplate.Code);
         InteractionTmplLanguage.Validate("Language Code", LanguageCode);
         InteractionTmplLanguage.Validate("Attachment No.", AttachmentNo);
@@ -481,7 +481,7 @@ codeunit 136213 "Marketing Segment"
     local procedure CreateSegmentLineByPage(var Segment: TestPage Segment; ContactNo: Code[20])
     begin
         Segment.SegLines."Contact No.".SetValue(ContactNo);
-        Commit;  // Commit required to run the reports.
+        Commit();  // Commit required to run the reports.
     end;
 
     local procedure CreateSegmentLines(Segment: TestPage Segment; ContactNo: Code[20]; ContactNo2: Code[20])
@@ -507,7 +507,7 @@ codeunit 136213 "Marketing Segment"
     begin
         LibraryMarketing.CreateSegmentLine(SegmentLine, SegmentHeaderNo);
         SegmentLine.Validate("Contact No.", ContactNo);
-        SegmentLine.Modify;
+        SegmentLine.Modify();
     end;
 
     local procedure CreateSegmentWithContacts(var Segment: TestPage Segment) SalesPersonCode: Code[20]
@@ -595,7 +595,7 @@ codeunit 136213 "Marketing Segment"
     var
         CompanyInformation: Record "Company Information";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         LibraryReportDataset.AssertElementWithValueExists('CompanyAddress1', CompanyInformation.Name);
         LibraryReportDataset.AssertElementWithValueExists('CompanyAddress2', CompanyInformation.Address);
         LibraryReportDataset.AssertElementWithValueExists('CompanyInformationPhoneNo', CompanyInformation."Phone No.");

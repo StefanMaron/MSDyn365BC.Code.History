@@ -56,7 +56,7 @@ codeunit 5811 "Change Exp. Cost Post. to G/L"
           Text004 +
           Text005);
 
-        ValueEntry.LockTable;
+        ValueEntry.LockTable();
         LastUpdateDateTime := CurrentDateTime;
 
         if PostValueEntryToGL.FindSet then
@@ -112,7 +112,7 @@ codeunit 5811 "Change Exp. Cost Post. to G/L"
                         PostValueEntryToGL."Item No." := "Item No.";
                         PostValueEntryToGL."Posting Date" := "Posting Date";
                         OnBeforePostValueEntryToGLInsert(PostValueEntryToGL, ValueEntry);
-                        PostValueEntryToGL.Insert;
+                        PostValueEntryToGL.Insert();
                     end;
                 until Next = 0;
         end;

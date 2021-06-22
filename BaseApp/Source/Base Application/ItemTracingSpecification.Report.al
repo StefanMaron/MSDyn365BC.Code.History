@@ -92,7 +92,7 @@ report 6520 "Item Tracing Specification"
             trigger OnAfterGetRecord()
             begin
                 if TempTrackEntry.Next = 0 then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 TransactionDescription := PadStr('', TempTrackEntry.Level, '*') + Format(TempTrackEntry.Description);
                 if not Item.Get(TempTrackEntry."Item No.") then
@@ -390,11 +390,11 @@ report 6520 "Item Tracing Specification"
 
     procedure TransferEntries(var ItemTrackingEntry: Record "Item Tracing Buffer")
     begin
-        ItemTrackingEntry.Reset;
+        ItemTrackingEntry.Reset();
         if ItemTrackingEntry.Find('-') then
             repeat
                 TempTrackEntry := ItemTrackingEntry;
-                TempTrackEntry.Insert;
+                TempTrackEntry.Insert();
             until ItemTrackingEntry.Next = 0;
     end;
 

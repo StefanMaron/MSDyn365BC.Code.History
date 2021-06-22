@@ -133,10 +133,10 @@ report 123 "Finance Charge Memo - Test"
                     begin
                         if Number = 1 then begin
                             if not DimSetEntry.FindSet then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end else
                             if not Continue then
-                                CurrReport.Break;
+                                CurrReport.Break();
 
                         Clear(DimText);
                         repeat
@@ -157,7 +157,7 @@ report 123 "Finance Charge Memo - Test"
                     trigger OnPreDataItem()
                     begin
                         if not ShowDim then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         DimSetEntry.SetRange("Dimension Set ID", "Finance Charge Memo Header"."Dimension Set ID");
                     end;
                 }
@@ -335,7 +335,7 @@ report 123 "Finance Charge Memo - Test"
                     trigger OnAfterGetRecord()
                     begin
                         if not "Detailed Interest Rates Entry" then begin
-                            VATAmountLine.Init;
+                            VATAmountLine.Init();
                             VATAmountLine."VAT Identifier" := "VAT Identifier";
                             VATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
                             VATAmountLine."Tax Group Code" := "Tax Group Code";
@@ -372,7 +372,7 @@ report 123 "Finance Charge Memo - Test"
                             until (Next(-1) = 0) or not Continue;
                         end;
                         SetRange("Line No.", StartLineNo + 1, EndLineNo - 1);
-                        VATAmountLine.DeleteAll;
+                        VATAmountLine.DeleteAll();
 
                         TotalAmount := 0;
                         TotalVatAmount := 0;
@@ -473,7 +473,7 @@ report 123 "Finance Charge Memo - Test"
                     trigger OnPreDataItem()
                     begin
                         if TotalVatAmount = 0 then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         SetRange(Number, 1, VATAmountLine.Count);
                     end;
                 }
@@ -545,7 +545,7 @@ report 123 "Finance Charge Memo - Test"
                            ("Finance Charge Memo Header"."Currency Code" = '') or
                            (VATAmountLine.GetTotalVATAmount = 0)
                         then
-                            CurrReport.Break;
+                            CurrReport.Break();
 
                         SetRange(Number, 1, VATAmountLine.Count);
                         Clear(VALVATBaseLCY);
@@ -599,7 +599,7 @@ report 123 "Finance Charge Memo - Test"
                             Cust.TableCaption, "Customer No."));
                 end;
 
-                GLSetup.Get;
+                GLSetup.Get();
 
                 if "Posting Date" = 0D then
                     AddError(StrSubstNo(Text000, FieldCaption("Posting Date")))
@@ -678,7 +678,7 @@ report 123 "Finance Charge Memo - Test"
 
     trigger OnInitReport()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
     end;
 
     trigger OnPreReport()

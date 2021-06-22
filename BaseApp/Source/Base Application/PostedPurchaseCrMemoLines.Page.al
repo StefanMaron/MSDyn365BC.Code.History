@@ -1,4 +1,4 @@
-﻿page 530 "Posted Purchase Cr. Memo Lines"
+page 530 "Posted Purchase Cr. Memo Lines"
 {
     Caption = 'Posted Purchase Cr. Memo Lines';
     Editable = false;

@@ -82,7 +82,7 @@ codeunit 134336 "ERM Purch. Doc. Reports - II"
         CreateVendorWithAddress(Vendor3);
 
         // Exercise.
-        Commit;
+        Commit();
         Clear(VendorLabels);
         Vendor.SetFilter("No.", '%1|%2|%3', Vendor."No.", Vendor2."No.", Vendor3."No.");
         VendorLabels.SetTableView(Vendor);
@@ -249,7 +249,7 @@ codeunit 134336 "ERM Purch. Doc. Reports - II"
         LibraryERMCountryData.UpdateLocalData;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Purch. Doc. Reports - II");
     end;
 

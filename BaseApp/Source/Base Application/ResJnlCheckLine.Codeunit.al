@@ -24,7 +24,7 @@ codeunit 211 "Res. Jnl.-Check Line"
         if IsHandled then
             exit;
 
-        GLSetup.Get;
+        GLSetup.Get();
         with ResJnlLine do begin
             if EmptyLine then
                 exit;

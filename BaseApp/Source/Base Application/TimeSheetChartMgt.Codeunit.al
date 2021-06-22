@@ -192,7 +192,7 @@ codeunit 952 "Time Sheet Chart Mgt."
     var
         TimeSheetChartSetup: Record "Time Sheet Chart Setup";
     begin
-        TimeSheetChartSetup.Init;
+        TimeSheetChartSetup.Init();
         TimeSheetChartSetup."Measure Type" := Type;
         exit(Format(TimeSheetChartSetup."Measure Type"));
     end;

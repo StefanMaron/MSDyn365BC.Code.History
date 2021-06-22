@@ -59,12 +59,12 @@ table 245 "Requisition Wksh. Name"
 
         PlanningErrorLog.SetRange("Worksheet Template Name", "Worksheet Template Name");
         PlanningErrorLog.SetRange("Journal Batch Name", Name);
-        PlanningErrorLog.DeleteAll;
+        PlanningErrorLog.DeleteAll();
     end;
 
     trigger OnInsert()
     begin
-        LockTable;
+        LockTable();
         ReqWkshTmpl.Get("Worksheet Template Name");
     end;
 

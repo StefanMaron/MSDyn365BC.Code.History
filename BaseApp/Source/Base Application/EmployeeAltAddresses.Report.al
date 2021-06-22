@@ -67,7 +67,7 @@ report 5213 "Employee - Alt. Addresses"
                       AlternativeAddr."Post Code", AlternativeAddr.County,
                       AlternativeAddr."Country/Region Code");
                 end else
-                    CurrReport.Skip;
+                    CurrReport.Skip();
             end;
         }
     }

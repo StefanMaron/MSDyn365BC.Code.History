@@ -52,14 +52,11 @@ codeunit 5402 "Unit of Measure Management"
 
     procedure CalcBaseQty(Qty: Decimal; QtyPerUOM: Decimal): Decimal
     begin
-        exit(RoundQty(Qty * QtyPerUOM));
+        exit(CalcBaseQty('', '', '', Qty, QtyPerUOM));
     end;
 
     procedure CalcBaseQty(ItemNo: Code[20]; VariantCode: Code[10]; UOMCode: Code[10]; QtyBase: Decimal; QtyPerUOM: Decimal) QtyRounded: Decimal
     begin
-        if QtyPerUOM = 0 then
-            Error(Text001);
-
         QtyRounded := RoundQty(QtyBase * QtyPerUOM);
 
         OnAfterCalcBaseQtyPerUnitOfMeasure(ItemNo, VariantCode, UOMCode, QtyPerUOM, QtyBase, QtyRounded);
@@ -67,10 +64,7 @@ codeunit 5402 "Unit of Measure Management"
 
     procedure CalcQtyFromBase(QtyBase: Decimal; QtyPerUOM: Decimal): Decimal
     begin
-        if QtyPerUOM = 0 then
-            Error(Text001);
-
-        exit(RoundQty(QtyBase / QtyPerUOM));
+        exit(CalcQtyFromBase('', '', '', QtyBase, QtyPerUOM));
     end;
 
     procedure CalcQtyFromBase(ItemNo: Code[20]; VariantCode: Code[10]; UOMCode: Code[10]; QtyBase: Decimal; QtyPerUOM: Decimal) QtyRounded: Decimal

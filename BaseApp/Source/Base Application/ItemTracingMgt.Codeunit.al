@@ -21,7 +21,7 @@ codeunit 6520 "Item Tracing Mgt."
         FirstLevel(TempTrackEntry, SerialNoFilter, LotNoFilter, ItemNoFilter, VariantFilter, Direction, ShowComponents);
         if TempLineNo > 0 then
             InitTempTable(TempTrackEntry, TempTrackEntry2);
-        TempTrackEntry.Reset;
+        TempTrackEntry.Reset();
         UpdateHistory(SerialNoFilter, LotNoFilter, ItemNoFilter, VariantFilter, Direction, ShowComponents);
     end;
 
@@ -34,7 +34,7 @@ codeunit 6520 "Item Tracing Mgt."
         TempLineNo := 0;
         CurrentLevel := 0;
 
-        ItemLedgEntry.Reset;
+        ItemLedgEntry.Reset();
         case SearchCriteria of
             SearchCriteria::None:
                 exit;
@@ -67,18 +67,17 @@ codeunit 6520 "Item Tracing Mgt."
         OnFirstLevelOnAfterSetLedgerEntryFilters(ItemLedgEntry, SerialNoFilter, LotNoFilter, ItemNoFilter);
 
         Clear(FirstLevelEntries);
-        FirstLevelEntries.DeleteAll;
+        FirstLevelEntries.DeleteAll();
         NextLineNo := 0;
         if ItemLedgEntry.FindSet then
             repeat
                 NextLineNo += 1;
                 FirstLevelEntries."Line No." := NextLineNo;
                 FirstLevelEntries."Item No." := ItemLedgEntry."Item No.";
-                FirstLevelEntries."Serial No." := ItemLedgEntry."Serial No.";
-                FirstLevelEntries."Lot No." := ItemLedgEntry."Lot No.";
+                FirstLevelEntries.CopyTrackingFromItemLedgEntry(ItemLedgEntry);
                 FirstLevelEntries."Item Ledger Entry No." := ItemLedgEntry."Entry No.";
                 OnFirstLevelOnBeforeInsertFirstLevelEntry(FirstLevelEntries, ItemLedgEntry);
-                FirstLevelEntries.Insert;
+                FirstLevelEntries.Insert();
             until ItemLedgEntry.Next = 0;
 
         case SearchCriteria of
@@ -105,7 +104,7 @@ codeunit 6520 "Item Tracing Mgt."
                        (ItemLedgEntry."Entry Type" = ItemLedgEntry."Entry Type"::Transfer) and
                        not ItemLedgEntry.Positive
                     then begin
-                        ItemApplnEntry.Reset;
+                        ItemApplnEntry.Reset();
                         ItemApplnEntry.SetCurrentKey("Outbound Item Entry No.");
                         ItemApplnEntry.SetRange("Outbound Item Entry No.", ItemLedgEntry2."Entry No.");
                         ItemApplnEntry.SetRange("Item Ledger Entry No.", ItemLedgEntry2."Entry No.");
@@ -114,7 +113,7 @@ codeunit 6520 "Item Tracing Mgt."
                             ItemApplnEntry.SetFilter("Item Ledger Entry No.", '<>%1', ItemLedgEntry2."Entry No.");
                             ItemApplnEntry.SetRange("Transferred-from Entry No.", ItemApplnEntry."Inbound Item Entry No.");
                             if ItemApplnEntry.FindFirst then begin
-                                ItemLedgEntry2.Reset;
+                                ItemLedgEntry2.Reset();
                                 if not ItemLedgEntry2.Get(ItemApplnEntry."Item Ledger Entry No.") then
                                     ItemLedgEntry2 := ItemLedgEntry;
                             end;
@@ -146,7 +145,7 @@ codeunit 6520 "Item Tracing Mgt."
                 exit;
             CurrentLevel += 1;
 
-            ItemApplnEntry.Reset;
+            ItemApplnEntry.Reset();
             // Test for if we have reached lowest level possible - if so exit
             if (Direction = Direction::Backward) and Positive then begin
                 ItemApplnEntry.SetCurrentKey("Inbound Item Entry No.", "Item Ledger Entry No.", "Outbound Item Entry No.");
@@ -157,7 +156,7 @@ codeunit 6520 "Item Tracing Mgt."
                     CurrentLevel -= 1;
                     exit;
                 end;
-                ItemApplnEntry.Reset;
+                ItemApplnEntry.Reset();
             end;
 
             if Positive then begin
@@ -214,7 +213,7 @@ codeunit 6520 "Item Tracing Mgt."
                ((("Entry Type" = "Entry Type"::Output) or ("Entry Type" = "Entry Type"::"Assembly Output")) and
                 (Direction = Direction::Backward))
             then begin
-                ItemLedgEntry.Reset;
+                ItemLedgEntry.Reset();
                 ItemLedgEntry.SetCurrentKey("Order Type", "Order No.");
                 ItemLedgEntry.SetRange("Order Type", "Order Type");
                 ItemLedgEntry.SetRange("Order No.", "Order No.");
@@ -295,7 +294,7 @@ codeunit 6520 "Item Tracing Mgt."
                 InsertEntry := not FindFirst;
 
             if InsertEntry then begin
-                TempTrackEntry2.Reset;
+                TempTrackEntry2.Reset();
                 TempTrackEntry := TempTrackEntry2;
                 TempLineNo += 1;
                 "Line No." := TempLineNo;
@@ -336,14 +335,14 @@ codeunit 6520 "Item Tracing Mgt."
 
     procedure InitTempTable(var TempTrackEntry: Record "Item Tracing Buffer"; var TempTrackEntry2: Record "Item Tracing Buffer")
     begin
-        TempTrackEntry2.Reset;
-        TempTrackEntry2.DeleteAll;
-        TempTrackEntry.Reset;
+        TempTrackEntry2.Reset();
+        TempTrackEntry2.DeleteAll();
+        TempTrackEntry.Reset();
         TempTrackEntry.SetRange(Level, 0);
         if TempTrackEntry.Find('-') then
             repeat
                 TempTrackEntry2 := TempTrackEntry;
-                TempTrackEntry2.Insert;
+                TempTrackEntry2.Insert();
             until TempTrackEntry.Next = 0;
     end;
 
@@ -351,22 +350,22 @@ codeunit 6520 "Item Tracing Mgt."
     begin
         Clear(TempTrackEntry);
         if not TempTrackEntry.IsEmpty then
-            TempTrackEntry.DeleteAll;
+            TempTrackEntry.DeleteAll();
 
         Clear(TempTrackEntry2);
         if not TempTrackEntry2.IsEmpty then
-            TempTrackEntry2.DeleteAll;
+            TempTrackEntry2.DeleteAll();
     end;
 
     procedure ExpandAll(var TempTrackEntry: Record "Item Tracing Buffer"; var TempTrackEntry2: Record "Item Tracing Buffer")
     begin
-        TempTrackEntry2.Reset;
-        TempTrackEntry2.DeleteAll;
-        TempTrackEntry.Reset;
+        TempTrackEntry2.Reset();
+        TempTrackEntry2.DeleteAll();
+        TempTrackEntry.Reset();
         if TempTrackEntry.FindSet then
             repeat
                 TempTrackEntry2 := TempTrackEntry;
-                TempTrackEntry2.Insert;
+                TempTrackEntry2.Insert();
             until TempTrackEntry.Next = 0;
     end;
 
@@ -376,7 +375,7 @@ codeunit 6520 "Item Tracing Mgt."
         Found: Boolean;
     begin
         xTrackEntry.Copy(TempTrackEntry2);
-        TempTrackEntry2.Reset;
+        TempTrackEntry2.Reset();
         TempTrackEntry2 := ActualTrackingLine;
         Found := (TempTrackEntry2.Next <> 0);
         if Found then
@@ -387,7 +386,7 @@ codeunit 6520 "Item Tracing Mgt."
 
     local procedure HasChildren(ActualTrackingLine: Record "Item Tracing Buffer"; var TempTrackEntry: Record "Item Tracing Buffer"): Boolean
     begin
-        TempTrackEntry.Reset;
+        TempTrackEntry.Reset();
         TempTrackEntry := ActualTrackingLine;
         if TempTrackEntry.Next = 0 then
             exit(false);
@@ -401,7 +400,7 @@ codeunit 6520 "Item Tracing Mgt."
         Vendor: Record Vendor;
         ValueEntry: Record "Value Entry";
     begin
-        TempTrackEntry.Init;
+        TempTrackEntry.Init();
         TempTrackEntry."Line No." := 9999999;
         TempTrackEntry.Level := CurrentLevel;
         TempTrackEntry."Item No." := ItemLedgEntry."Item No.";
@@ -427,11 +426,10 @@ codeunit 6520 "Item Tracing Mgt."
         TempTrackEntry.Open := ItemLedgEntry.Open;
         TempTrackEntry.Positive := ItemLedgEntry.Positive;
         TempTrackEntry."Variant Code" := ItemLedgEntry."Variant Code";
-        TempTrackEntry."Serial No." := ItemLedgEntry."Serial No.";
-        TempTrackEntry."Lot No." := ItemLedgEntry."Lot No.";
+        TempTrackEntry.CopyTrackingFromItemLedgEntry(ItemLedgEntry);
         TempTrackEntry."Item Ledger Entry No." := ItemLedgEntry."Entry No.";
 
-        ValueEntry.Reset;
+        ValueEntry.Reset();
         ValueEntry.SetCurrentKey("Item Ledger Entry No.", "Document No.");
         ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgEntry."Entry No.");
         if not ValueEntry.FindFirst then
@@ -826,7 +824,7 @@ codeunit 6520 "Item Tracing Mgt."
         with TempTraceHistory do begin
             Reset;
             SetFilter("Entry No.", '>%1', CurrentHistoryEntryNo);
-            DeleteAll;
+            DeleteAll();
 
             repeat
                 Init;
@@ -870,7 +868,7 @@ codeunit 6520 "Item Tracing Mgt."
           VariantFilter, TraceMethod, ShowComponents);
         if TempLineNo > 0 then
             InitTempTable(TempTrackEntry, TempTrackEntry2);
-        TempTrackEntry.Reset;
+        TempTrackEntry.Reset();
         CurrentHistoryEntryNo := CurrentHistoryEntryNo + Steps;
         exit(true);
     end;
@@ -905,7 +903,7 @@ codeunit 6520 "Item Tracing Mgt."
 
     procedure GetHistoryStatus(var PreviousExists: Boolean; var NextExists: Boolean)
     begin
-        TempTraceHistory.Reset;
+        TempTraceHistory.Reset();
         TempTraceHistory.SetFilter("Entry No.", '>%1', CurrentHistoryEntryNo);
         NextExists := not TempTraceHistory.IsEmpty;
         TempTraceHistory.SetFilter("Entry No.", '<%1', CurrentHistoryEntryNo);

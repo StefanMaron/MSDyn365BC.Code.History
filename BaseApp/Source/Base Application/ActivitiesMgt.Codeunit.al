@@ -196,9 +196,9 @@ codeunit 1311 "Activities Mgt."
     var
         ActivitiesCue: Record "Activities Cue";
     begin
-        ActivitiesCue.LockTable;
+        ActivitiesCue.LockTable();
 
-        ActivitiesCue.Get;
+        ActivitiesCue.Get();
 
         if not IsPassedCueDataStale(ActivitiesCue) then
             exit;
@@ -220,8 +220,8 @@ codeunit 1311 "Activities Mgt."
             ActivitiesCue."Average Collection Days" := CalcAverageCollectionDays;
 
         ActivitiesCue."Last Date/Time Modified" := CurrentDateTime;
-        ActivitiesCue.Modify;
-        Commit;
+        ActivitiesCue.Modify();
+        Commit();
     end;
 
     [Scope('OnPrem')]

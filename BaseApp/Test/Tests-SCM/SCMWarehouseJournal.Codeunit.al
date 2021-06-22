@@ -1311,7 +1311,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         // [SCENARIO 372282] Field "Unit of Measure Code" in warehouse journal cannot be empty if "Item No." is not empty
 
         // [GIVEN] Warehouse journal line with "Item No."
-        WhseJnlLine.Init;
+        WhseJnlLine.Init();
         WhseJnlLine."Item No." := LibraryUtility.GenerateGUID;
 
         // [WHEN] Set "Unit of Measure Code" to empty string
@@ -1871,7 +1871,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         LibraryWarehouse.CreateBin(Bin, Location.Code, '', '', '');
         CreateWarehouseLocation.InitializeRequest(Location.Code, Bin.Code);
         CreateWarehouseLocation.UseRequestPage(false);
-        Commit;
+        Commit();
 
         // [WHEN] Create Warehouse Location from L
         WarehouseRegisterLastNo := FindLastWarehouseRegisterNo;
@@ -2399,7 +2399,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         WarehouseJournalLine.FilterGroup(2);
         Assert.AreEqual(Location[3].Code, WarehouseJournalLine.GetFilter("Location Code"), WrongWhseJournalBatchOpenedErr);
 
-        WarehouseJournalTemplate.Delete;
+        WarehouseJournalTemplate.Delete();
     end;
 
     [Test]
@@ -2437,7 +2437,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         WarehouseJournalLine.FilterGroup(2);
         Assert.AreEqual(Location[3].Code, WarehouseJournalLine.GetFilter("Location Code"), WrongWhseJournalBatchOpenedErr);
 
-        WarehouseJournalTemplate.Delete;
+        WarehouseJournalTemplate.Delete();
     end;
 
     [Test]
@@ -2747,7 +2747,7 @@ codeunit 137153 "SCM Warehouse - Journal"
 
         // [GIVEN] Initialize warehouse journal line for positive adjustment.
         CreateWarehouseJournalBatch(WarehouseJournalBatch, DummyWarehouseJournalTemplate.Type::Item, Location.Code);
-        WarehouseJournalLine.Init;
+        WarehouseJournalLine.Init();
         WarehouseJournalLine."Journal Template Name" := WarehouseJournalBatch."Journal Template Name";
         WarehouseJournalLine."Journal Batch Name" := WarehouseJournalBatch.Name;
         WarehouseJournalLine."Location Code" := Location.Code;
@@ -2792,7 +2792,7 @@ codeunit 137153 "SCM Warehouse - Journal"
 
         // [GIVEN] Initialize warehouse journal line for negative adjustment.
         CreateWarehouseJournalBatch(WarehouseJournalBatch, DummyWarehouseJournalTemplate.Type::Item, Location.Code);
-        WarehouseJournalLine.Init;
+        WarehouseJournalLine.Init();
         WarehouseJournalLine."Journal Template Name" := WarehouseJournalBatch."Journal Template Name";
         WarehouseJournalLine."Journal Batch Name" := WarehouseJournalBatch.Name;
         WarehouseJournalLine."Location Code" := Location.Code;
@@ -3265,7 +3265,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         NewAdjmtZone.FindFirst;
         AdjmtBin.Find;
         AdjmtBin."Zone Code" := NewAdjmtZone.Code;
-        AdjmtBin.Modify;
+        AdjmtBin.Modify();
 
         // [GIVEN] Post another positive warehouse adjustment for 10 pcs.
         LibraryWarehouse.CreateWhseJournalLine(
@@ -3309,7 +3309,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         LibrarySetupStorage.Save(DATABASE::"Manufacturing Setup");
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Warehouse - Journal");
     end;
 
@@ -3333,7 +3333,7 @@ codeunit 137153 "SCM Warehouse - Journal"
 
     local procedure AddTwoLotsToTrackingSpecification(var TrackingSpecification: Record "Tracking Specification"; LotNo: array[2] of Code[50]; QtyLot1: Integer; QtyLot2: Integer; EntryNo: Integer; ItemNo: Code[20])
     begin
-        TrackingSpecification.Init;
+        TrackingSpecification.Init();
         TrackingSpecification."Entry No." := EntryNo;
         TrackingSpecification."Source Ref. No." := EntryNo * 10000;
         TrackingSpecification."Item No." := ItemNo;
@@ -3341,7 +3341,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         TrackingSpecification."New Lot No." := LotNo[2];
         TrackingSpecification."Quantity (Base)" := QtyLot1;
         TrackingSpecification."Qty. to Handle (Base)" := QtyLot2;
-        TrackingSpecification.Insert;
+        TrackingSpecification.Insert();
     end;
 
     local procedure CalculateAndPostWhseAdjustment(Item: Record Item)
@@ -3540,7 +3540,7 @@ codeunit 137153 "SCM Warehouse - Journal"
 
     local procedure CreateBinCreationWkshTemplate(var BinCreationWkshTemplate: Record "Bin Creation Wksh. Template")
     begin
-        BinCreationWkshTemplate.Init;
+        BinCreationWkshTemplate.Init();
         BinCreationWkshTemplate.Validate(Name, LibraryUtility.GenerateGUID);
         BinCreationWkshTemplate.Validate(Type, BinCreationWkshTemplate.Type::Bin);
         BinCreationWkshTemplate.Insert(true);
@@ -3548,7 +3548,7 @@ codeunit 137153 "SCM Warehouse - Journal"
 
     local procedure CreateBinCreationWkshName(var BinCreationWkshName: Record "Bin Creation Wksh. Name"; BinCreationWkshTemplateName: Code[10]; LocationCode: Code[10])
     begin
-        BinCreationWkshName.Init;
+        BinCreationWkshName.Init();
         BinCreationWkshName.Validate("Worksheet Template Name", BinCreationWkshTemplateName);
         BinCreationWkshName.Validate(Name, LibraryUtility.GenerateGUID);
         BinCreationWkshName.Validate("Location Code", LocationCode);
@@ -3568,7 +3568,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         Dimension: Record Dimension;
         DimensionValue: Record "Dimension Value";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
 
         LibraryDimension.CreateDimensionValue(DimensionValue, GLSetup."Global Dimension 1 Code");
         DimSetID := LibraryDimension.CreateDimSet(DimSetID, GLSetup."Global Dimension 1 Code", DimensionValue.Code);
@@ -3970,7 +3970,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     var
         AssemblySetup: Record "Assembly Setup";
     begin
-        AssemblySetup.Get;
+        AssemblySetup.Get();
         AssemblySetup.Validate("Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         AssemblySetup.Validate("Posted Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         AssemblySetup.Validate("Stockout Warning", false);
@@ -4084,7 +4084,7 @@ codeunit 137153 "SCM Warehouse - Journal"
             exit;
 
         WarehouseEmployee.SetRange(Default, true);
-        WarehouseEmployee.DeleteAll;
+        WarehouseEmployee.DeleteAll();
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, LocationWhite.Code, true);
     end;
 
@@ -4654,7 +4654,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         ItemJournalLine: Record "Item Journal Line";
     begin
         LibraryInventory.ClearItemJournal(ConsumptionItemJournalTemplate, ConsumptionItemJournalBatch);
-        Commit;
+        Commit();
         LibraryManufacturing.CalculateConsumption(
           ProductionOrderNo, ConsumptionItemJournalTemplate.Name, ConsumptionItemJournalBatch.Name);
         UpdateItemJnlLineDocNo(ConsumptionItemJournalTemplate.Name, ConsumptionItemJournalBatch.Name);
@@ -4682,11 +4682,11 @@ codeunit 137153 "SCM Warehouse - Journal"
     begin
         LibraryInventory.CreateItemJournalTemplate(ItemJournalTemplate);
         ItemJournalTemplate.Type := Type;
-        ItemJournalTemplate.Modify;
+        ItemJournalTemplate.Modify();
         LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
         ItemJournalBatch."Template Type" := Type;
         ItemJournalBatch."No. Series" := NoSeriesCode;
-        ItemJournalBatch.Modify;
+        ItemJournalBatch.Modify();
     end;
 
     local procedure CreateSerialSpecificWithWarehouseItemTrackingCode(var ItemTrackingCode: Record "Item Tracking Code")
@@ -4924,13 +4924,13 @@ codeunit 137153 "SCM Warehouse - Journal"
         WarehouseSetup: Record "Warehouse Setup";
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         exit(NoSeriesManagement.GetNextNo(WarehouseSetup."Whse. Ship Nos.", WorkDate, false));
     end;
 
     local procedure InvokeOpenWarehouseJournal(var WarehouseJournalLine: Record "Warehouse Journal Line"; WarehouseJournalTemplateName: Code[10]; WarehouseJournalBatchName: Code[10]; WarehouseLocationCode: Code[10])
     begin
-        WarehouseJournalLine.INIT;
+        WarehouseJournalLine.Init();
         WarehouseJournalLine.SETRANGE("Journal Template Name", WarehouseJournalTemplateName);
         WarehouseJournalLine.SETRANGE("Journal Batch Name", WarehouseJournalBatchName);
         WarehouseJournalLine.SETRANGE("Location Code", WarehouseLocationCode);
@@ -4945,7 +4945,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         BinContent."Location Code" := Bin."Location Code";
         BinContent."Zone Code" := Bin."Zone Code";
         BinContent."Bin Code" := Bin.Code;
-        if BinContent.Insert then;
+        if BinContent.Insert() then;
     end;
 
     local procedure MockWarehouseJournalLine(var WarehouseJournalLine: Record "Warehouse Journal Line"; LocationCode: Code[10]; EntryType: Option)
@@ -4960,7 +4960,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         WarehouseJournalLine."Journal Batch Name" := WarehouseJournalBatch.Name;
         WarehouseJournalLine."Location Code" := LocationCode;
         WarehouseJournalLine."Entry Type" := EntryType;
-        WarehouseJournalLine.Insert;
+        WarehouseJournalLine.Insert();
     end;
 
     local procedure ModifyPurchaseLineForPartialShipAndInvoice(var PurchaseLine: Record "Purchase Line"; LocationCode: Code[10]; BinCode: Code[20])
@@ -5162,7 +5162,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         Item: Record Item;
     begin
         CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Type::"Phys. Inventory", true);
-        ItemJournalLine.Init;
+        ItemJournalLine.Init();
         ItemJournalLine.Validate("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.Validate("Journal Batch Name", ItemJournalBatch.Name);
         if ItemNo <> '' then
@@ -5181,7 +5181,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         WarehouseJournalTemplate: Record "Warehouse Journal Template";
     begin
         CreateWarehouseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Type::"Physical Inventory", LocationWhite.Code);
-        WarehouseJournalLine.Init;
+        WarehouseJournalLine.Init();
         WarehouseJournalLine.Validate("Journal Template Name", WarehouseJournalBatch."Journal Template Name");
         WarehouseJournalLine.Validate("Journal Batch Name", WarehouseJournalBatch.Name);
         WarehouseJournalLine.Validate("Location Code", LocationCode);
@@ -5215,7 +5215,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         CreateWarehouseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Type::"Physical Inventory", LocationCode);
         WarehouseJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
         WarehouseJournalBatch.Modify(true);
-        WarehouseJournalLine.Init;
+        WarehouseJournalLine.Init();
         WarehouseJournalLine.Validate("Journal Template Name", WarehouseJournalBatch."Journal Template Name");
         WarehouseJournalLine.Validate("Journal Batch Name", WarehouseJournalBatch.Name);
         WarehouseJournalLine.Validate("Location Code", LocationCode);
@@ -5260,7 +5260,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     var
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         ManufacturingSetup.Validate("Components at Location", LocationCode);
         ManufacturingSetup.Modify(true);
     end;
@@ -5387,7 +5387,7 @@ codeunit 137153 "SCM Warehouse - Journal"
     var
         WarehouseJournalLine: Record "Warehouse Journal Line";
     begin
-        WarehouseJournalLine.DeleteAll;
+        WarehouseJournalLine.DeleteAll();
 
         LibraryVariableStorage.Enqueue(0);
         LibraryVariableStorage.Enqueue(LotNo);
@@ -5487,7 +5487,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         ItemLedgerEntry: Record "Item Ledger Entry";
         GLSetup: Record "General Ledger Setup";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         with ItemLedgerEntry do begin
             SetRange("Item No.", ItemNo);
             SetRange("Entry Type", "Entry Type"::Transfer);
@@ -5505,7 +5505,7 @@ codeunit 137153 "SCM Warehouse - Journal"
         GLSetup: Record "General Ledger Setup";
         ValueEntry: Record "Value Entry";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         with ValueEntry do begin
             SetRange("Item No.", ItemNo);
             SetRange("Item Ledger Entry Type", "Item Ledger Entry Type"::Transfer);

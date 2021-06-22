@@ -8,8 +8,11 @@ codeunit 131337 "Library - XPath XML Reader"
     var
         Assert: Codeunit Assert;
         XMLDocOut: DotNet XmlDocument;
+        XmlDocumentNative: XmlDocument;
         XMLNode: DotNet XmlNode;
+        XmlNodeNative: XmlNode;
         XMLNsMgr: DotNet XmlNamespaceManager;
+        XmlNamespaceManagerNative: XmlNamespaceManager;
         UnexpectedValueErr: Label 'Unexpected value!. Expected: %1''. In XML file: %2.';
         NodeCountErr: Label 'Count is wrong. Node: %1';
         NodeCountWithValueErr: Label 'Count is wrong for value %1 in nodes %2';
@@ -68,10 +71,59 @@ codeunit 131337 "Library - XPath XML Reader"
         XMLNsMgr.AddNamespace('ns', NameSpace);
     end;
 
+    procedure InitializeXml(InStreamXml: InStream; Namespace: Text)
+    begin
+        InitializeXml(InStreamXml, 'ns', Namespace);
+    end;
+
+    procedure InitializeXml(InStreamXml: InStream; Prefix: Text; Namespace: Text)
+    begin
+        XmlDocument.ReadFrom(InStreamXml, XmlDocumentNative);
+        InitializeXmlNamespaceManager(Prefix, Namespace);
+    end;
+
+    procedure InitializeXml(Content: Text; Namespace: Text)
+    begin
+        InitializeXml(Content, 'ns', Namespace);
+    end;
+
+    procedure InitializeXml(Content: Text; Prefix: Text; Namespace: Text)
+    begin
+        XmlDocument.ReadFrom(Content, XmlDocumentNative);
+        InitializeXmlNamespaceManager(Prefix, Namespace);
+    end;
+
+    procedure InitializeXml(TempBlob: Codeunit "Temp Blob"; Namespace: Text)
+    begin
+        InitializeXml(TempBlob, 'ns', Namespace);
+    end;
+
+    procedure InitializeXml(TempBlob: Codeunit "Temp Blob"; Prefix: Text; Namespace: Text)
+    var
+        XmlInStream: InStream;
+    begin
+        if TempBlob.HasValue() then begin
+            TempBlob.CreateInStream(XmlInStream);
+            InitializeXml(XmlInStream, Prefix, Namespace);
+        end;
+    end;
+
+    local procedure InitializeXmlNamespaceManager(Prefix: Text; Namespace: Text)
+    begin
+        XmlNamespaceManagerNative.NameTable(XmlDocumentNative.NameTable);
+        XmlNamespaceManagerNative.AddNamespace(Prefix, Namespace);
+    end;
+
     procedure GetElementValue(ElementName: Text): Text
     begin
         GetNodeByElementName(ElementName, XMLNode);
         exit(XMLNode.Value);
+    end;
+
+    procedure GetXmlElementValue(ElementName: Text): Text
+    begin
+        XmlDocumentNative.SelectSingleNode(ElementName, XmlNamespaceManagerNative, XmlNodeNative);
+        exit(XmlNodeNative.AsXmlElement().InnerText())
     end;
 
     procedure VerifyNodeAbsence(ElementName: Text)
@@ -306,7 +358,7 @@ codeunit 131337 "Library - XPath XML Reader"
         NodeCount: Integer;
     begin
         GetNodeList(xPath, NodeList);
-        NodeCount := NodeList.Count;
+        NodeCount := NodeList.Count();
         Assert.AreNotEqual(0, NodeCount, StrSubstNo(NodeNotFoundErr, xPath));
         Node := NodeList.Item(Index);
         if IsNull(Node) then

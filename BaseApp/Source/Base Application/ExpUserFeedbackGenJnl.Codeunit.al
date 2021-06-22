@@ -68,7 +68,7 @@ codeunit 1278 "Exp. User Feedback Gen. Jnl."
                 until VendLedgerEntry.Next = 0;
         end;
 
-        VendLedgerEntry.Reset;
+        VendLedgerEntry.Reset();
         VendLedgerEntry.SetRange("Vendor No.", GenJnlLine."Account No.");
         VendLedgerEntry.SetRange("Applies-to Doc. Type", GenJnlLine."Document Type");
         VendLedgerEntry.SetRange("Applies-to Doc. No.", GenJnlLine."Document No.");
@@ -101,7 +101,7 @@ codeunit 1278 "Exp. User Feedback Gen. Jnl."
                 until CustLedgerEntry.Next = 0;
         end;
 
-        CustLedgerEntry.Reset;
+        CustLedgerEntry.Reset();
         CustLedgerEntry.SetRange("Customer No.", GenJnlLine."Account No.");
         CustLedgerEntry.SetRange("Applies-to Doc. Type", GenJnlLine."Document Type");
         CustLedgerEntry.SetRange("Applies-to Doc. No.", GenJnlLine."Document No.");

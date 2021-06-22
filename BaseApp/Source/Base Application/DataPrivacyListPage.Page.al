@@ -63,7 +63,7 @@ page 1181 "Data Privacy ListPage"
         Counter := 1;
         Clear(Rec);
         Reset;
-        DeleteAll;
+        DeleteAll();
         CurrPage.Update;
 
         if ConfigPackage.Get(PackageCode) then begin
@@ -88,7 +88,7 @@ page 1181 "Data Privacy ListPage"
                                     "Field No." := ConfigPackageField."Field ID";
                                     "Field Value" := Format(FieldRef.Value);
                                     "Field DataType" := Format(FieldRef.Type);
-                                    if not Insert then
+                                    if not Insert() then
                                         repeat
                                             Counter := Counter + 1;
                                             ID := Counter;

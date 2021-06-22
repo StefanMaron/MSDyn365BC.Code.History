@@ -16,6 +16,7 @@ codeunit 135530 "Sales Quote E2E Test"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryUtility: Codeunit "Library - Utility";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryERM: Codeunit "Library - ERM";
         QuoteServiceNameTxt: Label 'salesQuotes';
         GraphContactIdFieldTxt: Label 'contactId';
         CustomerIdFieldTxt: Label 'customerId';
@@ -47,7 +48,7 @@ codeunit 135530 "Sales Quote E2E Test"
 
         CreateSalesQuoteWithLines(SalesHeader);
         QuoteID[2] := SalesHeader."No.";
-        Commit;
+        Commit();
 
         // [WHEN] we GET all the quotes from the web service
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Sales Quote Entity", QuoteServiceNameTxt);
@@ -82,13 +83,13 @@ codeunit 135530 "Sales Quote E2E Test"
 
         // [GIVEN] a customer
         LibrarySales.CreateCustomer(Customer);
-        Commit;
+        Commit();
         CustomerNo := Customer."No.";
         QuoteDate := Today;
 
         // [GIVEN] a JSON text with a quote that contains the customer and an adress as complex type
         QuoteWithComplexJSON := CreateQuoteJSONWithAddress(Customer, QuoteDate);
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSON to the web service
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Sales Quote Entity", QuoteServiceNameTxt);
@@ -139,7 +140,7 @@ codeunit 135530 "Sales Quote E2E Test"
         CurrencyCode := Currency.Code;
         JSONManagement.AddJPropertyToJObject(JObject, 'currencyCode', CurrencyCode);
         QuoteJSON := JSONManagement.WriteObjectToString;
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSON to the web service
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Sales Quote Entity", QuoteServiceNameTxt);
@@ -228,7 +229,7 @@ codeunit 135530 "Sales Quote E2E Test"
         LibraryGraphDocumentTools.GetCustomerAddressComplexType(ComplexTypeJSON, Customer, EmptyData, PartiallyEmptyData);
         QuoteWithComplexJSON := LibraryGraphMgt.AddComplexTypetoJSON(QuoteJSON, 'billingPostalAddress', ComplexTypeJSON);
 
-        Commit;
+        Commit();
 
         // [WHEN] we PATCH the JSON to the web service, with the unique quote ID
         TargetURL := LibraryGraphMgt.CreateTargetURL(QuoteIntegrationID, PAGE::"Sales Quote Entity", QuoteServiceNameTxt);
@@ -265,7 +266,7 @@ codeunit 135530 "Sales Quote E2E Test"
         QuoteID[2] := SalesHeader."No.";
         ID[2] := SalesHeader.Id;
         Assert.AreNotEqual('', ID[2], 'ID should not be empty');
-        Commit;
+        Commit();
 
         // [WHEN] we DELETE the quotes from the web service, with the quotes' unique IDs
         TargetURL := LibraryGraphMgt.CreateTargetURL(ID[1], PAGE::"Sales Quote Entity", QuoteServiceNameTxt);
@@ -311,7 +312,7 @@ codeunit 135530 "Sales Quote E2E Test"
 
         // [GIVEN] a json describing our new quote
         QuoteWithComplexJSON := CreateQuoteJSONWithAddress(Customer, QuoteDate);
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSON to the web service and create another quote through the test page
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Sales Quote Entity", QuoteServiceNameTxt);
@@ -359,7 +360,7 @@ codeunit 135530 "Sales Quote E2E Test"
         LibraryGraphDocumentTools.CreateDocumentWithDiscountPctPending(SalesHeader, DiscountPct, SalesHeader."Document Type"::Quote);
         SalesHeader.CalcFields("Recalculate Invoice Disc.");
         Assert.IsTrue(SalesHeader."Recalculate Invoice Disc.", 'Setup error - recalculate Invoice disc. should be set');
-        Commit;
+        Commit();
 
         // [WHEN] we GET the quote from the web service
         TargetURL := LibraryGraphMgt.CreateTargetURL(SalesHeader.Id, PAGE::"Sales Quote Entity", QuoteServiceNameTxt);
@@ -394,7 +395,7 @@ codeunit 135530 "Sales Quote E2E Test"
         SalesLine.Validate(Quantity, SalesLine.Quantity + 1);
         SalesLine.Modify(true);
         SalesHeader.CalcFields("Recalculate Invoice Disc.");
-        Commit;
+        Commit();
 
         // [WHEN] we GET the quote from the web service
         TargetURL := LibraryGraphMgt.CreateTargetURL(SalesHeader.Id, PAGE::"Sales Quote Entity", QuoteServiceNameTxt);
@@ -455,7 +456,7 @@ codeunit 135530 "Sales Quote E2E Test"
         QuoteWithComplexJSON := CreateQuoteJSONWithContactId(GraphIntegrationRecord);
 
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Sales Quote Entity", QuoteServiceNameTxt);
-        Commit;
+        Commit();
 
         // [WHEN] We post a quote to web service
         LibraryGraphMgt.PostToWebService(TargetURL, QuoteWithComplexJSON, ResponseText);
@@ -498,12 +499,12 @@ codeunit 135530 "Sales Quote E2E Test"
         // Creating the second contact will update the header due to the bug
         SalesHeader.Find;
         SalesHeader."Sell-to Customer No." := CustomerNo;
-        SalesHeader.Modify;
+        SalesHeader.Modify();
 
         TargetURL := LibraryGraphMgt.CreateTargetURL(QuoteID, PAGE::"Sales Quote Entity", QuoteServiceNameTxt);
         QuoteWithComplexJSON := CreateQuoteJSONWithContactId(SecondGraphIntegrationRecord);
 
-        Commit;
+        Commit();
 
         // [WHEN] We Patch to web service
         LibraryGraphMgt.PatchToWebService(TargetURL, QuoteWithComplexJSON, ResponseText);
@@ -545,8 +546,8 @@ codeunit 135530 "Sales Quote E2E Test"
         SalesHeader.SetAutoCalcFields(Amount);
         SalesHeader.Find;
         QuoteID := SalesHeader."No.";
-        InvoiceDiscountAmount := SalesHeader.Amount / 2;
-        Commit;
+        InvoiceDiscountAmount := Round(SalesHeader.Amount / 2, LibraryERM.GetCurrencyAmountRoundingPrecision(SalesHeader."Currency Code"), '=');
+        Commit();
 
         // [WHEN] we PATCH the JSON to the web service, with the unique Item ID
         TargetURL := LibraryGraphMgt.CreateTargetURL(SalesHeader.Id, PAGE::"Sales Quote Entity", QuoteServiceNameTxt);
@@ -599,7 +600,7 @@ codeunit 135530 "Sales Quote E2E Test"
 
         SalesCalcDiscountByType.ApplyInvDiscBasedOnAmt(SalesHeader.Amount / 2, SalesHeader);
 
-        Commit;
+        Commit();
 
         // [WHEN] we PATCH the JSON to the web service, with the unique Item ID
         TargetURL := LibraryGraphMgt.CreateTargetURL(SalesHeader.Id, PAGE::"Sales Quote Entity", QuoteServiceNameTxt);
@@ -645,7 +646,7 @@ codeunit 135530 "Sales Quote E2E Test"
 
     local procedure GetFirstSalesQuoteLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     begin
-        SalesLine.Reset;
+        SalesLine.Reset();
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.FindFirst;
@@ -730,7 +731,7 @@ codeunit 135530 "Sales Quote E2E Test"
 
     local procedure FindSalesHeader(var SalesHeader: Record "Sales Header"; CustomerNo: Text; QuoteNumber: Text): Boolean
     begin
-        SalesHeader.Reset;
+        SalesHeader.Reset();
         if QuoteNumber <> '' then
             SalesHeader.SetRange("No.", QuoteNumber);
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Quote);

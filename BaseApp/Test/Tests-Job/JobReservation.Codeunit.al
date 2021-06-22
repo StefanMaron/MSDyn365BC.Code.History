@@ -54,7 +54,7 @@ codeunit 136312 "Job Reservation"
         Location.Modify(true);
 
         // Exercise.
-        ResourceLocation.Init;
+        ResourceLocation.Init();
         ResourceLocation."Location Code" := Location.Code;
         // Flow field calculation does not check for overflow, thus assign value explicitly
         ResourceLocation."Location Name" := Location.Name;
@@ -864,10 +864,10 @@ codeunit 136312 "Job Reservation"
 
         DummyJobsSetup."Allow Sched/Contract Lines Def" := false;
         DummyJobsSetup."Apply Usage Link by Default" := false;
-        DummyJobsSetup.Modify;
+        DummyJobsSetup.Modify();
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Job Reservation");
     end;
 

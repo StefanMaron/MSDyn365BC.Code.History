@@ -380,7 +380,7 @@ page 130650 "Exchange Contact API Mock"
         end else
             Insert(true);
 
-        Commit;
+        Commit();
 
         LibraryGraphMock.SendContactInsertWebhook(Rec);
         exit(false);
@@ -396,7 +396,7 @@ page 130650 "Exchange Contact API Mock"
             exit(false);
 
         Modify(true);
-        Commit;
+        Commit();
 
         LibraryGraphMock.SendContactUpdateWebhook(Rec);
         exit(false);

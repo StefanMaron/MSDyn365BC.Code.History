@@ -41,7 +41,7 @@ codeunit 137022 "SCM Planning Parameters"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Planning Parameters");
     end;
 

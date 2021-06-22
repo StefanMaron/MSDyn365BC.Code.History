@@ -151,6 +151,7 @@ codeunit 5456 "Graph Connection Setup"
     [IntegrationEvent(false, false)]
     local procedure OnIsS2SAuthenticationEnabled(var IsS2SAuthentication: Boolean; var IsHandled: Boolean);
     begin
+
     end;
 }
 

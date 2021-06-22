@@ -1788,7 +1788,7 @@ codeunit 136108 "Service Posting - Invoice"
         Initialize;
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
         CreateMultipleServiceLines(ServiceHeader, '');
-        Commit;  // Commit is required to run the batch job.
+        Commit();  // Commit is required to run the batch job.
 
         // 2. Exercise: Run the Batch Post Service Invoices with any random date greater than work date.
         PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
@@ -1815,7 +1815,7 @@ codeunit 136108 "Service Posting - Invoice"
         Initialize;
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
         CreateMultipleServiceLines(ServiceHeader, '');
-        Commit;  // Commit is required to run the batch job.
+        Commit();  // Commit is required to run the batch job.
 
         // 2. Exercise: Run the Batch Post Service Invoices with any random date greater than work date.
         PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
@@ -1841,7 +1841,7 @@ codeunit 136108 "Service Posting - Invoice"
         Initialize;
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
         CreateMultipleServiceLines(ServiceHeader, '');
-        Commit;  // Commit is required to run the batch job.
+        Commit();  // Commit is required to run the batch job.
 
         // 2. Exercise: Run the Batch Post Service Invoices with any random date less than work date.
         PostingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
@@ -1922,7 +1922,7 @@ codeunit 136108 "Service Posting - Invoice"
         Initialize;
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo);
         CreateMultipleServiceLines(ServiceHeader, '');
-        Commit;  // Commit is required to run the batch job.
+        Commit();  // Commit is required to run the batch job.
 
         // 2. Exercise: Run the Batch Post Service Cr. Memos with any random date greater than work date.
         PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
@@ -1949,7 +1949,7 @@ codeunit 136108 "Service Posting - Invoice"
         Initialize;
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo);
         CreateMultipleServiceLines(ServiceHeader, '');
-        Commit;  // Commit is required to run the batch job.
+        Commit();  // Commit is required to run the batch job.
 
         // 2. Exercise: Run the Batch Post Service Cr. Memos with any random date greater than work date.
         PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
@@ -1975,7 +1975,7 @@ codeunit 136108 "Service Posting - Invoice"
         Initialize;
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo);
         CreateMultipleServiceLines(ServiceHeader, '');
-        Commit;  // Commit is required to run the batch job.
+        Commit();  // Commit is required to run the batch job.
 
         // 2. Exercise: Run the Batch Post Service Cr. Memos with any random date less than work date.
         PostingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
@@ -2054,7 +2054,7 @@ codeunit 136108 "Service Posting - Invoice"
         Initialize;
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo);
         CreateMultipleServiceLines(ServiceHeader, '');
-        Commit;  // Commit is required to run the batch job.
+        Commit();  // Commit is required to run the batch job.
 
         // 2. Exercise: Run the Batch Post Service Cr. Memos with blank date.
         PostingDate := PostingDate;  // Used to initialize the variable.
@@ -2085,7 +2085,7 @@ codeunit 136108 "Service Posting - Invoice"
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, ServiceItem."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
         CreateMultipleServiceLines(ServiceHeader, ServiceItem."No.");
-        Commit;  // Commit is required to run the batch job.
+        Commit();  // Commit is required to run the batch job.
 
         // 2. Exercise: Run the Batch Post Service Orders with any random date greater than work date.
         PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
@@ -2183,7 +2183,7 @@ codeunit 136108 "Service Posting - Invoice"
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
         CreateMultipleServiceLines(ServiceHeader, ServiceItem."No.");
-        Commit;  // Commit is required to run the batch job.
+        Commit();  // Commit is required to run the batch job.
 
         // 2. Exercise: Run the Batch Post Service Orders with any random date greater than work date.
         PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
@@ -2222,7 +2222,7 @@ codeunit 136108 "Service Posting - Invoice"
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
         CreateMultipleServiceLines(ServiceHeader, ServiceItem."No.");
-        Commit;  // Commit is required to run the batch job.
+        Commit();  // Commit is required to run the batch job.
 
         // 2. Exercise: Run the Batch Post Service Orders with any random date greater than work date.
         PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
@@ -2252,7 +2252,7 @@ codeunit 136108 "Service Posting - Invoice"
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, ServiceItem."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
         CreateMultipleServiceLines(ServiceHeader, ServiceItem."No.");
-        Commit;  // Commit is required to run the batch job.
+        Commit();  // Commit is required to run the batch job.
 
         // 2. Exercise: Run the Batch Post Orders with blank date.
         PostingDate := 0D;  // Used to initialize the variable.
@@ -2310,7 +2310,7 @@ codeunit 136108 "Service Posting - Invoice"
         // [GIVEN] Service Invoice with "Payment Method Code" = "PM"
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, '');
         ServiceHeader.Validate("Payment Method Code", PaymentMethod.Code);
-        ServiceHeader.Modify;
+        ServiceHeader.Modify();
         CreateServiceLine(ServiceHeader);
 
         // [WHEN] Post Service Invoice
@@ -2348,17 +2348,17 @@ codeunit 136108 "Service Posting - Invoice"
         ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
         ServiceLine.Modify(true);
         TempServiceLine := ServiceLine;
-        TempServiceLine.Insert;
+        TempServiceLine.Insert();
 
         // [GIVEN] Second Service Line with empty Type and Description = "D"
-        ServiceLine.Init;
+        ServiceLine.Init();
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::" ", '');
         ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
         ServiceLine.Validate("Service Item No.", ServiceItemLine."Service Item No.");
         ServiceLine.Description := ServiceItemLine."Service Item No.";
         ServiceLine.Modify(true);
         TempServiceLine := ServiceLine;
-        TempServiceLine.Insert;
+        TempServiceLine.Insert();
 
         // [WHEN] Post Service Order
         // Select Ship and Invoice in HandleStrMenu
@@ -2408,8 +2408,8 @@ codeunit 136108 "Service Posting - Invoice"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 220803] Service Header's "Salesperson Code" is copied when perform GenJournalLine.CopyFromServiceHeader()
-        ServiceHeader.Init;
-        GenJournalLine.Init;
+        ServiceHeader.Init();
+        GenJournalLine.Init();
         ServiceHeader."Salesperson Code" := LibraryUtility.GenerateGUID;
 
         GenJournalLine.CopyFromServiceHeader(ServiceHeader);
@@ -2452,12 +2452,12 @@ codeunit 136108 "Service Posting - Invoice"
         // [SCENARIO 226743] If "Posted Service Invoice Nos." and "Invoice Nos." No. Series are the same, then on deletion of Service Invoice before posting, then confirmation for creation of empty posted invoice must appear
 
         // [GIVEN] "Posted Invoice Nos." and "Service Invoice Nos." No. Series are the same
-        ServiceMgtSetup.Get;
+        ServiceMgtSetup.Get();
         ServiceMgtSetup.Validate("Service Invoice Nos.", ServiceMgtSetup."Posted Service Invoice Nos.");
         ServiceMgtSetup.Modify(true);
 
         // [GIVEN] Sales Invoice with "No." = 1111
-        ServiceHeader.Init;
+        ServiceHeader.Init();
         ServiceHeader.Validate("Document Type", ServiceHeader."Document Type"::Invoice);
         ServiceHeader.Validate("Customer No.", LibrarySales.CreateCustomerNo);
         ServiceHeader.Insert(true);
@@ -2551,7 +2551,7 @@ codeunit 136108 "Service Posting - Invoice"
         ServiceHeader.SetHideValidationDialog(false);
         // [GIVEN] Allowed Posting Date is 15-01 to 25-01
         LibraryERM.SetAllowPostingFromTo(WorkDate, LibraryRandom.RandDate(10));
-        Commit;
+        Commit();
 
         // [WHEN] Batch Post Service order report is invoked with ReplacePostingDate enabled and new PostDate = 16-01
         BatchPostServiceOrder(ServiceHeader, WorkDate + 1, true, false, false);
@@ -2583,7 +2583,7 @@ codeunit 136108 "Service Posting - Invoice"
         ServiceHeader.SetHideValidationDialog(false);
         // [GIVEN] Allowed Posting Date is 15-01 to 25-01
         LibraryERM.SetAllowPostingFromTo(WorkDate, LibraryRandom.RandDate(10));
-        Commit;
+        Commit();
 
         // [WHEN] Batch Post Service order report is invoked with ReplacePostingDate enabled and new PostDate = 14-01
         BatchPostServiceOrder(ServiceHeader, WorkDate - 1, true, false, false);
@@ -2639,7 +2639,7 @@ codeunit 136108 "Service Posting - Invoice"
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         isInitialized := true;
-        Commit;
+        Commit();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
@@ -2762,7 +2762,7 @@ codeunit 136108 "Service Posting - Invoice"
     var
         ServiceLine: Record "Service Line";
     begin
-        ServiceLine.Init;
+        ServiceLine.Init();
         ServiceLine.Validate("Document Type", ServiceHeader."Document Type");
         ServiceLine.Validate("Document No.", ServiceHeader."No.");
         ServiceLine.Insert(true);
@@ -2831,7 +2831,7 @@ codeunit 136108 "Service Posting - Invoice"
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, ServiceItem."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
         CreateMultipleServiceLines(ServiceHeader, ServiceItem."No.");
-        Commit;  // Commit is required to run the batch job.
+        Commit();  // Commit is required to run the batch job.
     end;
 
     local procedure CreateMultipleServiceLineAndInvoiceDiscount(var ServiceHeader: Record "Service Header"; var CustInvoiceDisc: Record "Cust. Invoice Disc."; DocumentType: Option)
@@ -2845,7 +2845,7 @@ codeunit 136108 "Service Posting - Invoice"
 
         LibraryService.CreateServiceHeader(ServiceHeader, DocumentType, Customer."No.");
         CreateMultipleServiceLines(ServiceHeader, '');
-        Commit;  // Commit is required to run the batch job.
+        Commit();  // Commit is required to run the batch job.
     end;
 
     local procedure CreateServiceDocument(var ServiceHeader: Record "Service Header"; var ServiceItemLine: Record "Service Item Line"; CustomerNo: Code[20])
@@ -2939,7 +2939,7 @@ codeunit 136108 "Service Posting - Invoice"
         // (otherwise tests would fail)
         ExecuteUIHandlers;
 
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.Validate("Automatic Cost Posting", AutomaticCostPosting);
         InventorySetup.Validate("Expected Cost Posting to G/L", ExpectedCostPostingtoGL);
         InventorySetup.Modify(true);
@@ -2949,7 +2949,7 @@ codeunit 136108 "Service Posting - Invoice"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Calc. Inv. Discount", false);
         SalesReceivablesSetup.Modify(true);
     end;
@@ -3024,10 +3024,10 @@ codeunit 136108 "Service Posting - Invoice"
         ServiceLine.FindSet;
         repeat
             TempServiceLine := ServiceLine;
-            TempServiceLine.Insert;
+            TempServiceLine.Insert();
             ServiceHeader.Get(TempServiceLine."Document Type", TempServiceLine."Document No.");
             ServicePost.PostWithLines(ServiceHeader, TempServiceLine, Ship, Consume, Invoice);
-            TempServiceLine.Delete;
+            TempServiceLine.Delete();
         until ServiceLine.Next = 0;
     end;
 
@@ -3046,7 +3046,7 @@ codeunit 136108 "Service Posting - Invoice"
         ServiceLine.SetRange(Type, ServiceLine.Type::Resource);
         ServiceLine.FindFirst;
         TempServiceLine := ServiceLine;
-        TempServiceLine.Insert;
+        TempServiceLine.Insert();
         ServicePost.PostWithLines(ServiceHeader, TempServiceLine, Ship, Consume, Invoice);
     end;
 
@@ -3067,10 +3067,10 @@ codeunit 136108 "Service Posting - Invoice"
         ServiceLine.FindSet;
         repeat
             TempServiceLine := ServiceLine;
-            TempServiceLine.Insert;
+            TempServiceLine.Insert();
             ServiceHeader.Get(TempServiceLine."Document Type", TempServiceLine."Document No.");
             ServicePost.PostWithLines(ServiceHeader, TempServiceLine, Ship, Consume, Invoice);
-            TempServiceLine.Delete;
+            TempServiceLine.Delete();
         until ServiceLine.Next = 0;
     end;
 
@@ -3081,7 +3081,7 @@ codeunit 136108 "Service Posting - Invoice"
         ServiceLine.FindSet;
         repeat
             TempServiceLine := ServiceLine;
-            TempServiceLine.Insert;
+            TempServiceLine.Insert();
         until ServiceLine.Next = 0;
     end;
 
@@ -3089,7 +3089,7 @@ codeunit 136108 "Service Posting - Invoice"
     var
         SalesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup.Validate("Ext. Doc. No. Mandatory", ExtDocNoMandatory);
         SalesSetup.Modify(true);
     end;
@@ -3146,7 +3146,7 @@ codeunit 136108 "Service Posting - Invoice"
         ServiceCrMemoLine: Record "Service Cr.Memo Line";
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         FindServiceCreditMemoLines(ServiceCrMemoLine, DocumentNo);
         repeat
             Assert.AreNearlyEqual(
@@ -3166,7 +3166,7 @@ codeunit 136108 "Service Posting - Invoice"
         ServiceInvoiceLine: Record "Service Invoice Line";
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         FindServiceInvoiceLines(ServiceInvoiceLine, DocumentNo);
         repeat
             Assert.AreNearlyEqual(

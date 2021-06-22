@@ -186,7 +186,7 @@ table 60 "Document Sending Profile"
     begin
         DocumentSendingProfile.SetRange(Default, true);
         if not DocumentSendingProfile.FindFirst then begin
-            DocumentSendingProfile.Init;
+            DocumentSendingProfile.Init();
             DocumentSendingProfile.Validate(Code, DefaultCodeTxt);
             DocumentSendingProfile.Validate(Description, DefaultDescriptionTxt);
             DocumentSendingProfile.Validate("E-Mail", "E-Mail"::"Yes (Prompt for Settings)");
@@ -291,12 +291,12 @@ table 60 "Document Sending Profile"
     var
         TempDocumentSendingProfile: Record "Document Sending Profile" temporary;
     begin
-        TempDocumentSendingProfile.Init;
+        TempDocumentSendingProfile.Init();
         TempDocumentSendingProfile.Code := DocumentSendingProfileCode;
         TempDocumentSendingProfile.Validate("One Related Party Selected", OneRelatedPartySelected);
-        TempDocumentSendingProfile.Insert;
+        TempDocumentSendingProfile.Insert();
 
-        Commit;
+        Commit();
         if PAGE.RunModal(PAGE::"Select Sending Options", TempDocumentSendingProfile) = ACTION::LookupOK then begin
             Rec := TempDocumentSendingProfile;
             exit(true);
@@ -776,7 +776,7 @@ table 60 "Document Sending Profile"
                 CustomerNo := FieldRef.Value;
                 if not TempCustomer.Get(CustomerNo) then begin
                     TempCustomer."No." := CustomerNo;
-                    TempCustomer.Insert;
+                    TempCustomer.Insert();
                 end;
             until RecRef.Next = 0;
     end;
@@ -792,7 +792,7 @@ table 60 "Document Sending Profile"
                 VendorNo := FieldRef.Value;
                 if not TempVendor.Get(VendorNo) then begin
                     TempVendor."No." := VendorNo;
-                    TempVendor.Insert;
+                    TempVendor.Insert();
                 end;
             until RecRef.Next = 0;
     end;

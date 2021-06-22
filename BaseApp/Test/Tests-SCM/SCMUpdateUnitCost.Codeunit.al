@@ -34,7 +34,7 @@ codeunit 137211 "SCM Update Unit Cost"
         LibraryERMCountryData.CreateVATData;
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Update Unit Cost");
     end;
 

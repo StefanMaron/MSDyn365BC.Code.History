@@ -26,6 +26,9 @@ page 9108 "Resource Details FactBox"
                 DrillDown = true;
                 Editable = true;
                 ToolTip = 'Specifies the resource prices.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                ObsoleteTag = '16.0';
 
                 trigger OnDrillDown()
                 var
@@ -89,20 +92,21 @@ page 9108 "Resource Details FactBox"
         PAGE.Run(PAGE::"Resource Card", Rec);
     end;
 
+    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '16.0')]
     local procedure CalcNoOfRecords()
     var
         ResourcePrice: Record "Resource Price";
         ResourceCost: Record "Resource Cost";
     begin
-        ResourcePrice.Reset;
+        ResourcePrice.Reset();
         ResourcePrice.SetRange(Type, ResourcePrice.Type::Resource);
         ResourcePrice.SetRange(Code, "No.");
-        NoOfResourcePrices := ResourcePrice.Count;
+        NoOfResourcePrices := ResourcePrice.Count();
 
-        ResourceCost.Reset;
+        ResourceCost.Reset();
         ResourceCost.SetRange(Type, ResourceCost.Type::Resource);
         ResourceCost.SetRange(Code, "No.");
-        NoOfResourceCosts := ResourceCost.Count;
+        NoOfResourceCosts := ResourceCost.Count();
     end;
 }
 

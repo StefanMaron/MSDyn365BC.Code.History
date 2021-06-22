@@ -145,7 +145,7 @@ page 5479 "Customer Payments Entity"
                             exit;
                         end;
 
-                        SalesInvoiceHeader.Reset;
+                        SalesInvoiceHeader.Reset();
                         SalesInvoiceHeader.SetRange(Id, AppliesToInvoiceIdText);
                         if not SalesInvoiceHeader.FindFirst then
                             Error(AppliesToInvoiceIdDoesNotMatchAnInvoiceErr);
@@ -245,7 +245,7 @@ page 5479 "Customer Payments Entity"
     begin
         ProcessAppliesToInvoiceNumberAndId;
 
-        TempGenJournalLine.Reset;
+        TempGenJournalLine.Reset();
         TempGenJournalLine.Copy(Rec);
 
         Clear(Rec);

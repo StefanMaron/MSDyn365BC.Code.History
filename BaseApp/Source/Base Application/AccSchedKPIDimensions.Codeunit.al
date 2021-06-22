@@ -30,11 +30,11 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
         with TempAccSchedKPIBuffer do begin
             Init;
             TransferFields(TempAccSchedKPIBuffer2, false);
-            if not Insert then
+            if not Insert() then
                 Modify;
         end;
 
-        TempAccSchedKPIBuffer2.Reset;
+        TempAccSchedKPIBuffer2.Reset();
         if TempAccSchedKPIBuffer2.FindLast then;
         LastDataLineNo := TempAccSchedKPIBuffer2."No.";
 

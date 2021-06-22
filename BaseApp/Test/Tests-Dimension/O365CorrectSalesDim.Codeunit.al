@@ -166,7 +166,7 @@ codeunit 138034 "O365 Correct Sales Dim."
         SalesLine.Validate("Shortcut Dimension 1 Code", '');
         SalesLine.Validate("Shortcut Dimension 2 Code", '');
         SalesLine.Modify(true);
-        Commit;
+        Commit();
 
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, false, true));
 
@@ -214,7 +214,7 @@ codeunit 138034 "O365 Correct Sales Dim."
         repeat
             DefaultDim := TempDefaultDim;
             DefaultDim.Insert(true);
-            Commit;
+            Commit();
 
             GLEntry.FindLast;
 
@@ -232,7 +232,7 @@ codeunit 138034 "O365 Correct Sales Dim."
 
             // Unblock the Dimension
             DefaultDim.Delete(true);
-            Commit;
+            Commit();
         until TempDefaultDim.Next = 0;
     end;
 
@@ -281,12 +281,12 @@ codeunit 138034 "O365 Correct Sales Dim."
         LibraryERMCountryData.CreateVATData;
 
         LibrarySmallBusiness.SetNoSeries;
-        SalesSetup.Get;
+        SalesSetup.Get();
         if SalesSetup."Order Nos." = '' then
             SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesSetup.Modify;
+        SalesSetup.Modify();
 
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Correct Sales Dim.");
     end;
 
@@ -301,7 +301,7 @@ codeunit 138034 "O365 Correct Sales Dim."
         LibraryInventory.CreateItem(Item);
         Item."Unit Price" := UnitPrice;
         Item.Type := Item.Type::Inventory;
-        Item.Modify;
+        Item.Modify();
     end;
 
     local procedure CreateServiceItemWithPrice(var Item: Record Item; UnitPrice: Decimal)
@@ -309,7 +309,7 @@ codeunit 138034 "O365 Correct Sales Dim."
         LibraryInventory.CreateItem(Item);
         Item."Unit Price" := UnitPrice;
         Item.Type := Item.Type::Service;
-        Item.Modify;
+        Item.Modify();
     end;
 
     local procedure CreateSalesInvoiceForItem(Cust: Record Customer; Item: Record Item; Qty: Decimal; var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
@@ -330,7 +330,7 @@ codeunit 138034 "O365 Correct Sales Dim."
     begin
         DimValue.Validate(Blocked, true);
         DimValue.Modify(true);
-        Commit;
+        Commit();
     end;
 
     local procedure BlockDimCombination(DimCode1: Code[20]; DimCode2: Code[20])
@@ -344,14 +344,14 @@ codeunit 138034 "O365 Correct Sales Dim."
             Validate("Combination Restriction", "Combination Restriction"::Blocked);
             Insert;
         end;
-        Commit;
+        Commit();
     end;
 
     local procedure UnblockDimValue(var DimValue: Record "Dimension Value")
     begin
         DimValue.Validate(Blocked, false);
         DimValue.Modify(true);
-        Commit;
+        Commit();
     end;
 
     local procedure UnblockDimCombination(DimCode1: Code[20]; DimCode2: Code[20])
@@ -360,7 +360,7 @@ codeunit 138034 "O365 Correct Sales Dim."
     begin
         DimCombination.Get(DimCode1, DimCode2);
         DimCombination.Delete(true);
-        Commit;
+        Commit();
     end;
 
     local procedure SellItem(SellToCust: Record Customer; Item: Record Item; Qty: Decimal; var SalesInvoiceHeader: Record "Sales Invoice Header")
@@ -424,7 +424,7 @@ codeunit 138034 "O365 Correct Sales Dim."
         // Make Dimension Mandatory
         LibraryDimension.CreateDefaultDimensionWithNewDimValue(
           DefaultDim, DATABASE::"G/L Account", GLAcc."No.", DefaultDim."Value Posting"::"Code Mandatory");
-        Commit;
+        Commit();
 
         if GLEntry.FindLast then;
 
@@ -442,7 +442,7 @@ codeunit 138034 "O365 Correct Sales Dim."
 
         // Unblock the Dimension
         DefaultDim.Delete(true);
-        Commit;
+        Commit();
     end;
 }
 

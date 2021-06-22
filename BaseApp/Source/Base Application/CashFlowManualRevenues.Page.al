@@ -1,4 +1,4 @@
-﻿page 857 "Cash Flow Manual Revenues"
+page 857 "Cash Flow Manual Revenues"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Cash Flow Manual Revenues';

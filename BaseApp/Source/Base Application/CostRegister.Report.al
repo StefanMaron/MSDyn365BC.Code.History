@@ -74,7 +74,7 @@ report 1144 "Cost Register"
                 trigger OnAfterGetRecord()
                 begin
                     if not CostType.Get("Cost Type No.") then
-                        CostType.Init;
+                        CostType.Init();
                 end;
 
                 trigger OnPreDataItem()

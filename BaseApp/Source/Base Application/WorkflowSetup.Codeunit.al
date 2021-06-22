@@ -196,22 +196,22 @@ codeunit 1502 "Workflow Setup"
 
     local procedure InsertWorkflow(var Workflow: Record Workflow; WorkflowCode: Code[20]; WorkflowDescription: Text[100]; CategoryCode: Code[20])
     begin
-        Workflow.Init;
+        Workflow.Init();
         Workflow.Code := WorkflowCode;
         Workflow.Description := WorkflowDescription;
         Workflow.Category := CategoryCode;
         Workflow.Enabled := false;
-        Workflow.Insert;
+        Workflow.Insert();
     end;
 
     procedure InsertWorkflowTemplate(var Workflow: Record Workflow; WorkflowCode: Code[17]; WorkflowDescription: Text[100]; CategoryCode: Code[20])
     begin
-        Workflow.Init;
+        Workflow.Init();
         Workflow.Code := GetWorkflowTemplateCode(WorkflowCode);
         Workflow.Description := WorkflowDescription;
         Workflow.Category := CategoryCode;
         Workflow.Enabled := false;
-        if Workflow.Insert then;
+        if Workflow.Insert() then;
     end;
 
     procedure InsertApprovalsTableRelations()
@@ -1184,7 +1184,7 @@ codeunit 1502 "Workflow Setup"
           WorkflowStepArgument."Approver Type"::Approver, WorkflowStepArgument."Approver Limit Type"::"Direct Approver",
           0, '', BlankDateFormula, false);
 
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         InsertRecApprovalWorkflowSteps(Workflow, BuildGeneralJournalLineTypeConditions(GenJournalLine),
           WorkflowEventHandling.RunWorkflowOnSendGeneralJournalLineForApprovalCode,
           WorkflowResponseHandling.CreateApprovalRequestsCode,
@@ -1827,22 +1827,22 @@ codeunit 1502 "Workflow Setup"
     var
         WorkflowTableRelation: Record "Workflow - Table Relation";
     begin
-        WorkflowTableRelation.Init;
+        WorkflowTableRelation.Init();
         WorkflowTableRelation."Table ID" := TableId;
         WorkflowTableRelation."Field ID" := FieldId;
         WorkflowTableRelation."Related Table ID" := RelatedTableId;
         WorkflowTableRelation."Related Field ID" := RelatedFieldId;
-        if WorkflowTableRelation.Insert then;
+        if WorkflowTableRelation.Insert() then;
     end;
 
     procedure InsertWorkflowCategory("Code": Code[20]; Description: Text[100])
     var
         WorkflowCategory: Record "Workflow Category";
     begin
-        WorkflowCategory.Init;
+        WorkflowCategory.Init();
         WorkflowCategory.Code := Code;
         WorkflowCategory.Description := Description;
-        if WorkflowCategory.Insert then;
+        if WorkflowCategory.Insert() then;
     end;
 
     procedure InsertEventArgument(WorkflowStepID: Integer; EventConditions: Text)
@@ -1872,7 +1872,7 @@ codeunit 1502 "Workflow Setup"
         WorkflowStep.SetRange(ID, WorkflowStepID);
         WorkflowStep.FindFirst;
 
-        WorkflowRule.Init;
+        WorkflowRule.Init();
         WorkflowRule."Workflow Code" := WorkflowStep."Workflow Code";
         WorkflowRule."Workflow Step ID" := WorkflowStep.ID;
         WorkflowRule.Operator := Operator;
@@ -2012,7 +2012,7 @@ codeunit 1502 "Workflow Setup"
 
     procedure PopulateWorkflowStepArgument(var WorkflowStepArgument: Record "Workflow Step Argument"; ApproverType: Option; ApproverLimitType: Option; ApprovalEntriesPage: Integer; WorkflowUserGroupCode: Code[20]; DueDateFormula: DateFormula; ShowConfirmationMessage: Boolean)
     begin
-        WorkflowStepArgument.Init;
+        WorkflowStepArgument.Init();
         WorkflowStepArgument.Type := WorkflowStepArgument.Type::Response;
         WorkflowStepArgument."Approver Type" := ApproverType;
         WorkflowStepArgument."Approver Limit Type" := ApproverLimitType;

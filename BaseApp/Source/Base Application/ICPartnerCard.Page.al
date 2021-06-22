@@ -1,4 +1,4 @@
-﻿page 609 "IC Partner Card"
+page 609 "IC Partner Card"
 {
     Caption = 'Intercompany Partner';
     PageType = Card;

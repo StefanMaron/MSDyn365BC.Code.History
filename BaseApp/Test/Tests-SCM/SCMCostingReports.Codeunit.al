@@ -120,7 +120,7 @@ codeunit 137306 "SCM Costing Reports"
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
 
         // [WHEN] Run report "Item Age Composition - Value" with ending date = workdate and period length = "1M"
-        Commit;
+        Commit();
         RunItemAgeCompositionReport(WorkDate, '1M', Item."No.");
 
         // [THEN] Inventory value on workdate is ("C1" + "C2") / 2
@@ -173,7 +173,7 @@ codeunit 137306 "SCM Costing Reports"
         LibraryCosting.AdjustCostItemEntries(StrSubstNo('%1|%2', Item[1]."No.", Item[2]."No."), '');
 
         // [WHEN] Run report "Item Age Composition - Value" for both items.
-        Commit;
+        Commit();
         RunItemAgeCompositionReport(WorkDate, '1M', StrSubstNo('%1|%2', Item[1]."No.", Item[2]."No."));
 
         // [THEN] The report shows that the invt. value of "A" = "ResA", invt. value of "F" = "ResF".
@@ -209,7 +209,7 @@ codeunit 137306 "SCM Costing Reports"
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Costing Reports");
     end;
 
@@ -235,10 +235,10 @@ codeunit 137306 "SCM Costing Reports"
         ServiceInvoiceNo: Code[20];
     begin
         // Setup : Update Sales Setup and Inventory Setup, Create Item, Post Two Purchase Orders.
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         UpdateSalesReceivablesSetup(SalesReceivablesSetup."Credit Warnings"::"No Warning", false);
 
-        InventorySetup.Get;
+        InventorySetup.Get();
         LibraryInventory.SetAverageCostSetup(InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period");
         LibraryInventory.SetAutomaticCostPosting(AutomaticCostPosting);
         LibraryInventory.SetExpectedCostPosting(false);
@@ -299,7 +299,7 @@ codeunit 137306 "SCM Costing Reports"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.Validate("Expected Cost Posting to G/L", ExpectedCostPostingToGL);
         InventorySetup.Modify(true);
     end;
@@ -308,7 +308,7 @@ codeunit 137306 "SCM Costing Reports"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Credit Warnings", CreditWarnings);
         SalesReceivablesSetup.Validate("Stockout Warning", StockoutWarning);
         SalesReceivablesSetup.Modify(true);
@@ -335,7 +335,7 @@ codeunit 137306 "SCM Costing Reports"
         ServiceHeader.Modify(true);
         CreateServiceLine(ServiceLine, ServiceHeader, ServiceItem."No.", ItemNo, Quantity);
 
-        ServiceMgtSetup.Get;
+        ServiceMgtSetup.Get();
         ServiceInvoiceNo := NoSeriesManagement.GetNextNo(ServiceMgtSetup."Posted Service Invoice Nos.", WorkDate, false);
         LibraryService.PostServiceOrder(ServiceHeader, Ship, false, Invoice);
     end;
@@ -473,7 +473,7 @@ codeunit 137306 "SCM Costing Reports"
             ActualAmount := ActualAmount + GLEntry.Amount;
         until GLEntry.Next = 0;
 
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
 
         Assert.AreNearlyEqual(ExpectedAmount, ActualAmount, GeneralLedgerSetup."Inv. Rounding Precision (LCY)",
           'Wrong Inventory value. Item:' + Item."No.");
@@ -505,7 +505,7 @@ codeunit 137306 "SCM Costing Reports"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         Item.Get(ItemNo);
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Assert.AreNearlyEqual(UnitCost, Item."Unit Cost", GeneralLedgerSetup."Inv. Rounding Precision (LCY)",
           'Wrong Unit cost. Item:' + ItemNo);
     end;

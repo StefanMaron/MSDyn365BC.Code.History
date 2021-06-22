@@ -14,7 +14,7 @@ codeunit 5407 "Prod. Order Status Management"
         if ChangeStatusForm.RunModal = ACTION::Yes then begin
             ChangeStatusForm.ReturnPostingInfo(NewStatus, NewPostingDate, NewUpdateUnitCost);
             ChangeStatusOnProdOrder(Rec, NewStatus, NewPostingDate, NewUpdateUnitCost);
-            Commit;
+            Commit();
             Message(Text000, Status, TableCaption, "No.", ToProdOrder.Status, ToProdOrder.TableCaption, ToProdOrder."No.")
         end;
     end;
@@ -60,7 +60,7 @@ codeunit 5407 "Prod. Order Status Management"
             ErrorIfUnableToClearWIP(ProdOrder);
             TransProdOrder(ProdOrder);
 
-            InvtSetup.Get;
+            InvtSetup.Get();
             if InvtSetup."Automatic Cost Adjustment" <>
                InvtSetup."Automatic Cost Adjustment"::Never
             then begin
@@ -77,7 +77,7 @@ codeunit 5407 "Prod. Order Status Management"
         end;
         OnAfterChangeStatusOnProdOrder(ProdOrder, ToProdOrder);
 
-        Commit;
+        Commit();
 
         Clear(InvtAdjmt);
     end;
@@ -87,7 +87,7 @@ codeunit 5407 "Prod. Order Status Management"
         ToProdOrderLine: Record "Prod. Order Line";
     begin
         with FromProdOrder do begin
-            ToProdOrderLine.LockTable;
+            ToProdOrderLine.LockTable();
 
             ToProdOrder := FromProdOrder;
             ToProdOrder.Status := NewStatus;
@@ -121,7 +121,7 @@ codeunit 5407 "Prod. Order Status Management"
             ToProdOrder."Shortcut Dimension 2 Code" := "Shortcut Dimension 2 Code";
             ToProdOrder."Dimension Set ID" := "Dimension Set ID";
             OnCopyFromProdOrder(ToProdOrder, FromProdOrder);
-            ToProdOrder.Modify;
+            ToProdOrder.Modify();
 
             TransProdOrderLine(FromProdOrder);
             TransProdOrderRtngLine(FromProdOrder);
@@ -148,22 +148,22 @@ codeunit 5407 "Prod. Order Status Management"
         with FromProdOrderLine do begin
             SetRange(Status, FromProdOrder.Status);
             SetRange("Prod. Order No.", FromProdOrder."No.");
-            LockTable;
+            LockTable();
             if FindSet then begin
                 repeat
                     ToProdOrderLine := FromProdOrderLine;
                     ToProdOrderLine.Status := ToProdOrder.Status;
                     ToProdOrderLine."Prod. Order No." := ToProdOrder."No.";
-                    ToProdOrderLine.Insert;
+                    ToProdOrderLine.Insert();
                     if NewStatus = NewStatus::Finished then begin
                         if InvtAdjmtEntryOrder.Get(InvtAdjmtEntryOrder."Order Type"::Production, "Prod. Order No.", "Line No.") then begin
                             InvtAdjmtEntryOrder."Routing No." := ToProdOrderLine."Routing No.";
-                            InvtAdjmtEntryOrder.Modify;
+                            InvtAdjmtEntryOrder.Modify();
                         end else
                             InvtAdjmtEntryOrder.SetProdOrderLine(FromProdOrderLine);
                         InvtAdjmtEntryOrder."Cost is Adjusted" := false;
                         InvtAdjmtEntryOrder."Is Finished" := true;
-                        InvtAdjmtEntryOrder.Modify;
+                        InvtAdjmtEntryOrder.Modify();
 
                         if NewUpdateUnitCost then
                             UpdateProdOrderCost.UpdateUnitCostOnProdOrder(FromProdOrderLine, true, true);
@@ -171,7 +171,7 @@ codeunit 5407 "Prod. Order Status Management"
                           ACYMgt.CalcACYAmt(ToProdOrderLine."Unit Cost", NewPostingDate, true);
                         ToProdOrderLine."Cost Amount (ACY)" :=
                           ACYMgt.CalcACYAmt(ToProdOrderLine."Cost Amount", NewPostingDate, false);
-                        ReservMgt.SetProdOrderLine(FromProdOrderLine);
+                        ReservMgt.SetReservSource(FromProdOrderLine);
                         ReservMgt.DeleteReservEntries(true, 0);
                     end else begin
                         if Item.Get("Item No.") then begin
@@ -184,11 +184,11 @@ codeunit 5407 "Prod. Order Status Management"
                     end;
                     ToProdOrderLine.Validate("Unit Cost", "Unit Cost");
                     OnCopyFromProdOrderLine(ToProdOrderLine, FromProdOrderLine);
-                    ToProdOrderLine.Modify;
+                    ToProdOrderLine.Modify();
                     OnAfterToProdOrderLineModify(ToProdOrderLine, FromProdOrderLine, NewStatus);
                 until Next = 0;
                 OnAfterTransProdOrderLines(FromProdOrder, ToProdOrder);
-                DeleteAll;
+                DeleteAll();
             end;
         end;
     end;
@@ -202,7 +202,7 @@ codeunit 5407 "Prod. Order Status Management"
         with FromProdOrderRtngLine do begin
             SetRange(Status, FromProdOrder.Status);
             SetRange("Prod. Order No.", FromProdOrder."No.");
-            LockTable;
+            LockTable();
             if FindSet then begin
                 repeat
                     ToProdOrderRtngLine := FromProdOrderRtngLine;
@@ -221,10 +221,10 @@ codeunit 5407 "Prod. Order Status Management"
                         ToProdOrderRtngLine."Expected Capacity Need" := ProdOrderCapNeed."Needed Time (ms)";
                     end;
                     OnCopyFromProdOrderRoutingLine(ToProdOrderRtngLine, FromProdOrderRtngLine);
-                    ToProdOrderRtngLine.Insert;
+                    ToProdOrderRtngLine.Insert();
                     OnAfterToProdOrderRtngLineInsert(ToProdOrderRtngLine, FromProdOrderRtngLine);
                 until Next = 0;
-                DeleteAll;
+                DeleteAll();
             end;
         end;
     end;
@@ -238,7 +238,7 @@ codeunit 5407 "Prod. Order Status Management"
         with FromProdOrderComp do begin
             SetRange(Status, FromProdOrder.Status);
             SetRange("Prod. Order No.", FromProdOrder."No.");
-            LockTable;
+            LockTable();
             if FindSet then begin
                 repeat
                     if Location.Get("Location Code") and
@@ -259,9 +259,9 @@ codeunit 5407 "Prod. Order Status Management"
                     ToProdOrderComp := FromProdOrderComp;
                     ToProdOrderComp.Status := ToProdOrder.Status;
                     ToProdOrderComp."Prod. Order No." := ToProdOrder."No.";
-                    ToProdOrderComp.Insert;
+                    ToProdOrderComp.Insert();
                     if NewStatus = NewStatus::Finished then begin
-                        ReservMgt.SetProdOrderComponent(FromProdOrderComp);
+                        ReservMgt.SetReservSource(FromProdOrderComp);
                         ReservMgt.DeleteReservEntries(true, 0);
                     end else begin
                         ToProdOrderComp.BlockDynamicTracking(true);
@@ -271,10 +271,10 @@ codeunit 5407 "Prod. Order Status Management"
                             ToProdOrderComp.AutoReserve;
                     end;
                     OnCopyFromProdOrderComp(ToProdOrderComp, FromProdOrderComp);
-                    ToProdOrderComp.Modify;
+                    ToProdOrderComp.Modify();
                 until Next = 0;
                 OnAfterTransProdOrderComp(FromProdOrder, ToProdOrder);
-                DeleteAll;
+                DeleteAll();
             end;
         end;
     end;
@@ -287,15 +287,15 @@ codeunit 5407 "Prod. Order Status Management"
         with FromProdOrderRtngTool do begin
             SetRange(Status, FromProdOrder.Status);
             SetRange("Prod. Order No.", FromProdOrder."No.");
-            LockTable;
+            LockTable();
             if FindSet then begin
                 repeat
                     ToProdOrderRoutTool := FromProdOrderRtngTool;
                     ToProdOrderRoutTool.Status := ToProdOrder.Status;
                     ToProdOrderRoutTool."Prod. Order No." := ToProdOrder."No.";
-                    ToProdOrderRoutTool.Insert;
+                    ToProdOrderRoutTool.Insert();
                 until Next = 0;
-                DeleteAll;
+                DeleteAll();
             end;
         end;
     end;
@@ -308,15 +308,15 @@ codeunit 5407 "Prod. Order Status Management"
         with FromProdOrderRtngPersonnel do begin
             SetRange(Status, FromProdOrder.Status);
             SetRange("Prod. Order No.", FromProdOrder."No.");
-            LockTable;
+            LockTable();
             if FindSet then begin
                 repeat
                     ToProdOrderRtngPersonnel := FromProdOrderRtngPersonnel;
                     ToProdOrderRtngPersonnel.Status := ToProdOrder.Status;
                     ToProdOrderRtngPersonnel."Prod. Order No." := ToProdOrder."No.";
-                    ToProdOrderRtngPersonnel.Insert;
+                    ToProdOrderRtngPersonnel.Insert();
                 until Next = 0;
-                DeleteAll;
+                DeleteAll();
             end;
         end;
     end;
@@ -329,15 +329,15 @@ codeunit 5407 "Prod. Order Status Management"
         with FromProdOrderRtngQltyMeas do begin
             SetRange(Status, FromProdOrder.Status);
             SetRange("Prod. Order No.", FromProdOrder."No.");
-            LockTable;
+            LockTable();
             if FindSet then begin
                 repeat
                     ToProdOrderRtngQltyMeas := FromProdOrderRtngQltyMeas;
                     ToProdOrderRtngQltyMeas.Status := ToProdOrder.Status;
                     ToProdOrderRtngQltyMeas."Prod. Order No." := ToProdOrder."No.";
-                    ToProdOrderRtngQltyMeas.Insert;
+                    ToProdOrderRtngQltyMeas.Insert();
                 until Next = 0;
-                DeleteAll;
+                DeleteAll();
             end;
         end;
     end;
@@ -350,15 +350,15 @@ codeunit 5407 "Prod. Order Status Management"
         with FromProdOrderCommentLine do begin
             SetRange(Status, FromProdOrder.Status);
             SetRange("Prod. Order No.", FromProdOrder."No.");
-            LockTable;
+            LockTable();
             if FindSet then begin
                 repeat
                     ToProdOrderCommentLine := FromProdOrderCommentLine;
                     ToProdOrderCommentLine.Status := ToProdOrder.Status;
                     ToProdOrderCommentLine."Prod. Order No." := ToProdOrder."No.";
-                    ToProdOrderCommentLine.Insert;
+                    ToProdOrderCommentLine.Insert();
                 until Next = 0;
-                DeleteAll;
+                DeleteAll();
             end;
         end;
         TransferLinks(FromProdOrder, ToProdOrder);
@@ -372,15 +372,15 @@ codeunit 5407 "Prod. Order Status Management"
         with FromProdOrderRtngComment do begin
             SetRange(Status, FromProdOrder.Status);
             SetRange("Prod. Order No.", FromProdOrder."No.");
-            LockTable;
+            LockTable();
             if FindSet then begin
                 repeat
                     ToProdOrderRtngComment := FromProdOrderRtngComment;
                     ToProdOrderRtngComment.Status := ToProdOrder.Status;
                     ToProdOrderRtngComment."Prod. Order No." := ToProdOrder."No.";
-                    ToProdOrderRtngComment.Insert;
+                    ToProdOrderRtngComment.Insert();
                 until Next = 0;
-                DeleteAll;
+                DeleteAll();
             end;
         end;
     end;
@@ -393,15 +393,15 @@ codeunit 5407 "Prod. Order Status Management"
         with FromProdOrderBOMComment do begin
             SetRange(Status, FromProdOrder.Status);
             SetRange("Prod. Order No.", FromProdOrder."No.");
-            LockTable;
+            LockTable();
             if FindSet then begin
                 repeat
                     ToProdOrderBOMComment := FromProdOrderBOMComment;
                     ToProdOrderBOMComment.Status := ToProdOrder.Status;
                     ToProdOrderBOMComment."Prod. Order No." := ToProdOrder."No.";
-                    ToProdOrderBOMComment.Insert;
+                    ToProdOrderBOMComment.Insert();
                 until Next = 0;
-                DeleteAll;
+                DeleteAll();
             end;
         end;
     end;
@@ -420,9 +420,9 @@ codeunit 5407 "Prod. Order Status Management"
                 IsHandled := false;
                 OnTransProdOrderCapNeedOnBeforeDeleteAll(ToProdOrder, FromProdOrderCapNeed, IsHandled);
                 if not IsHandled then
-                    DeleteAll;
+                    DeleteAll();
             end else begin
-                LockTable;
+                LockTable();
                 if FindSet then begin
                     repeat
                         ToProdOrderCapNeed := FromProdOrderCapNeed;
@@ -430,9 +430,9 @@ codeunit 5407 "Prod. Order Status Management"
                         ToProdOrderCapNeed."Prod. Order No." := ToProdOrder."No.";
                         ToProdOrderCapNeed."Allocated Time" := ToProdOrderCapNeed."Needed Time";
                         OnCopyFromProdOrderCapacityNeed(ToProdOrderCapNeed, FromProdOrderCapNeed);
-                        ToProdOrderCapNeed.Insert;
+                        ToProdOrderCapNeed.Insert();
                     until Next = 0;
-                    DeleteAll;
+                    DeleteAll();
                 end;
             end;
         end;
@@ -464,8 +464,8 @@ codeunit 5407 "Prod. Order Status Management"
 
         GetSourceCodeSetup;
 
-        ProdOrderLine.LockTable;
-        ProdOrderLine.Reset;
+        ProdOrderLine.LockTable();
+        ProdOrderLine.Reset();
         ProdOrderLine.SetRange(Status, ProdOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProdOrder."No.");
         if ProdOrderLine.FindSet then
@@ -481,7 +481,7 @@ codeunit 5407 "Prod. Order Status Management"
                 ProdOrderRtngLine.SetRange("Prod. Order No.", ProdOrder."No.");
                 ProdOrderRtngLine.SetRange("Routing No.", ProdOrderLine."Routing No.");
                 ProdOrderRtngLine.SetRange("Routing Reference No.", ProdOrderLine."Routing Reference No.");
-                ProdOrderRtngLine.LockTable;
+                ProdOrderRtngLine.LockTable();
                 if ProdOrderRtngLine.Find('-') then begin
                     // First found operation
                     IsLastOperation := ProdOrderRtngLine."Next Operation No." = '';
@@ -548,7 +548,7 @@ codeunit 5407 "Prod. Order Status Management"
             SetRange(Status, Status::Released);
             SetRange("Prod. Order No.", ProdOrder."No.");
             SetFilter("Item No.", '<>%1', '');
-            LockTable;
+            LockTable();
             if FindSet then begin
                 NoOfRecords := Count;
                 Window.Open(
@@ -587,7 +587,7 @@ codeunit 5407 "Prod. Order Status Management"
 
     local procedure InitItemJnlLineFromProdOrderLine(var ItemJnlLine: Record "Item Journal Line"; ProdOrder: Record "Production Order"; ProdOrderLine: Record "Prod. Order Line"; ProdOrderRoutingLine: Record "Prod. Order Routing Line"; PostingDate: Date)
     begin
-        ItemJnlLine.Init;
+        ItemJnlLine.Init();
         OnInitItemJnlLineFromProdOrderLineOnAfterInit(ItemJnlLine);
 
         ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::Output);
@@ -614,7 +614,7 @@ codeunit 5407 "Prod. Order Status Management"
 
     local procedure InitItemJnlLineFromProdOrderComp(var ItemJnlLine: Record "Item Journal Line"; ProdOrder: Record "Production Order"; ProdOrderLine: Record "Prod. Order Line"; ProdOrderComp: Record "Prod. Order Component"; PostingDate: Date; QtyToPost: Decimal)
     begin
-        ItemJnlLine.Init;
+        ItemJnlLine.Init();
         OnInitItemJnlLineFromProdOrderCompOnAfterInit(ItemJnlLine);
 
         ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::Consumption);
@@ -742,7 +742,7 @@ codeunit 5407 "Prod. Order Status Management"
     local procedure GetSourceCodeSetup()
     begin
         if not SourceCodeSetupRead then
-            SourceCodeSetup.Get;
+            SourceCodeSetup.Get();
         SourceCodeSetupRead := true;
     end;
 
@@ -845,7 +845,7 @@ codeunit 5407 "Prod. Order Status Management"
     begin
         ToProdOrder.CopyLinks(FromProdOrder);
         RecordLink.SetRange("Record ID", FromProdOrder.RecordId);
-        RecordLink.DeleteAll;
+        RecordLink.DeleteAll();
 
         RecordLink.SetRange("Record ID", ToProdOrder.RecordId);
         RecordLink.SetRange(Type, RecordLink.Type::Note);

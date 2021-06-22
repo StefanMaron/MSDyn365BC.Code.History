@@ -36,14 +36,14 @@ codeunit 134620 "Sync Contact through Graph"
 
         // Setup
         BindSubscription(SyncContactThroughGraph);
-        TempContact.Init;
+        TempContact.Init();
         TempContact."First Name" := LibraryUtility.GenerateGUID;
-        TempContact.Insert;
+        TempContact.Insert();
         UnbindSubscription(SyncContactThroughGraph);
 
         // Exercise
         TempContact.Surname := LibraryUtility.GenerateGUID;
-        TempContact.Modify;
+        TempContact.Modify();
 
         // Verify
         LibraryGraphSync.AssertNoSynchErrors;
@@ -73,13 +73,13 @@ codeunit 134620 "Sync Contact through Graph"
 
         // Setup
         GraphDataSetup.GetIntegrationTableMapping(IntegrationTableMapping, IntegrationMappingCode);
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation."Sync with O365 Bus. profile" := true;
-        CompanyInformation.Modify;
+        CompanyInformation.Modify();
 
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         MarketingSetup."Sync with Microsoft Graph" := false;
-        MarketingSetup.Modify;
+        MarketingSetup.Modify();
 
         // Exercise
         LibraryMarketing.CreatePersonContact(Contact);
@@ -337,8 +337,8 @@ codeunit 134620 "Sync Contact through Graph"
         IntegrationRecord.FindByRecordId(Contact.RecordId);
 
         // Exercise
-        Contact.Delete;
-        Commit;
+        Contact.Delete();
+        Commit();
 
         // Verify
         SetDefaultTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, SynchronizeConnectionName, true);
@@ -358,7 +358,7 @@ codeunit 134620 "Sync Contact through Graph"
         LibraryGraphSync.DeleteAllLogRecords;
         LibraryGraphSync.DeleteAllContactIntegrationMappingDetails;
         LibraryGraphSync.RegisterTestConnections;
-        Contact.DeleteAll;
+        Contact.DeleteAll();
 
         InboundConnectionName := GraphConnectionSetup.GetInboundConnectionName(DATABASE::Contact);
         SubscriptionConnectionName := GraphConnectionSetup.GetSubscriptionConnectionName(DATABASE::Contact);

@@ -4,6 +4,9 @@ page 7190 "Get Purchase Price"
     Editable = false;
     PageType = List;
     SourceTable = "Purchase Price";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+    ObsoleteTag = '16.0';
 
     layout
     {

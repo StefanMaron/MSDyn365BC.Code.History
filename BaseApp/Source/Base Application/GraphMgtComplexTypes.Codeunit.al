@@ -310,7 +310,7 @@ codeunit 5468 "Graph Mgt - Complex Types"
         for I := 1 to NumberOfLines do begin
             JSONManagement.GetJObjectFromCollectionByIndex(LineJsonObject, I - 1);
             GetDimensionFromJObject(LineJsonObject, Code, Value);
-            TempDimensionSetEntry.Init;
+            TempDimensionSetEntry.Init();
             TempDimensionSetEntry."Dimension Set ID" := OldDimensionSetId;
             TempDimensionSetEntry."Dimension Code" := Code;
             TempDimensionSetEntry."Dimension Value Code" := Value;

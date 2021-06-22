@@ -90,7 +90,7 @@ codeunit 99000856 "Planning Transparency"
         end;
 
         if SurplusType <> SurplusType::Undefined then begin
-            TempInvProfileTrack.Init;
+            TempInvProfileTrack.Init();
             TempInvProfileTrack.Priority := Priority;
             TempInvProfileTrack."Line No." := SupplyLineNo;
             TempInvProfileTrack."Demand Line No." := DemandLineNo;
@@ -99,7 +99,7 @@ codeunit 99000856 "Planning Transparency"
             TempInvProfileTrack."Source Type" := SourceType;
             TempInvProfileTrack."Source ID" := SourceID;
             TempInvProfileTrack."Quantity Tracked" := Qty;
-            TempInvProfileTrack.Insert;
+            TempInvProfileTrack.Insert();
         end;
     end;
 
@@ -115,21 +115,21 @@ codeunit 99000856 "Planning Transparency"
         TempInvProfileTrack.SetRange("Source ID", SourceID);
         if TempInvProfileTrack.FindLast then begin
             TempInvProfileTrack."Quantity Tracked" += Qty;
-            TempInvProfileTrack.Modify;
+            TempInvProfileTrack.Modify();
         end;
-        TempInvProfileTrack.Reset;
+        TempInvProfileTrack.Reset();
     end;
 
     procedure CleanLog(SupplyLineNo: Integer)
     begin
         TempInvProfileTrack.SetRange("Line No.", SupplyLineNo);
         if not TempInvProfileTrack.IsEmpty then
-            TempInvProfileTrack.DeleteAll;
+            TempInvProfileTrack.DeleteAll();
         TempInvProfileTrack.SetRange("Line No.");
 
         TempPlanningWarning.SetRange("Worksheet Line No.", SupplyLineNo);
         if not TempPlanningWarning.IsEmpty then
-            TempPlanningWarning.DeleteAll;
+            TempPlanningWarning.DeleteAll();
         TempPlanningWarning.SetRange("Worksheet Line No.");
     end;
 
@@ -159,7 +159,7 @@ codeunit 99000856 "Planning Transparency"
                     repeat
                         SetRange(Priority, Priority);
                         SetRange("Demand Line No.", "Demand Line No.");
-                        PlanningElement.Init;
+                        PlanningElement.Init();
                         FindLast;
                         PlanningElement."Track Quantity From" := QtyRemaining;
                         PlanningElement."Warning Level" := "Warning Level";
@@ -249,14 +249,14 @@ codeunit 99000856 "Planning Transparency"
                             PlanningElement."Track Quantity To" := QtyRemaining;
                             TransferWarningSourceText(TempInvProfileTrack, PlanningElement);
                             OnPublishSurplusOnBeforePlanningElementInsert(PlanningElement);
-                            PlanningElement.Insert;
+                            PlanningElement.Insert();
                         end;
                         SetRange(Priority);
                         SetRange("Demand Line No.");
                     until (Next = 0);
 
                 if QtyRemaining > 0 then begin // just in case that something by accident has not been captured
-                    PlanningElement.Init;
+                    PlanningElement.Init();
                     PlanningElement."Track Line No." += 1;
                     PlanningElement."Item No." := SupplyInvProfile."Item No.";
                     PlanningElement."Variant Code" := SupplyInvProfile."Variant Code";
@@ -267,7 +267,7 @@ codeunit 99000856 "Planning Transparency"
                     QtyTracked += PlanningElement."Untracked Quantity";
                     QtyRemaining -= PlanningElement."Untracked Quantity";
                     PlanningElement."Track Quantity To" := QtyRemaining;
-                    PlanningElement.Insert;
+                    PlanningElement.Insert();
                 end;
             end;
         TempInvProfileTrack.SetRange("Line No.");
@@ -278,14 +278,12 @@ codeunit 99000856 "Planning Transparency"
     local procedure SurplusQty(var ReqLine: Record "Requisition Line"; var ReservEntry: Record "Reservation Entry"): Decimal
     var
         CrntReservEntry: Record "Reservation Entry";
-        ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
-        ReqLineReserve: Codeunit "Req. Line-Reserve";
         QtyTracked1: Decimal;
         QtyTracked2: Decimal;
     begin
         CrntReservEntry.Copy(ReservEntry);
-        ReservEngineMgt.InitFilterAndSortingLookupFor(ReservEntry, false);
-        ReqLineReserve.FilterReservFor(ReservEntry, ReqLine);
+        ReservEntry.InitSortingAndFilters(false);
+        ReqLine.SetReservationFilters(ReservEntry);
         with ReservEntry do begin
             SetRange("Reservation Status", "Reservation Status"::Surplus);
             if FindSet then
@@ -417,11 +415,11 @@ codeunit 99000856 "Planning Transparency"
                     PlanningElement."Worksheet Line No." := "Line No.";
                 end;
 
-                PlanningElement.Init;
+                PlanningElement.Init();
                 PlanningElement."Track Line No." += 1;
                 PlanningElement.Source := Source;
                 PlanningElement."Warning Level" := WarningLevel;
-                PlanningElement.Insert;
+                PlanningElement.Insert();
             end
         else
             with TempInvProfileTrack do begin
@@ -436,13 +434,13 @@ codeunit 99000856 "Planning Transparency"
                 "Quantity Tracked" := 0;
                 "Warning Level" := WarningLevel;
                 Insert;
-                TempPlanningWarning.Init;
+                TempPlanningWarning.Init();
                 TempPlanningWarning."Worksheet Template Name" := '';
                 TempPlanningWarning."Worksheet Batch Name" := '';
                 TempPlanningWarning."Worksheet Line No." := SupplyLineNo;
                 TempPlanningWarning."Track Line No." := "Sequence No.";
                 TempPlanningWarning.Source := Source;
-                TempPlanningWarning.Insert;
+                TempPlanningWarning.Insert();
             end;
         exit(true);
     end;
@@ -453,7 +451,7 @@ codeunit 99000856 "Planning Transparency"
             exit;
         if TempPlanningWarning.Get('', '', FromInvProfileTrack."Line No.", FromInvProfileTrack."Sequence No.") then begin
             ToPlanningElement.Source := TempPlanningWarning.Source;
-            TempPlanningWarning.Delete;
+            TempPlanningWarning.Delete();
         end;
     end;
 

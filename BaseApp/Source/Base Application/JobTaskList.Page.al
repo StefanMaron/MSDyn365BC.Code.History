@@ -1,4 +1,4 @@
-﻿page 1004 "Job Task List"
+page 1004 "Job Task List"
 {
     Caption = 'Job Task List';
     CardPageID = "Job Task Card";

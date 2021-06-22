@@ -23,7 +23,7 @@ codeunit 135001 "Page Management Tests"
     begin
         // [SCENARIO] The user defined page ID is returned when record is provided to GetPageID
         // [GIVEN] A Record, which has a user defined page id
-        CompanyInformation.Get;
+        CompanyInformation.Get();
 
         // [WHEN] The GetPageID function is called with that record
         PageID := PageManagement.GetPageID(CompanyInformation);
@@ -141,9 +141,9 @@ codeunit 135001 "Page Management Tests"
         PageID: Integer;
     begin
         // [SCENARIO] The correct page ID is returned for the sales order
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
-        SalesHeader.Insert;
+        SalesHeader.Insert();
 
         // [WHEN] The GetPageID function is called for a sales order
         PageID := PageManagement.GetPageID(SalesHeader);
@@ -160,9 +160,9 @@ codeunit 135001 "Page Management Tests"
         PageID: Integer;
     begin
         // [SCENARIO] The correct page ID is returned for the purchase quote
-        PurchaseHeader.Init;
+        PurchaseHeader.Init();
         PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Quote;
-        PurchaseHeader.Insert;
+        PurchaseHeader.Insert();
 
         // [WHEN] The GetPageID function is called for a purchase qoute
         PageID := PageManagement.GetPageID(PurchaseHeader);
@@ -181,10 +181,10 @@ codeunit 135001 "Page Management Tests"
         PageID: Integer;
     begin
         // [SCENARIO] The correct page ID is returned for the "Service Invoice Header" record
-        ServiceInvoiceHeader.Init;
+        ServiceInvoiceHeader.Init();
         ServiceInvoiceHeader."No." := LibraryUtility.GenerateRandomCode(ServiceInvoiceHeader.FieldNo("No."),
             DATABASE::"Service Invoice Header");
-        ServiceInvoiceHeader.Insert;
+        ServiceInvoiceHeader.Insert();
 
         // [WHEN] The GetPageID function is called for a service invoice header
         PageID := PageManagement.GetPageID(ServiceInvoiceHeader);

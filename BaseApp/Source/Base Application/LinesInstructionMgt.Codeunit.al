@@ -6,8 +6,8 @@ codeunit 1320 "Lines Instruction Mgt."
     end;
 
     var
-        LinesMissingQuantityErr: Label 'One or more document lines with a value in the Item No. field do not have a quantity specified.';
-        LinesMissingQuantityConfirmQst: Label 'One or more document lines with a value in the Item No. field do not have a quantity specified. \Do you want to continue?';
+        LinesMissingQuantityErr: Label 'One or more document lines with a value in the No. field do not have a quantity specified.';
+        LinesMissingQuantityConfirmQst: Label 'One or more document lines with a value in the No. field do not have a quantity specified. \Do you want to continue?';
 
     procedure SalesCheckAllLinesHaveQuantityAssigned(SalesHeader: Record "Sales Header")
     var

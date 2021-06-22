@@ -8,7 +8,7 @@ codeunit 2800 "Native - Setup APIs"
 
         // SetupApis;
         InsertNativeInvoicingWebServices(false);
-        Commit;
+        Commit();
     end;
 
     var
@@ -76,7 +76,7 @@ codeunit 2800 "Native - Setup APIs"
             if Get then begin
                 "User ID" := UserId;
                 Insert(true);
-                Commit;
+                Commit();
                 exit;
             end;
         end;

@@ -28,12 +28,12 @@ codeunit 137450 "Phys. Invt. Order TAB UT"
         // [GIVEN] Create Posted Physical Inventory Recording Header with Recording Line and Physical Inventory Comment Line.
         PstdPhysInvtRecordHdr."Order No." := LibraryUTUtility.GetNewCode;
         PstdPhysInvtRecordHdr."Recording No." := 1;
-        PstdPhysInvtRecordHdr.Insert;
+        PstdPhysInvtRecordHdr.Insert();
 
         PstdPhysInvtRecordLine."Order No." := PstdPhysInvtRecordHdr."Order No.";
         PstdPhysInvtRecordLine."Recording No." := PstdPhysInvtRecordHdr."Recording No.";
         PstdPhysInvtRecordLine."Line No." := 1;
-        PstdPhysInvtRecordLine.Insert;
+        PstdPhysInvtRecordLine.Insert();
         CreatePhysInvtCommentLine(
           PhysInvtCommentLine, PhysInvtCommentLine."Document Type"::"Posted Recording", PstdPhysInvtRecordHdr."Order No.",
           PstdPhysInvtRecordHdr."Recording No.");
@@ -141,7 +141,7 @@ codeunit 137450 "Phys. Invt. Order TAB UT"
 
         PstdExpPhysInvtTrack."Order No" := PstdPhysInvtOrderLine."Document No.";
         PstdExpPhysInvtTrack."Order Line No." := PstdPhysInvtOrderLine."Line No.";
-        PstdExpPhysInvtTrack.Insert;
+        PstdExpPhysInvtTrack.Insert();
 
         // Exercise.
         PstdPhysInvtOrderLine.Delete(true);
@@ -336,14 +336,14 @@ codeunit 137450 "Phys. Invt. Order TAB UT"
     begin
         // [SCENARIO] validate Trigger OnValidate of No. for TablePhys. Inventory Order Header.
         // [GIVEN] Update No. Series for Manual Nos. as True.
-        InventorySetup.Get;
+        InventorySetup.Get();
         NoSeries.Get(InventorySetup."Phys. Invt. Order Nos.");
         NoSeries."Manual Nos." := true;
-        NoSeries.Modify;
+        NoSeries.Modify();
 
         // Exercise.
         PhysInvtOrderHeader.Validate("No.", LibraryUTUtility.GetNewCode);
-        PhysInvtOrderHeader.Insert;
+        PhysInvtOrderHeader.Insert();
 
         // [THEN] Verify No. Series on Physical Inventory Order Header.
         PhysInvtOrderHeader.Get(PhysInvtOrderHeader."No.");
@@ -383,11 +383,11 @@ codeunit 137450 "Phys. Invt. Order TAB UT"
 
         PhysInvtOrderLine."Item No." := LibraryUTUtility.GetNewCode;
         PhysInvtOrderLine."Qty. Exp. Calculated" := true;
-        PhysInvtOrderLine.Modify;
+        PhysInvtOrderLine.Modify();
 
         // Exercise.
         PhysInvtOrderHeader.Validate("Posting Date", WorkDate);
-        PhysInvtOrderHeader.Modify;
+        PhysInvtOrderHeader.Modify();
 
         // [THEN] Verify Qty. Exp. Calculated on Physical Inventory Order Line and Posting Date on Physical Inventory Order Header.
         PhysInvtOrderLine.Get(PhysInvtOrderLine."Document No.", PhysInvtOrderLine."Line No.");
@@ -468,12 +468,12 @@ codeunit 137450 "Phys. Invt. Order TAB UT"
     begin
         // [SCENARIO] validate Trigger OnValidate of Posting No. Series for Table Phys. Inventory Order Header.
         // Setup.
-        InventorySetup.Get;
+        InventorySetup.Get();
         CreatePhysInventoryOrderHeader(PhysInvtOrderHeader);
 
         // Exercise.
         PhysInvtOrderHeader.Validate("Posting No. Series", InventorySetup."Posted Phys. Invt. Order Nos.");
-        PhysInvtOrderHeader.Modify;
+        PhysInvtOrderHeader.Modify();
 
         // [THEN] Verify Posting No on Physical Inventory Order Header.
         PhysInvtOrderHeader.Get(PhysInvtOrderHeader."No.");
@@ -614,13 +614,13 @@ codeunit 137450 "Phys. Invt. Order TAB UT"
         PhysInvtCommentLine."Order No." := OrderNo;
         PhysInvtCommentLine."Recording No." := RecordingNo;
         PhysInvtCommentLine."Line No." := 1;
-        PhysInvtCommentLine.Insert;
+        PhysInvtCommentLine.Insert();
     end;
 
     local procedure CreatePostedPhysInvtOrderHeader(var PstdPhysInvtOrderHdr: Record "Pstd. Phys. Invt. Order Hdr")
     begin
         PstdPhysInvtOrderHdr."No." := LibraryUTUtility.GetNewCode;
-        PstdPhysInvtOrderHdr.Insert;
+        PstdPhysInvtOrderHdr.Insert();
     end;
 
     local procedure CreatePostedPhysInvtOrderLine(var PstdPhysInvtOrderLine: Record "Pstd. Phys. Invt. Order Line"; DocumentNo: Code[20])
@@ -628,20 +628,20 @@ codeunit 137450 "Phys. Invt. Order TAB UT"
         PstdPhysInvtOrderLine."Document No." := DocumentNo;
         PstdPhysInvtOrderLine."Line No." := 1;
         PstdPhysInvtOrderLine."Item No." := LibraryUTUtility.GetNewCode;
-        PstdPhysInvtOrderLine.Insert;
+        PstdPhysInvtOrderLine.Insert();
     end;
 
     local procedure CreatePhysInventoryOrderHeader(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header")
     begin
         PhysInvtOrderHeader."No." := LibraryUTUtility.GetNewCode;
-        PhysInvtOrderHeader.Insert;
+        PhysInvtOrderHeader.Insert();
     end;
 
     local procedure CreatePhysInventoryOrderLine(var PhysInvtOrderLine: Record "Phys. Invt. Order Line"; DocumentNo: Code[20])
     begin
         PhysInvtOrderLine."Document No." := DocumentNo;
         PhysInvtOrderLine."Line No." := 1;
-        PhysInvtOrderLine.Insert;
+        PhysInvtOrderLine.Insert();
     end;
 
     local procedure CreateLocationAndBin(var Bin: Record Bin)
@@ -652,19 +652,19 @@ codeunit 137450 "Phys. Invt. Order TAB UT"
         Location.Code := LibraryUTUtility.GetNewCode10;
         Location."Bin Mandatory" := true;
         Location."Directed Put-away and Pick" := true;
-        Location.Insert;
+        Location.Insert();
 
         // Create Bin.
         Bin."Location Code" := Location.Code;
         Bin.Code := LibraryUTUtility.GetNewCode;
-        Bin.Insert;
+        Bin.Insert();
     end;
 
     local procedure CreatePhysInvtRecordingHeader(var PhysInvtRecordHeader: Record "Phys. Invt. Record Header"; OrderNo: Code[20])
     begin
         PhysInvtRecordHeader."Order No." := OrderNo;
         PhysInvtRecordHeader."Recording No." := 1;
-        PhysInvtRecordHeader.Insert;
+        PhysInvtRecordHeader.Insert();
     end;
 
     local procedure CreatePhysInvtRecordingLine(var PhysInvtRecordLine: Record "Phys. Invt. Record Line"; OrderNo: Code[20]; RecordingNo: Integer; LineNo: Integer)
@@ -672,7 +672,7 @@ codeunit 137450 "Phys. Invt. Order TAB UT"
         PhysInvtRecordLine."Order No." := OrderNo;
         PhysInvtRecordLine."Recording No." := RecordingNo;
         PhysInvtRecordLine."Line No." := LineNo;
-        PhysInvtRecordLine.Insert;
+        PhysInvtRecordLine.Insert();
     end;
 
     local procedure SelectDimensionValue(GlobalDimensionNo: Integer): Code[20]
@@ -690,7 +690,7 @@ codeunit 137450 "Phys. Invt. Order TAB UT"
         PhysInvtRecordLine."Item No." := ItemNo;
         PhysInvtRecordLine."Serial No." := SerialNo;
         PhysInvtRecordLine."Quantity (Base)" := 1;
-        PhysInvtRecordLine.Modify;
+        PhysInvtRecordLine.Modify();
     end;
 
     [ModalPageHandler]

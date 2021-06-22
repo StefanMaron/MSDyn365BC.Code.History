@@ -12,7 +12,6 @@ codeunit 132569 "Data Encryption Mgmt. Tests"
         CryptographyManagement: Codeunit "Cryptography Management";
         LibraryUtility: Codeunit "Library - Utility";
         Assert: Codeunit Assert;
-        InsufficientPassLngthErr: Label 'The password must contain at least 8 characters.';
         InputStringTxt: Label 'Test string';
         KeyTxt: Label 'key';
         WrongHashErr: Label 'Wrong hash generated';
@@ -214,48 +213,6 @@ codeunit 132569 "Data Encryption Mgmt. Tests"
     //     DataEncryptionManagement.OpenView;
     //     DataEncryptionManagement."Export Encryption Key".Invoke;
     //     Assert.AreEqual('', CryptographyManagement.GetGlblTempClientFileName, 'Encryption key is created');
-    // end;
-
-    // [Test]
-    // [Scope('OnPrem')]
-    // procedure TestGenerateShortPassword()
-    // var
-    //     PasswordHelper: Codeunit "Password Helper";
-    //     NumberOfIterations: Integer;
-    //     I: Integer;
-    //     Length: Integer;
-    // begin
-    //     NumberOfIterations := 10000;
-    //     Length := 8;
-    //     for I := 1 to NumberOfIterations do
-    //         VerifyStrongPasswordGenerated(PasswordHelper.GeneratePassword(Length), Length);
-    // end;
-
-    // [Test]
-    // [Scope('OnPrem')]
-    // procedure TestGeneratingLongPassword()
-    // var
-    //     PasswordHelper: Codeunit "Password Helper";
-    //     NumberOfIterations: Integer;
-    //     I: Integer;
-    //     Length: Integer;
-    // begin
-    //     NumberOfIterations := 1000;
-    //     Length := 100;
-    //     for I := 1 to NumberOfIterations do
-    //         VerifyStrongPasswordGenerated(PasswordHelper.GeneratePassword(Length), Length);
-    // end;
-
-    // [Test]
-    // [Scope('OnPrem')]
-    // procedure TestPasswordIsTooShort()
-    // var
-    //     PasswordHelper: Codeunit "Password Helper";
-    //     Length: Integer;
-    // begin
-    //     Length := 7;
-    //     asserterror VerifyStrongPasswordGenerated(PasswordHelper.GeneratePassword(Length), Length);
-    //     Assert.ExpectedError(InsufficientPassLngthErr);
     // end;
 
     [Test]
@@ -532,49 +489,6 @@ codeunit 132569 "Data Encryption Mgmt. Tests"
           CryptographyManagement.GenerateHash('', '', KeyedHashAlgorithmType::HMACMD5), WrongHashErr);
     end;
 
-    local procedure VerifyStrongPasswordGenerated(PasswordText: Text; Length: Integer)
-    var
-        Characters: Text;
-        Numbers: Text;
-        SpecialCharacters: Text;
-        NewText: Text;
-        I: Integer;
-    begin
-        Characters := 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        Numbers := '0123456789';
-        SpecialCharacters := '!@#$*';
-
-        Assert.AreEqual(Length, StrLen(PasswordText), 'Wrong password length');
-
-        NewText := DelChr(PasswordText, '=', Characters);
-        Assert.IsTrue(StrLen(NewText) < StrLen(PasswordText), 'Password must contain Uppercase Characters');
-
-        NewText := DelChr(PasswordText, '=', LowerCase(Characters));
-        Assert.IsTrue(StrLen(NewText) < StrLen(PasswordText), 'Password must contain Lowercase Characters');
-
-        NewText := DelChr(PasswordText, '=', Numbers);
-        Assert.IsTrue(StrLen(NewText) < StrLen(PasswordText), 'Password must contain Numbers');
-
-        NewText := DelChr(PasswordText, '=', SpecialCharacters);
-        Assert.IsTrue(StrLen(NewText) < StrLen(PasswordText), 'Password must contain Special Characters');
-
-        for I := 3 to Length do begin
-            Assert.IsFalse(
-              (PasswordText[I] = PasswordText[I - 1]) and (PasswordText[I] = PasswordText[I - 2]),
-              'Password contains too many duplicate values');
-
-            // If the last 3 characters do not contain specical characters we should check for a sequence.
-            if StrLen(DelChr(CopyStr(PasswordText, I - 2, 3), '=', SpecialCharacters)) = 3 then begin
-                Assert.IsFalse(
-                  (PasswordText[I] = PasswordText[I - 1] + 1) and (PasswordText[I] = PasswordText[I - 2] + 2),
-                  'Password contains a ascending sequential run of characters');
-                Assert.IsFalse(
-                  (PasswordText[I] = PasswordText[I - 1] - 1) and (PasswordText[I] = PasswordText[I - 2] - 2),
-                  'Password contains a descending sequential run of characters');
-            end;
-        end;
-    end;
-
     [Test]
     [Scope('OnPrem')]
     procedure Cleanup()
@@ -617,8 +531,8 @@ codeunit 132569 "Data Encryption Mgmt. Tests"
     [Scope('OnPrem')]
     procedure HandlePasswordDlgOK(var StdPasswordDialog: TestPage "Password Dialog")
     begin
-        StdPasswordDialog.Password.SetValue := 'Password123';
-        StdPasswordDialog.ConfirmPassword.SetValue := 'Password123';
+        StdPasswordDialog.Password.SetValue := 'Password101!';
+        StdPasswordDialog.ConfirmPassword.SetValue := 'Password101!';
         StdPasswordDialog.OK.Invoke;
     end;
 }

@@ -62,12 +62,12 @@ codeunit 9090 "Postcode Service Manager"
         PostcodeServiceConfig: Record "Postcode Service Config";
     begin
         if not PostcodeServiceConfig.FindFirst then begin
-            PostcodeServiceConfig.Init;
-            PostcodeServiceConfig.Insert;
+            PostcodeServiceConfig.Init();
+            PostcodeServiceConfig.Insert();
         end;
 
         PostcodeServiceConfig.SaveServiceKey(CopyStr(ServiceKey, 250));
-        Commit;
+        Commit();
     end;
 
     procedure RegisterService(var TempServiceListNameValueBuffer: Record "Name/Value Buffer" temporary; ServiceIdentifier: Text[250]; ServiceName: Text[250])
@@ -122,11 +122,11 @@ codeunit 9090 "Postcode Service Manager"
         if TempNameValueBuffer.FindLast then
             LastId := TempNameValueBuffer.ID;
 
-        TempNameValueBuffer.Init;
+        TempNameValueBuffer.Init();
         TempNameValueBuffer.ID := LastId + 1;
         TempNameValueBuffer.Name := Name;
         TempNameValueBuffer.Value := Value;
-        TempNameValueBuffer.Insert;
+        TempNameValueBuffer.Insert();
     end;
 
     procedure GetActiveService(): Text

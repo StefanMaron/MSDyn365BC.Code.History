@@ -1,4 +1,4 @@
-﻿page 9305 "Sales Order List"
+page 9305 "Sales Order List"
 {
     ApplicationArea = Basic, Suite, Assembly;
     Caption = 'Sales Orders';
@@ -292,6 +292,14 @@
         }
         area(factboxes)
         {
+            part("Attached Documents"; "Document Attachment Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Attachments';
+                SubPageLink = "Table ID" = CONST(36),
+                              "No." = FIELD("No."),
+                              "Document Type" = FIELD("Document Type");
+            }
             part("Power BI Report FactBox"; "Power BI Report FactBox")
             {
                 ApplicationArea = Basic, Suite;
@@ -854,6 +862,25 @@
                     trigger OnAction()
                     begin
                         DocPrint.PrintSalesOrder(Rec, Usage::"Order Confirmation");
+                    end;
+                }
+                action(AttachAsPDF)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Attach as PDF';
+                    Image = PrintAttachment;
+                    Promoted = true;
+                    PromotedCategory = Category8;
+                    Ellipsis = true;
+                    ToolTip = 'Create a PDF file and attach it to the document.';
+
+                    trigger OnAction()
+                    var
+                        SalesHeader: Record "Sales Header";
+                    begin
+                        SalesHeader := Rec;
+                        CurrPage.SetSelectionFilter(SalesHeader);
+                        DocPrint.PrintSalesOrderToDocumentAttachment(SalesHeader, DocPrint.GetSalesOrderPrintToAttachmentOption(Rec));
                     end;
                 }
             }

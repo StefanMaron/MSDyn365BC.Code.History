@@ -15,7 +15,7 @@ table 5968 "Service Contract Template"
             trigger OnValidate()
             begin
                 if "No." <> xRec."No." then begin
-                    ServMgtSetup.Get;
+                    ServMgtSetup.Get();
                     NoSeriesMgt.TestManual(ServMgtSetup."Contract Template Nos.");
                     "No. Series" := '';
                 end;
@@ -157,7 +157,7 @@ table 5968 "Service Contract Template"
 
     trigger OnInsert()
     begin
-        ServMgtSetup.Get;
+        ServMgtSetup.Get();
         if "No." = '' then begin
             ServMgtSetup.TestField("Contract Template Nos.");
             NoSeriesMgt.InitSeries(ServMgtSetup."Contract Template Nos.", xRec."No. Series", 0D,
@@ -184,7 +184,7 @@ table 5968 "Service Contract Template"
     begin
         with ServContractTmplt do begin
             ServContractTmplt := Rec;
-            ServMgtSetup.Get;
+            ServMgtSetup.Get();
             ServMgtSetup.TestField("Contract Template Nos.");
             if NoSeriesMgt.SelectSeries(ServMgtSetup."Contract Template Nos.", OldServContractTmplt."No. Series", "No. Series") then begin
                 NoSeriesMgt.SetSeries("No.");

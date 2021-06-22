@@ -191,10 +191,10 @@ report 5174 "Archived Blanket Purch. Order"
                         begin
                             if Number = 1 then begin
                                 if not DimSetEntry.FindSet then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end else
                                 if not Continue then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                             Clear(DimText);
                             Continue := false;
@@ -219,7 +219,7 @@ report 5174 "Archived Blanket Purch. Order"
                         trigger OnPreDataItem()
                         begin
                             if not ShowInternalInfo then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem("Purchase Line Archive"; "Purchase Line Archive")
@@ -230,7 +230,7 @@ report 5174 "Archived Blanket Purch. Order"
 
                         trigger OnPreDataItem()
                         begin
-                            CurrReport.Break;
+                            CurrReport.Break();
                         end;
                     }
                     dataitem(RoundLoop; "Integer")
@@ -437,10 +437,10 @@ report 5174 "Archived Blanket Purch. Order"
                             begin
                                 if Number = 1 then begin
                                     if not DimSetEntry.FindSet then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
                                 end else
                                     if not Continue then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
 
                                 Clear(DimText);
                                 Continue := false;
@@ -465,7 +465,7 @@ report 5174 "Archived Blanket Purch. Order"
                             trigger OnPreDataItem()
                             begin
                                 if not ShowInternalInfo then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                                 DimSetEntry.SetRange("Dimension Set ID", "Purchase Line Archive"."Dimension Set ID");
                             end;
@@ -498,7 +498,7 @@ report 5174 "Archived Blanket Purch. Order"
 
                         trigger OnPostDataItem()
                         begin
-                            TempPurchLineArchive.DeleteAll;
+                            TempPurchLineArchive.DeleteAll();
                         end;
 
                         trigger OnPreDataItem()
@@ -512,7 +512,7 @@ report 5174 "Archived Blanket Purch. Order"
                                 MoreLines := TempPurchLineArchive.Next(-1) <> 0;
 
                             if not MoreLines then
-                                CurrReport.Break;
+                                CurrReport.Break();
 
                             TempPurchLineArchive.SetRange("Line No.", 0, TempPurchLineArchive."Line No.");
                             SetRange(Number, 1, TempPurchLineArchive.Count);
@@ -673,7 +673,7 @@ report 5174 "Archived Blanket Purch. Order"
                         trigger OnPreDataItem()
                         begin
                             if VATAmount = 0 then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             SetRange(Number, 1, TempVATAmountLine.Count);
                         end;
                     }
@@ -768,7 +768,7 @@ report 5174 "Archived Blanket Purch. Order"
                                ("Purchase Header Archive"."Currency Code" = '') or
                                (TempVATAmountLine.GetTotalVATAmount = 0)
                             then
-                                CurrReport.Break;
+                                CurrReport.Break();
 
                             SetRange(Number, 1, TempVATAmountLine.Count);
                             Clear(VALVATBaseLCY);
@@ -845,7 +845,7 @@ report 5174 "Archived Blanket Purch. Order"
                         trigger OnPreDataItem()
                         begin
                             if "Purchase Header Archive"."Buy-from Vendor No." = "Purchase Header Archive"."Pay-to Vendor No." then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem(Total3; "Integer")
@@ -891,7 +891,7 @@ report 5174 "Archived Blanket Purch. Order"
                         trigger OnPreDataItem()
                         begin
                             if ("Purchase Header Archive"."Sell-to Customer No." = '') and (ShipToAddr[1] = '') then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                 }
@@ -901,16 +901,16 @@ report 5174 "Archived Blanket Purch. Order"
                     PurchLineArchive: Record "Purchase Line Archive";
                 begin
                     Clear(TempPurchLineArchive);
-                    TempPurchLineArchive.DeleteAll;
+                    TempPurchLineArchive.DeleteAll();
                     PurchLineArchive.SetRange("Document Type", "Purchase Header Archive"."Document Type");
                     PurchLineArchive.SetRange("Document No.", "Purchase Header Archive"."No.");
                     PurchLineArchive.SetRange("Version No.", "Purchase Header Archive"."Version No.");
                     if PurchLineArchive.FindSet then
                         repeat
                             TempPurchLineArchive := PurchLineArchive;
-                            TempPurchLineArchive.Insert;
+                            TempPurchLineArchive.Insert();
                         until PurchLineArchive.Next = 0;
-                    TempVATAmountLine.DeleteAll;
+                    TempVATAmountLine.DeleteAll();
 
                     if Number > 1 then begin
                         CopyText := FormatDocument.GetCOPYText;
@@ -990,8 +990,8 @@ report 5174 "Archived Blanket Purch. Order"
 
     trigger OnInitReport()
     begin
-        GLSetup.Get;
-        CompanyInfo.Get;
+        GLSetup.Get();
+        CompanyInfo.Get();
     end;
 
     var

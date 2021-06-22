@@ -168,6 +168,13 @@ page 357 Companies
 
         if not ConfirmManagement.GetResponseOrDefault(DeleteCompanyQst, false) then
             exit(false);
+        if SoftwareAsAService then
+            if not ConfirmManagement.GetResponseOrDefault(DeleteCompanyAuditQst, false) then
+                exit(false)
+            else begin
+                SENDTRACETAG('0000BEH', ALCompanyActivityCategoryTok, Verbosity::Normal, STRSUBSTNO(UsenCompanyTok, UserId(), COMPANYNAME()), DataClassification::EndUserIdentifiableInformation);
+                SENDTRACETAG('0000BEI', ALCompanyActivityCategoryTok, Verbosity::Normal, STRSUBSTNO(CompanyTok, COMPANYNAME()), DataClassification::SystemMetadata);
+            end;
 
         exit(true);
     end;
@@ -194,6 +201,10 @@ page 357 Companies
 
     var
         DeleteCompanyQst: Label 'Do you want to delete the company?\All company data will be deleted.\\Do you want to continue?';
+        DeleteCompanyAuditQst: Label 'The company will be permanently deleted. We will record your user name and the time of day that you deleted the company for auditing purposes.\\Do you want to continue?';
+        ALCompanyActivityCategoryTok: Label 'AL Company Activity', Locked = true;
+        UsenCompanyTok: Label 'User %1 deleted the %2 company', Locked = true;
+        CompanyTok: Label 'Company %1 has been deleted', Locked = true;
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
         SetupStatus: Option " ",Completed,"In Progress",Error,"Missing Permission";
         EnableAssistedCompanySetup: Boolean;

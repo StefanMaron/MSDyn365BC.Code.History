@@ -14,8 +14,8 @@ codeunit 5530 "Calc. Item Availability"
     begin
         if Item.Type <> Item.Type::Inventory then
             exit;
-        TempInvtEventBuf.Reset;
-        TempInvtEventBuf.DeleteAll;
+        TempInvtEventBuf.Reset();
+        TempInvtEventBuf.DeleteAll();
 
         GetDocumentEntries(TempInvtEventBuf, Item);
         if (ForecastName <> '') or IncludeBlanketOrders or IncludePlan then
@@ -26,16 +26,16 @@ codeunit 5530 "Calc. Item Availability"
 
     procedure GetInvEventBuffer(var RequestInvtEventBuf: Record "Inventory Event Buffer")
     begin
-        TempInvtEventBuf.Reset;
+        TempInvtEventBuf.Reset();
         TempInvtEventBuf.SetCurrentKey("Availability Date", Type);
         if TempInvtEventBuf.Find('-') then
             repeat
                 RequestInvtEventBuf := TempInvtEventBuf;
-                RequestInvtEventBuf.Insert;
+                RequestInvtEventBuf.Insert();
             until TempInvtEventBuf.Next = 0;
     end;
 
-    local procedure GetDocumentEntries(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item)
+    procedure GetDocumentEntries(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item)
     begin
         TryGetSalesOrdersDemandEntries(InvtEventBuf, Item);
         TryGetServOrdersDemandEntries(InvtEventBuf, Item);
@@ -331,7 +331,7 @@ codeunit 5530 "Calc. Item Availability"
         if ToDate = 0D then
             ToDate := DMY2Date(30, 12, 9999);
 
-        MfgSetup.Get;
+        MfgSetup.Get();
         if not MfgSetup."Use Forecast on Locations" then begin
             if not FindReplishmentLocation(ReplenishmentLocation, Item, LocationMandatory) then
                 ReplenishmentLocation := MfgSetup."Components at Location";
@@ -346,7 +346,7 @@ codeunit 5530 "Calc. Item Availability"
             ProdForecastEntry.SetCurrentKey(
               "Production Forecast Name", "Item No.", "Location Code", "Forecast Date", "Component Forecast");
 
-        ItemLedgEntry.Reset;
+        ItemLedgEntry.Reset();
         ItemLedgEntry.SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code");
 
         ProdForecastEntry.SetRange("Production Forecast Name", ForecastName);
@@ -582,13 +582,13 @@ codeunit 5530 "Calc. Item Availability"
             until TransferReqLine.Next = 0;
     end;
 
-    local procedure InsertEntry(var NewInvtEventBuffer: Record "Inventory Event Buffer")
+    procedure InsertEntry(var NewInvtEventBuffer: Record "Inventory Event Buffer")
     begin
         NewInvtEventBuffer."Entry No." := NextEntryNo;
-        NewInvtEventBuffer.Insert;
+        NewInvtEventBuffer.Insert();
     end;
 
-    local procedure NextEntryNo(): Integer
+    procedure NextEntryNo(): Integer
     begin
         EntryNo += 1;
         exit(EntryNo);
@@ -665,7 +665,7 @@ codeunit 5530 "Calc. Item Availability"
         SKU: Record "Stockkeeping Unit";
         InvtSetup: Record "Inventory Setup";
     begin
-        InvtSetup.Get;
+        InvtSetup.Get();
         LocationMandatory := InvtSetup."Location Mandatory";
 
         ReplenishmentLocation := '';
@@ -725,7 +725,7 @@ codeunit 5530 "Calc. Item Availability"
         exit(ForecastExist);
     end;
 
-    procedure GetSourceReferences(FromRecordID: RecordID; TransferDirection: Option Outbound,Inbound; var SourceType: Integer; var SourceSubtype: Integer; var SourceID: Code[20]; var SourceBatchName: Code[10]; var SourceProdOrderLine: Integer; var SourceRefNo: Integer): Boolean
+    procedure GetSourceReferences(FromRecordID: RecordID; TransferDirection: Enum "Transfer Direction"; var SourceType: Integer; var SourceSubtype: Integer; var SourceID: Code[20]; var SourceBatchName: Code[10]; var SourceProdOrderLine: Integer; var SourceRefNo: Integer): Boolean
     var
         ItemLedgEntry: Record "Item Ledger Entry";
         SalesLine: Record "Sales Line";
@@ -1084,7 +1084,7 @@ codeunit 5530 "Calc. Item Availability"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterGetSourceReferences(FromRecordID: RecordID; TransferDirection: Option Outbound,Inbound; var SourceType: Integer; var SourceSubtype: Integer; var SourceID: Code[20]; var SourceBatchName: Code[10]; var SourceProdOrderLine: Integer; var SourceRefNo: Integer; var IsHandled: Boolean)
+    local procedure OnAfterGetSourceReferences(FromRecordID: RecordID; TransferDirection: Enum "Transfer Direction"; var SourceType: Integer; var SourceSubtype: Integer; var SourceID: Code[20]; var SourceBatchName: Code[10]; var SourceProdOrderLine: Integer; var SourceRefNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

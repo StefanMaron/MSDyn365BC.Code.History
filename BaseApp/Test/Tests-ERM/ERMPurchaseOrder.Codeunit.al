@@ -28,6 +28,8 @@ codeunit 134327 "ERM Purchase Order"
         LibraryJob: Codeunit "Library - Job";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryApplicationArea: Codeunit "Library - Application Area";
+        CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
+        LibraryResource: Codeunit "Library - Resource";
         isInitialized: Boolean;
         FieldError: Label 'Number of Lines for %1 and %2  must be Equal.';
         CurrencyError: Label '%1 must be Equal in %2.';
@@ -67,6 +69,9 @@ codeunit 134327 "ERM Purchase Order"
         ShipToAddrOnCompanyInfoIsDisabledErr: Label 'One of Ship-To Address fields on Company Information page is disabled.';
         PurchLineGetLineAmountToHandleErr: Label 'Incorrect amount returned by PurchLine.GetLineAmountToHandle().';
         SuggestAssignmentErr: Label 'Qty. to Invoice must have a value in Purchase Line';
+        CopyFromPurchaseErr: Label 'Wrong result of CopyFrom function';
+        CopyFromResourceErr: Label 'Wrong result of validate No. with resource';
+        BlockedResourceErr: Label 'Blocked must be equal to ''No''  in Resource';
 
     [Test]
     [Scope('OnPrem')]
@@ -215,7 +220,7 @@ codeunit 134327 "ERM Purchase Order"
         VATAmount := PurchaseHeader.Amount * PurchaseLine."VAT %" / 100;
 
         // Verify: Verify VAT Amount on Purchase Order.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Assert.AreNearlyEqual(
           VATAmount, VATAmountLine."VAT Amount", GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(AmountError, VATAmountLine.FieldCaption("VAT Amount"), VATAmount, VATAmountLine.TableCaption));
@@ -265,7 +270,7 @@ codeunit 134327 "ERM Purchase Order"
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, CreateVendor, PurchaseHeader."Document Type"::Order);
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
-        PurchaseLineCount := PurchaseLine.Count;
+        PurchaseLineCount := PurchaseLine.Count();
 
         // Exercise: Post Purchase Order as Receive.
         PostedDocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
@@ -370,7 +375,7 @@ codeunit 134327 "ERM Purchase Order"
         // Tear Down: Rollback Setup changes for Location and Warehouse Employee.
         ModifyWarehouseLocation(false);
         WarehouseEmployee.Get(UserId, PurchaseLine."Location Code");
-        WarehouseEmployee.Delete;
+        WarehouseEmployee.Delete();
     end;
 
     [Test]
@@ -504,6 +509,7 @@ codeunit 134327 "ERM Purchase Order"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         PurchaseLineDiscount: Record "Purchase Line Discount";
+        PriceListLine: Record "Price List Line";
         PostedDocumentNo: Code[20];
         DiscountAmount: Decimal;
     begin
@@ -512,6 +518,7 @@ codeunit 134327 "ERM Purchase Order"
         // Setup: Create Line Discount Setup.
         Initialize();
         SetupLineDiscount(PurchaseLineDiscount);
+        CopyFromToPriceListLine.CopyFrom(PurchaseLineDiscount, PriceListLine);
 
         // Exercise: Create and Post Purchase Order with Random Quantity. Take Quantity greater than Purchas Line Discount Minimum Quantity.
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, PurchaseLineDiscount."Vendor No.");
@@ -812,7 +819,7 @@ codeunit 134327 "ERM Purchase Order"
         // Verify: Verify GL Entry for Partial Purchase Invoice.
         VendorPostingGroup.Get(PurchaseHeader."Vendor Posting Group");
         FindGLEntry(GLEntry, DocumentNo, VendorPostingGroup."Payables Account");
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Assert.AreNearlyEqual(
           -TotalAmount, GLEntry.Amount, GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), TotalAmount, GLEntry.TableCaption));
@@ -1012,7 +1019,7 @@ codeunit 134327 "ERM Purchase Order"
         ModifyDirectUnitCost(PurchaseHeader);
         PostedPurchaseInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader2, PurchaseHeader2."Document Type"::Invoice, PurchaseHeader."Buy-from Vendor No.");
-        Commit;  // COMMIT is required here.
+        Commit();  // COMMIT is required here.
 
         // Exercise: Copy Purchase Document.
         PurchaseCopyDocument(PurchaseHeader2, PostedPurchaseInvoiceNo, DocumentType::"Posted Invoice");
@@ -1293,7 +1300,7 @@ codeunit 134327 "ERM Purchase Order"
         CreatePurchaseOrderWithJob(PurchaseHeader, PurchaseLine, Item."No.", ItemUnitOfMeasure.Code);
 
         // Verify: Check the JOB Unit Price is changed.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Assert.AreNearlyEqual(
           PurchaseLine."Job Unit Price", Item."Unit Price" * ItemUnitOfMeasure."Qty. per Unit of Measure",
           GeneralLedgerSetup."Amount Rounding Precision",
@@ -1805,7 +1812,7 @@ codeunit 134327 "ERM Purchase Order"
         LibraryERM.CreateAnalysisColumn(AnalysisColumn, AnalysisReportName."Analysis Area"::Purchase, AnalysisColumnTemplate.Name);
         AnalysisColumn."Column No." := '';
         AnalysisColumn."Column Header" := LibraryUtility.GenerateGUID;
-        AnalysisColumn.Modify;
+        AnalysisColumn.Modify();
 
         LibraryVariableStorage.Enqueue(0);
         LibraryVariableStorage.Enqueue(AnalysisColumn."Column Header");
@@ -2397,7 +2404,7 @@ codeunit 134327 "ERM Purchase Order"
         // [GIVEN] Create and Ship Purchase Order with Invoice Discount Amount = "A"
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, CreateItem);
         PurchaseLine.Validate("Inv. Discount Amount", Round(PurchaseLine."Line Amount" * LibraryRandom.RandDec(1, 2)));
-        PurchaseLine.Modify;
+        PurchaseLine.Modify();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
         // [WHEN] Run "Get Receipt Lines" from new Purchase Invoice
@@ -2427,7 +2434,7 @@ codeunit 134327 "ERM Purchase Order"
         // [GIVEN] Create and Ship Purchase Order with Invoice Discount Amount = "A"
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, CreateItem);
         PurchaseLine.Validate("Inv. Discount Amount", Round(PurchaseLine."Line Amount" * LibraryRandom.RandDec(1, 2)));
-        PurchaseLine.Modify;
+        PurchaseLine.Modify();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
         // [WHEN] Run "Get Receipt Lines" from new Purchase Invoice
@@ -2457,7 +2464,7 @@ codeunit 134327 "ERM Purchase Order"
         // [GIVEN] Create and Ship Purchase Return Order with Invoice Discount Amount = "A"
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, CreateVendor, PurchaseHeader."Document Type"::"Return Order");
         PurchaseLine.Validate("Inv. Discount Amount", Round(PurchaseLine."Line Amount" * LibraryRandom.RandDec(1, 2)));
-        PurchaseLine.Modify;
+        PurchaseLine.Modify();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
         // [WHEN] Run "Get Retrun Shipment Lines" from new Purchase Credit Memo
@@ -2487,7 +2494,7 @@ codeunit 134327 "ERM Purchase Order"
         // [GIVEN] Create and Ship Purchase Return Order with Invoice Discount Amount = "A"
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, CreateVendor, PurchaseHeader."Document Type"::"Return Order");
         PurchaseLine.Validate("Inv. Discount Amount", Round(PurchaseLine."Line Amount" * LibraryRandom.RandDec(1, 2)));
-        PurchaseLine.Modify;
+        PurchaseLine.Modify();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
         // [WHEN] Run "Get Retrun Shipment Lines" from new Purchase Credit Memo
@@ -2606,7 +2613,7 @@ codeunit 134327 "ERM Purchase Order"
 
         // TearDown
         VATPostingSetup.Get(PurchaseHeader."VAT Bus. Posting Group", PurchaseLineNormalVAT."VAT Prod. Posting Group");
-        VATPostingSetup.Delete;
+        VATPostingSetup.Delete();
     end;
 
     [Test]
@@ -2663,7 +2670,7 @@ codeunit 134327 "ERM Purchase Order"
 
         // TearDown
         VATPostingSetup.Get(PurchaseHeader."VAT Bus. Posting Group", PurchaseLineNormalVAT."VAT Prod. Posting Group");
-        VATPostingSetup.Delete;
+        VATPostingSetup.Delete();
     end;
 
     [Test]
@@ -2799,7 +2806,7 @@ codeunit 134327 "ERM Purchase Order"
         Initialize();
         LibraryERM.CreateGenBusPostingGroup(GenBusPostingGroup);
         GenBusPostingGroup."Auto Insert Default" := false;
-        GenBusPostingGroup.Modify;
+        GenBusPostingGroup.Modify();
         // [GIVEN] Vendor with  "Gen. Bus. Posting Group" = "X",
         // [GIVEN] Purchase Order for vendor with one line
         CreateOrderCheckVATSetup(PurchaseHeader, PurchaseLine);
@@ -2829,12 +2836,12 @@ codeunit 134327 "ERM Purchase Order"
         Initialize();
         LibraryERM.CreateGenBusPostingGroup(GenBusPostingGroup);
         GenBusPostingGroup."Auto Insert Default" := false;
-        GenBusPostingGroup.Modify;
+        GenBusPostingGroup.Modify();
         // [GIVEN] Vendor with  Gen. Bus. Posting Group = "X",
         // [GIVEN] Purchase Order for vendor with one line
         CreateOrderCheckVATSetup(PurchaseHeader, PurchaseLine);
         OldGenBusPostingGroup := PurchaseLine."Gen. Bus. Posting Group";
-        Commit;
+        Commit();
 
         // [WHEN] Validate field "Gen. Bus. Posting Group" = "B" in Purchase Order header
         PurchaseHeader.Validate("Gen. Bus. Posting Group", GenBusPostingGroup.Code);
@@ -2950,7 +2957,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [UT] [Receipt]
         // [SCENARIO] TAB121 "Purch. Rcpt. Line".InitFromPurchLine() correctly inits PurchRcptLine from PurchaseLine
-        PurchRcptHeader.Init;
+        PurchRcptHeader.Init();
         PurchRcptHeader."Posting Date" := LibraryRandom.RandDate(100);
         PurchRcptHeader."No." := LibraryUtility.GenerateGUID;
 
@@ -2985,7 +2992,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [UT] [Invoice]
         // [SCENARIO] TAB123 "Purch. Inv. Line".InitFromPurchLine() correctly inits PurchInvLine from PurchaseLine
-        PurchInvHeader.Init;
+        PurchInvHeader.Init();
         PurchInvHeader."Posting Date" := LibraryRandom.RandDate(100);
         PurchInvHeader."No." := LibraryUtility.GenerateGUID;
 
@@ -3013,7 +3020,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [UT] [Credit Memo]
         // [SCENARIO] TAB125 "Purch. Cr. Memo Line".InitFromPurchLine() correctly inits PurchCrMemoLine from PurchaseLine
-        PurchCrMemoHdr.Init;
+        PurchCrMemoHdr.Init();
         PurchCrMemoHdr."Posting Date" := LibraryRandom.RandDate(100);
         PurchCrMemoHdr."No." := LibraryUtility.GenerateGUID;
 
@@ -3041,7 +3048,7 @@ codeunit 134327 "ERM Purchase Order"
     begin
         // [FEATURE] [UT] [Receipt]
         // [SCENARIO] TAB6651 "Return Shipment Line".InitFromPurchLine() correctly inits ReturnShipmentLine from PurchaseLine
-        ReturnShipmentHeader.Init;
+        ReturnShipmentHeader.Init();
         ReturnShipmentHeader."Posting Date" := LibraryRandom.RandDate(100);
         ReturnShipmentHeader."No." := LibraryUtility.GenerateGUID;
 
@@ -3246,7 +3253,7 @@ codeunit 134327 "ERM Purchase Order"
         ModifyFullPrepmtAndLocationOnPurchLine(PurchaseLineCharge, LocationCode);
         LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
         PurchaseHeader."Vendor Invoice No." := LibraryUtility.GenerateGUID;
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
 
         // [GIVEN] Warehouse receipt for released Purchase Order is created
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, PurchaseLine."Location Code", false);
@@ -3263,7 +3270,7 @@ codeunit 134327 "ERM Purchase Order"
         // Tear Down
         ModifyWarehouseLocation(false);
         WarehouseEmployee.Get(UserId, PurchaseLine."Location Code");
-        WarehouseEmployee.Delete;
+        WarehouseEmployee.Delete();
     end;
 
     [Test]
@@ -3303,7 +3310,7 @@ codeunit 134327 "ERM Purchase Order"
 
         // Tear down
         GLAccount.Get(No);
-        GLAccount.Delete;
+        GLAccount.Delete();
     end;
 
     [Test]
@@ -3342,7 +3349,7 @@ codeunit 134327 "ERM Purchase Order"
 
         // Tear down
         Item.Get(No);
-        Item.Delete;
+        Item.Delete();
     end;
 
     [Test]
@@ -3381,7 +3388,7 @@ codeunit 134327 "ERM Purchase Order"
 
         // Tear down
         ItemCharge.Get(No);
-        ItemCharge.Delete;
+        ItemCharge.Delete();
     end;
 
     [Test]
@@ -3420,7 +3427,7 @@ codeunit 134327 "ERM Purchase Order"
 
         // Tear down
         FixedAsset.Get(No);
-        FixedAsset.Delete;
+        FixedAsset.Delete();
     end;
 
     [Test]
@@ -3459,7 +3466,7 @@ codeunit 134327 "ERM Purchase Order"
 
         // Tear down
         StandardText.Get(No);
-        StandardText.Delete;
+        StandardText.Delete();
     end;
 
     [Test]
@@ -3499,7 +3506,7 @@ codeunit 134327 "ERM Purchase Order"
 
         // Tear down
         GLAccount.Get(No);
-        GLAccount.Delete;
+        GLAccount.Delete();
     end;
 
     [Test]
@@ -3540,7 +3547,7 @@ codeunit 134327 "ERM Purchase Order"
 
         // Tear down
         Item.Get(No);
-        Item.Delete;
+        Item.Delete();
     end;
 
     [Test]
@@ -3580,7 +3587,7 @@ codeunit 134327 "ERM Purchase Order"
 
         // Tear down
         ItemCharge.Get(No);
-        ItemCharge.Delete;
+        ItemCharge.Delete();
     end;
 
     [Test]
@@ -3620,7 +3627,7 @@ codeunit 134327 "ERM Purchase Order"
 
         // Tear down
         FixedAsset.Get(No);
-        FixedAsset.Delete;
+        FixedAsset.Delete();
     end;
 
     [Test]
@@ -3659,7 +3666,7 @@ codeunit 134327 "ERM Purchase Order"
 
         // Tear down
         StandardText.Get(No);
-        StandardText.Delete;
+        StandardText.Delete();
     end;
 
     [Test]
@@ -3753,7 +3760,7 @@ codeunit 134327 "ERM Purchase Order"
         Clear(PurchaseLine);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::" ", '', 0);
         PurchaseLine.Description := LibraryUtility.GenerateGUID;
-        PurchaseLine.Modify;
+        PurchaseLine.Modify();
 
         PurchaseHeader.PrintRecords(false);
     end;
@@ -4209,7 +4216,7 @@ codeunit 134327 "ERM Purchase Order"
         PurchLine.SetRange("Document Type", PurchHeader."Document Type"::Order);
         PurchLine.SetRange("Document No.", PurchHeader."No.");
         PurchLine.SetRange(Type, PurchLine.Type::" ");
-        PurchLine.DeleteAll;
+        PurchLine.DeleteAll();
 
         // [GIVEN] Add one more Purchase Line to Order
         Clear(PurchLine);
@@ -4991,7 +4998,7 @@ codeunit 134327 "ERM Purchase Order"
               PurchaseHeader."No.", PurchaseLine."Line No.", PurchaseLine."No.", QtyToAssign, ItemChargeUnitCost);
             ItemChargeAssignmentPurch.Insert(true);
             PurchaseLine.Validate("Qty. to Receive", LibraryRandom.RandInt(5));
-            PurchaseLine.Modify;
+            PurchaseLine.Modify();
         until PurchaseLine.Next = 0;
 
         // [GIVEN] Post Purch. Order as a Receipt
@@ -5338,7 +5345,7 @@ codeunit 134327 "ERM Purchase Order"
 
         // [WHEN] Action "Post and new" is being clicked
         PurchaseOrder2.trap;
-        PurchSetup.get;
+        PurchSetup.Get();
         NextDocNo := NoSeriesMgt.GetNextNo(PurchSetup."Order Nos.", WorkDate(), false);
         LibraryVariableStorage.Enqueue(3); // receive and invoice
         PurchaseOrder.PostAndNew.Invoke();
@@ -5360,6 +5367,334 @@ codeunit 134327 "ERM Purchase Order"
         // [WHEN] GetFullDocTypeTxt is called
         // [THEN] 'Purchase Order' is returned
         Assert.AreEqual('Purchase Order', PurchaseHeader.GetFullDocTypeTxt(), 'The expected full document type is incorrect');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseLine_FindRecordByDescription_Resource()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Resource: Record Resource;
+        No: Code[20];
+        Description: Text[50];
+    begin
+        // [FEATURE] [Find Record By Description] [Resource]
+        // [SCENARIO 289386] Purchase Line's Resource validation can be done using "Description" field
+        Initialize;
+        No := 'RES_TEST_RES';
+        Description := 'Description(Test)Description';
+
+        // [GIVEN] Resource "RESOURCE" with "Description" = "(Desc)"
+        LibraryResource.CreateResourceNew(Resource);
+        Resource.Rename(No);
+        Resource.Validate(Name, 'Description(Test)Description');
+        Resource.Modify(true);
+
+        // [GIVEN] Purchase order with resource line
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        MockPurchaseLine(PurchaseLine, PurchaseHeader);
+        PurchaseLine.Validate(Type, PurchaseLine.Type::Resource);
+
+        // [WHEN] Validate purchase line's "Description" = "resource"/"desc"/"res"/"des"/"ource"/"esc"/"xesc"
+
+        // [THEN] Purchase line's: "No." = "RESOURCE", "Description" = "(Desc)"
+        VerifyPurchaseLineFindRecordByDescription(PurchaseLine, 'res_test_res', No, Description);
+        VerifyPurchaseLineFindRecordByDescription(PurchaseLine, 'description(test)description', No, Description);
+        VerifyPurchaseLineFindRecordByDescription(PurchaseLine, 'res_test', No, Description);
+        VerifyPurchaseLineFindRecordByDescription(PurchaseLine, 'description(test', No, Description);
+        VerifyPurchaseLineFindRecordByDescription(PurchaseLine, 'test_res', No, Description);
+        VerifyPurchaseLineFindRecordByDescription(PurchaseLine, 'test)description', No, Description);
+        VerifyPurchaseLineFindRecordByDescription(PurchaseLine, 'discriptyon(tezt)discriptyon', No, Description);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ResourceJournalLineCopyFromPurchaseHeaderUT()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        ReasonCode: Record "Reason Code";
+        ResJournalLine: Record "Res. Journal Line";
+    begin
+        // [FEATURE] [Resource]
+        // [SCENARIO 289386] Resource journal line fields are filled from the purchase header
+        Initialize();
+
+        // [GIVEN] Purchase header: "Document Date" = WD + 1, "Posting Date" = WD + 2, "Reason Code" = "RC1".
+        LibraryERM.CreateReasonCode(ReasonCode);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        PurchaseHeader."Document Date" := WorkDate() + 1;
+        PurchaseHeader."Posting Date" := WorkDate() + 2;
+        PurchaseHeader.Validate("Reason Code", ReasonCode.Code);
+        PurchaseHeader.Modify(true);
+
+        // [WHEN] Run function "CopyFrom" in "Res. Journal Line"
+        ResJournalLine.CopyFrom(PurchaseHeader);
+
+        // [THEN] "Res. Journal Line"."Document Date" = "Purchase Header"."Document Date"
+        Assert.AreEqual(PurchaseHeader."Document Date", ResJournalLine."Document Date", CopyFromPurchaseErr);
+        // [THEN] "Res. Journal Line"."Posting Date" = "Purchase Header"."Posting Date"
+        Assert.AreEqual(PurchaseHeader."Posting Date", ResJournalLine."Posting Date", CopyFromPurchaseErr);
+        // [THEN] "Res. Journal Line"."Reason Code" = "Purchase Header"."Reason Code"
+        Assert.AreEqual(PurchaseHeader."Reason Code", ResJournalLine."Reason Code", CopyFromPurchaseErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ResourceJournalLineCopyFromPurchaseLineUT()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Resource: Record Resource;
+        ResJournalLine: Record "Res. Journal Line";
+    begin
+        // [FEATURE] [Resource]
+        // [SCENARIO 289386] Resource journal line fields are filled from the purchase line
+        Initialize();
+
+        // [GIVEN] Purchase line
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Resource, Resource."No.", LibraryRandom.RandIntInRange(5, 10));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(100));
+        PurchaseLine.Validate("Qty. to Invoice", LibraryRandom.RandIntInRange(1, 4));
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Run function "CopyFrom" in "Res. Journal Line"
+        ResJournalLine.CopyFrom(PurchaseLine);
+
+        // [THEN] "Res. Journal Line" fields are filled from purchase line
+        VerifyResJournalLineCopiedFromPurchaseLine(ResJournalLine, PurchaseLine);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseLineValidateNoWithResource()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Resource: Record Resource;
+    begin
+        // [FEATURE] [Resource]
+        // [SCENARIO 289386] Purchase line fields are filled from resource
+        Initialize();
+
+        // [GIVEN] Resource
+        LibraryResource.CreateResourceNew(Resource);
+        Resource.Validate("Direct Unit Cost", LibraryRandom.RandInt(100));
+        Resource.Modify(true);
+
+        // [GIVEN] Purchase line
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        PurchaseLine.Init();
+        PurchaseLine."Document Type" := PurchaseHeader."Document Type";
+        PurchaseLine."Document No." := PurchaseHeader."No.";
+        PurchaseLine."Line No." := LibraryUtility.GetNewRecNo(PurchaseLine, PurchaseLine.FieldNo("Line No."));
+        PurchaseLine.Type := PurchaseLine.Type::Resource;
+        PurchaseLine.Insert();
+
+        // [WHEN] Validate "Purchase Line"."No." with resource
+        PurchaseLine.Validate("No.", Resource."No.");
+
+        // [THEN] "Purchase Line" fields are filled from resource      
+        VerifyPurchaseLineCopiedFromResource(PurchaseLine, Resource);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseLineValidateNoWithBlockedResource()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Resource: Record Resource;
+    begin
+        // [FEATURE] [Resource]
+        // [SCENARIO 289386] Error when validate "Purchase Line"."No." with blocked resource
+        Initialize();
+
+        // [GIVEN] Blocked resource
+        LibraryResource.CreateResourceNew(Resource);
+        Resource.Validate(Blocked, true);
+        Resource.Modify(true);
+
+        // [GIVEN] Purchase line
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        PurchaseLine.Init();
+        PurchaseLine."Document Type" := PurchaseHeader."Document Type";
+        PurchaseLine."Document No." := PurchaseHeader."No.";
+        PurchaseLine."Line No." := LibraryUtility.GetNewRecNo(PurchaseLine, PurchaseLine.FieldNo("Line No."));
+        PurchaseLine.Type := PurchaseLine.Type::Resource;
+        PurchaseLine.Insert();
+
+        // [WHEN] Validate "Purchase Line"."No." with blocked resource
+        asserterror PurchaseLine.Validate("No.", Resource."No.");
+
+        // [THEN] Error "Blocked must be equal to 'No'  in Resource: No.= ***. Current value is 'Yes'."
+        Assert.ExpectedError(BlockedResourceErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ResourceListPageHandler')]
+    procedure PurchaseLineResourceTableRelation()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseOrder: TestPage "Purchase Order";
+    begin
+        // [FEATURE] [Resource]
+        // [SCENARIO 289386] Lookup "No." field from purchase line with resource
+        Initialize();
+
+        // [GIVEN] Purchase order with resource line
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Resource, '', LibraryRandom.RandInt(10));
+        LibraryVariableStorage.Enqueue(PurchaseLine."No.");
+
+        // [WHEN] Lookup "No." from resource line
+        PurchaseOrder.OpenView();
+        PurchaseOrder.GoToRecord(PurchaseHeader);
+        PurchaseOrder.PurchLines."No.".Lookup();
+
+        // [THEN] "Resource List" page is run (ResourceListPageHandler)
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ResourceListPageHandler')]
+    procedure PurchaseInvLineResourceTableRelation()
+    var
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchInvLine: Record "Purch. Inv. Line";
+        PostedPurchaseInvoice: TestPage "Posted Purchase Invoice";
+    begin
+        // [FEATURE] [Resource]
+        // [SCENARIO 289386] Lookup "No." field from posted purchase invoice line with resource
+        Initialize();
+
+        // [GIVEN] Mocked posted purchase invoice with resource line
+        MockPostedPurchaseInvoice(PurchInvHeader, PurchInvLine);
+        LibraryVariableStorage.Enqueue(PurchInvLine."No.");
+
+        // [WHEN] Lookup "No." from resource line
+        PostedPurchaseInvoice.OpenView();
+        PostedPurchaseInvoice.GoToRecord(PurchInvHeader);
+        PostedPurchaseInvoice.PurchInvLines."No.".Lookup();
+
+        // [THEN] "Resource List" page is run (ResourceListPageHandler)
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ResourceListPageHandler')]
+    procedure PurchaseCrMemoLineResourceTableRelation()
+    var
+        PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+        PurchCrMemoLine: Record "Purch. Cr. Memo Line";
+        PostedPurchaseCreditMemo: TestPage "Posted Purchase Credit Memo";
+    begin
+        // [FEATURE] [Resource]
+        // [SCENARIO 289386] Lookup "No." field from posted purchase credit memo line with resource
+        Initialize();
+
+        // [GIVEN] Mocked posted purchase invoice with resource line
+        MockPostedPurchaseCrMemo(PurchCrMemoHdr, PurchCrMemoLine);
+        LibraryVariableStorage.Enqueue(PurchCrMemoLine."No.");
+
+        // [WHEN] Lookup "No." from resource line
+        PostedPurchaseCreditMemo.OpenView();
+        PostedPurchaseCreditMemo.GoToRecord(PurchCrMemoHdr);
+        PostedPurchaseCreditMemo.PurchCrMemoLines."No.".Lookup();
+
+        // [THEN] "Resource List" page is run (ResourceListPageHandler)
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ResourceListPageHandler')]
+    procedure PurchaseReceiptLineResourceTableRelation()
+    var
+        PurchRcptHeader: Record "Purch. Rcpt. Header";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        PostedPurchaseReceipt: TestPage "Posted Purchase Receipt";
+    begin
+        // [FEATURE] [Resource]
+        // [SCENARIO 289386] Lookup "No." field from posted purchase receipt line with resource
+        Initialize();
+
+        // [GIVEN] Mocked posted purchase invoice with resource line
+        MockPostedPurchaseReceipt(PurchRcptHeader, PurchRcptLine);
+        LibraryVariableStorage.Enqueue(PurchRcptHeader."No.");
+
+        // [WHEN] Lookup "No." from resource line
+        PostedPurchaseReceipt.OpenView();
+        PostedPurchaseReceipt.GoToRecord(PurchRcptHeader);
+        PostedPurchaseReceipt.PurchReceiptLines."No.".Lookup();
+
+        // [THEN] "Resource List" page is run (ResourceListPageHandler)
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ResourceListPageHandler')]
+    procedure PurchaseReturnShptResourceTableRelation()
+    var
+        ReturnShipmentHeader: Record "Return Shipment Header";
+        ReturnShipmentLine: Record "Return Shipment Line";
+        PostedReturnShipment: TestPage "Posted Return Shipment";
+    begin
+        // [FEATURE] [Resource]
+        // [SCENARIO 289386] Lookup "No." field from posted purchase return shipment line with resource
+        Initialize();
+
+        // [GIVEN] Mocked posted purchase invoice with resource line
+        MockPostedReturnShpt(ReturnShipmentHeader, ReturnShipmentLine);
+        LibraryVariableStorage.Enqueue(ReturnShipmentLine."No.");
+
+        // [WHEN] Lookup "No." from resource line
+        PostedReturnShipment.OpenView();
+        PostedReturnShipment.GoToRecord(ReturnShipmentHeader);
+        PostedReturnShipment.ReturnShptLines."No.".Lookup();
+
+        // [THEN] "Resource List" page is run (ResourceListPageHandler)
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderWithResourceAndResourceCost()
+    var
+        PriceListLine: Record "Price List Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Resource: Record Resource;
+        ResourceCost: Record "Resource Cost";
+        CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
+    begin
+        // [FEATURE] [Resource] [Resource Cost]
+        // [SCENARIO 341999] "Direct Unit Cost" in the purchase line is filled from the resource cost
+        Initialize();
+
+        // [GIVEN] Resource "R"
+        LibraryResource.CreateResourceNew(Resource);
+
+        // [GIVEN] Resource cost "RC"
+        ResourceCost.Init();
+        ResourceCost.Validate(Type, ResourceCost.Type::Resource);
+        ResourceCost.Validate(Code, Resource."No.");
+        ResourceCost.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(200, 300));
+        ResourceCost.Insert(true);
+        CopyFromToPriceListLine.CopyFrom(ResourceCost, PriceListLine);
+
+        // [WHEN] Create purchase order with "R"
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Resource, Resource."No.", LibraryRandom.RandInt(10));
+
+        // [THEN] "Direct Unit Cost" = "RC"
+        Assert.AreEqual(PurchaseLine."Direct Unit Cost", ResourceCost."Direct Unit Cost", 'Wrong resource cost');
     end;
 
     local procedure Initialize()
@@ -5386,7 +5721,7 @@ codeunit 134327 "ERM Purchase Order"
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Purchase Order");
     end;
 
@@ -5415,7 +5750,7 @@ codeunit 134327 "ERM Purchase Order"
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type, PurchaseLine."No.", 0);
         PurchaseLine."No." := '';
         PurchaseLine.Description := LibraryUtility.GenerateGUID;
-        PurchaseLine.Modify;
+        PurchaseLine.Modify();
         Description := PurchaseLine.Description;
     end;
 
@@ -5528,7 +5863,7 @@ codeunit 134327 "ERM Purchase Order"
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
         PurchaseLine."Drop Shipment" := true;
-        PurchaseLine.Modify;
+        PurchaseLine.Modify();
     end;
 
     local procedure CreatePostPurchaseInvoiceWithZeroAmount(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"): Code[20]
@@ -5536,7 +5871,7 @@ codeunit 134327 "ERM Purchase Order"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '');
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, '', LibraryRandom.RandDec(100, 2));
         PurchaseLine.Validate("Direct Unit Cost", 0);
-        PurchaseLine.Modify;
+        PurchaseLine.Modify();
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
@@ -5579,7 +5914,7 @@ codeunit 134327 "ERM Purchase Order"
         GeneralLedgerSetup: Record "General Ledger Setup";
         LibraryDimension: Codeunit "Library - Dimension";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryDimension.CreateDimensionValue(DimensionValue1, GeneralLedgerSetup."Shortcut Dimension 1 Code");
         LibraryDimension.CreateDimensionValue(DimensionValue2, GeneralLedgerSetup."Shortcut Dimension 2 Code");
         LibraryDimension.CreateDefaultDimensionGLAcc(DefaultDimension, GLAccountNo, DimensionValue1."Dimension Code", DimensionValue1.Code);
@@ -5783,9 +6118,9 @@ codeunit 134327 "ERM Purchase Order"
                 LibraryUtility.GenerateRandomAlphabeticText(MAXSTRLEN(PurchaseLine.Description), 1),
                 1,
                 MAXSTRLEN(PurchaseLine.Description));
-            PurchaseLine.MODIFY;
+            PurchaseLine.Modify();
             TempPurchaseLine := PurchaseLine;
-            TempPurchaseLine.INSERT;
+            TempPurchaseLine.Insert();
         end;
     end;
 
@@ -5834,12 +6169,22 @@ codeunit 134327 "ERM Purchase Order"
         UnitCostFactor := LibraryRandom.RandDec(1, 2);
         JobItemPrice.Validate("Unit Cost Factor", UnitCostFactor);
         JobItemPrice.Modify(true);
+        CopyJobItemPriceToPriceListLine();
+
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendor);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, LibraryRandom.RandDec(100, 2));
         ModifyPurchaseLineJobNo(PurchaseLine, Job."No.", JobTask."Job Task No.", UnitOfMeasureCode);
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
         PurchaseLine.Modify(true);
+    end;
+
+    local procedure CopyJobItemPriceToPriceListLine()
+    var
+        JobItemPrice: Record "Job Item Price";
+        PriceListLine: Record "Price List Line";
+    begin
+        CopyFromToPriceListLine.CopyFrom(JobItemPrice, PriceListLine);
     end;
 
     local procedure CreatePostPurchOrderWithDimension(var PurchHeader: Record "Purchase Header"; ItemDimValue: Record "Dimension Value"; DimensionCode: Code[20]; DimValueCode: Code[20]): Integer
@@ -5974,7 +6319,7 @@ codeunit 134327 "ERM Purchase Order"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         // Modify Item No. Series in Inventory setup.
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.Validate("Item Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         InventorySetup.Modify(true);
         LibraryInventory.CreateItem(Item);
@@ -6109,9 +6454,9 @@ codeunit 134327 "ERM Purchase Order"
     begin
         LibraryERM.FindGenBusinessPostingGroup(GenBusinessPostingGroup);
         LibraryERM.FindVATBusinessPostingGroup(VATBusinessPostingGroup);
-        TempVendor.Init;
+        TempVendor.Init();
         TempVendor.Validate("No.", GenerateVendorNo);
-        TempVendor.Insert;
+        TempVendor.Insert();
         TempVendor.Validate("Gen. Bus. Posting Group", GenBusinessPostingGroup.Code);
         TempVendor.Validate("VAT Bus. Posting Group", VATBusinessPostingGroup.Code);
         TempVendor.Validate("Vendor Posting Group", LibraryPurchase.FindVendorPostingGroup);
@@ -6196,7 +6541,7 @@ codeunit 134327 "ERM Purchase Order"
         LibraryPurchase.CreateVendor(Vendor);
         LibraryPurchase.CreateVendorPurchaseCode(StandardVendorPurchaseCode, Vendor."No.", StandardPurchaseCode);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
-        Commit;  // COMMIT is required here.
+        Commit();  // COMMIT is required here.
         StandardVendorPurchaseCode.InsertPurchLines(PurchaseHeader);
     end;
 
@@ -6207,7 +6552,7 @@ codeunit 134327 "ERM Purchase Order"
         PurchaseLine: Record "Purchase Line";
         LibraryDimension: Codeunit "Library - Dimension";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryDimension.CreateDimensionValue(DimensionValue, GeneralLedgerSetup."Shortcut Dimension 1 Code");
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, CreateVendor, PurchaseHeader."Document Type"::Order);
         PurchaseLine.Validate("Shortcut Dimension 1 Code", DimensionValue.Code);
@@ -6350,9 +6695,9 @@ codeunit 134327 "ERM Purchase Order"
     var
         ShipmentMethod: Record "Shipment Method";
     begin
-        ShipmentMethod.Init;
+        ShipmentMethod.Init();
         ShipmentMethod.Code := LibraryUtility.GenerateRandomCode(ShipmentMethod.FieldNo(Code), DATABASE::"Shipment Method");
-        ShipmentMethod.Insert;
+        ShipmentMethod.Insert();
         exit(ShipmentMethod.Code);
     end;
 
@@ -6406,9 +6751,9 @@ codeunit 134327 "ERM Purchase Order"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup."Create Item from Item No." := true;
-        PurchasesPayablesSetup.Modify;
+        PurchasesPayablesSetup.Modify();
     end;
 
     local procedure MockGLAccountWithNoAndDescription(NewNo: Code[20]; NewName: Text[100])
@@ -6498,10 +6843,10 @@ codeunit 134327 "ERM Purchase Order"
 
     local procedure MockPurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; DocumentNo: Code[20])
     begin
-        PurchaseHeader.Init;
+        PurchaseHeader.Init();
         PurchaseHeader."Document Type" := DocumentType;
         PurchaseHeader."No." := DocumentNo;
-        PurchaseHeader.Insert;
+        PurchaseHeader.Insert();
     end;
 
     local procedure MockPurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header")
@@ -6519,7 +6864,7 @@ codeunit 134327 "ERM Purchase Order"
         MockPurchaseLine(PurchaseLine, PurchaseHeader);
         PurchaseLine."A. Rcd. Not Inv. Ex. VAT (LCY)" := ReceivedNotInv_Base;
         PurchaseLine."Amt. Rcd. Not Invoiced" := ReceivedNotInv;
-        PurchaseLine.Modify;
+        PurchaseLine.Modify();
     end;
 
     local procedure PostReceivePurchOrderWithVAT(var PurchRcptLine: Record "Purch. Rcpt. Line"; PurchHeader: Record "Purchase Header")
@@ -6677,7 +7022,7 @@ codeunit 134327 "ERM Purchase Order"
             PurchRcptLine.SetRange("Document No.", PurchRcptHeader."No.");
             PurchRcptLine.FindFirst;
             PassedPurchRcptLine := PurchRcptLine;
-            PassedPurchRcptLine.Insert;
+            PassedPurchRcptLine.Insert();
         until PurchRcptHeader.Next = 0;
     end;
 
@@ -6967,9 +7312,9 @@ codeunit 134327 "ERM Purchase Order"
     var
         PurchSetup: Record "Purchases & Payables Setup";
     begin
-        PurchSetup.GET;
+        PurchSetup.Get();
         PurchSetup."Copy Line Descr. to G/L Entry" := CopyLineDescrToGLEntry;
-        PurchSetup.MODIFY;
+        PurchSetup.Modify();
     end;
 
     local procedure CalculateTotalCostLCY(PurchaseLine: Record "Purchase Line"): Decimal
@@ -6994,7 +7339,7 @@ codeunit 134327 "ERM Purchase Order"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         OldAutomaticCostPosting := InventorySetup."Automatic Cost Posting";
         InventorySetup.Validate("Automatic Cost Posting", NewAutomaticCostPosting);
         InventorySetup.Modify(true);
@@ -7004,7 +7349,7 @@ codeunit 134327 "ERM Purchase Order"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Default Posting Date", NewDefaultPostingDate);
         PurchasesPayablesSetup.Modify(true);
     end;
@@ -7072,7 +7417,7 @@ codeunit 134327 "ERM Purchase Order"
 
     local procedure SetPostedInvoiceNosEqualInvoiceNosInPurchSetup(var PurchasesPayablesSetup: Record "Purchases & Payables Setup")
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Posted Invoice Nos.", LibraryERM.CreateNoSeriesCode);
         PurchasesPayablesSetup.Validate("Invoice Nos.", PurchasesPayablesSetup."Posted Invoice Nos.");
         PurchasesPayablesSetup.Modify(true);
@@ -7134,7 +7479,7 @@ codeunit 134327 "ERM Purchase Order"
     var
         CopyPurchaseDocument: Report "Copy Purchase Document";
     begin
-        Commit;
+        Commit();
         CopyPurchaseDocument.SetPurchHeader(PurchaseHeader);
         CopyPurchaseDocument.RunModal;
     end;
@@ -7147,7 +7492,7 @@ codeunit 134327 "ERM Purchase Order"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, '');
         PurchaseHeader."VAT Bus. Posting Group" := VATBusinessPostingGroup.Code;
         PurchaseHeader."VAT Base Discount %" := LibraryRandom.RandInt(10);
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
     end;
 
     local procedure CreateVATPostingSetupWithBusPostGroup(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Option; VATBusinessPostingGroup: Code[20])
@@ -7161,7 +7506,7 @@ codeunit 134327 "ERM Purchase Order"
         VATPostingSetup."Reverse Chrg. VAT Acc." := VATPostingSetup."Purchase VAT Account";
         VATPostingSetup."VAT Calculation Type" := VATCalculationType;
         VATPostingSetup."VAT Identifier" := LibraryUtility.GenerateGUID;
-        VATPostingSetup.Modify;
+        VATPostingSetup.Modify();
     end;
 
     local procedure CreatePurchaseLineWithVATType(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; VATType: Option)
@@ -7178,7 +7523,7 @@ codeunit 134327 "ERM Purchase Order"
         GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccountNo, 1);
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(1000, 10000));
-        PurchaseLine.Modify;
+        PurchaseLine.Modify();
     end;
 
     local procedure VerifyVATAmountLine(var TempVATAmountLine: Record "VAT Amount Line" temporary; VATIdentifier: Code[20]; VATCalculationType: Option; VATAmount: Decimal; AmountInclVAT: Decimal)
@@ -7195,13 +7540,13 @@ codeunit 134327 "ERM Purchase Order"
         GLSetup: Record "General Ledger Setup";
         PurchPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetup."Pmt. Disc. Excl. VAT" := true;
-        GLSetup.Modify;
+        GLSetup.Modify();
 
-        PurchPayablesSetup.Get;
+        PurchPayablesSetup.Get();
         PurchPayablesSetup."Allow VAT Difference" := true;
-        PurchPayablesSetup.Modify;
+        PurchPayablesSetup.Modify();
     end;
 
     local procedure PostPartialShipment(var SalesLine: Record "Sales Line"; QtyToShip: Decimal): Code[20]
@@ -7335,7 +7680,7 @@ codeunit 134327 "ERM Purchase Order"
         GeneralLedgerSetup: Record "General Ledger Setup";
         ValueEntry: Record "Value Entry";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         ValueEntry.SetRange("Document No.", DocumentNo);
         ValueEntry.FindFirst;
         ValueEntry.TestField("Source No.", BuyFromVendorNo);
@@ -7405,7 +7750,7 @@ codeunit 134327 "ERM Purchase Order"
         GeneralLedgerSetup: Record "General Ledger Setup";
         TotalGLAmount: Decimal;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
         GLEntry.SetFilter(Amount, '>0');
@@ -7485,7 +7830,7 @@ codeunit 134327 "ERM Purchase Order"
         GeneralPostingSetup: Record "General Posting Setup";
         GLEntry: Record "G/L Entry";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralPostingSetup.Get(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
         FindGLEntry(GLEntry, DocumentNo, GeneralPostingSetup."Purch. Inv. Disc. Account");
         Assert.AreNearlyEqual(
@@ -7526,7 +7871,7 @@ codeunit 134327 "ERM Purchase Order"
         GeneralPostingSetup: Record "General Posting Setup";
         GLEntry: Record "G/L Entry";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralPostingSetup.Get(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
         FindGLEntry(GLEntry, DocumentNo, GeneralPostingSetup."Purch. Line Disc. Account");
         Assert.AreNearlyEqual(
@@ -7542,7 +7887,7 @@ codeunit 134327 "ERM Purchase Order"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         VendorLedgerEntry.SetRange("Document No.", DocumentNo);
         VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice);
         VendorLedgerEntry.FindFirst;
@@ -7577,7 +7922,7 @@ codeunit 134327 "ERM Purchase Order"
         ValueEntry: Record "Value Entry";
         PurchaseAmount: Decimal;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         ValueEntry.SetRange("Document No.", DocumentNo);
         ValueEntry.FindSet;
         repeat
@@ -7593,7 +7938,7 @@ codeunit 134327 "ERM Purchase Order"
         GeneralLedgerSetup: Record "General Ledger Setup";
         VATEntry: Record "VAT Entry";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         VATEntry.SetRange("Document No.", DocumentNo);
         VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
         VATEntry.FindFirst;
@@ -8013,7 +8358,7 @@ codeunit 134327 "ERM Purchase Order"
                 CurrExchRate.ExchangeAmtFCYToLCY(
                   WorkDate, CopyStr("Job Currency Code", 1, 10),
                   "Job Total Price", "Job Currency Factor"),
-                LibraryERM.GetCurrencyAmountRoundingPrecision(CurrencyCode));
+                LibraryERM.GetCurrencyAmountRoundingPrecision(''));
             Assert.AreEqual(ExpectedResult, "Job Total Price (LCY)", WrongJobTotalPriceLCYErr);
         end;
     end;
@@ -8121,7 +8466,87 @@ codeunit 134327 "ERM Purchase Order"
           LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID,
           DATABASE::"G/L Account");
         MyNotifications.Enabled := true;
-        MyNotifications.Modify;
+        MyNotifications.Modify();
+    end;
+
+    local procedure VerifyResJournalLineCopiedFromPurchaseLine(ResJournalLine: Record "Res. Journal Line"; PurchaseLine: Record "Purchase Line")
+    begin
+        Assert.AreEqual(PurchaseLine."No.", ResJournalLine."Resource No.", CopyFromPurchaseErr);
+        Assert.AreEqual(ResJournalLine."Source Type"::Vendor, ResJournalLine."Source Type", CopyFromPurchaseErr);
+        Assert.AreEqual(PurchaseLine."Buy-from Vendor No.", ResJournalLine."Source No.", CopyFromPurchaseErr);
+        Assert.AreEqual(PurchaseLine."Unit of Measure Code", ResJournalLine."Unit of Measure Code", CopyFromPurchaseErr);
+        Assert.AreEqual(PurchaseLine."Gen. Bus. Posting Group", ResJournalLine."Gen. Bus. Posting Group", CopyFromPurchaseErr);
+        Assert.AreEqual(PurchaseLine."Gen. Prod. Posting Group", ResJournalLine."Gen. Prod. Posting Group", CopyFromPurchaseErr);
+        Assert.AreEqual(ResJournalLine."Entry Type"::Purchase, ResJournalLine."Entry Type", CopyFromPurchaseErr);
+        Assert.AreEqual(PurchaseLine."Qty. to Invoice", ResJournalLine.Quantity, CopyFromPurchaseErr);
+        Assert.AreEqual(PurchaseLine."Direct Unit Cost", ResJournalLine."Unit Price", CopyFromPurchaseErr);
+        Assert.AreEqual(PurchaseLine.Amount, ResJournalLine."Total Price", CopyFromPurchaseErr);
+    end;
+
+    local procedure VerifyPurchaseLineCopiedFromResource(PurchaseLine: Record "Purchase Line"; Resource: Record Resource)
+    begin
+        Assert.AreEqual(Resource.Name, PurchaseLine.Description, CopyFromResourceErr);
+        Assert.AreEqual(Resource."Base Unit of Measure", PurchaseLine."Unit of Measure Code", CopyFromResourceErr);
+        Assert.AreEqual(Resource."Gen. Prod. Posting Group", PurchaseLine."Gen. Prod. Posting Group", CopyFromResourceErr);
+        Assert.AreEqual(Resource."VAT Prod. Posting Group", PurchaseLine."VAT Prod. Posting Group", CopyFromResourceErr);
+        Assert.IsFalse(PurchaseLine."Allow Item Charge Assignment", CopyFromResourceErr);
+        Assert.AreEqual(Resource."Direct Unit Cost", PurchaseLine."Direct Unit Cost", CopyFromResourceErr);
+    end;
+
+    local procedure MockPostedPurchaseInvoice(var PurchInvHeader: Record "Purch. Inv. Header"; PurchInvLine: Record "Purch. Inv. Line")
+    begin
+        PurchInvHeader.Init();
+        PurchInvHeader."No." := LibraryUtility.GenerateRandomCode20(PurchInvHeader.FieldNo("No."), Database::"Purch. Inv. Header");
+        PurchInvHeader.Insert();
+
+        PurchInvLine.Init();
+        PurchInvLine."Document No." := PurchInvHeader."No.";
+        PurchInvLine."Line No." := LibraryUtility.GetNewRecNo(PurchInvLine, PurchInvLine.FieldNo("Line No."));
+        PurchInvLine.Type := PurchInvLine.Type::Resource;
+        PurchInvLine."No." := LibraryResource.CreateResourceNo();
+        PurchInvLine.Insert();
+    end;
+
+    local procedure MockPostedPurchaseCrMemo(var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; PurchCrMemoLine: Record "Purch. Cr. Memo Line")
+    begin
+        PurchCrMemoHdr.Init();
+        PurchCrMemoHdr."No." := LibraryUtility.GenerateRandomCode20(PurchCrMemoHdr.FieldNo("No."), Database::"Purch. Cr. Memo Hdr.");
+        PurchCrMemoHdr.Insert();
+
+        PurchCrMemoLine.Init();
+        PurchCrMemoLine."Document No." := PurchCrMemoHdr."No.";
+        PurchCrMemoLine."Line No." := LibraryUtility.GetNewRecNo(PurchCrMemoLine, PurchCrMemoLine.FieldNo("Line No."));
+        PurchCrMemoLine.Type := PurchCrMemoLine.Type::Resource;
+        PurchCrMemoLine."No." := LibraryResource.CreateResourceNo();
+        PurchCrMemoLine.Insert();
+    end;
+
+    local procedure MockPostedPurchaseReceipt(var PurchRcptHeader: Record "Purch. Rcpt. Header"; PurchRcptLine: Record "Purch. Rcpt. Line")
+    begin
+        PurchRcptHeader.Init();
+        PurchRcptHeader."No." := LibraryUtility.GenerateRandomCode20(PurchRcptHeader.FieldNo("No."), Database::"Purch. Cr. Memo Hdr.");
+        PurchRcptHeader.Insert();
+
+        PurchRcptLine.Init();
+        PurchRcptLine."Document No." := PurchRcptHeader."No.";
+        PurchRcptLine."Line No." := LibraryUtility.GetNewRecNo(PurchRcptLine, PurchRcptLine.FieldNo("Line No."));
+        PurchRcptLine.Type := PurchRcptLine.Type::Resource;
+        PurchRcptLine."No." := LibraryResource.CreateResourceNo();
+        PurchRcptLine.Insert();
+    end;
+
+    local procedure MockPostedReturnShpt(var ReturnShipmentHeader: Record "Return Shipment Header"; ReturnShipmentLine: Record "Return Shipment Line")
+    begin
+        ReturnShipmentHeader.Init();
+        ReturnShipmentHeader."No." := LibraryUtility.GenerateRandomCode20(ReturnShipmentHeader.FieldNo("No."), Database::"Purch. Cr. Memo Hdr.");
+        ReturnShipmentHeader.Insert();
+
+        ReturnShipmentLine.Init();
+        ReturnShipmentLine."Document No." := ReturnShipmentHeader."No.";
+        ReturnShipmentLine."Line No." := LibraryUtility.GetNewRecNo(ReturnShipmentLine, ReturnShipmentLine.FieldNo("Line No."));
+        ReturnShipmentLine.Type := ReturnShipmentLine.Type::Resource;
+        ReturnShipmentLine."No." := LibraryResource.CreateResourceNo();
+        ReturnShipmentLine.Insert();
     end;
 
     [ModalPageHandler]
@@ -8139,7 +8564,7 @@ codeunit 134327 "ERM Purchase Order"
         Navigate.UpdateNavigateForm(false);
         Navigate.FindRecordsOnOpen;
 
-        TempDocumentEntry2.DeleteAll;
+        TempDocumentEntry2.DeleteAll();
         Navigate.ReturnDocumentEntry(TempDocumentEntry2);
     end;
 
@@ -8425,6 +8850,15 @@ codeunit 134327 "ERM Purchase Order"
     [Scope('OnPrem')]
     procedure SendNotificationHandler(var Notification: Notification): Boolean
     begin
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ResourceListPageHandler(var ResourceList: TestPage "Resource List")
+    begin
+        ResourceList.Filter.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        ResourceList.First();
+        ResourceList.Cancel().Invoke();
     end;
 }
 

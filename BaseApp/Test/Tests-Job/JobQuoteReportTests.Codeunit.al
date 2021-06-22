@@ -44,7 +44,7 @@ codeunit 136314 "Job Quote Report Tests"
         RemoveReportLayout;
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Job Quote Report Tests");
     end;
 
@@ -241,12 +241,12 @@ codeunit 136314 "Job Quote Report Tests"
 
     local procedure SetReportLayout(LayoutSelection: Integer; CustomReportLayoutCode: Code[20])
     begin
-        ReportLayoutSelection.Init;
+        ReportLayoutSelection.Init();
         ReportLayoutSelection."Report ID" := REPORT::"Job Quote";
         ReportLayoutSelection."Company Name" := CompanyName;
         ReportLayoutSelection.Type := LayoutSelection;
         ReportLayoutSelection."Custom Report Layout Code" := CustomReportLayoutCode;
-        ReportLayoutSelection.Insert;
+        ReportLayoutSelection.Insert();
     end;
 
     [ModalPageHandler]
@@ -289,7 +289,7 @@ codeunit 136314 "Job Quote Report Tests"
         Clear(ReportLayoutSelection);
         ReportLayoutSelection.SetRange("Report ID", REPORT::"Job Quote");
         ReportLayoutSelection.SetRange("Company Name", CompanyName);
-        ReportLayoutSelection.DeleteAll;
+        ReportLayoutSelection.DeleteAll();
     end;
 
     local procedure VerifyJobQuoteReportHeading(Job: Record Job)
@@ -307,15 +307,15 @@ codeunit 136314 "Job Quote Report Tests"
         CustomReportSelection: Record "Custom Report Selection";
     begin
         if Customer.Get(Job."Bill-to Customer No.") then begin
-            CustomReportSelection.DeleteAll;
-            CustomReportSelection.Init;
+            CustomReportSelection.DeleteAll();
+            CustomReportSelection.Init();
             CustomReportSelection."Source Type" := DATABASE::Customer;
             CustomReportSelection."Source No." := Customer."No.";
             CustomReportSelection.Usage := CustomReportSelection.Usage::JQ;
             CustomReportSelection.Sequence := 1;
             CustomReportSelection."Report ID" := REPORT::"Job Quote";
             CustomReportSelection."Use for Email Attachment" := true;
-            CustomReportSelection.Insert;
+            CustomReportSelection.Insert();
         end;
     end;
 

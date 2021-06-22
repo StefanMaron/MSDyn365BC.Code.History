@@ -63,10 +63,10 @@ page 2347 "BC O365 Service Settings"
         if VATRegNoSrvConfig.FindFirst then
             exit;
 
-        VATRegNoSrvConfig.Init;
+        VATRegNoSrvConfig.Init();
         VATRegNoSrvConfig."Service Endpoint" := VATLookupExtDataHndl.GetVATRegNrValidationWebServiceURL;
         VATRegNoSrvConfig.Enabled := true;
-        VATRegNoSrvConfig.Insert;
+        VATRegNoSrvConfig.Insert();
     end;
 }
 

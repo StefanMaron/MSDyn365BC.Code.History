@@ -119,11 +119,11 @@ table 7501 "Item Attribute Value"
                 Error('');
         ItemAttributeValueMapping.SetRange("Item Attribute ID", "Attribute ID");
         ItemAttributeValueMapping.SetRange("Item Attribute Value ID", ID);
-        ItemAttributeValueMapping.DeleteAll;
+        ItemAttributeValueMapping.DeleteAll();
 
         ItemAttrValueTranslation.SetRange("Attribute ID", "Attribute ID");
         ItemAttrValueTranslation.SetRange(ID, ID);
-        ItemAttrValueTranslation.DeleteAll;
+        ItemAttrValueTranslation.DeleteAll();
     end;
 
     var
@@ -240,7 +240,7 @@ table 7501 "Item Attribute Value"
             ItemAttrValueTranslation.SetRange(ID, ID);
             if not ItemAttrValueTranslation.IsEmpty then
                 if not Confirm(StrSubstNo(ReuseValueTranslationsQst, ItemAttributeValue.Value, NameToCheck)) then
-                    ItemAttrValueTranslation.DeleteAll;
+                    ItemAttrValueTranslation.DeleteAll();
         end;
     end;
 
@@ -281,7 +281,7 @@ table 7501 "Item Attribute Value"
                 FilterText := StrSubstNo('@*%1*', LowerCase(FilterText));
                 IndexOfOrCondition := StrPos(FilterText, '|');
                 if IndexOfOrCondition > 0 then begin
-                    TransformationRule.Init;
+                    TransformationRule.Init();
                     TransformationRule."Find Value" := '|';
                     TransformationRule."Replace Value" := '*|@*';
                     TransformationRule."Transformation Type" := TransformationRule."Transformation Type"::Replace;
@@ -303,7 +303,7 @@ table 7501 "Item Attribute Value"
         ItemAttributeValue: Record "Item Attribute Value";
     begin
         Reset;
-        DeleteAll;
+        DeleteAll();
         ItemAttributeValueMapping.SetRange("Table ID", DATABASE::Item);
         ItemAttributeValueMapping.SetRange("No.", KeyValue);
         if ItemAttributeValueMapping.FindSet then
@@ -323,7 +323,7 @@ table 7501 "Item Attribute Value"
         ItemCategory: Record "Item Category";
     begin
         Reset;
-        DeleteAll;
+        DeleteAll();
         if CategoryCode = '' then
             exit;
         ItemAttributeValueMapping.SetRange("Table ID", DATABASE::"Item Category");

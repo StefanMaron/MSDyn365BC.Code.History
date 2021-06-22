@@ -191,7 +191,7 @@ page 6013 "Resource Capacity Settings"
                         CalendarMgmt.SetSource(CompanyInformation, CustomizedCalendarChange);
                     end;
 
-                    ResCapacityEntry.Reset;
+                    ResCapacityEntry.Reset();
                     ResCapacityEntry.SetCurrentKey("Resource No.", Date);
                     ResCapacityEntry.SetRange("Resource No.", "No.");
                     TempDate := StartDate;
@@ -209,10 +209,10 @@ page 6013 "Resource Capacity Settings"
                             NewCapacity := TempCapacity - SelectCapacity;
 
                         if NewCapacity <> 0 then begin
-                            ResCapacityEntry2.Reset;
+                            ResCapacityEntry2.Reset();
                             if ResCapacityEntry2.FindLast then;
                             LastEntry := ResCapacityEntry2."Entry No." + 1;
-                            ResCapacityEntry2.Reset;
+                            ResCapacityEntry2.Reset();
                             ResCapacityEntry2."Entry No." := LastEntry;
                             ResCapacityEntry2.Capacity := -NewCapacity;
                             ResCapacityEntry2."Resource No." := "No.";
@@ -223,7 +223,7 @@ page 6013 "Resource Capacity Settings"
                         end;
                         TempDate := TempDate + 1;
                     until TempDate > EndDate;
-                    Commit;
+                    Commit();
                     if ChangedDays > 1 then
                         Message(Text006, ChangedDays)
                     else

@@ -59,11 +59,11 @@ codeunit 132551 "Library - Setup Storage UT"
         // [THEN] "G/L Setup" restored and "G/L Setup"."Amount Rounding Precision" = 1
         Assert.AreEqual(0.00001, LibraryERM.GetAmountRoundingPrecision, TableWasNotRestoredErr);
         // [THEN] "Purchases & Payables Setup" restored and "Purchases & Payables Setup"."Job Queue Category Code" = "X1"
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         ExpectedJobQueueCategoryCode := JobQueueCategoryCodeTok;
         Assert.AreEqual(ExpectedJobQueueCategoryCode, PurchasesPayablesSetup."Job Queue Category Code", TableWasNotRestoredErr);
         // [THEN] "Sales & Receivables Setup" restored and "Sales & Receivables Setup"."Invoice Rounding" = FALSE
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         Assert.AreEqual(false, SalesReceivablesSetup."Invoice Rounding", TableRestoredErr);
     end;
 
@@ -90,7 +90,7 @@ codeunit 132551 "Library - Setup Storage UT"
     begin
         // [SCENARIO] Add empy setup table
         // [GIVEN] Empty table "T"
-        UserSetup.DeleteAll;
+        UserSetup.DeleteAll();
         // [WHEN] Try backup "T"
         asserterror LibrarySetupStorage.Save(DATABASE::"User Setup");
         // [THEN] Error "Setup table with only one entry is allowed" thrown
@@ -106,8 +106,8 @@ codeunit 132551 "Library - Setup Storage UT"
     begin
         // [SCENARIO] Add setup table with composite primary key
         // [GIVEN] Table "T" with composite primary key
-        VATPostingSetup.DeleteAll;
-        VATPostingSetup.Insert;
+        VATPostingSetup.DeleteAll();
+        VATPostingSetup.Insert();
         // [WHEN] Try backup "T"
         asserterror LibrarySetupStorage.Save(DATABASE::"VAT Posting Setup");
         // [THEN] Error "Composite primary key is not allowed" thrown
@@ -123,7 +123,7 @@ codeunit 132551 "Library - Setup Storage UT"
     begin
         // [SCENARIO] Add setup table with single entry and non-empty value in simple primary key
         // [GIVEN] Table "T" without entries with empty value in a simple primary key
-        UserSetup.DeleteAll;
+        UserSetup.DeleteAll();
         CreateNewUserSetup;
         // [WHEN] Try backup "T"
         asserterror LibrarySetupStorage.Save(DATABASE::"User Setup");
@@ -154,21 +154,21 @@ codeunit 132551 "Library - Setup Storage UT"
         User: Record User;
         UserSetup: Record "User Setup";
     begin
-        User.Init;
+        User.Init();
         User."User Security ID" := CreateGuid;
         User."User Name" := LibraryUtility.GenerateGUID;
-        User.Insert;
+        User.Insert();
 
-        UserSetup.Init;
+        UserSetup.Init();
         UserSetup."User ID" := User."User Name";
-        UserSetup.Insert;
+        UserSetup.Insert();
     end;
 
     local procedure UpdateSalesSetup(InvoiceRounding: Boolean)
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup."Invoice Rounding" := InvoiceRounding;
         SalesReceivablesSetup.Modify(true);
     end;
@@ -177,7 +177,7 @@ codeunit 132551 "Library - Setup Storage UT"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup."Job Queue Category Code" := JobQueueCode;
         PurchasesPayablesSetup.Modify(true);
     end;

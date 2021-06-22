@@ -61,10 +61,8 @@ codeunit 1012 "Job Jnl.-Post Line"
                 JobJnlCheckLine.RunCheck(JobJnlLine);
 
             if JobLedgEntry."Entry No." = 0 then begin
-                JobLedgEntry.LockTable;
-                if JobLedgEntry.FindLast then
-                    NextEntryNo := JobLedgEntry."Entry No.";
-                NextEntryNo := NextEntryNo + 1;
+                JobLedgEntry.LockTable();
+                NextEntryNo := JobLedgEntry.GetLastEntryNo() + 1;
             end;
 
             if "Document Date" = 0D then
@@ -72,9 +70,9 @@ codeunit 1012 "Job Jnl.-Post Line"
 
             OnBeforeCreateJobRegister(JobJnlLine);
             if JobReg."No." = 0 then begin
-                JobReg.LockTable;
+                JobReg.LockTable();
                 if (not JobReg.FindLast) or (JobReg."To Entry No." <> 0) then begin
-                    JobReg.Init;
+                    JobReg.Init();
                     JobReg."No." := JobReg."No." + 1;
                     JobReg."From Entry No." := NextEntryNo;
                     JobReg."To Entry No." := NextEntryNo;
@@ -83,7 +81,7 @@ codeunit 1012 "Job Jnl.-Post Line"
                     JobReg."Source Code" := "Source Code";
                     JobReg."Journal Batch Name" := "Journal Batch Name";
                     JobReg."User ID" := UserId;
-                    JobReg.Insert;
+                    JobReg.Insert();
                 end;
             end;
 
@@ -148,7 +146,7 @@ codeunit 1012 "Job Jnl.-Post Line"
     local procedure GetGLSetup()
     begin
         if not GLSetupRead then
-            GLSetup.Get;
+            GLSetup.Get();
         GLSetupRead := true;
     end;
 
@@ -170,7 +168,7 @@ codeunit 1012 "Job Jnl.-Post Line"
 
         SetCurrency(JobJnlLine2);
 
-        JobLedgEntry.Init;
+        JobLedgEntry.Init();
         JobTransferLine.FromJnlLineToLedgEntry(JobJnlLine2, JobLedgEntry);
 
         IsHandled := false;
@@ -225,8 +223,7 @@ codeunit 1012 "Job Jnl.-Post Line"
                     begin
                         JobLedgEntry."Ledger Entry Type" := "Ledger Entry Type"::Item;
                         JobLedgEntry."Ledger Entry No." := "Ledger Entry No.";
-                        JobLedgEntry."Serial No." := "Serial No.";
-                        JobLedgEntry."Lot No." := "Lot No.";
+                        JobLedgEntry.CopyTrackingFromJobJnlLine(JobJnlLine2);
                     end;
                 Type::"G/L Account":
                     begin
@@ -241,17 +238,15 @@ codeunit 1012 "Job Jnl.-Post Line"
 
         OnCreateJobLedgerEntryOnAfterAssignLedgerEntryTypeAndNo(JobLedgEntry, JobJnlLine2);
 
-        if JobLedgEntry."Entry Type" = JobLedgEntry."Entry Type"::Sale then begin
-            JobLedgEntry."Serial No." := JobJnlLine2."Serial No.";
-            JobLedgEntry."Lot No." := JobJnlLine2."Lot No.";
-        end;
+        if JobLedgEntry."Entry Type" = JobLedgEntry."Entry Type"::Sale then
+            JobLedgEntry.CopyTrackingFromJobJnlLine(JobJnlLine2);
 
         OnBeforeJobLedgEntryInsert(JobLedgEntry, JobJnlLine2);
         JobLedgEntry.Insert(true);
         OnAfterJobLedgEntryInsert(JobLedgEntry, JobJnlLine2);
 
         JobReg."To Entry No." := NextEntryNo;
-        JobReg.Modify;
+        JobReg.Modify();
 
         JobLedgEntryNo := JobLedgEntry."Entry No.";
         IsHandled := false;
@@ -349,8 +344,7 @@ codeunit 1012 "Job Jnl.-Post Line"
                         if JobLedgEntry2.FindFirst and (JobLedgEntry2.Quantity = -ItemLedgEntry.Quantity) then
                             SkipJobLedgerEntry := true
                         else begin
-                            JobJnlLine2."Serial No." := ItemLedgEntry."Serial No.";
-                            JobJnlLine2."Lot No." := ItemLedgEntry."Lot No.";
+                            JobJnlLine2.CopyTrackingFromItemLedgEntry(ItemLedgEntry);
                             OnPostItemOnAfterApplyItemTracking(JobJnlLine2, ItemLedgEntry, JobLedgEntry2, SkipJobLedgerEntry);
                         end;
                     end;
@@ -387,7 +381,7 @@ codeunit 1012 "Job Jnl.-Post Line"
         with ResJnlLine do begin
             Init;
             CopyFromJobJnlLine(JobJnlLine2);
-            ResLedgEntry.LockTable;
+            ResLedgEntry.LockTable();
             ResJnlPostLine.RunWithCheck(ResJnlLine);
             JobJnlLine2."Resource Group No." := "Resource Group No.";
             exit(CreateJobLedgEntry(JobJnlLine2));
@@ -543,7 +537,7 @@ codeunit 1012 "Job Jnl.-Post Line"
             exit(false);
 
         Job.Get(JobJnlLine."Job No.");
-        JobLedgEntry.Init;
+        JobLedgEntry.Init();
         JobTransferLine.FromJnlLineToLedgEntry(JobJnlLine, JobLedgEntry);
         JobLedgEntry.Quantity := JobJnlLine.Quantity;
         JobLedgEntry."Quantity (Base)" := JobJnlLine."Quantity (Base)";

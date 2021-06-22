@@ -261,7 +261,7 @@ report 304 "Vendor - Detail Trial Balance"
                 begin
                     if not VendLedgEntryExists and ((StartBalanceLCY = 0) or ExcludeBalanceOnly) then begin
                         StartBalanceLCY := 0;
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     end;
                 end;
             }
@@ -300,7 +300,7 @@ report 304 "Vendor - Detail Trial Balance"
                                 repeat
                                     StartBalAdjLCY := StartBalAdjLCY - "Detailed Vendor Ledg. Entry"."Amount (LCY)";
                                 until "Detailed Vendor Ledg. Entry".Next = 0;
-                            "Detailed Vendor Ledg. Entry".Reset;
+                            "Detailed Vendor Ledg. Entry".Reset();
                         until VendorLedgerEntry.Next = 0;
                 end;
                 CurrReport.PrintOnlyIfDetail := ExcludeBalanceOnly or (StartBalanceLCY = 0);

@@ -338,7 +338,7 @@ codeunit 418 "User Management"
                                     else begin
                                         FieldRef2 := RecRef.Field(Field."No.");
                                         FieldRef2.Value := CopyStr(NewUserName, 1, Field.Len);
-                                        RecRef.Modify;
+                                        RecRef.Modify();
                                     end;
                                 until RecRef.Next = 0;
                         end else begin
@@ -354,7 +354,7 @@ codeunit 418 "User Management"
             until Field.Next = 0;
 
         if OldUserName = UserId then begin
-            SessionSetting.Init;
+            SessionSetting.Init();
             SessionSetting.RequestSessionUpdate(false);
         end;
 

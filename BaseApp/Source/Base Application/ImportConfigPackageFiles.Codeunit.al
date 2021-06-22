@@ -14,8 +14,8 @@ codeunit 1805 "Import Config. Package Files"
         AssistedCompanySetupStatus.Get(CompanyName);
         AssistedCompanySetupStatus."Server Instance ID" := ServiceInstanceId;
         AssistedCompanySetupStatus."Company Setup Session ID" := SessionId;
-        AssistedCompanySetupStatus.Modify;
-        Commit;
+        AssistedCompanySetupStatus.Modify();
+        Commit();
 
         UserPersonalization.Get(UserSecurityId);
         CurrentLanguageID := GlobalLanguage;
@@ -90,7 +90,7 @@ codeunit 1805 "Import Config. Package Files"
                 end else begin
                     MessageText := StrSubstNo(ApplicationSuccessfulMsg, ConfigurationPackageFile.Code, CompanyName);
                     JobQueueLogEntry.Description := CopyStr(MessageText, 1, MaxStrLen(JobQueueLogEntry.Description));
-                    TempConfigSetupSystemRapidStart.Delete;
+                    TempConfigSetupSystemRapidStart.Delete();
                 end;
                 JobQueueEntry.FinalizeLogEntry(JobQueueLogEntry);
                 Message(MessageText);
@@ -113,8 +113,8 @@ codeunit 1805 "Import Config. Package Files"
         end;
         AssistedCompanySetupStatus."Company Setup Session ID" := 0;
         AssistedCompanySetupStatus."Server Instance ID" := 0;
-        AssistedCompanySetupStatus.Modify;
-        Commit;
+        AssistedCompanySetupStatus.Modify();
+        Commit();
     end;
 
     local procedure InitVirtualJobQueueEntry(var JobQueueEntry: Record "Job Queue Entry"; TaskID: Guid)

@@ -14,24 +14,24 @@ report 1136 "Copy Cost Acctg. Budget to G/L"
             var
                 TempDimSetEntry: Record "Dimension Set Entry" temporary;
             begin
-                GLBudgetEntryTarget.Init;
+                GLBudgetEntryTarget.Init();
                 GLBudgetEntryTarget."Budget Name" := GLBudgetNameTarget.Name;
 
                 // Get corresponding G/L account
                 if not CostType.Get("Cost Type No.") then begin
                     NoSkipped := NoSkipped + 1;
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 end;
 
                 GLAcc.SetFilter("No.", '%1', CostType."G/L Account Range");
                 if not GLAcc.FindFirst then begin
                     NoSkipped := NoSkipped + 1;
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 end;
                 GLBudgetEntryTarget."G/L Account No." := GLAcc."No.";
                 GLBudgetEntryTarget.Date := Date;
 
-                CostAccSetup.Get;
+                CostAccSetup.Get();
                 if CostAccMgt.CostCenterExistsAsDimValue("Cost Center Code") then
                     GLBudgetEntryTarget.UpdateDimSet(TempDimSetEntry, CostAccSetup."Cost Center Dimension", "Cost Center Code");
                 if CostAccMgt.CostObjectExistsAsDimValue("Cost Object Code") then
@@ -56,7 +56,7 @@ report 1136 "Copy Cost Acctg. Budget to G/L"
                     if DateChange <> '' then
                         GLBudgetEntryTarget.Date := CalcDate(DateFormula, GLBudgetEntryTarget.Date);
 
-                    GLBudgetEntryTarget.Insert;
+                    GLBudgetEntryTarget.Insert();
 
                     NoInserted := NoInserted + 1;
                     if (NoInserted mod 100) = 0 then
@@ -97,10 +97,9 @@ report 1136 "Copy Cost Acctg. Budget to G/L"
                 if not Confirm(Text004, false, GetFilter("Budget Name"), GLBudgetNameTarget.Name, Factor, NoOfCopies, GetFilter(Date), DateChange) then
                     Error('');
 
-                LockTable;
+                LockTable();
 
-                if GLBudgetEntryTarget.FindLast then
-                    LastEntryNo := GLBudgetEntryTarget."Entry No.";
+                LastEntryNo := GLBudgetEntryTarget.GetLastEntryNo();
 
                 Window.Open(Text005);
 
@@ -163,7 +162,7 @@ report 1136 "Copy Cost Acctg. Budget to G/L"
 
         trigger OnInit()
         begin
-            GLBudgetNameTarget.Init;
+            GLBudgetNameTarget.Init();
         end;
     }
 
@@ -213,7 +212,7 @@ report 1136 "Copy Cost Acctg. Budget to G/L"
         GLBudgetName: Record "G/L Budget Name";
         DimSetEntry: Record "Dimension Set Entry";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         with GLBudgetEntry do begin
             GLBudgetName.Get("Budget Name");
 

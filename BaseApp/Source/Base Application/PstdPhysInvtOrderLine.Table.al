@@ -244,10 +244,10 @@ table 5880 "Pstd. Phys. Invt. Order Line"
     var
         PstdExpPhysInvtTrack: Record "Pstd. Exp. Phys. Invt. Track";
     begin
-        PstdExpPhysInvtTrack.Reset;
+        PstdExpPhysInvtTrack.Reset();
         PstdExpPhysInvtTrack.SetRange("Order No", "Document No.");
         PstdExpPhysInvtTrack.SetRange("Order Line No.", "Line No.");
-        PstdExpPhysInvtTrack.DeleteAll;
+        PstdExpPhysInvtTrack.DeleteAll();
     end;
 
     var
@@ -276,7 +276,7 @@ table 5880 "Pstd. Phys. Invt. Order Line"
 
         TestField("Item No.");
 
-        PstdPhysInvtRecordLine.Reset;
+        PstdPhysInvtRecordLine.Reset();
         PstdPhysInvtRecordLine.SetCurrentKey("Order No.", "Order Line No.");
         PstdPhysInvtRecordLine.SetRange("Order No.", "Document No.");
         PstdPhysInvtRecordLine.SetRange("Order Line No.", "Line No.");
@@ -305,7 +305,7 @@ table 5880 "Pstd. Phys. Invt. Order Line"
 
         TestField("Item No.");
 
-        PstdExpPhysInvtTrack.Reset;
+        PstdExpPhysInvtTrack.Reset();
         PstdExpPhysInvtTrack.SetRange("Order No", "Document No.");
         PstdExpPhysInvtTrack.SetRange("Order Line No.", "Line No.");
         PAGE.RunModal(0, PstdExpPhysInvtTrack);

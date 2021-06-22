@@ -14,24 +14,24 @@ report 5691 "Index Insurance"
             trigger OnAfterGetRecord()
             begin
                 if Blocked or Inactive then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 Window.Update(1, "No.");
-                InsuranceTmp.DeleteAll;
+                InsuranceTmp.DeleteAll();
                 InsCoverageLedgEntry.SetRange("FA No.", "No.");
                 InsCoverageLedgEntry.SetRange("Posting Date", 0D, PostingDate);
                 if InsCoverageLedgEntry.Find('-') then
                     repeat
                         InsuranceTmp."No." := InsCoverageLedgEntry."Insurance No.";
-                        if InsuranceTmp.Insert then begin
+                        if InsuranceTmp.Insert() then begin
                             InsCoverageLedgEntry.SetRange("Insurance No.", InsCoverageLedgEntry."Insurance No.");
                             InsCoverageLedgEntry.CalcSums(Amount);
                             InsCoverageLedgEntry.SetRange("Insurance No.");
                             if InsCoverageLedgEntry.Amount <> 0 then begin
                                 if Insurance.Get(InsCoverageLedgEntry."Insurance No.") then begin
                                     if Insurance.Blocked then
-                                        CurrReport.Skip;
+                                        CurrReport.Skip();
                                 end else
-                                    CurrReport.Skip;
+                                    CurrReport.Skip();
                                 InsuranceJnlLine."Line No." := 0;
                                 FAJnlSetup.SetInsuranceJnlTrailCodes(InsuranceJnlLine);
                                 InsuranceJnlLine.Validate("Insurance No.", InsCoverageLedgEntry."Insurance No.");
@@ -116,10 +116,10 @@ report 5691 "Index Insurance"
             Error(Text002);
         if IndexFigure <= 0 then
             Error(Text003);
-        FASetup.Get;
+        FASetup.Get();
         FASetup.TestField("Insurance Depr. Book");
         DeprBook.Get(FASetup."Insurance Depr. Book");
-        InsuranceJnlLine.LockTable;
+        InsuranceJnlLine.LockTable();
         FAJnlSetup.InsuranceJnlName(DeprBook, InsuranceJnlLine, NextLineNo);
         NoSeries := FAJnlSetup.GetInsuranceNoSeries(InsuranceJnlLine);
         if DocumentNo = '' then

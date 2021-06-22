@@ -1,4 +1,4 @@
-﻿page 135 "Posted Sales Cr. Memo Subform"
+page 135 "Posted Sales Cr. Memo Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';

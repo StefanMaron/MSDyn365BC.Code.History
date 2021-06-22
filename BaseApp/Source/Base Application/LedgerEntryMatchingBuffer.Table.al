@@ -22,24 +22,20 @@ table 1248 "Ledger Entry Matching Buffer"
             Caption = 'Account No.';
             DataClassification = SystemMetadata;
         }
-        field(4; "Bal. Account Type"; Option)
+        field(4; "Bal. Account Type"; enum "Gen. Journal Account Type")
         {
             Caption = 'Bal. Account Type';
             DataClassification = SystemMetadata;
-            OptionCaption = 'G/L Account,Customer,Vendor,Bank Account,Fixed Asset';
-            OptionMembers = "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset";
         }
         field(5; "Bal. Account No."; Code[20])
         {
             Caption = 'Bal. Account No.';
             DataClassification = SystemMetadata;
         }
-        field(8; "Document Type"; Option)
+        field(8; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
             DataClassification = SystemMetadata;
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(9; "Due Date"; Date)
         {
@@ -59,6 +55,11 @@ table 1248 "Ledger Entry Matching Buffer"
         field(12; "External Document No."; Code[35])
         {
             Caption = 'External Document No.';
+            DataClassification = SystemMetadata;
+        }
+        field(13; "Payment Reference"; Code[50])
+        {
+            Caption = 'Payment Reference';
             DataClassification = SystemMetadata;
         }
         field(20; "Remaining Amount"; Decimal)
@@ -100,6 +101,7 @@ table 1248 "Ledger Entry Matching Buffer"
         "Posting Date" := CustLedgerEntry."Posting Date";
         "Document No." := CustLedgerEntry."Document No.";
         "External Document No." := CustLedgerEntry."External Document No.";
+        "Payment Reference" := CustLedgerEntry."Payment Reference";
 
         if UseLCYAmounts then
             "Remaining Amount" := CustLedgerEntry."Remaining Amt. (LCY)"
@@ -131,6 +133,7 @@ table 1248 "Ledger Entry Matching Buffer"
         "Posting Date" := VendorLedgerEntry."Posting Date";
         "Document No." := VendorLedgerEntry."Document No.";
         "External Document No." := VendorLedgerEntry."External Document No.";
+        "Payment Reference" := VendorLedgerEntry."Payment Reference";
 
         if UseLCYAmounts then
             "Remaining Amount" := VendorLedgerEntry."Remaining Amt. (LCY)"

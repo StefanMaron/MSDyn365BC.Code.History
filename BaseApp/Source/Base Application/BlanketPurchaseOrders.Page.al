@@ -1,4 +1,4 @@
-﻿page 9310 "Blanket Purchase Orders"
+page 9310 "Blanket Purchase Orders"
 {
     ApplicationArea = Suite;
     Caption = 'Blanket Purchase Orders';
@@ -168,6 +168,13 @@
         }
         area(factboxes)
         {
+            part("Attached Documents"; "Document Attachment Factbox")
+            {
+                ApplicationArea = All;
+                SubPageLink = "Table ID" = CONST(38),
+                              "No." = FIELD("No."),
+                              "Document Type" = FIELD("Document Type");
+            }
             part(Control1901138007; "Vendor Details FactBox")
             {
                 ApplicationArea = Suite;
@@ -361,6 +368,27 @@
                 trigger OnAction()
                 begin
                     DocPrint.PrintPurchHeader(Rec);
+                end;
+            }
+            action(AttachAsPDF)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Attach as PDF';
+                Image = PrintAttachment;
+                Promoted = true;
+                PromotedCategory = Category5;
+                PromotedIsBig = true;
+                PromotedOnly = true;
+                ToolTip = 'Create a PDF file and attach it to the document.';
+
+                trigger OnAction()
+                var
+                    PurchaseHeader: Record "Purchase Header";
+                    DocPrint: Codeunit "Document-Print";
+                begin
+                    PurchaseHeader := Rec;
+                    CurrPage.SetSelectionFilter(PurchaseHeader);
+                    DocPrint.PrintPurchaseHeaderToDocumentAttachment(PurchaseHeader);
                 end;
             }
             action("Delete Invoiced")

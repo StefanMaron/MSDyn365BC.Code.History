@@ -170,7 +170,7 @@ table 413 "IC Partner"
         if not GLEntry.IsEmpty then
             Error(Text000, xRec.Code);
 
-        GLSetup.Get;
+        GLSetup.Get();
         if GLSetup."Allow G/L Acc. Deletion Before" <> 0D then begin
             GLEntry.SetFilter("Posting Date", '>=%1', GLSetup."Allow G/L Acc. Deletion Before");
             if not GLEntry.IsEmpty then
@@ -193,14 +193,14 @@ table 413 "IC Partner"
         if not ICOutbox.IsEmpty then
             Error(Text003, Code, ICOutbox.TableCaption);
 
-        GLEntry.Reset;
+        GLEntry.Reset();
         GLEntry.SetCurrentKey("IC Partner Code");
         GLEntry.SetRange("IC Partner Code", Code);
         GLEntry.ModifyAll("IC Partner Code", '');
 
         CommentLine.SetRange("Table Name", CommentLine."Table Name"::"IC Partner");
         CommentLine.SetRange("No.", Code);
-        CommentLine.DeleteAll;
+        CommentLine.DeleteAll();
 
         DimMgt.DeleteDefaultDim(DATABASE::"IC Partner", Code);
     end;
@@ -237,12 +237,12 @@ table 413 "IC Partner"
     begin
         if (PreviousCustomerNo <> NewCustomerNo) and Customer.Get(PreviousCustomerNo) then begin
             Customer.Validate("IC Partner Code", '');
-            Customer.Modify;
+            Customer.Modify();
         end;
 
         if Customer.Get(NewCustomerNo) then begin
             Customer.Validate("IC Partner Code", ICPartnerCode);
-            Customer.Modify;
+            Customer.Modify();
         end;
     end;
 
@@ -252,12 +252,12 @@ table 413 "IC Partner"
     begin
         if (PreviousVendorNo <> NewVendorNo) and Vendor.Get(PreviousVendorNo) then begin
             Vendor.Validate("IC Partner Code", '');
-            Vendor.Modify;
+            Vendor.Modify();
         end;
 
         if Vendor.Get(NewVendorNo) then begin
             Vendor.Validate("IC Partner Code", ICPartnerCode);
-            Vendor.Modify;
+            Vendor.Modify();
         end;
     end;
 }

@@ -72,7 +72,7 @@ codeunit 134136 "ERM Reverse Customer Documents"
         DebitAmountLCY: Decimal;
     begin
         // Create a Customer, Currency and Post General Journal Line with a Random Positive Amount. Reverse the Posted Entry.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         DebitAmountLCY := ReverseDocument(DetailedCustLedgEntry, DocumentType, LibraryRandom.RandDec(10, 2));
 
         // Verify: Verify Debit Amount LCY in Detailed Customer Ledger Entries.
@@ -113,7 +113,7 @@ codeunit 134136 "ERM Reverse Customer Documents"
         CreditAmountLCY: Decimal;
     begin
         // Create a Customer, Currency and Post General Journal Line with a Random Negative Amount. Reverse the Posted Entry.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         CreditAmountLCY := -ReverseDocument(DetailedCustLedgEntry, DocumentType, -LibraryRandom.RandDec(10, 2));
 
         // Verify: Verify Credit Amount LCY in Detailed Customer Ledger Entries.
@@ -135,7 +135,7 @@ codeunit 134136 "ERM Reverse Customer Documents"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Reverse Customer Documents");
     end;
 

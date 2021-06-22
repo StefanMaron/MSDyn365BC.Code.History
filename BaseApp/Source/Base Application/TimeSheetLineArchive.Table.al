@@ -86,12 +86,10 @@ table 955 "Time Sheet Line Archive"
         {
             Caption = 'Assembly Order Line No.';
         }
-        field(20; Status; Option)
+        field(20; Status; Enum "Time Sheet Status")
         {
             Caption = 'Status';
             Editable = false;
-            OptionCaption = 'Open,Submitted,Rejected,Approved';
-            OptionMembers = Open,Submitted,Rejected,Approved;
         }
         field(21; "Approved By"; Code[50])
         {
@@ -139,11 +137,11 @@ table 955 "Time Sheet Line Archive"
     begin
         TimeSheetDetailArchive.SetRange("Time Sheet No.", "Time Sheet No.");
         TimeSheetDetailArchive.SetRange("Time Sheet Line No.", "Line No.");
-        TimeSheetDetailArchive.DeleteAll;
+        TimeSheetDetailArchive.DeleteAll();
 
         TimeSheetCmtLineArchive.SetRange("No.", "Time Sheet No.");
         TimeSheetCmtLineArchive.SetRange("Time Sheet Line No.", "Line No.");
-        TimeSheetCmtLineArchive.DeleteAll;
+        TimeSheetCmtLineArchive.DeleteAll();
     end;
 }
 

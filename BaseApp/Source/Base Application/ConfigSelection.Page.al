@@ -100,10 +100,10 @@ page 8628 "Config. Selection"
         Counter: Integer;
     begin
         Counter := 0;
-        TempConfigSelection.DeleteAll;
+        TempConfigSelection.DeleteAll();
         if FindSet then
             repeat
-                TempConfigSelection.Init;
+                TempConfigSelection.Init();
                 TempConfigSelection."Line No." := "Line No.";
                 TempConfigSelection."Table ID" := "Table ID";
                 TempConfigSelection.Name := Name;
@@ -113,7 +113,7 @@ page 8628 "Config. Selection"
                 TempConfigSelection.Selected := Selected;
                 if Selected then
                     Counter += 1;
-                TempConfigSelection.Insert;
+                TempConfigSelection.Insert();
             until Next = 0;
 
         exit(Counter);

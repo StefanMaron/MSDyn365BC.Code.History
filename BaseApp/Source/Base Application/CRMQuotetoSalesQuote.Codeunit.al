@@ -4,8 +4,15 @@ codeunit 5348 "CRM Quote to Sales Quote"
 
     trigger OnRun()
     var
+        CDSCompany: Record "CDS Company";
         SalesHeader: Record "Sales Header";
+        CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
+        EmptyGuid: Guid;
     begin
+        if CDSIntegrationMgt.GetCDSCompany(CDSCompany) then
+            if (Rec.CompanyId <> EmptyGuid) and (Rec.CompanyId <> CDSCompany.CompanyId) then
+                exit;
+
         ProcessInNAV(Rec, SalesHeader);
     end;
 
@@ -48,7 +55,7 @@ codeunit 5348 "CRM Quote to Sales Quote"
         if CRMQuote.RevisionNumber = 0 then
             exit(CreateOrUpdateNAVQuote(CRMQuote, SalesHeader, OpType::Create));
 
-        RevisionedCRMQuote.Reset;
+        RevisionedCRMQuote.Reset();
         RevisionedCRMQuote.SetRange(QuoteNumber, CRMQuote.QuoteNumber);
         RevisionedCRMQuote.SetRange(StateCode, RevisionedCRMQuote.StateCode::Closed);
         RevisionedCRMQuote.SetRange(StatusCode, RevisionedCRMQuote.StatusCode::Revised);
@@ -56,7 +63,7 @@ codeunit 5348 "CRM Quote to Sales Quote"
             repeat
                 if CRMIntegrationRecord.FindRecordIDFromID(RevisionedCRMQuote.QuoteId, DATABASE::"Sales Header", RecordId) then begin
                     GetSalesHeaderByRecordId(RecordId, SalesHeader);
-                    CRMIntegrationRecord.Get(RevisionedCRMQuote.QuoteId, SalesHeader.Id);
+                    CRMIntegrationRecord.Get(RevisionedCRMQuote.QuoteId, SalesHeader.SystemId);
                     CRMIntegrationRecord.Delete(true);
                     exit(CreateOrUpdateNAVQuote(CRMQuote, SalesHeader, OpType::Update));
                 end;
@@ -72,21 +79,19 @@ codeunit 5348 "CRM Quote to Sales Quote"
         OpType: Option Create,Update;
     begin
         if CRMQuote.StateCode = CRMQuote.StateCode::Won then begin
-            CRMIntegrationRecord.Reset;
+            CRMIntegrationRecord.Reset();
             CRMIntegrationRecord.SetRange("CRM ID", CRMQuote.QuoteId);
             if not CRMIntegrationRecord.FindFirst then begin
                 CreateOrUpdateNAVQuote(CRMQuote, SalesHeader, OpType::Create);
-                CRMIntegrationRecord.Get(CRMQuote.QuoteId, SalesHeader.Id)
+                CRMIntegrationRecord.Get(CRMQuote.QuoteId, SalesHeader.SystemId)
             end;
             if not CRMIntegrationRecord.Get(CRMQuote.QuoteId, BlankGuid) then begin
-                SalesHeader.Reset;
-                SalesHeader.SetFilter(Id, CRMIntegrationRecord."Integration ID");
-                if SalesHeader.FindFirst then begin
+                if SalesHeader.GetBySystemId(CRMIntegrationRecord."Integration ID") then begin
                     ManageSalesQuoteArchive(SalesHeader);
                     CODEUNIT.Run(CODEUNIT::"Sales-Quote to Order", SalesHeader);
                 end;
 
-                CRMIntegrationRecord.Init;
+                CRMIntegrationRecord.Init();
                 CRMIntegrationRecord.Validate("CRM ID", CRMQuote.QuoteId);
                 CRMIntegrationRecord.Validate("Integration ID", BlankGuid);
                 CRMIntegrationRecord.Insert(true);
@@ -120,7 +125,7 @@ codeunit 5348 "CRM Quote to Sales Quote"
         Customer: Record Customer;
     begin
         if OpType = OpType::Create then begin
-            SalesHeader.Init;
+            SalesHeader.Init();
             SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Quote);
             SalesHeader.Validate(Status, SalesHeader.Status::Open);
             SalesHeader.InitInsert;
@@ -169,7 +174,7 @@ codeunit 5348 "CRM Quote to Sales Quote"
         if CRMQuotedetail.FindSet then begin
             repeat
                 InitializeSalesQuoteLine(CRMQuotedetail, SalesHeader, SalesLine);
-                SalesLine.Insert;
+                SalesLine.Insert();
                 if SalesLine."Qty. to Assemble to Order" <> 0 then
                     SalesLine.Validate("Qty. to Assemble to Order");
             until CRMQuotedetail.Next = 0;
@@ -221,21 +226,21 @@ codeunit 5348 "CRM Quote to Sales Quote"
         CRMOptionMapping: Record "CRM Option Mapping";
     begin
         if CRMOptionMapping.FindRecordID(
-             DATABASE::"CRM Account", CRMAccount.FieldNo(Address1_ShippingMethodCode), CRMQuote.ShippingMethodCode)
+             DATABASE::"CRM Account", CRMAccount.FieldNo(Address1_ShippingMethodCodeEnum), CRMQuote.ShippingMethodCodeEnum)
         then
             SalesHeader.Validate(
               "Shipping Agent Code",
               CopyStr(CRMOptionMapping.GetRecordKeyValue, 1, MaxStrLen(SalesHeader."Shipping Agent Code")));
 
         if CRMOptionMapping.FindRecordID(
-             DATABASE::"CRM Account", CRMAccount.FieldNo(PaymentTermsCode), CRMQuote.PaymentTermsCode)
+             DATABASE::"CRM Account", CRMAccount.FieldNo(PaymentTermsCodeEnum), CRMQuote.PaymentTermsCodeEnum)
         then
             SalesHeader.Validate(
               "Payment Terms Code",
               CopyStr(CRMOptionMapping.GetRecordKeyValue, 1, MaxStrLen(SalesHeader."Payment Terms Code")));
 
         if CRMOptionMapping.FindRecordID(
-             DATABASE::"CRM Account", CRMAccount.FieldNo(Address1_FreightTermsCode), CRMQuote.FreightTermsCode)
+             DATABASE::"CRM Account", CRMAccount.FieldNo(Address1_FreightTermsCodeEnum), CRMQuote.FreightTermsCodeEnum)
         then
             SalesHeader.Validate(
               "Shipment Method Code",
@@ -265,7 +270,7 @@ codeunit 5348 "CRM Quote to Sales Quote"
 
     local procedure InitNewSalesLine(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     begin
-        SalesLine.Init;
+        SalesLine.Init();
         SalesLine.Validate("Document Type", SalesHeader."Document Type");
         SalesLine.Validate("Document No.", SalesHeader."No.");
         LastSalesLineNo := LastSalesLineNo + 10000;
@@ -277,7 +282,7 @@ codeunit 5348 "CRM Quote to Sales Quote"
         SalesSetup: Record "Sales & Receivables Setup";
         SalesHeader: Record "Sales Header";
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         if SalesSetup."Write-in Product No." = '' then begin
             SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
             SendTraceTag('000083A', CrmTelemetryCategoryTok, VERBOSITY::Normal,
@@ -425,7 +430,7 @@ codeunit 5348 "CRM Quote to Sales Quote"
             InitNewSalesLine(SalesHeader, SalesLine);
 
             SalesLine.Validate(Description, CopyStr(FullDescription, 1, MaxStrLen(SalesLine.Description)));
-            SalesLine.Insert;
+            SalesLine.Insert();
             FullDescription := CopyStr(FullDescription, MaxStrLen(SalesLine.Description) + 1);
         end;
     end;
@@ -439,10 +444,10 @@ codeunit 5348 "CRM Quote to Sales Quote"
         ArchiveManagement.ArchSalesDocumentNoConfirm(SalesHeader);
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Quote);
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.DeleteAll;
+        SalesLine.DeleteAll();
         RecordLink.SetRange("Record ID", SalesHeader.RecordId);
         RecordLink.SetRange(Type, RecordLink.Type::Note);
-        RecordLink.DeleteAll;
+        RecordLink.DeleteAll();
     end;
 
     local procedure GetSalesHeaderByRecordId(RecordID: RecordID; var SalesHeader: Record "Sales Header")

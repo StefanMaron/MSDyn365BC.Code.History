@@ -66,7 +66,7 @@ page 5985 "Service Item Replacement"
 
                         trigger OnLookup(var Text: Text): Boolean
                         begin
-                            ItemVariant.Reset;
+                            ItemVariant.Reset();
                             ItemVariant.SetRange("Item No.", ItemNo);
                             if PAGE.RunModal(PAGE::"Item Variants", ItemVariant) = ACTION::LookupOK then
                                 VariantCode := ItemVariant.Code;
@@ -75,7 +75,7 @@ page 5985 "Service Item Replacement"
                         trigger OnValidate()
                         begin
                             if VariantCode <> '' then begin
-                                ItemVariant.Reset;
+                                ItemVariant.Reset();
                                 ItemVariant.SetRange("Item No.", ItemNo);
                                 ItemVariant.SetRange(Code, VariantCode);
                                 if not ItemVariant.FindFirst then

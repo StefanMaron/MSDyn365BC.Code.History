@@ -960,7 +960,7 @@ codeunit 136310 "Job Batch Jobs"
         CreateJobPlanningLineTable(JobPlanningLine);
 
         // Exercise: Validate Job No of Job Planning Line Invoice.
-        JobPlanningLineInvoice.Init;
+        JobPlanningLineInvoice.Init();
         asserterror JobPlanningLineInvoice.Validate("Job No.", JobPlanningLine."Job No.");
 
         // Verify: Verifying that Job No. on Job Planning Line Invoice table is not same as Job No on Job.
@@ -981,7 +981,7 @@ codeunit 136310 "Job Batch Jobs"
         CreateJobPlanningLineTable(JobPlanningLine);
 
         // Exercise: Validate Job and Job Task No of Job Planning Line Invoice.
-        JobPlanningLineInvoice.Init;
+        JobPlanningLineInvoice.Init();
         asserterror JobPlanningLineInvoice.Validate("Job Task No.", JobPlanningLine."Job Task No.");
 
         // Verify: Verifying that Job Task No on Job Planning Line Invoice Table is not same as Job Task.
@@ -1177,7 +1177,7 @@ codeunit 136310 "Job Batch Jobs"
 
         DummyJobsSetup."Allow Sched/Contract Lines Def" := false;
         DummyJobsSetup."Apply Usage Link by Default" := false;
-        DummyJobsSetup.Modify;
+        DummyJobsSetup.Modify();
 
         SetJobNoSeries(DummyJobsSetup, NoSeries);
 
@@ -1697,7 +1697,7 @@ codeunit 136310 "Job Batch Jobs"
         JobTask: Record "Job Task";
         ChangeJobDates: Report "Change Job Dates";
     begin
-        Commit;  // Commit needs before run report.
+        Commit();  // Commit needs before run report.
         Clear(ChangeJobDates);
         JobTask.SetRange("Job Task No.", JobTaskNo);
         JobTask.SetRange("Job No.", JobNo);
@@ -1711,7 +1711,7 @@ codeunit 136310 "Job Batch Jobs"
     begin
         JobTask.SetRange("Job No.", JobTask."Job No.");
         JobTask.SetRange("Job Task No.", JobTask."Job Task No.");
-        Commit;  // Commit required for batch report.
+        Commit();  // Commit required for batch report.
         Clear(JobCalcRemainingUsage);
         JobCalcRemainingUsage.SetBatch(JobJournalBatch."Journal Template Name", JobJournalBatch.Name);
         JobCalcRemainingUsage.SetDocNo(JobJournalBatch.Name);
@@ -1735,7 +1735,7 @@ codeunit 136310 "Job Batch Jobs"
 
     local procedure RunJobCreateInvoice(var JobPlanningLine: Record "Job Planning Line")
     begin
-        Commit;  // Commit is required before Create Sales Invoice batch job.
+        Commit();  // Commit is required before Create Sales Invoice batch job.
         JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, false);  // Use False for Invoice.
     end;
 
@@ -1743,7 +1743,7 @@ codeunit 136310 "Job Batch Jobs"
     var
         JobCreateSalesInvoice: Report "Job Create Sales Invoice";
     begin
-        Commit;  // Commit required for batch report.
+        Commit();  // Commit required for batch report.
         JobTask.SetRange("Job No.", JobTask."Job No.");
         JobTask.SetRange("Job Task No.", JobTask."Job Task No.");
         Clear(JobCreateSalesInvoice);
@@ -1756,7 +1756,7 @@ codeunit 136310 "Job Batch Jobs"
         JobTask: Record "Job Task";
         JobCreateSalesInvoice: Report "Job Create Sales Invoice";
     begin
-        Commit;  // Commit required for batch report.
+        Commit();  // Commit required for batch report.
         JobTask.SetFilter("Job No.", JobFilter);
         Clear(JobCreateSalesInvoice);
         JobCreateSalesInvoice.SetTableView(JobTask);
@@ -1779,7 +1779,7 @@ codeunit 136310 "Job Batch Jobs"
     begin
         JobTask.SetRange("Job No.", JobTask."Job No.");
         JobTask.SetRange("Job Task No.", JobTask."Job Task No.");
-        Commit;  // Commit required for batch report.
+        Commit();  // Commit required for batch report.
         Clear(JobSplitPlanningLine);
         JobSplitPlanningLine.SetTableView(JobTask);
         JobSplitPlanningLine.UseRequestPage(false);
@@ -1793,7 +1793,7 @@ codeunit 136310 "Job Batch Jobs"
     begin
         JobLedgerEntry.SetRange("Document No.", DocumentNo);
         JobLedgerEntry.FindFirst;
-        Commit;  // Commit required for batch report.
+        Commit();  // Commit required for batch report.
         Clear(JobTransferToPlanningLines);
         JobTransferToPlanningLines.GetJobLedgEntry(JobLedgerEntry);
         JobTransferToPlanningLines.Run;
@@ -1801,7 +1801,7 @@ codeunit 136310 "Job Batch Jobs"
 
     local procedure TransferJobToSales(var JobPlanningLine: Record "Job Planning Line"; CreditMemo: Boolean)
     begin
-        Commit;  // Commit required for batch report.
+        Commit();  // Commit required for batch report.
         JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, CreditMemo);  // Use True for Credit Memo and False for Invoice.
     end;
 
@@ -1809,7 +1809,7 @@ codeunit 136310 "Job Batch Jobs"
     var
         JobsSetup: Record "Jobs Setup";
     begin
-        JobsSetup.Get;
+        JobsSetup.Get();
         JobsSetup.Validate("Automatic Update Job Item Cost", AutomaticUpdateJobItemCost);
         JobsSetup.Modify(true);
     end;
@@ -1818,7 +1818,7 @@ codeunit 136310 "Job Batch Jobs"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.Validate("Automatic Cost Posting", AutomaticCostPosting);
         InventorySetup.Validate("Automatic Cost Adjustment", AutomaticCostAdjustment);
         InventorySetup.Modify(true);
@@ -1874,7 +1874,7 @@ codeunit 136310 "Job Batch Jobs"
     begin
         JobTask.Validate("WIP-Total", JobTask."WIP-Total"::Total);
         JobTask.Validate("WIP Method", JobWIPMethodCode);
-        JobTask.Modify;
+        JobTask.Modify();
     end;
 
     local procedure CreateJobPlanningLineInvoiceTable(var JobPlanningLineInvoice: Record "Job Planning Line Invoice"; JobNo: Code[20]; JobTaskNo: Code[20]; LineNo: Integer)
@@ -2257,14 +2257,14 @@ codeunit 136310 "Job Batch Jobs"
         NoSeries: Record "No. Series";
         NoSeriesLine: Record "No. Series Line";
     begin
-        NoSeries.Init;
+        NoSeries.Init();
         NoSeries.Code := Code;
         NoSeries.Description := Description;
         NoSeries."Default Nos." := true;
         NoSeries."Manual Nos." := ManualNos;
-        NoSeries.Insert;
+        NoSeries.Insert();
 
-        NoSeriesLine.Init;
+        NoSeriesLine.Init();
         NoSeriesLine."Series Code" := NoSeries.Code;
         NoSeriesLine."Line No." := 10000;
         NoSeriesLine.Validate("Starting No.", StartingNo);

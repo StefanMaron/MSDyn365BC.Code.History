@@ -3,7 +3,6 @@ table 9003 "User Group Permission Set"
     Caption = 'User Group Permission Set';
     DataPerCompany = false;
     ReplicateData = false;
-    Permissions = Tabledata "NAV App" = r;
 
     fields
     {
@@ -14,7 +13,7 @@ table 9003 "User Group Permission Set"
         }
         field(2; "Role ID"; Code[20])
         {
-            Caption = 'Role ID';
+            Caption = 'Permission Set';
             Editable = false;
             TableRelation = "Aggregate Permission Set"."Role ID";
         }
@@ -28,7 +27,7 @@ table 9003 "User Group Permission Set"
         field(4; "Role Name"; Text[30])
         {
             CalcFormula = Lookup ("Permission Set".Name WHERE("Role ID" = FIELD("Role ID")));
-            Caption = 'Role Name';
+            Caption = 'Name';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -44,7 +43,7 @@ table 9003 "User Group Permission Set"
         }
         field(7; "Extension Name"; Text[250])
         {
-            CalcFormula = Lookup ("NAV App".Name WHERE(ID = FIELD("App ID"), "Tenant Visible" = CONST(true)));
+            CalcFormula = Lookup ("Published Application".Name WHERE(ID = FIELD("App ID"), "Tenant Visible" = CONST(true)));
             Caption = 'Extension Name';
             Editable = false;
             FieldClass = FlowField;
@@ -91,7 +90,7 @@ table 9003 "User Group Permission Set"
             exit;
 
         UserGroup.Customized := true;
-        UserGroup.Modify;
+        UserGroup.Modify();
     end;
 }
 

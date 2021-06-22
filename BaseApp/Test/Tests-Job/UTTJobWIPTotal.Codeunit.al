@@ -40,14 +40,14 @@ codeunit 136357 "UT T Job WIP Total"
     begin
         LibraryJob.CreateJob(Job);
         Job.Validate("Apply Usage Link", true);
-        Job.Modify;
+        Job.Modify();
 
         LibraryJob.CreateJobTask(Job, JobTask);
 
-        JobWIPTotal.Init;
+        JobWIPTotal.Init();
         JobWIPTotal."Job No." := Job."No.";
         JobWIPTotal."Job Task No." := JobTask."Job Task No.";
-        JobWIPTotal.Insert;
+        JobWIPTotal.Insert();
     end;
 
     [Normal]
@@ -70,7 +70,7 @@ codeunit 136357 "UT T Job WIP Total"
         SetUp;
 
         // Verify that a Job WIP Total can be deleted and that all Job WIP Warnings are deleted as well.
-        JobWIPWarning.Init;
+        JobWIPWarning.Init();
         JobWIPWarning."Job WIP Total Entry No." := JobWIPTotal."Entry No.";
         JobWIPWarning.Insert(true);
 
@@ -96,11 +96,11 @@ codeunit 136357 "UT T Job WIP Total"
         Assert.IsFalse(JobWIPTotal."WIP Warnings", 'WIP Warning is true, even if no warnings exist.');
 
         // Verify that WIP Warnings is true when warnings exist.
-        JobWIPWarning.Init;
+        JobWIPWarning.Init();
         JobWIPWarning."Job No." := Job."No.";
         JobWIPWarning."Job Task No." := JobTask."Job Task No.";
         JobWIPWarning."Job WIP Total Entry No." := JobWIPTotal."Entry No.";
-        JobWIPWarning.Insert;
+        JobWIPWarning.Insert();
         JobWIPTotal.CalcFields("WIP Warnings");
         Assert.IsTrue(JobWIPTotal."WIP Warnings", 'WIP Warning is false, even if warnings exist.');
 

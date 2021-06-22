@@ -1,4 +1,4 @@
-﻿page 6646 "Purchase Return List Archive"
+page 6646 "Purchase Return List Archive"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Purchase Return Order Archives';

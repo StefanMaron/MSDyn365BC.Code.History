@@ -80,7 +80,7 @@ report 99000780 "Capacity Task List"
             trigger OnAfterGetRecord()
             begin
                 if (Status = Status::Finished) or ("Routing Status" = "Routing Status"::Finished) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
             end;
 
             trigger OnPreDataItem()

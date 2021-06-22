@@ -10,7 +10,7 @@ codeunit 5351 "CRM Customer-Contact Link"
         Counter: Integer;
     begin
         CODEUNIT.Run(CODEUNIT::"CRM Integration Management");
-        Commit;
+        Commit();
 
         IntegrationTableMapping.Get("Record ID to Process");
 
@@ -82,7 +82,7 @@ codeunit 5351 "CRM Customer-Contact Link"
                         if FindCustomerByAccountId(CRMContact.ParentCustomerId, Customer) and FindContactByContactId(CrmContact.ContactId, Contact) then
                             if Customer."Primary Contact No." = '' then begin
                                 Customer."Primary Contact No." := Contact."No.";
-                                Customer.Modify;
+                                Customer.Modify();
                                 FixedLinksQty += 1;
                             end;
             until CrmIntegrationRecord.Next() = 0;
@@ -102,7 +102,7 @@ codeunit 5351 "CRM Customer-Contact Link"
                         if Customer."Primary Contact No." = '' then
                             if FindContactByContactId(CRMContact.ContactId, Contact) then begin
                                 Customer."Primary Contact No." := Contact."No.";
-                                Customer.Modify;
+                                Customer.Modify();
                                 FixedLinksQty += 1;
                             end;
             until CRMContact.Next() = 0;
@@ -159,7 +159,11 @@ codeunit 5351 "CRM Customer-Contact Link"
     procedure EnqueueJobQueueEntry(CodeunitId: Integer; IntegrationTableMapping: Record "Integration Table Mapping")
     var
         JobQueueEntry: Record "Job Queue Entry";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
+        if CRMIntegrationManagement.IsCDSIntegrationEnabled() then
+            exit;
+
         with JobQueueEntry do begin
             SetRange("Object Type to Run", "Object Type to Run"::Codeunit);
             SetRange("Object ID to Run", CodeunitId);

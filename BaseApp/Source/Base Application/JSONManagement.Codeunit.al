@@ -159,35 +159,35 @@ codeunit 5459 "JSON Management"
 
         Value := Format(JProperty.Value, 0, 9);
 
-        case Format(FieldRef.Type) of
-            'Integer',
-            'Decimal':
+        case FieldRef.Type of
+            FieldType::Integer,
+            FieldType::Decimal:
                 begin
                     Success := Evaluate(DecimalVal, Value, 9);
                     FieldRef.Value(DecimalVal);
                 end;
-            'Date':
+            FieldType::Date:
                 begin
                     Success := Evaluate(DateVal, Value, 9);
                     FieldRef.Value(DateVal);
                 end;
-            'Boolean':
+            FieldType::Boolean:
                 begin
                     Success := Evaluate(BoolVal, Value, 9);
                     FieldRef.Value(BoolVal);
                 end;
-            'GUID':
+            FieldType::GUID:
                 begin
                     Success := Evaluate(GuidVal, Value);
                     FieldRef.Value(GuidVal);
                 end;
-            'Text',
-            'Code':
+            FieldType::Text,
+            FieldType::Code:
                 begin
                     FieldRef.Value(CopyStr(Value, 1, FieldRef.Length));
                     Success := true;
                 end;
-            'Option':
+            FieldType::Option:
                 begin
                     if not Evaluate(IntVar, Value) then
                         IntVar := OutlookSynchTypeConv.TextToOptionValue(Value, FieldRef.OptionCaption);
@@ -196,10 +196,10 @@ codeunit 5459 "JSON Management"
                         Success := true;
                     end;
                 end;
-            'BLOB':
+            FieldType::BLOB:
                 if TryReadAsBase64(FieldRef, Value) then
                     Success := true;
-            'RecordID':
+            FieldType::RecordID:
                 begin
                     Success := Evaluate(RecID, Value);
                     FieldRef.Value(RecID);

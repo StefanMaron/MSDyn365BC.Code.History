@@ -37,7 +37,7 @@ report 189 "Suggest Reminder Lines"
             var
                 ConfirmManagement: Codeunit "Confirm Management";
             begin
-                Commit;
+                Commit();
                 Window.Close;
                 MarkedOnly := true;
                 if FindFirst then
@@ -63,7 +63,7 @@ report 189 "Suggest Reminder Lines"
 
             trigger OnPreDataItem()
             begin
-                CurrReport.Break;
+                CurrReport.Break();
             end;
         }
         dataitem(CustLedgEntryLineFeeOn; "Cust. Ledger Entry")
@@ -74,7 +74,7 @@ report 189 "Suggest Reminder Lines"
 
             trigger OnPreDataItem()
             begin
-                CurrReport.Break;
+                CurrReport.Break();
             end;
         }
     }

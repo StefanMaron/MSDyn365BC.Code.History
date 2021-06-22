@@ -14,7 +14,7 @@ table 5092 Opportunity
             trigger OnValidate()
             begin
                 if "No." <> xRec."No." then begin
-                    RMSetup.Get;
+                    RMSetup.Get();
                     NoSeriesMgt.TestManual(RMSetup."Opportunity Nos.");
                     "No. Series" := '';
                 end;
@@ -44,12 +44,12 @@ table 5092 Opportunity
                    ("No." <> '')
                 then begin
                     TestField("Salesperson Code");
-                    Task.Reset;
+                    Task.Reset();
                     Task.SetCurrentKey("Opportunity No.", Date, Closed);
                     Task.SetRange("Opportunity No.", "No.");
                     Task.SetRange(Closed, false);
                     Task.SetRange("Salesperson Code", xRec."Salesperson Code");
-                    TotalRecordsNumber := Task.Count;
+                    TotalRecordsNumber := Task.Count();
                     Counter := 0;
                     if Task.Find('-') then
                         if Confirm(ChangeConfirmQst, false, FieldCaption("Salesperson Code")) then begin
@@ -62,9 +62,9 @@ table 5092 Opportunity
                                     Task.GetMeetingOrganizerTask(Task2);
                                     if Task."Salesperson Code" <> Task2."Salesperson Code" then begin
                                         Task.Validate("Salesperson Code", "Salesperson Code");
-                                        Task.Modify;
+                                        Task.Modify();
                                     end;
-                                    Attendee.Reset;
+                                    Attendee.Reset();
                                     Attendee.SetRange("To-do No.", Task2."No.");
                                     Attendee.SetRange("Attendee No.", xRec."Salesperson Code");
                                     Attendee.SetRange("Attendee Type", Attendee."Attendee Type"::Salesperson);
@@ -82,14 +82,14 @@ table 5092 Opportunity
                             Window.Close;
                         end;
 
-                    OppEntry.Reset;
+                    OppEntry.Reset();
                     OppEntry.SetCurrentKey(Active, "Opportunity No.");
                     OppEntry.SetRange(Active, true);
                     OppEntry.SetRange("Opportunity No.", "No.");
                     if OppEntry.Find('-') then
                         repeat
                             OppEntry."Salesperson Code" := "Salesperson Code";
-                            OppEntry.Modify;
+                            OppEntry.Modify();
                         until OppEntry.Next = 0;
 
                     Modify;
@@ -116,7 +116,7 @@ table 5092 Opportunity
                 then begin
                     CheckCampaign;
                     SetDefaultSegmentNo;
-                    Task.Reset;
+                    Task.Reset();
                     Task.SetCurrentKey("Opportunity No.", Date, Closed);
                     Task.SetRange("Opportunity No.", "No.");
                     Task.SetRange(Closed, false);
@@ -125,17 +125,17 @@ table 5092 Opportunity
                         if Confirm(ChangeConfirmQst, false, FieldCaption("Campaign No.")) then
                             repeat
                                 Task."Campaign No." := "Campaign No.";
-                                Task.Modify;
+                                Task.Modify();
                             until Task.Next = 0;
 
-                    OppEntry.Reset;
+                    OppEntry.Reset();
                     OppEntry.SetCurrentKey(Active, "Opportunity No.");
                     OppEntry.SetRange(Active, true);
                     OppEntry.SetRange("Opportunity No.", "No.");
                     if OppEntry.Find('-') then
                         repeat
                             OppEntry."Campaign No." := "Campaign No.";
-                            OppEntry.Modify;
+                            OppEntry.Modify();
                         until OppEntry.Next = 0;
 
                     Modify;
@@ -193,12 +193,12 @@ table 5092 Opportunity
                             SalesHeader.Modify
                         end
                     end;
-                    Task.Reset;
+                    Task.Reset();
                     Task.SetCurrentKey("Opportunity No.", Date, Closed);
                     Task.SetRange("Opportunity No.", "No.");
                     Task.SetRange(Closed, false);
                     Task.SetRange("Contact No.", xRec."Contact No.");
-                    TotalRecordsNumber := Task.Count;
+                    TotalRecordsNumber := Task.Count();
                     Counter := 0;
                     if Task.Find('-') then
                         if Confirm(ChangeConfirmQst, false, FieldCaption("Contact No.")) then begin
@@ -210,8 +210,8 @@ table 5092 Opportunity
                                 if Task.Type = Task.Type::Meeting then begin
                                     Task.GetMeetingOrganizerTask(Task2);
                                     Task.Validate("Contact No.", "Contact No.");
-                                    Task.Modify;
-                                    Attendee.Reset;
+                                    Task.Modify();
+                                    Attendee.Reset();
                                     Attendee.SetRange("To-do No.", Task2."No.");
                                     Attendee.SetRange("Attendee No.", xRec."Contact No.");
                                     Attendee.SetRange("Attendee Type", Attendee."Attendee Type"::Contact);
@@ -227,14 +227,14 @@ table 5092 Opportunity
                             Window.Close;
                         end;
 
-                    OppEntry.Reset;
+                    OppEntry.Reset();
                     OppEntry.SetCurrentKey(Active, "Opportunity No.");
                     OppEntry.SetRange(Active, true);
                     OppEntry.SetRange("Opportunity No.", "No.");
                     if OppEntry.Find('-') then
                         repeat
                             OppEntry.Validate("Contact No.", "Contact No.");
-                            OppEntry.Modify;
+                            OppEntry.Modify();
                         until OppEntry.Next = 0;
 
                     Modify;
@@ -287,7 +287,7 @@ table 5092 Opportunity
                         end
                 end else
                     if "Sales Document No." <> xRec."Sales Document No." then begin
-                        Opp.Reset;
+                        Opp.Reset();
                         Opp.SetCurrentKey("Sales Document Type", "Sales Document No.");
                         Opp.SetRange("Sales Document Type", "Sales Document Type");
                         Opp.SetRange("Sales Document No.", "Sales Document No.");
@@ -562,17 +562,17 @@ table 5092 Opportunity
 
         RMCommentLine.SetRange("Table Name", RMCommentLine."Table Name"::Opportunity);
         RMCommentLine.SetRange("No.", "No.");
-        RMCommentLine.DeleteAll;
+        RMCommentLine.DeleteAll();
 
         OppEntry.SetCurrentKey("Opportunity No.");
         OppEntry.SetRange("Opportunity No.", "No.");
-        OppEntry.DeleteAll;
+        OppEntry.DeleteAll();
     end;
 
     trigger OnInsert()
     begin
         if "No." = '' then begin
-            RMSetup.Get;
+            RMSetup.Get();
             RMSetup.TestField("Opportunity Nos.");
             NoSeriesMgt.InitSeries(RMSetup."Opportunity Nos.", xRec."No. Series", 0D, "No.", "No. Series");
         end;
@@ -653,7 +653,7 @@ table 5092 Opportunity
         SegHeader: Record "Segment Header";
         SegLine: Record "Segment Line";
     begin
-        DeleteAll;
+        DeleteAll();
         Init;
         "Creation Date" := WorkDate;
         SetDefaultSalesCycle;
@@ -699,7 +699,7 @@ table 5092 Opportunity
         Opp := Opp2;
 
         if ActivateFirstStage then begin
-            SalesCycleStage.Reset;
+            SalesCycleStage.Reset();
             SalesCycleStage.SetRange("Sales Cycle Code", Opp."Sales Cycle Code");
             if SalesCycleStage.FindFirst then
                 OppEntry2."Sales Cycle Stage" := SalesCycleStage.Stage;
@@ -717,7 +717,7 @@ table 5092 Opportunity
                         Opp.Insert(true);
                         CreateCommentLines(RMCommentLineTmp, Opp."No.");
                         if ActivateFirstStage then begin
-                            OppEntry.Init;
+                            OppEntry.Init();
                             OppEntry := OppEntry2;
                             OppEntry.InitOpportunityEntry(Opp);
                             OppEntry.InsertEntry(OppEntry, false, true);
@@ -729,7 +729,7 @@ table 5092 Opportunity
             Opp.Insert(true);
             CreateCommentLines(RMCommentLineTmp, Opp."No.");
             if ActivateFirstStage then begin
-                OppEntry.Init;
+                OppEntry.Init();
                 OppEntry := OppEntry2;
                 OppEntry.InitOpportunityEntry(Opp);
                 OppEntry.InsertEntry(OppEntry, false, true);
@@ -793,7 +793,7 @@ table 5092 Opportunity
         TestField(Status, Status::"In Progress");
 
         SalesHeader.SetRange("Sell-to Contact No.", "Contact No.");
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader."Document Type" := SalesHeader."Document Type"::Quote;
         OnCreateQuoteOnBeforeSalesHeaderInsert(SalesHeader, Rec);
         SalesHeader.Insert(true);
@@ -804,7 +804,7 @@ table 5092 Opportunity
         SalesHeader."Shipment Date" := SalesHeader."Order Date";
         if CustTemplateCode <> '' then
             SalesHeader.Validate("Sell-to Customer Template Code", CustTemplateCode);
-        SalesHeader.Modify;
+        SalesHeader.Modify();
         "Sales Document Type" := "Sales Document Type"::Quote;
         "Sales Document No." := SalesHeader."No.";
         Modify;
@@ -835,10 +835,10 @@ table 5092 Opportunity
     begin
         if RMCommentLineTmp.Find('-') then
             repeat
-                RMCommentLine.Init;
+                RMCommentLine.Init();
                 RMCommentLine := RMCommentLineTmp;
                 RMCommentLine."No." := OppNo;
-                RMCommentLine.Insert;
+                RMCommentLine.Insert();
             until RMCommentLineTmp.Next = 0;
     end;
 
@@ -850,7 +850,7 @@ table 5092 Opportunity
         InterLogEntryCommentLine.SetRange("Entry No.", InteractionLogEntry."Entry No.");
         if InterLogEntryCommentLine.FindSet then
             repeat
-                RlshpMgtCommentLine.Init;
+                RlshpMgtCommentLine.Init();
                 RlshpMgtCommentLine."Table Name" := RlshpMgtCommentLine."Table Name"::Opportunity;
                 RlshpMgtCommentLine."No." := "No.";
                 RlshpMgtCommentLine."Line No." := InterLogEntryCommentLine."Line No.";
@@ -858,7 +858,7 @@ table 5092 Opportunity
                 RlshpMgtCommentLine.Code := InterLogEntryCommentLine.Code;
                 RlshpMgtCommentLine.Comment := InterLogEntryCommentLine.Comment;
                 RlshpMgtCommentLine."Last Date Modified" := InterLogEntryCommentLine."Last Date Modified";
-                RlshpMgtCommentLine.Insert;
+                RlshpMgtCommentLine.Insert();
             until InterLogEntryCommentLine.Next = 0;
     end;
 
@@ -944,12 +944,12 @@ table 5092 Opportunity
 
     procedure SetComments(var RMCommentLine: Record "Rlshp. Mgt. Comment Line")
     begin
-        RMCommentLineTmp.DeleteAll;
+        RMCommentLineTmp.DeleteAll();
 
         if RMCommentLine.FindSet then
             repeat
                 RMCommentLineTmp := RMCommentLine;
-                RMCommentLineTmp.Insert;
+                RMCommentLineTmp.Insert();
             until RMCommentLine.Next = 0;
     end;
 
@@ -1023,7 +1023,7 @@ table 5092 Opportunity
             TestField(Status, Status::"Not Started");
             SalesCycleStage.SetRange("Sales Cycle Code", "Sales Cycle Code");
             if SalesCycleStage.FindFirst then begin
-                OpportunityEntry.Init;
+                OpportunityEntry.Init();
                 OpportunityEntry."Sales Cycle Stage" := SalesCycleStage.Stage;
                 OpportunityEntry."Sales Cycle Stage Description" := SalesCycleStage.Description;
                 OpportunityEntry.InitOpportunityEntry(Rec);
@@ -1038,7 +1038,7 @@ table 5092 Opportunity
     var
         SalesCycle: Record "Sales Cycle";
     begin
-        RMSetup.Get;
+        RMSetup.Get();
         if RMSetup."Default Sales Cycle Code" <> '' then
             if SalesCycle.Get(RMSetup."Default Sales Cycle Code") then
                 if not SalesCycle.Blocked then

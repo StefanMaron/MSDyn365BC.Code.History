@@ -48,7 +48,7 @@ table 5814 "Inventory Period"
     begin
         TestField(Closed, false);
         InvtPeriodEntry.SetRange("Ending Date", "Ending Date");
-        InvtPeriodEntry.DeleteAll;
+        InvtPeriodEntry.DeleteAll();
     end;
 
     trigger OnInsert()
@@ -68,7 +68,7 @@ table 5814 "Inventory Period"
     end;
 
     var
-        Text000: Label '<Month Text> <Year4>';
+        Text000: Label '<Month Text> <Year4>', Locked = true;
         Text001: Label 'You cannot rename the %1 because there is at least one %2 in this period.';
         InvtPeriodEntry: Record "Inventory Period Entry";
         Text002: Label 'You are not allowed to insert an %1 that ends before %2.';

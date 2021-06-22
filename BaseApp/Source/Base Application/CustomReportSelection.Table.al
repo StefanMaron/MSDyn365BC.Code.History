@@ -15,11 +15,9 @@ table 9657 "Custom Report Selection"
             ELSE
             IF ("Source Type" = CONST(23)) Vendor."No.";
         }
-        field(3; Usage; Option)
+        field(3; Usage; Enum "Report Selection Usage")
         {
             Caption = 'Usage';
-            OptionCaption = 'S.Quote,S.Order,S.Invoice,S.Cr.Memo,S.Test,P.Quote,P.Order,P.Invoice,P.Cr.Memo,P.Receipt,P.Ret.Shpt.,P.Test,B.Stmt,B.Recon.Test,B.Check,Reminder,Fin.Charge,Rem.Test,F.C.Test,Prod.Order,S.Blanket,P.Blanket,M1,M2,M3,M4,Inv1,Inv2,Inv3,SM.Quote,SM.Order,SM.Invoice,SM.Credit Memo,SM.Contract Quote,SM.Contract,SM.Test,S.Return,P.Return,S.Shipment,S.Ret.Rcpt.,S.Work Order,Invt.Period Test,SM.Shipment,S.Test Prepmt.,P.Test Prepmt.,S.Arch.Quote,S.Arch.Order,P.Arch.Quote,P.Arch.Order,S.Arch.Return,P.Arch.Return,Asm.Order,P.Asm.Order,S.Order Pick Instruction,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,P.V.Remit.,C.Statement,V.Remittance,JQ,S.Invoice Draft,Pro Forma S. Invoice,S.Arch.Blanket,P.Arch.Blanket,Phys.Invt.Order Test,Phys.Invt.Order,P.Phys.Invt.Order,Phys.Invt.Rec.,P.Phys.Invt.Rec.';
-            OptionMembers = "S.Quote","S.Order","S.Invoice","S.Cr.Memo","S.Test","P.Quote","P.Order","P.Invoice","P.Cr.Memo","P.Receipt","P.Ret.Shpt.","P.Test","B.Stmt","B.Recon.Test","B.Check",Reminder,"Fin.Charge","Rem.Test","F.C.Test","Prod.Order","S.Blanket","P.Blanket",M1,M2,M3,M4,Inv1,Inv2,Inv3,"SM.Quote","SM.Order","SM.Invoice","SM.Credit Memo","SM.Contract Quote","SM.Contract","SM.Test","S.Return","P.Return","S.Shipment","S.Ret.Rcpt.","S.Work Order","Invt.Period Test","SM.Shipment","S.Test Prepmt.","P.Test Prepmt.","S.Arch.Quote","S.Arch.Order","P.Arch.Quote","P.Arch.Order","S.Arch.Return","P.Arch.Return","Asm.Order","P.Asm.Order","S.Order Pick Instruction",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"P.V.Remit.","C.Statement","V.Remittance",JQ,"S.Invoice Draft","Pro Forma S. Invoice","S.Arch.Blanket","P.Arch.Blanket","Phys.Invt.Order Test","Phys.Invt.Order","P.Phys.Invt.Order","Phys.Invt.Rec.","P.Phys.Invt.Rec.";
         }
         field(4; Sequence; Integer)
         {
@@ -73,8 +71,12 @@ table 9657 "Custom Report Selection"
             var
                 MailManagement: Codeunit "Mail Management";
             begin
-                if "Send To Email" <> '' then
+                if "Send To Email" <> '' then begin
+                    if "Use Email from Contact" then
+                        Error(UseEmailFromContactErr);
                     MailManagement.CheckValidEmailAddresses("Send To Email");
+                end else
+                    ClearSeletedContactsFilter();
             end;
         }
         field(19; "Use for Email Attachment"; Boolean)
@@ -118,6 +120,14 @@ table 9657 "Custom Report Selection"
             Editable = false;
             FieldClass = FlowField;
         }
+        field(23; "Use Email from Contact"; Boolean)
+        {
+            Caption = 'Use Email from Contacts';
+        }
+        field(24; "Selected Contacts Filter"; Blob)
+        {
+            Caption = 'Selected Contacts Filter';
+        }
     }
 
     keys
@@ -125,6 +135,9 @@ table 9657 "Custom Report Selection"
         key(Key1; "Source Type", "Source No.", Usage, Sequence)
         {
             Clustered = true;
+        }
+        key(Key2; "Report ID")
+        {
         }
     }
 
@@ -147,7 +160,10 @@ table 9657 "Custom Report Selection"
     var
         EmailBodyIsAlreadyDefinedErr: Label 'An email body is already defined for %1.', Comment = '%1 = Usage, for example Sales Invoice';
         CannotBeUsedAsAnEmailBodyErr: Label 'Report %1 uses the %2, which cannot be used as an email body.', Comment = '%1 = Report ID,%2 = Type';
-        TargetEmailAddressErr: Label 'The target email address has not been specified in %1.', Comment='%1 - RecordID';
+        TargetEmailAddressErr: Label 'The target email address has not been specified on the document layout for %1, %2. //Choose the Document Layouts action on the customer or vendor card to specify the email address.', Comment = '%1 - Source Data RecordID, %2 - Usage';
+        ExceededContactsNotificationTxt: Label 'Too many contacts were selected. Only %1 of %2 contact emails were processed. You can revise contact selection.', Comment = '%1 = number of contacts, %2 = number of contacts';
+        UseEmailFromContactErr: Label 'You already use emails from contacts and cannot enter email addresses manually. Delete the value in the Send to Email field, and then enter another email address.';
+        StartUseEmailFromContactTxt: Label 'Choose the Select Email from Contacts action if you want to view the list of contacts that will be used to send emails.';
 
     procedure InitUsage()
     begin
@@ -208,16 +224,207 @@ table 9657 "Custom Report Selection"
     end;
 
     [Scope('OnPrem')]
-    procedure CheckEmailSendTo()
+    procedure CheckEmailSendTo(DataRecRef: RecordRef)
     var
         ErrorMessageManagement: Codeunit "Error Message Management";
-        ErrorMessage: Text[1024];
+        ErrorMessage: Text;
     begin
-        if "Send To Email" <> '' then
-            exit;
+        if GetSendToEmail(true) = '' then begin
+            ErrorMessage := StrSubstNo(TargetEmailAddressErr, DataRecRef.RecordId, Usage);
+            ErrorMessageManagement.LogError(Rec, ErrorMessage, '');
+        end;
+    end;
 
-        ErrorMessage := StrSubstNo(TargetEmailAddressErr, RecordId);
-        ErrorMessageManagement.LogError(Rec,ErrorMessage, '');
+    procedure CopyFromReportSelections(var ReportSelections: Record "Report Selections"; SourceType: Integer; SourceNo: Code[20])
+    var
+        CustomReportSelection: Record "Custom Report Selection";
+        SequenceNo: Integer;
+    begin
+        if ReportSelections.FindSet() then begin
+            SequenceNo := GetSequenceNo();
+            CustomReportSelection.SetRange("Source Type", SourceType);
+            CustomReportSelection.SetRange("Source No.", SourceNo);
+            repeat
+                CustomReportSelection.SetRange(Usage, ReportSelections.Usage);
+                CustomReportSelection.SetRange("Report ID", ReportSelections."Report ID");
+                if CustomReportSelection.IsEmpty then begin
+                    Init();
+                    Validate("Source Type", SourceType);
+                    Validate("Source No.", SourceNo);
+                    Validate(Usage, ReportSelections.Usage);
+                    Validate(Sequence, SequenceNo);
+                    Validate("Report ID", ReportSelections."Report ID");
+                    Validate("Use for Email Body", ReportSelections."Use for Email Body");
+                    Validate("Use for Email Attachment", ReportSelections."Use for Email Attachment");
+                    Validate("Custom Report Layout Code", ReportSelections."Custom Report Layout Code");
+                    if ReportSelections."Email Body Layout Type" = ReportSelections."Email Body Layout Type"::"Custom Report Layout" then
+                        Validate("Email Body Layout Code", ReportSelections."Email Body Layout Code");
+                    Insert();
+                    SequenceNo += 1;
+                end;
+            until ReportSelections.Next() = 0;
+        end;
+
+        OnCopyFromReportSelections(Rec, ReportSelections);
+    end;
+
+    procedure GetSendToEmailFromContactsSelection(LinkType: Option; LinkNo: Code[20])
+    var
+        Contact: Record Contact;
+        ContBusRel: Record "Contact Business Relation";
+    begin
+        if ContBusRel.FindContactsByRelation(Contact, LinkType, LinkNo) then
+            if Contact.GetContactsSelectionFromContactList(true) then
+                GetSendToEmailFromContacts(Contact);
+    end;
+
+    procedure GetSendToEmailFromContacts(var Contact: Record Contact)
+    var
+        EmailList: Text;
+        FieldLenghtExceeded: Boolean;
+        MaxFieldLength: Integer;
+        ProcessedContactsCount: Integer;
+        ExceededContactsNotification: Notification;
+        ShowExceededContactsNotification: Boolean;
+    begin
+        "Send To Email" := '';
+        if Contact.FindSet() then begin
+            MaxFieldLength := MaxStrLen("Send To Email");
+            repeat
+                if Contact."E-Mail" <> '' then
+                    if StrLen(EmailList + Contact."E-Mail") <= MaxFieldLength then begin
+                        ProcessedContactsCount += 1;
+                        EmailList += Contact."E-Mail";
+                        if StrLen(EmailList) < MaxFieldLength then
+                            EmailList += ';';
+                    end else begin
+                        FieldLenghtExceeded := true;
+                        ShowExceededContactsNotification := FieldLenghtExceeded;
+                    end;
+            until (Contact.Next() = 0) or FieldLenghtExceeded;
+        end;
+        "Send To Email" := CopyStr(EmailList, 1, MaxStrLen("Send To Email"));
+        FillSelectedContactsFilter(Contact.GetFilter("No."));
+        OnGetSendToEmailFromContacts(Rec, Contact, ShowExceededContactsNotification);
+
+        if ShowExceededContactsNotification then begin
+            ExceededContactsNotification.Scope(NotificationScope::LocalScope);
+            ExceededContactsNotification.Message(StrSubstNo(ExceededContactsNotificationTxt, ProcessedContactsCount, Contact.Count));
+            ExceededContactsNotification.Send();
+        end;
+    end;
+
+    procedure ShowSelectedContacts()
+    var
+        Contact: Record Contact;
+    begin
+        if "Use Email from Contact" then begin
+            Contact.SetFilter("No.", GetSelectedContactsFilter());
+            Contact.GetContactsSelectionFromContactList(false);
+        end else
+            Message(StartUseEmailFromContactTxt);
+    end;
+
+    local procedure ClearSeletedContactsFilter()
+    begin
+        CalcFields("Selected Contacts Filter");
+        Clear("Selected Contacts Filter");
+        "Use Email from Contact" := false;
+    end;
+
+    local procedure FillSelectedContactsFilter(SelectedContactsFilter: Text)
+    var
+        OStream: OutStream;
+    begin
+        if SelectedContactsFilter = '' then
+            exit;
+        if "Selected Contacts Filter".HasValue() then begin
+            CalcFields("Selected Contacts Filter");
+            Clear("Selected Contacts Filter");
+        end;
+        "Selected Contacts Filter".CreateOutStream(OStream);
+        OStream.WriteText(SelectedContactsFilter);
+        "Use Email from Contact" := true;
+    end;
+
+    local procedure GetSelectedContactsFilter() SelectedContactsFilter: Text
+    var
+        IStream: InStream;
+    begin
+        if not "Selected Contacts Filter".HasValue() then
+            exit('');
+
+        CalcFields("Selected Contacts Filter");
+        "Selected Contacts Filter".CreateInStream(IStream);
+        IStream.ReadText(SelectedContactsFilter);
+        OnGetSelectedContactsFilter(SelectedContactsFilter);
+    end;
+
+    procedure GetSendToEmail(Update: Boolean): Text[250]
+    var
+        Contact: Record Contact;
+    begin
+        if "Use Email from Contact" then begin
+            Contact.SetFilter("No.", GetSelectedContactsFilter());
+            FillSendToEmail(Contact);
+            if Update then
+                Modify();
+        end;
+        exit("Send To Email");
+    end;
+
+    local procedure FillSendToEmail(var Contact: Record Contact)
+    var
+        EmailList: Text;
+        MaxFieldLength: Integer;
+        FieldLenghtExceeded: Boolean;
+    begin
+        "Send To Email" := '';
+        MaxFieldLength := MaxStrLen("Send To Email");
+        if Contact.FindSet() then
+            repeat
+                if Contact."E-Mail" <> '' then
+                    if StrLen(EmailList + Contact."E-Mail") <= MaxFieldLength then begin
+                        EmailList += Contact."E-Mail";
+                        if StrLen(EmailList) < MaxFieldLength then
+                            EmailList += ';';
+                    end else
+                        FieldLenghtExceeded := true;
+            until (Contact.Next() = 0) or FieldLenghtExceeded;
+        "Send To Email" := CopyStr(EmailList, 1, MaxStrLen("Send To Email"));
+    end;
+
+    procedure UpdateSendtoEmail()
+    begin
+        if FindSet() then
+            repeat
+                GetSendToEmail(true);
+            until Next() = 0;
+    end;
+
+    local procedure GetSequenceNo(): Integer
+    var
+        CustomReportSelection: Record "Custom Report Selection";
+    begin
+        CustomReportSelection.SetCurrentKey(Sequence);
+        if CustomReportSelection.FindLast() then
+            exit(CustomReportSelection.Sequence + 1);
+        exit(1);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyFromReportSelections(var CustomReportSelection: Record "Custom Report Selection"; var ReportSelections: Record "Report Selections")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetSendToEmailFromContacts(var CustomReportSelection: Record "Custom Report Selection"; var Contact: Record Contact; var ShowExceededContactsNotification: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetSelectedContactsFilter(var SelectedContactsFilter: Text)
+    begin
     end;
 }
 

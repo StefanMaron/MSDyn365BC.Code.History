@@ -559,7 +559,7 @@ codeunit 137099 "SCM Kitting Reservation"
 
         // Exercise.
         EnqueueValuesForReservationEntry(ReservationMode::AvailableToReserve, Quantity, Quantity / 2);  // Value required for Partial Reservation.
-        AssemblyLine.ShowReservation;
+        AssertError AssemblyLine.ShowReservation;
 
         // Verify: Verification is done in ReservationPageHandler.
 
@@ -1201,7 +1201,7 @@ codeunit 137099 "SCM Kitting Reservation"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Kitting Reservation");
     end;
 
@@ -1230,7 +1230,7 @@ codeunit 137099 "SCM Kitting Reservation"
     begin
         LibrarySales.SetOrderNoSeriesInSetup;
 
-        AssemblySetup.Get;
+        AssemblySetup.Get();
         AssemblySetup.Validate("Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         AssemblySetup.Validate("Posted Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         AssemblySetup.Modify(true);
@@ -1284,7 +1284,7 @@ codeunit 137099 "SCM Kitting Reservation"
     var
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         exit(CalcDate(ManufacturingSetup."Default Safety Lead Time", WorkDate));
     end;
 
@@ -1979,7 +1979,7 @@ codeunit 137099 "SCM Kitting Reservation"
     var
         AssemblySetup: Record "Assembly Setup";
     begin
-        AssemblySetup.Get;
+        AssemblySetup.Get();
         OldStockOutWarning := AssemblySetup."Stockout Warning";
         AssemblySetup.Validate("Stockout Warning", NewStockOutWarning);
         AssemblySetup.Modify(true);

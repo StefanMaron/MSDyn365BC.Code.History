@@ -216,7 +216,7 @@ codeunit 134989 "ERM Cash Flow - Reports"
         LibraryCF.FindCashFlowCard(CashFlowForecast);
         LibraryCF.FindCashFlowAnalysisView(AnalysisView);
 
-        SelectedDimension.DeleteAll;
+        SelectedDimension.DeleteAll();
         LibraryDimension.CreateSelectedDimension(
           SelectedDimension, AllObj."Object Type"::Report, REPORT::"Cash Flow Dimensions - Detail", AnalysisView.Code,
           LibraryERM.GetGlobalDimensionCode(2));
@@ -240,7 +240,7 @@ codeunit 134989 "ERM Cash Flow - Reports"
 
         // Exercise
         CashFlowDimensionsDetail.InitializeRequest(AnalysisView.Code, CashFlowForecast."No.", DateFilter, false);
-        Commit;
+        Commit();
         CashFlowDimensionsDetail.Run;
 
         // Verify
@@ -336,7 +336,7 @@ codeunit 134989 "ERM Cash Flow - Reports"
         CashFlowForecast.SetRange("No.", CFNo);
         CFDateList.SetTableView(CashFlowForecast);
         CFDateList.InitializeRequest(FromDate, NumberOfIntervals, IntervalLength);
-        Commit;
+        Commit();
         CFDateList.Run;
     end;
 
@@ -426,7 +426,7 @@ codeunit 134989 "ERM Cash Flow - Reports"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Cash Flow - Reports");
     end;
 

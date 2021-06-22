@@ -183,7 +183,7 @@ codeunit 139014 "Outlook Synch Tests"
         Initialize;
 
         UserID := 'CONFIGUREDUSER';
-        OutlookSynchUserSetup.Init;
+        OutlookSynchUserSetup.Init();
         OutlookSynchUserSetup."User ID" := UserID;
         OutlookSynchUserSetup.Insert(false);
 
@@ -207,7 +207,7 @@ codeunit 139014 "Outlook Synch Tests"
         Integer := LibraryRandom.RandIntInRange(0, GetNumberOfOptionsForFieldNo(Currency, Currency.FieldNo("Invoice Rounding Type")));
 
         // [GIVEN] Option field, having OptionString = 'Option1,Option2,Option3' and Option value is set equal to 'Option2'
-        Currency.Init;
+        Currency.Init();
         Currency.Code := LibraryUtility.GenerateGUID;
         Currency.Validate("Invoice Rounding Type", Integer);
         Currency.Insert(true);

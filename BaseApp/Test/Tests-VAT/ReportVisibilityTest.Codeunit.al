@@ -34,7 +34,7 @@ codeunit 134095 "Report Visibility Test"
         // [SCENARIO] For each status of the report, certain controllers is visible.
         // [GIVEN] Empty Vat report header table, ECSL report card and list page.
         LibraryLowerPermissions.SetO365Setup;
-        VATReportHeader.DeleteAll;
+        VATReportHeader.DeleteAll();
         ReportType := VATReportHeader."VAT Report Config. Code"::"EC Sales List";
         CreateVATReportConfiguration(ReportType);
 
@@ -60,7 +60,7 @@ codeunit 134095 "Report Visibility Test"
         // [SCENARIO] For each status of the report, certain controllers is visible.
         // [GIVEN] Empty Vat report header table, VAT report card and list page and VAT report configration with VAT report
         LibraryLowerPermissions.SetO365Setup;
-        VATReportHeader.DeleteAll;
+        VATReportHeader.DeleteAll();
         ReportType := VATReportHeader."VAT Report Config. Code"::"VAT Return";
         CreateVATReportConfiguration(ReportType);
 
@@ -120,7 +120,7 @@ codeunit 134095 "Report Visibility Test"
         LibraryApplicationArea.EnableBasicSetup;
 
         // [WHEN] Run 'Vendor - Balance to Date' report
-        Commit;
+        Commit();
         REPORT.RunModal(REPORT::"Customer - Balance to Date");
 
         // [THEN] Actions are enabled on the request page
@@ -144,7 +144,7 @@ codeunit 134095 "Report Visibility Test"
         LibraryApplicationArea.EnableBasicSetup;
 
         // [WHEN] Run 'Customer - Balance to Date' report
-        Commit;
+        Commit();
         REPORT.RunModal(REPORT::"Vendor - Balance to Date");
 
         // [THEN] Actions are enabled on the request page
@@ -245,17 +245,17 @@ codeunit 134095 "Report Visibility Test"
     [Scope('OnPrem')]
     procedure InsertVATReportHeader(ReportType: Option)
     begin
-        VATReportHeader.Init;
+        VATReportHeader.Init();
         VATReportHeader.Validate("VAT Report Config. Code", ReportType);
         VATReportHeader.Status := VATReportHeader.Status::Open;
-        VATReportHeader.Insert;
+        VATReportHeader.Insert();
     end;
 
     [Scope('OnPrem')]
     procedure ModifyVATReportStatus(Status: Option)
     begin
         VATReportHeader.Validate(Status, Status);
-        VATReportHeader.Modify;
+        VATReportHeader.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -279,10 +279,10 @@ codeunit 134095 "Report Visibility Test"
     var
         VATReportsConfiguration: Record "VAT Reports Configuration";
     begin
-        VATReportsConfiguration.DeleteAll;
-        VATReportsConfiguration.Init;
+        VATReportsConfiguration.DeleteAll();
+        VATReportsConfiguration.Init();
         VATReportsConfiguration.Validate("VAT Report Type", ReportType);
-        VATReportsConfiguration.Insert;
+        VATReportsConfiguration.Insert();
     end;
 
     [Scope('OnPrem')]

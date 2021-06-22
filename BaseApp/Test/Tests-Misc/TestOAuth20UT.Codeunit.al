@@ -189,6 +189,7 @@ codeunit 134780 "Test OAuth 2.0 UT"
         Assert.IsTrue(OAuth20SetupPage.RefreshAccessToken.Visible(), 'Refresh Access Token should be visible for SaaS');
         Assert.IsTrue(OAuth20SetupPage.HttpLog.Visible(), 'Http Log should be visible for SaaS');
         OAuth20SetupPage.Close();
+        EnableSaaS(false);
     end;
 
     [Test]
@@ -332,6 +333,7 @@ codeunit 134780 "Test OAuth 2.0 UT"
 
         Assert.ExpectedMessage(GetAuthorizationURLString(OAuth20Setup), LibraryVariableStorage.DequeueText()); // hyperlink
         LibraryVariableStorage.AssertEmpty();
+        EnableSaaS(false);
     end;
 
     [Test]

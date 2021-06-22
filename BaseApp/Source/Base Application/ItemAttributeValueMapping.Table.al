@@ -59,7 +59,7 @@ table 7505 "Item Attribute Value Mapping"
 
         ItemAttributeValueMapping := Rec;
         if ItemAttributeValueMapping.Find then
-            ItemAttributeValue.Delete;
+            ItemAttributeValue.Delete();
     end;
 
     procedure RenameItemAttributeValueMapping(PrevNo: Code[20]; NewNo: Code[20])

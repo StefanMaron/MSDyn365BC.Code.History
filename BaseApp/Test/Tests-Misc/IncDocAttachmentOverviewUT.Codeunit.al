@@ -194,7 +194,7 @@ codeunit 134418 "Inc Doc Attachment Overview UT"
 
         // Execute
         TempIncDocAttachmentOverview.InsertFromIncomingDocument(IncomingDocument2, TempIncDocAttachmentOverview);
-        TempIncDocAttachmentOverview.DeleteAll;
+        TempIncDocAttachmentOverview.DeleteAll();
         TempIncDocAttachmentOverview.InsertFromIncomingDocument(IncomingDocument, TempIncDocAttachmentOverview);
 
         // Verify
@@ -408,7 +408,7 @@ codeunit 134418 "Inc Doc Attachment Overview UT"
     begin
         I := 1;
         RecRef.Open(DATABASE::"Incoming Document Attachment");
-        IncomingDocumentAttachment.Init;
+        IncomingDocumentAttachment.Init();
         AddToArray(FieldRefArray, I, RecRef.Field(IncomingDocumentAttachment.FieldNo("Incoming Document Entry No.")));
         AddToArray(FieldRefArray, I, RecRef.Field(IncomingDocumentAttachment.FieldNo("Line No.")));
         AddToArray(FieldRefArray, I, RecRef.Field(IncomingDocumentAttachment.FieldNo("Created Date-Time")));
@@ -426,7 +426,7 @@ codeunit 134418 "Inc Doc Attachment Overview UT"
     begin
         I := 1;
         RecRef.Open(DATABASE::"Inc. Doc. Attachment Overview");
-        IncDocAttachmentOverview.Init;
+        IncDocAttachmentOverview.Init();
         AddToArray(FieldRefArray, I, RecRef.Field(IncDocAttachmentOverview.FieldNo("Attachment Type")));
         AddToArray(FieldRefArray, I, RecRef.Field(IncDocAttachmentOverview.FieldNo("Sorting Order")));
         AddToArray(FieldRefArray, I, RecRef.Field(IncDocAttachmentOverview.FieldNo(Indentation)));
@@ -441,7 +441,7 @@ codeunit 134418 "Inc Doc Attachment Overview UT"
     local procedure CreateIncomingDocument(var IncomingDocument: Record "Incoming Document"; AttachmentURL: Text)
     begin
         Clear(IncomingDocument);
-        IncomingDocument.Init;
+        IncomingDocument.Init();
         IncomingDocument.SetURL(AttachmentURL);
         IncomingDocument.Insert(true);
     end;
@@ -490,7 +490,7 @@ codeunit 134418 "Inc Doc Attachment Overview UT"
 
         IncomingDocument."Document Type" := IncomingDocument."Document Type"::"Sales Invoice";
         IncomingDocument."Document No." := PurchHeader."No.";
-        IncomingDocument.Modify;
+        IncomingDocument.Modify();
     end;
 
     local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; var IncomingDocument: Record "Incoming Document")
@@ -503,7 +503,7 @@ codeunit 134418 "Inc Doc Attachment Overview UT"
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
           GenJournalLine."Account Type"::"Bank Account", '', 0);
         GenJournalLine."Incoming Document Entry No." := IncomingDocument."Entry No.";
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
 
         IncomingDocument."Document Type" := IncomingDocument."Document Type"::Journal;
         IncomingDocument.Modify(true);
@@ -601,7 +601,7 @@ codeunit 134418 "Inc Doc Attachment Overview UT"
     var
         IncomingDocument: Record "Incoming Document";
     begin
-        IncomingDocument.Init;
+        IncomingDocument.Init();
         IncomingDocumentCard.GetRecord(IncomingDocument);
         IncomingDocument.Delete(true);
         Response := ACTION::OK;

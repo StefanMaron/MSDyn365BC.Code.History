@@ -391,13 +391,13 @@ codeunit 134379 "ERM Sales Quotes"
 
         Initialize;
         // [GIVEN] Sales Line with Type = "Resource" and "Resouce No." = "X"
-        SalesLine.Init;
+        SalesLine.Init();
         SalesLine."Document Type" := SalesLine."Document Type"::Quote;
         SalesLine.Type := SalesLine.Type::Resource;
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         LibraryResource.CreateResource(Resource, VATPostingSetup."VAT Bus. Posting Group");
         SalesLine."No." := Resource."No.";
-        SalesLine.Insert;
+        SalesLine.Insert();
 
         // [WHEN] Delete Resouce "X"
         asserterror Resource.Delete(true);
@@ -486,7 +486,7 @@ codeunit 134379 "ERM Sales Quotes"
 
         // [WHEN] "Sell-to Contact No." = '' in Sales Quote
         SalesHeader."Sell-to Contact No." := '';
-        SalesHeader.Modify;
+        SalesHeader.Modify();
         SalesQuotes.OpenView;
 
         // [THEN] "Contact" control is disabled
@@ -496,7 +496,7 @@ codeunit 134379 "ERM Sales Quotes"
         // [WHEN] "Sell-to Contact No." = "C", "Sell-to Customer No." = ''
         SalesHeader."Sell-to Contact No." := Contact."No.";
         SalesHeader."Sell-to Customer No." := '';
-        SalesHeader.Modify;
+        SalesHeader.Modify();
         SalesQuotes.OpenView;
 
         // [THEN] "Contact" control is enabled, "Customer" control - disabled, "Create Customer" - enabled
@@ -526,7 +526,7 @@ codeunit 134379 "ERM Sales Quotes"
         LibraryMarketing.CreateCompanyContact(Contact);
 
         // [GIVEN] Sales Quote
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader."Document Type" := SalesHeader."Document Type"::Quote;
         SalesHeader.Insert(true);
         LibraryVariableStorage.Enqueue(CustomerTemplate.Code); // for CustomerTemplateListModalPageHandler
@@ -561,7 +561,7 @@ codeunit 134379 "ERM Sales Quotes"
         LibraryVariableStorage.Enqueue(Contact."No."); // for ContactListModalPageHandler
 
         // [GIVEN] Sales Quote
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader."Document Type" := SalesHeader."Document Type"::Quote;
         SalesHeader.Insert(true);
         LibraryVariableStorage.Enqueue(CustomerTemplate.Code); // for CustomerTemplateListModalPageHandler
@@ -1024,7 +1024,7 @@ codeunit 134379 "ERM Sales Quotes"
         SalesHeader.Validate(
           "Quote Valid Until Date",
           SalesHeader."Document Date" + 1);
-        SalesHeader.Modify;
+        SalesHeader.Modify();
 
         // [WHEN] Page Sales Quote is opened
         SalesQuote.OpenView;
@@ -1099,7 +1099,7 @@ codeunit 134379 "ERM Sales Quotes"
 
         // [GIVEN] Sales quote has Bill-to Contact = PERS2
         SalesHeader.Validate("Bill-to Contact No.", ContactPerson[2]."No.");
-        SalesHeader.Modify;
+        SalesHeader.Modify();
 
         // [WHEN] Customers are being created from quote
         SalesHeader.CheckCustomerCreated(false);
@@ -1257,8 +1257,8 @@ codeunit 134379 "ERM Sales Quotes"
         // [GIVEN] Create overdue quote
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo);
         SalesHeader."Quote Valid Until Date" := WorkDate - 1;
-        SalesHeader.Modify;
-        Commit;
+        SalesHeader.Modify();
+        Commit();
 
         // [WHEN] Report "Delete Overdue Sales Quotes" is being run with confirmation to delete quotes
         LibraryVariableStorage.Enqueue(WorkDate);
@@ -1282,8 +1282,8 @@ codeunit 134379 "ERM Sales Quotes"
         // [GIVEN] Create overdue quote
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo);
         SalesHeader."Quote Valid Until Date" := WorkDate - 1;
-        SalesHeader.Modify;
-        Commit;
+        SalesHeader.Modify();
+        Commit();
 
         // [WHEN] Report "Delete Overdue Sales Quotes" is being run and cancel confirmation to delete quotes
         LibraryVariableStorage.Enqueue(WorkDate);
@@ -1312,7 +1312,7 @@ codeunit 134379 "ERM Sales Quotes"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo);
 
         // [WHEN] Report "Delete Overdue Sales Quotes" is being run
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(WorkDate);
         REPORT.Run(REPORT::"Delete Expired Sales Quotes");
 
@@ -1585,7 +1585,7 @@ codeunit 134379 "ERM Sales Quotes"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Sales Quotes");
     end;
 
@@ -1675,7 +1675,7 @@ codeunit 134379 "ERM Sales Quotes"
     begin
         LibrarySales.CreateCustomerTemplate(CustomerTemplate);
         CustomerTemplate.Validate("Contact Type", ContactType);
-        CustomerTemplate.Modify;
+        CustomerTemplate.Modify();
         exit(CustomerTemplate.Code);
     end;
 
@@ -1785,7 +1785,7 @@ codeunit 134379 "ERM Sales Quotes"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         OldDefaultPostingDate := SalesReceivablesSetup."Default Posting Date";
         OldStockoutWarning := SalesReceivablesSetup."Stockout Warning";
         SalesReceivablesSetup.Validate("Stockout Warning", StockoutWarning);
@@ -1797,9 +1797,9 @@ codeunit 134379 "ERM Sales Quotes"
     var
         SalesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         Evaluate(SalesSetup."Quote Validity Calculation", QuoteValidityCalculation);
-        SalesSetup.Modify;
+        SalesSetup.Modify();
     end;
 
     [ConfirmHandler]
@@ -1893,9 +1893,9 @@ codeunit 134379 "ERM Sales Quotes"
     var
         SalesHeader: Record "Sales Header";
     begin
-        SalesHeader.Reset;
+        SalesHeader.Reset();
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Quote);
-        SalesHeader.DeleteAll;
+        SalesHeader.DeleteAll();
     end;
 
     [RequestPageHandler]

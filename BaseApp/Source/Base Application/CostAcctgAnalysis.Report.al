@@ -100,7 +100,7 @@ report 1127 "Cost Acctg. Analysis"
                 end;
 
                 if (Type = Type::"Cost Type") and SuppressWoAmt and (not AmtExists) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 if NewPage then begin
                     PageGroupNo := PageGroupNo + 1;
@@ -351,8 +351,8 @@ report 1127 "Cost Acctg. Analysis"
     trigger OnInitReport()
     begin
         for i := 1 to 10 do begin
-            CostCenter[i].Init;
-            CostObject[i].Init;
+            CostCenter[i].Init();
+            CostObject[i].Init();
         end;
     end;
 

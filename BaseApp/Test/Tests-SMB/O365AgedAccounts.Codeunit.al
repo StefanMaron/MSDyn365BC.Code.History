@@ -430,7 +430,7 @@ codeunit 138027 "O365 Aged Accounts"
         Initialize;
 
         if BusinessChartUserSetup.Get(UserId, BusinessChartUserSetup."Object Type"::Page, GetAgedAccReceivableChartID) then
-            BusinessChartUserSetup.Delete;
+            BusinessChartUserSetup.Delete();
 
         AgedAccReceivableChart.OpenView;
         Found := BusinessChartUserSetup.Get(UserId, BusinessChartUserSetup."Object Type"::Page, GetAgedAccReceivableChartID);
@@ -631,9 +631,9 @@ codeunit 138027 "O365 Aged Accounts"
     var
         CustPostingGroup: Record "Customer Posting Group";
     begin
-        CustPostingGroup.Init;
+        CustPostingGroup.Init();
         CustPostingGroup.Code := LibraryUtility.GenerateGUID;
-        CustPostingGroup.Insert;
+        CustPostingGroup.Insert();
         exit(CustPostingGroup.Code);
     end;
 
@@ -1068,7 +1068,7 @@ codeunit 138027 "O365 Aged Accounts"
         OfficeManagement: Codeunit "Office Management";
         OfficeHost: DotNet OfficeHost;
     begin
-        OfficeAddinContext.DeleteAll;
+        OfficeAddinContext.DeleteAll();
         SetOfficeHostUnAvailable;
 
         SetOfficeHostProvider(CODEUNIT::"Library - Office Host Provider");
@@ -1082,8 +1082,8 @@ codeunit 138027 "O365 Aged Accounts"
     begin
         // Test Providers checks whether we have registered Host in NameValueBuffer or not
         if NameValueBuffer.Get(SessionId) then begin
-            NameValueBuffer.Delete;
-            Commit;
+            NameValueBuffer.Delete();
+            Commit();
         end;
     end;
 
@@ -1091,9 +1091,9 @@ codeunit 138027 "O365 Aged Accounts"
     var
         OfficeAddinSetup: Record "Office Add-in Setup";
     begin
-        OfficeAddinSetup.Get;
+        OfficeAddinSetup.Get();
         OfficeAddinSetup."Office Host Codeunit ID" := ProviderId;
-        OfficeAddinSetup.Modify;
+        OfficeAddinSetup.Modify();
     end;
 }
 

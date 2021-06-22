@@ -880,7 +880,7 @@
   </Item>
   <Item ItemId=";Codeunit 3196030910 - NamedType 1325603002" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The target email address has not been specified]]></Val>
+      <Val><![CDATA[The target email address has not been specified on the document layout for]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

@@ -159,7 +159,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         OpenCustLedgerEntryPage(DocumentType, GenJournalLine."Account No.");
 
         // Verify: Verify Page fields value on Apply Customer Entries Page.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocumentType, GenJournalLine."Document No.");
         CustLedgerEntry.CalcFields("Remaining Amount");
         Assert.AreNearlyEqual(
@@ -359,7 +359,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         OpenVendorLedgerEntryPage(DocumentType2, GenJournalLine."Account No.");
 
         // Verify: Verify Page fields value on Apply Vendor Entries Page.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, DocumentType, GenJournalLine."Document No.");
         VendorLedgerEntry.CalcFields("Remaining Amount");
         Assert.AreNearlyEqual(
@@ -461,7 +461,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         OpenVendorLedgerEntryPage(GenJournalLine."Document Type", GenJournalLine."Account No.");
 
         // Verify: Verify Amount and Remaining Amount on Vendor Ledger Entries.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, GenJournalLine."Document Type", GenJournalLine."Document No.");
         VendorLedgerEntry.CalcFields(Amount, "Remaining Amount");
         Assert.AreNearlyEqual(
@@ -537,7 +537,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
 
         // Exercise: Open Apply Customer Entries page using Applies to Doc. No.
         LibraryVariableStorage.Enqueue(1); // used in ApplyCustEntriesOKPageHandler
-        Commit;
+        Commit();
         SetJournalLineAppliesToDocNo(GenJournalLine."Document Type", GenJournalLine."Document No.", GenJournalLine."Journal Batch Name");
 
         // Verify: Verify filtered Customer Entries on Apply Customer Entries.
@@ -561,7 +561,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
 
         // Exercise: Open Apply Customer Entries page using Applies to Doc. No.
         LibraryVariableStorage.Enqueue(2); // used in ApplyCustEntriesOKPageHandler
-        Commit;
+        Commit();
         SetJournalLineAppliesToDocNo(GenJournalLine."Document Type", GenJournalLine."Document No.", GenJournalLine."Journal Batch Name");
 
         // Verify: Verify filtered Customer Entries on Apply Customer Entries.
@@ -595,7 +595,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         ModifyGenLineBalAccountNo(GenJournalLine);
         GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
         GenJournalLine.Modify(true);
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(2); // used in ApplyCustEntriesOKPageHandler
         SetJournalLineAppliesToDocNo(GenJournalLine."Document Type", GenJournalLine."Document No.", GenJournalBatch.Name);
         GenJournalLine.SetRange("Document No.", GenJournalLine."Document No.");
@@ -744,7 +744,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         // Setup: Create New Sales General Batch and Template.
         Initialize;
         BatchName := CreateGeneralBatchAndTemplate(GenJournalTemplate.Type::Sales);
-        Commit; // commit is required to save the DB State.
+        Commit(); // commit is required to save the DB State.
 
         // Exercise: Open Sales Journal page with Created Batch Name.
         SalesJournal.OpenView;
@@ -767,7 +767,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         // Setup: Create New Purchase General Batch and Template.
         Initialize;
         BatchName := CreateGeneralBatchAndTemplate(GenJournalTemplate.Type::Purchases);
-        Commit; // commit is required to save the DB State.
+        Commit(); // commit is required to save the DB State.
 
         // Exercise: Open Purchase Journal page with Created Batch Name.
         PurchaseJournal.OpenView;
@@ -901,18 +901,18 @@ codeunit 134918 "ERM Sales/Purchase Application"
         Initialize;
 
         // Modify Sales General Journal Template to be a different type.  Customer can do this manually in the UI.
-        GenJournalTemplate.Init;
+        GenJournalTemplate.Init();
         GenJournalTemplate.SetRange(Name, 'SALES');
         GenJournalTemplate.FindFirst;
         GenJournalTemplate.Type := 0;
-        GenJournalTemplate.Modify;
+        GenJournalTemplate.Modify();
 
         // [WHEN] Sales Journal opens, it will look for a template of type Sales.  Not finding one, it will create Sale1.
         SalesJournal.OpenView;
         SalesJournal.New;
         SalesJournal.Close;
 
-        GenJournalTemplate.Init;
+        GenJournalTemplate.Init();
         GenJournalTemplate.SetFilter(Name, 'SALES1');
         Assert.AreEqual(1, GenJournalTemplate.Count, TemplateLogicErrorMsg);
     end;
@@ -1068,9 +1068,9 @@ codeunit 134918 "ERM Sales/Purchase Application"
         OriginalName: Text[50];
         NewName: Text;
     begin
-        Customer.DeleteAll;
-        Contact.DeleteAll;
-        ContDuplicateSearchString.DeleteAll;
+        Customer.DeleteAll();
+        Contact.DeleteAll();
+        ContDuplicateSearchString.DeleteAll();
 
         // Madeira Bug 155753
         // [FEATURE] [Vendor] [UI]
@@ -1156,7 +1156,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         LibraryERM.PostCustLedgerApplication(CustLedgerEntry);
 
         // [THEN] All Customer Ledger Entries are closed
-        CustLedgerEntry.Reset;
+        CustLedgerEntry.Reset();
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
         CustLedgerEntry.SetRange(Open, true);
         Assert.RecordIsEmpty(CustLedgerEntry);
@@ -1186,7 +1186,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         LibraryERM.PostVendLedgerApplication(VendorLedgerEntry);
 
         // [THEN] All Vendor Ledger Entries are closed
-        VendorLedgerEntry.Reset;
+        VendorLedgerEntry.Reset();
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
         VendorLedgerEntry.SetRange(Open, true);
         Assert.RecordIsEmpty(VendorLedgerEntry);
@@ -1301,12 +1301,16 @@ codeunit 134918 "ERM Sales/Purchase Application"
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        GenJnlManagement: Codeunit "GenJnlManagement";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Sales/Purchase Application");
         LibraryVariableStorage.Clear;
+        
         // Lazy Setup.
         if isInitialized then
             exit;
+        GenJnlManagement.SetJournalSimplePageModePreference(true,Page::"Sales Journal");
+        GenJnlManagement.SetJournalSimplePageModePreference(true,Page::"Purchase Journal");
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Sales/Purchase Application");
 
         LibraryERMCountryData.CreateVATData;
@@ -1317,7 +1321,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Sales/Purchase Application");
     end;
 
@@ -1519,7 +1523,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         OpenCustLedgerEntryPage(DocumentType, GenJournalLine."Account No.");
 
         // Verify: Verify Payment Discount amount on Customer Ledger Entry.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocumentType2, DocumentNo);
         Assert.AreNearlyEqual(
           OriginalPmtDiscPossible, CustLedgerEntry."Original Pmt. Disc. Possible", GeneralLedgerSetup."Amount Rounding Precision",
@@ -1536,7 +1540,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         OpenVendorLedgerEntryPage(DocumentType, GenJournalLine."Account No.");
 
         // Verify: Verify Payment Discount amount on Vendor Ledger Entry.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, DocumentType2, DocumentNo);
         Assert.AreNearlyEqual(
           OriginalPmtDiscPossible, VendorLedgerEntry."Original Pmt. Disc. Possible", GeneralLedgerSetup."Amount Rounding Precision",

@@ -1,4 +1,4 @@
-﻿page 5804 "Applied Item Entries"
+page 5804 "Applied Item Entries"
 {
     Caption = 'Applied Item Entries';
     Editable = false;

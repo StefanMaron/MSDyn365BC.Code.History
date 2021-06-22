@@ -170,7 +170,7 @@ codeunit 135518 "Payment Method Entity E2E Test"
         PaymentMethod: Record "Payment Method";
     begin
         LibraryERM.CreatePaymentMethod(PaymentMethod);
-        Commit;
+        Commit();
 
         exit(PaymentMethod.Code);
     end;

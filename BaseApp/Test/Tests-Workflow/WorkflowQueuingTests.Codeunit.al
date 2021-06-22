@@ -32,7 +32,7 @@ codeunit 134315 "Workflow Queuing Tests"
 
         // Setup
         LibraryERMCountryData.CreateVATData;
-        WorkflowStepInstanceArchive.DeleteAll;
+        WorkflowStepInstanceArchive.DeleteAll();
 
         CreateIncomingDocumentWorkflow;
 

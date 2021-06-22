@@ -389,7 +389,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         // [GIVEN] Create Cash Receipt Journal Line for the customer.
         CreateCashReceiptJnlLine(GenJournalLine, GenJournalLine."Account No.");
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
-        Commit;
+        Commit();
 
         CashReceiptJournal.OpenEdit;
         CashReceiptJournal."Applies-to Doc. Type".SetValue(GenJournalLine."Applies-to Doc. Type"::Invoice);
@@ -424,7 +424,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         // [GIVEN] Create Cash Receipt Journal Line for the customer.
         CreateCashReceiptJnlLine(GenJournalLine, GenJournalLine."Account No.");
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
-        Commit;
+        Commit();
 
         CashReceiptJournal.OpenEdit;
         CashReceiptJournal."Applies-to Doc. Type".SetValue(GenJournalLine."Applies-to Doc. Type"::Invoice);
@@ -504,7 +504,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
           GenJournalLine, GenJournalLine."Account Type"::Customer, CustomerNo, GenJournalLine."Document No.");
         GenJournalLine.Validate("Dimension Set ID", LibraryDimension.CreateDimSet(0, DimensionValue."Dimension Code", DimensionValue.Code));
         GenJournalLine.Validate(Amount, PaymentAmount);
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
 
         // [WHEN] Post Sales Journal
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -576,7 +576,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         // [GIVEN] Create Cash Receipt Journal Line
         CreateCashReceiptJnlLine(GenJournalLine, GenJournalLine."Account No.");
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
-        Commit;
+        Commit();
 
         CashReceiptJournal.OpenEdit;
         CashReceiptJournal."Applies-to Doc. Type".SetValue(GenJournalLine."Applies-to Doc. Type"::Invoice);
@@ -616,7 +616,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         // [GIVEN] Create Cash Receipt Journal Line
         CreateCashReceiptJnlLine(GenJournalLine, GenJournalLine."Account No.");
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
-        Commit;
+        Commit();
 
         CashReceiptJournal.OpenEdit;
         CashReceiptJournal."Applies-to Doc. Type".SetValue(GenJournalLine."Applies-to Doc. Type"::Invoice);
@@ -655,7 +655,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         // [GIVEN] Create Cash Receipt Journal Line
         CreateCashReceiptJnlLine(GenJournalLine, GenJournalLine."Account No.");
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
-        Commit;
+        Commit();
 
         CashReceiptJournal.OpenEdit;
         CashReceiptJournal."Applies-to Doc. Type".SetValue(GenJournalLine."Applies-to Doc. Type"::Invoice);
@@ -694,7 +694,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         // [GIVEN] Create Cash Receipt Journal Line
         CreateCashReceiptJnlLine(GenJournalLine, GenJournalLine."Account No.");
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
-        Commit;
+        Commit();
 
         CashReceiptJournal.OpenEdit;
         CashReceiptJournal."Applies-to Doc. Type".SetValue(GenJournalLine."Applies-to Doc. Type"::Invoice);
@@ -740,7 +740,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
 
         // [GIVEN] Cash Receipt Journal was open
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
-        Commit;
+        Commit();
         CashReceiptJournal.OpenEdit;
 
         // [WHEN] Set 'Applies-to Doc. No.' value to Posted Invoice doc. no.
@@ -771,7 +771,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         ModifyGenJnlBatchNoSeries;
         isInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Apply Sales/Receivables");
@@ -938,7 +938,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         LibraryDimension.CreateDimWithDimValue(DimensionValue);
         LibraryDimension.CreateDefaultDimensionGLAcc(DefaultDimension, GLAccountNo, DimensionValue."Dimension Code", DimensionValue.Code);
         DefaultDimension.Validate("Value Posting", DefaultDimension."Value Posting"::"Same Code");
-        DefaultDimension.Modify;
+        DefaultDimension.Modify();
     end;
 
     local procedure CreateCustPostingGrPmtDiscDebitAccNo(CustomerNo: Code[20]): Code[20]
@@ -994,7 +994,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
     local procedure SetAppliesToIDOnCustLedgEntry(var CustLedgEntry: Record "Cust. Ledger Entry")
     begin
         CustLedgEntry."Applies-to ID" := LibraryUtility.GenerateGUID;
-        CustLedgEntry.Modify;
+        CustLedgEntry.Modify();
     end;
 
     local procedure GetPmtTermsDiscountPct(): Decimal

@@ -44,7 +44,7 @@ page 9900 "Import Data"
                         then
                             exit;
 
-                        DeleteAll;
+                        DeleteAll();
                         ContainsCompanies := Companies.FindSet;
                         if ContainsCompanies then
                             repeat
@@ -76,7 +76,7 @@ page 9900 "Import Data"
                         then
                             exit;
 
-                        DeleteAll;
+                        DeleteAll();
                         ContainsCompanies := Companies.FindSet;
                         if ContainsCompanies then
                             repeat
@@ -156,11 +156,11 @@ page 9900 "Import Data"
                         begin
                             if Selected then begin
                                 SelectedCompany := Rec;
-                                if SelectedCompany.Insert then;
+                                if SelectedCompany.Insert() then;
                             end else begin
                                 IncludeAllCompanies := false;
                                 if SelectedCompany.Get(Name) then
-                                    SelectedCompany.Delete;
+                                    SelectedCompany.Delete();
                             end;
                         end;
                     }
@@ -237,13 +237,13 @@ page 9900 "Import Data"
 
     local procedure MarkAll()
     begin
-        SelectedCompany.DeleteAll;
+        SelectedCompany.DeleteAll();
 
         if IncludeAllCompanies then
             if FindSet then
                 repeat
                     SelectedCompany := Rec;
-                    SelectedCompany.Insert;
+                    SelectedCompany.Insert();
                 until Next = 0;
 
         CurrPage.Update(false);

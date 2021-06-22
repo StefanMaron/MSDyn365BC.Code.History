@@ -9,7 +9,7 @@ codeunit 407 "Adjust Gen. Journal Balance"
         CorrectionEntry: Boolean;
         TotalAmountLCY: Decimal;
     begin
-        TempCurrTotalBuffer.DeleteAll;
+        TempCurrTotalBuffer.DeleteAll();
         GenJnlLine.SetRange("Journal Template Name", "Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
 
@@ -27,7 +27,7 @@ codeunit 407 "Adjust Gen. Journal Balance"
                         InsertCorrectionLines(GenJnlLine, PrevGenJnlLine);
                     end;
                     TotalAmountLCY := 0;
-                    TempCurrTotalBuffer.DeleteAll;
+                    TempCurrTotalBuffer.DeleteAll();
                     CorrectionEntry := true;
                     PrevGenJnlLine := GenJnlLine;
                 end;
@@ -38,12 +38,12 @@ codeunit 407 "Adjust Gen. Journal Balance"
                           TempCurrTotalBuffer."Total Amount" + Amount;
                         TempCurrTotalBuffer."Total Amount (LCY)" :=
                           TempCurrTotalBuffer."Total Amount (LCY)" + "Amount (LCY)";
-                        TempCurrTotalBuffer.Modify;
+                        TempCurrTotalBuffer.Modify();
                     end else begin
                         TempCurrTotalBuffer."Currency Code" := "Currency Code";
                         TempCurrTotalBuffer."Total Amount" := Amount;
                         TempCurrTotalBuffer."Total Amount (LCY)" := "Amount (LCY)";
-                        TempCurrTotalBuffer.Insert;
+                        TempCurrTotalBuffer.Insert();
                     end;
                     CorrectionEntry := CorrectionEntry and Correction;
                 end;

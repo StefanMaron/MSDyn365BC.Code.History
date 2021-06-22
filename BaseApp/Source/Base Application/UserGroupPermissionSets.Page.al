@@ -49,14 +49,13 @@ page 9834 "User Group Permission Sets"
                 field("Role Name"; AppRoleName)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Role Name';
                     Editable = false;
-                    ToolTip = 'Specifies the name of the permission set.';
+                    Caption = 'Name';
+					ToolTip = 'Specifies the name of the permission set.';
                 }
                 field("App Name"; "Extension Name")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Extension Name';
                     Editable = false;
                     ToolTip = 'Specifies the name of the extension that provides the permission set.';
                 }

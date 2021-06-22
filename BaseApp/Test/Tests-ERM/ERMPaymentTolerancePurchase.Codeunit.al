@@ -121,7 +121,7 @@ codeunit 134018 "ERM Payment Tolerance Purchase"
         PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
         PurchaseHeader.Modify(true);
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-        PurchaseHeader.Init;
+        PurchaseHeader.Init();
         PurchaseHeader.Validate("Document Type", PurchaseHeader."Document Type"::"Credit Memo");
         PurchaseHeader.Insert(true);
 
@@ -199,7 +199,7 @@ codeunit 134018 "ERM Payment Tolerance Purchase"
         PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
         PurchaseHeader.Validate("Payment Discount %", LibraryRandom.RandInt(5)); // Use Random value for Payment Discount.
         PurchaseHeader.Modify(true);
-        PurchaseHeader.Init;
+        PurchaseHeader.Init();
         PurchaseHeader.Validate("Document Type", PurchaseHeader."Document Type"::"Credit Memo");
         PurchaseHeader.Insert(true);
 
@@ -237,7 +237,7 @@ codeunit 134018 "ERM Payment Tolerance Purchase"
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         isInitialized := true;
-        Commit;
+        Commit();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Payment Tolerance Purchase");
     end;
@@ -342,7 +342,7 @@ codeunit 134018 "ERM Payment Tolerance Purchase"
         GeneralLedgerSetup: Record "General Ledger Setup";
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         PurchInvHeader.Get(DocumentNo);
         PurchInvHeader.CalcFields("Amount Including VAT");
         exit(PurchInvHeader."Amount Including VAT" * GeneralLedgerSetup."Payment Tolerance %" / 100);
@@ -353,7 +353,7 @@ codeunit 134018 "ERM Payment Tolerance Purchase"
         GeneralLedgerSetup: Record "General Ledger Setup";
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         PurchCrMemoHdr.Get(DocumentNo);
         PurchCrMemoHdr.CalcFields("Amount Including VAT");
         exit(PurchCrMemoHdr."Amount Including VAT" * GeneralLedgerSetup."Payment Tolerance %" / 100);
@@ -364,7 +364,7 @@ codeunit 134018 "ERM Payment Tolerance Purchase"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         FindVendorLedgerEntry(VendorLedgerEntry, DocumentNo);
         Assert.AreNearlyEqual(Amount, VendorLedgerEntry.Amount, GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(AmountErrorMessage, VendorLedgerEntry.FieldCaption(Amount), Amount, VendorLedgerEntry.TableCaption,
@@ -376,7 +376,7 @@ codeunit 134018 "ERM Payment Tolerance Purchase"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         FindVendorLedgerEntry(VendorLedgerEntry, DocumentNo);
         Assert.AreNearlyEqual(-ExpectedPmtTolAmount, VendorLedgerEntry."Max. Payment Tolerance",
           GeneralLedgerSetup."Amount Rounding Precision", StrSubstNo(AmountErrorMessage, VendorLedgerEntry.FieldCaption(Amount),
@@ -388,7 +388,7 @@ codeunit 134018 "ERM Payment Tolerance Purchase"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         FindVendorLedgerEntry(VendorLedgerEntry, DocumentNo);
         Assert.AreNearlyEqual(ExpectedPmtTolAmount, VendorLedgerEntry."Max. Payment Tolerance",
           GeneralLedgerSetup."Amount Rounding Precision", StrSubstNo(AmountErrorMessage, VendorLedgerEntry.FieldCaption(Amount),

@@ -264,9 +264,9 @@ codeunit 139176 "CRM Statistics FactBox Test"
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
 
         // [WHEN] The CRM integration is disabled from CRM Connection Setup
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
         CRMConnectionSetup.Validate("Is Enabled", false);
-        CRMConnectionSetup.Modify;
+        CRMConnectionSetup.Modify();
 
         // [THEN] The CRM Statistics FactBox is not visible on the host page
         LibraryCRMIntegration.AssertVisibilityOnHostPage(HostPageName, Customer."No.", false);

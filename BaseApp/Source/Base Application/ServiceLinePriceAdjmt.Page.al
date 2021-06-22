@@ -271,7 +271,7 @@ page 6084 "Service Line Price Adjmt."
         if not ServItemLine.Get("Document Type", "Document No.", "Service Item Line No.") then
             Clear(ServItemLine);
         ServInvLinePriceAdjmt := Rec;
-        ServInvLinePriceAdjmt.Reset;
+        ServInvLinePriceAdjmt.Reset();
         ServInvLinePriceAdjmt.SetRange("Document Type", "Document Type");
         ServInvLinePriceAdjmt.SetRange("Document No.", "Document No.");
         ServInvLinePriceAdjmt.SetRange("Service Item Line No.", "Service Item Line No.");

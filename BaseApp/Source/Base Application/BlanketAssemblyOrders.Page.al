@@ -1,4 +1,4 @@
-﻿page 942 "Blanket Assembly Orders"
+page 942 "Blanket Assembly Orders"
 {
     ApplicationArea = Assembly;
     Caption = 'Blanket Assembly Orders';

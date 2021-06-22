@@ -369,16 +369,16 @@ codeunit 132532 "Test Granules"
             // Do not validate removed tables
             if TableMetadata.ObsoleteState <> TableMetadata.ObsoleteState::Removed then begin
                 TempTableDataAllObj := AllObj;
-                TempTableDataAllObj.Insert;
+                TempTableDataAllObj.Insert();
             end;
         until AllObj.Next = 0;
 
         with TempTableDataAllObj do begin
             // Do not validate demo tool, upgrade script, and tests, except CAL Test Tool objects in 130400..130499
             SetRange("Object ID", 101000, 130399);
-            DeleteAll;
+            DeleteAll();
             SetRange("Object ID", 130500, 199999);
-            DeleteAll;
+            DeleteAll();
             Reset;
         end;
     end;
@@ -392,7 +392,7 @@ codeunit 132532 "Test Granules"
         Permission.FindSet;
         repeat
             TempPermission := Permission;
-            TempPermission.Insert;
+            TempPermission.Insert();
         until Permission.Next = 0;
 
         with TempPermission do begin
@@ -408,11 +408,11 @@ codeunit 132532 "Test Granules"
 
             Reset;
             SetRange("Role ID", 'SUPER');
-            DeleteAll;
+            DeleteAll();
             SetRange("Role ID", 'SUPER (DATA)');
-            DeleteAll;
+            DeleteAll();
             SetRange("Role ID", 'TEST TABLES');
-            DeleteAll;
+            DeleteAll();
 
             Reset;
         end;
@@ -548,25 +548,25 @@ codeunit 132532 "Test Granules"
         if Permission.FindSet then
             repeat
                 TempPermission := Permission;
-                TempPermission.Insert;
+                TempPermission.Insert();
             until Permission.Next = 0;
-        TempPermission.Reset;
+        TempPermission.Reset();
     end;
 
     local procedure RemoveNonLocalObjectsFromObjects(var TempLocalTableDataAllObj: Record AllObj temporary)
     begin
         // Remove W1 app range
         TempLocalTableDataAllObj.SetRange("Object ID", 1, 9999);
-        TempLocalTableDataAllObj.DeleteAll;
+        TempLocalTableDataAllObj.DeleteAll();
 
         TempLocalTableDataAllObj.SetFilter("Object ID", '>%1', 99000000);
-        TempLocalTableDataAllObj.DeleteAll;
+        TempLocalTableDataAllObj.DeleteAll();
 
         // Semi automated tests and shipped test tool are excluded
         TempLocalTableDataAllObj.SetRange("Object ID", 130400, 130499);
-        TempLocalTableDataAllObj.DeleteAll;
+        TempLocalTableDataAllObj.DeleteAll();
 
-        TempLocalTableDataAllObj.Reset;
+        TempLocalTableDataAllObj.Reset();
     end;
 
     local procedure GetO365PermissionSets(var O365PermissionSetsList: DotNet GenericList1; IncludeComposedPermissionSets: Boolean)

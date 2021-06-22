@@ -98,12 +98,12 @@ codeunit 5815 "Undo Sales Shipment Line"
 
             Find('-');
             repeat
-                TempGlobalItemLedgEntry.Reset;
+                TempGlobalItemLedgEntry.Reset();
                 if not TempGlobalItemLedgEntry.IsEmpty then
-                    TempGlobalItemLedgEntry.DeleteAll;
-                TempGlobalItemEntryRelation.Reset;
+                    TempGlobalItemLedgEntry.DeleteAll();
+                TempGlobalItemEntryRelation.Reset();
                 if not TempGlobalItemEntryRelation.IsEmpty then
-                    TempGlobalItemEntryRelation.DeleteAll;
+                    TempGlobalItemEntryRelation.DeleteAll();
 
                 if not HideDialog then
                     Window.Open(Text001);
@@ -157,7 +157,7 @@ codeunit 5815 "Undo Sales Shipment Line"
                 UndoFinalizePostATO(SalesShptLine);
             until Next = 0;
 
-            InvtSetup.Get;
+            InvtSetup.Get();
             if InvtSetup."Automatic Cost Adjustment" <>
                InvtSetup."Automatic Cost Adjustment"::Never
             then begin
@@ -188,7 +188,8 @@ codeunit 5815 "Undo Sales Shipment Line"
                 if Correction then
                     Error(AlreadyReversedErr);
                 if "Qty. Shipped Not Invoiced" <> Quantity then
-                    Error(Text005);
+                    if HasInvoicedNotReturnedQuantity(SalesShptLine) then
+                        Error(Text005);
             end;
             if Type = Type::Item then begin
                 if not SkipTestFields then
@@ -196,9 +197,9 @@ codeunit 5815 "Undo Sales Shipment Line"
 
                 if not SkipUndoPosting then begin
                     UndoPostingMgt.TestSalesShptLine(SalesShptLine);
-                    UndoPostingMgt.CollectItemLedgEntries(TempItemLedgEntry, DATABASE::"Sales Shipment Line",
-                    "Document No.", "Line No.", "Quantity (Base)", "Item Shpt. Entry No.");
-                    UndoPostingMgt.CheckItemLedgEntries(TempItemLedgEntry, "Line No.");
+                    UndoPostingMgt.CollectItemLedgEntries(
+                        TempItemLedgEntry, DATABASE::"Sales Shipment Line", "Document No.", "Line No.", "Quantity (Base)", "Item Shpt. Entry No.");
+                    UndoPostingMgt.CheckItemLedgEntries(TempItemLedgEntry, "Line No.", "Qty. Shipped Not Invoiced" <> Quantity);
                 end;
                 if not SkipUndoInitPostATO then
                     UndoInitPostATO(SalesShptLine);
@@ -248,10 +249,10 @@ codeunit 5815 "Undo Sales Shipment Line"
         with SalesShptLine do begin
             DocLineNo := GetCorrectionLineNo(SalesShptLine);
 
-            SourceCodeSetup.Get;
+            SourceCodeSetup.Get();
             SalesShptHeader.Get("Document No.");
 
-            ItemJnlLine.Init;
+            ItemJnlLine.Init();
             ItemJnlLine."Entry Type" := ItemJnlLine."Entry Type"::Sale;
             ItemJnlLine."Item No." := "No.";
             ItemJnlLine."Posting Date" := SalesShptHeader."Posting Date";
@@ -277,8 +278,8 @@ codeunit 5815 "Undo Sales Shipment Line"
               TempWhseJnlLine,
               NextLineNo);
 
-            RemQtyBase := -"Quantity (Base)";
             if GetUnvoicedShptEntries(SalesShptLine, ItemLedgEntryNotInvoiced) then begin
+                RemQtyBase := -("Quantity (Base)" - "Qty. Invoiced (Base)");
                 repeat
                     ItemJnlLine."Applies-to Entry" := ItemLedgEntryNotInvoiced."Entry No.";
                     ItemJnlLine.Quantity := ItemLedgEntryNotInvoiced.Quantity;
@@ -291,9 +292,8 @@ codeunit 5815 "Undo Sales Shipment Line"
             end;
             UndoPostingMgt.CollectItemLedgEntries(TempApplyToEntryList, DATABASE::"Sales Shipment Line",
               "Document No.", "Line No.", "Quantity (Base)", "Item Shpt. Entry No.");
-
-            UndoPostingMgt.PostItemJnlLineAppliedToList(ItemJnlLine, TempApplyToEntryList,
-              Quantity, "Quantity (Base)", TempGlobalItemLedgEntry, TempGlobalItemEntryRelation);
+            UndoPostingMgt.PostItemJnlLineAppliedToList(
+                ItemJnlLine, TempApplyToEntryList, Quantity - "Quantity Invoiced", "Quantity (Base)" - "Qty. Invoiced (Base)", TempGlobalItemLedgEntry, TempGlobalItemEntryRelation, "Qty. Shipped Not Invoiced" <> Quantity);
 
             exit(0); // "Item Shpt. Entry No."
         end;
@@ -304,7 +304,7 @@ codeunit 5815 "Undo Sales Shipment Line"
         NewSalesShptLine: Record "Sales Shipment Line";
     begin
         with OldSalesShptLine do begin
-            NewSalesShptLine.Init;
+            NewSalesShptLine.Init();
             NewSalesShptLine.Copy(OldSalesShptLine);
             NewSalesShptLine."Line No." := DocLineNo;
             NewSalesShptLine."Appl.-from Item Entry" := "Item Shpt. Entry No.";
@@ -317,7 +317,7 @@ codeunit 5815 "Undo Sales Shipment Line"
             NewSalesShptLine.Correction := true;
             NewSalesShptLine."Dimension Set ID" := "Dimension Set ID";
             OnBeforeNewSalesShptLineInsert(NewSalesShptLine, OldSalesShptLine);
-            NewSalesShptLine.Insert;
+            NewSalesShptLine.Insert();
             OnAfterNewSalesShptLineInsert(NewSalesShptLine, OldSalesShptLine);
 
             InsertItemEntryRelation(TempGlobalItemEntryRelation, NewSalesShptLine);
@@ -330,7 +330,7 @@ codeunit 5815 "Undo Sales Shipment Line"
     begin
         with SalesShptLine do begin
             SalesLine.Get(SalesLine."Document Type"::Order, "Order No.", "Order Line No.");
-            UndoPostingMgt.UpdateSalesLine(SalesLine, Quantity, "Quantity (Base)", TempGlobalItemLedgEntry);
+            UndoPostingMgt.UpdateSalesLine(SalesLine, Quantity - "Quantity Invoiced", "Quantity (Base)" - "Qty. Invoiced (Base)", TempGlobalItemLedgEntry);
             OnAfterUpdateSalesLine(SalesLine, SalesShptLine);
         end;
     end;
@@ -360,7 +360,7 @@ codeunit 5815 "Undo Sales Shipment Line"
                 BlanketOrderSalesLine."Qty. Shipped (Base)" := BlanketOrderSalesLine."Qty. Shipped (Base)" - "Quantity (Base)";
                 OnBeforeBlanketOrderInitOutstanding(BlanketOrderSalesLine, SalesShptLine);
                 BlanketOrderSalesLine.InitOutstanding;
-                BlanketOrderSalesLine.Modify;
+                BlanketOrderSalesLine.Modify();
 
                 AsmPost.UpdateBlanketATO(xBlanketOrderSalesLine, BlanketOrderSalesLine);
             end;
@@ -374,7 +374,7 @@ codeunit 5815 "Undo Sales Shipment Line"
             repeat
                 ItemEntryRelation := TempItemEntryRelation;
                 ItemEntryRelation.TransferFieldsSalesShptLine(NewSalesShptLine);
-                ItemEntryRelation.Insert;
+                ItemEntryRelation.Insert();
             until TempItemEntryRelation.Next = 0;
     end;
 
@@ -443,10 +443,10 @@ codeunit 5815 "Undo Sales Shipment Line"
 
             if AsmToOrderExists(AsmHeader) and (AsmHeader.Status = AsmHeader.Status::Released) then begin
                 AsmHeader.Status := AsmHeader.Status::Open;
-                AsmHeader.Modify;
+                AsmHeader.Modify();
                 AutoAsmToOrder;
                 AsmHeader.Status := AsmHeader.Status::Released;
-                AsmHeader.Modify;
+                AsmHeader.Modify();
             end else
                 AutoAsmToOrder;
 
@@ -473,6 +473,72 @@ codeunit 5815 "Undo Sales Shipment Line"
         ItemLedgEntry.SetRange("Lot No.", '');
         ItemLedgEntry.SetRange("Completely Invoiced", false);
         exit(ItemLedgEntry.FindSet)
+    end;
+
+    local procedure HasInvoicedNotReturnedQuantity(SalesShipmentLine: Record "Sales Shipment Line"): Boolean
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ReturnedInvoicedItemLedgerEntry: Record "Item Ledger Entry";
+        ItemApplicationEntry: Record "Item Application Entry";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesInvoiceLine: Record "Sales Invoice Line";
+        InvoicedQuantity: Decimal;
+        ReturnedInvoicedQuantity: Decimal;
+    begin
+        if SalesShipmentLine.Type = SalesShipmentLine.Type::Item then begin
+            ItemLedgerEntry.SetRange("Document Type", ItemLedgerEntry."Document Type"::"Sales Shipment");
+            ItemLedgerEntry.SetRange("Document No.", SalesShipmentLine."Document No.");
+            ItemLedgerEntry.SetRange("Document Line No.", SalesShipmentLine."Line No.");
+            ItemLedgerEntry.FindSet();
+            repeat
+                InvoicedQuantity += ItemLedgerEntry."Invoiced Quantity";
+                if ItemApplicationEntry.AppliedInbndEntryExists(ItemLedgerEntry."Entry No.", false) then
+                    repeat
+                        if ItemApplicationEntry."Item Ledger Entry No." = ItemApplicationEntry."Inbound Item Entry No." then begin
+                            ReturnedInvoicedItemLedgerEntry.Get(ItemApplicationEntry."Item Ledger Entry No.");
+                            if IsCancelled(ReturnedInvoicedItemLedgerEntry) then
+                                ReturnedInvoicedQuantity += ReturnedInvoicedItemLedgerEntry."Invoiced Quantity";
+                        end;
+                    until ItemApplicationEntry.Next() = 0;
+            until ItemLedgerEntry.Next() = 0;
+            exit(InvoicedQuantity + ReturnedInvoicedQuantity <> 0);
+        end else begin
+            SalesInvoiceLine.SetRange("Order No.", SalesShipmentLine."Order No.");
+            SalesInvoiceLine.SetRange("Order Line No.", SalesShipmentLine."Order Line No.");
+            if SalesInvoiceLine.FindSet() then
+                repeat
+                    SalesInvoiceHeader.Get(SalesInvoiceLine."Document No.");
+                    SalesInvoiceHeader.CalcFields(Cancelled);
+                    if not SalesInvoiceHeader.Cancelled then
+                        exit(true);
+                until SalesInvoiceLine.Next() = 0;
+
+            exit(false);
+        end;
+    end;
+
+    local procedure IsCancelled(ItemLedgerEntry: Record "Item Ledger Entry"): Boolean
+    var
+        CancelledDocument: Record "Cancelled Document";
+        ReturnReceiptHeader: Record "Return Receipt Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+    begin
+        case ItemLedgerEntry."Document Type" of
+            ItemLedgerEntry."Document Type"::"Sales Return Receipt":
+                begin
+                    ReturnReceiptHeader.Get(ItemLedgerEntry."Document No.");
+                    if ReturnReceiptHeader."Applies-to Doc. Type" = ReturnReceiptHeader."Applies-to Doc. Type"::Invoice then
+                        exit(CancelledDocument.Get(Database::"Sales Invoice Header", ReturnReceiptHeader."Applies-to Doc. No."));
+                end;
+            ItemLedgerEntry."Document Type"::"Sales Credit Memo":
+                begin
+                    SalesCrMemoHeader.Get(ItemLedgerEntry."Document No.");
+                    if SalesCrMemoHeader."Applies-to Doc. Type" = SalesCrMemoHeader."Applies-to Doc. Type"::Invoice then
+                        exit(CancelledDocument.Get(Database::"Sales Invoice Header", SalesCrMemoHeader."Applies-to Doc. No."));
+                end;
+        end;
+
+        exit(false);
     end;
 
     [IntegrationEvent(false, false)]

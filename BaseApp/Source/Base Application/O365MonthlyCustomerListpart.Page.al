@@ -133,7 +133,7 @@ page 2105 "O365 Monthly Customer Listpart"
         EndOfMonthDate := CalcDate(CurrentMonthDateFormula, StartOfMonthDate);
         Customer.SetRange("Date Filter", StartOfMonthDate, EndOfMonthDate);
 
-        DeleteAll;
+        DeleteAll();
 
         repeat
             Customer.CalcFields("Net Change (LCY)");

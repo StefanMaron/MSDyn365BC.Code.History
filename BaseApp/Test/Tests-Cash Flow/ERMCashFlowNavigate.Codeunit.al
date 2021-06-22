@@ -148,7 +148,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         GLAccount.Next(LibraryRandom.RandInt(GLAccount.Count));
         InsertJournalLine(CFWorksheetLine, CFWorksheetLine."Source Type"::"G/L Budget", GLAccount."No.");
         CFWorksheetLine."G/L Budget Name" := NonExistingName;
-        CFWorksheetLine.Modify;
+        CFWorksheetLine.Modify();
 
         // Exercise
         CashFlowJournal.OpenView;
@@ -252,7 +252,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
     begin
         // Setup
         Initialize;
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
         SalesHeader.Insert(true);
         ExpectedNo := SalesHeader."No.";
@@ -273,13 +273,13 @@ codeunit 134559 "ERM Cash Flow Navigate"
     procedure NavigateJournalSOToNonExistingSO()
     var
         CFWorksheetLine: Record "Cash Flow Worksheet Line";
-        SalesOrder: Page "Sales Order";
+        SalesOrders: Page "Sales Orders";
     begin
         // Setup
         Initialize;
 
         // Exercise and Verify
-        NavigateJournalNonExistingSourceNo('', SalesOrder.Caption, CFWorksheetLine."Source Type"::"Sales Orders");
+        NavigateJournalNonExistingSourceNo('', SalesOrders.Caption, CFWorksheetLine."Source Type"::"Sales Orders");
     end;
 
     [Test]
@@ -293,7 +293,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
     begin
         // Setup
         Initialize;
-        PurchaseHeader.Init;
+        PurchaseHeader.Init();
         PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Order;
         PurchaseHeader.Insert(true);
         ExpectedNo := PurchaseHeader."No.";
@@ -314,13 +314,13 @@ codeunit 134559 "ERM Cash Flow Navigate"
     procedure NavigateJournalPOToNonExistingPO()
     var
         CFWorksheetLine: Record "Cash Flow Worksheet Line";
-        PurchaseOrder: Page "Purchase Order";
+        PurchaseOrders: Page "Purchase Orders";
     begin
         // Setup
         Initialize;
 
         // Exercise and Verify
-        NavigateJournalNonExistingSourceNo('', PurchaseOrder.Caption, CFWorksheetLine."Source Type"::"Purchase Orders");
+        NavigateJournalNonExistingSourceNo('', PurchaseOrders.Caption, CFWorksheetLine."Source Type"::"Purchase Orders");
     end;
 
     [Test]
@@ -334,7 +334,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
     begin
         // Setup
         Initialize;
-        ServiceHeader.Init;
+        ServiceHeader.Init();
         ServiceHeader."Document Type" := ServiceHeader."Document Type"::Order;
         ServiceHeader.Insert(true);
         ExpectedNo := ServiceHeader."No.";
@@ -355,13 +355,13 @@ codeunit 134559 "ERM Cash Flow Navigate"
     procedure NavigateJournalServOToNonExistingServO()
     var
         CFWorksheetLine: Record "Cash Flow Worksheet Line";
-        ServiceOrder: Page "Service Order";
+        ServiceOrders: Page "Service Orders";
     begin
         // Setup
         Initialize;
 
         // Exercise and Verify
-        NavigateJournalNonExistingSourceNo('', ServiceOrder.Caption,
+        NavigateJournalNonExistingSourceNo('', ServiceOrders.Caption,
           CFWorksheetLine."Source Type"::"Service Orders");
     end;
 
@@ -375,7 +375,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         NonExistingNo := 'notexist';
         InsertJournalLine(CFWorksheetLine, SourceType, '');
         CFWorksheetLine."Source No." := NonExistingNo;
-        CFWorksheetLine.Modify;
+        CFWorksheetLine.Modify();
 
         // Exercise
         CashFlowJournal.OpenView;
@@ -572,11 +572,11 @@ codeunit 134559 "ERM Cash Flow Navigate"
     begin
         // Setup
         Initialize;
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
         SalesHeader.Insert(true);
         ExpectedNo := SalesHeader."No.";
-        InsertEntryLine(CFForecastEntry, CFForecastEntry."Source Type"::"Sales Order", SalesHeader."No.");
+        InsertEntryLine(CFForecastEntry, CFForecastEntry."Source Type"::"Sales Orders", SalesHeader."No.");
 
         // Exercise
         CFLedgerEntries.OpenView;
@@ -593,13 +593,13 @@ codeunit 134559 "ERM Cash Flow Navigate"
     procedure NavigateEntriesSOToNonExistingSO()
     var
         CFForecastEntry: Record "Cash Flow Forecast Entry";
+        SourceType: Enum "Cash Flow Source Type";
     begin
         // Setup
         Initialize;
 
         // Exercise and Verify
-        NavigateEntriesNonExistingSourceNo(Format(CFForecastEntry."Source Type"::"Sales Order"),
-          CFForecastEntry."Source Type"::"Sales Order");
+        NavigateEntriesNonExistingSourceNo(Format(SourceType::"Sales Orders"), CFForecastEntry."Source Type"::"Sales Orders");
     end;
 
     [Test]
@@ -615,7 +615,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
           CopyStr(
             LibraryUtility.GenerateRandomCode(GLAccount.FieldNo("No."), DATABASE::"G/L Account"), 1, MaxStrLen(CFWorksheetLine."Source No.")));
         CFWorksheetLine."G/L Budget Name" := '';
-        CFWorksheetLine.Modify;
+        CFWorksheetLine.Modify();
 
         // Navigate
         CashFlowJournal.OpenEdit;
@@ -730,7 +730,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
     begin
         // [SCENARIO 200778] Field "code" incremented by 1 when new record on Cash Flow Manual Revenues Page inserted
         // [FEATURE] [UT]
-        CashFlowManualRevenue.DeleteAll;
+        CashFlowManualRevenue.DeleteAll();
 
         // [GIVEN] New CashFlowManualRevenue record "R1" on Cash Flow Manual Revenues Page
         StartingDate := LibraryRandom.RandDate(10);
@@ -759,7 +759,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
     begin
         // [SCENARIO 200778] Field "code" incremented by 1 when new record on Cash Flow Manual Expences Page inserted
         // [FEATURE] [UT]
-        CashFlowManualExpense.DeleteAll;
+        CashFlowManualExpense.DeleteAll();
 
         // [GIVEN] New CashFlowManualExpence record "E1" on Cash Flow Manual Expences Page
         StartingDate := LibraryRandom.RandDate(10);
@@ -788,8 +788,8 @@ codeunit 134559 "ERM Cash Flow Navigate"
     begin
         // [SCENARIO 200778] Code is not assigned when new record on Cash Flow Manual Revenues Page inserted without CashFlow Account record
         // [FEATURE] [UT]
-        CashFlowManualRevenue.DeleteAll;
-        CashFlowAccount.DeleteAll;
+        CashFlowManualRevenue.DeleteAll();
+        CashFlowAccount.DeleteAll();
 
         // [WHEN] New CashFlowManualRevenue record on Cash Flow Manual Revenues Page inserted
         InsertNewCashFlowManualRevenueRecordOnPage(WorkDate - 1);
@@ -811,8 +811,8 @@ codeunit 134559 "ERM Cash Flow Navigate"
     begin
         // [SCENARIO 200778] Code is not assigned when new record on Cash Flow Manual Expenses Page inserted without CashFlow Account record
         // [FEATURE] [UT]
-        CashFlowManualExpense.DeleteAll;
-        CashFlowAccount.DeleteAll;
+        CashFlowManualExpense.DeleteAll();
+        CashFlowAccount.DeleteAll();
 
         // [WHEN] New CashFlowManualExpence record on Cash Flow Manual Expences Page inserted
         InsertNewCashFlowManualExpenseRecordOnPage(WorkDate - 1);
@@ -838,7 +838,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         // Verification in modal handler function
     end;
 
-    local procedure NavigateEntriesNonExistingSourceNo(SourceCaption: Text; SourceType: Option)
+    local procedure NavigateEntriesNonExistingSourceNo(SourceCaption: Text; SourceType: Enum "Cash Flow Source Type")
     var
         CFForecastEntry: Record "Cash Flow Forecast Entry";
         CFLedgerEntries: TestPage "Cash Flow Forecast Entries";
@@ -887,7 +887,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
         GLBudgetName: Record "G/L Budget Name";
     begin
         // Empty all journal lines
-        CFWorksheetLine.DeleteAll;
+        CFWorksheetLine.DeleteAll();
 
         // Find data
         LibraryCashFlowForecast.FindCashFlowCard(CashFlowForecast);
@@ -907,7 +907,7 @@ codeunit 134559 "ERM Cash Flow Navigate"
 
     local procedure InsertEntryLine(var CFForecastEntry: Record "Cash Flow Forecast Entry"; SourceType: Option; SourceNo: Code[20])
     begin
-        CFForecastEntry.DeleteAll;
+        CFForecastEntry.DeleteAll();
 
         with CFForecastEntry do begin
             Init;

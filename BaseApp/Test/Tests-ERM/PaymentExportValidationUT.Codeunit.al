@@ -170,7 +170,7 @@ codeunit 132574 "Payment Export Validation UT"
           GenJnlBatch."Journal Template Name", GenJnlBatch.Name, GenJnlLine."Document Type"::Refund,
           GenJnlLine."Account Type"::Customer, Customer."No.", LibraryRandom.RandDec(1000, 2));
         GenJnlLine."Payment Method Code" := '';
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
 
         // Setup
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
@@ -210,7 +210,7 @@ codeunit 132574 "Payment Export Validation UT"
         // Setup
         BankAcc.Get(GenJnlBatch."Bal. Account No.");
         BankAcc."Payment Export Format" := '';
-        BankAcc.Modify;
+        BankAcc.Modify();
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
 
         // Pre-Exercise
@@ -325,7 +325,7 @@ codeunit 132574 "Payment Export Validation UT"
         // Exercise
         GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name", GenJnlBatch.Name);
-        CreditTransferRegister.Init;
+        CreditTransferRegister.Init();
         asserterror PmtExportMgtGenJnlLine.ExportGenJnlLine(GenJnlLine, CreditTransferRegister);
 
         // Verify
@@ -350,7 +350,7 @@ codeunit 132574 "Payment Export Validation UT"
 
         CreateBankAccount(BankAcc);
         BankAcc."Payment Export Format" := '';
-        BankAcc.Modify;
+        BankAcc.Modify();
         GenJnlBatch.Validate("Bal. Account No.", BankAcc."No.");
         GenJnlBatch.Modify(true);
         LibraryERM.CreateGeneralJnlLine(GenJnlLine,
@@ -435,7 +435,7 @@ codeunit 132574 "Payment Export Validation UT"
 
         // Setup
         GenJnlLine."Creditor No." := '';
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
 
         // Exercise
         asserterror PmtExportMgtGenJnlLine.ExportJournalPaymentFileYN(GenJnlLine);
@@ -615,7 +615,7 @@ codeunit 132574 "Payment Export Validation UT"
         // Setup
         CreateVendorBankAccount(VendorBankAcc, Vendor."No.");
         GenJnlLine."Recipient Bank Account" := VendorBankAcc.Code;
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
 
         // Pre-Exercise
         GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
@@ -656,7 +656,7 @@ codeunit 132574 "Payment Export Validation UT"
         GenJnlLine."Payment Reference" := LibraryPaymentExport.GetRandomPaymentReference;
         LibraryERM.CreatePaymentMethod(PaymentMethod);
         GenJnlLine."Payment Method Code" := PaymentMethod.Code;
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
 
         // Pre-Exercise
         GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
@@ -698,7 +698,7 @@ codeunit 132574 "Payment Export Validation UT"
         GenJnlLine."Payment Reference" := '';
         LibraryERM.CreatePaymentMethod(PaymentMethod);
         GenJnlLine."Payment Method Code" := PaymentMethod.Code;
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
 
         // Pre-Exercise
         GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
@@ -734,7 +734,7 @@ codeunit 132574 "Payment Export Validation UT"
 
         // Setup
         GenJnlLine."Payment Method Code" := '';
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
 
         // Pre-Exercise
         GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
@@ -926,7 +926,7 @@ codeunit 132574 "Payment Export Validation UT"
           GenJnlBatch."Journal Template Name", GenJnlBatch.Name, GenJnlLine."Document Type"::Payment,
           GenJnlLine."Account Type"::Vendor, Vendor."No.", LibraryRandom.RandDec(1000, 2));
         GenJnlLine."Exported to Payment File" := true;
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
 
         // Exercise
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
@@ -984,7 +984,7 @@ codeunit 132574 "Payment Export Validation UT"
           GenJnlBatch."Journal Template Name", GenJnlBatch.Name, GenJnlLine."Document Type"::Refund,
           GenJnlLine."Account Type"::Customer, Customer."No.", LibraryRandom.RandDec(1000, 2));
         GenJnlLine."Exported to Payment File" := true;
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
 
         // Exercise
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
@@ -1192,7 +1192,7 @@ codeunit 132574 "Payment Export Validation UT"
         // Setup
         CreateVendorBankAccount(VendorBankAcc, Vendor."No.");
         GenJnlLine."Recipient Bank Account" := VendorBankAcc.Code;
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
 
         // Pre-Exercise
@@ -1233,7 +1233,7 @@ codeunit 132574 "Payment Export Validation UT"
         // Setup
         GenJnlLine."Creditor No." := LibraryPaymentExport.GetRandomCreditorNo;
         GenJnlLine."Payment Reference" := LibraryPaymentExport.GetRandomPaymentReference;
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
 
         // Pre-Exercise
@@ -1275,7 +1275,7 @@ codeunit 132574 "Payment Export Validation UT"
         GenJnlLine."Recipient Bank Account" := '';
         GenJnlLine."Creditor No." := '';
         GenJnlLine."Payment Reference" := '';
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
 
         // Pre-Exercise
@@ -1314,12 +1314,12 @@ codeunit 132574 "Payment Export Validation UT"
           GenJnlLine1."Account Type"::Vendor, Vendor."No.", LibraryRandom.RandDec(1000, 2));
         LibraryERM.CreatePaymentMethod(PaymentMethod);
         GenJnlLine1.Validate("Payment Method Code", PaymentMethod.Code);
-        GenJnlLine1.Modify;
+        GenJnlLine1.Modify();
         LibraryERM.CreateGeneralJnlLine(GenJnlLine2,
           GenJnlBatch."Journal Template Name", GenJnlBatch.Name, GenJnlLine2."Document Type"::Payment,
           GenJnlLine2."Account Type"::Vendor, Vendor."No.", LibraryRandom.RandDec(1000, 2));
         GenJnlLine2.Validate("Payment Method Code", PaymentMethod.Code);
-        GenJnlLine2.Modify;
+        GenJnlLine2.Modify();
 
         // Setup
         LibraryERM.CreateBankAccount(BankAcc);
@@ -1445,7 +1445,7 @@ codeunit 132574 "Payment Export Validation UT"
         // Setup
         BankAcc.Get(GenJnlBatch."Bal. Account No.");
         BankAcc."Payment Export Format" := '';
-        BankAcc.Modify;
+        BankAcc.Modify();
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
 
         // Pre-Exercise
@@ -1481,7 +1481,7 @@ codeunit 132574 "Payment Export Validation UT"
 
         // Setup
         GenJnlLine."Payment Method Code" := '';
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
 
         // Pre-Exercise
@@ -1509,9 +1509,9 @@ codeunit 132574 "Payment Export Validation UT"
         Initialize;
 
         // [GIVEN] "Gen. Journal Line" with "Check Printed" = TRUE;
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine."Check Printed" := true;
-        GenJournalLine.Insert;
+        GenJournalLine.Insert();
 
         // [WHEN] Invoke "Gen. Journal Line".ExportPaymentFile
         asserterror GenJournalLine.ExportPaymentFile;
@@ -1538,7 +1538,7 @@ codeunit 132574 "Payment Export Validation UT"
         BankAcc."Bank Account No." := Format(LibraryRandom.RandIntInRange(111111111, 999999999));
         BankAcc."Payment Export Format" := LibraryUtility.GenerateRandomCode(BankAcc.FieldNo("Payment Export Format"),
             DATABASE::"Bank Account");
-        BankAcc.Modify;
+        BankAcc.Modify();
     end;
 
     local procedure SetBankAccountExportFormat(var BankAccount: Record "Bank Account")
@@ -1551,7 +1551,7 @@ codeunit 132574 "Payment Export Validation UT"
           XMLPORT::"Export Generic CSV", CODEUNIT::"Save Data Exch. Blob Sample", 0);
         LibraryPaymentFormat.CreateBankExportImportSetup(BankExportImportSetup, DataExchDef);
         BankAccount."Payment Export Format" := BankExportImportSetup.Code;
-        BankAccount.Modify;
+        BankAccount.Modify();
     end;
 
     local procedure CreatePaymentExportBatch(var GenJnlBatch: Record "Gen. Journal Batch")
@@ -1571,7 +1571,7 @@ codeunit 132574 "Payment Export Validation UT"
         LibrarySales.CreateCustomerBankAccount(CustomerBankAcc, CustomerNo);
         CustomerBankAcc."Bank Branch No." := Format(LibraryRandom.RandIntInRange(1111, 9999));
         CustomerBankAcc."Bank Account No." := Format(LibraryRandom.RandIntInRange(111111111, 999999999));
-        CustomerBankAcc.Modify;
+        CustomerBankAcc.Modify();
     end;
 
     local procedure CreateCustomerWithBankAccount(var Customer: Record Customer)
@@ -1589,7 +1589,7 @@ codeunit 132574 "Payment Export Validation UT"
         LibraryPurchase.CreateVendorBankAccount(VendorBankAcc, VendorNo);
         VendorBankAcc."Bank Branch No." := Format(LibraryRandom.RandIntInRange(1111, 9999));
         VendorBankAcc."Bank Account No." := Format(LibraryRandom.RandIntInRange(111111111, 999999999));
-        VendorBankAcc.Modify;
+        VendorBankAcc.Modify();
     end;
 
     local procedure CreateVendorWithBankAccount(var Vendor: Record Vendor)

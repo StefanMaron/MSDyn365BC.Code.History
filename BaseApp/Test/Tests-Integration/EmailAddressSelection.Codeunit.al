@@ -32,7 +32,7 @@ codeunit 136580 "Email Address Selection"
         Initialize();
         LibrarySales.CreateCustomer(Customer);
         Customer."E-Mail" := '';
-        Customer.Modify;
+        Customer.Modify();
 
         // [WHEN] An Order is created
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
@@ -58,7 +58,7 @@ codeunit 136580 "Email Address Selection"
         Initialize();
         LibraryMarketing.CreateCompanyContact(Contact);
         Contact."E-Mail" := ContactEmailTok;
-        Contact.Modify;
+        Contact.Modify();
         LibraryERM.CreateGenBusPostingGroup(GenBusinessPostingGroup);
         LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
         CustomorTemplateCode :=
@@ -86,7 +86,7 @@ codeunit 136580 "Email Address Selection"
         Initialize();
         LibrarySales.CreateCustomer(Customer);
         Customer."E-Mail" := CustomerEmailTok;
-        Customer.Modify;
+        Customer.Modify();
 
         // [WHEN] A sales order is created
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
@@ -113,7 +113,7 @@ codeunit 136580 "Email Address Selection"
         // [WHEN] The Email Logging Setup Wizard is run to the end but not finished
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
         SalesHeader."Sell-to E-Mail" := SalesHeaderEmailTok;
-        SalesHeader.Modify;
+        SalesHeader.Modify();
         ReportSelections.GetEmailBodyCustomText(TempPath, GetOrderConfirmationId, SalesHeader, Customer."No.", SendToEmail, '');
         SalesHeader."Sell-to E-Mail" := SalesHeaderEmailTok;
         // [THEN] Status of assisted setup remains Not Completed

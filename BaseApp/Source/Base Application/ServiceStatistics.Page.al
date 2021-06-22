@@ -615,7 +615,7 @@ page 6030 "Service Statistics"
 
         for i := 1 to 7 do
             if i in [1, 5, 6, 7] then begin
-                TempServLine.DeleteAll;
+                TempServLine.DeleteAll();
                 Clear(TempServLine);
                 ServAmtsMgt.GetServiceLines(Rec, TempServLine, i - 1);
 
@@ -657,7 +657,7 @@ page 6030 "Service Statistics"
                 else
                     CreditLimitLCYExpendedPct := Round(Cust."Balance (LCY)" / Cust."Credit Limit (LCY)" * 10000, 1);
 
-        TempServLine.DeleteAll;
+        TempServLine.DeleteAll();
         Clear(TempServLine);
         ServAmtsMgt.GetServiceLines(Rec, TempServLine, 0);
         ServLine.CalcVATAmountLines(0, Rec, TempServLine, TempVATAmountLine, false);
@@ -668,7 +668,7 @@ page 6030 "Service Statistics"
 
     trigger OnOpenPage()
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         AllowInvDisc :=
           not (SalesSetup."Calc. Inv. Discount" and CustInvDiscRecExists("Invoice Disc. Code"));
         AllowVATDifference :=

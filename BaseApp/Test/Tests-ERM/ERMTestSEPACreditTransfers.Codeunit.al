@@ -241,7 +241,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         i: Integer;
     begin
         Init;
-        GenJnlLine.Init;
+        GenJnlLine.Init();
         if CustLedgerEntry.FindLast then;
         CustLedgerEntry."Entry No." += 1;
         CustLedgerEntry."Customer No." := Customer."No.";
@@ -249,7 +249,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         CustLedgerEntry."Document No." := '123';
         CustLedgerEntry.Description := 'Test';
         CustLedgerEntry."Currency Code" := EURCode;
-        CustLedgerEntry.Insert;
+        CustLedgerEntry.Insert();
         if VendorLedgerEntry.FindLast then;
         VendorLedgerEntry."Entry No." += 1;
         VendorLedgerEntry."Vendor No." := Vendor."No.";
@@ -257,7 +257,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         VendorLedgerEntry."Document No." := '123';
         VendorLedgerEntry.Description := 'Test';
         VendorLedgerEntry."Currency Code" := EURCode;
-        VendorLedgerEntry.Insert;
+        VendorLedgerEntry.Insert();
         if EmployeeLedgerEntry.FindLast then;
         EmployeeLedgerEntry."Entry No." += 1;
         EmployeeLedgerEntry."Employee No." := Employee."No.";
@@ -265,7 +265,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         EmployeeLedgerEntry."Document No." := '123';
         EmployeeLedgerEntry.Description := 'Test';
         EmployeeLedgerEntry."Currency Code" := '';
-        EmployeeLedgerEntry.Insert;
+        EmployeeLedgerEntry.Insert();
         with CreditTransferEntry do begin
             if FindLast then;
             CredTrfRegNo := "Credit Transfer Register No.";
@@ -526,7 +526,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         Init;
         CreateGenJnlLine(GenJnlLine);
         GenJnlLine.Amount := -GenJnlLine.Amount;
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
         if CreditTransferRegister.FindLast then;
         LastTransferRegNo := CreditTransferRegister."No.";
 
@@ -551,7 +551,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Customer Bank Account information should be transferred by PaymentExportData.SetCustomerAsRecipient
-        Customer.Init;
+        Customer.Init();
         Customer.Name := LibraryUtility.GenerateGUID;
         Customer.Address := LibraryUtility.GenerateGUID;
         Customer.City := LibraryUtility.GenerateGUID;
@@ -559,7 +559,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         Customer."Post Code" := LibraryUtility.GenerateGUID;
         Customer."Country/Region Code" := LibraryUtility.GenerateGUID;
 
-        CustomerBankAccount.Init;
+        CustomerBankAccount.Init();
         CustomerBankAccount.Name := LibraryUtility.GenerateGUID;
         CustomerBankAccount.Address := LibraryUtility.GenerateGUID;
         CustomerBankAccount.City := LibraryUtility.GenerateGUID;
@@ -601,7 +601,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Vendor Bank Account information should be transferred by PaymentExportData.SetVendorAsRecipient
-        Vendor.Init;
+        Vendor.Init();
         Vendor.Name := LibraryUtility.GenerateGUID;
         Vendor.Address := LibraryUtility.GenerateGUID;
         Vendor.City := LibraryUtility.GenerateGUID;
@@ -609,7 +609,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         Vendor."Post Code" := LibraryUtility.GenerateGUID;
         Vendor."Country/Region Code" := LibraryUtility.GenerateGUID;
 
-        VendorBankAccount.Init;
+        VendorBankAccount.Init();
         VendorBankAccount.Name := LibraryUtility.GenerateGUID;
         VendorBankAccount.Address := LibraryUtility.GenerateGUID;
         VendorBankAccount.City := LibraryUtility.GenerateGUID;
@@ -651,7 +651,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 274759] Employee bank account information should be transferred by PaymentExportData.SetEmployeeAsRecipient
-        Employee.Init;
+        Employee.Init();
         Employee."First Name" := LibraryUtility.GenerateGUID;
         Employee.Address := LibraryUtility.GenerateGUID;
         Employee.City := LibraryUtility.GenerateGUID;
@@ -684,7 +684,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Bank Account information should be transferred by PaymentExportData.SetBankAsSenderBank
-        BankAccount.Init;
+        BankAccount.Init();
         BankAccount.Name := LibraryUtility.GenerateGUID;
         BankAccount.Address := LibraryUtility.GenerateGUID;
         BankAccount.City := LibraryUtility.GenerateGUID;
@@ -927,8 +927,8 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         // Setup.
         CreateGenJnlLine(GenJnlLine);
         GenJnlLine."Posting Date" := CalcDate('<1D>', GetTodayDate());
-        GenJnlLine.Modify;
-        PaymentJnlExportErrorText.DeleteAll;
+        GenJnlLine.Modify();
+        PaymentJnlExportErrorText.DeleteAll();
 
         // Exercise.
         SEPACTFillExportBuffer.FillExportBuffer(GenJnlLine, TempPaymentExportData);
@@ -956,8 +956,8 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         GenJnlLine."Posting Date" := CalcDate('<-1D>', Today);
         GenJnlLine.Validate("Applies-to Doc. Type", GenJnlLine."Applies-to Doc. Type"::Invoice);
         GenJnlLine.Validate("Applies-to Doc. No.", VendLedgerEntry."Document No.");
-        GenJnlLine.Modify;
-        PaymentJnlExportErrorText.DeleteAll;
+        GenJnlLine.Modify();
+        PaymentJnlExportErrorText.DeleteAll();
 
         // Exercise.
         asserterror SEPACTFillExportBuffer.FillExportBuffer(GenJnlLine, TempPaymentExportData);
@@ -983,7 +983,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         GenJnlLine."Posting Date" := CalcDate('<1D>', GetTodayDate());
         GenJnlLine.Validate("Applies-to Doc. Type", GenJnlLine."Applies-to Doc. Type"::Invoice);
         GenJnlLine.Validate("Applies-to Doc. No.", VendLedgerEntry."Document No.");
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
 
         // Exercise.
         SEPACTFillExportBuffer.FillExportBuffer(GenJnlLine, TempPaymentExportData);
@@ -1007,7 +1007,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         GenJnlLine."Posting Date" := GetTodayDate();
         GenJnlLine.Validate("Applies-to Doc. Type", GenJnlLine."Applies-to Doc. Type"::Invoice);
         GenJnlLine.Validate("Applies-to Doc. No.", VendorLedgerEntry."Document No.");
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
 
         // Exercise.
         SEPACTExportFile.EnableExportToServerFile;
@@ -1140,7 +1140,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         // [GIVEN] Autogenerated Message ID = "Y"
         EntryNo := LibraryRandom.RandInt(1000);
         MessageID := Format(LibraryRandom.RandInt(1000));
-        PaymentExportData.Init;
+        PaymentExportData.Init();
         PaymentExportData."Entry No." := EntryNo;
         // [WHEN] PaymentExportData.SetCreditTransferIDs("Y")
         PaymentExportData.SetCreditTransferIDs(MessageID);
@@ -1186,7 +1186,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         // [SCENARIO 274730] SWIFT Code is exported for employee payment to <CdtrAgt>/<FinInstnId>
         Init;
         GeneralLedgerSetup."LCY Code" := GetEURCurrencyCode;
-        GeneralLedgerSetup.Modify;
+        GeneralLedgerSetup.Modify();
 
         // [GIVEN] Payment Gen. Journal Line for Employee with SWIFT Code
         CreateGenJnlLineEmployee(GenJnlLine);
@@ -1218,7 +1218,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         // [GIVEN] Gen. Journal Line
         CreateGenJnlLine(GenJnlLine);
         GenJnlLine.Validate("Applies-to ID", GenJnlLine."Document No.");
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
 
         // [GIVEN] Vendor Ledger Entry "1" applied to this Gen. Journal Line
         CreateVendorLedgerEntry(VendorLedgerEntry[1], 0);
@@ -1276,7 +1276,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         // [SCENARIO 329011]  When creating SEPA Export File with Gen. Journal Lines not applied to Ledger Entries, Gen. Journal Line's TotalExportedAmount is equal to Amount.
         Init;
         CreditTransferEntry.SetRange("Account No.", Vendor."No.");
-        CreditTransferEntry.DeleteAll;
+        CreditTransferEntry.DeleteAll();
 
         // [GIVEN] Gen. Journal Line not applied to Ledger Entries.
         CreateGenJnlLine(GenJnlLine);
@@ -1374,7 +1374,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         if Initialized then begin
             GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
             GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
-            GenJournalLine.DeleteAll;
+            GenJournalLine.DeleteAll();
             exit;
         end;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Test SEPA Credit Transfers");
@@ -1389,10 +1389,10 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
             LibraryERM.CreateExchangeRate(EURCode, CalcDate('<-1Y>', GetTodayDate()), LibraryRandom.RandDec(100, 2),
               LibraryRandom.RandDec(100, 2));
 
-        Vendor.Init;
+        Vendor.Init();
         Vendor."No." := 'TEST-SEPA';
         if Vendor.Find then
-            Vendor.Delete;
+            Vendor.Delete();
         Vendor.Name := 'Microsoft';
         Vendor.Address := 'Microsoft Way 1';
         Vendor.City := 'MS Town';
@@ -1402,13 +1402,13 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         LibraryERM.FindPaymentMethod(PaymentMethod);
         Vendor.Validate("Payment Method Code", PaymentMethod.Code);
         Vendor.Validate("Vendor Posting Group", LibraryPurchase.FindVendorPostingGroup);
-        Vendor.Insert;
+        Vendor.Insert();
 
         LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, Vendor."No.");
         VendorBankAccount.Name := 'Alban Bank No. 1';
         VendorBankAccount."Bank Account No." := '1234567890';
         VendorBankAccount.IBAN := 'AL47 2121 1009 0000 0002 3569 8741';
-        VendorBankAccount.Modify;
+        VendorBankAccount.Modify();
 
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, Customer."No.");
@@ -1416,7 +1416,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         LibraryHumanResource.CreateEmployee(Employee);
         Employee.IBAN := LibraryUtility.GenerateGUID;
         Employee."SWIFT Code" := LibraryUtility.GenerateGUID;
-        Employee.Modify;
+        Employee.Modify();
 
         NoSeries.FindFirst;
         CreateBankExpSetup;
@@ -1424,7 +1424,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         BankAccount.IBAN := 'AL47 2121 1009 0000 0002 3569 8741';
         BankAccount."Credit Transfer Msg. Nos." := NoSeries.Code;
         BankAccount."Payment Export Format" := BankExportImportSetup.Code;
-        BankAccount.Modify;
+        BankAccount.Modify();
         Initialized := true;
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Test SEPA Credit Transfers");
@@ -1478,7 +1478,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         for i := 1 to NoOfGroups * NoOfPmtsPerGroup - 1 do begin
             GenJnlLine."Line No." += 10000;
             GenJnlLine.Validate("Posting Date", PostingDate + i div NoOfPmtsPerGroup);
-            GenJnlLine.Insert;
+            GenJnlLine.Insert();
         end;
         GenJnlLine.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
@@ -1490,11 +1490,11 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
     begin
         CreateGenJnlLine(GenJnlLine);
         GenJnlLine.Validate("Applies-to Doc. No.", GenJnlLine."Document No.");
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
         CreateVendorLedgerEntry(VendorLedgerEntry, 0);
         VendorLedgerEntry."Document No." := GenJnlLine."Applies-to Doc. No.";
         VendorLedgerEntry."Document Type" := GenJnlLine."Applies-to Doc. Type";
-        VendorLedgerEntry.Modify;
+        VendorLedgerEntry.Modify();
     end;
 
     local procedure CreateBankExpSetup()
@@ -1535,7 +1535,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
           Vendor."No.", -LibraryRandom.RandDec(100, 2));
         GenJnlLine.Validate("Bal. Account Type", GenJnlLine."Bal. Account Type"::"Bank Account");
         GenJnlLine.Validate("Bal. Account No.", BankAccount."No.");
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
 
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
         VendLedgerEntry.SetRange("Vendor No.", Vendor."No.");
@@ -1543,7 +1543,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         VendLedgerEntry.FindLast;
         VendLedgerEntry.Validate("Posting Date", CalcDate('<-30D>', GetTodayDate()));
         VendLedgerEntry.Validate("Due Date", CalcDate('<' + Format(DateOffset) + 'D>', GetTodayDate()));
-        VendLedgerEntry.Modify;
+        VendLedgerEntry.Modify();
     end;
 
     local procedure AddCharToText(Text: Text; c: Char): Text
@@ -1588,7 +1588,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
     local procedure UpdateAppliesToIDOnVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; NewAppliesToID: Code[50])
     begin
         VendorLedgerEntry.Validate("Applies-to ID", NewAppliesToID);
-        VendorLedgerEntry.Modify;
+        VendorLedgerEntry.Modify();
     end;
 
     local procedure ValidateGrpHdr(var XMLParentNode: DotNet XmlNode; var GenJnlLine: Record "Gen. Journal Line")

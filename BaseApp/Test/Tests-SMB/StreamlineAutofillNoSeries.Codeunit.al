@@ -364,10 +364,10 @@ codeunit 138100 "Streamline. Autofill No Series"
         NoSeriesCode := CreateNonVisibleNoSeries(false);
         UpdateNoSeriesOnSalesSetup(SalesSetupDocType::Invoice, NoSeriesCode);
 
-        NoSeriesRelationship.Init;
+        NoSeriesRelationship.Init();
         NoSeriesRelationship.Code := NoSeriesCode;
         NoSeriesRelationship."Series Code" := WrongNoSeriesCodeTxt;
-        if NoSeriesRelationship.Insert then;
+        if NoSeriesRelationship.Insert() then;
 
         Result := WrapperSalesDocumentNoIsVisible;
 
@@ -622,8 +622,8 @@ codeunit 138100 "Streamline. Autofill No Series"
 
         NoSeriesCode := CreateNonVisibleNoSeries(false);
         NoSeriesManagement.SetNoSeriesLineFilter(NoSeriesLine, NoSeriesCode, 0D);
-        NoSeriesLine.DeleteAll;
-        NoSeriesLine.Reset;
+        NoSeriesLine.DeleteAll();
+        NoSeriesLine.Reset();
         NoSeriesLine.SetRange("Series Code", NoSeriesCode);
         NoSeriesLine.FindFirst;
 
@@ -645,7 +645,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         NoSeriesCode := CreateNonVisibleNoSeries(false);
 
         NoSeriesLine.SetRange("Series Code", NoSeriesCode);
-        NoSeriesLine.DeleteAll;
+        NoSeriesLine.DeleteAll();
         if NoSeriesLine.FindFirst then;
 
         NoSeries.Get(NoSeriesCode);
@@ -1299,7 +1299,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         LibrarySales.CreateCustomer(Customer);
 
         // [GIVEN] Record of Sales Header
-        SalesHeader.Init;
+        SalesHeader.Init();
 
         // [WHEN] Validate "Sell-to Customer No."
         SalesHeader.Validate("Sell-to Customer No.", Customer."No.");
@@ -1336,7 +1336,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         LibraryPurchase.CreateVendor(Vendor);
 
         // [GIVEN] Record of Purchase Header
-        PurchaseHeader.Init;
+        PurchaseHeader.Init();
 
         // [WHEN] Validate "Buy-from Vendor No."
         PurchaseHeader.Validate("Buy-from Vendor No.", Vendor."No.");
@@ -1368,7 +1368,7 @@ codeunit 138100 "Streamline. Autofill No Series"
             exit;
         isInitialized := true;
 
-        Commit;
+        Commit();
 
         if NoSeries.Get(WrongNoSeriesCodeTxt) then
             NoSeries.Delete(true);
@@ -1459,24 +1459,24 @@ codeunit 138100 "Streamline. Autofill No Series"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         NoSeriesCode[1] := LibraryERM.CreateNoSeriesCode;
         NoSeriesCode[2] := LibraryERM.CreateNoSeriesCode;
         SalesReceivablesSetup."Posted Invoice Nos." := NoSeriesCode[1];
         SalesReceivablesSetup."Posted Shipment Nos." := NoSeriesCode[2];
-        SalesReceivablesSetup.Modify;
+        SalesReceivablesSetup.Modify();
     end;
 
     local procedure UpdatePurchaseSetupPostedNoSeries(var NoSeriesCode: array[2] of Code[20])
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         NoSeriesCode[1] := LibraryERM.CreateNoSeriesCode;
         NoSeriesCode[2] := LibraryERM.CreateNoSeriesCode;
         PurchasesPayablesSetup."Posted Invoice Nos." := NoSeriesCode[1];
         PurchasesPayablesSetup."Posted Receipt Nos." := NoSeriesCode[2];
-        PurchasesPayablesSetup.Modify;
+        PurchasesPayablesSetup.Modify();
     end;
 
     local procedure CheckFieldsVisibilityOnSalesSetupPage(var SalesNoSeriesSetup: TestPage "Sales No. Series Setup"; DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order",Reminder,FinChMemo)
@@ -1549,11 +1549,11 @@ codeunit 138100 "Streamline. Autofill No Series"
     var
         NoSeries: Record "No. Series";
     begin
-        NoSeries.Init;
+        NoSeries.Init();
         NoSeries.Code := CopyStr(CreateGuid, 1, 10);    // todo: use the last instead of the first charackters
         NoSeries."Default Nos." := true;
         NoSeries."Manual Nos." := false;
-        if not NoSeries.Insert then;
+        if not NoSeries.Insert() then;
 
         if SingleLine then
             CreateNonVisibleNoSeriesLine(NoSeries.Code, 0)
@@ -1597,7 +1597,7 @@ codeunit 138100 "Streamline. Autofill No Series"
                 end;
         end;
 
-        NoSeriesLine.Insert;
+        NoSeriesLine.Insert();
     end;
 
     local procedure WrapperSalesDocumentNoIsVisible(): Boolean
@@ -1668,7 +1668,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         NoSeries.Get(NoSeriesCode);
         NoSeries."Default Nos." := DefaultNos;
         NoSeries."Manual Nos." := not DefaultNos;
-        NoSeries.Modify;
+        NoSeries.Modify();
     end;
 
     local procedure SetNoSeriesManualNos(NoSeriesCode: Code[20]; ManualNos: Boolean)
@@ -1678,7 +1678,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         NoSeries.Get(NoSeriesCode);
         NoSeries."Default Nos." := not ManualNos;
         NoSeries."Manual Nos." := ManualNos;
-        NoSeries.Modify;
+        NoSeries.Modify();
     end;
 
     local procedure SetNoSeriesDateOrder(NoSeriesCode: Code[20]; DateOrder: Boolean)
@@ -1687,52 +1687,52 @@ codeunit 138100 "Streamline. Autofill No Series"
     begin
         NoSeries.Get(NoSeriesCode);
         NoSeries."Date Order" := DateOrder;
-        NoSeries.Modify;
+        NoSeries.Modify();
     end;
 
     local procedure SetSalesReceivablesSetup_CustomerNos(NoSeriesCode: Code[20])
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup."Customer Nos." := NoSeriesCode;
-        SalesReceivablesSetup.Modify;
+        SalesReceivablesSetup.Modify();
     end;
 
     local procedure SetPurchasesPayablesSetup_VendorNos(NoSeriesCode: Code[20])
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup."Vendor Nos." := NoSeriesCode;
-        PurchasesPayablesSetup.Modify;
+        PurchasesPayablesSetup.Modify();
     end;
 
     local procedure SetInventorySetup_ItemNos(NoSeriesCode: Code[20])
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup."Item Nos." := NoSeriesCode;
-        InventorySetup.Modify;
+        InventorySetup.Modify();
     end;
 
     local procedure SetInventorySetup_TransferOrderNos(NoSeriesCode: Code[20])
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup."Transfer Order Nos." := NoSeriesCode;
-        InventorySetup.Modify;
+        InventorySetup.Modify();
     end;
 
     local procedure SetHumanResourcesSetup_EmployeeNos(NoSeriesCode: Code[20])
     var
         HumanResourcesSetup: Record "Human Resources Setup";
     begin
-        HumanResourcesSetup.Get;
+        HumanResourcesSetup.Get();
         HumanResourcesSetup."Employee Nos." := NoSeriesCode;
-        HumanResourcesSetup.Modify;
+        HumanResourcesSetup.Modify();
     end;
 }
 

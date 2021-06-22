@@ -1,4 +1,4 @@
-﻿page 296 "Recurring Req. Worksheet"
+page 296 "Recurring Req. Worksheet"
 {
     ApplicationArea = Planning;
     AutoSplitKey = true;

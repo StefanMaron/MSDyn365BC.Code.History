@@ -47,7 +47,7 @@ codeunit 89 "Sales-Post + Email"
         CODEUNIT.Run(CODEUNIT::"Sales-Post", SalesHeader);
 
         OnAfterPostAndBeforeSend(SalesHeader);
-        Commit;
+        Commit();
         SendDocumentReport(SalesHeader);
 
         OnAfterPostAndSend(SalesHeader);

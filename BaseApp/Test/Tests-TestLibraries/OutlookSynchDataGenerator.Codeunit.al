@@ -77,13 +77,13 @@ codeunit 132461 "Outlook Synch Data Generator"
         Contact.SetRange(Type, Contact.Type::Person);
         Contact.SetFilter("No.", ContactFilter);
         if ContactNo > Contact.Count then
-            ContactNo := Contact.Count;
+            ContactNo := Contact.Count();
 
         Task.Insert(true);
         OrganizerTask := Task."No.";
         Task.Modify(true);
 
-        Attendee.Init;
+        Attendee.Init();
         Attendee.CreateAttendee(
           Attendee, Task."No.", 10000, Attendee."Attendance Type"::"To-do Organizer",
           Attendee."Attendee Type"::Salesperson, SalespersonCode, true);
@@ -102,7 +102,7 @@ codeunit 132461 "Outlook Synch Data Generator"
             else
                 AttendeeLineNo := 10000;
 
-            Attendee.Init;
+            Attendee.Init();
             Attendee.CreateAttendee(
               Attendee, OrganizerTask, AttendeeLineNo, Attendee."Attendance Type"::Required,
               Attendee."Attendee Type"::Contact, Contact."No.", Contact."E-Mail" <> '');
@@ -113,7 +113,7 @@ codeunit 132461 "Outlook Synch Data Generator"
 
     local procedure InitTask(var Task: Record "To-do"; InteractionTemplate: Record "Interaction Template"; SalespersonCode: Code[20]; StartDate: Date; Description: Text; StartTime: Time; Duration: Duration; EndDate: Date; EndTime: Time)
     begin
-        Task.Init;
+        Task.Init();
         Task."No." := '';
         Task."Salesperson Code" := SalespersonCode;
         Task.Type := Task.Type::Meeting;

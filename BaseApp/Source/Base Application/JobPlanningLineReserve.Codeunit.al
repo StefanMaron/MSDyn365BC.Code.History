@@ -12,27 +12,17 @@ codeunit 1032 "Job Planning Line-Reserve"
         Text002: Label 'must be filled in when a quantity is reserved', Comment = 'starts with "Planning Date"';
         Text004: Label 'must not be changed when a quantity is reserved', Comment = 'starts with some field name';
         Text005: Label 'Codeunit is not initialized correctly.';
+        FromTrackingSpecification: Record "Tracking Specification";
         CreateReservEntry: Codeunit "Create Reserv. Entry";
         ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
         ReservMgt: Codeunit "Reservation Management";
-        SetFromType: Option " ",Sales,"Requisition Line",Purchase,"Item Journal","BOM Journal","Item Ledger Entry",Service,Job;
-        SetFromSubtype: Integer;
-        SetFromID: Code[20];
-        SetFromBatchName: Code[10];
-        SetFromProdOrderLine: Integer;
-        SetFromRefNo: Integer;
-        SetFromVariantCode: Code[10];
-        SetFromLocationCode: Code[10];
-        SetFromSerialNo: Code[50];
-        SetFromLotNo: Code[50];
-        SetFromQtyPerUOM: Decimal;
 
-    procedure CreateReservation(JobPlanningLine: Record "Job Planning Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForSerialNo: Code[50]; ForLotNo: Code[50])
+    procedure CreateReservation(JobPlanningLine: Record "Job Planning Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForReservEntry: Record "Reservation Entry")
     var
         PlanningDate: Date;
         SignFactor: Integer;
     begin
-        if SetFromType = 0 then
+        if FromTrackingSpecification."Source Type" = 0 then
             Error(Text005);
 
         JobPlanningLine.TestField(Type, JobPlanningLine.Type::Item);
@@ -42,8 +32,8 @@ codeunit 1032 "Job Planning Line-Reserve"
         JobPlanningLine.CalcFields("Reserved Qty. (Base)");
         CheckReservedQtyBase(JobPlanningLine, QuantityBase);
 
-        JobPlanningLine.TestField("Variant Code", SetFromVariantCode);
-        JobPlanningLine.TestField("Location Code", SetFromLocationCode);
+        JobPlanningLine.TestField("Variant Code", FromTrackingSpecification."Variant Code");
+        JobPlanningLine.TestField("Location Code", FromTrackingSpecification."Location Code");
 
         SignFactor := -1;
 
@@ -57,37 +47,35 @@ codeunit 1032 "Job Planning Line-Reserve"
         CreateReservEntry.CreateReservEntryFor(
           DATABASE::"Job Planning Line", JobPlanningLine.Status,
           JobPlanningLine."Job No.", '', 0, JobPlanningLine."Job Contract Entry No.", JobPlanningLine."Qty. per Unit of Measure",
-          Quantity, QuantityBase, ForSerialNo, ForLotNo);
-        CreateReservEntry.CreateReservEntryFrom(
-          SetFromType, SetFromSubtype, SetFromID, SetFromBatchName, SetFromProdOrderLine, SetFromRefNo,
-          SetFromQtyPerUOM, SetFromSerialNo, SetFromLotNo);
+          Quantity, QuantityBase, ForReservEntry);
+        CreateReservEntry.CreateReservEntryFrom(FromTrackingSpecification);
         CreateReservEntry.CreateReservEntry(
           JobPlanningLine."No.", JobPlanningLine."Variant Code", JobPlanningLine."Location Code",
-          Description, ExpectedReceiptDate, PlanningDate);
+          Description, ExpectedReceiptDate, PlanningDate, 0);
 
-        SetFromType := 0;
+        FromTrackingSpecification."Source Type" := 0;
+    end;
+
+    [Obsolete('Replaced by CreateReservation(JobPlanningLine, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry)','16.0')]
+    procedure CreateReservation(JobPlanningLine: Record "Job Planning Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForSerialNo: Code[50]; ForLotNo: Code[50])
+    var
+        ForReservEntry: Record "Reservation Entry";
+    begin
+        ForReservEntry."Serial No." := ForSerialNo;
+        ForReservEntry."Lot No." := ForLotNo;
+        CreateReservation(JobPlanningLine, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry);
     end;
 
     local procedure CreateBindingReservation(JobPlanningLine: Record "Job Planning Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal)
+    var
+        DummyReservEntry: Record "Reservation Entry";
     begin
-        CreateReservation(JobPlanningLine, Description, ExpectedReceiptDate, Quantity, QuantityBase, '', '');
+        CreateReservation(JobPlanningLine, Description, ExpectedReceiptDate, Quantity, QuantityBase, DummyReservEntry);
     end;
 
-    procedure CreateReservationSetFrom(TrackingSpecificationFrom: Record "Tracking Specification")
+    procedure CreateReservationSetFrom(TrackingSpecification: Record "Tracking Specification")
     begin
-        with TrackingSpecificationFrom do begin
-            SetFromType := "Source Type";
-            SetFromSubtype := "Source Subtype";
-            SetFromID := "Source ID";
-            SetFromBatchName := "Source Batch Name";
-            SetFromProdOrderLine := "Source Prod. Order Line";
-            SetFromRefNo := "Source Ref. No.";
-            SetFromVariantCode := "Variant Code";
-            SetFromLocationCode := "Location Code";
-            SetFromSerialNo := "Serial No.";
-            SetFromLotNo := "Lot No.";
-            SetFromQtyPerUOM := "Qty. per Unit of Measure";
-        end;
+        FromTrackingSpecification := TrackingSpecification;
     end;
 
     local procedure CheckReservedQtyBase(JobPlanningLine: Record "Job Planning Line"; QuantityBase: Decimal)
@@ -110,11 +98,10 @@ codeunit 1032 "Job Planning Line-Reserve"
         CreateReservEntry.SetBinding(Binding);
     end;
 
+    [Obsolete('Replaced by JobPlanningLine.SetReservationFilters(FilterReservEntry)','16.0')]
     procedure FilterReservFor(var FilterReservEntry: Record "Reservation Entry"; JobPlanningLine: Record "Job Planning Line")
     begin
-        FilterReservEntry.SetSourceFilter(
-          DATABASE::"Job Planning Line", JobPlanningLine.Status, JobPlanningLine."Job No.", JobPlanningLine."Job Contract Entry No.", false);
-        FilterReservEntry.SetSourceFilter('', 0);
+        JobPlanningLine.SetReservationFilters(FilterReservEntry);
     end;
 
     procedure ReservQuantity(JobPlanningLine: Record "Job Planning Line"; var QtyToReserve: Decimal; var QtyToReserveBase: Decimal)
@@ -135,14 +122,13 @@ codeunit 1032 "Job Planning Line-Reserve"
 
     procedure Caption(JobPlanningLine: Record "Job Planning Line") CaptionText: Text
     begin
-        CaptionText :=
-          StrSubstNo('%1 %2 %3', JobPlanningLine.Status, JobPlanningLine."Job No.", JobPlanningLine."No.");
+        CaptionText := JobPlanningLine.GetSourceCaption;
     end;
 
     procedure FindReservEntry(JobPlanningLine: Record "Job Planning Line"; var ReservEntry: Record "Reservation Entry"): Boolean
     begin
-        ReservEngineMgt.InitFilterAndSortingLookupFor(ReservEntry, false);
-        FilterReservFor(ReservEntry, JobPlanningLine);
+        ReservEntry.InitSortingAndFilters(false);
+        JobPlanningLine.SetReservationFilters(ReservEntry);
         exit(ReservEntry.FindLast);
     end;
 
@@ -216,11 +202,11 @@ codeunit 1032 "Job Planning Line-Reserve"
                FindReservEntry(NewJobPlanningLine, ReservEntry)
             then begin
                 if (NewJobPlanningLine."No." <> OldJobPlanningLine."No.") or (NewJobPlanningLine.Type <> OldJobPlanningLine.Type) then begin
-                    ReservMgt.SetJobPlanningLine(OldJobPlanningLine);
+                    ReservMgt.SetReservSource(OldJobPlanningLine);
                     ReservMgt.DeleteReservEntries(true, 0);
-                    ReservMgt.SetJobPlanningLine(NewJobPlanningLine);
+                    ReservMgt.SetReservSource(NewJobPlanningLine);
                 end else begin
-                    ReservMgt.SetJobPlanningLine(NewJobPlanningLine);
+                    ReservMgt.SetReservSource(NewJobPlanningLine);
                     ReservMgt.DeleteReservEntries(true, 0);
                 end;
                 ReservMgt.AutoTrack(NewJobPlanningLine."Remaining Qty. (Base)");
@@ -251,7 +237,7 @@ codeunit 1032 "Job Planning Line-Reserve"
             if "Line No." = 0 then
                 if not JobPlanningLine.Get("Job No.", "Job Task No.", "Line No.") then
                     exit;
-            ReservMgt.SetJobPlanningLine(NewJobPlanningLine);
+            ReservMgt.SetReservSource(NewJobPlanningLine);
             if "Qty. per Unit of Measure" <> OldJobPlanningLine."Qty. per Unit of Measure" then
                 ReservMgt.ModifyUnitOfMeasure;
             if "Remaining Qty. (Base)" * OldJobPlanningLine."Remaining Qty. (Base)" < 0 then
@@ -287,7 +273,7 @@ codeunit 1032 "Job Planning Line-Reserve"
         Clear(CreateReservEntry);
         if NewItemJnlLine."Entry Type" = NewItemJnlLine."Entry Type"::"Negative Adjmt." then
             if NewItemJnlLine.TrackingExists then begin
-                CreateReservEntry.SetNewSerialLotNo(NewItemJnlLine."Serial No.", NewItemJnlLine."Lot No.");
+                CreateReservEntry.SetNewTrackingFromItemJnlLine(NewItemJnlLine);
                 // Try to match against Item Tracking on the job planning line:
                 OldReservEntry.SetTrackingFilterFromItemJnlLine(NewItemJnlLine);
                 if OldReservEntry.IsEmpty then
@@ -324,7 +310,7 @@ codeunit 1032 "Job Planning Line-Reserve"
             TrackedQty -= (xTransferQty - TransferQty);
             UnTrackedQty := JobPlanningLine."Remaining Qty. (Base)" - TrackedQty;
             if TransferQty > UnTrackedQty then begin
-                ReservMgt.SetJobPlanningLine(JobPlanningLine);
+                ReservMgt.SetReservSource(JobPlanningLine);
                 ReservMgt.DeleteReservEntries(false, JobPlanningLine."Remaining Qty. (Base)");
             end;
         end;
@@ -334,7 +320,7 @@ codeunit 1032 "Job Planning Line-Reserve"
     procedure DeleteLine(var JobPlanningLine: Record "Job Planning Line")
     begin
         with JobPlanningLine do begin
-            ReservMgt.SetJobPlanningLine(JobPlanningLine);
+            ReservMgt.SetReservSource(JobPlanningLine);
             ReservMgt.DeleteReservEntries(true, 0);
             CalcFields("Reserved Qty. (Base)");
             AssignForPlanning(JobPlanningLine);
@@ -380,6 +366,213 @@ codeunit 1032 "Job Planning Line-Reserve"
           ReqLine."Variant Code", ReqLine."Location Code", ReqLine."Qty. per Unit of Measure");
         CreateReservationSetFrom(TrackingSpecification);
         CreateBindingReservation(JobPlanningLine, ReqLine.Description, ReqLine."Due Date", ReservQty, ReservQtyBase);
+    end;
+
+    [EventSubscriber(ObjectType::Page, PAGE::Reservation, 'OnGetQtyPerUOMFromSourceRecRef', '', false, false)]
+    local procedure OnGetQtyPerUOMFromSourceRecRef(SourceRecRef: RecordRef; var QtyPerUOM: Decimal; var QtyReserved: Decimal; var QtyReservedBase: Decimal; var QtyToReserve: Decimal; var QtyToReserveBase: Decimal)
+    var
+        JobPlanningLine: Record "Job Planning Line";
+    begin
+        if MatchThisTable(SourceRecRef.Number) then begin
+            SourceRecRef.SetTable(JobPlanningLine);
+            JobPlanningLine.Find;
+            if JobPlanningLine.UpdatePlanned then begin
+                JobPlanningLine.Modify(true);
+                Commit();
+            end;
+            QtyPerUOM := JobPlanningLine.GetReservationQty(QtyReserved, QtyReservedBase, QtyToReserve, QtyToReserveBase);
+        end;
+    end;
+
+    local procedure SetReservSourceFor(SourceRecRef: RecordRef; var ReservEntry: Record "Reservation Entry"; var CaptionText: Text)
+    var
+        JobPlanningLine: Record "Job Planning Line";
+    begin
+        SourceRecRef.SetTable(JobPlanningLine);
+        JobPlanningLine.TestField(Type, JobPlanningLine.Type::Item);
+        JobPlanningLine.TestField("Planning Date");
+
+        JobPlanningLine.SetReservationEntry(ReservEntry);
+
+        CaptionText := JobPlanningLine.GetSourceCaption;
+    end;
+
+    local procedure EntryStartNo(): Integer
+    begin
+        exit(131);
+    end;
+
+    local procedure MatchThisEntry(EntryNo: Integer): Boolean
+    begin
+        exit(EntryNo in [131, 132, 133, 134]);
+    end;
+
+    local procedure MatchThisTable(TableID: Integer): Boolean
+    begin
+        exit(TableID = 1003); // DATABASE::"Job Planning Line"
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::Reservation, 'OnSetReservSource', '', false, false)]
+    local procedure OnSetReservSource(SourceRecRef: RecordRef; var ReservEntry: Record "Reservation Entry"; var CaptionText: Text)
+    begin
+        if MatchThisTable(SourceRecRef.Number) then
+            SetReservSourceFor(SourceRecRef, ReservEntry, CaptionText);
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::Reservation, 'OnDrillDownTotalQuantity', '', false, false)]
+    local procedure OnDrillDownTotalQuantity(SourceRecRef: RecordRef; ReservEntry: Record "Reservation Entry"; EntrySummary: Record "Entry Summary"; Location: Record Location; MaxQtyToReserve: Decimal)
+    var
+        AvailableJobPlanningLines: page "Available - Job Planning Lines";
+    begin
+        if MatchThisEntry(EntrySummary."Entry No.") then begin
+            Clear(AvailableJobPlanningLines);
+            AvailableJobPlanningLines.SetCurrentSubType(EntrySummary."Entry No." - EntryStartNo());
+            AvailableJobPlanningLines.SetSource(SourceRecRef, ReservEntry, ReservEntry."Source Subtype");
+            AvailableJobPlanningLines.RunModal;
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::Reservation, 'OnFilterReservEntry', '', false, false)]
+    local procedure OnFilterReservEntry(var FilterReservEntry: Record "Reservation Entry"; ReservEntrySummary: Record "Entry Summary")
+    begin
+        if MatchThisEntry(ReservEntrySummary."Entry No.") then begin
+            FilterReservEntry.SetRange("Source Type", DATABASE::"Job Planning Line");
+            FilterReservEntry.SetRange("Source Subtype", ReservEntrySummary."Entry No." - EntryStartNo());
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::Reservation, 'OnAfterRelatesToSummEntry', '', false, false)]
+    local procedure OnRelatesToEntrySummary(var FilterReservEntry: Record "Reservation Entry"; FromEntrySummary: Record "Entry Summary"; var IsHandled: Boolean)
+    begin
+        if MatchThisEntry(FromEntrySummary."Entry No.") then
+            IsHandled :=
+                (FilterReservEntry."Source Type" = DATABASE::"Job Planning Line") and
+                (FilterReservEntry."Source Subtype" = FromEntrySummary."Entry No." - EntryStartNo());
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnCreateReservation', '', false, false)]
+    local procedure OnCreateReservation(SourceRecRef: RecordRef; TrackingSpecification: Record "Tracking Specification"; ForReservEntry: Record "Reservation Entry"; Description: Text[100]; ExpectedDate: Date; Quantity: Decimal; QuantityBase: Decimal)
+    var
+        JobPlanningLine: Record "Job Planning Line";
+    begin
+        if MatchThisTable(ForReservEntry."Source Type") then begin
+            CreateReservationSetFrom(TrackingSpecification);
+            SourceRecRef.SetTable(JobPlanningLine);
+            CreateReservation(JobPlanningLine, Description, ExpectedDate, Quantity, QuantityBase, ForReservEntry);
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnLookupDocument', '', false, false)]
+    local procedure OnLookupDocument(SourceType: Integer; SourceID: Code[20])
+    var
+        Job: Record Job;
+    begin
+        if MatchThisTable(SourceType) then begin
+            Job.Reset();
+            Job.SetRange("No.", SourceID);
+            PAGE.RunModal(PAGE::"Job Card", Job)
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnLookupLine', '', false, false)]
+    local procedure OnLookupLine(SourceType: Integer; SourceRefNo: Integer)
+    var
+        JobPlanningLine: Record "Job Planning Line";
+    begin
+        if MatchThisTable(SourceType) then begin
+            JobPlanningLine.Reset();
+            JobPlanningLine.SetCurrentKey("Job Contract Entry No.");
+            JobPlanningLine.SetRange("Job Contract Entry No.", SourceRefNo);
+            PAGE.Run(0, JobPlanningLine);
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnFilterReservFor', '', false, false)]
+    local procedure OnFilterReservFor(SourceRecRef: RecordRef; var ReservEntry: Record "Reservation Entry"; var CaptionText: Text)
+    var
+        JobPlanningLine: Record "Job Planning Line";
+    begin
+        if MatchThisTable(SourceRecRef.Number) then begin
+            SourceRecRef.SetTable(JobPlanningLine);
+            JobPlanningLine.SetReservationFilters(ReservEntry);
+            CaptionText := JobPlanningLine.GetSourceCaption;
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnCalculateRemainingQty', '', false, false)]
+    local procedure OnCalculateRemainingQty(SourceRecRef: RecordRef; var ReservEntry: Record "Reservation Entry"; var RemainingQty: Decimal; var RemainingQtyBase: Decimal)
+    var
+        JobPlanningLine: Record "Job Planning Line";
+    begin
+        if MatchThisTable(ReservEntry."Source Type") then begin
+            SourceRecRef.SetTable(JobPlanningLine);
+            JobPlanningLine.GetRemainingQty(RemainingQty, RemainingQtyBase);
+        end;
+    end;
+
+    local procedure GetSourceValue(ReservEntry: Record "Reservation Entry"; var SourceRecRef: RecordRef; ReturnOption: Option "Net Qty. (Base)","Gross Qty. (Base)"): Decimal
+    var
+        JobPlanningLine: Record "Job Planning Line";
+    begin
+        JobPlanningLine.SetCurrentKey("Job Contract Entry No.");
+        JobPlanningLine.SetRange("Job Contract Entry No.", ReservEntry."Source Ref. No.");
+        JobPlanningLine.FindFirst;
+        SourceRecRef.GetTable(JobPlanningLine);
+        case ReturnOption of
+            ReturnOption::"Net Qty. (Base)":
+                exit(JobPlanningLine."Remaining Qty. (Base)");
+            ReturnOption::"Gross Qty. (Base)":
+                exit(JobPlanningLine."Quantity (Base)");
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnGetSourceRecordValue', '', false, false)]
+    local procedure OnGetSourceRecordValue(var ReservEntry: Record "Reservation Entry"; ReturnOption: Option; var ReturnQty: Decimal; var SourceRecRef: RecordRef)
+    begin
+        if MatchThisTable(ReservEntry."Source Type") then
+            ReturnQty := GetSourceValue(ReservEntry, SourceRecRef, ReturnOption);
+    end;
+
+    local procedure UpdateStatistics(CalcReservEntry: Record "Reservation Entry"; var TempEntrySummary: Record "Entry Summary" temporary; AvailabilityDate: Date; LineType: Option; Positive: Boolean; var TotalQuantity: Decimal)
+    var
+        JobPlanningLine: Record "Job Planning Line";
+        AvailabilityFilter: Text;
+    begin
+        if not JobPlanningLine.ReadPermission then
+            exit;
+
+        AvailabilityFilter := CalcReservEntry.GetAvailabilityFilter(AvailabilityDate, Positive);
+        JobPlanningLine.FilterLinesForReservation(CalcReservEntry, LineType, AvailabilityFilter, Positive);
+        if JobPlanningLine.FindSet then
+            repeat
+                JobPlanningLine.CalcFields("Reserved Qty. (Base)");
+                TempEntrySummary."Total Reserved Quantity" -= JobPlanningLine."Reserved Qty. (Base)";
+                TotalQuantity += JobPlanningLine."Remaining Qty. (Base)";
+            until JobPlanningLine.Next = 0;
+
+        if TotalQuantity = 0 then
+            exit;
+
+        with TempEntrySummary do
+            if (TotalQuantity < 0) = Positive then begin
+                "Table ID" := DATABASE::"Job Planning Line";
+                "Summary Type" :=
+                    CopyStr(
+                    StrSubstNo('%1, %2', JobPlanningLine.TableCaption, JobPlanningLine.Status),
+                    1, MaxStrLen("Summary Type"));
+                "Total Quantity" := -TotalQuantity;
+                "Total Available Quantity" := "Total Quantity" - "Total Reserved Quantity";
+                if not Insert() then
+                    Modify;
+            end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnUpdateStatistics', '', false, false)]
+    local procedure OnUpdateStatistics(CalcReservEntry: Record "Reservation Entry"; var ReservSummEntry: Record "Entry Summary"; AvailabilityDate: Date; Positive: Boolean; var TotalQuantity: Decimal)
+    begin
+        if ReservSummEntry."Entry No." = 133 then
+            UpdateStatistics(
+                CalcReservEntry, ReservSummEntry, AvailabilityDate, ReservSummEntry."Entry No." - 131, Positive, TotalQuantity);
     end;
 
     [IntegrationEvent(false, false)]

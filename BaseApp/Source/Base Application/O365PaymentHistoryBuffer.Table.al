@@ -11,12 +11,10 @@ table 2105 "O365 Payment History Buffer"
             DataClassification = SystemMetadata;
             TableRelation = "G/L Entry";
         }
-        field(2; Type; Option)
+        field(2; Type; Enum "Gen. Journal Document Type")
         {
             Caption = 'Type';
             DataClassification = SystemMetadata;
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(3; Amount; Decimal)
         {
@@ -68,7 +66,7 @@ table 2105 "O365 Payment History Buffer"
             Error(DevMsgNotTemporaryErr);
 
         Reset;
-        DeleteAll;
+        DeleteAll();
         InvoiceCustLedgerEntry.SetRange("Document Type", InvoiceCustLedgerEntry."Document Type"::Invoice);
         InvoiceCustLedgerEntry.SetRange("Document No.", SalesInvoiceDocumentNo);
         if not InvoiceCustLedgerEntry.FindFirst then

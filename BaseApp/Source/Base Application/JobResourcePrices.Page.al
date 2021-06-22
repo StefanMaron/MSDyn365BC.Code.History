@@ -3,6 +3,9 @@ page 1011 "Job Resource Prices"
     Caption = 'Job Resource Prices';
     PageType = List;
     SourceTable = "Job Resource Price";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+    ObsoleteTag = '16.0';
 
     layout
     {

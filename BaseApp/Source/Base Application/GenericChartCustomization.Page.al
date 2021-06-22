@@ -744,7 +744,7 @@ page 9188 "Generic Chart Customization"
           TempGenericChartCaptionsBuf.GetCaption(GenericChartMgt.XAxisTitleCode, GenericChartMgt.GetUserLanguage);
         TempGenericChartSetup."Z-Axis Field Caption" :=
           TempGenericChartCaptionsBuf.GetCaption(GenericChartMgt.ZAxisCaptionCode, GenericChartMgt.GetUserLanguage);
-        TempGenericChartSetup.Insert;
+        TempGenericChartSetup.Insert();
         FillMatrixWhenOpenPage;
         UpdateTempGenericChartYAXis;
         RefreshPreview;
@@ -797,7 +797,7 @@ page 9188 "Generic Chart Customization"
         i: Integer;
         "Count": Integer;
     begin
-        TempGenericChartYAxis.DeleteAll;
+        TempGenericChartYAxis.DeleteAll();
 
         if ChartCapableOfOptionalMeasures then
             Count := ArrayLen(DataColumn)
@@ -819,7 +819,7 @@ page 9188 "Generic Chart Customization"
                     TempGenericChartYAxis."Chart Type" := ChartType
                 else
                     TempGenericChartYAxis."Chart Type" := ChartTypeReduced[i];
-                TempGenericChartYAxis.Insert;
+                TempGenericChartYAxis.Insert();
             end;
     end;
 
@@ -874,11 +874,11 @@ page 9188 "Generic Chart Customization"
 
     local procedure ClearAllVariables()
     begin
-        TempGenericChartSetup.DeleteAll;
-        TempGenericChartFilter.DeleteAll;
-        TempGenericChartYAxis.DeleteAll;
-        TempGenericChartCaptionsBuf.DeleteAll;
-        TempGenericChartMemoBuf.DeleteAll;
+        TempGenericChartSetup.DeleteAll();
+        TempGenericChartFilter.DeleteAll();
+        TempGenericChartYAxis.DeleteAll();
+        TempGenericChartCaptionsBuf.DeleteAll();
+        TempGenericChartMemoBuf.DeleteAll();
 
         Clear(TempGenericChartFilter);
         Clear(TempGenericChartYAxis);

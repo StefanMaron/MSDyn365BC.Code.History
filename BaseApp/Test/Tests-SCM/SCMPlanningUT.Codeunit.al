@@ -110,7 +110,7 @@ codeunit 137801 "SCM - Planning UT"
         CreateReqWkshTemplate(ReqWkshTemplate, PAGE::"Req. Worksheet");
 
         // [WHEN] Calc. Regenerative plan
-        ManufacturingSetup.Init;
+        ManufacturingSetup.Init();
         InventoryProfileOffsetting.CalculatePlanFromWorksheet(
           Item, ManufacturingSetup, ReqWkshTemplate.Name, '', WorkDate, WorkDate, true, false);
 
@@ -487,8 +487,8 @@ codeunit 137801 "SCM - Planning UT"
         LibraryWarehouse.CreateLocation(Location);
         LibraryInventory.CreateNonInventoryTypeItem(Item);
 
-        PlanningComponent.DeleteAll;
-        PlanningComponent.Init;
+        PlanningComponent.DeleteAll();
+        PlanningComponent.Init();
         PlanningComponent."Line No." := LibraryRandom.RandInt(10);
         PlanningComponent.Validate("Item No.", Item."No.");
         PlanningComponent.Validate("Location Code", Location.Code);
@@ -538,7 +538,7 @@ codeunit 137801 "SCM - Planning UT"
         LibrarySetupStorage.Save(DATABASE::"Manufacturing Setup");
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM - Planning UT");
     end;
 
@@ -570,7 +570,7 @@ codeunit 137801 "SCM - Planning UT"
         CreateReqWkshTemplate(ReqWkshTemplate, PageID);
 
         // EXERCISE
-        ManufacturingSetup.Init;
+        ManufacturingSetup.Init();
         InventoryProfileOffsetting.CalculatePlanFromWorksheet(
           Item, ManufacturingSetup, ReqWkshTemplate.Name, '', SalesLine."Shipment Date", SalesLine."Shipment Date" + 30, true, false);
 
@@ -594,14 +594,14 @@ codeunit 137801 "SCM - Planning UT"
         Item."Maximum Inventory" := MaxInventory;
         Item."Base Unit of Measure" := ItemUnitOfMeasure.Code;
         Item."Purch. Unit of Measure" := Item."Base Unit of Measure";
-        Item.Insert;
+        Item.Insert();
     end;
 
     local procedure CreateItemUnitOfMeasure(var ItemUnitOfMeasure: Record "Item Unit of Measure"; ItemNo: Code[20])
     begin
         ItemUnitOfMeasure."Item No." := ItemNo;
         ItemUnitOfMeasure.Code := LibraryUtility.GenerateRandomCode(ItemUnitOfMeasure.FieldNo(Code), DATABASE::"Item Unit of Measure");
-        ItemUnitOfMeasure.Insert;
+        ItemUnitOfMeasure.Insert();
     end;
 
     local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; var Item: Record Item)
@@ -612,7 +612,7 @@ codeunit 137801 "SCM - Planning UT"
         SalesLine."No." := Item."No.";
         SalesLine."Shipment Date" := WorkDate;
         SalesLine."Outstanding Qty. (Base)" := Item."Maximum Inventory";
-        SalesLine.Insert;
+        SalesLine.Insert();
     end;
 
     local procedure MockPurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")

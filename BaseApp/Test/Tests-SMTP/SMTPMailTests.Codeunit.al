@@ -21,6 +21,9 @@ codeunit 139017 "SMTP Mail Test"
         BodyTxt: Label 'Test body without html block';
         BodyHTMLTxt: Label '<body><invalidTag>Test Message</invalidTag></body>';
         AttachmentName: Label 'Attachment1.txt';
+        MediaSubType: Text;
+        RecipientList: List of [Text];
+        Body: Text;
 
     [Test]
     [Scope('OnPrem')]
@@ -117,24 +120,109 @@ codeunit 139017 "SMTP Mail Test"
     var
         TempEmailItem: Record "Email Item" temporary;
         SMTPMailTest: Codeunit "SMTP Mail Test";
+        Recipients: List of [Text];
+        RecipientsCount: Integer;
+        i: Integer;
     begin
         // [FEATURE] [UT]
         // [SCENARIO 332563] Add multiple recipients to "Send to" / "Send CC" / "Send BCC" fields of Email Item.
+        Clear(RecipientList);
         SMTPMailSetupInitialize();
 
         // [GIVEN] Email Item with "Send to" / "Send CC" / "Send BCC" = 'test1@test.com; test2@test.com; test3@test.com'.
         TempEmailItem.Initialize();
         TempEmailItem."From Address" := Test1AddressTxt;
+        TempEmailItem.Subject := SubjectTxt;
         TempEmailItem."Send to" := StrSubstNo(MultipleAddressesTxt, 1, 2, 3);
         TempEmailItem."Send CC" := StrSubstNo(MultipleAddressesTxt, 4, 5, 6);
         TempEmailItem."Send BCC" := StrSubstNo(MultipleAddressesTxt, 7, 8, 9);
+        TempEmailItem."Message Type" := TempEmailItem."Message Type"::"From Email Body Template";
+
+        SMTPMailTest.SetMediaSubtype('html');
+        Recipients.Add(Test1AddressTxt);
+        Recipients.Add(Test2AddressTxt);
+        Recipients.Add(Test3AddressTxt);
+        SMTPMailTest.SetRecipients(Recipients);
 
         // [WHEN] Run SendMailOrDownload function of Mail Management codeunit on this Email Item record.
         // [WHEN] Wait for GetEmailRecepientsOnBeforeSentViaSMTP subscriber catches OnBeforeSentViaSMTP event.
         BindSubscription(SMTPMailTest);
-        MailManagement.SendMailOrDownload(TempEmailItem, true);
 
+        MailManagement.SendMailOrDownload(TempEmailItem, true);
+        UnBindSubscription(SMTPMailTest);
+
+        TempEmailItem."Message Type" := TempEmailItem."Message Type"::"Custom Message";
+        SMTPMailTest.SetMediaSubtype('plain');
+        BindSubscription(SMTPMailTest);
+
+        MailManagement.SendMailOrDownload(TempEmailItem, true);
+        UnBindSubscription(SMTPMailTest);
         // [THEN] Email."To" / Email.Cc / Email.Bcc fields of DotNet object MimeMessage contain lists of all corresponding recipients.
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestCreateTextAndHtmlMessage()
+    var
+        SMTP: Codeunit "SMTP Mail";
+        SMTPMailTests: Codeunit "SMTP Mail Test";
+    begin
+        // [SCENARIO] Create email as plain text or as html
+        Clear(RecipientList);
+        SMTPMailTests.SetMediaSubtype('html');
+        RecipientList.Add(Test1AddressTxt);
+        SMTPMailTests.SetRecipients(RecipientList);
+        SMTPMailTests.SetBody('<html>HTML message</html>');
+        BindSubscription(SMTPMailTests);
+
+        SMTPMailSetupInitialize();
+        SMTP.Initialize();
+        SMTP.CreateMessage('test', Test1AddressTxt, Test1AddressTxt, SubjectTxt, '<html>HTML message</html>', true);
+        SMTP.CreateMessage('test', Test1AddressTxt, RecipientList, SubjectTxt, '<html>HTML message</html>', true);
+        SMTP.CreateMessage('test', Test1AddressTxt, RecipientList, SubjectTxt, '<html>HTML message</html>');
+
+        // Verify on the Event Subscriber
+        UnbindSubscription(SMTPMailTests);
+
+        SMTPMailTests.SetMediaSubtype('plain');
+        SMTPMailTests.SetBody('TEXT message');
+        BindSubscription(SMTPMailTests);
+
+        SMTPMailSetupInitialize();
+        SMTP.Initialize();
+        SMTP.CreateMessage('test', Test1AddressTxt, Test1AddressTxt, SubjectTxt, 'TEXT message', false);
+        SMTP.CreateMessage('test', Test1AddressTxt, RecipientList, SubjectTxt, 'TEXT message', false);
+
+        // Verify on the Event Subscriber
+        UnbindSubscription(SMTPMailTests);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestCreateMessageWithMultipleRecipients()
+    var
+        SMTP: Codeunit "SMTP Mail";
+        SMTPMailTests: Codeunit "SMTP Mail Test";
+    begin
+        // [SCENARIO] Create message with multiple recipients
+        Clear(RecipientList);
+        SMTPMailTests.SetMediaSubtype('html');
+        RecipientList.Add(Test1AddressTxt);
+        RecipientList.Add(Test2AddressTxt);
+        RecipientList.Add(Test3AddressTxt);
+        SMTPMailTests.SetRecipients(RecipientList);
+        SMTPMailTests.SetBody('<html>HTML message</html>');
+        BindSubscription(SMTPMailTests);
+
+        SMTPMailSetupInitialize();
+        SMTP.Initialize();
+        SMTP.CreateMessage('test', Test1AddressTxt, 'test1@test.com,test2@test.com,test3@test.com', SubjectTxt, '<html>HTML message</html>', true);
+        SMTP.CreateMessage('test', Test1AddressTxt, StrSubstNo(MultipleAddressesTxt, 1, 2, 3), SubjectTxt, '<html>HTML message</html>', true);
+        SMTP.CreateMessage('test', Test1AddressTxt, RecipientList, SubjectTxt, '<html>HTML message</html>', true);
+        SMTP.CreateMessage('test', Test1AddressTxt, RecipientList, SubjectTxt, '<html>HTML message</html>');
+
+        // Verify on the Event Subscriber
+        UnbindSubscription(SMTPMailTests);
     end;
 
     [Test]
@@ -156,7 +244,7 @@ codeunit 139017 "SMTP Mail Test"
         asserterror SMTP.AddRecipients(Recipients);
         SMTP.GetRecipients(ResultRecipients);
         Assert.AreEqual(0, ResultRecipients.Count(), 'The recipient count does not match.');
-        Assert.ExpectedError('is not valid');
+        Assert.ExpectedError('Could not add recipient');
 
         // [WHEN] Add one recipient with a bad email address
         // [THEN] Recipient is not added and an error is thrown
@@ -165,7 +253,7 @@ codeunit 139017 "SMTP Mail Test"
         asserterror SMTP.AddRecipients(Recipients);
         SMTP.GetRecipients(ResultRecipients);
         Assert.AreEqual(0, ResultRecipients.Count(), 'The recipient count does not match.');
-        Assert.ExpectedError('is not valid');
+        Assert.ExpectedError('Could not add recipient');
 
         // // [WHEN] Add one recipient with a bad email address
         // // [THEN] Recipient is not added and an error is thrown
@@ -174,7 +262,7 @@ codeunit 139017 "SMTP Mail Test"
         asserterror SMTP.AddRecipients(Recipients);
         SMTP.GetRecipients(ResultRecipients);
         Assert.AreEqual(0, ResultRecipients.Count(), 'The recipient count does not match.');
-        Assert.ExpectedError('is not valid');
+        Assert.ExpectedError('Could not add recipient');
 
         // // [WHEN] Add one recipient with a bad email address
         // // [THEN] Recipient is not added and an error is thrown
@@ -183,7 +271,7 @@ codeunit 139017 "SMTP Mail Test"
         asserterror SMTP.AddRecipients(Recipients);
         SMTP.GetRecipients(ResultRecipients);
         Assert.AreEqual(0, ResultRecipients.Count(), 'The recipient count does not match.');
-        Assert.ExpectedError('is not valid');
+        Assert.ExpectedError('Could not add recipient');
 
         // // [WHEN] Add one recipient with a bad email address
         // // [THEN] Recipient is not added and an error is thrown
@@ -192,7 +280,7 @@ codeunit 139017 "SMTP Mail Test"
         asserterror SMTP.AddRecipients(Recipients);
         SMTP.GetRecipients(ResultRecipients);
         Assert.AreEqual(0, ResultRecipients.Count(), 'The recipient count does not match.');
-        Assert.ExpectedError('is not valid');
+        Assert.ExpectedError('Could not add recipient');
     end;
 
     [Test]
@@ -308,7 +396,7 @@ codeunit 139017 "SMTP Mail Test"
         asserterror SMTP.AddCC(Recipients);
         SMTP.GetCC(ResultRecipients);
         Assert.AreEqual(0, ResultRecipients.Count(), 'The CC recipient count does not match.');
-        Assert.ExpectedError('is not valid');
+        Assert.ExpectedError('Could not add recipient');
 
         // [WHEN] Add one CC recipient with a bad email address
         // [THEN] CC Recipient is not added and an error is thrown
@@ -317,7 +405,7 @@ codeunit 139017 "SMTP Mail Test"
         asserterror SMTP.AddCC(Recipients);
         SMTP.GetCC(ResultRecipients);
         Assert.AreEqual(0, ResultRecipients.Count(), 'The CC recipient count does not match.');
-        Assert.ExpectedError('is not valid');
+        Assert.ExpectedError('Could not add recipient');
 
         // // [WHEN] Add one CC recipient with a bad email address
         // // [THEN] CC Recipient is not added and an error is thrown
@@ -326,7 +414,7 @@ codeunit 139017 "SMTP Mail Test"
         asserterror SMTP.AddCC(Recipients);
         SMTP.GetCC(ResultRecipients);
         Assert.AreEqual(0, ResultRecipients.Count(), 'The CC recipient count does not match.');
-        Assert.ExpectedError('is not valid');
+        Assert.ExpectedError('Could not add recipient');
 
         // // [WHEN] Add one CC recipient with a bad email address
         // // [THEN] CC Recipient is not added and an error is thrown
@@ -335,7 +423,7 @@ codeunit 139017 "SMTP Mail Test"
         asserterror SMTP.AddCC(Recipients);
         SMTP.GetCC(ResultRecipients);
         Assert.AreEqual(0, ResultRecipients.Count(), 'The CC recipient count does not match.');
-        Assert.ExpectedError('is not valid');
+        Assert.ExpectedError('Could not add recipient');
 
         // // [WHEN] Add one CC recipient with a bad email address
         // // [THEN] CC Recipient is not added and an error is thrown
@@ -344,7 +432,7 @@ codeunit 139017 "SMTP Mail Test"
         asserterror SMTP.AddCC(Recipients);
         SMTP.GetCC(ResultRecipients);
         Assert.AreEqual(0, ResultRecipients.Count(), 'The CC recipient count does not match.');
-        Assert.ExpectedError('is not valid');
+        Assert.ExpectedError('Could not add recipient');
     end;
 
     [Test]
@@ -460,7 +548,7 @@ codeunit 139017 "SMTP Mail Test"
         asserterror SMTP.AddBCC(Recipients);
         SMTP.GetBCC(ResultRecipients);
         Assert.AreEqual(0, ResultRecipients.Count(), 'The BCC recipient count does not match.');
-        Assert.ExpectedError('is not valid');
+        Assert.ExpectedError('Could not add recipient');
 
         // [WHEN] Add one BCC recipient with a bad email address
         // [THEN] BCC Recipient is not added and an error is thrown
@@ -469,7 +557,7 @@ codeunit 139017 "SMTP Mail Test"
         asserterror SMTP.AddBCC(Recipients);
         SMTP.GetBCC(ResultRecipients);
         Assert.AreEqual(0, ResultRecipients.Count(), 'The BCC recipient count does not match.');
-        Assert.ExpectedError('is not valid');
+        Assert.ExpectedError('Could not add recipient');
 
         // // [WHEN] Add one BCC recipient with a bad email address
         // // [THEN] BCC Recipient is not added and an error is thrown
@@ -478,7 +566,7 @@ codeunit 139017 "SMTP Mail Test"
         asserterror SMTP.AddBCC(Recipients);
         SMTP.GetBCC(ResultRecipients);
         Assert.AreEqual(0, ResultRecipients.Count(), 'The BCC recipient count does not match.');
-        Assert.ExpectedError('is not valid');
+        Assert.ExpectedError('Could not add recipient');
 
         // // [WHEN] Add one BCC recipient with a bad email address
         // // [THEN] BCC Recipient is not added and an error is thrown
@@ -487,7 +575,7 @@ codeunit 139017 "SMTP Mail Test"
         asserterror SMTP.AddBCC(Recipients);
         SMTP.GetBCC(ResultRecipients);
         Assert.AreEqual(0, ResultRecipients.Count(), 'The BCC recipient count does not match.');
-        Assert.ExpectedError('is not valid');
+        Assert.ExpectedError('Could not add recipient');
 
         // // [WHEN] Add one BCC recipient with a bad email address
         // // [THEN] BCC Recipient is not added and an error is thrown
@@ -496,7 +584,7 @@ codeunit 139017 "SMTP Mail Test"
         asserterror SMTP.AddBCC(Recipients);
         SMTP.GetBCC(ResultRecipients);
         Assert.AreEqual(0, ResultRecipients.Count(), 'The BCC recipient count does not match.');
-        Assert.ExpectedError('is not valid');
+        Assert.ExpectedError('Could not add recipient');
     end;
 
     [Test]
@@ -1073,7 +1161,7 @@ codeunit 139017 "SMTP Mail Test"
         // [GIVEN] No setup exists
         LibraryAzureKVMockMgmt.InitMockAzureKeyvaultSecretProvider;
         LibraryAzureKVMockMgmt.UseAzureKeyvaultSecretProvider;
-        SMTPMailSetup.DeleteAll;
+        SMTPMailSetup.DeleteAll();
         Assert.IsFalse(SMTPMail.IsEnabled, 'SMTP Setup was not empty.');
 
         // [GIVEN] Some SMTP setup key vault secrets
@@ -1098,11 +1186,11 @@ codeunit 139017 "SMTP Mail Test"
         SMTPMailSetupClear();
 
         // Add a new test record
-        SMTPMailSetup.Init;
+        SMTPMailSetup.Init();
         SMTPMailSetup."SMTP Server" := 'localhost';
         SMTPMailSetup."SMTP Server Port" := 9999;
         SMTPMailSetup.Authentication := SMTPMailSetup.Authentication::Anonymous;
-        SMTPMailSetup.Insert;
+        SMTPMailSetup.Insert();
     end;
 
     local procedure SMTPMailSetupClear()
@@ -1122,6 +1210,71 @@ codeunit 139017 "SMTP Mail Test"
     procedure NoConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := false;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"SMTP Mail Internals", 'OnAfterCreateMessage', '', false, false)]
+    [Scope('OnPrem')]
+    procedure OnAfterCreateMessage(Email: DotNet MimeMessage; BodyBuilder: DotNet MimeBodyBuilder)
+    var
+        TempBlob: Codeunit "Temp Blob";
+        CancelationToken: DotNet CancellationToken;
+        OutStream: OutStream;
+        InStream: Instream;
+        Recipients: List of [Text];
+        Value: DotNet InternetAddress;
+        TextValue: Text;
+        Found: Boolean;
+    begin
+        TempBlob.CreateOutStream(OutStream);
+        BodyBuilder.ToMessageBody().WriteTo(OutStream, CancelationToken);
+        TempBlob.CreateInStream(InStream);
+        InStream.Read(TextValue);
+
+        Assert.IsTrue(TextValue.Contains(GetBody()), 'A different Email body was expected.');
+
+        Assert.AreEqual('text', BodyBuilder.ToMessageBody().ContentType.MediaType, 'A different media type was expected.');
+        Assert.AreEqual(GetMediaSubType(), BodyBuilder.ToMessageBody().ContentType.MediaSubType, 'A different media type was expected.');
+        Assert.IsTrue(Format(Email.From.item(0)).Contains(Test1AddressTxt), 'A different Sender was expected.');
+        Assert.AreEqual(SubjectTxt, Email.Subject, 'A different Subject was expected.');
+        GetRecipients(Recipients);
+
+        foreach TextValue in Recipients do begin
+            Found := false;
+            foreach Value in Email."To" do
+                if Format(Value).Contains(TextValue) then
+                    Found := true;
+            Assert.IsTrue(Found, StrSubstNo('Address %1 was not in Recipient List', TextValue));
+        end;
+    end;
+
+    procedure GetMediaSubtype(): Text
+    begin
+        exit(MediaSubType);
+    end;
+
+    procedure SetMediaSubtype(Value: Text)
+    begin
+        MediaSubType := Value;
+    end;
+
+    procedure GetRecipients(var Value: List of [Text]);
+    begin
+        Value := RecipientList;
+    end;
+
+    procedure SetRecipients(Value: List of [Text]);
+    begin
+        RecipientList := Value;
+    end;
+
+    procedure GetBody(): Text
+    begin
+        exit(Body);
+    end;
+
+    procedure SetBody(Value: Text)
+    begin
+        Body := Value;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Mail Management", 'OnBeforeSentViaSMTP', '', false, false)]

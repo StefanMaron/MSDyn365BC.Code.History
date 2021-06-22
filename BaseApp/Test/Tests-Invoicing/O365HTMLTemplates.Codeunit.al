@@ -82,7 +82,7 @@ codeunit 138929 "O365 HTML Templates"
         // [GIVEN] Created quote
         CreateSalesDocument(SalesHeader."Document Type"::Quote, SalesHeader);
         SalesHeader.Validate("Quote Valid Until Date", SalesHeader."Due Date");
-        SalesHeader.Modify;
+        SalesHeader.Modify();
 
         // [GIVEN] Mail to address
         MailTo := MockMailTo;
@@ -185,7 +185,7 @@ codeunit 138929 "O365 HTML Templates"
         O365SocialNetwork.ModifyAll("Media Resources Ref", '');
         O365SocialNetwork.FindFirst;
         O365SocialNetwork."Media Resources Ref" := 'INVALID';
-        O365SocialNetwork.Modify;
+        O365SocialNetwork.Modify();
 
         // [WHEN] Email body file is being created
         FindReportSelection(ReportSelections, ReportSelections.Usage::"S.Quote");
@@ -415,7 +415,7 @@ codeunit 138929 "O365 HTML Templates"
         Url := 'https:\\facebook.com\microsoft';
 
         // [WHEN] URL is being entered to the social
-        DummyO365SocialNetwork.Init;
+        DummyO365SocialNetwork.Init();
         DummyO365SocialNetwork.Validate(URL, CopyStr(Url, 1, MaxStrLen(DummyO365SocialNetwork.URL)));
 
         // [THEN] URL https://facebook.com/microsoft has backslashes converted to slashes
@@ -438,7 +438,7 @@ codeunit 138929 "O365 HTML Templates"
         Url := 'facebook.com/microsoft';
 
         // [WHEN] URL is being entered to the social
-        DummyO365SocialNetwork.Init;
+        DummyO365SocialNetwork.Init();
         DummyO365SocialNetwork.Validate(URL, CopyStr(Url, 1, MaxStrLen(DummyO365SocialNetwork.URL)));
 
         // [THEN] URL = http://facebook.com/microsoft
@@ -461,7 +461,7 @@ codeunit 138929 "O365 HTML Templates"
         Url := 'http://facebook.com/microsoft';
 
         // [WHEN] URL is being entered to the social
-        DummyO365SocialNetwork.Init;
+        DummyO365SocialNetwork.Init();
         DummyO365SocialNetwork.Validate(URL, CopyStr(Url, 1, MaxStrLen(DummyO365SocialNetwork.URL)));
 
         // [THEN] URL = http://facebook.com/microsoft
@@ -642,7 +642,7 @@ codeunit 138929 "O365 HTML Templates"
         // [GIVEN] Created quote
         CreateSalesDocument(SalesHeader."Document Type"::Quote, SalesHeader);
         SalesHeader.Validate("Quote Valid Until Date", SalesHeader."Due Date");
-        SalesHeader.Modify;
+        SalesHeader.Modify();
 
         // [GIVEN] Initial email address aaa@aaa.com
         MailTo := MockMailTo;
@@ -693,7 +693,7 @@ codeunit 138929 "O365 HTML Templates"
         Customer.Name := 'Ce courriel a été envoyé à';
         Customer.Modify(true);
         SalesHeader."Sell-to Customer Name" := Customer.Name;
-        SalesHeader.Modify;
+        SalesHeader.Modify();
 
         // [WHEN] Email body file is being created
         BodyText := DocumentMailing.GetEmailBody(SalesHeader."No.", ReportSelections.Usage::"S.Quote", Customer."No.");
@@ -717,7 +717,7 @@ codeunit 138929 "O365 HTML Templates"
             O365C2GraphEventSettings.Insert(true);
 
         O365C2GraphEventSettings.SetEventsEnabled(false);
-        O365C2GraphEventSettings.Modify;
+        O365C2GraphEventSettings.Modify();
         BindSubscription(LibraryJobQueue);
         IsInitialized := true;
     end;
@@ -735,7 +735,7 @@ codeunit 138929 "O365 HTML Templates"
     var
         CountryRegion: Record "Country/Region";
     begin
-        CountryRegion.Init;
+        CountryRegion.Init();
         CountryRegion.Validate(Code, CopyStr(GetGUIDValue(MaxStrLen(CountryRegion.Code)), 1, MaxStrLen(CountryRegion.Code)));
         CountryRegion.Validate(Name, CopyStr(GetGUIDValue(MaxStrLen(CountryRegion.Name)), 1, MaxStrLen(CountryRegion.Name)));
         CountryRegion.Insert(true);
@@ -774,7 +774,7 @@ codeunit 138929 "O365 HTML Templates"
           SalesLine, SalesHeader, SalesLine.Type::Item,
           LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(1, 10));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(1, 99999, 2));
-        SalesLine.Modify;
+        SalesLine.Modify();
 
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
@@ -788,14 +788,14 @@ codeunit 138929 "O365 HTML Templates"
           SalesLine, SalesHeader, SalesLine.Type::Item,
           LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(1, 10));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(1, 99999, 2));
-        SalesLine.Modify;
+        SalesLine.Modify();
     end;
 
     local procedure ClearSocials()
     var
         O365SocialNetwork: Record "O365 Social Network";
     begin
-        O365SocialNetwork.DeleteAll;
+        O365SocialNetwork.DeleteAll();
     end;
 
     local procedure CreateSocials(var O365SocialNetwork: Record "O365 Social Network")
@@ -810,12 +810,12 @@ codeunit 138929 "O365 HTML Templates"
 
     local procedure CreateSocialNetwork(var O365SocialNetwork: Record "O365 Social Network")
     begin
-        O365SocialNetwork.Init;
+        O365SocialNetwork.Init();
         O365SocialNetwork.Code := CopyStr(GetGUIDValue(MaxStrLen(O365SocialNetwork.Code)), 1, MaxStrLen(O365SocialNetwork.Code));
         O365SocialNetwork.Name := CopyStr(GetGUIDValue(MaxStrLen(O365SocialNetwork.Name)), 1, MaxStrLen(O365SocialNetwork.Name));
         O365SocialNetwork.URL := CopyStr(GetGUIDValue(MaxStrLen(O365SocialNetwork.URL)), 1, MaxStrLen(O365SocialNetwork.URL));
         O365SocialNetwork."Media Resources Ref" := GetNewPngMediaResourcesRef;
-        O365SocialNetwork.Insert;
+        O365SocialNetwork.Insert();
     end;
 
     local procedure GetNewPngMediaResourcesRef() MediaResourcesRef: Code[50]
@@ -862,7 +862,7 @@ codeunit 138929 "O365 HTML Templates"
     var
         CompanyInformation: Record "Company Information";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation.Name :=
           CopyStr(GetGUIDValue(MaxStrLen(CompanyInformation.Name)), 1, MaxStrLen(CompanyInformation.Name));
         CompanyInformation.Address :=
@@ -878,7 +878,7 @@ codeunit 138929 "O365 HTML Templates"
         CompanyInformation."Country/Region Code" := CreateCountryRegion;
         CompanyInformation."Phone No." :=
           CopyStr(GetGUIDValue(MaxStrLen(CompanyInformation."Phone No.")), 1, MaxStrLen(CompanyInformation."Phone No."));
-        CompanyInformation.Modify;
+        CompanyInformation.Modify();
     end;
 
     local procedure LoadHTMLFile(FileName: Text) HTMLText: Text
@@ -929,7 +929,7 @@ codeunit 138929 "O365 HTML Templates"
     var
         CompanyInformation: Record "Company Information";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         VerifyValueExists(HTMLText, CompanyInformation.Name, CompanyInformation.FieldName(Name));
         VerifyValueExists(HTMLText, CompanyInformation.Address, CompanyInformation.FieldName(Address));
         VerifyValueExists(HTMLText, CompanyInformation."Address 2", CompanyInformation.FieldName("Address 2"));

@@ -39,15 +39,15 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
         LibraryO365: Codeunit "Library - O365";
     begin
         // Clean up company
-        SalesHeader.DeleteAll;
-        SalesInvoiceHeader.DeleteAll;
-        GLRegister.DeleteAll;
-        Customer.DeleteAll;
-        Item.DeleteAll;
+        SalesHeader.DeleteAll();
+        SalesInvoiceHeader.DeleteAll();
+        GLRegister.DeleteAll();
+        Customer.DeleteAll();
+        Item.DeleteAll();
 
         // Remove setup if it exists
         if O365SalesInitialSetup.Get then
-            O365SalesInitialSetup.Delete;
+            O365SalesInitialSetup.Delete();
 
         LibraryO365.PopulateO365Setup;
 
@@ -55,7 +55,7 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
             O365C2GraphEventSettings.Insert(true);
 
         O365C2GraphEventSettings.SetEventsEnabled(false);
-        O365C2GraphEventSettings.Modify;
+        O365C2GraphEventSettings.Modify();
         LibrarySetupStorage.Restore;
 
         if IsInitialized then
@@ -83,7 +83,7 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
         O365SalesInitialSetup.Run;
         Clear(O365SalesInitialSetup);
 
-        O365SalesInitialSetupRec.Get;
+        O365SalesInitialSetupRec.Get();
         Assert.IsTrue(O365SalesInitialSetupRec."Is initialized", 'Setup has not been initialised already');
 
         // Exercise
@@ -91,7 +91,7 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
         CODEUNIT.Run(CODEUNIT::"O365 Sales Initial Setup");
 
         // Assert
-        O365SalesInitialSetupRec.Get;
+        O365SalesInitialSetupRec.Get();
         Assert.IsTrue(O365SalesInitialSetupRec."Is initialized", 'Setup has not been initialised already');
     end;
 
@@ -116,7 +116,7 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
         CODEUNIT.Run(CODEUNIT::"O365 Sales Initial Setup");
 
         // Assert
-        O365SalesInitialSetupRec.Get;
+        O365SalesInitialSetupRec.Get();
         Assert.IsTrue(O365SalesInitialSetupRec."Is initialized", 'Setup has not been initialised already');
     end;
 
@@ -141,7 +141,7 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
         CODEUNIT.Run(CODEUNIT::"O365 Sales Initial Setup");
 
         // Assert
-        O365SalesInitialSetupRec.Get;
+        O365SalesInitialSetupRec.Get();
         Assert.IsTrue(O365SalesInitialSetupRec."Is initialized", 'Setup has not been initialised already');
     end;
 
@@ -156,7 +156,7 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
         // Setup
         Initialize;
         if SalesReceivablesSetup.Get then
-            SalesReceivablesSetup.Delete;
+            SalesReceivablesSetup.Delete();
 
         // Exercise
         LibraryLowerPermissions.SetO365Setup;
@@ -169,7 +169,7 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
         Assert.IsFalse(SalesReceivablesSetup."Stockout Warning", 'Stockout warnings have not been disabled');
         Assert.IsTrue(SalesReceivablesSetup."Calc. Inv. Discount", 'Calc. Inv. Discount not set');
 
-        O365SalesInitialSetup.Get;
+        O365SalesInitialSetup.Get();
         Assert.AreEqual(
           O365SalesInitialSetup."Sales Invoice No. Series", SalesReceivablesSetup."Invoice Nos.", 'Invoice number series not set up');
         Assert.AreEqual(
@@ -189,14 +189,14 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
 
         // [GIVEN] Marketin Setup record does not exist
         if MarketingSetup.Get then
-            MarketingSetup.Delete;
+            MarketingSetup.Delete();
 
         // [WHEN] Codeunit "O365 Sales Initial Setup" is being run
         LibraryLowerPermissions.SetO365Setup;
         CODEUNIT.Run(CODEUNIT::"O365 Sales Initial Setup");
 
         // [THEN] Marketing Setup record created
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         // [THEN] "Cust. Template Company Code" and "Cust. Template Person Code" field are filled in
         MarketingSetup.TestField("Cust. Template Company Code");
         MarketingSetup.TestField("Cust. Template Person Code");
@@ -214,13 +214,13 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
     begin
         // Setup
         Initialize;
-        O365SalesInitialSetup.Get;
+        O365SalesInitialSetup.Get();
 
         if not GenJournalBatch.Get(O365SalesInitialSetup."Payment Reg. Template Name", O365SalesInitialSetup."Payment Reg. Batch Name") then begin
             LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
             O365SalesInitialSetup."Payment Reg. Template Name" := GenJournalBatch."Journal Template Name";
             O365SalesInitialSetup."Payment Reg. Batch Name" := GenJournalBatch.Name;
-            O365SalesInitialSetup.Modify;
+            O365SalesInitialSetup.Modify();
         end;
 
         // Exercise
@@ -249,11 +249,11 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
         Initialize;
 
         if not CustomReportLayout.Get(StrSubstNo(DraftInvoiceLayoutTxt, REPORT::"Standard Sales - Draft Invoice")) then begin
-            CustomReportLayout.Init;
+            CustomReportLayout.Init();
             CustomReportLayout."App ID" := CreateGuid;
             CustomReportLayout."Report ID" := REPORT::"Standard Sales - Draft Invoice";
             CustomReportLayout.Code := StrSubstNo(DraftInvoiceLayoutTxt, CustomReportLayout."Report ID");
-            CustomReportLayout.Insert;
+            CustomReportLayout.Insert();
         end;
 
         // Exercise
@@ -306,10 +306,10 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
     begin
         // Setup
         Initialize;
-        O365SalesInitialSetup.Get;
+        O365SalesInitialSetup.Get();
 
-        ConfigTemplateHeader.DeleteAll;
-        ConfigTemplateLine.DeleteAll;
+        ConfigTemplateHeader.DeleteAll();
+        ConfigTemplateLine.DeleteAll();
         ConfigTemplateHeader.Validate(Code, O365SalesInitialSetup."Default Customer Template");
         ConfigTemplateHeader.Validate("Table ID", DATABASE::Customer);
         ConfigTemplateHeader.Insert(true);
@@ -318,7 +318,7 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
             LibraryERM.CreateCountryRegion(CountryRegion);
             CompanyInformation."Country/Region Code" := CountryRegion.Code;
             CompanyInformation.City := '';
-            CompanyInformation.Modify;
+            CompanyInformation.Modify();
         end;
 
         // Exercise
@@ -367,11 +367,11 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
     begin
         // Setup
         Initialize;
-        CustomerTemplate.DeleteAll;
+        CustomerTemplate.DeleteAll();
 
         if CompanyInformation.Get then begin
             CompanyInformation.City := '';
-            CompanyInformation.Modify;
+            CompanyInformation.Modify();
         end;
 
         // Exercise
@@ -488,7 +488,7 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
     begin
         // Setup
         Initialize;
-        O365SalesInitialSetup.Get;
+        O365SalesInitialSetup.Get();
         Assert.IsFalse(O365SalesInitialSetup."Is initialized", '');
 
         // Excercise
@@ -496,7 +496,7 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
         CODEUNIT.Run(CODEUNIT::"O365 Sales Initial Setup");
 
         // Verify
-        O365SalesInitialSetup.Get;
+        O365SalesInitialSetup.Get();
         Assert.IsTrue(O365SalesInitialSetup."Is initialized", '');
     end;
 
@@ -512,11 +512,11 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
         // Setup
         Initialize;
         if SMTPMailSetup.Get then
-            SMTPMailSetup.Delete;
+            SMTPMailSetup.Delete();
 
         SMTPMail.ApplyOffice365Smtp(SMTPMailSetup);
         SMTPMailSetup."User ID" := TestMailTxt;
-        SMTPMailSetup.Insert;
+        SMTPMailSetup.Insert();
 
         // Excercise
         LibraryLowerPermissions.SetO365Setup;
@@ -585,7 +585,7 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
         // [GIVEN] Create new payment method with Bal. Account
         LibraryERM.CreatePaymentMethodWithBalAccount(PaymentMethod);
         PaymentMethod."Use for Invoicing" := true;
-        PaymentMethod.Modify;
+        PaymentMethod.Modify();
 
         // [WHEN] O365 company is being initialized
         O365SalesInitialSetup.HideConfirmDialog;
@@ -633,7 +633,7 @@ codeunit 138906 "O365 Sales Auto. Setup Tests"
         ConfigTemplateLine: Record "Config. Template Line";
         O365SalesInitialSetup: Record "O365 Sales Initial Setup";
     begin
-        O365SalesInitialSetup.Get;
+        O365SalesInitialSetup.Get();
         ConfigTemplateLine.SetRange("Data Template Code", O365SalesInitialSetup."Default Customer Template");
         ConfigTemplateLine.SetRange("Field ID", FieldId);
         if not ConfigTemplateLine.FindFirst then

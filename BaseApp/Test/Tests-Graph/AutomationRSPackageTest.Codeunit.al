@@ -52,7 +52,7 @@ codeunit 135542 "Automation RSPackage Test"
         PackageCode := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(20, 0), 1, 20);
         PackageJSON := CreateRSPackageJSON(PackageCode);
 
-        Commit;
+        Commit();
         // [WHEN] we POST the JSON to the web service
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Automation - Config. Package", '');
         LibraryGraphMgt.PostToWebService(TargetURL, PackageJSON, ResponseText);
@@ -85,7 +85,7 @@ codeunit 135542 "Automation RSPackage Test"
         TenantConfigPackageFile.Validate(Code, ConfigPackage.Code);
         TenantConfigPackageFile.Insert(true);
 
-        Commit;
+        Commit();
         // [WHEN] A PATCH request is made to the Attachment API.
         TargetURL := LibraryGraphMgt.CreateTargetURLWithSubpage(
             FormatRSCode(ConfigPackage.Code), PAGE::"Automation - Config. Package", RSPackageServiceTxt,
@@ -130,7 +130,7 @@ codeunit 135542 "Automation RSPackage Test"
         RecordRef.SetTable(TenantConfigPackageFile);
         TenantConfigPackageFile.Insert(true);
 
-        Commit;
+        Commit();
         // [WHEN] invoke the import action
         TargetURL :=
           LibraryGraphMgt.CreateTargetURLWithSubpage(
@@ -178,7 +178,7 @@ codeunit 135542 "Automation RSPackage Test"
         RecordRef.SetTable(TenantConfigPackageFile);
         TenantConfigPackageFile.Insert(true);
 
-        Commit;
+        Commit();
         // [WHEN] invoke the import action
         TargetURL :=
           LibraryGraphMgt.CreateTargetURLWithSubpage(
@@ -228,7 +228,7 @@ codeunit 135542 "Automation RSPackage Test"
 
         CODEUNIT.Run(CODEUNIT::"Automation - Import RSPackage", ConfigPackage);
 
-        Commit;
+        Commit();
         // [WHEN] invoke the apply action
         TargetURL :=
           LibraryGraphMgt.CreateTargetURLWithSubpage(

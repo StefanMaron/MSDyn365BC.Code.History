@@ -14,7 +14,7 @@ report 8614 "Get Config. Tables"
             begin
                 ConfigMgt.GetConfigTables(
                   AllObj, IncludeWithDataOnly, IncludeRelatedTables, IncludeDimensionTables, IncludeLicensedTablesOnly, true);
-                CurrReport.Break;
+                CurrReport.Break();
             end;
         }
     }

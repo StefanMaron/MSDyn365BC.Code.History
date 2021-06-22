@@ -252,7 +252,7 @@ codeunit 138908 "O365 Email Test"
         Assert.AreEqual('testsender@domain.com', MailManagement.GetSenderEmailAddress, '');
 
         // [THEN] The User Id is set to testuser
-        SMTPMailSetup.Get;
+        SMTPMailSetup.Get();
         Assert.AreEqual('testuser@domain.com', SMTPMailSetup."User ID", '');
     end;
 
@@ -284,20 +284,20 @@ codeunit 138908 "O365 Email Test"
         Assert.AreEqual('testuser@domain.com', BCO365EmailAccountSettings.FromAccount.Value, '');
 
         // [THEN] The User Id is set to testuser
-        SMTPMailSetup.Get;
+        SMTPMailSetup.Get();
         Assert.AreEqual('testuser@domain.com', SMTPMailSetup."User ID", '');
     end;
 
     local procedure Initialize()
     begin
-        O365EmailSetup.Reset;
-        O365EmailSetup.DeleteAll;
+        O365EmailSetup.Reset();
+        O365EmailSetup.DeleteAll();
     end;
 
     local procedure InsertRecipient(Email: Text[80]; RecipientType: Option)
     begin
-        O365EmailSetup.Reset;
-        O365EmailSetup.Init;
+        O365EmailSetup.Reset();
+        O365EmailSetup.Init();
         O365EmailSetup.Email := Email;
         O365EmailSetup.RecipientType := RecipientType;
         O365EmailSetup.Insert(true);

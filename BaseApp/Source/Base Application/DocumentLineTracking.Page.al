@@ -233,7 +233,7 @@ page 6560 "Document Line Tracking"
     begin
         with TempDocumentEntry do begin
             Window.Open(CountingRecordsMsg);
-            DeleteAll;
+            DeleteAll();
             "Entry No." := 0;
 
             case SourceDocType of
@@ -441,13 +441,13 @@ page 6560 "Document Line Tracking"
         if DocNoOfRecords = 0 then
             exit;
 
-        TempDocumentEntry.Init;
+        TempDocumentEntry.Init();
         TempDocumentEntry."Entry No." := TempDocumentEntry."Entry No." + 1;
         TempDocumentEntry."Table ID" := DocTableID;
         TempDocumentEntry."Document Type" := DocType;
         TempDocumentEntry."Table Name" := CopyStr(DocTableName, 1, MaxStrLen(TempDocumentEntry."Table Name"));
         TempDocumentEntry."No. of Records" := DocNoOfRecords;
-        TempDocumentEntry.Insert;
+        TempDocumentEntry.Insert();
     end;
 
     local procedure GetDocumentData()
@@ -669,7 +669,7 @@ page 6560 "Document Line Tracking"
     local procedure FindPurchCreditMemoLines(OrderNo: Code[20]; OrderLineNo: Integer)
     begin
         if PurchCrMemoLine.ReadPermission then begin
-            PurchCrMemoLine.Reset;
+            PurchCrMemoLine.Reset();
             PurchCrMemoLine.SetRange("Order No.", OrderNo);
             PurchCrMemoLine.SetRange("Order Line No.", OrderLineNo);
             InsertIntoDocEntry(DATABASE::"Purch. Cr. Memo Line", 3, PostedPurchaseCreditMemoLinesTxt, PurchCrMemoLine.Count);
@@ -679,7 +679,7 @@ page 6560 "Document Line Tracking"
     local procedure FindPurchOrderLines(DocNo: Code[20]; DocLineNo: Integer)
     begin
         if PurchLine.ReadPermission then begin
-            PurchLine.Reset;
+            PurchLine.Reset();
             PurchLine.SetRange("Document Type", PurchLine."Document Type"::Order);
             PurchLine.SetRange("Document No.", DocNo);
             PurchLine.SetRange("Line No.", DocLineNo);
@@ -690,7 +690,7 @@ page 6560 "Document Line Tracking"
     local procedure FindPurchOrderLinesByBlanketOrder(BlanketOrderNo: Code[20]; BlanketOrderLineNo: Integer)
     begin
         if PurchLine.ReadPermission then begin
-            PurchLine.Reset;
+            PurchLine.Reset();
             PurchLine.SetRange("Document Type", PurchLine."Document Type"::Order);
             PurchLine.SetRange("Blanket Order No.", BlanketOrderNo);
             PurchLine.SetRange("Blanket Order Line No.", BlanketOrderLineNo);
@@ -701,7 +701,7 @@ page 6560 "Document Line Tracking"
     local procedure FindPurchBlanketOrderLines(DocNo: Code[20]; DocLineNo: Integer)
     begin
         if BlanketPurchOrderLine.ReadPermission then begin
-            BlanketPurchOrderLine.Reset;
+            BlanketPurchOrderLine.Reset();
             BlanketPurchOrderLine.SetRange("Document Type", BlanketPurchOrderLine."Document Type"::"Blanket Order");
             BlanketPurchOrderLine.SetRange("Document No.", DocNo);
             BlanketPurchOrderLine.SetRange("Line No.", DocLineNo);
@@ -712,7 +712,7 @@ page 6560 "Document Line Tracking"
     local procedure FindPurchReturnOrderLines(DocNo: Code[20]; DocLineNo: Integer)
     begin
         if PurchLine.ReadPermission then begin
-            PurchLine.Reset;
+            PurchLine.Reset();
             PurchLine.SetRange("Document Type", PurchLine."Document Type"::"Return Order");
             PurchLine.SetRange("Document No.", DocNo);
             PurchLine.SetRange("Line No.", DocLineNo);
@@ -723,7 +723,7 @@ page 6560 "Document Line Tracking"
     local procedure FindPurchOrderLinesArchive(DocNo: Code[20]; DocLineNo: Integer)
     begin
         if PurchLineArchive.ReadPermission then begin
-            PurchLineArchive.Reset;
+            PurchLineArchive.Reset();
             PurchLineArchive.SetRange("Document Type", PurchLineArchive."Document Type"::Order);
             PurchLineArchive.SetRange("Document No.", DocNo);
             PurchLineArchive.SetRange("Line No.", DocLineNo);
@@ -734,7 +734,7 @@ page 6560 "Document Line Tracking"
     local procedure FindPurchBlanketOrderLinesArchive(DocNo: Code[20]; DocLineNo: Integer)
     begin
         if BlanketPurchOrderLineArchive.ReadPermission then begin
-            BlanketPurchOrderLineArchive.Reset;
+            BlanketPurchOrderLineArchive.Reset();
             BlanketPurchOrderLineArchive.SetRange("Document Type", BlanketPurchOrderLineArchive."Document Type"::"Blanket Order");
             BlanketPurchOrderLineArchive.SetRange("Document No.", DocNo);
             BlanketPurchOrderLineArchive.SetRange("Line No.", DocLineNo);
@@ -746,7 +746,7 @@ page 6560 "Document Line Tracking"
     local procedure FindPurchReturnOrderLinesArchive(DocNo: Code[20]; DocLineNo: Integer)
     begin
         if PurchLineArchive.ReadPermission then begin
-            PurchLineArchive.Reset;
+            PurchLineArchive.Reset();
             PurchLineArchive.SetRange("Document Type", PurchLineArchive."Document Type"::"Return Order");
             PurchLineArchive.SetRange("Document No.", DocNo);
             PurchLineArchive.SetRange("Line No.", DocLineNo);
@@ -757,7 +757,7 @@ page 6560 "Document Line Tracking"
     local procedure FindPurchOrderLinesArchiveByBlanketOrder(BlanketOrderNo: Code[20]; BlanketOrderLineNo: Integer)
     begin
         if PurchLineArchive.ReadPermission then begin
-            PurchLineArchive.Reset;
+            PurchLineArchive.Reset();
             PurchLineArchive.SetRange("Document Type", PurchLineArchive."Document Type"::Order);
             PurchLineArchive.SetRange("Blanket Order No.", BlanketOrderNo);
             PurchLineArchive.SetRange("Blanket Order Line No.", BlanketOrderLineNo);
@@ -768,7 +768,7 @@ page 6560 "Document Line Tracking"
     local procedure FindPurchReceiptLinesByOrder(OrderNo: Code[20]; OrderLineNo: Integer)
     begin
         if PurchRcptLine.ReadPermission then begin
-            PurchRcptLine.Reset;
+            PurchRcptLine.Reset();
             PurchRcptLine.SetCurrentKey("Order No.", "Order Line No.");
             PurchRcptLine.SetRange("Order No.", OrderNo);
             PurchRcptLine.SetRange("Order Line No.", OrderLineNo);
@@ -779,7 +779,7 @@ page 6560 "Document Line Tracking"
     local procedure FindPurchReceiptLinesByBlanketOrder(BlanketOrderNo: Code[20]; BlanketOrderLineNo: Integer)
     begin
         if PurchRcptLine.ReadPermission then begin
-            PurchRcptLine.Reset;
+            PurchRcptLine.Reset();
             PurchRcptLine.SetRange("Blanket Order No.", BlanketOrderNo);
             PurchRcptLine.SetRange("Blanket Order Line No.", BlanketOrderLineNo);
             InsertIntoDocEntry(DATABASE::"Purch. Rcpt. Line", 0, PostedPurchaseReceiptLinesTxt, PurchRcptLine.Count);
@@ -789,7 +789,7 @@ page 6560 "Document Line Tracking"
     local procedure FindPurchInvoiceLinesByOrder(OrderNo: Code[20]; OrderLineNo: Integer)
     begin
         if PurchInvLine.ReadPermission then begin
-            PurchInvLine.Reset;
+            PurchInvLine.Reset();
             PurchInvLine.SetRange("Order No.", OrderNo);
             PurchInvLine.SetRange("Order Line No.", OrderLineNo);
             InsertIntoDocEntry(DATABASE::"Purch. Inv. Line", 0, PostedPurchaseInvoiceLinesTxt, PurchInvLine.Count);
@@ -799,7 +799,7 @@ page 6560 "Document Line Tracking"
     local procedure FindPurchInvoiceLinesByBlanketOrder(BlanketOrderNo: Code[20]; BlanketOrderLineNo: Integer)
     begin
         if PurchInvLine.ReadPermission then begin
-            PurchInvLine.Reset;
+            PurchInvLine.Reset();
             PurchInvLine.SetRange("Blanket Order No.", BlanketOrderNo);
             PurchInvLine.SetRange("Blanket Order Line No.", BlanketOrderLineNo);
             InsertIntoDocEntry(DATABASE::"Purch. Inv. Line", 0, PostedPurchaseInvoiceLinesTxt, PurchInvLine.Count);
@@ -809,7 +809,7 @@ page 6560 "Document Line Tracking"
     local procedure FindReturnReceiptLines(ReturnOrderNo: Code[20]; ReturnOrderLineNo: Integer)
     begin
         if ReturnReceiptLine.ReadPermission then begin
-            ReturnReceiptLine.Reset;
+            ReturnReceiptLine.Reset();
             ReturnReceiptLine.SetRange("Return Order No.", ReturnOrderNo);
             ReturnReceiptLine.SetRange("Return Order Line No.", ReturnOrderLineNo);
             InsertIntoDocEntry(DATABASE::"Return Receipt Line", 5, PostedReturnReceiptLinesTxt, ReturnReceiptLine.Count);
@@ -819,7 +819,7 @@ page 6560 "Document Line Tracking"
     local procedure FindReturnShipmentLines(ReturnOrderNo: Code[20]; ReturnOrderLineNo: Integer)
     begin
         if ReturnShipmentLine.ReadPermission then begin
-            ReturnShipmentLine.Reset;
+            ReturnShipmentLine.Reset();
             ReturnShipmentLine.SetRange("Return Order No.", ReturnOrderNo);
             ReturnShipmentLine.SetRange("Return Order Line No.", ReturnOrderLineNo);
             InsertIntoDocEntry(DATABASE::"Return Shipment Line", 5, PostedReturnShipmentLinesTxt, ReturnShipmentLine.Count);
@@ -829,7 +829,7 @@ page 6560 "Document Line Tracking"
     local procedure FindSalesCreditMemoLines(OrderNo: Code[20]; OrderLineNo: Integer)
     begin
         if SalesCrMemoLine.ReadPermission then begin
-            SalesCrMemoLine.Reset;
+            SalesCrMemoLine.Reset();
             SalesCrMemoLine.SetRange("Order No.", OrderNo);
             SalesCrMemoLine.SetRange("Order Line No.", OrderLineNo);
             InsertIntoDocEntry(DATABASE::"Sales Cr.Memo Line", 3, PostedSalesCreditMemoLinesTxt, SalesCrMemoLine.Count);
@@ -839,7 +839,7 @@ page 6560 "Document Line Tracking"
     local procedure FindSalesOrderLines(DocNo: Code[20]; DocLineNo: Integer)
     begin
         if SalesLine.ReadPermission then begin
-            SalesLine.Reset;
+            SalesLine.Reset();
             SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
             SalesLine.SetRange("Document No.", DocNo);
             SalesLine.SetRange("Line No.", DocLineNo);
@@ -850,7 +850,7 @@ page 6560 "Document Line Tracking"
     local procedure FindSalesOrderLinesByBlanketOrder(BlanketOrderNo: Code[20]; BlanketOrderLineNo: Integer)
     begin
         if SalesLine.ReadPermission then begin
-            SalesLine.Reset;
+            SalesLine.Reset();
             SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
             SalesLine.SetRange("Blanket Order No.", BlanketOrderNo);
             SalesLine.SetRange("Blanket Order Line No.", BlanketOrderLineNo);
@@ -861,7 +861,7 @@ page 6560 "Document Line Tracking"
     local procedure FindSalesBlanketOrderLines(DocNo: Code[20]; DocLineNo: Integer)
     begin
         if BlanketSalesOrderLine.ReadPermission then begin
-            BlanketSalesOrderLine.Reset;
+            BlanketSalesOrderLine.Reset();
             BlanketSalesOrderLine.SetRange("Document Type", BlanketSalesOrderLine."Document Type"::"Blanket Order");
             BlanketSalesOrderLine.SetRange("Document No.", DocNo);
             BlanketSalesOrderLine.SetRange("Line No.", DocLineNo);
@@ -872,7 +872,7 @@ page 6560 "Document Line Tracking"
     local procedure FindSalesReturnOrderLines(DocNo: Code[20]; DocLineNo: Integer)
     begin
         if SalesLine.ReadPermission then begin
-            SalesLine.Reset;
+            SalesLine.Reset();
             SalesLine.SetRange("Document Type", SalesLine."Document Type"::"Return Order");
             SalesLine.SetRange("Document No.", DocNo);
             SalesLine.SetRange("Line No.", DocLineNo);
@@ -883,7 +883,7 @@ page 6560 "Document Line Tracking"
     local procedure FindSalesOrderLinesArchive(DocNo: Code[20]; DocLineNo: Integer)
     begin
         if SalesLineArchive.ReadPermission then begin
-            SalesLineArchive.Reset;
+            SalesLineArchive.Reset();
             SalesLineArchive.SetRange("Document Type", SalesLineArchive."Document Type"::Order);
             SalesLineArchive.SetRange("Document No.", DocNo);
             SalesLineArchive.SetRange("Line No.", DocLineNo);
@@ -894,7 +894,7 @@ page 6560 "Document Line Tracking"
     local procedure FindSalesBlanketOrderLinesArchive(DocNo: Code[20]; DocLineNo: Integer)
     begin
         if BlanketSalesOrderLineArchive.ReadPermission then begin
-            BlanketSalesOrderLineArchive.Reset;
+            BlanketSalesOrderLineArchive.Reset();
             BlanketSalesOrderLineArchive.SetRange("Document Type", BlanketSalesOrderLineArchive."Document Type"::"Blanket Order");
             BlanketSalesOrderLineArchive.SetRange("Document No.", DocNo);
             BlanketSalesOrderLineArchive.SetRange("Line No.", DocLineNo);
@@ -905,7 +905,7 @@ page 6560 "Document Line Tracking"
     local procedure FindSalesReturnOrderLinesArchive(DocNo: Code[20]; DocLineNo: Integer)
     begin
         if SalesLineArchive.ReadPermission then begin
-            SalesLineArchive.Reset;
+            SalesLineArchive.Reset();
             SalesLineArchive.SetRange("Document Type", SalesLineArchive."Document Type"::"Return Order");
             SalesLineArchive.SetRange("Document No.", DocNo);
             SalesLineArchive.SetRange("Line No.", DocLineNo);
@@ -916,7 +916,7 @@ page 6560 "Document Line Tracking"
     local procedure FindSalesOrderLinesArchiveByBlanketOrder(BlanketOrderNo: Code[20]; BlanketOrderLineNo: Integer)
     begin
         if SalesLineArchive.ReadPermission then begin
-            SalesLineArchive.Reset;
+            SalesLineArchive.Reset();
             SalesLineArchive.SetRange("Document Type", SalesLineArchive."Document Type"::Order);
             SalesLineArchive.SetRange("Blanket Order No.", BlanketOrderNo);
             SalesLineArchive.SetRange("Blanket Order Line No.", BlanketOrderLineNo);
@@ -927,7 +927,7 @@ page 6560 "Document Line Tracking"
     local procedure FindSalesShipmentLinesByOrder(OrderNo: Code[20]; OrderLineNo: Integer)
     begin
         if SalesShptLine.ReadPermission then begin
-            SalesShptLine.Reset;
+            SalesShptLine.Reset();
             SalesShptLine.SetRange("Order No.", OrderNo);
             SalesShptLine.SetRange("Order Line No.", OrderLineNo);
             InsertIntoDocEntry(DATABASE::"Sales Shipment Line", 0, PostedSalesShipmentLinesTxt, SalesShptLine.Count);
@@ -937,7 +937,7 @@ page 6560 "Document Line Tracking"
     local procedure FindSalesShipmentLinesByBlanketOrder(BlanketOrderNo: Code[20]; BlanketOrderLineNo: Integer)
     begin
         if SalesShptLine.ReadPermission then begin
-            SalesShptLine.Reset;
+            SalesShptLine.Reset();
             SalesShptLine.SetRange("Blanket Order No.", BlanketOrderNo);
             SalesShptLine.SetRange("Blanket Order Line No.", BlanketOrderLineNo);
             InsertIntoDocEntry(DATABASE::"Sales Shipment Line", 0, PostedSalesShipmentLinesTxt, SalesShptLine.Count);
@@ -947,7 +947,7 @@ page 6560 "Document Line Tracking"
     local procedure FindSalesInvoiceLinesByOrder(OrderNo: Code[20]; OrderLineNo: Integer)
     begin
         if SalesInvLine.ReadPermission then begin
-            SalesInvLine.Reset;
+            SalesInvLine.Reset();
             SalesInvLine.SetRange("Order No.", OrderNo);
             SalesInvLine.SetRange("Order Line No.", OrderLineNo);
             InsertIntoDocEntry(
@@ -958,7 +958,7 @@ page 6560 "Document Line Tracking"
     local procedure FindSalesInvoiceLinesByBlanketOrder(BlanketOrderNo: Code[20]; BlanketOrderLineNo: Integer)
     begin
         if SalesInvLine.ReadPermission then begin
-            SalesInvLine.Reset;
+            SalesInvLine.Reset();
             SalesInvLine.SetRange("Blanket Order No.", BlanketOrderNo);
             SalesInvLine.SetRange("Blanket Order Line No.", BlanketOrderLineNo);
             InsertIntoDocEntry(DATABASE::"Sales Invoice Line", 0, PostedSalesInvoiceLinesTxt, SalesInvLine.Count);

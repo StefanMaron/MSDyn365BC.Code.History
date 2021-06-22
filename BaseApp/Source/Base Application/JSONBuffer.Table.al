@@ -78,7 +78,7 @@ table 1236 "JSON Buffer"
     begin
         if not IsTemporary then
             Error(DevMsgNotTemporaryErr);
-        DeleteAll;
+        DeleteAll();
         JSONTextReader := JSONTextReader.JsonTextReader(StringReader.StringReader(JSONText));
         if JSONTextReader.Read then
             repeat
@@ -103,7 +103,7 @@ table 1236 "JSON Buffer"
     procedure FindArray(var TempJSONBuffer: Record "JSON Buffer" temporary; ArrayName: Text): Boolean
     begin
         TempJSONBuffer.Copy(Rec, true);
-        TempJSONBuffer.Reset;
+        TempJSONBuffer.Reset();
 
         TempJSONBuffer.SetRange(Path, AppendPathToCurrent(ArrayName));
         if not TempJSONBuffer.FindFirst then
@@ -124,7 +124,7 @@ table 1236 "JSON Buffer"
         TempJSONBuffer: Record "JSON Buffer" temporary;
     begin
         TempJSONBuffer.Copy(Rec, true);
-        TempJSONBuffer.Reset;
+        TempJSONBuffer.Reset();
 
         TempJSONBuffer.SetFilter(Path, PropertyPath);
         TempJSONBuffer.SetRange("Token type", "Token type"::"Property Name");

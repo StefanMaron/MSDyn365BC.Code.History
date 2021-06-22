@@ -89,10 +89,10 @@ report 1003 "Post Invt. Cost to G/L - Test"
                             TempCapValueEntry."Entry No." := "Entry No.";
                             TempCapValueEntry."Order Type" := "Order Type";
                             TempCapValueEntry."Order No." := "Order No.";
-                            TempCapValueEntry.Insert;
+                            TempCapValueEntry.Insert();
                         end;
                         if ("Item Ledger Entry No." = 0) or not Inventoriable then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                     end;
 
                     FillInvtPostToGLTestBuf(ItemValueEntry);
@@ -114,7 +114,7 @@ report 1003 "Post Invt. Cost to G/L - Test"
                 trigger OnPreDataItem()
                 begin
                     InvtPost.SetRunOnlyCheck(false, true, true);
-                    TempCapValueEntry.DeleteAll;
+                    TempCapValueEntry.DeleteAll();
                 end;
             }
             dataitem(InvtPostToGLTestBuf; "Integer")
@@ -175,10 +175,10 @@ report 1003 "Post Invt. Cost to G/L - Test"
                     begin
                         if Number = 1 then begin
                             if not DimSetEntry.FindSet then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end else
                             if not Continue then
-                                CurrReport.Break;
+                                CurrReport.Break();
 
                         Clear(DimText);
                         Continue := false;
@@ -201,7 +201,7 @@ report 1003 "Post Invt. Cost to G/L - Test"
                     trigger OnPreDataItem()
                     begin
                         if not ShowDim then
-                            CurrReport.Break;
+                            CurrReport.Break();
 
                         DimSetEntry.SetRange("Dimension Set ID", TempInvtPostToGLTestBuf."Dimension Set ID");
                     end;
@@ -287,7 +287,7 @@ report 1003 "Post Invt. Cost to G/L - Test"
                     end;
 
                     if ShowOnlyWarnings and (ErrorCounter = 0) then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
 
                 trigger OnPreDataItem()
@@ -309,7 +309,7 @@ report 1003 "Post Invt. Cost to G/L - Test"
                             Error(
                               Text001, ItemValueEntry.FieldCaption("Document No."), SelectStr(PostMethod + 1, Text005));
                 end;
-                GLSetup.Get;
+                GLSetup.Get();
             end;
         }
     }
@@ -579,11 +579,11 @@ report 1003 "Post Invt. Cost to G/L - Test"
                 "Inventory Account Type"::"Invt. Accrual (Interim)":
                     exit(GenPostSetup.FieldCaption("Invt. Accrual Acc. (Interim)"));
                 else begin
-                    IsHandled := false;
-                    OnGetAccountNameInventoryAccountTypeCase(TempInvtPostToGLTestBuf, AccountName, IsHandled, InvtPostSetup, GenPostSetup);
-                    if IsHandled then
-                        exit(AccountName);
-                end;
+                        IsHandled := false;
+                        OnGetAccountNameInventoryAccountTypeCase(TempInvtPostToGLTestBuf, AccountName, IsHandled, InvtPostSetup, GenPostSetup);
+                        if IsHandled then
+                            exit(AccountName);
+                    end;
             end;
 
         OnAfterGetAccountName(TempInvtPostToGLTestBuf, InvtPostSetup, GenPostSetup, AccountName);

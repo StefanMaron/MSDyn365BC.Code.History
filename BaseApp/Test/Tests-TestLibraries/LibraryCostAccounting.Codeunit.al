@@ -148,7 +148,7 @@ codeunit 131340 "Library - Cost Accounting"
     var
         CostAccountingSetup: Record "Cost Accounting Setup";
     begin
-        CostAccountingSetup.Get;
+        CostAccountingSetup.Get();
         exit(CostAccountingSetup."Cost Center Dimension");
     end;
 
@@ -156,7 +156,7 @@ codeunit 131340 "Library - Cost Accounting"
     var
         CostAccountingSetup: Record "Cost Accounting Setup";
     begin
-        CostAccountingSetup.Get;
+        CostAccountingSetup.Get();
         exit(CostAccountingSetup."Cost Object Dimension");
     end;
 
@@ -166,7 +166,7 @@ codeunit 131340 "Library - Cost Accounting"
     begin
         FindCostType(CostType);
 
-        CostAllocationSource.Init;
+        CostAllocationSource.Init();
         if TypeOfID = TypeOfID::Custom then
             CostAllocationSource.Validate(ID, (LastAllocSourceID + StrSubstNo(AllocSourceID, CostAllocationSource.Count)));
         CostAllocationSource.Validate(Level, LibraryRandom.RandInt(10));
@@ -192,7 +192,7 @@ codeunit 131340 "Library - Cost Accounting"
     begin
         LineNo := LastAllocTargetID(CostAllocationSource) + 1;
 
-        CostAllocationTarget.Init;
+        CostAllocationTarget.Init();
         CostAllocationTarget.Validate(ID, CostAllocationSource.ID);
         CostAllocationTarget.Validate("Line No.", LineNo);
         CostAllocationTarget.Validate("Target Cost Type", CostAllocationSource."Credit to Cost Type");
@@ -224,7 +224,7 @@ codeunit 131340 "Library - Cost Accounting"
         CostAccountingSetup: Record "Cost Accounting Setup";
         AlignGLAccount: Option;
     begin
-        CostAccountingSetup.Get;
+        CostAccountingSetup.Get();
         AlignGLAccount := CostAccountingSetup."Align G/L Account";
         CostAccountingSetup.Validate("Align G/L Account", CostAccountingSetup."Align G/L Account"::"No Alignment");
         CostAccountingSetup.Modify(true);
@@ -234,7 +234,7 @@ codeunit 131340 "Library - Cost Accounting"
         GLAccount.Validate("Income/Balance", GLAccount."Income/Balance"::"Balance Sheet");
         GLAccount.Modify(true);
 
-        CostAccountingSetup.Get;
+        CostAccountingSetup.Get();
         CostAccountingSetup.Validate("Align G/L Account", AlignGLAccount);
         CostAccountingSetup.Modify(true);
     end;
@@ -247,7 +247,7 @@ codeunit 131340 "Library - Cost Accounting"
         FindCostType(CostType);
         FindCostCenter(CostCenter);
 
-        CostBudgetEntry.Init;
+        CostBudgetEntry.Init();
         CostBudgetEntry.Validate(Date, WorkDate);
         CostBudgetEntry.Validate("Budget Name", CostBudgetName);
         CostBudgetEntry.Validate("Cost Type No.", CostType."No.");
@@ -258,7 +258,7 @@ codeunit 131340 "Library - Cost Accounting"
 
     procedure CreateCostBudgetName(var CostBudgetName: Record "Cost Budget Name")
     begin
-        CostBudgetName.Init;
+        CostBudgetName.Init();
         CostBudgetName.Validate(
           Name, LibraryUtility.GenerateRandomCode(CostBudgetName.FieldNo(Description), DATABASE::"Cost Budget Name"));
         CostBudgetName.Validate(Description, CostBudgetName.Name);
@@ -267,7 +267,7 @@ codeunit 131340 "Library - Cost Accounting"
 
     procedure CreateCostCenter(var CostCenter: Record "Cost Center")
     begin
-        CostCenter.Init;
+        CostCenter.Init();
         CostCenter.Validate(Code, LibraryUtility.GenerateRandomCode(CostCenter.FieldNo(Code), DATABASE::"Cost Center"));
         CostCenter.Validate("Line Type", CostCenter."Line Type"::"Cost Center");
         CostCenter.Insert(true);
@@ -278,7 +278,7 @@ codeunit 131340 "Library - Cost Accounting"
         CostAccountingSetup: Record "Cost Accounting Setup";
         DimensionValue: Record "Dimension Value";
     begin
-        CostAccountingSetup.Get;
+        CostAccountingSetup.Get();
         SetAlignment(
           CostAccountingSetup.FieldNo("Align Cost Center Dimension"), CostAccountingSetup."Align Cost Center Dimension"::Automatic);
         LibraryDimension.CreateDimensionValue(DimensionValue, CostAccountingSetup."Cost Center Dimension");
@@ -292,7 +292,7 @@ codeunit 131340 "Library - Cost Accounting"
 
     procedure CreateCostJournalTemplate(var CostJournalTemplate: Record "Cost Journal Template")
     begin
-        CostJournalTemplate.Init;
+        CostJournalTemplate.Init();
         CostJournalTemplate.Validate(
           Name, LibraryUtility.GenerateRandomCode(CostJournalTemplate.FieldNo(Name), DATABASE::"Cost Journal Template"));
         CostJournalTemplate.Insert(true);
@@ -300,7 +300,7 @@ codeunit 131340 "Library - Cost Accounting"
 
     procedure CreateCostJnlBatchWithDelOpt(var CostJournalBatch: Record "Cost Journal Batch"; CostJournalTemplateName: Code[10]; DeleteAfterPosting: Boolean)
     begin
-        CostJournalBatch.Init;
+        CostJournalBatch.Init();
         CostJournalBatch.Validate("Journal Template Name", CostJournalTemplateName);
         CostJournalBatch.Validate("Delete after Posting", DeleteAfterPosting);
         CostJournalBatch.Validate(Name, LibraryUtility.GenerateRandomCode(CostJournalBatch.FieldNo(Name), DATABASE::"Cost Journal Batch"));
@@ -326,7 +326,7 @@ codeunit 131340 "Library - Cost Accounting"
     var
         RecRef: RecordRef;
     begin
-        CostJournalLine.Init;
+        CostJournalLine.Init();
         CostJournalLine.Validate("Journal Template Name", CostJournalTemplateName);
         CostJournalLine.Validate("Journal Batch Name", CostJournalBatchName);
         RecRef.GetTable(CostJournalLine);
@@ -343,7 +343,7 @@ codeunit 131340 "Library - Cost Accounting"
 
     procedure CreateCostObject(var CostObject: Record "Cost Object")
     begin
-        CostObject.Init;
+        CostObject.Init();
         CostObject.Validate(Code, LibraryUtility.GenerateRandomCode(CostObject.FieldNo(Code), DATABASE::"Cost Object"));
         CostObject.Validate("Line Type", CostObject."Line Type"::"Cost Object");
         CostObject.Insert(true);
@@ -354,7 +354,7 @@ codeunit 131340 "Library - Cost Accounting"
         CostAccountingSetup: Record "Cost Accounting Setup";
         DimensionValue: Record "Dimension Value";
     begin
-        CostAccountingSetup.Get;
+        CostAccountingSetup.Get();
         SetAlignment(
           CostAccountingSetup.FieldNo("Align Cost Object Dimension"), CostAccountingSetup."Align Cost Object Dimension"::Automatic);
         LibraryDimension.CreateDimensionValue(DimensionValue, CostAccountingSetup."Cost Object Dimension");
@@ -369,7 +369,7 @@ codeunit 131340 "Library - Cost Accounting"
 
     procedure CreateCostTypeNoGLRange(var CostType: Record "Cost Type")
     begin
-        CostType.Init;
+        CostType.Init();
         CostType.Validate("No.", LibraryUtility.GenerateRandomCode(CostType.FieldNo("No."), DATABASE::"Cost Type"));
         CostType.Validate(Type, CostType.Type::"Cost Type");
         CostType.Validate("Combine Entries", CostType."Combine Entries"::None);
@@ -626,7 +626,7 @@ codeunit 131340 "Library - Cost Accounting"
 
     procedure GetAllCostTypes(var CostType: Record "Cost Type")
     begin
-        CostType.Init;
+        CostType.Init();
         CostType.SetFilter(Type, Format(CostType.Type::"Cost Type"));
         CostType.SetFilter("G/L Account Range", '<>%1', '');
         if CostType.IsEmpty then
@@ -691,7 +691,7 @@ codeunit 131340 "Library - Cost Accounting"
     var
         CostAccountingSetup: Record "Cost Accounting Setup";
     begin
-        CostAccountingSetup.Get;
+        CostAccountingSetup.Get();
         CostAccountingSetup.Validate("Align G/L Account", CostAccountingSetup."Align G/L Account"::Automatic);
         CostAccountingSetup.Validate("Align Cost Center Dimension", CostAccountingSetup."Align Cost Center Dimension"::Automatic);
         CostAccountingSetup.Validate("Align Cost Object Dimension", CostAccountingSetup."Align Cost Object Dimension"::Automatic);
@@ -711,7 +711,7 @@ codeunit 131340 "Library - Cost Accounting"
         SourceCode: Record "Source Code";
         Modified: Boolean;
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
 
         if SourceCodeSetup."G/L Entry to CA" = '' then begin
             LibraryERM.CreateSourceCode(SourceCode);
@@ -737,7 +737,7 @@ codeunit 131340 "Library - Cost Accounting"
     var
         CostAccountingSetup: Record "Cost Accounting Setup";
     begin
-        CostAccountingSetup.Get;
+        CostAccountingSetup.Get();
         exit(CostAccountingSetup."Last Allocation ID");
     end;
 
@@ -772,7 +772,7 @@ codeunit 131340 "Library - Cost Accounting"
         RecordRef: RecordRef;
         FieldRef: FieldRef;
     begin
-        CostAccountingSetup.Get;
+        CostAccountingSetup.Get();
         RecordRef.GetTable(CostAccountingSetup);
         FieldRef := RecordRef.Field(FieldNo);
         Field.Get(RecordRef.Number, FieldRef.Number);
@@ -786,7 +786,7 @@ codeunit 131340 "Library - Cost Accounting"
     var
         CostAccountingSetup: Record "Cost Accounting Setup";
     begin
-        CostAccountingSetup.Get;
+        CostAccountingSetup.Get();
         CostAccountingSetup.Validate("Auto Transfer from G/L", Autotransfer);
         CostAccountingSetup.Modify(true);
     end;
@@ -804,7 +804,7 @@ codeunit 131340 "Library - Cost Accounting"
 
         // Make sure corresponding cost center exists
         if not CostCenter.Get(DefaultDimension."Dimension Value Code") then begin
-            CostCenter.Init;
+            CostCenter.Init();
             CostCenter.Validate(Code, DefaultDimension."Dimension Value Code");
             CostCenter.Validate("Line Type", CostCenter."Line Type"::"Cost Center");
             CostCenter.Insert(true);

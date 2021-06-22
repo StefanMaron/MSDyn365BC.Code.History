@@ -1,4 +1,4 @@
-﻿page 5832 "Capacity Ledger Entries"
+page 5832 "Capacity Ledger Entries"
 {
     ApplicationArea = Assembly, Manufacturing;
     Caption = 'Capacity Ledger Entries';

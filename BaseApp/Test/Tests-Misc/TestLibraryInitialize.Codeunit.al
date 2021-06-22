@@ -58,7 +58,7 @@ codeunit 132529 "Test Library Initialize"
     var
         NameValueBuffer: Record "Name/Value Buffer";
     begin
-        NameValueBuffer.DeleteAll;
+        NameValueBuffer.DeleteAll();
         if not IsBinded then begin
             BindSubscription(TestLibraryInitialize);
             IsBinded := true;
@@ -112,9 +112,9 @@ codeunit 132529 "Test Library Initialize"
     var
         NameValueBuffer: Record "Name/Value Buffer";
     begin
-        NameValueBuffer.Init;
+        NameValueBuffer.Init();
         NameValueBuffer.Name := EventName;
-        NameValueBuffer.Insert;
+        NameValueBuffer.Insert();
     end;
 }
 

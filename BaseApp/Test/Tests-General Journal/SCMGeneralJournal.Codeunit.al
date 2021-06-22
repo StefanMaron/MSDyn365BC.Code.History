@@ -241,7 +241,7 @@ codeunit 137043 "SCM General Journal"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM General Journal");
     end;
 
@@ -262,7 +262,7 @@ codeunit 137043 "SCM General Journal"
           AccountType, AccountNo, Amount);
         GenJournalLine.Validate("Bal. Account Type", BalAccountType);
         GenJournalLine.Validate("Bal. Account No.", BalAccountNo);
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
     end;
 
     local procedure CreateStandardGenlJournalCode(var StandardGeneralJournalCode: Code[10])
@@ -304,7 +304,7 @@ codeunit 137043 "SCM General Journal"
         repeat
             GenJournalLine.Delete(true);
         until GenJournalLine.Next = 0;
-        Commit;
+        Commit();
     end;
 
     [Normal]
@@ -331,8 +331,8 @@ codeunit 137043 "SCM General Journal"
         StandardGeneralJournalLine.SetRange("Account Type", StandardGeneralJournalLine."Account Type"::"G/L Account");
         StandardGeneralJournalLine.FindFirst;
         StandardGeneralJournalLine.Validate("Account No.", GLAccount."No.");
-        StandardGeneralJournalLine.Modify;
-        Commit;
+        StandardGeneralJournalLine.Modify();
+        Commit();
         exit(StandardGeneralJournalLine."Account No.");
     end;
 

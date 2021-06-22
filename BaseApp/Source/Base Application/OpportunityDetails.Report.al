@@ -154,7 +154,7 @@ report 5068 "Opportunity - Details"
                     trigger OnAfterGetRecord()
                     begin
                         if ("Team Code" <> '') and ("System To-do Type" <> "System To-do Type"::Team) then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                         if PlannedStartingDate = 0D then
                             PlannedStartingDate := Date;
                     end;

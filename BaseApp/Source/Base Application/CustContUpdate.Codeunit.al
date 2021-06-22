@@ -12,7 +12,7 @@ codeunit 5056 "CustCont-Update"
 
     procedure OnInsert(var Cust: Record Customer)
     begin
-        RMSetup.Get;
+        RMSetup.Get();
         if RMSetup."Bus. Rel. Code for Customers" = '' then
             exit;
 
@@ -90,7 +90,7 @@ codeunit 5056 "CustCont-Update"
             exit;
 
         if not LocalCall then begin
-            RMSetup.Get;
+            RMSetup.Get();
             RMSetup.TestField("Bus. Rel. Code for Customers");
         end;
 
@@ -135,7 +135,7 @@ codeunit 5056 "CustCont-Update"
         Cont: Record Contact;
     begin
         if not LocalCall then begin
-            RMSetup.Get;
+            RMSetup.Get();
             RMSetup.TestField("Bus. Rel. Code for Customers");
         end;
 

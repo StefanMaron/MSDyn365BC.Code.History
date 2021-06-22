@@ -12,7 +12,7 @@ codeunit 5058 "BankCont-Update"
 
     procedure OnInsert(var BankAcc: Record "Bank Account")
     begin
-        RMSetup.Get;
+        RMSetup.Get();
         if RMSetup."Bus. Rel. Code for Bank Accs." = '' then
             exit;
 
@@ -83,7 +83,7 @@ codeunit 5058 "BankCont-Update"
             exit;
 
         if not LocalCall then begin
-            RMSetup.Get;
+            RMSetup.Get();
             RMSetup.TestField("Bus. Rel. Code for Bank Accs.");
         end;
 

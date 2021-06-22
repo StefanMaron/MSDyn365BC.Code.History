@@ -244,7 +244,7 @@ page 5483 "Employee Entity"
     begin
         Clear(Id);
         Clear(PostalAddressJSON);
-        TempFieldSet.DeleteAll;
+        TempFieldSet.DeleteAll();
     end;
 
     local procedure RegisterFieldSet(FieldNo: Integer)
@@ -252,7 +252,7 @@ page 5483 "Employee Entity"
         if TempFieldSet.Get(DATABASE::Employee, FieldNo) then
             exit;
 
-        TempFieldSet.Init;
+        TempFieldSet.Init();
         TempFieldSet.TableNo := DATABASE::Employee;
         TempFieldSet.Validate("No.", FieldNo);
         TempFieldSet.Insert(true);

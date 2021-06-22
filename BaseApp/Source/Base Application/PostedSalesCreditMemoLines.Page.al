@@ -1,4 +1,4 @@
-﻿page 527 "Posted Sales Credit Memo Lines"
+page 527 "Posted Sales Credit Memo Lines"
 {
     Caption = 'Posted Sales Credit Memo Lines';
     Editable = false;

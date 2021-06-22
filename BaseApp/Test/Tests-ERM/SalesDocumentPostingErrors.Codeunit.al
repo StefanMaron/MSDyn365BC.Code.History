@@ -54,7 +54,7 @@ codeunit 132501 "Sales Document Posting Errors"
         TempErrorMessage.TestField("Context Table Number", DATABASE::"Sales Header");
         TempErrorMessage.TestField("Context Field Number", SalesHeader.FieldNo("Posting Date"));
         // [THEN] "Source" is 'G/L Setup', "Field Name" is 'Allow Posting From'
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         TempErrorMessage.TestField("Record ID", GeneralLedgerSetup.RecordId);
         TempErrorMessage.TestField("Table Number", DATABASE::"General Ledger Setup");
         TempErrorMessage.TestField("Field Number", GeneralLedgerSetup.FieldNo("Allow Posting From"));
@@ -87,7 +87,7 @@ codeunit 132501 "Sales Document Posting Errors"
         // [GIVEN] "Allow Posting To" is 31.12.2018 in "User Setup"
         LibraryTimeSheet.CreateUserSetup(UserSetup, true);
         UserSetup."Allow Posting To" := WorkDate - 1;
-        UserSetup.Modify;
+        UserSetup.Modify();
         // [GIVEN] Invoice '1001', where "Posting Date" is 01.01.2019
         LibrarySales.CreateSalesInvoice(SalesHeader);
         SalesHeader.TestField("Posting Date", WorkDate);
@@ -122,7 +122,7 @@ codeunit 132501 "Sales Document Posting Errors"
         SalesInvoicePage."Posting Date".AssertEquals(WorkDate);
 
         // TearDown
-        UserSetup.Delete;
+        UserSetup.Delete();
     end;
 
     [Test]
@@ -338,7 +338,7 @@ codeunit 132501 "Sales Document Posting Errors"
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Sales Document Posting Errors");
     end;
 
@@ -355,8 +355,8 @@ codeunit 132501 "Sales Document Posting Errors"
     begin
         SalesHeader.Ship := true;
         SalesHeader.Invoice := true;
-        SalesHeader.Modify;
-        Commit;
+        SalesHeader.Modify();
+        Commit();
     end;
 
     [ConfirmHandler]

@@ -375,10 +375,6 @@ table 79 "Company Information"
                         Error(GLNCheckDigitErr, FieldCaption(GLN));
             end;
         }
-        field(95; "Use GLN in Electronic Document"; Boolean)
-        {
-            Caption = 'Use GLN in Electronic Documents';
-        }
         field(96; "Picture - Last Mod. Date Time"; DateTime)
         {
             Caption = 'Picture - Last Mod. Date Time';

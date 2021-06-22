@@ -137,7 +137,7 @@ table 8622 "Config. Line"
                 ConfigPackageTable.Get("Package Code", "Table ID");
                 ConfigPackageTable.SetHideValidationDialog(HideValidationDialog);
                 ConfigPackageTable.Validate("Dimensions as Columns", "Dimensions as Columns");
-                ConfigPackageTable.Modify;
+                ConfigPackageTable.Modify();
             end;
         }
         field(13; "Copying Available"; Boolean)
@@ -335,7 +335,7 @@ table 8622 "Config. Line"
         ConfigQuestionArea.SetRange("Table ID", "Table ID");
         ConfigQuestionArea.FindFirst;
 
-        ConfigQuestionArea.Reset;
+        ConfigQuestionArea.Reset();
         ConfigQuestionArea.FilterGroup(2);
         ConfigQuestionArea.SetRange("Table ID", "Table ID");
         ConfigQuestionArea.FilterGroup(0);
@@ -444,11 +444,11 @@ table 8622 "Config. Line"
             repeat
                 if Field.RelationTableNo <> 0 then
                     if not ConfigRelatedField.Get("Table ID", Field."No.") then begin
-                        ConfigRelatedField.Init;
+                        ConfigRelatedField.Init();
                         ConfigRelatedField."Table ID" := "Table ID";
                         ConfigRelatedField."Field ID" := Field."No.";
                         ConfigRelatedField."Relation Table ID" := Field.RelationTableNo;
-                        ConfigRelatedField.Insert;
+                        ConfigRelatedField.Insert();
                     end;
             until Field.Next = 0;
 
@@ -457,7 +457,7 @@ table 8622 "Config. Line"
                 if not ConfigRelatedTable.Get(ConfigRelatedField."Table ID", ConfigRelatedField."Relation Table ID") then begin
                     ConfigRelatedTable."Table ID" := ConfigRelatedField."Table ID";
                     ConfigRelatedTable."Relation Table ID" := ConfigRelatedField."Relation Table ID";
-                    ConfigRelatedTable.Insert;
+                    ConfigRelatedTable.Insert();
                 end;
             until ConfigRelatedField.Next = 0;
     end;
@@ -518,7 +518,7 @@ table 8622 "Config. Line"
     begin
         if FindSet then
             repeat
-                TempConfigLine.Reset;
+                TempConfigLine.Reset();
                 TempConfigLine.SetRange("Line Type", "Line Type"::Table);
                 TempConfigLine.SetRange("Table ID", "Table ID");
                 TempConfigLine.SetRange("Package Code", "Package Code");
@@ -527,9 +527,9 @@ table 8622 "Config. Line"
                     ConfigLine.Delete(true);
                     NoOfDuplicateLines := NoOfDuplicateLines + 1;
                 end else begin
-                    TempConfigLine.Init;
+                    TempConfigLine.Init();
                     TempConfigLine := Rec;
-                    TempConfigLine.Insert;
+                    TempConfigLine.Insert();
                 end;
             until Next = 0;
 

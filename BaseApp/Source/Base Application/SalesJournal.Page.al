@@ -1,4 +1,4 @@
-﻿page 253 "Sales Journal"
+page 253 "Sales Journal"
 {
     // // This page has two view modes based on global variable 'IsSimplePage' as :-
     // // Show more columns action (IsSimplePage = FALSE)
@@ -907,7 +907,8 @@
                     PromotedIsBig = true;
                     PromotedOnly = true;
                     ToolTip = 'Send the data in the journal to an Excel file for analysis or editing.';
-                    Visible = IsSaasExcelAddinEnabled;
+                    Visible = IsSaaSExcelAddinEnabled;
+                    AccessByPermission = System "Allow Action Export To Excel" = X;
 
                     trigger OnAction()
                     var
@@ -1023,7 +1024,7 @@
         JnlSelected: Boolean;
         LastGenJnlBatch: Code[10];
     begin
-        IsSaasExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled;
+        IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
         if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::ODataV4 then
             exit;
 
@@ -1068,7 +1069,7 @@
         TotalBalanceVisible: Boolean;
         AmountVisible: Boolean;
         DebitCreditVisible: Boolean;
-        IsSaasExcelAddinEnabled: Boolean;
+        IsSaaSExcelAddinEnabled: Boolean;
         IsSimplePage: Boolean;
         DocumentAmount: Decimal;
         EmptyDocumentTypeErr: Label 'You must specify a document type for %1.', Comment = '%1 = Document number.';
@@ -1112,7 +1113,7 @@
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         // Hide amount when open in simple page mode.
         if IsSimplePage then begin
             AmountVisible := false;

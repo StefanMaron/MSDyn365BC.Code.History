@@ -30,7 +30,7 @@ codeunit 5510 "Production Journal Mgt"
         LeaveForm: Boolean;
         IsHandled: Boolean;
     begin
-        MfgSetup.Get;
+        MfgSetup.Get();
 
         SetTemplateAndBatchName;
 
@@ -64,8 +64,8 @@ codeunit 5510 "Production Journal Mgt"
         ProdOrderComp: Record "Prod. Order Component";
         IsHandled: Boolean;
     begin
-        ItemJnlLine.LockTable;
-        ItemJnlLine.Reset;
+        ItemJnlLine.LockTable();
+        ItemJnlLine.Reset();
         ItemJnlLine.SetRange("Journal Template Name", ToTemplateName);
         ItemJnlLine.SetRange("Journal Batch Name", ToBatchName);
         if ItemJnlLine.FindLast then
@@ -73,7 +73,7 @@ codeunit 5510 "Production Journal Mgt"
         else
             NextLineNo := 10000;
 
-        ProdOrderLine.Reset;
+        ProdOrderLine.Reset();
         ProdOrderLine.SetRange(Status, ProdOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProdOrder."No.");
         if ProdOrderLineNo <> 0 then
@@ -82,7 +82,7 @@ codeunit 5510 "Production Journal Mgt"
             repeat
                 OnCreateJnlLinesOnBeforeCheckProdOrderLine(ProdOrderLine);
 
-                ProdOrderRtngLine.Reset;
+                ProdOrderRtngLine.Reset();
                 ProdOrderRtngLine.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
                 ProdOrderRtngLine.SetRange("Routing No.", ProdOrderLine."Routing No.");
                 ProdOrderRtngLine.SetRange(Status, ProdOrderLine.Status);
@@ -95,7 +95,7 @@ codeunit 5510 "Production Journal Mgt"
                         if not IsHandled then begin
                             InsertOutputJnlLine(ProdOrderRtngLine, ProdOrderLine);
                             if ProdOrderRtngLine."Routing Link Code" <> '' then begin
-                                ProdOrderComp.Reset;
+                                ProdOrderComp.Reset();
                                 ProdOrderComp.SetCurrentKey(Status, "Prod. Order No.", "Routing Link Code");
                                 ProdOrderComp.SetRange(Status, ProdOrder.Status);
                                 ProdOrderComp.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
@@ -119,7 +119,7 @@ codeunit 5510 "Production Journal Mgt"
                 end;
             until ProdOrderLine.Next = 0;
 
-        Commit;
+        Commit();
     end;
 
     local procedure InsertComponents(ProdOrderLine: Record "Prod. Order Line"; CheckRoutingLink: Boolean; Level: Integer)
@@ -127,7 +127,7 @@ codeunit 5510 "Production Journal Mgt"
         ProdOrderComp: Record "Prod. Order Component";
     begin
         // Components with no Routing Link or illegal Routing Link
-        ProdOrderComp.Reset;
+        ProdOrderComp.Reset();
         ProdOrderComp.SetRange(Status, ProdOrderLine.Status);
         ProdOrderComp.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
         ProdOrderComp.SetRange("Prod. Order Line No.", ProdOrderLine."Line No.");
@@ -191,7 +191,7 @@ codeunit 5510 "Production Journal Mgt"
                     AdjustQtyToQtyPicked(NeededQty);
             end;
 
-            ItemJnlLine.Init;
+            ItemJnlLine.Init();
             OnInsertConsumptionJnlLineOnAfterItemJnlLineInit(ItemJnlLine);
             ItemJnlLine."Journal Template Name" := ToTemplateName;
             ItemJnlLine."Journal Batch Name" := ToBatchName;
@@ -225,7 +225,7 @@ codeunit 5510 "Production Journal Mgt"
             ItemJnlLine."Posting No. Series" := ItemJnlBatch."Posting No. Series";
 
             OnBeforeInsertConsumptionJnlLine(ItemJnlLine, ProdOrderComp, ProdOrderLine, Level);
-            ItemJnlLine.Insert;
+            ItemJnlLine.Insert();
             OnAfterInsertConsumptionJnlLine(ItemJnlLine);
 
             if Item."Item Tracking Code" <> '' then
@@ -296,7 +296,7 @@ codeunit 5510 "Production Journal Mgt"
             if QtyToPost < 0 then
                 QtyToPost := 0;
 
-            ItemJnlLine.Init;
+            ItemJnlLine.Init();
             ItemJnlLine."Journal Template Name" := ToTemplateName;
             ItemJnlLine."Journal Batch Name" := ToBatchName;
             ItemJnlLine."Line No." := NextLineNo;
@@ -332,7 +332,7 @@ codeunit 5510 "Production Journal Mgt"
             ItemJnlLine."Posting No. Series" := ItemJnlBatch."Posting No. Series";
 
             OnBeforeInsertOutputJnlLine(ItemJnlLine, ProdOrderRtngLine, ProdOrderLine);
-            ItemJnlLine.Insert;
+            ItemJnlLine.Insert();
             OnAfterInsertOutputJnlLine(ItemJnlLine);
 
             if IsLastOperation(ProdOrderRtngLine) then
@@ -361,7 +361,7 @@ codeunit 5510 "Production Journal Mgt"
 
     procedure InitSetupValues()
     begin
-        MfgSetup.Get;
+        MfgSetup.Get();
         PostingDate := WorkDate;
         CalcBasedOn := CalcBasedOn::"Expected Output";
         PresetOutputQuantity := MfgSetup."Preset Output Quantity";
@@ -378,19 +378,19 @@ codeunit 5510 "Production Journal Mgt"
         PageTemplate: Option Item,Transfer,"Phys. Inventory",Revaluation,Consumption,Output,Capacity,"Prod. Order";
         User: Text;
     begin
-        ItemJnlTemplate.Reset;
+        ItemJnlTemplate.Reset();
         ItemJnlTemplate.SetRange("Page ID", PAGE::"Production Journal");
         ItemJnlTemplate.SetRange(Recurring, false);
         ItemJnlTemplate.SetRange(Type, PageTemplate::"Prod. Order");
         if not ItemJnlTemplate.FindFirst then begin
-            ItemJnlTemplate.Init;
+            ItemJnlTemplate.Init();
             ItemJnlTemplate.Recurring := false;
             ItemJnlTemplate.Validate(Type, PageTemplate::"Prod. Order");
             ItemJnlTemplate.Validate("Page ID");
 
             ItemJnlTemplate.Name := Format(ItemJnlTemplate.Type, MaxStrLen(ItemJnlTemplate.Name));
             ItemJnlTemplate.Description := StrSubstNo(Text000, ItemJnlTemplate.Type);
-            ItemJnlTemplate.Insert;
+            ItemJnlTemplate.Insert();
         end;
 
         ToTemplateName := ItemJnlTemplate.Name;
@@ -410,7 +410,7 @@ codeunit 5510 "Production Journal Mgt"
             ToBatchName := Text003;
 
         if not ItemJnlBatch.Get(ToTemplateName, ToBatchName) then begin
-            ItemJnlBatch.Init;
+            ItemJnlBatch.Init();
             ItemJnlBatch."Journal Template Name" := ItemJnlTemplate.Name;
             ItemJnlBatch.SetupNewBatch;
             ItemJnlBatch.Name := ToBatchName;
@@ -418,7 +418,7 @@ codeunit 5510 "Production Journal Mgt"
             ItemJnlBatch.Insert(true);
         end;
 
-        Commit;
+        Commit();
     end;
 
     procedure DeleteJnlLines(TemplateName: Code[10]; BatchName: Code[10]; ProdOrderNo: Code[20]; ProdOrderLineNo: Integer)
@@ -426,7 +426,7 @@ codeunit 5510 "Production Journal Mgt"
         ItemJnlLine2: Record "Item Journal Line";
         ReservEntry: Record "Reservation Entry";
     begin
-        ItemJnlLine2.Reset;
+        ItemJnlLine2.Reset();
         ItemJnlLine2.SetRange("Journal Template Name", TemplateName);
         ItemJnlLine2.SetRange("Journal Batch Name", BatchName);
         ItemJnlLine2.SetRange("Order Type", ItemJnlLine2."Order Type"::Production);
@@ -450,7 +450,7 @@ codeunit 5510 "Production Journal Mgt"
         ReservEntry: Record "Reservation Entry";
         HasChanged: Boolean;
     begin
-        ItemJnlLine2.Reset;
+        ItemJnlLine2.Reset();
         ItemJnlLine2.SetRange("Journal Template Name", TemplateName);
         ItemJnlLine2.SetRange("Journal Batch Name", BatchName);
         ItemJnlLine2.SetRange("Order Type", ItemJnlLine2."Order Type"::Production);
@@ -473,7 +473,7 @@ codeunit 5510 "Production Journal Mgt"
     procedure ReservEntryExist(ItemJnlLine2: Record "Item Journal Line"; var ReservEntry: Record "Reservation Entry"): Boolean
     begin
         with ItemJnlLine2 do begin
-            ReservEntry.Reset;
+            ReservEntry.Reset();
             ReservEntry.SetCurrentKey(
               "Source ID", "Source Ref. No.", "Source Type", "Source Subtype", "Source Batch Name", "Source Prod. Order Line");
             ReservEntry.SetRange("Source ID", "Journal Template Name");

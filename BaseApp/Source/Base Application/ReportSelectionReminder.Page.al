@@ -101,6 +101,7 @@ page 524 "Report Selection - Reminder"
 
     trigger OnOpenPage()
     begin
+        InitUsageFilter();
         SetUsageFilter(false);
     end;
 
@@ -124,6 +125,26 @@ page 524 "Report Selection - Reminder"
         end;
         FilterGroup(0);
         CurrPage.Update;
+    end;
+
+    local procedure InitUsageFilter()
+    var
+        DummyReportSelections: Record "Report Selections";
+    begin
+        if GetFilter(Usage) <> '' then begin
+            if Evaluate(DummyReportSelections.Usage, GetFilter(Usage)) then
+                case DummyReportSelections.Usage of
+                    Usage::Reminder:
+                        ReportUsage2 := ReportUsage2::Reminder;
+                    Usage::"Fin.Charge":
+                        ReportUsage2 := ReportUsage2::"Fin. Charge";
+                    Usage::"Rem.Test":
+                        ReportUsage2 := ReportUsage2::"Reminder Test";
+                    Usage::"F.C.Test":
+                        ReportUsage2 := ReportUsage2::"Fin. Charge Test";
+                end;
+            SetRange(Usage);
+        end;
     end;
 }
 

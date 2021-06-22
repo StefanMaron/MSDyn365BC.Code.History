@@ -371,7 +371,7 @@ page 9239 "Sales Budget Overview Matrix"
           CurrentAnalysisArea, CurrentBudgetName, ItemBudgetName, ItemStatisticsBuffer,
           BudgetDim1Filter, BudgetDim2Filter, BudgetDim3Filter);
 
-        GLSetup.Get;
+        GLSetup.Get();
         SourceTypeFilter := SourceTypeFilter::Customer;
     end;
 

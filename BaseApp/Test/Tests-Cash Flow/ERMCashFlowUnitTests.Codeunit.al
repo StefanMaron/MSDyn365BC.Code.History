@@ -69,7 +69,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         // Source / Document type 4) - SO
         // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
         DocumentDate := CalcDate('<-3D>', WorkDate);
-        CFForecast.Modify;
+        CFForecast.Modify();
 
         with CFWorksheetLine do begin
             "Document Date" := DocumentDate;
@@ -121,7 +121,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         // Source / Document type 4) - Cr.Memo
         // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
         DocumentDate := CalcDate('<-3D>', WorkDate);
-        CFForecast.Modify;
+        CFForecast.Modify();
 
         CFWorksheetLine."Document Type" := CFWorksheetLine."Document Type"::"Credit Memo";
         CFWorksheetLine."Amount (LCY)" := -CFWorksheetLine."Amount (LCY)";
@@ -175,9 +175,9 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         // Cash Flow Payment Terms with Cash Discount? 2) - yes
         // Source / Document type 4) - Cr.Memo
         // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
-        CFForecast.Modify;
+        CFForecast.Modify();
         PaymentTerms."Calc. Pmt. Disc. on Cr. Memos" := false;
-        PaymentTerms.Modify;
+        PaymentTerms.Modify();
         DocumentDate := CalcDate('<-3D>', WorkDate);
         CFWorksheetLine."Document Type" := CFWorksheetLine."Document Type"::"Credit Memo";
         CFWorksheetLine."Amount (LCY)" := -CFWorksheetLine."Amount (LCY)";
@@ -232,7 +232,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         // Source / Document type 4) - SO
         // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
         DocumentDate := CalcDate('<-5D>', WorkDate);
-        CFForecast.Modify;
+        CFForecast.Modify();
 
         with CFWorksheetLine do begin
             "Document Date" := DocumentDate;
@@ -285,7 +285,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         // Source / Document type 4) - Cr.Memo
         // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
         DocumentDate := CalcDate('<-5D>', WorkDate);
-        CFForecast.Modify;
+        CFForecast.Modify();
 
         CFWorksheetLine."Document Type" := CFWorksheetLine."Document Type"::"Credit Memo";
         CFWorksheetLine."Amount (LCY)" := -CFWorksheetLine."Amount (LCY)";
@@ -340,9 +340,9 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         // Cash Flow Payment Terms with Cash Discount? 2) - yes
         // Source / Document type 4) - Cr.Memo
         // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
-        CFForecast.Modify;
+        CFForecast.Modify();
         PaymentTerms."Calc. Pmt. Disc. on Cr. Memos" := false;
-        PaymentTerms.Modify;
+        PaymentTerms.Modify();
         DocumentDate := CalcDate('<-5D>', WorkDate);
         CFWorksheetLine."Document Type" := CFWorksheetLine."Document Type"::"Credit Memo";
         CFWorksheetLine."Amount (LCY)" := -CFWorksheetLine."Amount (LCY)";
@@ -396,11 +396,11 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CFForecast."Consider Discount" := true;
         // Cash Flow Payment Terms with Cash Discount? 2) - No
         PaymentTerms.Validate("Discount %", 0);
-        PaymentTerms.Modify;
+        PaymentTerms.Modify();
         // Source / Document type 4) - SO
         // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
         DocumentDate := CalcDate('<-5D>', WorkDate);
-        CFForecast.Modify;
+        CFForecast.Modify();
 
         with CFWorksheetLine do begin
             "Document Date" := DocumentDate;
@@ -451,11 +451,11 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CFForecast."Consider Discount" := true;
         // Cash Flow Payment Terms with Cash Discount? 2) - No
         PaymentTerms.Validate("Discount %", 0);
-        PaymentTerms.Modify;
+        PaymentTerms.Modify();
         // Source / Document type 4) - Cr.Memo
         // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
         DocumentDate := CalcDate('<-5D>', WorkDate);
-        CFForecast.Modify;
+        CFForecast.Modify();
 
         CFWorksheetLine."Document Type" := CFWorksheetLine."Document Type"::"Credit Memo";
         CFWorksheetLine."Amount (LCY)" := -CFWorksheetLine."Amount (LCY)";
@@ -509,12 +509,12 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CFForecast."Consider Discount" := true;
         // Cash Flow Payment Terms with Cash Discount? 2) - No
         PaymentTerms.Validate("Discount %", 0);
-        PaymentTerms.Modify;
+        PaymentTerms.Modify();
         // Source / Document type 4) - Cr.Memo
         // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
-        CFForecast.Modify;
+        CFForecast.Modify();
         PaymentTerms."Calc. Pmt. Disc. on Cr. Memos" := false;
-        PaymentTerms.Modify;
+        PaymentTerms.Modify();
         DocumentDate := CalcDate('<-5D>', WorkDate);
         CFWorksheetLine."Document Type" := CFWorksheetLine."Document Type"::"Credit Memo";
         CFWorksheetLine."Amount (LCY)" := -CFWorksheetLine."Amount (LCY)";
@@ -568,11 +568,11 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CFForecast."Consider Discount" := false;
         // Cash Flow Payment Terms with Cash Discount? 2) - No
         PaymentTerms.Validate("Discount %", 0);
-        PaymentTerms.Modify;
+        PaymentTerms.Modify();
         // Source / Document type 4) - SO
         // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
         DocumentDate := CalcDate('<-5D>', WorkDate);
-        CFForecast.Modify;
+        CFForecast.Modify();
 
         with CFWorksheetLine do begin
             "Document Date" := DocumentDate;
@@ -623,11 +623,11 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CFForecast."Consider Discount" := false;
         // Cash Flow Payment Terms with Cash Discount? 2) - No
         PaymentTerms.Validate("Discount %", 0);
-        PaymentTerms.Modify;
+        PaymentTerms.Modify();
         // Source / Document type 4) - Cr.Memo
         // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
         DocumentDate := CalcDate('<-5D>', WorkDate);
-        CFForecast.Modify;
+        CFForecast.Modify();
 
         CFWorksheetLine."Document Type" := CFWorksheetLine."Document Type"::"Credit Memo";
         CFWorksheetLine."Amount (LCY)" := -CFWorksheetLine."Amount (LCY)";
@@ -681,12 +681,12 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CFForecast."Consider Discount" := false;
         // Cash Flow Payment Terms with Cash Discount? 2) - No
         PaymentTerms.Validate("Discount %", 0);
-        PaymentTerms.Modify;
+        PaymentTerms.Modify();
         // Source / Document type 4) - Cr.Memo
         // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
-        CFForecast.Modify;
+        CFForecast.Modify();
         PaymentTerms."Calc. Pmt. Disc. on Cr. Memos" := false;
-        PaymentTerms.Modify;
+        PaymentTerms.Modify();
         DocumentDate := CalcDate('<-5D>', WorkDate);
         CFWorksheetLine."Document Type" := CFWorksheetLine."Document Type"::"Credit Memo";
         CFWorksheetLine."Amount (LCY)" := -CFWorksheetLine."Amount (LCY)";
@@ -742,7 +742,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         // Source / Document type 4) - SO
         // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
         DocumentDate := CalcDate('<-3D>', WorkDate);
-        CFForecast.Modify;
+        CFForecast.Modify();
 
         with CFWorksheetLine do begin
             "Document Date" := DocumentDate;
@@ -795,7 +795,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         // Source / Document type 4) - SO
         // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
         DocumentDate := CalcDate('<-5D>', WorkDate);
-        CFForecast.Modify;
+        CFForecast.Modify();
 
         with CFWorksheetLine do begin
             "Document Date" := DocumentDate;
@@ -848,7 +848,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         // Source / Document type 4) - SO
         // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
         DocumentDate := CalcDate('<-3D>', WorkDate);
-        CFForecast.Modify;
+        CFForecast.Modify();
 
         with CFWorksheetLine do begin
             "Document Date" := DocumentDate;
@@ -901,7 +901,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         // Source / Document type 4) - SO
         // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
         DocumentDate := CalcDate('<-5D>', WorkDate);
-        CFForecast.Modify;
+        CFForecast.Modify();
 
         with CFWorksheetLine do begin
             "Document Date" := DocumentDate;
@@ -956,7 +956,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         // Source / Document type 4) - SO
         // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
         DocumentDate := CalcDate('<-3D>', WorkDate);
-        CFForecast.Modify;
+        CFForecast.Modify();
 
         with CFWorksheetLine do begin
             "Document Date" := DocumentDate;
@@ -1009,7 +1009,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         // Source / Document type 4) - SO
         // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
         DocumentDate := CalcDate('<-3D>', WorkDate);
-        CFForecast.Modify;
+        CFForecast.Modify();
 
         with CFWorksheetLine do begin
             "Document Date" := DocumentDate;
@@ -1062,7 +1062,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         // Source / Document type 4) - SO
         // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
         DocumentDate := CalcDate('<-5D>', WorkDate);
-        CFForecast.Modify;
+        CFForecast.Modify();
 
         with CFWorksheetLine do begin
             "Document Date" := DocumentDate;
@@ -1117,7 +1117,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         // Source / Document type 4) - SO
         // Cash Discount Date <= Work Date Y=workdate: Jan. 3 N=workdate: Jan. 9"
         DocumentDate := CalcDate('<-5D>', WorkDate);
-        CFForecast.Modify;
+        CFForecast.Modify();
 
         with CFWorksheetLine do begin
             "Document Date" := DocumentDate;
@@ -1153,7 +1153,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         Initialize;
         LibrarySales.CreateCustomer(Customer);
         Customer.Address := TestForEmptyDocDate;
-        Customer.Modify;
+        Customer.Modify();
         LibraryCF.CreateCashFlowCard(CFForecast);
 
         PreFillCFWorksheetLine(CFWorksheetLine, CFForecast."No.", Customer.Address, '');
@@ -1187,15 +1187,15 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         Evaluate(PaymentTerms."Due Date Calculation", '<1M>');
         PaymentTerms.Validate("Discount %", LibraryRandom.RandInt(50));
         PaymentTerms.Validate("Calc. Pmt. Disc. on Cr. Memos", true);
-        PaymentTerms.Modify;
+        PaymentTerms.Modify();
 
         Customer."Cash Flow Payment Terms Code" := PaymentTerms.Code;
-        Customer.Modify;
+        Customer.Modify();
 
         LibraryCF.CreateCashFlowCard(CFForecast);
         CFForecast."Consider Discount" := true;
         CFForecast."Consider CF Payment Terms" := true;
-        CFForecast.Modify;
+        CFForecast.Modify();
 
         PreFillCFWorksheetLine(CFWorksheetLine, CFForecast."No.", Customer.Address, PaymentTerms.Code);
 
@@ -1244,10 +1244,10 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         Evaluate(PaymentTerms."Discount Date Calculation", '<3D>');
         PaymentTerms.Validate("Discount %", LibraryRandom.RandInt(90));
         PaymentTerms.Validate("Calc. Pmt. Disc. on Cr. Memos", true);
-        PaymentTerms.Modify;
+        PaymentTerms.Modify();
 
         Customer."Cash Flow Payment Terms Code" := PaymentTerms.Code;
-        Customer.Modify;
+        Customer.Modify();
     end;
 
     local procedure InsertRndCFLedgEntries(CashFlowNo: Code[20]; SourceType: Option; CashFlowDate: Date; var TotalAmount: Decimal)
@@ -1262,7 +1262,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         for i := 1 to Count do begin
             Amount := LibraryRandom.RandDec(100, 2);
             if SourceType in
-               [CFForecastEntry."Source Type"::"Purchase Order",
+               [CFForecastEntry."Source Type"::"Purchase Orders",
                 CFForecastEntry."Source Type"::"Cash Flow Manual Expense",
                 CFForecastEntry."Source Type"::"Fixed Assets Budget",
                 CFForecastEntry."Source Type"::Payables]
@@ -1284,7 +1284,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         Clear(PostedAmount);
         CashFlowForecast.FindFirst;
         CFForecastEntry.SetRange("Cash Flow Forecast No.", CashFlowForecast."No.");
-        CFForecastEntry.DeleteAll;
+        CFForecastEntry.DeleteAll();
 
         for SourceType := 1 to ArrayLen(ConsiderSource) do
             if ConsiderSource[SourceType] then begin
@@ -1526,7 +1526,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         Initialize;
         CFForecast.FindFirst;
         CFForecastEntry.SetRange("Cash Flow Forecast No.", CFForecast."No.");
-        CFForecastEntry.DeleteAll;
+        CFForecastEntry.DeleteAll();
 
         SetPeriodLengthInChartSetup(BusChartBuf."Period Length"::Day);
         CFChartMgt.UpdateData(BusChartBuf);
@@ -1791,7 +1791,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
     begin
         Initialize;
         ConsiderSource[CashFlowForecast."Source Type Filter"::Receivables] := true;
-        ConsiderSource[CashFlowForecast."Source Type Filter"::"Sales Order"] := true;
+        ConsiderSource[CashFlowForecast."Source Type Filter"::"Sales Orders"] := true;
         ConsiderSource[CashFlowForecast."Source Type Filter"::"Service Orders"] := true;
         InsertCFLedgerEntries(CashFlowForecast, ConsiderSource, PostedAmount);
 
@@ -1925,7 +1925,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
     begin
         Initialize;
         ConsiderSource[CFForecastEntry."Source Type"::Payables] := true;
-        ConsiderSource[CFForecastEntry."Source Type"::"Sales Order"] := true;
+        ConsiderSource[CFForecastEntry."Source Type"::"Sales Orders"] := true;
         SetupDrillDownOnFactBox(CashFlowCard, ConsiderSource);
 
         CFLedgerEntries.Trap;
@@ -1943,8 +1943,8 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         ConsiderSource: array[16] of Boolean;
     begin
         Initialize;
-        ConsiderSource[CFForecastEntry."Source Type"::"Sales Order"] := true;
-        ConsiderSource[CFForecastEntry."Source Type"::"Purchase Order"] := true;
+        ConsiderSource[CFForecastEntry."Source Type"::"Sales Orders"] := true;
+        ConsiderSource[CFForecastEntry."Source Type"::"Purchase Orders"] := true;
         SetupDrillDownOnFactBox(CashFlowCard, ConsiderSource);
 
         CFLedgerEntries.Trap;
@@ -1962,7 +1962,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         ConsiderSource: array[16] of Boolean;
     begin
         Initialize;
-        ConsiderSource[CFForecastEntry."Source Type"::"Purchase Order"] := true;
+        ConsiderSource[CFForecastEntry."Source Type"::"Purchase Orders"] := true;
         ConsiderSource[CFForecastEntry."Source Type"::"Liquid Funds"] := true;
         SetupDrillDownOnFactBox(CashFlowCard, ConsiderSource);
 
@@ -2078,7 +2078,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         // Setup
         Initialize;
         ConsiderSource[CFForecastEntry."Source Type"::"G/L Budget"] := true;
-        ConsiderSource[CFForecastEntry."Source Type"::"Sales Order"] := true; // consider some unrelated values as well
+        ConsiderSource[CFForecastEntry."Source Type"::"Sales Orders"] := true; // consider some unrelated values as well
         SetupDrillDownOnFactBox(CashFlowCard, ConsiderSource);
 
         // Exercise
@@ -2155,7 +2155,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
     begin
         Initialize;
         ConsiderSource[CFForecastEntry."Source Type"::Payables] := true;
-        ConsiderSource[CFForecastEntry."Source Type"::"Sales Order"] := true;
+        ConsiderSource[CFForecastEntry."Source Type"::"Sales Orders"] := true;
         SetupDrillDownOnPAG868(CashFlowStatistic, ConsiderSource);
 
         CFLedgerEntries.Trap;
@@ -2173,8 +2173,8 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         ConsiderSource: array[16] of Boolean;
     begin
         Initialize;
-        ConsiderSource[CFForecastEntry."Source Type"::"Sales Order"] := true;
-        ConsiderSource[CFForecastEntry."Source Type"::"Purchase Order"] := true;
+        ConsiderSource[CFForecastEntry."Source Type"::"Sales Orders"] := true;
+        ConsiderSource[CFForecastEntry."Source Type"::"Purchase Orders"] := true;
         SetupDrillDownOnPAG868(CashFlowStatistic, ConsiderSource);
 
         CFLedgerEntries.Trap;
@@ -2192,7 +2192,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         ConsiderSource: array[16] of Boolean;
     begin
         Initialize;
-        ConsiderSource[CFForecastEntry."Source Type"::"Purchase Order"] := true;
+        ConsiderSource[CFForecastEntry."Source Type"::"Purchase Orders"] := true;
         ConsiderSource[CFForecastEntry."Source Type"::"Liquid Funds"] := true;
         SetupDrillDownOnPAG868(CashFlowStatistic, ConsiderSource);
 
@@ -2308,7 +2308,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         // Setup
         Initialize;
         ConsiderSource[CFForecastEntry."Source Type"::"G/L Budget"] := true;
-        ConsiderSource[CFForecastEntry."Source Type"::"Sales Order"] := true; // create some unrelated entries as well
+        ConsiderSource[CFForecastEntry."Source Type"::"Sales Orders"] := true; // create some unrelated entries as well
         SetupDrillDownOnPAG868(CashFlowStatistic, ConsiderSource);
 
         // Exercise
@@ -2395,7 +2395,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         Initialize;
         CreateCashFlowChartSetup;
         CashFlowChartSetup."Chart Type" := ChartType;
-        CashFlowChartSetup.Modify;
+        CashFlowChartSetup.Modify();
         Actual := CashFlowChartSetup.GetChartType;
         if ChartType = CashFlowChartSetup."Chart Type"::"Step Line" then
             Assert.AreEqual(5, Actual, StrSubstNo(UnexpectedValueInField, CashFlowChartSetup.FieldCaption("Chart Type")))
@@ -2412,7 +2412,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         Initialize;
         CreateCashFlowChartSetup;
         CashFlowChartSetup."Start Date" := CashFlowChartSetup."Start Date"::"Working Date";
-        CashFlowChartSetup.Modify;
+        CashFlowChartSetup.Modify();
         Actual := CashFlowChartSetup.GetStartDate;
         Assert.AreEqual(WorkDate, Actual, StrSubstNo(UnexpectedValueInField, CashFlowChartSetup.FieldCaption("Start Date")));
     end;
@@ -2439,7 +2439,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CreateAndUpdateCashFlowChartSetup(CashFlowChartSetup, CashFlowChartSetup."Start Date"::"First Entry Date",
           CashFlowChartSetup."Period Length"::Quarter, CashFlowChartSetup.Show::"Accumulated Cash",
           CashFlowChartSetup."Group By"::"Positive/Negative");
-        CFSetup.Get;
+        CFSetup.Get();
         OldCFNo := SetChartCFNoInSetup(PadStr(CFSetup."CF No. on Chart in Role Center",
               MaxStrLen(CFSetup."CF No. on Chart in Role Center"), 'A'));
         VerifyCashFlowChartSetupCurrentSelectionText;
@@ -2451,7 +2451,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CFSetup: Record "Cash Flow Setup";
         Expected: Text[150];
     begin
-        CFSetup.Get;
+        CFSetup.Get();
         Expected := StrSubstNo('%1 | %2 | %3 | %4 | %5', CFSetup."CF No. on Chart in Role Center", CashFlowChartSetup.Show,
             CashFlowChartSetup."Start Date", CashFlowChartSetup."Period Length", CashFlowChartSetup."Group By");
         Assert.IsTrue(StrPos(CashFlowChartSetup.GetCurrentSelectionText, Expected) = 1,
@@ -2614,10 +2614,10 @@ codeunit 134557 "ERM Cash Flow UnitTests"
     var
         CashFlowSetup: Record "Cash Flow Setup";
     begin
-        CashFlowSetup.Get;
+        CashFlowSetup.Get();
         OldCFNo := CashFlowSetup."CF No. on Chart in Role Center";
         CashFlowSetup."CF No. on Chart in Role Center" := ChartCashFlowNo;
-        CashFlowSetup.Modify;
+        CashFlowSetup.Modify();
     end;
 
     local procedure CreateCashFlowChartSetup()
@@ -2638,7 +2638,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CashFlowChartSetup."Period Length" := PeriodLength;
         CashFlowChartSetup.Show := Show;
         CashFlowChartSetup."Group By" := GroupBy;
-        CashFlowChartSetup.Modify;
+        CashFlowChartSetup.Modify();
     end;
 
     [Test]
@@ -2650,7 +2650,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
     begin
         Initialize;
         with CFReportSelection do
-            DeleteAll;
+            DeleteAll();
 
         CashFlowForecast.PrintRecords; // Can't be completely tested since it has REPORT.RUNMODAL
     end;
@@ -2741,7 +2741,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
     begin
         // [FEATURE] [Receivables] [Customer Ledger Entry] [UT]
         // [SCENARIO 226697] "Source No." of receivables Cash Flow Forecast Entry must not allow to set values that are not in "Document No." of Customer Ledger Entries
-        CashFlowForecastEntry.Init;
+        CashFlowForecastEntry.Init();
         CashFlowForecastEntry.Validate("Source Type", CashFlowForecastEntry."Source Type"::Receivables);
         SourceNo := LibraryUtility.GenerateGUID;
         asserterror CashFlowForecastEntry.Validate("Source No.", SourceNo);
@@ -2758,12 +2758,12 @@ codeunit 134557 "ERM Cash Flow UnitTests"
     begin
         // [FEATURE] [Receivables] [Customer Ledger Entry] [UT]
         // [SCENARIO 226697] "Source No." of receivables Cash Flow Forecast Entry must allow to set values that are in "Document No." of Customer Ledger Entries
-        CustLedgerEntry.Init;
+        CustLedgerEntry.Init();
         CustLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, CustLedgerEntry.FieldNo("Entry No."));
         CustLedgerEntry."Document No." := LibraryUtility.GenerateGUID;
-        CustLedgerEntry.Insert;
+        CustLedgerEntry.Insert();
 
-        CashFlowForecastEntry.Init;
+        CashFlowForecastEntry.Init();
         CashFlowForecastEntry.Validate("Source Type", CashFlowForecastEntry."Source Type"::Receivables);
         CashFlowForecastEntry.Validate("Source No.", CustLedgerEntry."Document No.");
         CashFlowForecastEntry.TestField("Source No.", CustLedgerEntry."Document No.");
@@ -2778,7 +2778,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
     begin
         // [FEATURE] [Payables] [Vendor Ledger Entry] [UT]
         // [SCENARIO 226697] "Source No." of payables Cash Flow Forecast Entry must not allow to set values that are not in "Document No." of Vendor Ledger Entries
-        CashFlowForecastEntry.Init;
+        CashFlowForecastEntry.Init();
         CashFlowForecastEntry.Validate("Source Type", CashFlowForecastEntry."Source Type"::Payables);
         SourceNo := LibraryUtility.GenerateGUID;
         asserterror CashFlowForecastEntry.Validate("Source No.", SourceNo);
@@ -2795,12 +2795,12 @@ codeunit 134557 "ERM Cash Flow UnitTests"
     begin
         // [FEATURE] [Payables] [Vendor Ledger Entry] [UT]
         // [SCENARIO 226697] "Source No." of payables Cash Flow Forecast Entry must allow to set values that are in "Document No." of Vendor Ledger Entries
-        VendorLedgerEntry.Init;
+        VendorLedgerEntry.Init();
         VendorLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, VendorLedgerEntry.FieldNo("Entry No."));
         VendorLedgerEntry."Document No." := LibraryUtility.GenerateGUID;
-        VendorLedgerEntry.Insert;
+        VendorLedgerEntry.Insert();
 
-        CashFlowForecastEntry.Init;
+        CashFlowForecastEntry.Init();
         CashFlowForecastEntry.Validate("Source Type", CashFlowForecastEntry."Source Type"::Payables);
         CashFlowForecastEntry.Validate("Source No.", VendorLedgerEntry."Document No.");
         CashFlowForecastEntry.TestField("Source No.", VendorLedgerEntry."Document No.");
@@ -2837,7 +2837,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Cash Flow UnitTests");
     end;
 }

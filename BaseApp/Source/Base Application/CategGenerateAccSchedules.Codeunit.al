@@ -39,7 +39,7 @@ codeunit 571 "Categ. Generate Acc. Schedules"
         GeneralLedgerSetup.TestField("Acc. Sched. for Balance Sheet");
         AccScheduleName.Get(GeneralLedgerSetup."Acc. Sched. for Balance Sheet");
         AccScheduleLine.SetRange("Schedule Name", AccScheduleName.Name);
-        AccScheduleLine.DeleteAll;
+        AccScheduleLine.DeleteAll();
         AccScheduleLine."Schedule Name" := AccScheduleName.Name;
 
         AddAccSchedLineGroup(AccScheduleLine, RowNo, GLAccountCategory."Account Category"::Assets);
@@ -75,7 +75,7 @@ codeunit 571 "Categ. Generate Acc. Schedules"
         GeneralLedgerSetup.TestField("Acc. Sched. for Income Stmt.");
         AccScheduleName.Get(GeneralLedgerSetup."Acc. Sched. for Income Stmt.");
         AccScheduleLine.SetRange("Schedule Name", AccScheduleName.Name);
-        AccScheduleLine.DeleteAll;
+        AccScheduleLine.DeleteAll();
         AccScheduleLine."Schedule Name" := AccScheduleName.Name;
 
         AddAccSchedLineGroup(AccScheduleLine, RowNo, GLAccountCategory."Account Category"::Income);
@@ -123,7 +123,7 @@ codeunit 571 "Categ. Generate Acc. Schedules"
         GeneralLedgerSetup.TestField("Acc. Sched. for Cash Flow Stmt");
         AccScheduleName.Get(GeneralLedgerSetup."Acc. Sched. for Cash Flow Stmt");
         AccScheduleLine.SetRange("Schedule Name", AccScheduleName.Name);
-        AccScheduleLine.DeleteAll;
+        AccScheduleLine.DeleteAll();
         AccScheduleLine."Schedule Name" := AccScheduleName.Name;
 
         AddAccShedLine(
@@ -139,7 +139,7 @@ codeunit 571 "Categ. Generate Acc. Schedules"
 
         CreateCashFlowActivityPart(AccScheduleLine, RowNo, GLAccountCategory."Additional Report Definition"::"Operating Activities", false);
         AccScheduleLine.Totaling := StrSubstNo('%1+%2', FormatRowNo(PartStartRowNo, false), AccScheduleLine.Totaling);
-        AccScheduleLine.Modify;
+        AccScheduleLine.Modify();
         OperatingActRowNo := AccScheduleLine."Row No.";
 
         AddBlankLine(AccScheduleLine, RowNo);
@@ -167,7 +167,7 @@ codeunit 571 "Categ. Generate Acc. Schedules"
           GetAccFilterForReportingDefinition(GLAccountCategory."Additional Report Definition"::"Cash Accounts"),
           false, true, false, 0);
         AccScheduleLine."Row Type" := AccScheduleLine."Row Type"::"Beginning Balance";
-        AccScheduleLine.Modify;
+        AccScheduleLine.Modify();
         CashBeginningRowNo := AccScheduleLine."Row No.";
 
         AddAccShedLine(
@@ -204,7 +204,7 @@ codeunit 571 "Categ. Generate Acc. Schedules"
             until GLAccountCategory.Next = 0;
             // Last line in group should be underlined
             AccScheduleLine.Underline := true;
-            AccScheduleLine.Modify;
+            AccScheduleLine.Modify();
 
             AddAccShedLine(
               AccScheduleLine, RowNo, AccScheduleLine."Totaling Type"::Formula,
@@ -230,7 +230,7 @@ codeunit 571 "Categ. Generate Acc. Schedules"
         GeneralLedgerSetup.TestField("Acc. Sched. for Retained Earn.");
         AccScheduleName.Get(GeneralLedgerSetup."Acc. Sched. for Retained Earn.");
         AccScheduleLine.SetRange("Schedule Name", AccScheduleName.Name);
-        AccScheduleLine.DeleteAll;
+        AccScheduleLine.DeleteAll();
         AccScheduleLine."Schedule Name" := AccScheduleName.Name;
 
         AddAccShedLine(
@@ -239,7 +239,7 @@ codeunit 571 "Categ. Generate Acc. Schedules"
           GetAccFilterForReportingDefinition(GLAccountCategory."Additional Report Definition"::"Retained Earnings"),
           false, false, true, 0);
         AccScheduleLine."Row Type" := AccScheduleLine."Row Type"::"Beginning Balance";
-        AccScheduleLine.Modify;
+        AccScheduleLine.Modify();
         RetainedEarningsPrimoRowNo := AccScheduleLine."Row No.";
 
         AddAccShedLine(
@@ -264,7 +264,7 @@ codeunit 571 "Categ. Generate Acc. Schedules"
 
         AddBlankLine(AccScheduleLine, RowNo);
         AccScheduleLine.Underline := true;
-        AccScheduleLine.Modify;
+        AccScheduleLine.Modify();
 
         AddAccShedLine(
           AccScheduleLine, RowNo, AccScheduleLine."Totaling Type"::Formula,
@@ -272,7 +272,7 @@ codeunit 571 "Categ. Generate Acc. Schedules"
           StrSubstNo('%1-%2', GrossRetainedEarningsRowNo, DistributionRowNo),
           true, true, true, 0);
         AccScheduleLine."Row Type" := AccScheduleLine."Row Type"::"Balance at Date";
-        AccScheduleLine.Modify;
+        AccScheduleLine.Modify();
     end;
 
     local procedure AddAccSchedLineGroup(var AccScheduleLine: Record "Acc. Schedule Line"; var RowNo: Integer; Category: Option)
@@ -331,14 +331,14 @@ codeunit 571 "Categ. Generate Acc. Schedules"
               Indentation = 0, false, not ParentGLAccountCategory.PositiveNormalBalance, Indentation);
             OnAfterAddAccSchedLine(AccScheduleLine, ParentGLAccountCategory, RowNo);
             AccScheduleLine.Show := AccScheduleLine.Show::"If Any Column Not Zero";
-            AccScheduleLine.Modify;
+            AccScheduleLine.Modify();
         end;
     end;
 
     local procedure AddAccShedLine(var AccScheduleLine: Record "Acc. Schedule Line"; var RowNo: Integer; TotalingType: Option; Description: Text[80]; Totaling: Text[250]; Bold: Boolean; Underline: Boolean; ShowOppositeSign: Boolean; Indentation: Integer)
     begin
         if AccScheduleLine.FindLast then;
-        AccScheduleLine.Init;
+        AccScheduleLine.Init();
         AccScheduleLine."Line No." += 10000;
         RowNo += 1;
         AccScheduleLine."Row No." := FormatRowNo(RowNo, TotalingType = AccScheduleLine."Totaling Type"::Formula);
@@ -349,7 +349,7 @@ codeunit 571 "Categ. Generate Acc. Schedules"
         AccScheduleLine.Bold := Bold;
         AccScheduleLine.Underline := Underline;
         AccScheduleLine.Indentation := Indentation;
-        AccScheduleLine.Insert;
+        AccScheduleLine.Insert();
     end;
 
     local procedure FormatRowNo(RowNo: Integer; AddPrefix: Boolean): Text[5]
@@ -392,7 +392,7 @@ codeunit 571 "Categ. Generate Acc. Schedules"
         GLAccount: Record "G/L Account";
         SelectionFilterManagement: Codeunit SelectionFilterManagement;
     begin
-        GLAccount.Reset;
+        GLAccount.Reset();
         GLAccount.SetRange("Income/Balance", GLAccount."Income/Balance"::"Income Statement");
         exit(CopyStr(SelectionFilterManagement.GetSelectionFilterForGLAccount(GLAccount), 1, 250));
     end;

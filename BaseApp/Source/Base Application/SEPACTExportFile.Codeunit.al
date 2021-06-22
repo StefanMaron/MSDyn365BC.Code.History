@@ -8,7 +8,7 @@ codeunit 1220 "SEPA CT-Export File"
         BankAccount: Record "Bank Account";
         ExpUserFeedbackGenJnl: Codeunit "Exp. User Feedback Gen. Jnl.";
     begin
-        LockTable;
+        LockTable();
         BankAccount.Get("Bal. Account No.");
         if Export(Rec, BankAccount.GetPaymentExportXMLPortID) then
             ExpUserFeedbackGenJnl.SetExportFlagOnGenJnlLine(Rec);
@@ -50,7 +50,7 @@ codeunit 1220 "SEPA CT-Export File"
         RecordRef.GetTable(CreditTransferRegister);
         TempBlob.ToRecordRef(RecordRef, CreditTransferRegister.FieldNo("Exported File"));
         RecordRef.SetTable(CreditTransferRegister);
-        CreditTransferRegister.Modify;
+        CreditTransferRegister.Modify();
     end;
 
     procedure EnableExportToServerFile()

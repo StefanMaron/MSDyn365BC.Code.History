@@ -374,6 +374,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Marketing Contacts - NamedType ExpectedToFindRecErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 688363657 - NamedType 4071435111" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[There are duplicate contacts.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Marketing Contacts - NamedType DuplicateContactsMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 140808259 - NamedType 3371057793" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Contact Company]]></Val>
@@ -671,15 +680,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Marketing Opportunity Mgmt - NamedType WrongAttendeeCountErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1409019018 - NamedType 80356754" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Wrong Appointment property value]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Marketing Opportunity Mgmt - NamedType AppointmentPropertyValueErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1409019018 - NamedType 2736694884" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Action should be enabled]]></Val>
@@ -785,7 +785,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Marketing Profiling - NamedType DateFormulaCurrentDayTok)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Marketing Profiling - NamedType DateFormulaCurrentDayTok)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 435833846 - NamedType 3552946879" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -812,7 +812,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Marketing Profiling - NamedType DateFormulaStartDayTok)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Marketing Profiling - NamedType DateFormulaStartDayTok)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 435833846 - NamedType 729900418" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1010,7 +1010,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Marketing Task Management - NamedType DateFormula2)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Marketing Task Management - NamedType DateFormula2)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2322295678 - NamedType 903664115" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1019,7 +1019,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Marketing Task Management - NamedType DateFormula3)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Marketing Task Management - NamedType DateFormula3)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2322295678 - NamedType 3664641462" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

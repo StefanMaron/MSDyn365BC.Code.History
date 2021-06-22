@@ -20,9 +20,9 @@ report 99003801 "Implement Registered Absence"
                 CalendarAbsEntry.Validate("Ending Time", "Ending Time");
                 CalendarAbsEntry.Validate(Capacity, Capacity);
                 CalendarAbsEntry.Validate(Description, Description);
-                if not CalendarAbsEntry.Insert then
+                if not CalendarAbsEntry.Insert() then
                     if Overwrite then
-                        CalendarAbsEntry.Modify;
+                        CalendarAbsEntry.Modify();
             end;
         }
     }

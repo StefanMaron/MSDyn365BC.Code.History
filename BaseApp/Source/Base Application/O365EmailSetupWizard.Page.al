@@ -275,15 +275,15 @@ page 2197 "O365 Email Setup Wizard"
         SMTPMailSetup: Record "SMTP Mail Setup";
     begin
         if not SMTPMailSetup.Get then begin
-            SMTPMailSetup.Init;
-            SMTPMailSetup.Insert;
+            SMTPMailSetup.Init();
+            SMTPMailSetup.Insert();
         end;
 
         SMTPMailSetup.TransferFields(Rec, false);
         if Password <> DummyPasswordTxt then
             SMTPMailSetup.SetPassword(Password);
         SMTPMailSetup.Modify(true);
-        Commit;
+        Commit();
     end;
 
     local procedure SendTestEmailAction()

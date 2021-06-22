@@ -3,6 +3,9 @@ table 335 "Resource Price Change"
     Caption = 'Resource Price Change';
     DrillDownPageID = "Resource Price Changes";
     LookupPageID = "Resource Price Changes";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+    ObsoleteTag = '16.0';
 
     fields
     {

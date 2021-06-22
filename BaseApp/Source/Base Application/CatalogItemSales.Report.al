@@ -102,7 +102,7 @@ report 5700 "Catalog Item Sales"
                 trigger OnAfterGetRecord()
                 begin
                     if "Expected Cost" then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
             }
 
@@ -117,7 +117,7 @@ report 5700 "Catalog Item Sales"
                 end;
 
                 if not Nonstock then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 if not Item.Get("Item No.") then
                     Item.Description := '';

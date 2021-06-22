@@ -23,7 +23,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
                        ("Transport Method" = '') and
                        ("Total Weight" = 0)
                     then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     TestField("Tariff No.");
                     TestField("Country/Region Code");
@@ -64,7 +64,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
                        ("Transport Method" = '') and
                        ("Total Weight" = 0)
                     then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     "Tariff No." := DelChr("Tariff No.");
 
                     TotalWeightAmt += "Total Weight";
@@ -111,7 +111,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
                     IntraFile.Close;
 
                     "Intrastat Jnl. Batch".Reported := true;
-                    "Intrastat Jnl. Batch".Modify;
+                    "Intrastat Jnl. Batch".Modify();
 
                     if ServerFileName = '' then
                         FileMgt.DownloadHandler(FileName, '', '', FileMgt.GetToFilterText('', DefaultFilenameTxt), DefaultFilenameTxt)
@@ -121,7 +121,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
 
                 trigger OnPreDataItem()
                 begin
-                    CompanyInfo.Get;
+                    CompanyInfo.Get();
                     VATRegNo := ConvertStr(CompanyInfo."VAT Registration No.", Text001, '    ');
                     IntraFile.Write(Format('00' + Format(VATRegNo, 8) + Text002, 80));
                     IntraFile.Write(Format('0100004', 80));

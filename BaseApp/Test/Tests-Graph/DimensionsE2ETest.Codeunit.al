@@ -22,7 +22,7 @@ codeunit 135531 "Dimensions E2E Test"
             exit;
 
         IsInitialized := true;
-        Commit;
+        Commit();
     end;
 
     [Test]
@@ -64,7 +64,7 @@ codeunit 135531 "Dimensions E2E Test"
         DimensionCode[1] := Dimension.Code;
         LibraryDimension.CreateDimension(Dimension);
         DimensionCode[2] := Dimension.Code;
-        Commit;
+        Commit();
 
         // [WHEN] we GET all the dimensions from the web service
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Dimensions Entity", ServiceNameTxt);
@@ -120,7 +120,7 @@ codeunit 135531 "Dimensions E2E Test"
         DimensionValueCode[1] := DimensionValue.Code;
         LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
         DimensionValueCode[2] := DimensionValue.Code;
-        Commit;
+        Commit();
 
         // [WHEN] we GET all the dimension values from the web service
         TargetURL :=

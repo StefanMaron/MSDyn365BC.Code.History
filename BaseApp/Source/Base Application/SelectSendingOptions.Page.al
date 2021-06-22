@@ -20,7 +20,6 @@ page 364 "Select Sending Options"
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies if and how the document is printed when you choose the Post and Send button. If you choose the Yes (Prompt for Settings) option, the document is printed according to settings that you must make on the printer setup dialog.';
-                        Visible = SendToPrinterVisible;
 
                         trigger OnValidate()
                         begin
@@ -168,22 +167,15 @@ page 364 "Select Sending Options"
             Copy(DocumentSendingProfile);
     end;
 
-    trigger OnInit()
-    begin
-        SendToPrinterVisible := ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Windows;
-    end;
-
     trigger OnOpenPage()
     begin
         CurrPage.LookupMode := true;
     end;
 
     var
-        ClientTypeManagement: Codeunit "Client Type Management";
         [InDataSet]
         SendElectronicallyVisible: Boolean;
         CustomTxt: Label 'Custom';
-        SendToPrinterVisible: Boolean;
         LastFormat: Code[20];
 
     local procedure SetSendMethodToCustom()

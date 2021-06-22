@@ -42,11 +42,11 @@ codeunit 137502 "SCM Dedicated Bins"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         // set Manufacturing Setup Component @ Location = blank
-        MfgSetup.Get;
+        MfgSetup.Get();
         MfgSetup.Validate("Components at Location", '');
         MfgSetup.Modify(true);
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Dedicated Bins");
     end;
 
@@ -258,7 +258,7 @@ codeunit 137502 "SCM Dedicated Bins"
 
         // assign location code
         if not DirectedPickAndPut then begin
-            Commit; // added to save the data before ASSERTERROR call- as it rolls back all changes yet
+            Commit(); // added to save the data before ASSERTERROR call- as it rolls back all changes yet
             asserterror WorkCenter.Validate("Location Code", Location.Code);
             Assert.AssertNothingInsideFilter;
         end;
@@ -315,7 +315,7 @@ codeunit 137502 "SCM Dedicated Bins"
 
         // set Bin Mandatory = FALSE
         if not DirectedPickAndPut then begin
-            Commit; // added to save the data before ASSERTERROR call- as it rolls back all changes yet
+            Commit(); // added to save the data before ASSERTERROR call- as it rolls back all changes yet
             asserterror Location.Validate("Bin Mandatory", false);
             ErrorText := StrSubstNo(ErrLocationOnResourceCard,
                 Location.Code,
@@ -364,7 +364,7 @@ codeunit 137502 "SCM Dedicated Bins"
 
         // delete location & related inventory setups
         InventoryPostingSetup.SetRange("Location Code", Location.Code);
-        InventoryPostingSetup.DeleteAll;
+        InventoryPostingSetup.DeleteAll();
         Location.Delete(true);
         // verify all location codes and bin codes are set to empty
         WorkCenter.Get(WorkCenter."No."); // refresh

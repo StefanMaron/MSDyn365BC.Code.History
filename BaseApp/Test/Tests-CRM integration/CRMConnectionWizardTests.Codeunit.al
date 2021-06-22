@@ -42,7 +42,6 @@ codeunit 139314 "CRM Connection Wizard Tests"
     procedure VerifyStatusNotCompletedWhenNotFinished()
     var
         AssistedSetup: Codeunit "Assisted Setup";
-        BaseAppID: Codeunit "BaseApp ID";
         CRMConnectionSetupWizard: TestPage "CRM Connection Setup Wizard";
     begin
         // [GIVEN] A newly setup company
@@ -53,7 +52,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
         CRMConnectionSetupWizard.Close;
 
         // [THEN] Status of assisted setup remains Not Completed
-        Assert.IsFalse(AssistedSetup.IsComplete(BaseAppID.Get(), PAGE::"CRM Connection Setup Wizard"), 'CRM Connection Setup status should not be completed.');
+        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"CRM Connection Setup Wizard"), 'CRM Connection Setup status should not be completed.');
     end;
 
     [Test]
@@ -63,7 +62,6 @@ codeunit 139314 "CRM Connection Wizard Tests"
     procedure VerifyStatusNotCompletedWhenExitRightAway()
     var
         AssistedSetup: Codeunit "Assisted Setup";
-        BaseAppID: Codeunit "BaseApp ID";
         CRMConnectionSetupWizard: TestPage "CRM Connection Setup Wizard";
     begin
         // [GIVEN] A newly setup company
@@ -75,7 +73,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
         CRMConnectionSetupWizard.Close;
 
         // [THEN] Status of assisted setup remains Not Completed
-        Assert.IsFalse(AssistedSetup.IsComplete(BaseAppID.Get(), PAGE::"CRM Connection Setup Wizard"), 'CRM Connection Setup status should not be completed.');
+        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"CRM Connection Setup Wizard"), 'CRM Connection Setup status should not be completed.');
     end;
 
     [Test]
@@ -85,7 +83,6 @@ codeunit 139314 "CRM Connection Wizard Tests"
     procedure VerifyWizardNotExitedWhenConfirmIsNo()
     var
         AssistedSetup: Codeunit "Assisted Setup";
-        BaseAppID: Codeunit "BaseApp ID";
         CRMConnectionSetupWizard: TestPage "CRM Connection Setup Wizard";
     begin
         // [GIVEN] A newly setup company
@@ -97,7 +94,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
         CRMConnectionSetupWizard.Close;
 
         // [THEN] Status of assisted setup remains Not Completed
-        Assert.IsFalse(AssistedSetup.IsComplete(BaseAppID.Get(), PAGE::"CRM Connection Setup Wizard"), 'CRM Connection Setup status should not be completed.');
+        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"CRM Connection Setup Wizard"), 'CRM Connection Setup status should not be completed.');
     end;
 
     [Test]
@@ -105,7 +102,6 @@ codeunit 139314 "CRM Connection Wizard Tests"
     procedure VerifyStatusCompletedWhenFinished()
     var
         AssistedSetup: Codeunit "Assisted Setup";
-        BaseAppID: Codeunit "BaseApp ID";
         CRMConnectionSetupWizard: TestPage "CRM Connection Setup Wizard";
     begin
         // [GIVEN] A newly setup company
@@ -116,7 +112,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
         CRMConnectionSetupWizard.ActionFinish.Invoke;
 
         // [THEN] Status of the setup step is set to Completed
-        Assert.IsTrue(AssistedSetup.IsComplete(BaseAppID.Get(), PAGE::"CRM Connection Setup Wizard"), 'CRM Connection Setup status should be completed.');
+        Assert.IsTrue(AssistedSetup.IsComplete(PAGE::"CRM Connection Setup Wizard"), 'CRM Connection Setup status should be completed.');
     end;
 
     [Test]
@@ -170,34 +166,6 @@ codeunit 139314 "CRM Connection Wizard Tests"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmNoCheckHandler,CRMAdminCredentialsModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure VerifyWizardDiffUsersDomainConfirmDialogNo()
-    var
-        CRMConnectionSetupWizard: TestPage "CRM Connection Setup Wizard";
-    begin
-        // [SCENARIO 180150] CRM Connection Wizard warning about different domains of sync and admin users is cancelled
-        Initialize;
-
-        // [GIVEN] CRM Connection Setup Wizard is opened
-        // [GIVEN] Sync user = X@abc.com
-        CRMConnectionSetupWizard.Trap;
-        PAGE.Run(PAGE::"CRM Connection Setup Wizard");
-
-        CRMConnectionSetupWizard.ServerAddress.SetValue('https://test.dynamics.com');
-        CRMConnectionSetupWizard.ActionNext.Invoke;
-        CRMConnectionSetupWizard.Email.SetValue('abc@abc.com');
-        CRMConnectionSetupWizard.Password.SetValue('***');
-        // [WHEN] Finish pressed and user enters admin user = A@def.com;
-        CRMConnectionSetupWizard.ActionFinish.Invoke;
-
-        // [THEN] Confirmation Dialog warning about different domains of sync and admin users appear
-        // [WHEN] No is pressed
-        // [THEN] Final page of Wizard open
-        Assert.IsTrue(CRMConnectionSetupWizard.Email.Visible, WizardShouldNotBeClosedErr);
-    end;
-
-    [Test]
     [HandlerFunctions('ConfirmYesHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
@@ -215,7 +183,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
         CRMConnectionSetup."Is Enabled" := false;
         CRMConnectionSetup."Is CRM Solution Installed" := false;
         CRMConnectionSetup."Is S.Order Integration Enabled" := false;
-        CRMConnectionSetup.Modify;
+        CRMConnectionSetup.Modify();
 
         // [GIVEN] CRM Connection Setup Wizard is opened
         CRMConnectionSetupWizard.Trap;
@@ -266,7 +234,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
         CRMConnectionSetup."Is Enabled" := true;
         CRMConnectionSetup."Is CRM Solution Installed" := true;
         CRMConnectionSetup."Is S.Order Integration Enabled" := true;
-        CRMConnectionSetup.Modify;
+        CRMConnectionSetup.Modify();
 
         // [GIVEN] CRM Connection Setup Wizard is opened
         CRMConnectionSetupWizard.Trap;
@@ -434,6 +402,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmCRMConnectionSetupWizardHandler')]
     [Scope('OnPrem')]
     procedure VerifyWizardActionBack()
     var
@@ -459,9 +428,11 @@ codeunit 139314 "CRM Connection Wizard Tests"
         Assert.IsFalse(
           CRMConnectionSetupWizard.Email.Visible,
           StrSubstNo(ShouldNotBeErr, CRMConnectionSetupWizard.Email.Caption, VisibleTxt));
+        CRMConnectionSetupWizard.Close();
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmCRMConnectionSetupWizardHandler')]
     [Scope('OnPrem')]
     procedure VerifyWizardActionAdvanced()
     var
@@ -524,6 +495,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
         Assert.IsFalse(
           CRMConnectionSetupWizard.ActionSimple.Visible,
           StrSubstNo(ShouldNotBeErr, ButtonTxt, VisibleTxt));
+        CRMConnectionSetupWizard.Close();
     end;
 
     [Test]
@@ -538,6 +510,8 @@ codeunit 139314 "CRM Connection Wizard Tests"
         // [GIVEN] CRM Connection Wizard is opened, synch user credentials not filled
         CRMConnectionSetupWizard.OpenEdit;
         CRMConnectionSetupWizard.ServerAddress.SetValue('https://test.dynamics.com');
+        CRMConnectionSetupWizard.Email.SetValue('');
+        CRMConnectionSetupWizard.Password.SetValue('');
         CRMConnectionSetupWizard.ActionNext.Invoke;
 
         // [WHEN] Finish action button is invoked
@@ -616,13 +590,13 @@ codeunit 139314 "CRM Connection Wizard Tests"
         Initialize;
 
         // [GIVEN] real CRMConnectionSetup has all credentials set
-        CRMConnectionSetup.Init;
+        CRMConnectionSetup.Init();
         CRMConnectionSetup."Server Address" := 'https://somedomain.dynamics.com';
         CRMConnectionSetup."User Name" := 'user@test.net';
         CRMConnectionSetup.SetPassword('password');
-        CRMConnectionSetup.Insert;
+        CRMConnectionSetup.Insert();
         // [WHEN] EnableCRMConnectionFromWizard() on a empty CRMConnectionSetup
-        TempCRMConnectionSetup.Insert;
+        TempCRMConnectionSetup.Insert();
         asserterror TempCRMConnectionSetup.EnableCRMConnectionFromWizard;
         // [THEN] Error: 'All credentials required to enable connection'
         Assert.ExpectedError(StrSubstNo(AllCredentialsRequiredErr, CRMProductName.SHORT));
@@ -644,9 +618,10 @@ codeunit 139314 "CRM Connection Wizard Tests"
 
         // [WHEN] UpdateFromWizard() on the temp record
         TempCRMConnectionSetup.UpdateFromWizard(CRMConnectionSetup, 'password');
+
         // [THEN] The temp record got set
         Assert.IsTrue(TempCRMConnectionSetup.Get, 'temp record should exist');
-        TempCRMConnectionSetup.TestField("User Password Key");
+        Assert.IsTrue(TempCRMConnectionSetup.HasPassword(), 'password must be set');
         TempCRMConnectionSetup.TestField("Server Address", CRMConnectionSetup."Server Address");
         TempCRMConnectionSetup.TestField("User Name", CRMConnectionSetup."User Name");
         // [THEN] The real record is not inserted
@@ -654,7 +629,6 @@ codeunit 139314 "CRM Connection Wizard Tests"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmNoHandler')]
     [Scope('OnPrem')]
     procedure CRMConnectionWizardFinishShouldUpdateRealRecord()
     var
@@ -681,7 +655,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
         CRMConnectionSetupWizard.ActionFinish.Invoke;
 
         // [THEN] CRM Connection Setup, where password is set, connection is enabled
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
         CRMConnectionSetup.TestField("User Password Key");
         CRMConnectionSetup.TestField("Is Enabled");
         Assert.ExpectedMessage('Url', CRMConnectionSetup.GetConnectionString);
@@ -743,6 +717,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmCRMConnectionSetupWizardHandler')]
     [Scope('OnPrem')]
     procedure CRMConnectionWizardItemAvailabilityWebservice()
     var
@@ -783,66 +758,12 @@ codeunit 139314 "CRM Connection Wizard Tests"
             Assert.IsTrue(
               PublishItemAvailabilityService.Enabled,
               StrSubstNo(ShouldBeErr, PublishItemAvailabilityService.Caption, CheckedTxt));
+            Close();
         end;
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmYesHandler,CRMSystemUsersPageHandler')]
-    [Scope('OnPrem')]
-    procedure CRMConnectionWizardCRMUsersListOpened()
-    var
-        CRMSystemuser: array[4] of Record "CRM Systemuser";
-        CRMConnectionSetupWizard: TestPage "CRM Connection Setup Wizard";
-    begin
-        // [SCENARIO 208299] After CRM Connection wizard is finished user can see the list of CRM Users to couple them
-        Initialize;
-        LibraryCRMIntegration.ResetEnvironment;
-        LibraryCRMIntegration.ConfigureCRM;
-        LibraryCRMIntegration.CreateCRMOrganization;
-
-        // [GIVEN] CRM System User "CSU"
-        LibraryCRMIntegration.CreateCRMSystemUser(CRMSystemuser[1]);
-        CRMSystemuser[1].IsLicensed := true;
-        CRMSystemuser[1].IsIntegrationUser := false;
-        CRMSystemuser[1].IsDisabled := false;
-        CRMSystemuser[1].Modify;
-        LibraryVariableStorage.Enqueue(CRMSystemuser[1].SystemUserId);
-        LibraryVariableStorage.Enqueue(CRMSystemuser[1].InternalEMailAddress);
-
-        // [GIVEN] CRM System User "NotLicensedUser" with IsLicensed = FALSE;
-        LibraryCRMIntegration.CreateCRMSystemUser(CRMSystemuser[2]);
-        CRMSystemuser[2].IsLicensed := false;
-        CRMSystemuser[2].Modify;
-        LibraryVariableStorage.Enqueue(CRMSystemuser[2].SystemUserId);
-
-        // [GIVEN] CRM System User "IntegrationUser" with IsIntegrationUser = TRUE;
-        LibraryCRMIntegration.CreateCRMSystemUser(CRMSystemuser[3]);
-        CRMSystemuser[3].IsIntegrationUser := true;
-        CRMSystemuser[3].Modify;
-        LibraryVariableStorage.Enqueue(CRMSystemuser[3].SystemUserId);
-
-        // [GIVEN] CRM System User "IsDisabledUser" with IsDisabled = TRUE;
-        LibraryCRMIntegration.CreateCRMSystemUser(CRMSystemuser[4]);
-        CRMSystemuser[4].IsDisabled := true;
-        CRMSystemuser[4].Modify;
-        LibraryVariableStorage.Enqueue(CRMSystemuser[4].SystemUserId);
-
-        // [WHEN] CRM Connection Wizard is finished
-        CRMConnectionSetupWizard.OpenNew;
-        CRMConnectionSetupWizard.ServerAddress.SetValue('@@test@@');
-        CRMConnectionSetupWizard.ActionNext.Invoke;
-        CRMConnectionSetupWizard.Password.SetValue('***');
-        CRMConnectionSetupWizard.ActionNext.Invoke;
-        CRMConnectionSetupWizard.ImportCRMSolution.SetValue(Format(false));
-        CRMConnectionSetupWizard.ActionFinish.Invoke;
-
-        // [THEN] User is asked if he want to map CRM User to SalesPersons
-        // [THEN] After confirmation list of CRM Users is opened
-        // [THEN] CSU CRM Systemuser is visible in the CRM Systemuser page list
-        // [THEN] CRM Systemusers "NotLicensedUser", "IntegrationUser", "IsDisabledUser" not shown
-    end;
-
-    [Test]
+    [HandlerFunctions('ConfirmCRMConnectionSetupWizardHandler')]
     [Scope('OnPrem')]
     procedure CRMConnectionWizardAllowsAnyServerAddressNoSetup()
     var
@@ -866,6 +787,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
 
         // [THEN] No error appear
         CRMConnectionSetupWizard.Email.AssertEquals(Email);
+        CRMConnectionSetupWizard.close();
     end;
 
     [Test]
@@ -880,9 +802,9 @@ codeunit 139314 "CRM Connection Wizard Tests"
         Initialize;
 
         // [GIVEN] CRM Connection Setup exists and "Authentication Type" = AD
-        CRMConnectionSetup.Init;
+        CRMConnectionSetup.Init();
         CRMConnectionSetup."Authentication Type" := CRMConnectionSetup."Authentication Type"::AD;
-        CRMConnectionSetup.Insert;
+        CRMConnectionSetup.Insert();
 
         // [GIVEN] CRM Connection Setup Wizard is opened
         // [GIVEN] Server address = "https://crm.abc.com"
@@ -900,7 +822,6 @@ codeunit 139314 "CRM Connection Wizard Tests"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmNoHandler')]
     [Scope('OnPrem')]
     procedure CRMConnectionWizardCheck8SDKVersion()
     var
@@ -927,12 +848,11 @@ codeunit 139314 "CRM Connection Wizard Tests"
         CRMConnectionSetupWizard.ActionFinish.Invoke;
 
         // [THEN] CRM Connection Setup has "Proxy Version" = 8
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
         CRMConnectionSetup.TestField("Proxy Version", 8);
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmNoHandler')]
     [Scope('OnPrem')]
     procedure CRMConnectionWizardCheck9SDKVersion()
     var
@@ -962,7 +882,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
         CRMConnectionSetupWizard.ActionFinish.Invoke;
 
         // [THEN] CRM Connection Setup has "Proxy Version" = 9
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
         CRMConnectionSetup.TestField("Proxy Version", 9);
     end;
 
@@ -976,8 +896,8 @@ codeunit 139314 "CRM Connection Wizard Tests"
         // [FEATURE] [UT]
         // [SCENARIO 211819] UpdateFromWizard should set "Authentication Type" = Office365 by default
         Initialize;
-        TempCRMConnectionSetup.Init;
-        TempCRMConnectionSetup.Insert;
+        TempCRMConnectionSetup.Init();
+        TempCRMConnectionSetup.Insert();
 
         // [WHEN] UpdateFromWizard is run
         CRMConnectionSetup.UpdateFromWizard(TempCRMConnectionSetup, '***');
@@ -992,6 +912,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
     var
         AssistedSetupTestLibrary: Codeunit "Assisted Setup Test Library";
         CRMConnectionSetup: Record "CRM Connection Setup";
+        CDSConnectionSetup: Record "CDS Connection Setup";
         LibraryAzureKVMockMgmt: Codeunit "Library - Azure KV Mock Mgmt.";
     begin
         LibraryVariableStorage.Clear;
@@ -999,7 +920,14 @@ codeunit 139314 "CRM Connection Wizard Tests"
         LibraryAzureKVMockMgmt.EnsureSecretNameIsAllowed('SmtpSetup');
         AssistedSetupTestLibrary.DeleteAll();
         AssistedSetupTestLibrary.CallOnRegister();
-        CRMConnectionSetup.DeleteAll;
+        CRMConnectionSetup.DeleteAll();
+        CDSConnectionSetup.DeleteAll();
+        CDSConnectionSetup."Is Enabled" := true;
+        CDSConnectionSetup."Server Address" := 'https://test.dynamics.com';
+        CDSConnectionSetup."User Name" := 'test@test.com';
+        CDSConnectionSetup.SetPassword('test1234');
+        CDSConnectionSetup."Authentication Type" := CDSConnectionSetup."Authentication Type"::Office365;
+        CDSConnectionSetup.Insert();
     end;
 
     local procedure RunWizardToCompletion(var CRMConnectionSetupWizard: TestPage "CRM Connection Setup Wizard")
@@ -1021,12 +949,12 @@ codeunit 139314 "CRM Connection Wizard Tests"
 
     local procedure CreateCRMConnectionSetup(var CRMConnectionSetup: Record "CRM Connection Setup")
     begin
-        CRMConnectionSetup.DeleteAll;
+        CRMConnectionSetup.DeleteAll();
 
-        CRMConnectionSetup.Init;
+        CRMConnectionSetup.Init();
         CRMConnectionSetup."Server Address" := 'https://test.dynamics.com';
         CRMConnectionSetup."User Name" := 'test@test.com';
-        CRMConnectionSetup.Insert;
+        CRMConnectionSetup.Insert();
     end;
 
     local procedure CreateUser(var User: Record User; GenerateNewKey: Boolean)
@@ -1052,15 +980,6 @@ codeunit 139314 "CRM Connection Wizard Tests"
     [Scope('OnPrem')]
     procedure ConfirmNoHandler(Question: Text[1024]; var Reply: Boolean)
     begin
-        Reply := false;
-    end;
-
-    [ConfirmHandler]
-    [Scope('OnPrem')]
-    procedure ConfirmNoCheckHandler(Question: Text[1024]; var Reply: Boolean)
-    begin
-        if Question <> CryptographyManagement.GetEncryptionIsNotActivatedQst then
-            Assert.AreEqual(ConfirmCredentialsDomainQst, Question, WrongConfirmationErr);
         Reply := false;
     end;
 
@@ -1093,6 +1012,14 @@ codeunit 139314 "CRM Connection Wizard Tests"
     procedure UsersCancelSelectionModalPageHandler(var Users: TestPage Users)
     begin
         Users.Cancel.Invoke;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmCRMConnectionSetupWizardHandler(Question: Text[1024]; VAR Reply: Boolean)
+    begin
+        Reply := True;
+        exit;
     end;
 
     [ModalPageHandler]

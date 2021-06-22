@@ -1,4 +1,4 @@
-﻿page 6055 "Service Contract Template"
+page 6055 "Service Contract Template"
 {
     Caption = 'Service Contract Template';
     PageType = Card;

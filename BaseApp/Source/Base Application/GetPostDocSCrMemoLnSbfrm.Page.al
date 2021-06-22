@@ -1,4 +1,4 @@
-﻿page 5854 "Get Post.Doc-S.Cr.MemoLn Sbfrm"
+page 5854 "Get Post.Doc-S.Cr.MemoLn Sbfrm"
 {
     Caption = 'Lines';
     Editable = false;
@@ -335,7 +335,7 @@
 
     local procedure IsFirstDocLine(): Boolean
     begin
-        TempSalesCrMemoLine.Reset;
+        TempSalesCrMemoLine.Reset();
         TempSalesCrMemoLine.CopyFilters(Rec);
         TempSalesCrMemoLine.SetRange("Document No.", "Document No.");
         if not TempSalesCrMemoLine.FindFirst then begin
@@ -344,7 +344,7 @@
             if not SalesCrMemoLine.FindFirst then
                 exit(false);
             TempSalesCrMemoLine := SalesCrMemoLine;
-            TempSalesCrMemoLine.Insert;
+            TempSalesCrMemoLine.Insert();
         end;
 
         if "Document No." <> SalesCrMemoHeader."No." then

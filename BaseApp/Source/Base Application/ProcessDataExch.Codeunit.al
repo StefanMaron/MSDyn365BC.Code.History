@@ -70,7 +70,7 @@ codeunit 1201 "Process Data Exch."
 
                 NegateAmounts(RecRef, TempFieldIdsToNegate);
 
-                RecRef.Insert;
+                RecRef.Insert();
             end;
         until DataExchFieldGroupByLineNo.Next = 0;
     end;
@@ -111,13 +111,13 @@ codeunit 1201 "Process Data Exch."
         IsHandled := false;
         OnBeforeFormatFieldValue(TransformedValue, DataExchField, DataExchFieldMapping, FieldRef, DataExchColumnDef, IsHandled);
         if not IsHandled then
-            case Format(FieldRef.Type) of
-                'Text',
-            'Code':
+            case FieldRef.Type of
+                FieldType::Text,
+                FieldType::Code:
                     SetAndMergeTextCodeField(TransformedValue, FieldRef, DataExchFieldMapping."Overwrite Value");
-                'Date':
+                FieldType::Date:
                     SetDateDecimalField(TransformedValue, DataExchField, FieldRef, DataExchColumnDef);
-                'Decimal':
+                FieldType::Decimal:
                     if DataExchColumnDef."Negative-Sign Identifier" = '' then begin
                         SetDateDecimalField(TransformedValue, DataExchField, FieldRef, DataExchColumnDef);
                         AdjustDecimalWithMultiplier(FieldRef, DataExchFieldMapping.Multiplier, FieldRef.Value);
@@ -126,9 +126,9 @@ codeunit 1201 "Process Data Exch."
                         if UpperCase(DataExchColumnDef."Negative-Sign Identifier") = Uppercase(NegativeSignIdentifier) then
                             SaveNegativeSignForField(DataExchFieldMapping."Field ID", TempFieldIdsToNegate);
                     end;
-                'Option':
+                FieldType::Option:
                     SetOptionField(TransformedValue, FieldRef);
-                'BLOB':
+                FieldType::BLOB:
                     begin
                         TempBlob.CreateOutStream(OutStream, TEXTENCODING::Windows);
                         OutStream.WriteText(TransformedValue);
@@ -200,7 +200,7 @@ codeunit 1201 "Process Data Exch."
     begin
         KeyRef := RecRef.KeyIndex(1);
         FieldRef := KeyRef.FieldIndex(KeyRef.FieldCount);
-        if Format(FieldRef.Type) <> 'Integer' then
+        if FieldRef.Type <> FieldType::Integer then
             exit(0);
 
         exit(FieldRef.Number);
@@ -262,7 +262,7 @@ codeunit 1201 "Process Data Exch."
     local procedure SaveNegativeSignForField(FieldId: Integer; var TempFieldIdsToNegate: Record "Integer" temporary)
     begin
         TempFieldIdsToNegate.Number := FieldId;
-        TempFieldIdsToNegate.Insert;
+        TempFieldIdsToNegate.Insert();
     end;
 
     procedure NegateAmounts(RecRef: RecordRef; var TempFieldIdsToNegate: Record "Integer" temporary)
@@ -277,7 +277,7 @@ codeunit 1201 "Process Data Exch."
                 FieldRef.Value := -Amount;
                 FieldRef.Validate;
             until TempFieldIdsToNegate.Next = 0;
-            TempFieldIdsToNegate.DeleteAll;
+            TempFieldIdsToNegate.DeleteAll();
         end;
     end;
 

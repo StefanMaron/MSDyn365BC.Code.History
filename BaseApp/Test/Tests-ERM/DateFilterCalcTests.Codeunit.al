@@ -24,7 +24,7 @@ codeunit 135050 "DateFilter-Calc Tests"
         // [SCENARIO] CreateFiscalYearFilter function returns empty filter when there is no Accounting Period
 
         // [GIVEN] There is no Accounting Period
-        AccountingPeriod.DeleteAll;
+        AccountingPeriod.DeleteAll();
 
         // [WHEN] CreateAccountingPeriodFilter function is called
         DateFilterCalc.CreateFiscalYearFilter(Filter, Name, WorkDate, 0);
@@ -46,7 +46,7 @@ codeunit 135050 "DateFilter-Calc Tests"
         // [SCENARIO] CreateAccountingPeriodFilter function returns empty filter when there is no Accounting Period
 
         // [GIVEN] There is no Accounting Period
-        AccountingPeriod.DeleteAll;
+        AccountingPeriod.DeleteAll();
 
         // [WHEN] CreateAccountingPeriodFilter function is called
         DateFilterCalc.CreateAccountingPeriodFilter(Filter, Name, WorkDate, 0);

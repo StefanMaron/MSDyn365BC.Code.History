@@ -216,7 +216,7 @@ codeunit 134128 "ERM Vendor Reversal Message"
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, DocumentType, ReversalSetup(DocumentType, BlockedType, Amount));
         Vendor.Get(VendorLedgerEntry."Vendor No.");
         Vendor.Validate("Privacy Blocked", true);
-        Vendor.Modify;
+        Vendor.Modify();
 
         // Exercise: Reverse Invoice entries for Blocked Vendor.
         ReversalEntry.SetHideDialog(true);
@@ -407,7 +407,7 @@ codeunit 134128 "ERM Vendor Reversal Message"
         LibraryERMCountryData.UpdateLocalData;
 
         IsInitialized := true;
-        Commit;
+        Commit();
     end;
 
     local procedure CreateAndPostApplnEntry() DocumentNo: Code[20]

@@ -108,7 +108,7 @@ table 482 "Reclas. Dimension Set Buffer"
         TempDimSetEntry: Record "Dimension Set Entry" temporary;
         DimMgt: Codeunit DimensionManagement;
     begin
-        ReclasDimSetBuf.Reset;
+        ReclasDimSetBuf.Reset();
         ReclasDimSetBuf.SetFilter("Dimension Code", '<>%1', '');
         if NewVal then
             ReclasDimSetBuf.SetFilter("New Dimension Value Code", '<>%1', '')
@@ -126,7 +126,7 @@ table 482 "Reclas. Dimension Set Buffer"
                 TempDimSetEntry."Dimension Value Code" := ReclasDimSetBuf."Dimension Value Code";
                 TempDimSetEntry."Dimension Value ID" := ReclasDimSetBuf."Dimension Value ID";
             end;
-            TempDimSetEntry.Insert;
+            TempDimSetEntry.Insert();
         until ReclasDimSetBuf.Next = 0;
         exit(DimMgt.GetDimensionSetID(TempDimSetEntry));
     end;

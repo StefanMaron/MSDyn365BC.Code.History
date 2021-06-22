@@ -42,7 +42,7 @@ codeunit 137222 "PurchOrder Whse Validate Line"
 
         LibraryWarehouse.NoSeriesSetup(WarehouseSetup);
 
-        PurchaseReceivablesSetup.Get;
+        PurchaseReceivablesSetup.Get();
         PurchaseReceivablesSetup."Order Nos." := LibraryUtility.GetGlobalNoSeriesCode;
         PurchaseReceivablesSetup.Modify(true);
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"PurchOrder Whse Validate Line");
@@ -216,7 +216,7 @@ codeunit 137222 "PurchOrder Whse Validate Line"
     var
         PurchaseReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        PurchaseReceivablesSetup.Get;
+        PurchaseReceivablesSetup.Get();
         PurchaseReceivablesSetup.Validate("Credit Warnings", PurchaseReceivablesSetup."Credit Warnings"::"No Warning");
         PurchaseReceivablesSetup.Validate("Stockout Warning", false);
         PurchaseReceivablesSetup.Modify(true);

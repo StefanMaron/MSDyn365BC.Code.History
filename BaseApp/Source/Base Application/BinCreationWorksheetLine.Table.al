@@ -343,22 +343,22 @@ table 7338 "Bin Creation Worksheet Line"
     begin
         WkshSelected := true;
 
-        BinCreateWkshTemplate.Reset;
+        BinCreateWkshTemplate.Reset();
         if not OpenFromBatch then
             BinCreateWkshTemplate.SetRange("Page ID", PageID);
         BinCreateWkshTemplate.SetRange(Type, PageTemplate);
         case BinCreateWkshTemplate.Count of
             0:
                 begin
-                    BinCreateWkshTemplate.Init;
+                    BinCreateWkshTemplate.Init();
                     BinCreateWkshTemplate.Type := PageTemplate;
                     BinCreateWkshTemplate.Name :=
                       Format(BinCreateWkshTemplate.Type, MaxStrLen(BinCreateWkshTemplate.Name));
                     BinCreateWkshTemplate.Description :=
                       StrSubstNo(Text001, BinCreateWkshTemplate.Type);
                     BinCreateWkshTemplate.Validate("Page ID");
-                    BinCreateWkshTemplate.Insert;
-                    Commit;
+                    BinCreateWkshTemplate.Insert();
+                    Commit();
                 end;
             1:
                 BinCreateWkshTemplate.FindFirst;
@@ -440,14 +440,14 @@ table 7338 "Bin Creation Worksheet Line"
 
         BinCreateWkshName.SetRange(Name);
         if not BinCreateWkshName.FindFirst then begin
-            BinCreateWkshName.Init;
+            BinCreateWkshName.Init();
             BinCreateWkshName."Worksheet Template Name" := CurrentWkshTemplateName;
             BinCreateWkshName.SetupNewName;
             BinCreateWkshName."Location Code" := CurrentLocationCode;
             BinCreateWkshName.Name := Text004;
             BinCreateWkshName.Description := Text002;
             BinCreateWkshName.Insert(true);
-            Commit;
+            Commit();
         end;
         CurrentWkshName := BinCreateWkshName.Name;
     end;
@@ -482,7 +482,7 @@ table 7338 "Bin Creation Worksheet Line"
     var
         BinCreateWkshName: Record "Bin Creation Wksh. Name";
     begin
-        Commit;
+        Commit();
         BinCreateWkshName."Worksheet Template Name" :=
           BinCreateWkshLine.GetRangeMax("Worksheet Template Name");
         BinCreateWkshName.Name := BinCreateWkshLine.GetRangeMax(Name);

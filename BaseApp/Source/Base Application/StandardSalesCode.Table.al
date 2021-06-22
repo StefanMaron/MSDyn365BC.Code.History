@@ -33,7 +33,7 @@ table 170 "Standard Sales Code"
                     Currency2.InitRoundingPrecision;
 
                 if Currency."Amount Rounding Precision" <> Currency2."Amount Rounding Precision" then begin
-                    StdSalesLine.Reset;
+                    StdSalesLine.Reset();
                     StdSalesLine.SetRange("Standard Sales Code", Code);
                     StdSalesLine.SetRange(Type, StdSalesLine.Type::"G/L Account");
                     StdSalesLine.SetFilter("Amount Excl. VAT", '<>%1', 0);
@@ -47,7 +47,7 @@ table 170 "Standard Sales Code"
                         repeat
                             StdSalesLine."Amount Excl. VAT" :=
                               Round(StdSalesLine."Amount Excl. VAT", Currency."Amount Rounding Precision");
-                            StdSalesLine.Modify;
+                            StdSalesLine.Modify();
                         until StdSalesLine.Next = 0;
                     end;
                 end;
@@ -72,7 +72,7 @@ table 170 "Standard Sales Code"
 
     trigger OnDelete()
     begin
-        StdSalesLine.Reset;
+        StdSalesLine.Reset();
         StdSalesLine.SetRange("Standard Sales Code", Code);
         StdSalesLine.DeleteAll(true);
     end;

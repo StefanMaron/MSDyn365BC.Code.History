@@ -46,7 +46,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         GoodAccountNumber := LibraryERM.CreateGLAccountNo;
 
         // Exercise
-        DeferralTemplate.Init;
+        DeferralTemplate.Init();
         DeferralTemplate."Deferral Code" := DeferralCode;
 
         // Test for error message when trying to use an invalid account
@@ -68,7 +68,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         asserterror DeferralTemplate.Validate("Deferral %", 105.0);
         DeferralTemplate."Deferral %" := 100.0;
         DeferralTemplate."Period Description" := '%1 Deferral %5';
-        DeferralTemplate.Insert;
+        DeferralTemplate.Insert();
     end;
 
     [Test]
@@ -84,20 +84,20 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         DeferralCode := CreateDeferralCode;
 
         ItemNumber := LibraryUtility.GenerateRandomCode(Item.FieldNo("No."), DATABASE::Item);
-        Item.Init;
+        Item.Init();
         Item."No." := ItemNumber;
         // Try to insert with an invalid deferral code
         asserterror Item.Validate("Default Deferral Template Code", CopyStr(Format(CreateGuid), 1, 10));
         Item."Default Deferral Template Code" := DeferralCode;
-        Item.Insert;
+        Item.Insert();
 
         // Try to delete the deferral code that is now attached to the item
         if DeferralTemplate.Get(DeferralCode) then
-            asserterror DeferralTemplate.Delete;
+            asserterror DeferralTemplate.Delete();
 
-        Item.Delete;
+        Item.Delete();
         if DeferralTemplate.Get(DeferralCode) then
-            DeferralTemplate.Delete;
+            DeferralTemplate.Delete();
     end;
 
     [Test]
@@ -113,20 +113,20 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         DeferralCode := CreateDeferralCode;
 
         AccountNumber := LibraryUtility.GenerateRandomCode(GLAccount.FieldNo("No."), DATABASE::"G/L Account");
-        GLAccount.Init;
+        GLAccount.Init();
         GLAccount."No." := AccountNumber;
         // Try to insert with an invalid deferral code
         asserterror GLAccount.Validate("Default Deferral Template Code", CopyStr(Format(CreateGuid), 1, 10));
         GLAccount."Default Deferral Template Code" := DeferralCode;
-        GLAccount.Insert;
+        GLAccount.Insert();
 
         // Try to delete the deferral code that is now attached to the account
         if DeferralTemplate.Get(DeferralCode) then
-            asserterror DeferralTemplate.Delete;
+            asserterror DeferralTemplate.Delete();
 
-        GLAccount.Delete;
+        GLAccount.Delete();
         if DeferralTemplate.Get(DeferralCode) then
-            DeferralTemplate.Delete;
+            DeferralTemplate.Delete();
     end;
 
     [Test]
@@ -143,20 +143,20 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         DeferralCode := CreateDeferralCode;
 
         ResourceNumber := LibraryUtility.GenerateRandomCode(Resource.FieldNo("No."), DATABASE::Resource);
-        Resource.Init;
+        Resource.Init();
         Resource."No." := ResourceNumber;
         // Try to insert with an invalid deferral code
         asserterror Resource.Validate("Default Deferral Template Code", CopyStr(Format(CreateGuid), 1, 10));
         Resource."Default Deferral Template Code" := DeferralCode;
-        Resource.Insert;
+        Resource.Insert();
 
         // Try to delete the deferral code that is now attached to the resource
         if DeferralTemplate.Get(DeferralCode) then
-            asserterror DeferralTemplate.Delete;
+            asserterror DeferralTemplate.Delete();
 
-        Resource.Delete;
+        Resource.Delete();
         if DeferralTemplate.Get(DeferralCode) then
-            DeferralTemplate.Delete;
+            DeferralTemplate.Delete();
     end;
 
     [Test]
@@ -182,7 +182,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
 
         // Assign the deferral code to new GL Account
         GLAccount."Default Deferral Template Code" := DeferralCode;
-        GLAccount.Modify;
+        GLAccount.Modify();
 
         // Generate GL trx with new account, give it an amount
         CreateGeneralJournalBatch(GenJournalBatch);
@@ -193,13 +193,13 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
           GenJournalBatch."Bal. Account Type", GenJournalBatch."Bal. Account No.", 100.55);
         GenJournalLine.Validate("Bal. Account No.", '');
         GenJournalLine.Validate("Deferral Code");
-        Commit;
+        Commit();
         // Validate : Using a deferral code with too many periods will give warning about accounting periods not being set up
         asserterror GenJournalLine.Validate("Deferral Code", DeferralCode99);
         DeferralCode99 := CreateUserDefined99Periods; // For code coverage
         asserterror GenJournalLine.Validate("Deferral Code", DeferralCode99);
         GenJournalLine.Modify(true);
-        Commit;
+        Commit();
 
         // Validate : Gen Journal Line contains the Deferral Code
         GenJournalLine.TestField("Deferral Code", DeferralCode);
@@ -246,7 +246,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
 
         // Assign the deferral code to new GL Account
         GLAccount."Default Deferral Template Code" := DeferralCode;
-        GLAccount.Modify;
+        GLAccount.Modify();
 
         // Generate GL trx with new account, give it an amount
         CreateGeneralJournalBatch(GenJournalBatch);
@@ -258,7 +258,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         GenJournalLine.Validate("Bal. Account No.", '');
         GenJournalLine.Validate("Deferral Code");
         GenJournalLine.Modify(true);
-        Commit;
+        Commit();
 
         // Validate : Gen Journal Line contains the Deferral Code
         GenJournalLine.TestField("Deferral Code", DeferralCode);
@@ -295,7 +295,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         // [GIVEN] Create new GL Account, where "Default Deferral Template Code" is 'X'
         LibraryERM.CreateGLAccount(GLAccount);
         GLAccount."Default Deferral Template Code" := DeferralCode;
-        GLAccount.Modify;
+        GLAccount.Modify();
 
         // [GIVEN] Create General Journal Line, where "Posting Date" is '10.01.18'
         CreateGeneralJournalLineByPage(GeneralJournal, GLAccount, GenJournalLine, 100.56);
@@ -333,7 +333,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         // [GIVEN] Create new GL Account, where "Default Deferral Template Code" is 'X'
         LibraryERM.CreateGLAccount(GLAccount);
         GLAccount."Default Deferral Template Code" := DeferralCode;
-        GLAccount.Modify;
+        GLAccount.Modify();
 
         // [GIVEN] Create General Journal Line, where "Posting Date" is '10.01.18'
         CreateGeneralJournalLineByPage(GeneralJournal, GLAccount, GenJournalLine, 100.56);
@@ -346,7 +346,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
           GenJournalLine."Journal Batch Name", 0, '', GenJournalLine."Line No.", 0, 0D, '', '', true);
         DeferralHeader."Amount to Defer" := 0;
         DeferralHeader."No. of Periods" := 0;
-        DeferralHeader.Insert;
+        DeferralHeader.Insert();
 
         // [GIVEN] Action "Deferral Schedule" is invoked, but as no schedule, window contains no lines
         GeneralJournal.DeferralSchedule.Invoke;
@@ -415,7 +415,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
 
         // Assign the deferral code to new GL Account
         GLAccount."Default Deferral Template Code" := DeferralCode;
-        GLAccount.Modify;
+        GLAccount.Modify();
 
         // Create General Journal Line.
         // Generate GL trx with new account, give it an amount
@@ -428,7 +428,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         GenJournalLine.Validate("Bal. Account No.");
         GenJournalLine.Validate("Deferral Code");
         GenJournalLine.Modify(true);
-        Commit;
+        Commit();
 
         // Trap the amount created for the Deferral Schedule
         DeferralLine.SetRange("Deferral Doc. Type", DeferralDocType::"G/L");
@@ -469,7 +469,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
 
         // Assign the deferral code to new GL Account
         GLAccount."Default Deferral Template Code" := CreateDaysPerPeriod6Periods;
-        GLAccount.Modify;
+        GLAccount.Modify();
 
         // Generate GL trx with new account, give it an amount
         CreateGeneralJournalBatch(GenJournalBatch);
@@ -480,7 +480,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
           GenJournalBatch."Bal. Account Type", GenJournalBatch."Bal. Account No.", 100.55);
         GenJournalLine.Validate("Bal. Account No.", '');
         GenJournalLine.Validate("Deferral Code");
-        Commit;
+        Commit();
 
         // Validate : Deferral Schedule Exists given the key values for GL.
         if not DeferralHeader.Get(DeferralDocType::"G/L",
@@ -532,7 +532,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
 
         // Assign the deferral code to new GL Account
         GLAccount."Default Deferral Template Code" := DeferralCode;
-        GLAccount.Modify;
+        GLAccount.Modify();
 
         // Generate GL trx with new account, give it an amount
         CreateGeneralJournalBatch(GenJournalBatch);
@@ -544,7 +544,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         GenJournalLine.Validate("Bal. Account No.", '');
         GenJournalLine.Validate("Deferral Code");
         GenJournalLine.Modify(true);
-        Commit;
+        Commit();
 
         DeferralLine.SetRange("Deferral Doc. Type", DeferralDocType::"G/L");
         DeferralLine.SetRange("Gen. Jnl. Template Name", GenJournalLine."Journal Template Name");
@@ -581,7 +581,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
 
         // Assign the deferral code to new GL Account
         GLAccount."Default Deferral Template Code" := DeferralCode;
-        GLAccount.Modify;
+        GLAccount.Modify();
 
         // Create General Journal Line.
         // Generate GL trx with new account, give it an amount
@@ -595,13 +595,13 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         GenJournalLine.Validate("Bal. Account No.");
         GenJournalLine.Validate("Deferral Code");
         GenJournalLine.Modify(true);
-        Commit;
+        Commit();
 
         // Post General Journal Lines.
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // 2. Exercise: Run Deferral Summary - G/L Report.
-        Commit;
+        Commit();
         PostedDeferralHeader.SetRange("Deferral Doc. Type", PostedDeferralHeader."Deferral Doc. Type"::"G/L");
         PostedDeferralHeader.SetRange("Gen. Jnl. Document No.", GenJournalLine."Document No.");
         PostedDeferralHeader.SetRange("Account No.", GLAccount."No.");
@@ -634,7 +634,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         // [SCENARIO 143447] Item List should have Default Deferral Template field displayed.
         DeferralCode := CreateDeferralCode;
 
-        Item.Init;
+        Item.Init();
         Item."Default Deferral Template Code" := DeferralCode;
         Item.Insert(true);
 
@@ -654,7 +654,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         // [SCENARIO 143447] Item Card should have Default Deferral Template field displayed.
         DeferralCode := CreateDeferralCode;
 
-        Item.Init;
+        Item.Init();
         Item."Default Deferral Template Code" := DeferralCode;
         Item.Insert(true);
 
@@ -684,9 +684,9 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
     begin
         // [FEATURE] [Deferral] [UT]
         // [SCENARIO] "Deferral %" field of Deferral Template (1700) must not show empty decimals in Deferral Templates page (1701)
-        DeferralTemplate.Init;
+        DeferralTemplate.Init();
         DeferralTemplate.Validate("Deferral %", 10);
-        DeferralTemplate.Insert;
+        DeferralTemplate.Insert();
         DeferralTemplateList.Trap;
         PAGE.Run(PAGE::"Deferral Template List", DeferralTemplate);
         Assert.AreEqual('10', Format(DeferralTemplateList."Deferral %"), DecimalPlacesInDeferralPctErr);
@@ -1168,6 +1168,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         AccountingPeriod: Record "Accounting Period";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryApplicationArea: Codeunit "Library - Application Area";
+        GenJnlManagement: Codeunit "GenJnlManagement";
         Index: Integer;
         CurrentPeriod: Date;
     begin
@@ -1179,6 +1180,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Test RED Setup Gen. Jnl.");
+        GenJnlManagement.SetJournalSimplePageModePreference(true, Page::"General Journal");
 
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
@@ -1195,12 +1197,12 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
             if not AccountingPeriod.FindFirst then begin
                 AccountingPeriod."Starting Date" := CurrentPeriod;
                 AccountingPeriod."New Fiscal Year" := true;
-                AccountingPeriod.Insert;
+                AccountingPeriod.Insert();
             end;
         end;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Test RED Setup Gen. Jnl.");
     end;
 
@@ -1208,11 +1210,11 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
     var
         DeferralTemplate: Record "Deferral Template";
     begin
-        DeferralTemplate.Init;
+        DeferralTemplate.Init();
         DeferralTemplate."Deferral Code" :=
           LibraryUtility.GenerateRandomCode(DeferralTemplate.FieldNo("Deferral Code"), DATABASE::"Deferral Template");
 
-        DeferralTemplate.Insert;
+        DeferralTemplate.Insert();
         DeferralCode := DeferralTemplate."Deferral Code";
 
         exit(DeferralCode);
@@ -1229,7 +1231,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         DeferralCode := LibraryUtility.GenerateRandomCode(DeferralTemplate.FieldNo("Deferral Code"), DATABASE::"Deferral Template");
         GLAccountNumber := LibraryERM.CreateGLAccountNo;
 
-        DeferralTemplate.Init;
+        DeferralTemplate.Init();
         DeferralTemplate."Deferral Code" := DeferralCode;
         DeferralTemplate."Deferral Account" := GLAccountNumber;
         DeferralTemplate."Calc. Method" := CalcMethod;
@@ -1237,7 +1239,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         DeferralTemplate."No. of Periods" := NumOfPeriods;
         DeferralTemplate."Period Description" := PeriodDescription;
         DeferralTemplate."Deferral %" := DeferralPercentage;
-        DeferralTemplate.Insert;
+        DeferralTemplate.Insert();
 
         Code := DeferralTemplate."Deferral Code";
 
@@ -1332,7 +1334,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         // Find General Journal Template and Create General Journal Batch.
         CreateGeneralJournalBatch(GenJournalBatch);
         LibraryVariableStorage.Enqueue(GenJournalBatch."Journal Template Name");
-        Commit;
+        Commit();
 
         // Create General Journal Line.
         GeneralJournal.OpenEdit;
@@ -1342,7 +1344,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         GeneralJournal."Document No.".SetValue(GenJournalBatch.Name);
 
         GenJournalLine.Validate("Deferral Code");
-        Commit;
+        Commit();
 
         // Create G/L Account No for Bal. Account No.
         GLAccount.SetFilter("No.", '<>%1', GLAccount."No.");
@@ -1443,7 +1445,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
 
         // Assign the deferral code to new GL Account
         GLAccount."Default Deferral Template Code" := DeferralCode;
-        GLAccount.Modify;
+        GLAccount.Modify();
 
         // Create General Journal Line.
         // Generate GL trx with new account, give it an amount
@@ -1465,7 +1467,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
     begin
         GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
         GLAccount."Default Deferral Template Code" := CreateEqual5Periods;
-        GLAccount.Modify;
+        GLAccount.Modify();
 
         CreateGeneralJournalBatch(GenJournalBatch);
         with GenJournalLine do
@@ -1482,7 +1484,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
     begin
         GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup);
         GLAccount."Default Deferral Template Code" := CreateEqual5Periods;
-        GLAccount.Modify;
+        GLAccount.Modify();
 
         CreateGeneralJournalBatch(GenJournalBatch);
         with GenJournalLine do
@@ -1499,7 +1501,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
     begin
         LibraryERM.CreateSourceCode(SourceCode);
 
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         SourceCodeSetup.Validate("General Journal", SourceCode.Code);
         SourceCodeSetup.Modify(true);
     end;
@@ -1515,7 +1517,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         GenJournalBatch.Get(JournalTemplateName, JournalBatchName);
 
         // Create a General Journal Entry.
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine.Validate("Journal Template Name", JournalTemplateName);
         GenJournalLine.Validate("Journal Batch Name", JournalBatchName);
         RecRef.GetTable(GenJournalLine);

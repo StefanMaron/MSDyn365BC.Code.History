@@ -34,7 +34,7 @@ table 6082 "Service Price Adjustment Group"
     begin
         ServPriceAdjmtDetail.SetRange("Serv. Price Adjmt. Gr. Code", Code);
         if ServPriceAdjmtDetail.FindFirst then
-            ServPriceAdjmtDetail.DeleteAll;
+            ServPriceAdjmtDetail.DeleteAll();
     end;
 }
 

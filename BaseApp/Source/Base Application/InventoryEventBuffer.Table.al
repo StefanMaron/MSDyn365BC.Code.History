@@ -65,13 +65,11 @@ table 5530 "Inventory Event Buffer"
             DataClassification = SystemMetadata;
             Editable = false;
         }
-        field(22; "Transfer Direction"; Option)
+        field(22; "Transfer Direction"; Enum "Transfer Direction")
         {
             Caption = 'Transfer Direction';
             DataClassification = SystemMetadata;
             Editable = false;
-            OptionCaption = 'Outbound,Inbound';
-            OptionMembers = Outbound,Inbound;
         }
         field(23; "Reserved Quantity (Base)"; Decimal)
         {
@@ -80,13 +78,11 @@ table 5530 "Inventory Event Buffer"
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
-        field(29; "Action Message"; Option)
+        field(29; "Action Message"; Enum "Action Message Type")
         {
             Caption = 'Action Message';
             DataClassification = SystemMetadata;
             Editable = false;
-            OptionCaption = ' ,New,Change Qty.,Reschedule,Resched. & Chg. Qty.,Cancel';
-            OptionMembers = " ",New,"Change Qty.",Reschedule,"Resched. & Chg. Qty.",Cancel;
         }
         field(31; "Attached to Line No."; Integer)
         {

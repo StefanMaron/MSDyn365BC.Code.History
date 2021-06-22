@@ -125,7 +125,7 @@ report 214 "Pick Instruction"
                         trigger OnPreDataItem()
                         begin
                             if not AsmExists then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             SetRange("Document Type", AsmHeader."Document Type");
                             SetRange("Document No.", AsmHeader."No.");
                         end;
@@ -135,7 +135,7 @@ report 214 "Pick Instruction"
                     var
                         AssembleToOrderLink: Record "Assemble-to-Order Link";
                     begin
-                        AssembleToOrderLink.Reset;
+                        AssembleToOrderLink.Reset();
                         AssembleToOrderLink.SetCurrentKey(Type, "Document Type", "Document No.", "Document Line No.");
                         AssembleToOrderLink.SetRange(Type, AssembleToOrderLink.Type::Sale);
                         AssembleToOrderLink.SetRange("Document Type", "Document Type");

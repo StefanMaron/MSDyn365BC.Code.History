@@ -31,11 +31,9 @@ table 5410 "Prod. Order Capacity Need"
         {
             Caption = 'Operation No.';
         }
-        field(6; Type; Option)
+        field(6; Type; Enum "Capacity Type")
         {
             Caption = 'Type';
-            OptionCaption = 'Work Center,Machine Center';
-            OptionMembers = "Work Center","Machine Center";
         }
         field(7; "No."; Code[20])
         {

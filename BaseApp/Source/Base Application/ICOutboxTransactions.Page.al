@@ -211,7 +211,7 @@ page 611 "IC Outbox Transactions"
                             if ICOutboxTransaction.Find('-') then
                                 repeat
                                     ICOutboxTransaction."Line Action" := ICOutboxTransaction."Line Action"::"No Action";
-                                    ICOutboxTransaction.Modify;
+                                    ICOutboxTransaction.Modify();
                                 until ICOutboxTransaction.Next = 0;
                         end;
                     }
@@ -233,7 +233,7 @@ page 611 "IC Outbox Transactions"
                             if ICOutboxTransaction.Find('-') then
                                 repeat
                                     ICOutboxTransaction.Validate("Line Action", ICOutboxTransaction."Line Action"::"Send to IC Partner");
-                                    ICOutboxTransaction.Modify;
+                                    ICOutboxTransaction.Modify();
                                 until ICOutboxTransaction.Next = 0;
                             ICOutboxExport.RunOutboxTransactions(ICOutboxTransaction);
                         end;
@@ -257,7 +257,7 @@ page 611 "IC Outbox Transactions"
                                 repeat
                                     TestField("Transaction Source", ICOutboxTransaction."Transaction Source"::"Rejected by Current Company");
                                     ICOutboxTransaction."Line Action" := ICOutboxTransaction."Line Action"::"Return to Inbox";
-                                    ICOutboxTransaction.Modify;
+                                    ICOutboxTransaction.Modify();
                                 until ICOutboxTransaction.Next = 0;
                             ICOutboxExport.RunOutboxTransactions(ICOutboxTransaction);
                         end;
@@ -280,7 +280,7 @@ page 611 "IC Outbox Transactions"
                             if ICOutboxTransaction.Find('-') then
                                 repeat
                                     ICOutboxTransaction."Line Action" := ICOutboxTransaction."Line Action"::Cancel;
-                                    ICOutboxTransaction.Modify;
+                                    ICOutboxTransaction.Modify();
                                 until ICOutboxTransaction.Next = 0;
                             ICOutboxExport.RunOutboxTransactions(ICOutboxTransaction);
                         end;

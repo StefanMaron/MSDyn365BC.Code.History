@@ -9,7 +9,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
         MfgSetup: Record "Manufacturing Setup";
     begin
         // [FEATURE] [Assembly] [Item Tracking] [SCM]
-        MfgSetup.Get;
+        MfgSetup.Get();
         WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate); // to avoid Due Date Before Work Date message.
         Initialized := false;
     end;
@@ -46,7 +46,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryPatterns.SETNoSeries;
         Initialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Assembly Item Tracking");
     end;
 
@@ -556,7 +556,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
         WhseActivityLine: Record "Warehouse Activity Line";
     begin
         Clear(WhseActivityLine);
-        WhseActivityLine.Reset;
+        WhseActivityLine.Reset();
         WhseActivityLine.SetRange("Source Type", DATABASE::"Assembly Line");
         WhseActivityLine.SetRange("Source Document", WhseActivityLine."Source Document"::"Assembly Consumption");
         WhseActivityLine.SetRange("Source No.", SourceNo);
@@ -564,7 +564,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
         repeat
             WhseActivityLine.Validate("Lot No.", LN);
             WhseActivityLine.Validate("Serial No.", SN);
-            WhseActivityLine.Modify;
+            WhseActivityLine.Modify();
         until WhseActivityLine.Next = 0;
     end;
 
@@ -576,7 +576,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
         WhseActivityRegister: Codeunit "Whse.-Activity-Register";
     begin
         Clear(WhseActivityLine);
-        WhseActivityLine.Reset;
+        WhseActivityLine.Reset();
         WhseActivityLine.SetRange("Source Type", DATABASE::"Assembly Line");
         WhseActivityLine.SetRange("Source Document", WhseActivityLine."Source Document"::"Assembly Consumption");
         WhseActivityLine.SetRange("Source No.", SourceNo);

@@ -86,7 +86,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         Assert.AreNotEqual(NewReminderTermsCode, ReminderTermsCode, 'Random code is not unique');
         ReminderTerms.Get(ReminderTermsCode);
         ReminderTerms.Rename(NewReminderTermsCode);
-        Commit;
+        Commit();
 
         // [THEN] All sub records are renamed as well
         ReminderLevel.SetRange("Reminder Terms Code", NewReminderTermsCode);
@@ -216,7 +216,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         CreateStandardReminderTermSetupWithCust(CustNo, ReminderTermCode, true);
         Customer.Get(CustNo);
         Customer.Validate("Reminder Terms Code", '');
-        Customer.Modify;
+        Customer.Modify();
 
         // [GIVEN] A posted sales invoice (I_a) for Customer A with empty Reminder Terms Code
         PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate));
@@ -638,7 +638,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         // [GIVEN] All Reminder Lines with Line Type = "Ending Text" is removed from the Reminder
         ReminderLine.SetRange("Reminder No.", ReminderNo);
         ReminderLine.SetRange("Line Type", ReminderLine."Line Type"::"Ending Text");
-        ReminderLine.DeleteAll;
+        ReminderLine.DeleteAll();
 
         // [WHEN] User invokes "Update Reminder Text"
         UpdateReminderText(ReminderNo, 1);
@@ -687,13 +687,13 @@ codeunit 134997 "Reminder - Add. Line fee"
         with ReminderLine2 do
             VerifyReminderLineExists(ReminderLine2, ReminderNo, Type::"Line Fee", "Document Type"::Invoice, InvoiceA);
         ReminderLine2.Validate(Amount, LibraryRandom.RandDecInRange(1, 100, 2));
-        ReminderLine2.Modify;
+        ReminderLine2.Modify();
         AmountY := ReminderLine2."Remaining Amount" + ReminderLine2.Amount + ReminderLine2."VAT Amount";
 
         // [GIVEN] All Reminder Lines with Line Type = "Ending Text" is removed from the Reminder
         ReminderLine.SetRange("Reminder No.", ReminderNo);
         ReminderLine.SetRange("Line Type", ReminderLine."Line Type"::"Ending Text");
-        ReminderLine.DeleteAll;
+        ReminderLine.DeleteAll();
 
         // [WHEN] User invokes "Update Reminder Text"
         UpdateReminderText(ReminderNo, 1);
@@ -864,10 +864,10 @@ codeunit 134997 "Reminder - Add. Line fee"
         PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate));
 
         // [GIVEN] A reminder for the customer is created with Q Reminder Lines
-        CustLedgEntryLineFeeOn.Reset;
+        CustLedgEntryLineFeeOn.Reset();
         ReminderNo := CreateReminderAndSuggestLines(CustNo, WorkDate, CustLedgEntryLineFeeOn);
         ReminderLine.SetRange("Reminder No.", ReminderNo);
-        NumberOfLines := ReminderLine.Count;
+        NumberOfLines := ReminderLine.Count();
 
         // [WHEN] "Suggest Reminder Lines" are invoked again
         SuggestReminderLines(ReminderNo, CustLedgEntryLineFeeOn);
@@ -1050,7 +1050,7 @@ codeunit 134997 "Reminder - Add. Line fee"
 
         // [GIVEN] Invoice I_a is overdue
         // [WHEN] A reminder is created for customer C with currency H
-        ReminderLine.DeleteAll;
+        ReminderLine.DeleteAll();
         ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, WorkDate);
 
         // [THEN] A Reminder line is created for Invoice I_a
@@ -1306,7 +1306,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         ReminderHeader.Modify(true);
 
         // [GIVEN] User added a Reminder line
-        ReminderLine.Init;
+        ReminderLine.Init();
         ReminderLine.Validate("Reminder No.", ReminderHeader."No.");
         ReminderLine.Insert(true);
 
@@ -1459,7 +1459,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         ReminderNo := CreateReminderWithOverdueInvoiceAndLineFee;
 
         // [GIVEN] User added a new Reminder line of type Line Fee
-        ReminderLine.Init;
+        ReminderLine.Init();
         ReminderLine.Validate("Reminder No.", ReminderNo);
         ReminderLine.Validate(Type, ReminderLine.Type::"Line Fee");
         ReminderLine.Insert(true);
@@ -1498,7 +1498,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         ReminderNo := CreateReminderWithOverdueInvoiceAndLineFee;
 
         // [GIVEN] User added a new Reminder line of type Line Fee
-        ReminderLine.Init;
+        ReminderLine.Init();
         ReminderLine.Validate("Reminder No.", ReminderNo);
         ReminderLine.Validate(Type, ReminderLine.Type::"Line Fee");
         ReminderLine.Insert(true);
@@ -1660,7 +1660,7 @@ codeunit 134997 "Reminder - Add. Line fee"
 
         // [GIVEN] A Reminder Line of type Line Fee is added to R_2
         // [WHEN] The user attempts to apply the Line Fee to invoice I_A
-        ReminderLine.Init;
+        ReminderLine.Init();
         ReminderLine.Validate("Reminder No.", ReminderHeader."No.");
         ReminderLine.Validate(Type, ReminderLine.Type::"Line Fee");
         ReminderLine.Insert(true);
@@ -2290,7 +2290,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         // [GIVEN] The user changes the Applies To for the Line Fee to a Invoice that is not overdue
         with ReminderLine do
             VerifyReminderLineExists(ReminderLine, ReminderNo, Type::"Line Fee", "Document Type"::Invoice, '');
-        ReminderLine2.Init;
+        ReminderLine2.Init();
         ReminderLine2.Validate("Reminder No.", ReminderNo);
         ReminderLine2.Validate(Type, ReminderLine.Type::"Line Fee");
         ReminderLine2.Insert(true);
@@ -2642,14 +2642,14 @@ codeunit 134997 "Reminder - Add. Line fee"
 
         // [GIVEN] Customer "A" with Reminder Print = E-Mail and Hide Email-Dialog = No
         CreateReminderForCustomer(CustomerNo, ReminderNo);
-        Commit;
+        Commit();
 
         // [WHEN] Issue Reminder
         IssueReminder(ReminderNo, PrintDocRef::Email, false);
 
         // [THEN] Cancel on Email Dialog appeared
         // [THEN] Issued Reminder for Customer "A" exists
-        IssuedReminderHeader.Init;
+        IssuedReminderHeader.Init();
         IssuedReminderHeader.SetRange("Customer No.", CustomerNo);
         Assert.RecordIsNotEmpty(IssuedReminderHeader);
     end;
@@ -2760,7 +2760,7 @@ codeunit 134997 "Reminder - Add. Line fee"
     var
         CustLedgEntryLineFeeOn: Record "Cust. Ledger Entry";
     begin
-        CustLedgEntryLineFeeOn.Reset;
+        CustLedgEntryLineFeeOn.Reset();
         exit(CreateReminderAndSuggestLines(CustomerNo, PostingDate, CustLedgEntryLineFeeOn));
     end;
 
@@ -2787,7 +2787,7 @@ codeunit 134997 "Reminder - Add. Line fee"
 
     local procedure CreateReminderLineOfTypeLineFee(var ReminderLine: Record "Reminder Line"; ReminderNo: Code[20]; DocType: Option; DocNo: Code[20])
     begin
-        ReminderLine.Init;
+        ReminderLine.Init();
         ReminderLine.Validate("Reminder No.", ReminderNo);
         ReminderLine.Insert(true);
         ReminderLine.Validate(Type, ReminderLine.Type::"Line Fee");
@@ -2991,7 +2991,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         if ReminderText.FindLast then;
         NextLineNo := ReminderText."Line No." + 1000;
 
-        ReminderText.Init;
+        ReminderText.Init();
         ReminderText."Reminder Terms Code" := ReminderTermCode;
         ReminderText."Reminder Level" := Level;
         ReminderText.Position := Position;
@@ -3004,7 +3004,7 @@ codeunit 134997 "Reminder - Add. Line fee"
     var
         ReminderHeader: Record "Reminder Header";
     begin
-        Commit;
+        Commit();
         ReminderHeader.SetRange("No.", ReminderNo);
         LibraryVariableStorage.Enqueue(Level);
         REPORT.RunModal(REPORT::"Update Reminder Text", true, false, ReminderHeader);
@@ -3015,10 +3015,10 @@ codeunit 134997 "Reminder - Add. Line fee"
         Customer: Record Customer;
         CompanyInformation: Record "Company Information";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         Customer.Get(CustomerNo);
         Customer."VAT Registration No." := LibraryERM.GenerateVATRegistrationNo(CompanyInformation."Country/Region Code");
-        Customer.Modify;
+        Customer.Modify();
     end;
 
     local procedure FindOpenCustomerLedgerEntriesExclVAT(var CustLedgerEntry: Record "Cust. Ledger Entry"; IssuedReminderNo: Code[20]; CustomerNo: Code[20])
@@ -3097,7 +3097,7 @@ codeunit 134997 "Reminder - Add. Line fee"
 
     local procedure GetReminderLines(var ReminderLine: Record "Reminder Line"; ReminderHeaderNo: Code[20]; Type: Option " ","G/L Account","Customer Ledger Entry","Line Fee"; DocumentType: Option " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund; DocumentNo: Code[20]): Boolean
     begin
-        ReminderLine.Reset;
+        ReminderLine.Reset();
         ReminderLine.SetRange("Reminder No.", ReminderHeaderNo);
         ReminderLine.SetRange(Type, Type);
         if Type = ReminderLine.Type::"Line Fee" then begin
@@ -3141,7 +3141,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         ReminderHeader.SetRange("No.", ReminderHeaderNo);
         Clear(IssueReminders);
         IssueReminders.SetTableView(ReminderHeader);
-        Commit;
+        Commit();
         IssueReminders.Run;
 
         IssuedReminderHeader.SetFilter("Customer No.", ReminderHeader."Customer No.");

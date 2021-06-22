@@ -131,9 +131,9 @@ report 4 "Detail Trial Balance"
                     begin
                         if PrintOnlyCorrections then
                             if not (("Debit Amount" < 0) or ("Credit Amount" < 0)) then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                         if not PrintReversedEntries and Reversed then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                         GLBalance := GLBalance + Amount;
                         if ("Posting Date" = ClosingDate("Posting Date")) and
@@ -179,7 +179,7 @@ report 4 "Detail Trial Balance"
                 end;
 
                 if PrintOnlyOnePerPage then begin
-                    GLEntry.Reset;
+                    GLEntry.Reset();
                     GLEntry.SetRange("G/L Account No.", "No.");
                     if CurrReport.PrintOnlyIfDetail and GLEntry.FindFirst then
                         PageGroupNo := PageGroupNo + 1;

@@ -139,12 +139,10 @@ table 5531 "Inventory Page Data"
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
-        field(29; "Action Message"; Option)
+        field(29; "Action Message"; Enum "Action Message Type")
         {
             Caption = 'Action Message';
             Editable = false;
-            OptionCaption = ' ,New,Change Qty.,Reschedule,Resched. & Chg. Qty.,Cancel';
-            OptionMembers = " ",New,"Change Qty.",Reschedule,"Resched. & Chg. Qty.",Cancel;
         }
         field(30; "Source Document ID"; RecordID)
         {

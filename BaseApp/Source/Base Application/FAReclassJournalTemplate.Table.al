@@ -55,9 +55,9 @@ table 5622 "FA Reclass. Journal Template"
     trigger OnDelete()
     begin
         FAReclassJnlLine.SetRange("Journal Template Name", Name);
-        FAReclassJnlLine.DeleteAll;
+        FAReclassJnlLine.DeleteAll();
         FAReclassJnlBatch.SetRange("Journal Template Name", Name);
-        FAReclassJnlBatch.DeleteAll;
+        FAReclassJnlBatch.DeleteAll();
     end;
 
     trigger OnInsert()

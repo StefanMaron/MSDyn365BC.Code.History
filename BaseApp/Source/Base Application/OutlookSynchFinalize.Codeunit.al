@@ -40,12 +40,12 @@ codeunit 5311 "Outlook Synch. Finalize"
     var
         OSynchUserSetup: Record "Outlook Synch. User Setup";
     begin
-        OSynchUserSetup.Reset;
+        OSynchUserSetup.Reset();
         OSynchUserSetup.SetRange("User ID", UserID);
         if OSynchUserSetup.Find('-') then
             repeat
                 OSynchUserSetup."Last Synch. Time" := StartSynchTime;
-                OSynchUserSetup.Modify;
+                OSynchUserSetup.Modify();
             until OSynchUserSetup.Next = 0;
     end;
 }

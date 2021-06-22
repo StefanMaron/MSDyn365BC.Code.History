@@ -38,13 +38,13 @@ codeunit 99000853 "Calc. Low-level code"
 
         Window.Update(1, Text002);
 
-        Item.LockTable;
+        Item.LockTable();
         Item.ModifyAll("Low-Level Code", 0);
-        ProdBOMHeader.LockTable;
+        ProdBOMHeader.LockTable();
         ProdBOMHeader.ModifyAll("Low-Level Code", 0);
 
         ProdBOMLine.SetCurrentKey(Type, "No.");
-        CountOfRecords := Item.Count;
+        CountOfRecords := Item.Count();
         if Item.Find('-') then
             repeat
                 if CurrentDateTime - WindowUpdateDateTime > 2000 then begin
@@ -86,11 +86,11 @@ codeunit 99000853 "Calc. Low-level code"
 
         NoofItems := 0;
         Window.Update(1, Text003);
-        ProdBOMHeader.Reset;
+        ProdBOMHeader.Reset();
         ProdBOMHeader.SetCurrentKey(Status);
         ProdBOMHeader.SetRange(Status, ProdBOMHeader.Status::Certified);
         ProdBOMHeader.SetRange("Low-Level Code", 0);
-        CountOfRecords := ProdBOMHeader.Count;
+        CountOfRecords := ProdBOMHeader.Count();
         if ProdBOMHeader.Find('-') then
             repeat
                 if CurrentDateTime - WindowUpdateDateTime > 2000 then begin
@@ -114,7 +114,7 @@ codeunit 99000853 "Calc. Low-level code"
         if ProdBOM.Status = ProdBOM.Status::Certified then begin
             ProdBOM."Low-Level Code" := CalcLowLevelCode.CalcLevels(ProdBOMLine.Type::"Production BOM", ProdBOM."No.", 0, 0);
             CalcLowLevelCode.RecalcLowerLevels(ProdBOM."No.", ProdBOM."Low-Level Code", true);
-            ProdBOM.Modify;
+            ProdBOM.Modify();
         end;
     end;
 

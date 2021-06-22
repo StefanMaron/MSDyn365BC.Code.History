@@ -2662,7 +2662,7 @@ codeunit 137072 "SCM Production Orders II"
         ReservationEntry.TestField("Shipment Date", ProdOrderRoutingLine."Ending Date");
         ReservationEntry.TestField("Shipment Date", ProdOrderLine."Due Date");
 
-        ReservationEntry.Reset;
+        ReservationEntry.Reset();
         ReservationEntry.Get(ReservationEntry."Entry No.", not ReservationEntry.Positive);
         ReservationEntry.TestField("Shipment Date", ProdOrderRoutingLine."Ending Date");
 
@@ -2938,7 +2938,7 @@ codeunit 137072 "SCM Production Orders II"
 
         LibrarySetupStorage.Save(DATABASE::"Manufacturing Setup");
 
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Production Orders II");
     end;
 
@@ -2971,11 +2971,11 @@ codeunit 137072 "SCM Production Orders II"
         SalesSetup: Record "Sales & Receivables Setup";
         WarehouseSetup: Record "Warehouse Setup";
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesSetup.Modify(true);
 
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchasesPayablesSetup.Validate("Posted Receipt Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchasesPayablesSetup.Validate("Posted Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode);
@@ -2986,12 +2986,12 @@ codeunit 137072 "SCM Production Orders II"
 
     local procedure ItemJournalSetup()
     begin
-        ItemJournalTemplate.Init;
+        ItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
         ItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
         ItemJournalTemplate.Modify(true);
 
-        ItemJournalBatch.Init;
+        ItemJournalBatch.Init();
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
         ItemJournalBatch.Validate("No. Series", '');  // Value required to avoid the Document No mismatch.
         ItemJournalBatch.Modify(true);
@@ -3022,7 +3022,7 @@ codeunit 137072 "SCM Production Orders II"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Assert.AreNearlyEqual(Expected, Actual, GeneralLedgerSetup."Unit-Amount Rounding Precision", Msg);
     end;
 
@@ -3775,7 +3775,7 @@ codeunit 137072 "SCM Production Orders II"
         CreateRequisitionWorksheetName(RequisitionWkshName, RequisitionWkshName."Template Type"::Planning);
         LibraryVariableStorage.Enqueue(ItemNo);  // Required for CalculatePlanPlanWkshRequestPageHandler.
         LibraryVariableStorage.Enqueue(ItemNo2);  // Required for CalculatePlanPlanWkshRequestPageHandler.
-        Commit;  // Required for Test.
+        Commit();  // Required for Test.
         OpenPlanningWorksheetPage(PlanningWorksheet, RequisitionWkshName.Name);
         PlanningWorksheet.CalculateRegenerativePlan.Invoke;  // Open report on Handler CalculatePlanPlanWkshRequestPageHandler.
 
@@ -3784,7 +3784,7 @@ codeunit 137072 "SCM Production Orders II"
             LibraryVariableStorage.Enqueue(ProductionOrderType::"Firm Planned"); // Required for CarryOutActionMessageHandler.
             AcceptActionMessage(RequisitionLine, ItemNo);
             AcceptActionMessage(RequisitionLine, ItemNo2);
-            Commit; // Required for Test.
+            Commit(); // Required for Test.
             PlanningWorksheet.CarryOutActionMessage.Invoke; // Invoke Carry Out Action Message handler.
         end;
         PlanningWorksheet.OK.Invoke;
@@ -3979,7 +3979,7 @@ codeunit 137072 "SCM Production Orders II"
     var
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         ManufacturingSetup.Validate("Components at Location", NewComponentsAtLocation);
         ManufacturingSetup.Modify(true);
     end;

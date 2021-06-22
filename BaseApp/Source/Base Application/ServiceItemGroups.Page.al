@@ -1,4 +1,4 @@
-﻿page 5909 "Service Item Groups"
+page 5909 "Service Item Groups"
 {
     ApplicationArea = Service;
     Caption = 'Service Item Groups';

@@ -73,11 +73,9 @@ report 7139 "Date Comp. Item Budget Entries"
                 if DateComprReg."No. Records Deleted" >= NoOfDeleted + 10 then begin
                     NoOfDeleted := DateComprReg."No. Records Deleted";
                     InsertRegisters(DateComprReg);
-                    Commit;
-                    ItemBudgetEntry2.LockTable;
-                    ItemBudgetEntry2.Reset;
-                    if ItemBudgetEntry2.Find('+') then;
-                    LastEntryNo := ItemBudgetEntry2."Entry No.";
+                    Commit();
+                    ItemBudgetEntry2.LockTable();
+                    LastEntryNo := ItemBudgetEntry2.GetLastEntryNo();
                 end;
             end;
 
@@ -100,14 +98,14 @@ report 7139 "Date Comp. Item Budget Entries"
                 if not
                    Confirm(Text000, false)
                 then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 if EntrdDateComprReg."Ending Date" = 0D then
                     Error(
                       Text002,
                       EntrdDateComprReg.FieldCaption("Ending Date"));
 
-                DateComprReg.Init;
+                DateComprReg.Init();
                 DateComprReg."Starting Date" := EntrdDateComprReg."Starting Date";
                 DateComprReg."Ending Date" := EntrdDateComprReg."Ending Date";
                 DateComprReg."Period Length" := EntrdDateComprReg."Period Length";
@@ -115,12 +113,12 @@ report 7139 "Date Comp. Item Budget Entries"
                 if AnalysisView.FindFirst then begin
                     AnalysisView.CheckDimensionsAreRetained(3, REPORT::"Date Comp. Item Budget Entries", true);
                     AnalysisView.CheckViewsAreUpdated;
-                    Commit;
+                    Commit();
                 end;
 
                 SelectedDim.GetSelectedDim(
                   UserId, 3, REPORT::"Date Comp. Item Budget Entries", '', TempSelectedDim);
-                GLSetup.Get;
+                GLSetup.Get();
                 Retain[1] :=
                   TempSelectedDim.Get(
                     UserId, 3, REPORT::"Date Comp. Item Budget Entries", '', GLSetup."Global Dimension 1 Code");
@@ -128,12 +126,11 @@ report 7139 "Date Comp. Item Budget Entries"
                   TempSelectedDim.Get(
                     UserId, 3, REPORT::"Date Comp. Item Budget Entries", '', GLSetup."Global Dimension 2 Code");
 
-                SourceCodeSetup.Get;
+                SourceCodeSetup.Get();
                 SourceCodeSetup.TestField("Compress Item Budget");
 
-                ItemBudgetEntry2.LockTable;
-                if ItemBudgetEntry2.Find('+') then;
-                LastEntryNo := ItemBudgetEntry2."Entry No.";
+                ItemBudgetEntry2.LockTable();
+                LastEntryNo := ItemBudgetEntry2.GetLastEntryNo();
                 LowestEntryNo := 2147483647;
 
                 Window.Open(
@@ -275,9 +272,8 @@ report 7139 "Date Comp. Item Budget Entries"
 
     local procedure InitRegisters()
     begin
-        if DateComprReg.FindLast then;
-        DateComprReg.Init;
-        DateComprReg."No." := DateComprReg."No." + 1;
+        DateComprReg.Init();
+        DateComprReg."No." := DateComprReg.GetLastEntryNo() + 1;
         DateComprReg."Table ID" := DATABASE::"Item Budget Entry";
         DateComprReg."Creation Date" := Today;
         DateComprReg."Starting Date" := EntrdDateComprReg."Starting Date";
@@ -299,16 +295,18 @@ report 7139 "Date Comp. Item Budget Entries"
     end;
 
     local procedure InsertRegisters(var DateComprReg: Record "Date Compr. Register")
+    var
+        CurrLastEntryNo: Integer;
     begin
-        DateComprReg.Insert;
+        DateComprReg.Insert();
 
-        NewItemBudgetEntry.LockTable;
-        DateComprReg.LockTable;
+        NewItemBudgetEntry.LockTable();
+        DateComprReg.LockTable();
 
-        ItemBudgetEntry2.Reset;
-        if ItemBudgetEntry2.Find('+') then;
-        if LastEntryNo <> ItemBudgetEntry2."Entry No." then begin
-            LastEntryNo := ItemBudgetEntry2."Entry No.";
+        ItemBudgetEntry2.Reset();
+        CurrLastEntryNo := ItemBudgetEntry2.GetLastEntryNo();
+        if LastEntryNo <> CurrLastEntryNo then begin
+            LastEntryNo := CurrLastEntryNo;
             InitRegisters;
         end;
     end;
@@ -377,7 +375,7 @@ report 7139 "Date Comp. Item Budget Entries"
         LastEntryNo := LastEntryNo + 1;
 
         with ItemBudgetEntry2 do begin
-            NewItemBudgetEntry.Init;
+            NewItemBudgetEntry.Init();
             NewItemBudgetEntry."Entry No." := LastEntryNo;
             NewItemBudgetEntry."Analysis Area" := AnalysisAreaSelection;
             NewItemBudgetEntry."Budget Name" := "Budget Name";
@@ -410,11 +408,11 @@ report 7139 "Date Comp. Item Budget Entries"
         TempDimBuf: Record "Dimension Buffer" temporary;
         TempDimSetEntry: Record "Dimension Set Entry" temporary;
     begin
-        TempDimBuf.DeleteAll;
+        TempDimBuf.DeleteAll();
         DimBufMgt.GetDimensions(DimEntryNo, TempDimBuf);
         DimMgt.CopyDimBufToDimSetEntry(TempDimBuf, TempDimSetEntry);
         NewItemBudgetEntry."Dimension Set ID" := DimMgt.GetDimensionSetID(TempDimSetEntry);
-        NewItemBudgetEntry.Insert;
+        NewItemBudgetEntry.Insert();
     end;
 
     procedure InitializeRequest(AnalAreaSelection: Option; StartDate: Date; EndDate: Date; PeriodLength: Option; Desc: Text[50])

@@ -235,11 +235,9 @@ page 1806 "Exchange Setup Wizard"
                 trigger OnAction()
                 var
                     AssistedSetup: Codeunit "Assisted Setup";
-                    Info: ModuleInfo;
                 begin
                     DeployToExchange;
-                    NavApp.GetCurrentModuleInfo(Info);
-                    AssistedSetup.Complete(Info.Id(), PAGE::"Exchange Setup Wizard");
+                    AssistedSetup.Complete(PAGE::"Exchange Setup Wizard");
                     CurrPage.Close;
                 end;
             }
@@ -271,12 +269,10 @@ page 1806 "Exchange Setup Wizard"
         AssistedSetup: Codeunit "Assisted Setup";
         Info: ModuleInfo;
     begin
-        if CloseAction = ACTION::OK then begin
-            NavApp.GetCurrentModuleInfo(Info);
-            if AssistedSetup.ExistsAndIsNotComplete(Info.Id(), PAGE::"Exchange Setup Wizard") then
+        if CloseAction = ACTION::OK then
+            if AssistedSetup.ExistsAndIsNotComplete(PAGE::"Exchange Setup Wizard") then
                 if not Confirm(NAVNotSetUpQst, false) then
                     Error('');
-        end;
     end;
 
     var
@@ -320,6 +316,7 @@ page 1806 "Exchange Setup Wizard"
         DeployAddInMsg: Label 'Deploying %1.', Comment = '%1 is the name of an Office add-in.';
         ProgressTemplateMsg: Label '#1##########\@2@@@@@@@@@@', Locked = true;
         UnavailableInSaaS: Label 'The business inbox in Outlook is only supported if your organization uses Office 365.';
+        SetupTelemetryTxt: Label 'Setting up Outlook add-ins with deployment mode = %1', Locked = true;
 
     local procedure NextStep(Backwards: Boolean)
     begin
@@ -422,6 +419,7 @@ page 1806 "Exchange Setup Wizard"
     var
         OfficeAddin: Record "Office Add-in";
         AddinDeploymentHelper: Codeunit "Add-in Deployment Helper";
+        OfficeMgt: Codeunit "Office Management";
         ProgressWindow: Dialog;
         Progress: Integer;
     begin
@@ -434,6 +432,9 @@ page 1806 "Exchange Setup Wizard"
         if not OnPremOrgDeploy then
             if NeedCredentials then
                 ExchangeAddinSetup.InitializeServiceWithCredentials(Email, Password);
+
+        SendTraceTag('0000ACW', OfficeMgt.GetOfficeAddinTelemetryCategory(), Verbosity::Normal,
+            StrSubstNo(SetupTelemetryTxt, Format(DeploymentMode)), DataClassification::SystemMetadata);
 
         if DeploymentMode = DeploymentMode::User then begin
             ProgressWindow.Update(1, DeployAccountMsg);

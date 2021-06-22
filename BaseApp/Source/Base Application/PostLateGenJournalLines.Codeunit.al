@@ -21,7 +21,7 @@ codeunit 1256 "Post Late Gen. Journal Lines"
                     GenJournalLine.Validate("Bal. Account No.", GLAccount."No.");
                     GenJournalLine.Validate(Amount, -Round(SalesInvoiceHeader."Remaining Amount", 0.01));
                     CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post Line", GenJournalLine);
-                    GenJournalLine.Delete;
+                    GenJournalLine.Delete();
                 end;
             until SalesInvoiceHeader.Next = 0;
     end;

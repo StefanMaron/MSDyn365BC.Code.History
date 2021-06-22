@@ -369,7 +369,7 @@ codeunit 139002 "Web Services Tests"
         Initialized := true;
 
         with WebService do begin
-            DeleteAll;
+            DeleteAll();
 
             // Add a Page for both OData and SOAP.
             Init;
@@ -489,7 +489,7 @@ codeunit 139002 "Web Services Tests"
         end;
 
         with TenantWebService do begin
-            DeleteAll;
+            DeleteAll();
 
             Init;
             "Object Type" := "Object Type"::Page;
@@ -634,7 +634,7 @@ codeunit 139002 "Web Services Tests"
         // if one doesn't already exist.
         AutoServiceName := CreateGuid;
 
-        WebService.Init;
+        WebService.Init();
         WebService."Object Type" := WebService."Object Type"::Page;
         WebService."Object ID" := PAGE::"Purchase Quote";
         WebService."Service Name" := AutoServiceName;
@@ -676,14 +676,14 @@ codeunit 139002 "Web Services Tests"
         // if one doesn't already exist.
         AutoServiceName := CreateGuid;
 
-        WebService.Init;
+        WebService.Init();
         WebService."Object Type" := WebService."Object Type"::Page;
         WebService."Object ID" := PAGE::"Purchase Quote";
         WebService."Service Name" := AutoServiceName;
         WebService.Published := true;
         WebService.Insert(true);
 
-        TenantWebService.Init;
+        TenantWebService.Init();
         TenantWebService."Object Type" := TenantWebService."Object Type"::Page;
         TenantWebService."Object ID" := PAGE::"Purchase Quote";
         TenantWebService."Service Name" := AutoServiceName;
@@ -726,7 +726,7 @@ codeunit 139002 "Web Services Tests"
         // Test selecting the all tenant checkbox will add a system record.
         AutoServiceName := CreateGuid;
 
-        TenantWebService.Init;
+        TenantWebService.Init();
         TenantWebService."Object Type" := TenantWebService."Object Type"::Page;
         TenantWebService."Object ID" := PAGE::"Purchase Quote";
         TenantWebService."Service Name" := AutoServiceName;

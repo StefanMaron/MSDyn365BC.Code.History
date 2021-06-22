@@ -7,7 +7,7 @@ codeunit 405 "Graph Mail"
         GraphMailSetup: Record "Graph Mail Setup";
     begin
         SendTraceTag('00001QJ', GraphMailCategoryTxt, VERBOSITY::Normal, RefreshRefreshTokenMsg, DATACLASSIFICATION::SystemMetadata);
-        GraphMailSetup.Get;
+        GraphMailSetup.Get();
         GraphMailSetup.RenewRefreshToken;
         GraphMailSetup.Modify(true);
     end;
@@ -119,7 +119,7 @@ codeunit 405 "Graph Mail"
             if PAGE.RunModal(PAGE::"Graph Mail Setup") = ACTION::LookupOK then;
         end else begin
             if not GraphMailSetup.Get then
-                GraphMailSetup.Insert;
+                GraphMailSetup.Insert();
 
             IsSetupSuccessful := GraphMailSetup.Initialize(true);
 
@@ -171,7 +171,7 @@ codeunit 405 "Graph Mail"
     var
         GraphMailSetup: Record "Graph Mail Setup";
     begin
-        GraphMailSetup.Get;
+        GraphMailSetup.Get();
         GraphMailSetup.SendMail(TempEmailItem, TokenCacheState);
     end;
 
@@ -248,6 +248,7 @@ codeunit 405 "Graph Mail"
         exit(true);
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure HasConfiguration(): Boolean
     var
@@ -268,7 +269,7 @@ codeunit 405 "Graph Mail"
         if not HasConfiguration then
             exit(false);
 
-        TempGraphMailSetup.Insert;
+        TempGraphMailSetup.Insert();
         exit(TempGraphMailSetup.Initialize(false));
     end;
 

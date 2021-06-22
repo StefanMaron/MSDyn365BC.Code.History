@@ -39,12 +39,12 @@ codeunit 137220 "SCM CreateWarehouseLocation"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         ItemJournalSetup(ItemJournalTemplate, ItemJournalBatch);
 
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Stockout Warning", false);
         SalesReceivablesSetup.Modify(true);
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM CreateWarehouseLocation");
     end;
 
@@ -139,7 +139,7 @@ codeunit 137220 "SCM CreateWarehouseLocation"
             CreateWarehouseLocation.UseRequestPage(false);
             CreateWarehouseLocation.RunModal;
 
-            Commit;  // commit is required
+            Commit();  // commit is required
             Location.Get(Location.Code);
             Assert.AreEqual(true, Location."Require Receive", 'Incorrect require receive flag');
             Assert.AreEqual(true, Location."Require Shipment", 'Incorrect require receive shipment flag');
@@ -211,7 +211,7 @@ codeunit 137220 "SCM CreateWarehouseLocation"
         CreateWarehouseLocation.InitializeRequest(LocationCode, BinCode);
 
         CreateWarehouseLocation.UseRequestPage(false);
-        Commit;
+        Commit();
         asserterror CreateWarehouseLocation.RunModal;
         if StrPos(GetLastErrorText, ExpectedErrorMessage) = 0 then
             Assert.Fail(StrSubstNo(UnexpectedMessage, GetLastErrorText, ExpectedErrorMessage));
@@ -243,13 +243,13 @@ codeunit 137220 "SCM CreateWarehouseLocation"
     local procedure ItemJournalSetup(var ItemJournalTemplate: Record "Item Journal Template"; var ItemJournalBatch: Record "Item Journal Batch")
     begin
         Clear(ItemJournalTemplate);
-        ItemJournalTemplate.Init;
+        ItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
         ItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
         ItemJournalTemplate.Modify(true);
 
         Clear(ItemJournalBatch);
-        ItemJournalBatch.Init;
+        ItemJournalBatch.Init();
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
         ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
         ItemJournalBatch.Modify(true);

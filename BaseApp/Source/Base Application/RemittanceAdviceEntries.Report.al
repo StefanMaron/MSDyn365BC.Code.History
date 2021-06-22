@@ -207,7 +207,7 @@ report 400 "Remittance Advice - Entries"
                     begin
                         VendLedgEntry3.Get("Applied Vend. Ledger Entry No.");
                         if "Vendor Ledger Entry No." = "Applied Vend. Ledger Entry No." then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                         VendLedgEntry3.CalcFields(Amount, "Remaining Amount");
                         LineAmount := VendLedgEntry3.Amount - VendLedgEntry3."Remaining Amount";
                         LineDiscount :=
@@ -234,7 +234,7 @@ report 400 "Remittance Advice - Entries"
                     DtldVendLedgEntry.SetRange("Document Type", DtldVendLedgEntry."Document Type"::Payment);
                     DtldVendLedgEntry.SetRange("Document No.", "Vendor Ledger Entry"."Document No.");
                     if not DtldVendLedgEntry.FindFirst then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     LineAmount := DtldVendLedgEntry.Amount;
                     LineDiscount := CurrExchRate.ExchangeAmtFCYToFCY("Posting Date", '', "Currency Code", "Pmt. Disc. Rcd.(LCY)");
 
@@ -310,9 +310,9 @@ report 400 "Remittance Advice - Entries"
 
     trigger OnPreReport()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         FormatAddr.Company(CompanyAddr, CompanyInfo);
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetup.TestField("LCY Code");
     end;
 
@@ -360,7 +360,7 @@ report 400 "Remittance Advice - Entries"
         DtldVendLedgEntry1: Record "Detailed Vendor Ledg. Entry";
         DtldVendLedgEntry2: Record "Detailed Vendor Ledg. Entry";
     begin
-        DtldVendLedgEntry1.Reset;
+        DtldVendLedgEntry1.Reset();
         DtldVendLedgEntry1.SetCurrentKey("Vendor Ledger Entry No.");
         DtldVendLedgEntry1.SetRange("Vendor Ledger Entry No.", CreateVendLedgEntry."Entry No.");
         DtldVendLedgEntry1.SetRange(Unapplied, false);
@@ -369,7 +369,7 @@ report 400 "Remittance Advice - Entries"
                 if DtldVendLedgEntry1."Vendor Ledger Entry No." =
                    DtldVendLedgEntry1."Applied Vend. Ledger Entry No."
                 then begin
-                    DtldVendLedgEntry2.Reset;
+                    DtldVendLedgEntry2.Reset();
                     DtldVendLedgEntry2.SetCurrentKey("Applied Vend. Ledger Entry No.", "Entry Type");
                     DtldVendLedgEntry2.SetRange(
                       "Applied Vend. Ledger Entry No.", DtldVendLedgEntry1."Applied Vend. Ledger Entry No.");

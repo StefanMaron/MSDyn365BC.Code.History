@@ -28,7 +28,7 @@ codeunit 132531 "VAT Assisted Setup"
     begin
         // [SCENARIO] User can not start the VAT assisted setup if there is a vat entry.
         // [GIVEN] There is a vat entry.
-        VATEntry.Insert;
+        VATEntry.Insert();
         InitTemplates;
 
         LibraryLowerPermissions.SetO365Setup;
@@ -130,19 +130,19 @@ codeunit 132531 "VAT Assisted Setup"
         LibraryLowerPermissions.SetO365Setup;
         VATProductPostingGrpPart.OpenEdit;
 
-        VATSetupPostingGroups.DeleteAll;
+        VATSetupPostingGroups.DeleteAll();
         InsertProdData(LibraryUtility.GenerateRandomCode(VATProductPostingGroup.FieldNo(Code), DATABASE::"VAT Product Posting Group"),
           CopyStr(LibraryUtility.GenerateRandomText(50), 1, 50));
         VATProductPostingGroup.FindFirst;
 
-        VATSetupPostingGroups.Init;
+        VATSetupPostingGroups.Init();
         VATSetupPostingGroups."VAT Prod. Posting Group" := VATProductPostingGroup.Code;
         VATSetupPostingGroups.Selected := true;
-        VATSetupPostingGroups.Insert;
+        VATSetupPostingGroups.Insert();
 
         LibraryInventory.CreateItemWithoutVAT(Item);
         Item.Validate("VAT Prod. Posting Group", VATProductPostingGroup.Code);
-        Item.Modify;
+        Item.Modify();
 
         VATProductPostingGrpPart.FILTER.SetFilter(Selected, Format(true));
         VATProductPostingGrpPart.First;
@@ -164,7 +164,7 @@ codeunit 132531 "VAT Assisted Setup"
         // [SCENARIO] Create bus VAT record and customer that uses it. Then the function should return true for VAT record is used
         // [GIVEN] VAT business record.
         LibraryLowerPermissions.SetO365Setup;
-        VATAssistedSetupBusGrp.DeleteAll;
+        VATAssistedSetupBusGrp.DeleteAll();
         TempCode := LibraryUtility.GenerateRandomCode(ConfigTemplateHeader.FieldNo(Code), DATABASE::"Config. Template Header");
         InsertBusPostingGrp(TempCode, CopyStr(LibraryUtility.GenerateRandomText(50), 1, 50));
         // [THEN] Check function should return false for no customer or vendor using VAT.
@@ -177,7 +177,7 @@ codeunit 132531 "VAT Assisted Setup"
         Assert.IsTrue(VATAssistedSetupBusGrp.CheckExistingCustomersAndVendorsWithVAT(TempCode)
           , 'Check function should return true');
         // Tear Down
-        Customer.Delete;
+        Customer.Delete();
     end;
 
     [Test]
@@ -192,7 +192,7 @@ codeunit 132531 "VAT Assisted Setup"
         // [SCENARIO] Create bus VAT record and vendor that uses it. Then the function should return true for VAT record is used
         // [GIVEN] VAT business record.
         LibraryLowerPermissions.SetO365Setup;
-        VATAssistedSetupBusGrp.DeleteAll;
+        VATAssistedSetupBusGrp.DeleteAll();
         TempCode := LibraryUtility.GenerateRandomCode(ConfigTemplateHeader.FieldNo(Code), DATABASE::"Config. Template Header");
         InsertBusPostingGrp(TempCode, CopyStr(LibraryUtility.GenerateRandomText(50), 1, 50));
 
@@ -207,7 +207,7 @@ codeunit 132531 "VAT Assisted Setup"
         Assert.IsTrue(VATAssistedSetupBusGrp.CheckExistingCustomersAndVendorsWithVAT(TempCode)
           , 'Check function should return true');
         // Tear Down
-        Vendor.Delete;
+        Vendor.Delete();
     end;
 
     [Test]
@@ -222,7 +222,7 @@ codeunit 132531 "VAT Assisted Setup"
         // [SCENARIO] Create product VAT record and item that uses it. Then the function should return true for VAT record is used
         // [GIVEN] VAT product record.
         LibraryLowerPermissions.SetO365Setup;
-        VATSetupPostingGroups.DeleteAll;
+        VATSetupPostingGroups.DeleteAll();
         TempCode := LibraryUtility.GenerateRandomCode(ConfigTemplateHeader.FieldNo(Code), DATABASE::"Config. Template Header");
         InsertProdData(TempCode, CopyStr(LibraryUtility.GenerateRandomText(50), 1, 50));
         // [THEN] Check function should return false for no customer or vendor using VAT.
@@ -235,7 +235,7 @@ codeunit 132531 "VAT Assisted Setup"
         Assert.IsTrue(VATSetupPostingGroups.CheckExistingItemAndServiceWithVAT(TempCode, false)
           , 'Check function should return true');
         // Tear Down
-        Item.Delete;
+        Item.Delete();
     end;
 
     [Test]
@@ -254,10 +254,10 @@ codeunit 132531 "VAT Assisted Setup"
         // [SCENARIO] User can finish the VAT assisted setup.
         // [GIVEN]
         InitTemplates;
-        VATEntry.DeleteAll;
-        Customer.DeleteAll;
-        Vendor.DeleteAll;
-        Item.DeleteAll;
+        VATEntry.DeleteAll();
+        Customer.DeleteAll();
+        Vendor.DeleteAll();
+        Item.DeleteAll();
         InitGenPostingGrpsWithRndValue;
         VATSetupWizard.OpenNew;
         SetGLAccounts;
@@ -295,10 +295,10 @@ codeunit 132531 "VAT Assisted Setup"
         // [WHEN] Navigate to finish and press finish button.
         // [THEN] VAT posting setup contains all the possible permutaions.
         LibraryVariableStorage.Clear;
-        VATEntry.DeleteAll;
-        Customer.DeleteAll;
-        Vendor.DeleteAll;
-        Item.DeleteAll;
+        VATEntry.DeleteAll();
+        Customer.DeleteAll();
+        Vendor.DeleteAll();
+        Item.DeleteAll();
         InitTemplates;
 
         LibraryLowerPermissions.SetO365Setup;
@@ -362,7 +362,7 @@ codeunit 132531 "VAT Assisted Setup"
         // [SCENARIO] Check validation function
         // [GIVEN] One unselected VAT business record.
         LibraryLowerPermissions.SetO365Setup;
-        VATAssistedSetupBusGrp.DeleteAll;
+        VATAssistedSetupBusGrp.DeleteAll();
         InsertBusPostingGrp(LibraryUtility.GenerateRandomCode(ConfigTemplateHeader.FieldNo(Code), DATABASE::"Config. Template Header")
           , CopyStr(LibraryUtility.GenerateRandomText(50), 1, 50));
         // [WHEN] There is 0 selected VAT business records.
@@ -370,10 +370,10 @@ codeunit 132531 "VAT Assisted Setup"
         Assert.IsFalse(VATAssistedSetupBusGrp.ValidateVATBusGrp, 'Validation should return false');
 
         // [WHEN] There is at least 1 selected VAT business record
-        VATAssistedSetupBusGrp.Reset;
+        VATAssistedSetupBusGrp.Reset();
         VATAssistedSetupBusGrp.FindFirst;
         VATAssistedSetupBusGrp.Validate(Selected, true);
-        VATAssistedSetupBusGrp.Modify;
+        VATAssistedSetupBusGrp.Modify();
 
         // [THEN] Validation function should return True
         Assert.IsTrue(VATAssistedSetupBusGrp.ValidateVATBusGrp, 'Validation should return True');
@@ -389,7 +389,7 @@ codeunit 132531 "VAT Assisted Setup"
         // [SCENARIO] Check validation function
         // [GIVEN] One unselected VAT business record.
         LibraryLowerPermissions.SetO365Setup;
-        VATSetupPostingGroups.DeleteAll;
+        VATSetupPostingGroups.DeleteAll();
         InsertProdData(LibraryUtility.GenerateRandomCode(ConfigTemplateHeader.FieldNo(Code), DATABASE::"Config. Template Header")
           , CopyStr(LibraryUtility.GenerateRandomText(50), 1, 50));
         // [WHEN] There is 0 selected VAT business records.
@@ -397,10 +397,10 @@ codeunit 132531 "VAT Assisted Setup"
         Assert.IsFalse(VATSetupPostingGroups.ValidateVATRates, 'Validation should return false');
 
         // [WHEN] There is at least 1 selected VAT business record
-        VATSetupPostingGroups.Reset;
+        VATSetupPostingGroups.Reset();
         VATSetupPostingGroups.FindFirst;
         VATSetupPostingGroups.Validate(Selected, true);
-        VATSetupPostingGroups.Modify;
+        VATSetupPostingGroups.Modify();
 
         // [THEN] Validation function should return True
         Assert.IsTrue(VATSetupPostingGroups.ValidateVATRates, 'Validation should return True');
@@ -416,7 +416,7 @@ codeunit 132531 "VAT Assisted Setup"
         // [SCENARIO] The VAT wizard should check if hard-coded GL accounts exist before adding them
         // [GIVEN] Empty GL account table
         LibraryLowerPermissions.SetO365Setup;
-        GLAccount.DeleteAll;
+        GLAccount.DeleteAll();
 
         // [WHEN] VAT setup posting group populate function is called
         VATSetupPostingGroups.PopulateVATProdGroups;
@@ -424,7 +424,7 @@ codeunit 132531 "VAT Assisted Setup"
         // [THEN] Validation function should return False
         VATSetupPostingGroups.SetFilter("Sales VAT Account", '<>''''');
         Assert.IsTrue(VATSetupPostingGroups.IsEmpty, 'There should be no record with GL accounts');
-        VATSetupPostingGroups.Reset;
+        VATSetupPostingGroups.Reset();
 
         VATSetupPostingGroups.SetFilter("Purchase VAT Account", '<>''''');
         Assert.IsTrue(VATSetupPostingGroups.IsEmpty, 'There should be no record with GL accounts');
@@ -435,8 +435,8 @@ codeunit 132531 "VAT Assisted Setup"
         ConfigTemplateHeader: Record "Config. Template Header";
         ConfigTemplateLine: Record "Config. Template Line";
     begin
-        ConfigTemplateLine.DeleteAll;
-        ConfigTemplateHeader.DeleteAll;
+        ConfigTemplateLine.DeleteAll();
+        ConfigTemplateHeader.DeleteAll();
         InsertTemplateHeader(DATABASE::Customer);
         InsertTemplateHeader(DATABASE::Vendor);
         InsertTemplateHeader(DATABASE::Item);
@@ -490,7 +490,7 @@ codeunit 132531 "VAT Assisted Setup"
     begin
         VATAssistedSetupBusGrp.FindFirst;
         VATAssistedSetupBusGrp.Validate(Selected, true);
-        VATAssistedSetupBusGrp.Modify;
+        VATAssistedSetupBusGrp.Modify();
     end;
 
     local procedure SelectVATProdPostingGrp()
@@ -499,7 +499,7 @@ codeunit 132531 "VAT Assisted Setup"
     begin
         VATSetupPostingGroups.FindFirst;
         VATSetupPostingGroups.Validate(Selected, true);
-        VATSetupPostingGroups.Modify;
+        VATSetupPostingGroups.Modify();
     end;
 
     local procedure UnsetGLAccounts()
@@ -525,20 +525,20 @@ codeunit 132531 "VAT Assisted Setup"
     var
         VATAssistedSetupBusGrp: Record "VAT Assisted Setup Bus. Grp.";
     begin
-        VATAssistedSetupBusGrp.Init;
+        VATAssistedSetupBusGrp.Init();
         VATAssistedSetupBusGrp.Code := GrpCode;
         VATAssistedSetupBusGrp.Description := GrpDesc;
-        VATAssistedSetupBusGrp.Insert;
+        VATAssistedSetupBusGrp.Insert();
     end;
 
     local procedure InsertProdData("Code": Code[10]; Description: Text[50])
     var
         VATSetupPostingGroups: Record "VAT Setup Posting Groups";
     begin
-        VATSetupPostingGroups.Init;
+        VATSetupPostingGroups.Init();
         VATSetupPostingGroups.Validate("VAT Prod. Posting Group", Code);
         VATSetupPostingGroups.Validate("VAT Prod. Posting Grp Desc.", Description);
-        VATSetupPostingGroups.Insert;
+        VATSetupPostingGroups.Insert();
     end;
 
     local procedure InsertTemplateHeader(TableId: Integer)
@@ -587,7 +587,7 @@ codeunit 132531 "VAT Assisted Setup"
     begin
         VATSetupPostingGroups.FindFirst;
         VATSetupPostingGroups."VAT Clause Desc" := CopyStr(LibraryUtility.GenerateRandomText(50), 1, 50);
-        VATSetupPostingGroups.Modify;
+        VATSetupPostingGroups.Modify();
     end;
 
     local procedure NavigateNext(var VATSetupWizard: TestPage "VAT Setup Wizard"; "Count": Integer)
@@ -624,7 +624,7 @@ codeunit 132531 "VAT Assisted Setup"
     begin
         LibrarySales.CreateCustomer(Customer);
         Customer."VAT Bus. Posting Group" := Code;
-        Customer.Modify;
+        Customer.Modify();
     end;
 
     local procedure CreateVendor(var Vendor: Record Vendor; "Code": Code[10])
@@ -633,7 +633,7 @@ codeunit 132531 "VAT Assisted Setup"
     begin
         LibraryPurchase.CreateVendor(Vendor);
         Vendor."VAT Bus. Posting Group" := Code;
-        Vendor.Modify;
+        Vendor.Modify();
     end;
 
     local procedure CreateItem(var Item: Record Item; "Code": Code[10])
@@ -642,7 +642,7 @@ codeunit 132531 "VAT Assisted Setup"
     begin
         LibraryInventory.CreateItem(Item);
         Item."VAT Prod. Posting Group" := Code;
-        Item.Modify;
+        Item.Modify();
     end;
 
     local procedure InitGenPostingGrpsWithRndValue()
@@ -672,7 +672,7 @@ codeunit 132531 "VAT Assisted Setup"
 
         VATSetupPostingGroups.SetRange(Selected, true);
         VATSetupPostingGroups.SetRange(Default, false);
-        CountProdPostingGrp := VATSetupPostingGroups.Count;
+        CountProdPostingGrp := VATSetupPostingGroups.Count();
 
         Assert.AreEqual(CountProdPostingGrp * CountBusPostingGrp, VATPostingSetup.Count,
           'Expected that we have all the possible combinations');
@@ -722,8 +722,8 @@ codeunit 132531 "VAT Assisted Setup"
         VATSetupPostingGroups.FindSet;
         repeat
             if VATSetupPostingGroups."VAT Clause Desc" <> '' then begin
-                VATClause.Init;
-                VATClause.Reset;
+                VATClause.Init();
+                VATClause.Reset();
                 VATClause.SetFilter(Description, VATSetupPostingGroups."VAT Clause Desc");
                 Assert.IsTrue(VATClause.FindFirst, 'Expected that there is vat clause')
             end;

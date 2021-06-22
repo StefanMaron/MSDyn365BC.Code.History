@@ -49,7 +49,7 @@ table 9179 "Application Area Buffer"
                     TempApplicationAreaBuffer.Copy(Rec, true);
                     TempApplicationAreaBuffer.Get(ApplicationAreaSetup.FieldNo(Basic));
                     TempApplicationAreaBuffer.Selected := true;
-                    TempApplicationAreaBuffer.Modify;
+                    TempApplicationAreaBuffer.Modify();
                 end;
         end;
     end;

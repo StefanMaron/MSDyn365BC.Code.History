@@ -18,7 +18,7 @@ table 23 Vendor
             trigger OnValidate()
             begin
                 if "No." <> xRec."No." then begin
-                    PurchSetup.Get;
+                    PurchSetup.Get();
                     NoSeriesMgt.TestManual(PurchSetup."Vendor Nos.");
                     "No. Series" := '';
                 end;
@@ -632,7 +632,7 @@ table 23 Vendor
                                       Round(
                                         PurchPrice."Direct Unit Cost" / (1 + VATPostingSetup."VAT %" / 100),
                                         Currency."Unit-Amount Rounding Precision");
-                                PurchPrice.Modify;
+                                PurchPrice.Modify();
                             end;
                         until PurchPrice.Next = 0;
                 end;
@@ -929,7 +929,7 @@ table 23 Vendor
                     if VendLedgEntry.FindLast then
                         Error(Text010, FieldCaption("IC Partner Code"), TableCaption);
 
-                    VendLedgEntry.Reset;
+                    VendLedgEntry.Reset();
                     VendLedgEntry.SetCurrentKey("Vendor No.", "Posting Date");
                     VendLedgEntry.SetRange("Vendor No.", "No.");
                     AccountingPeriod.SetRange(Closed, false);
@@ -946,12 +946,12 @@ table 23 Vendor
                     if (ICPartner."Vendor No." <> '') and (ICPartner."Vendor No." <> "No.") then
                         Error(Text008, FieldCaption("IC Partner Code"), "IC Partner Code", TableCaption, ICPartner."Vendor No.");
                     ICPartner."Vendor No." := "No.";
-                    ICPartner.Modify;
+                    ICPartner.Modify();
                 end;
 
                 if (xRec."IC Partner Code" <> "IC Partner Code") and ICPartner.Get(xRec."IC Partner Code") then begin
                     ICPartner."Vendor No." := '';
-                    ICPartner.Modify;
+                    ICPartner.Modify();
                 end;
             end;
         }
@@ -1164,6 +1164,18 @@ table 23 Vendor
             trigger OnValidate()
             begin
                 LeadTimeMgt.CheckLeadTimeIsNotNegative("Lead Time Calculation");
+            end;
+        }
+        field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
+        {
+            Caption = 'Price Calculation Method';
+
+            trigger OnValidate()
+            var
+                PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+                PriceType: Enum "Price Type";
+            begin
+                PriceCalculationMgt.VerifyMethodImplemented("Price Calculation Method", PriceType::Purchase);
             end;
         }
         field(7177; "No. of Pstd. Receipts"; Integer)
@@ -1387,6 +1399,11 @@ table 23 Vendor
                 UpdatePaymentMethodCode;
             end;
         }
+        field(8510; "Over-Receipt Code"; Code[20])
+        {
+            Caption = 'Over-Receipt Code';
+            TableRelation = "Over-Receipt Code";
+        }
     }
 
     keys
@@ -1465,21 +1482,21 @@ table 23 Vendor
         CommentLine.SetRange("Table Name", CommentLine."Table Name"::Vendor);
         CommentLine.SetRange("No.", "No.");
         if not CommentLine.IsEmpty then
-            CommentLine.DeleteAll;
+            CommentLine.DeleteAll();
 
         VendBankAcc.SetRange("Vendor No.", "No.");
         if not VendBankAcc.IsEmpty then
-            VendBankAcc.DeleteAll;
+            VendBankAcc.DeleteAll();
 
         OrderAddr.SetRange("Vendor No.", "No.");
         if not OrderAddr.IsEmpty then
-            OrderAddr.DeleteAll;
+            OrderAddr.DeleteAll();
 
         ItemCrossReference.SetCurrentKey("Cross-Reference Type", "Cross-Reference Type No.");
         ItemCrossReference.SetRange("Cross-Reference Type", ItemCrossReference."Cross-Reference Type"::Vendor);
         ItemCrossReference.SetRange("Cross-Reference Type No.", "No.");
         if not ItemCrossReference.IsEmpty then
-            ItemCrossReference.DeleteAll;
+            ItemCrossReference.DeleteAll();
 
         PurchOrderLine.SetCurrentKey("Document Type", "Pay-to Vendor No.");
         PurchOrderLine.SetRange("Pay-to Vendor No.", "No.");
@@ -1500,17 +1517,13 @@ table 23 Vendor
 
         DimMgt.DeleteDefaultDim(DATABASE::Vendor, "No.");
 
-        ServiceItem.SetRange("Vendor No.", "No.");
-        if not ServiceItem.IsEmpty then
-            ServiceItem.ModifyAll("Vendor No.", '');
-
         ItemVendor.SetRange("Vendor No.", "No.");
         if not ItemVendor.IsEmpty then
             ItemVendor.DeleteAll(true);
 
         if not SocialListeningSearchTopic.IsEmpty then begin
             SocialListeningSearchTopic.FindSearchTopic(SocialListeningSearchTopic."Source Type"::Vendor, "No.");
-            SocialListeningSearchTopic.DeleteAll;
+            SocialListeningSearchTopic.DeleteAll();
         end;
 
         PurchPrice.SetCurrentKey("Vendor No.");
@@ -1526,7 +1539,7 @@ table 23 Vendor
         CustomReportSelection.SetRange("Source Type", DATABASE::Vendor);
         CustomReportSelection.SetRange("Source No.", "No.");
         if not CustomReportSelection.IsEmpty then
-            CustomReportSelection.DeleteAll;
+            CustomReportSelection.DeleteAll();
 
         PurchPrepmtPct.SetCurrentKey("Vendor No.");
         PurchPrepmtPct.SetRange("Vendor No.", "No.");
@@ -1550,7 +1563,7 @@ table 23 Vendor
             exit;
 
         if "No." = '' then begin
-            PurchSetup.Get;
+            PurchSetup.Get();
             PurchSetup.TestField("Vendor Nos.");
             NoSeriesMgt.InitSeries(PurchSetup."Vendor Nos.", xRec."No. Series", 0D, "No.", "No. Series");
         end;
@@ -1646,10 +1659,10 @@ table 23 Vendor
     begin
         with Vend do begin
             Vend := Rec;
-            PurchSetup.Get;
+            PurchSetup.Get();
             PurchSetup.TestField("Vendor Nos.");
             if NoSeriesMgt.SelectSeries(PurchSetup."Vendor Nos.", OldVend."No. Series", "No. Series") then begin
-                PurchSetup.Get;
+                PurchSetup.Get();
                 PurchSetup.TestField("Vendor Nos.");
                 NoSeriesMgt.SetSeries("No.");
                 Rec := Vend;
@@ -1672,7 +1685,7 @@ table 23 Vendor
             DimMgt.SaveDefaultDim(DATABASE::Vendor, "No.", FieldNumber, ShortcutDimCode);
             Modify;
         end;
-	
+
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;
 
@@ -1699,7 +1712,7 @@ table 23 Vendor
                 UpdateContFromVend.InsertNewContact(Rec, false);
                 ContBusRel.FindFirst;
             end;
-            Commit;
+            Commit();
 
             Cont.FilterGroup(2);
             Cont.SetRange("Company No.", ContBusRel."Contact No.");
@@ -1751,7 +1764,7 @@ table 23 Vendor
         PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Invoice;
         PurchaseHeader.SetRange("Buy-from Vendor No.", "No.");
         PurchaseHeader.Insert(true);
-        Commit;
+        Commit();
         PAGE.Run(PAGE::"Purchase Invoice", PurchaseHeader)
     end;
 
@@ -1762,7 +1775,7 @@ table 23 Vendor
         PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::"Credit Memo";
         PurchaseHeader.SetRange("Buy-from Vendor No.", "No.");
         PurchaseHeader.Insert(true);
-        Commit;
+        Commit();
         PAGE.Run(PAGE::"Purchase Credit Memo", PurchaseHeader)
     end;
 
@@ -1773,7 +1786,7 @@ table 23 Vendor
         PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Order;
         PurchaseHeader.SetRange("Buy-from Vendor No.", "No.");
         PurchaseHeader.Insert(true);
-        Commit;
+        Commit();
         PAGE.Run(PAGE::"Purchase Order", PurchaseHeader);
     end;
 
@@ -1851,6 +1864,16 @@ table 23 Vendor
         PurchLine.SetRange("Pay-to Vendor No.", "No.");
         PurchLine.CalcSums("Prepmt. Amount Inv. (LCY)", "Prepmt. VAT Amount Inv. (LCY)");
         exit(PurchLine."Prepmt. Amount Inv. (LCY)" + PurchLine."Prepmt. VAT Amount Inv. (LCY)");
+    end;
+
+    procedure GetPriceCalculationMethod() Method: Enum "Price Calculation Method";
+    begin
+        if "Price Calculation Method" <> Method::" " then
+            Method := "Price Calculation Method"
+        else begin
+            PurchSetup.Get();
+            Method := PurchSetup."Price Calculation Method";
+        end;
     end;
 
     procedure GetTotalAmountLCY() TotalAmountLCY: Decimal
@@ -1969,7 +1992,7 @@ table 23 Vendor
                     1:
                         exit(CreateNewVendor(CopyStr(VendorText, 1, MaxStrLen(Vendor.Name)), ShowVendorCard));
                 end;
-            Vendor.Reset;
+            Vendor.Reset();
             NoFiltersApplied := true;
         end;
 
@@ -1999,7 +2022,7 @@ table 23 Vendor
         Treshold := VendorTextLenght div 5;
         if Treshold = 0 then
             exit;
-        Vendor.Reset;
+        Vendor.Reset();
         Vendor.Ascending(false); // most likely to search for newest Vendors
         OnMarkVendorsWithSimilarNameOnBeforeVendorFindSet(Vendor);
         if Vendor.FindSet then
@@ -2023,7 +2046,7 @@ table 23 Vendor
 
         Vendor.Name := VendorName;
         Vendor.Modify(true);
-        Commit;
+        Commit();
         if not ShowVendorCard then
             exit(Vendor."No.");
         Vendor.SetRange("No.", Vendor."No.");

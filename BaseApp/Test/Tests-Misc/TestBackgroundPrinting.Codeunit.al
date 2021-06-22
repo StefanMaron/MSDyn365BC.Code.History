@@ -22,11 +22,11 @@ codeunit 139030 "Test Background Printing"
         JobQueueEntry: Record "Job Queue Entry";
         JobQueueEntryCard: TestPage "Job Queue Entry Card";
     begin
-        JobQueueEntry.Init;
+        JobQueueEntry.Init();
         JobQueueEntryCard.OpenNew;
         JobQueueEntryCard."Object Type to Run".SetValue(JobQueueEntry."Object Type to Run"::Report);
         JobQueueEntryCard."Object ID to Run".SetValue(REPORT::"Detail Trial Balance");
-        Commit;
+        Commit();
         JobQueueEntryCard."Report Request Page Options".SetValue(true);
 
         // Verify that the field has been filled with an xml value.
@@ -46,8 +46,8 @@ codeunit 139030 "Test Background Printing"
         // [GIVEN] No Job Queue Entries
         JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Report);
         JobQueueEntry.SetRange("Object ID to Run", REPORT::"Detail Trial Balance");
-        JobQueueEntry.DeleteAll;
-        Commit;
+        JobQueueEntry.DeleteAll();
+        Commit();
         Assert.IsTrue(JobQueueEntry.IsEmpty, '');
 
         BindSubscription(LibraryJobQueue);
@@ -76,8 +76,8 @@ codeunit 139030 "Test Background Printing"
         ScheduleaReport: TestPage "Schedule a Report";
     begin
         // [FEATURE] [UI]
-        JobQueueEntry.DeleteAll;
-        Commit;
+        JobQueueEntry.DeleteAll();
+        Commit();
 
         // [GIVEN] Open "Schedule A Report" page, set "Object ID to Run" as 'Detail Trial Balance'
         BindSubscription(LibraryJobQueue);
@@ -108,8 +108,8 @@ codeunit 139030 "Test Background Printing"
         ExpectedDateTime: DateTime;
     begin
         // [FEATURE] [Date Formula] [UI]
-        JobQueueEntry.DeleteAll;
-        Commit;
+        JobQueueEntry.DeleteAll();
+        Commit();
         // [GIVEN] Current datetime is '10.01.19 15:00'
         Evaluate(DateFormula, '<1M+CM>');
         ExpectedDateTime := CreateDateTime(CalcDate(DateFormula, Today), 0T);
@@ -239,8 +239,8 @@ codeunit 139030 "Test Background Printing"
         ReportInbox: Record "Report Inbox";
         NoOfReports: Integer;
     begin
-        NoOfReports := ReportInbox.Count;
-        JobQueueEntry.Init;
+        NoOfReports := ReportInbox.Count();
+        JobQueueEntry.Init();
         JobQueueEntry.Status := JobQueueEntry.Status::"On Hold";
         JobQueueEntry.Validate("Object Type to Run", JobQueueEntry."Object Type to Run"::Report);
         JobQueueEntry.Validate("Object ID to Run", REPORT::"Detail Trial Balance");
@@ -267,7 +267,7 @@ codeunit 139030 "Test Background Printing"
             exit;
         RecRef.GetTable(SalesInvoiceHeader);
 
-        JobQueueEntry.Init;
+        JobQueueEntry.Init();
         JobQueueEntry.Status := JobQueueEntry.Status::"On Hold";
         JobQueueEntry.Validate("Object Type to Run", JobQueueEntry."Object Type to Run"::Report);
         JobQueueEntry.Validate("Object ID to Run", REPORT::"Sales - Invoice");

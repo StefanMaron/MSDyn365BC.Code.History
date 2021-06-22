@@ -215,11 +215,9 @@ table 112 "Sales Invoice Header"
         {
             Caption = 'On Hold';
         }
-        field(52; "Applies-to Doc. Type"; Option)
+        field(52; "Applies-to Doc. Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Applies-to Doc. Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(53; "Applies-to Doc. No."; Code[20])
         {
@@ -376,11 +374,9 @@ table 112 "Sales Invoice Header"
             Caption = 'Ship-to Country/Region Code';
             TableRelation = "Country/Region";
         }
-        field(94; "Bal. Account Type"; Option)
+        field(94; "Bal. Account Type"; enum "Payment Balance Account Type")
         {
             Caption = 'Bal. Account Type';
-            OptionCaption = 'G/L Account,Bank Account';
-            OptionMembers = "G/L Account","Bank Account";
         }
         field(97; "Exit Point"; Code[10])
         {
@@ -562,6 +558,10 @@ table 112 "Sales Invoice Header"
         {
             Caption = 'Payment Instructions Name';
             DataClassification = CustomerContent;
+        }
+        field(180; "Payment Reference"; Code[50])
+        {
+            Caption = 'Payment Reference';
         }
         field(200; "Work Description"; BLOB)
         {
@@ -769,12 +769,12 @@ table 112 "Sales Invoice Header"
     begin
         PostSalesDelete.IsDocumentDeletionAllowed("Posting Date");
         TestField("No. Printed");
-        LockTable;
+        LockTable();
         PostSalesDelete.DeleteSalesInvLines(Rec);
 
         SalesCommentLine.SetRange("Document Type", SalesCommentLine."Document Type"::"Posted Invoice");
         SalesCommentLine.SetRange("No.", "No.");
-        SalesCommentLine.DeleteAll;
+        SalesCommentLine.DeleteAll();
 
         ApprovalsMgmt.DeletePostedApprovalEntries(RecordId);
         PostedDeferralHeader.DeleteForDoc(DeferralUtilities.GetSalesDeferralDocType, '', '',
@@ -837,6 +837,25 @@ table 112 "Sales Invoice Header"
               DummyReportSelections.Usage::"S.Invoice", Rec, FieldNo("Bill-to Customer No."), ShowRequestPage);
     end;
 
+    procedure PrintToDocumentAttachment(var SalesInvoiceHeader: Record "Sales Invoice Header")
+    var
+        ShowNotificationAction: Boolean;
+    begin
+        ShowNotificationAction := SalesInvoiceHeader.Count() = 1;
+        if SalesInvoiceHeader.FindSet() then
+            repeat
+                DoPrintToDocumentAttachment(SalesInvoiceHeader, ShowNotificationAction);
+            until SalesInvoiceHeader.Next() = 0;
+    end;
+
+    local procedure DoPrintToDocumentAttachment(SalesInvoiceHeader: Record "Sales Invoice Header"; ShowNotificationAction: Boolean)
+    var
+        ReportSelections: Record "Report Selections";
+    begin
+        SalesInvoiceHeader.SetRecFilter();
+        ReportSelections.SaveAsDocumentAttachment(ReportSelections.Usage::"S.Invoice", SalesInvoiceHeader, SalesInvoiceHeader."No.", SalesInvoiceHeader."Bill-to Customer No.", ShowNotificationAction);
+    end;
+
     procedure EmailRecords(ShowDialog: Boolean)
     var
         DocumentSendingProfile: Record "Document Sending Profile";
@@ -857,10 +876,11 @@ table 112 "Sales Invoice Header"
 
     procedure Navigate()
     var
-        NavigateForm: Page Navigate;
+        NavigatePage: Page Navigate;
     begin
-        NavigateForm.SetDoc("Posting Date", "No.");
-        NavigateForm.Run;
+        NavigatePage.SetDoc("Posting Date", "No.");
+        NavigatePage.SetRec(Rec);
+        NavigatePage.Run;
     end;
 
     procedure LookupAdjmtValueEntries()
@@ -926,7 +946,7 @@ table 112 "Sales Invoice Header"
 
     procedure GetLegalStatement(): Text
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         exit(SalesSetup.GetLegalStatement);
     end;
 

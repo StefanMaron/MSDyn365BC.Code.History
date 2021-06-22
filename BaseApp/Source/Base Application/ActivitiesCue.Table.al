@@ -183,7 +183,7 @@ table 1313 "Activities Cue"
         field(33; "CDS Integration Errors"; Integer)
         {
             CalcFormula = Count ("Integration Synch. Job Errors");
-            Caption = 'CDS Integration Errors';
+            Caption = 'Common Data Service Integration Errors';
             FieldClass = FlowField;
         }
         field(110; "Last Date/Time Modified"; DateTime)
@@ -210,7 +210,7 @@ table 1313 "Activities Cue"
         UserPersonalization: Record "User Personalization";
         CurrencySymbol: Text[10];
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         CurrencySymbol := GeneralLedgerSetup.GetCurrencySymbol;
 
         if UserPersonalization.Get(UserSecurityId) and (CurrencySymbol <> '') then

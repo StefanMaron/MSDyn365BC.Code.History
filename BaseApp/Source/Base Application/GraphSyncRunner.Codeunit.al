@@ -43,11 +43,11 @@ codeunit 5452 "Graph Sync. Runner"
         if not IntegrationTableMapping.IsFullSyncAllowed then
             exit;
 
-        IntegrationTableMapping.SetFullSyncStartAndCommit;
+        IntegrationTableMapping.SetFullSyncStartAndCommit();
         RunIntegrationTableSynch(IntegrationTableMapping);
 
         IntegrationTableMapping.Get(IntegrationTableMapping.Name);
-        IntegrationTableMapping.SetFullSyncEndAndCommit;
+        IntegrationTableMapping.SetFullSyncEndAndCommit();
 
         OnAfterRunDeltaSyncForEntity(TableID);
     end;
@@ -66,7 +66,7 @@ codeunit 5452 "Graph Sync. Runner"
         GraphDataSetup.GetIntegrationTableMapping(IntegrationTableMapping, IntegrationMappingCode);
         if not IntegrationTableMapping.IsFullSyncAllowed then
             exit;
-        IntegrationTableMapping.SetFullSyncStartAndCommit;
+        IntegrationTableMapping.SetFullSyncStartAndCommit();
 
         IntegrationTableMapping."Graph Delta Token" := '';
         IntegrationTableMapping.Modify(true);
@@ -75,7 +75,7 @@ codeunit 5452 "Graph Sync. Runner"
         RunIntegrationTableSynch(IntegrationTableMapping);
 
         IntegrationTableMapping.Get(IntegrationTableMapping.Name);
-        IntegrationTableMapping.SetFullSyncEndAndCommit;
+        IntegrationTableMapping.SetFullSyncEndAndCommit();
 
         OnAfterRunFullSyncForEntity(TableID);
     end;

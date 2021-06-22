@@ -55,7 +55,7 @@ codeunit 135515 "Customer Payments E2E Test"
         if GenJournalBatch.Get(GraphMgtJournal.GetDefaultJournalLinesTemplateName, JournalName) then begin
             GenJournalBatch.Validate("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"G/L Account");
             GenJournalBatch.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNoWithDirectPosting);
-            GenJournalBatch.Modify;
+            GenJournalBatch.Modify();
         end;
 
         // [GIVEN] a JSON text with a customer payment containing the LineNo, Amount, Description and Posting Date fields
@@ -65,7 +65,7 @@ codeunit 135515 "Customer Payments E2E Test"
         AppliesToDocNo := LibraryGraphJournalLines.CreatePostedSalesInvoice(CustomerNo);
         LineJSON := LibraryGraphMgt.AddPropertytoJSON(LineJSON, CustomerNoNameTxt, CustomerNo);
         LineJSON := LibraryGraphMgt.AddPropertytoJSON(LineJSON, AppliesToDocNoNameTxt, AppliesToDocNo);
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSON to the web service
         TargetURL :=
@@ -118,7 +118,7 @@ codeunit 135515 "Customer Payments E2E Test"
         // [GIVEN] a JSON text with a customer payment containing the only the amount
         LineNo := LibraryGraphJournalLines.GetNextCustomerPaymentNo(JournalName);
         LineJSON := LibraryGraphMgt.AddComplexTypetoJSON('{}', LineNumberNameTxt, Format(LineNo));
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSON to the web service
         TargetURL :=
@@ -162,7 +162,7 @@ codeunit 135515 "Customer Payments E2E Test"
         SalesInvoiceHeader.Get(AppliesToDocNo);
         LineJSON :=
           LibraryGraphMgt.AddPropertytoJSON(LineJSON, AppliesToInvoiceIdTxt, LibraryGraphMgt.StripBrackets(Format(SalesInvoiceHeader.Id)));
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSON to the web service
         TargetURL :=
@@ -211,7 +211,7 @@ codeunit 135515 "Customer Payments E2E Test"
         Customer.Get(CustomerNo);
         RandomId := Customer.Id;
         LineJSON := LibraryGraphMgt.AddPropertytoJSON('', AppliesToInvoiceIdTxt, LibraryGraphMgt.StripBrackets(Format(RandomId)));
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSON to the api
         TargetURL :=
@@ -245,12 +245,12 @@ codeunit 135515 "Customer Payments E2E Test"
 
         // [GIVEN] a line in the Cash Receipts Journal Table
         LineNo := LibraryGraphJournalLines.CreateCustomerPayment(JournalName, '', BlankGUID, '', BlankGUID, 0, '');
-        GenJournalLine.Reset;
+        GenJournalLine.Reset();
         GenJournalLine.SetRange("Line No.", LineNo);
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.FindFirst;
         CustomerPaymentGUID := GenJournalLine.SystemId;
-        Commit;
+        Commit();
 
         // [WHEN] we GET the line from the web service
         TargetURL :=
@@ -307,7 +307,7 @@ codeunit 135515 "Customer Payments E2E Test"
         GenJournalLine.FindFirst;
         CustomerPaymentGUID := GenJournalLine.SystemId;
         Assert.AreNotEqual('', CustomerPaymentGUID, 'Customer Payment GUID should not be empty');
-        Commit;
+        Commit();
 
         // [WHEN] we PATCH the JSON to the web service, with the unique CustomerPaymentID
         TargetURL :=
@@ -353,7 +353,7 @@ codeunit 135515 "Customer Payments E2E Test"
         AppliesToDocNo := LibraryGraphJournalLines.CreatePostedSalesInvoice(CustomerNo);
         LineJSON := LibraryGraphMgt.AddPropertytoJSON(LineJSON, CustomerNoNameTxt, CustomerNo);
         LineJSON := LibraryGraphMgt.AddPropertytoJSON(LineJSON, AppliesToDocNoNameTxt, AppliesToDocNo);
-        Commit;
+        Commit();
 
         TargetURL :=
           LibraryGraphMgt.CreateTargetURLWithSubpage(
@@ -415,7 +415,7 @@ codeunit 135515 "Customer Payments E2E Test"
         GenJournalLine.FindFirst;
         CustomerPaymentGUID := GenJournalLine.SystemId;
         Assert.AreNotEqual('', CustomerPaymentGUID, 'CustomerPaymentGUID should not be empty');
-        Commit;
+        Commit();
 
         // [WHEN] we DELETE the customer payment from the web service, with the customer payment's unique ID
         TargetURL :=
@@ -451,12 +451,12 @@ codeunit 135515 "Customer Payments E2E Test"
 
         // [GIVEN] a line in the Cash Receipts Journal Table with graph contact Id
         LineNo := CreateCustomerPaymentWithGraphContactId(JournalName, CustomerNo, GraphIntegrationRecord);
-        GenJournalLine.Reset;
+        GenJournalLine.Reset();
         GenJournalLine.SetRange("Line No.", LineNo);
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.FindFirst;
         CustomerPaymentGUID := GenJournalLine.SystemId;
-        Commit;
+        Commit();
 
         // [WHEN] we GET the line from the web service
         TargetURL :=
@@ -494,7 +494,7 @@ codeunit 135515 "Customer Payments E2E Test"
         LibraryGraphDocumentTools.CreateContactWithGraphId(Contact, GraphIntegrationRecord);
         LibraryGraphDocumentTools.CreateCustomerFromContact(Customer, Contact);
         CustomerPaymentWithComplexJSON := CreateCustomerPaymentJSONWithContactId(GraphIntegrationRecord);
-        Commit;
+        Commit();
 
         // [WHEN] we POST the line to the web service
         TargetURL :=
@@ -535,7 +535,7 @@ codeunit 135515 "Customer Payments E2E Test"
 
         // [GIVEN] a customer payment with contact id
         LineNo := CreateCustomerPaymentWithGraphContactId(JournalName, CustomerNo, GraphIntegrationRecord);
-        GenJournalLine.Reset;
+        GenJournalLine.Reset();
         GenJournalLine.SetRange("Line No.", LineNo);
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.FindFirst;
@@ -546,7 +546,7 @@ codeunit 135515 "Customer Payments E2E Test"
         LibraryGraphDocumentTools.CreateCustomerFromContact(SecondCustomer, SecondContact);
 
         CustomerPaymentWithComplexJSON := CreateCustomerPaymentJSONWithContactId(GraphIntegrationRecord);
-        Commit;
+        Commit();
 
         // [WHEN] we PATCH the line to the web service
         TargetURL :=
@@ -587,7 +587,7 @@ codeunit 135515 "Customer Payments E2E Test"
 
         // [GIVEN] a customer payment with contact id
         LineNo := CreateCustomerPaymentWithGraphContactId(JournalName, CustomerNo, GraphIntegrationRecord);
-        GenJournalLine.Reset;
+        GenJournalLine.Reset();
         GenJournalLine.SetRange("Line No.", LineNo);
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.FindFirst;
@@ -595,7 +595,7 @@ codeunit 135515 "Customer Payments E2E Test"
 
         // [GIVEN] a customer payments JSON with blank graph contact id
         CustomerPaymentWithComplexJSON := CreateCustomerPaymentJSONWithContactId(DummyGraphIntegrationRecord);
-        Commit;
+        Commit();
 
         // [WHEN] we PATCH the line to the web service
         TargetURL :=
@@ -635,7 +635,7 @@ codeunit 135515 "Customer Payments E2E Test"
         CustomerNo := LibraryGraphJournalLines.CreateCustomer;
         AppliesToDocNo := LibraryGraphJournalLines.CreatePostedSalesInvoice(CustomerNo);
         LineJSON := LibraryGraphMgt.AddPropertytoJSON('', AppliesToDocNoNameTxt, AppliesToDocNo);
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSON to the web service
         TargetURL :=
@@ -682,7 +682,7 @@ codeunit 135515 "Customer Payments E2E Test"
         AppliesToDocNo := LibraryGraphJournalLines.CreatePostedSalesInvoice(CustomerNo[1]);
         LineJSON := LibraryGraphMgt.AddPropertytoJSON('', CustomerNoNameTxt, CustomerNo[2]);
         LineJSON := LibraryGraphMgt.AddPropertytoJSON(LineJSON, AppliesToDocNoNameTxt, AppliesToDocNo);
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSON to the web service
         TargetURL :=
@@ -739,7 +739,7 @@ codeunit 135515 "Customer Payments E2E Test"
         LineJSON[1] := LibraryGraphMgt.AddPropertytoJSON('', CustomerNoNameTxt, CustomerNo);
         LineJSON[2] := LibraryGraphMgt.AddPropertytoJSON('', CustomerIdFieldTxt, CustomerGUID);
 
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSONs to the web service
         TargetURL :=
@@ -758,7 +758,7 @@ codeunit 135515 "Customer Payments E2E Test"
         Assert.AreEqual(
           CustomerGUID, GenJournalLine."Customer Id", 'Customer Payment ' + CustomerIdFieldTxt + ' should have the correct Customer Id');
 
-        GenJournalLine.Reset;
+        GenJournalLine.Reset();
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.SetRange("Line No.", LineNo[2]);
         GenJournalLine.FindFirst;
@@ -767,7 +767,7 @@ codeunit 135515 "Customer Payments E2E Test"
         Assert.AreEqual(
           CustomerGUID, GenJournalLine."Customer Id", 'Customer Payment ' + CustomerIdFieldTxt + ' should have the correct Customer Id');
 
-        GenJournalLine.Reset;
+        GenJournalLine.Reset();
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.SetRange("Line No.", LineNo[3]);
         GenJournalLine.FindFirst;
@@ -801,13 +801,13 @@ codeunit 135515 "Customer Payments E2E Test"
         CustomerNo := LibraryGraphJournalLines.CreateCustomer;
         Customer.Get(CustomerNo);
         CustomerGUID := Customer.Id;
-        Customer.Delete;
+        Customer.Delete();
 
         // [GIVEN] JSON texts for a customer payment with and without CustomerNo and CustomerId
         LineJSON[1] := LibraryGraphMgt.AddPropertytoJSON('', CustomerNoNameTxt, CustomerNo);
         LineJSON[2] := LibraryGraphMgt.AddPropertytoJSON('', CustomerIdFieldTxt, CustomerGUID);
 
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSONs to the web service
         // [THEN] we will get errors because the Customer doesn't exist
@@ -859,7 +859,7 @@ codeunit 135515 "Customer Payments E2E Test"
         LineJSON[3] := LibraryGraphMgt.AddPropertytoJSON('', AppliesToDocNoNameTxt, AppliesToDocNo);
         LineJSON[3] := LibraryGraphMgt.AddPropertytoJSON(LineJSON[3], AppliesToInvoiceIdTxt, AppliesToDocGUID);
 
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSONs to the web service
         TargetURL :=
@@ -880,7 +880,7 @@ codeunit 135515 "Customer Payments E2E Test"
           AppliesToDocGUID, GenJournalLine."Applies-to Invoice Id",
           'Customer Payment ' + AppliesToInvoiceIdTxt + ' should have the correct AppliesToDoc Id');
 
-        GenJournalLine.Reset;
+        GenJournalLine.Reset();
         GenJournalLine.SetRange("Line No.", LineNo[2]);
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.FindFirst;
@@ -891,7 +891,7 @@ codeunit 135515 "Customer Payments E2E Test"
           AppliesToDocGUID, GenJournalLine."Applies-to Invoice Id",
           'Customer Payment ' + AppliesToInvoiceIdTxt + ' should have the correct AppliesToDoc Id');
 
-        GenJournalLine.Reset;
+        GenJournalLine.Reset();
         GenJournalLine.SetRange("Line No.", LineNo[3]);
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.FindFirst;
@@ -931,12 +931,12 @@ codeunit 135515 "Customer Payments E2E Test"
         AppliesToDocNo := LibraryGraphJournalLines.CreatePostedSalesInvoice(CustomerNo);
         SalesInvoiceHeader.Get(AppliesToDocNo);
         AppliesToDocGUID := SalesInvoiceHeader.Id;
-        SalesInvoiceHeader.Delete;
+        SalesInvoiceHeader.Delete();
 
         // [GIVEN] JSON texts for a customer payment with and without CustomerNo and CustomerId
         LineJSON := LibraryGraphMgt.AddPropertytoJSON('', AppliesToInvoiceIdTxt, AppliesToDocGUID);
 
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSON to the web service
         // [THEN] we will get errors because the Account doesn't exist
@@ -971,12 +971,12 @@ codeunit 135515 "Customer Payments E2E Test"
         end;
 
         LineNo := LibraryGraphJournalLines.CreateCustomerPayment(JournalName, '', BlankGUID, '', BlankGUID, 0, '');
-        GenJournalLine.Reset;
+        GenJournalLine.Reset();
         GenJournalLine.SetRange("Line No.", LineNo);
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.FindFirst;
         GenJournalLine.Validate("Contact Graph Id", GraphIntegrationRecord."Graph ID");
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
 
         exit(LineNo);
     end;

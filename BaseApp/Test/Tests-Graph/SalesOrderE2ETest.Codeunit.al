@@ -46,7 +46,7 @@ codeunit 135513 "Sales Order E2E Test"
 
         LibrarySales.CreateSalesOrder(SalesHeader);
         OrderID[2] := SalesHeader."No.";
-        Commit;
+        Commit();
 
         // [WHEN] we GET all the orders from the web service
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Sales Order Entity", OrderServiceNameTxt);
@@ -85,7 +85,7 @@ codeunit 135513 "Sales Order E2E Test"
 
         // [GIVEN] a JSON text with an order that contains the customer and an adress as complex type
         OrderWithComplexJSON := CreateOrderJSONWithAddress(Customer, OrderDate);
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSON to the web service
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Sales Order Entity", OrderServiceNameTxt);
@@ -98,7 +98,7 @@ codeunit 135513 "Sales Order E2E Test"
 
         LibraryGraphDocumentTools.VerifyCustomerBillingAddress(Customer, SalesHeader, ResponseText, false, false);
 
-        SalesHeader.Reset;
+        SalesHeader.Reset();
         SalesHeader.SetRange("No.", OrderNumber);
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
         SalesHeader.SetRange("Sell-to Customer No.", CustomerNo);
@@ -139,7 +139,7 @@ codeunit 135513 "Sales Order E2E Test"
         CurrencyCode := Currency.Code;
         JSONManagement.AddJPropertyToJObject(JObject, 'currencyCode', CurrencyCode);
         OrderJSON := JSONManagement.WriteObjectToString;
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSON to the web service
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Sales Order Entity", OrderServiceNameTxt);
@@ -152,7 +152,7 @@ codeunit 135513 "Sales Order E2E Test"
           'Could not find the sales order number');
         LibraryGraphMgt.VerifyIDInJson(ResponseText);
 
-        SalesHeader.Reset;
+        SalesHeader.Reset();
         SalesHeader.SetRange("No.", OrderNumber);
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
         SalesHeader.SetRange("Sell-to Customer No.", CustomerNo);
@@ -216,7 +216,7 @@ codeunit 135513 "Sales Order E2E Test"
         OrderID := SalesHeader."No.";
 
         // [GIVEN] the order's unique ID
-        SalesHeader.Reset;
+        SalesHeader.Reset();
         SalesHeader.SetRange("No.", OrderID);
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
         SalesHeader.FindFirst;
@@ -234,14 +234,14 @@ codeunit 135513 "Sales Order E2E Test"
         LibraryGraphDocumentTools.GetCustomerAddressComplexType(ComplexTypeJSON, Customer, EmptyData, PartiallyEmptyData);
         OrderWithComplexJSON := LibraryGraphMgt.AddComplexTypetoJSON(OrderJSON, 'billingPostalAddress', ComplexTypeJSON);
 
-        Commit;
+        Commit();
 
         // [WHEN] we PATCH the JSON to the web service, with the unique order ID
         TargetURL := LibraryGraphMgt.CreateTargetURL(OrderIntegrationID, PAGE::"Sales Order Entity", OrderServiceNameTxt);
         LibraryGraphMgt.PatchToWebService(TargetURL, OrderWithComplexJSON, ResponseText);
 
         // [THEN] the order should have the Unit of Measure and address as a value in the table
-        SalesHeader.Reset;
+        SalesHeader.Reset();
         SalesHeader.SetRange("No.", OrderID);
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
         Assert.IsTrue(SalesHeader.FindFirst, 'The sales order should exist in the table');
@@ -273,7 +273,7 @@ codeunit 135513 "Sales Order E2E Test"
         OrderID[2] := SalesHeader."No.";
         ID[2] := SalesHeader.Id;
         Assert.AreNotEqual('', ID[2], 'ID should not be empty');
-        Commit;
+        Commit();
 
         // [WHEN] we DELETE the orders from the web service, with the orders' unique IDs
         TargetURL := LibraryGraphMgt.CreateTargetURL(ID[1], PAGE::"Sales Order Entity", OrderServiceNameTxt);
@@ -318,7 +318,7 @@ codeunit 135513 "Sales Order E2E Test"
 
         // [GIVEN] a json describing our new order
         OrderWithComplexJSON := CreateOrderJSONWithAddress(Customer, OrderDate);
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSON to the web service and create another order through the test page
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Sales Order Entity", OrderServiceNameTxt);
@@ -327,7 +327,7 @@ codeunit 135513 "Sales Order E2E Test"
         CreateOrderThroughTestPage(SalesOrder, Customer, OrderDate);
 
         // [THEN] the order should exist in the table and match the order created from the page
-        ApiSalesHeader.Reset;
+        ApiSalesHeader.Reset();
         ApiSalesHeader.SetRange("Document Type", ApiSalesHeader."Document Type"::Order);
         ApiSalesHeader.SetRange("Sell-to Customer No.", CustomerNo);
         ApiSalesHeader.SetRange("Document Date", OrderDate);
@@ -368,7 +368,7 @@ codeunit 135513 "Sales Order E2E Test"
         LibraryGraphDocumentTools.CreateDocumentWithDiscountPctPending(SalesHeader, DiscountPct, SalesHeader."Document Type"::Order);
         SalesHeader.CalcFields("Recalculate Invoice Disc.");
         Assert.IsTrue(SalesHeader."Recalculate Invoice Disc.", 'Setup error - recalculate Invoice disc. should be set');
-        Commit;
+        Commit();
 
         // [WHEN] we GET the order from the web service
         TargetURL := LibraryGraphMgt.CreateTargetURL(SalesHeader.Id, PAGE::"Sales Order Entity", OrderServiceNameTxt);
@@ -403,7 +403,7 @@ codeunit 135513 "Sales Order E2E Test"
         SalesLine.Validate(Quantity, SalesLine.Quantity + 1);
         SalesLine.Modify(true);
         SalesHeader.CalcFields("Recalculate Invoice Disc.");
-        Commit;
+        Commit();
 
         // [WHEN] we GET the order from the web service
         TargetURL := LibraryGraphMgt.CreateTargetURL(SalesHeader.Id, PAGE::"Sales Order Entity", OrderServiceNameTxt);
@@ -464,7 +464,7 @@ codeunit 135513 "Sales Order E2E Test"
         OrderWithComplexJSON := CreateOrderJSONWithContactId(GraphIntegrationRecord);
 
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Sales Order Entity", OrderServiceNameTxt);
-        Commit;
+        Commit();
 
         // [WHEN] We post an Order to web service
         LibraryGraphMgt.PostToWebService(TargetURL, OrderWithComplexJSON, ResponseText);
@@ -505,7 +505,7 @@ codeunit 135513 "Sales Order E2E Test"
         TargetURL := LibraryGraphMgt.CreateTargetURL(OrderID, PAGE::"Sales Order Entity", OrderServiceNameTxt);
         OrderWithComplexJSON := CreateOrderJSONWithContactId(SecondGraphIntegrationRecord);
 
-        Commit;
+        Commit();
 
         // [WHEN] We Patch to web service
         LibraryGraphMgt.PatchToWebService(TargetURL, OrderWithComplexJSON, ResponseText);
@@ -552,7 +552,7 @@ codeunit 135513 "Sales Order E2E Test"
         // [WHEN] we PATCH the JSON to the web service, with the unique Item ID
         TargetURL := LibraryGraphMgt.CreateTargetURL(SalesHeader.Id, PAGE::"Sales Order Entity", OrderServiceNameTxt);
         OrderJSON := StrSubstNo('{"%1": %2}', DiscountAmountFieldTxt, Format(InvoiceDiscountAmount, 0, 9));
-        Commit;
+        Commit();
 
         LibraryGraphMgt.PatchToWebService(TargetURL, OrderJSON, ResponseText);
 
@@ -603,7 +603,7 @@ codeunit 135513 "Sales Order E2E Test"
         // [WHEN] we PATCH the JSON to the web service, with the unique Item ID
         OrderJSON := StrSubstNo('{"%1": %2}', DiscountAmountFieldTxt, Format(0, 0, 9));
         TargetURL := LibraryGraphMgt.CreateTargetURL(SalesHeader.Id, PAGE::"Sales Order Entity", OrderServiceNameTxt);
-        Commit;
+        Commit();
 
         LibraryGraphMgt.PatchToWebService(TargetURL, OrderJSON, ResponseText);
 
@@ -646,7 +646,7 @@ codeunit 135513 "Sales Order E2E Test"
 
     local procedure GetFirstSalesOrderLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     begin
-        SalesLine.Reset;
+        SalesLine.Reset();
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.FindFirst;

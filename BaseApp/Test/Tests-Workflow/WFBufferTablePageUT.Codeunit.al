@@ -82,7 +82,7 @@ codeunit 134340 "WF Buffer Table/Page UT"
         LibraryWorkflow.CreateWorkflow(Workflow1);
         LibraryWorkflow.CreateWorkflow(Workflow2);
         Workflow2.Category := Workflow1.Category;
-        Workflow2.Modify;
+        Workflow2.Modify();
         TempWorkflowBuffer.InitBufferForWorkflows(TempWorkflowBuffer);
 
         // Exercise
@@ -127,7 +127,7 @@ codeunit 134340 "WF Buffer Table/Page UT"
         Initialize;
         LibraryWorkflow.CreateWorkflow(Workflow);
         Workflow.Enabled := true;
-        Workflow.Modify;
+        Workflow.Modify();
         TempWorkflowBuffer.InitBufferForWorkflows(TempWorkflowBuffer);
 
         // Exercise
@@ -453,7 +453,7 @@ codeunit 134340 "WF Buffer Table/Page UT"
         Workflow: Record Workflow;
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"WF Buffer Table/Page UT");
-        Workflow.DeleteAll;
+        Workflow.DeleteAll();
     end;
 
     local procedure WorkflowTemplateLookup(var Workflow: Record Workflow)

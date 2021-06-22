@@ -65,10 +65,10 @@ xmlport 5876 "Import Phys. Invt. Recording"
                     PhysInvtRecordHeader.TestField("Order No.");
                     PhysInvtRecordHeader.TestField("Recording No.");
 
-                    PhysInvtRecordHeader.LockTable;
-                    "Phys. Invt. Record Line".LockTable;
+                    PhysInvtRecordHeader.LockTable();
+                    "Phys. Invt. Record Line".LockTable();
 
-                    "Phys. Invt. Record Line".Reset;
+                    "Phys. Invt. Record Line".Reset();
                     "Phys. Invt. Record Line".SetRange("Order No.", PhysInvtRecordHeader."Order No.");
                     "Phys. Invt. Record Line".SetRange("Recording No.", PhysInvtRecordHeader."Recording No.");
                     if "Phys. Invt. Record Line".Find('+') then
@@ -98,9 +98,9 @@ xmlport 5876 "Import Phys. Invt. Recording"
                         PhysInvtRecordLine.Validate("Time Recorded", "Phys. Invt. Record Line"."Time Recorded");
                         PhysInvtRecordLine.Validate("Person Recorded", "Phys. Invt. Record Line"."Person Recorded");
                         OnImportOnBeforePhysInvtRecordLineMofify(PhysInvtRecordLine);
-                        PhysInvtRecordLine.Modify;
+                        PhysInvtRecordLine.Modify();
                     end else begin
-                        PhysInvtRecordLine.Init;
+                        PhysInvtRecordLine.Init();
                         PhysInvtRecordLine."Order No." := "Phys. Invt. Record Line"."Order No.";
                         PhysInvtRecordLine."Recording No." := "Phys. Invt. Record Line"."Recording No.";
                         if "Phys. Invt. Record Line"."Line No." <> 0 then begin
@@ -120,7 +120,7 @@ xmlport 5876 "Import Phys. Invt. Recording"
                         PhysInvtRecordLine.Validate("Time Recorded", "Phys. Invt. Record Line"."Time Recorded");
                         PhysInvtRecordLine.Validate("Person Recorded", "Phys. Invt. Record Line"."Person Recorded");
                         OnImportOnBeforePhysInvtRecordLineInsert(PhysInvtRecordLine);
-                        PhysInvtRecordLine.Insert;
+                        PhysInvtRecordLine.Insert();
                     end;
                 end;
             }

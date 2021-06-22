@@ -201,7 +201,7 @@ codeunit 138081 "O365 Pay-to Addr. P.I"
         LibraryERMCountryData.CreateVATData;
 
         IsInitialized := true;
-        Commit;
+        Commit();
     end;
 
     local procedure VerifyPayToEditableState(PurchaseInvoice: TestPage "Purchase Invoice"; ExpectedState: Boolean)

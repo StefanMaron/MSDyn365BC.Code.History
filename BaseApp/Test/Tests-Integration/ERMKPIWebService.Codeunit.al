@@ -30,7 +30,7 @@ codeunit 134401 "ERM KPI Web Service"
     begin
         InitSetupData;
         CopyBudgetEntries(GLBudgetEntry, TempGLBudgetEntry);
-        GLBudgetEntry.DeleteAll;
+        GLBudgetEntry.DeleteAll();
         Assert.AreEqual(0D, AccSchedKPIWebSrvSetup.GetLastBudgetChangedDate, 'Wrong Last Date Modified for empty budget.');
         CopyBudgetEntries(TempGLBudgetEntry, GLBudgetEntry);
     end;
@@ -174,7 +174,7 @@ codeunit 134401 "ERM KPI Web Service"
         else
             LastClosedDate := LibraryERM.GetAllowPostingFrom - 1;
 
-        AccSchedKPIWebSrvSetup.Get;
+        AccSchedKPIWebSrvSetup.Get();
         Assert.AreEqual(LastClosedDate, AccSchedKPIWebSrvSetup.GetLastClosedAccDate, 'Wrong last closed date.');
     end;
 
@@ -184,7 +184,7 @@ codeunit 134401 "ERM KPI Web Service"
     var
         AccSchedKPIWebSrvSetup: Record "Acc. Sched. KPI Web Srv. Setup";
     begin
-        AccSchedKPIWebSrvSetup.Init;
+        AccSchedKPIWebSrvSetup.Init();
         AccSchedKPIWebSrvSetup.Validate("Web Service Name", 'kpi');
         Assert.AreEqual('kpi', AccSchedKPIWebSrvSetup."Web Service Name", 'web service name was changed.');
         AccSchedKPIWebSrvSetup.Validate("Web Service Name", 'kpi-data1');
@@ -201,12 +201,12 @@ codeunit 134401 "ERM KPI Web Service"
         WebService: Record "Web Service";
     begin
         InitSetupData;
-        AccSchedKPIWebSrvSetup.Get;
-        WebService.LockTable;
+        AccSchedKPIWebSrvSetup.Get();
+        WebService.LockTable();
         WebService.SetRange("Object Type", WebService."Object Type"::Page);
         WebService.SetRange("Object ID", PAGE::"Acc. Sched. KPI Web Service");
         if WebService.FindFirst then
-            WebService.Delete;
+            WebService.Delete();
         AccSchedKPIWebSrvSetup.PublishWebService;
         WebService.Get(WebService."Object Type"::Page, AccSchedKPIWebSrvSetup."Web Service Name");
     end;
@@ -219,7 +219,7 @@ codeunit 134401 "ERM KPI Web Service"
         WebService: Record "Web Service";
     begin
         InitSetupData;
-        AccSchedKPIWebSrvSetup.Get;
+        AccSchedKPIWebSrvSetup.Get();
         AccSchedKPIWebSrvSetup.PublishWebService;
         AccSchedKPIWebSrvSetup.DeleteWebService;
         asserterror WebService.Get(WebService."Object Type"::Page, PAGE::"Acc. Sched. KPI Web Service");
@@ -244,13 +244,13 @@ codeunit 134401 "ERM KPI Web Service"
         InitSetupData;
         // Run the web service page once to initiate data
         ValidateWebServicePage;
-        AccSchedKPIBufferCount := AccSchedKPIBuffer.Count;
+        AccSchedKPIBufferCount := AccSchedKPIBuffer.Count();
         Assert.AreNotEqual(0, AccSchedKPIBufferCount, 'AccSchedKPIBuffer is not updated');
         // Simulated that some gl entries have been posted and time has passed
-        AccSchedKPIWebSrvSetup.Get;
+        AccSchedKPIWebSrvSetup.Get();
         AccSchedKPIWebSrvSetup."Last G/L Entry Included" := 1000;
         AccSchedKPIWebSrvSetup."Data Last Updated" := CurrentDateTime - 3600000 * 25; // 25hrs ago
-        AccSchedKPIWebSrvSetup.Modify;
+        AccSchedKPIWebSrvSetup.Modify();
 
         // WHEN running the page again, it should be refreshed
         ValidateWebServicePage;
@@ -271,7 +271,7 @@ codeunit 134401 "ERM KPI Web Service"
         PrevKPIName: Text;
     begin
         InitSetupData;
-        AccSchedKPIWebSrvSetup.Get;
+        AccSchedKPIWebSrvSetup.Get();
         AccSchedKPIWebSrvSetup.GetPeriodLength(NoOfLines, StartDate, EndDate);
 
         AccSchedKPIWSDimensions.OpenView;
@@ -320,16 +320,16 @@ codeunit 134401 "ERM KPI Web Service"
     begin
         // Verify that table 135 is reset when another budget entry is added
         InitSetupData;
-        AccSchedKPIWebSrvSetup.Get;
+        AccSchedKPIWebSrvSetup.Get();
         AccSchedKPIWebSrvSetup."Data Last Updated" := CurrentDateTime;
         AccSchedKPIWebSrvSetup."Last G/L Entry Included" := 1;
-        AccSchedKPIWebSrvSetup.Modify;
+        AccSchedKPIWebSrvSetup.Modify();
 
         // When a G/L Budget Entry is added
         if GLBudgetEntry.FindLast then;
         GLBudgetEntry."Entry No." += 1;
         GLBudgetEntry."Budget Name" := AccSchedKPIWebSrvSetup."G/L Budget Name";
-        GLBudgetEntry.Insert;
+        GLBudgetEntry.Insert();
 
         // Then AccSchedKPIWebSrvSetup is reset.
         ValidateAccSchedKpiIsReset;
@@ -344,16 +344,16 @@ codeunit 134401 "ERM KPI Web Service"
     begin
         // Verify that table 135 is NOT reset when another budget entry is added
         InitSetupData;
-        AccSchedKPIWebSrvSetup.Get;
+        AccSchedKPIWebSrvSetup.Get();
         AccSchedKPIWebSrvSetup."Data Last Updated" := CurrentDateTime;
         AccSchedKPIWebSrvSetup."Last G/L Entry Included" := 1;
-        AccSchedKPIWebSrvSetup.Modify;
+        AccSchedKPIWebSrvSetup.Modify();
 
         // When a G/L Budget Entry is added
         if GLBudgetEntry.FindLast then;
         GLBudgetEntry."Entry No." += 1;
         GLBudgetEntry."Budget Name" := 'FOO-BAR';
-        GLBudgetEntry.Insert;
+        GLBudgetEntry.Insert();
 
         // Then AccSchedKPIWebSrvSetup is reset.
         ValidateAccSchedKpiIsNotReset;
@@ -367,10 +367,10 @@ codeunit 134401 "ERM KPI Web Service"
     begin
         // Verify that single instance codeunit 198 is updated when table 135 is changed.
         InitSetupData;
-        AccSchedKPIWebSrvSetup.Get;
+        AccSchedKPIWebSrvSetup.Get();
         AccSchedKPIWebSrvSetup."Data Last Updated" := CurrentDateTime;
         AccSchedKPIWebSrvSetup."Last G/L Entry Included" := 1;
-        AccSchedKPIWebSrvSetup.Modify;
+        AccSchedKPIWebSrvSetup.Modify();
 
         // When an AccSchedKpiLine is modified
         InsertTestData(LiquidityTxt, 20000, 'FOO', 'Foo', 'FOO');
@@ -388,15 +388,15 @@ codeunit 134401 "ERM KPI Web Service"
     begin
         // Verify that single instance codeunit 198 is updated when table 135 is changed.
         InitSetupData;
-        AccSchedKPIWebSrvSetup.Get;
+        AccSchedKPIWebSrvSetup.Get();
         AccSchedKPIWebSrvSetup."Data Last Updated" := CurrentDateTime;
         AccSchedKPIWebSrvSetup."Last G/L Entry Included" := 1;
-        AccSchedKPIWebSrvSetup.Modify;
+        AccSchedKPIWebSrvSetup.Modify();
 
         // When an AccSchedLine is modified
         AccScheduleLine.Get(LiquidityTxt, 10000);
         AccScheduleLine.Bold := true;
-        AccScheduleLine.Modify;
+        AccScheduleLine.Modify();
 
         // Then AccSchedKPIWebSrvSetup is reset.
         ValidateAccSchedKpiIsReset;
@@ -411,16 +411,16 @@ codeunit 134401 "ERM KPI Web Service"
     begin
         // Verify that single instance codeunit 198 is updated when table 135 is changed.
         InitSetupData;
-        AccSchedKPIWebSrvSetup.Get;
+        AccSchedKPIWebSrvSetup.Get();
         AccSchedKPIWebSrvSetup."Data Last Updated" := CurrentDateTime;
         AccSchedKPIWebSrvSetup."Last G/L Entry Included" := 1;
-        AccSchedKPIWebSrvSetup.Modify;
+        AccSchedKPIWebSrvSetup.Modify();
 
         // When an AccSchedLine is modified
-        AccScheduleLine.Init;
+        AccScheduleLine.Init();
         AccScheduleLine."Schedule Name" := 'FOO';
         AccScheduleLine."Line No." := 10000;
-        AccScheduleLine.Insert;
+        AccScheduleLine.Insert();
 
         // Then AccSchedKPIWebSrvSetup not is reset.
         ValidateAccSchedKpiIsNotReset;
@@ -441,7 +441,7 @@ codeunit 134401 "ERM KPI Web Service"
         InitSetupData;
 
         // [GIVEN] Delete all accounting periods
-        AccountingPeriod.DeleteAll;
+        AccountingPeriod.DeleteAll();
         // [GIVEN] Create a new 12 month fiscal year for WORKDATE
         LibraryFiscalYear.CreateFiscalYear;
 
@@ -474,7 +474,7 @@ codeunit 134401 "ERM KPI Web Service"
         InitSetupData;
 
         // [GIVEN] Delete all accounting periods
-        AccountingPeriod.DeleteAll;
+        AccountingPeriod.DeleteAll();
 
         // [GIVEN] Create 3 privious and current fiscal years
         RunCreateFiscalYear(CalcDate('<-3Y>', WorkDate));
@@ -511,7 +511,7 @@ codeunit 134401 "ERM KPI Web Service"
             Insert;
         end;
 
-        AccSchedKPIBuffer.DeleteAll;
+        AccSchedKPIBuffer.DeleteAll();
 
         GLEntry.FindFirst;
         GLAccNo1 := GLEntry."G/L Account No.";
@@ -632,7 +632,7 @@ codeunit 134401 "ERM KPI Web Service"
         if FromGLBudgetEntry.FindSet then
             repeat
                 ToGLBudgetEntry := FromGLBudgetEntry;
-                ToGLBudgetEntry.Insert;
+                ToGLBudgetEntry.Insert();
             until FromGLBudgetEntry.Next = 0;
     end;
 
@@ -641,7 +641,7 @@ codeunit 134401 "ERM KPI Web Service"
         CreateFiscalYear: Report "Create Fiscal Year";
         PeriodLength: DateFormula;
     begin
-        Commit;
+        Commit();
         Evaluate(PeriodLength, '<1M>');
         LibraryVariableStorage.Enqueue(CalcDate('<-CY>', StartingDate));
         LibraryVariableStorage.Enqueue(12);
@@ -675,7 +675,7 @@ codeunit 134401 "ERM KPI Web Service"
         EndDate: Date;
         PrevKPIName: Text;
     begin
-        AccSchedKPIWebSrvSetup.Get;
+        AccSchedKPIWebSrvSetup.Get();
         AccSchedKPIWebSrvSetup.GetPeriodLength(NoOfLines, StartDate, EndDate);
 
         AccSchedKPIWebService.OpenView;
@@ -719,7 +719,7 @@ codeunit 134401 "ERM KPI Web Service"
     var
         AccSchedKPIWebSrvSetup: Record "Acc. Sched. KPI Web Srv. Setup";
     begin
-        AccSchedKPIWebSrvSetup.Get;
+        AccSchedKPIWebSrvSetup.Get();
         Assert.AreEqual(0DT, AccSchedKPIWebSrvSetup."Data Last Updated", 'last updated not reset');
         Assert.AreEqual(0, AccSchedKPIWebSrvSetup."Last G/L Entry Included", 'Last gl entry not reset');
     end;
@@ -728,7 +728,7 @@ codeunit 134401 "ERM KPI Web Service"
     var
         AccSchedKPIWebSrvSetup: Record "Acc. Sched. KPI Web Srv. Setup";
     begin
-        AccSchedKPIWebSrvSetup.Get;
+        AccSchedKPIWebSrvSetup.Get();
         Assert.AreNotEqual(0DT, AccSchedKPIWebSrvSetup."Data Last Updated", 'last updated was reset');
         Assert.AreNotEqual(0, AccSchedKPIWebSrvSetup."Last G/L Entry Included", 'Last gl entry was reset');
     end;

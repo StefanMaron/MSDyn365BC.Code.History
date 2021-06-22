@@ -1,4 +1,4 @@
-﻿page 639 "IC Outbox Purchase Lines"
+page 639 "IC Outbox Purchase Lines"
 {
     Caption = 'Lines';
     DeleteAllowed = false;

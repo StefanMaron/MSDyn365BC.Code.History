@@ -532,13 +532,13 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         BankAccReconciliationLine.CalcSums("Statement Amount");
         BankAccReconciliation.Validate("Statement Ending Balance", BankAccReconciliationLine."Statement Amount");
         BankAccReconciliation.Modify(true);
-        Commit;
+        Commit();
 
         // [WHEN] Post Bank Account Reconcilation for "X"
         LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
 
         // [THEN] All Bank Account Ledger Entries of "X" are closed
-        BankAccountLedgerEntry.Reset;
+        BankAccountLedgerEntry.Reset();
         BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
         BankAccountLedgerEntry.SetRange(Open, true);
         Assert.RecordIsEmpty(BankAccountLedgerEntry);
@@ -637,14 +637,14 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         Clear(GenJournalLine);
         CreatePaymentJournal(GenJournalLine);
         GenJournalLine.Validate("Posting Date", StartDate + 1);
-        GenJournalLine.Insert;
+        GenJournalLine.Insert();
         SuggestVendorPayments(GenJournalLine, Vendor."No.", BankAccountNo);
         GenJournalLine.SetRange("Account No.", Vendor."No.");
         GenJournalLine.FindFirst;
         GenJournalLine.Validate("Currency Code", '');
         GenJournalLine.Validate(Amount, InvoiceAmount / ExchangeRate[2]);
         GenJournalLine.Modify(true);
-        Commit;
+        Commit();
         // [WHEN] Print Check
         PrintCheck(GenJournalLine, BankAccountNo);
 
@@ -756,7 +756,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         Initialize;
 
         LibraryERM.CreateBankAccount(BankAccount);
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Suggest Bank Acc. Recon. Lines", true, false, BankAccount);
 
         Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, ''); // visible
@@ -839,7 +839,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateLocalData;
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Reverse Bank Ledger");
     end;
 
@@ -971,7 +971,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, CreatePaymentJournalTemplate);
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine."Journal Template Name" := GenJournalBatch."Journal Template Name";
         GenJournalLine."Journal Batch Name" := GenJournalBatch.Name;
         GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
@@ -1045,7 +1045,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
     var
         SourceCodeSetup: Record "Source Code Setup";
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         exit(SourceCodeSetup."General Journal");
     end;
 
@@ -1053,7 +1053,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
     var
         SourceCodeSetup: Record "Source Code Setup";
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         exit(SourceCodeSetup."Payment Journal");
     end;
 
@@ -1061,7 +1061,7 @@ codeunit 134134 "ERM Reverse Bank Ledger"
     var
         SourceCodeSetup: Record "Source Code Setup";
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         exit(SourceCodeSetup."Financially Voided Check");
     end;
 

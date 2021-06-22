@@ -29,7 +29,7 @@ page 348 "Import Item Pictures"
                     trigger OnAssistEdit()
                     begin
                         if ZipFileName <> '' then begin
-                            DeleteAll;
+                            DeleteAll();
                             ZipFileName := '';
                         end;
                         ZipFileName := LoadZIPFile('', TotalCount, ReplaceMode);

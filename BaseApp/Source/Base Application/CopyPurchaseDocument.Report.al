@@ -172,7 +172,7 @@ report 492 "Copy Purchase Document"
     begin
         OnBeforePreReport();
 
-        PurchSetup.Get;
+        PurchSetup.Get();
         CopyDocMgt.SetProperties(
           IncludeHeader, RecalculateLines, false, false, false, PurchSetup."Exact Cost Reversing Mandatory", false);
         CopyDocMgt.SetArchDocVal(DocNoOccurrence, DocVersionNo);
@@ -214,12 +214,12 @@ report 492 "Copy Purchase Document"
         DocType2: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
     begin
         if DocNo = '' then begin
-            FromPurchHeader.Init;
+            FromPurchHeader.Init();
             DocNoOccurrence := 0;
             DocVersionNo := 0;
         end else
             if DocNo <> FromPurchHeader."No." then begin
-                FromPurchHeader.Init;
+                FromPurchHeader.Init();
                 case DocType of
                     DocType::Quote,
                   DocType::"Blanket Order",
@@ -341,7 +341,7 @@ report 492 "Copy Purchase Document"
 
     local procedure LookupPurchArchive()
     begin
-        FromPurchHeaderArchive.Reset;
+        FromPurchHeaderArchive.Reset();
         FromPurchHeaderArchive.FilterGroup := 0;
         FromPurchHeaderArchive.SetRange("Document Type", CopyDocMgt.ArchPurchHeaderDocType(DocType));
         FromPurchHeaderArchive.FilterGroup := 2;

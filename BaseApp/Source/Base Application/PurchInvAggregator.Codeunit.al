@@ -54,7 +54,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
         if not PurchInvEntityAggregate.Get(Rec."No.", false) then
             exit;
 
-        PurchInvEntityAggregate.Delete;
+        PurchInvEntityAggregate.Delete();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 66, 'OnAfterResetRecalculateInvoiceDisc', '', false, false)]
@@ -148,7 +148,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
         if not PurchInvEntityAggregate.Get(Rec."No.", true) then
             exit;
 
-        PurchInvEntityAggregate.Delete;
+        PurchInvEntityAggregate.Delete();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 70, 'OnAfterCalcPurchaseDiscount', '', false, false)]
@@ -391,7 +391,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
         PurchInvEntityAggregate: Record "Purch. Inv. Entity Aggregate";
         RecordExists: Boolean;
     begin
-        PurchInvEntityAggregate.LockTable;
+        PurchInvEntityAggregate.LockTable();
         RecordExists := PurchInvEntityAggregate.Get(PurchaseHeader."No.", false);
 
         PurchInvEntityAggregate.TransferFields(PurchaseHeader, true);
@@ -435,7 +435,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
         PurchInvEntityAggregate: Record "Purch. Inv. Entity Aggregate";
         RecordExists: Boolean;
     begin
-        PurchInvEntityAggregate.LockTable;
+        PurchInvEntityAggregate.LockTable();
         RecordExists := PurchInvEntityAggregate.Get(PurchInvHeader."No.", true);
         PurchInvEntityAggregate.TransferFields(PurchInvHeader, true);
         PurchInvEntityAggregate.Id := GetPurchaseInvoiceHeaderId(PurchInvHeader);
@@ -619,7 +619,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
 
         PurchInvEntityAggregate.Amount := 0;
         PurchInvEntityAggregate."Amount Including VAT" := 0;
-        PurchInvEntityAggregate.Modify;
+        PurchInvEntityAggregate.Modify();
     end;
 
     local procedure CheckValidRecord(var PurchaseHeader: Record "Purchase Header"): Boolean
@@ -708,7 +708,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
     begin
         DataTypeManagement.GetRecordRef(RecordVariant, SourceRecRef);
 
-        TempFieldBuffer.Reset;
+        TempFieldBuffer.Reset();
         if not TempFieldBuffer.FindFirst then
             exit;
 
@@ -716,7 +716,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
             if TargetTableRecRef.FieldExist(TempFieldBuffer."Field ID") then begin
                 SourceFieldRef := SourceRecRef.Field(TempFieldBuffer."Field ID");
                 TargetFieldRef := TargetTableRecRef.Field(TempFieldBuffer."Field ID");
-                if Format(TargetFieldRef.Class) = 'Normal' then
+                if TargetFieldRef.Class = FieldClass::Normal then
                     if TargetFieldRef.Value <> SourceFieldRef.Value then
                         TargetFieldRef.Validate(SourceFieldRef.Value);
             end;

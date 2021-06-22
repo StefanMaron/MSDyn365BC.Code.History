@@ -94,11 +94,8 @@ page 556 "Analysis View List"
                 ToolTip = 'View amounts in G/L accounts by their dimension values and other filters that you define in an analysis view and then show in a matrix window.';
 
                 trigger OnAction()
-                var
-                    AnalysisbyDimensions: Page "Analysis by Dimensions";
                 begin
-                    AnalysisbyDimensions.SetAnalysisViewCode(Code);
-                    AnalysisbyDimensions.Run;
+                    RunAnalysisByDimensionPage();
                 end;
             }
             action("&Update")

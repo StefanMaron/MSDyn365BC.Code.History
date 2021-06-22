@@ -57,7 +57,7 @@ codeunit 134814 "ERM CA Budget"
         ExpectedAmount := CreateBudgetEntries(SourceCostBudgetName.Name, NewEntriesCount);
 
         // Create budget entries suited for compression
-        Commit;
+        Commit();
         SetSharedVars(SourceCostBudgetName.Name, TargetCostBudgetName.Name, '', 1, 1);
         REPORT.Run(REPORT::"Copy Cost Budget");
 
@@ -88,7 +88,7 @@ codeunit 134814 "ERM CA Budget"
         LibraryCostAccounting.CreateCostBudgetName(TargetCostBudgetName);
 
         // Exercise:
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(SourceCostBudgetName.Name);
         REPORT.Run(REPORT::"Cost Allocation");
 
@@ -150,7 +150,7 @@ codeunit 134814 "ERM CA Budget"
         CreateCostCentersAndObjects;
 
         // Exercise:
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(GLBudgetName.Name);
         LibraryVariableStorage.Enqueue(CostBudgetName.Name);
 
@@ -185,7 +185,7 @@ codeunit 134814 "ERM CA Budget"
         CreateCostCentersAndObjects;
 
         // Exercise:
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(GLBudgetName.Name);
         LibraryVariableStorage.Enqueue(CostBudgetName.Name);
         REPORT.Run(REPORT::"Copy G/L Budget to Cost Acctg.");
@@ -220,7 +220,7 @@ codeunit 134814 "ERM CA Budget"
         CreateCostCentersAndObjects;
 
         // Exercise:
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(GLBudgetName.Name);
         LibraryVariableStorage.Enqueue(CostBudgetName.Name);
         REPORT.Run(REPORT::"Copy G/L Budget to Cost Acctg.");
@@ -254,7 +254,7 @@ codeunit 134814 "ERM CA Budget"
         CreateCostCentersAndObjects;
 
         // Exercise:
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(GLBudgetName.Name);
         LibraryVariableStorage.Enqueue(CostBudgetName.Name);
         REPORT.Run(REPORT::"Copy G/L Budget to Cost Acctg.");
@@ -288,7 +288,7 @@ codeunit 134814 "ERM CA Budget"
         CreateCostCentersAndObjects;
 
         // Exercise:
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(GLBudgetName.Name);
         LibraryVariableStorage.Enqueue(CostBudgetName.Name);
         REPORT.Run(REPORT::"Copy G/L Budget to Cost Acctg.");
@@ -322,7 +322,7 @@ codeunit 134814 "ERM CA Budget"
         CreateCostCentersAndObjects;
 
         // Exercise:
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(GLBudgetName.Name);
         LibraryVariableStorage.Enqueue(CostBudgetName.Name);
         REPORT.Run(REPORT::"Copy G/L Budget to Cost Acctg.");
@@ -354,7 +354,7 @@ codeunit 134814 "ERM CA Budget"
         CreateCostCentersAndObjects;
 
         // Exercise:
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(GLBudgetName.Name);
         LibraryVariableStorage.Enqueue(CostBudgetName.Name);
         REPORT.Run(REPORT::"Copy G/L Budget to Cost Acctg.");
@@ -384,7 +384,7 @@ codeunit 134814 "ERM CA Budget"
         RemoveCostTypeLink(GLBudgetName.Name);
 
         // Exercise:
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(GLBudgetName.Name);
         LibraryVariableStorage.Enqueue(CostBudgetName.Name);
         REPORT.Run(REPORT::"Copy G/L Budget to Cost Acctg.");
@@ -405,7 +405,7 @@ codeunit 134814 "ERM CA Budget"
         LibraryVariableStorage.Enqueue(''); // CA Budget.
 
         // Exercise
-        Commit;
+        Commit();
         asserterror REPORT.Run(REPORT::"Copy G/L Budget to Cost Acctg.");
 
         // Verify
@@ -429,7 +429,7 @@ codeunit 134814 "ERM CA Budget"
         LibraryVariableStorage.Enqueue('');
 
         // Exercise
-        Commit;
+        Commit();
         asserterror REPORT.Run(REPORT::"Copy G/L Budget to Cost Acctg.");
 
         // Verify
@@ -456,7 +456,7 @@ codeunit 134814 "ERM CA Budget"
         CreateCostBudgetEntry(CostBudgetEntry, SourceCostBudgetName.Name, CostCenter.Code, '');
 
         // Exercise:
-        Commit;
+        Commit();
         SetSharedVars(SourceCostBudgetName.Name, TargetGLBudgetName.Name, '1M', 1, 1);
         REPORT.Run(REPORT::"Copy Cost Acctg. Budget to G/L");
 
@@ -485,7 +485,7 @@ codeunit 134814 "ERM CA Budget"
         CreateCostBudgetEntry(CostBudgetEntry, SourceCostBudgetName.Name, '', CostObject.Code);
 
         // Exercise:
-        Commit;
+        Commit();
         SetSharedVars(SourceCostBudgetName.Name, TargetGLBudgetName.Name, '1M', 1, 1);
         REPORT.Run(REPORT::"Copy Cost Acctg. Budget to G/L");
 
@@ -518,7 +518,7 @@ codeunit 134814 "ERM CA Budget"
         CreateCostBudgetEntry(CostBudgetEntry, SourceCostBudgetName.Name, CostCenter.Code, '');
 
         // Exercise:
-        Commit;
+        Commit();
         SetSharedVars(SourceCostBudgetName.Name, TargetGLBudgetName.Name, '1M', 1, 1);
         REPORT.Run(REPORT::"Copy Cost Acctg. Budget to G/L");
 
@@ -547,7 +547,7 @@ codeunit 134814 "ERM CA Budget"
         CreateCostBudgetEntry(CostBudgetEntry, SourceCostBudgetName.Name, CostCenter.Code, '');
 
         // Exercise:
-        Commit;
+        Commit();
         SetSharedVars(SourceCostBudgetName.Name, TargetGLBudgetName.Name, '1M', 1, 1);
         REPORT.Run(REPORT::"Copy Cost Acctg. Budget to G/L");
 
@@ -567,7 +567,7 @@ codeunit 134814 "ERM CA Budget"
         SetSharedVars('', '', '', 1, 1);
 
         // Exercise
-        Commit;
+        Commit();
         asserterror REPORT.Run(REPORT::"Copy Cost Acctg. Budget to G/L");
 
         // Verify
@@ -590,7 +590,7 @@ codeunit 134814 "ERM CA Budget"
         SetSharedVars(CostBudgetName.Name, '', '', 1, 1);
 
         // Exercise
-        Commit;
+        Commit();
         asserterror REPORT.Run(REPORT::"Copy Cost Acctg. Budget to G/L");
 
         // Verify
@@ -608,7 +608,7 @@ codeunit 134814 "ERM CA Budget"
         SetSharedVars('', '', '', 1, 0);
 
         // Exercise
-        Commit;
+        Commit();
         asserterror REPORT.Run(REPORT::"Copy Cost Acctg. Budget to G/L");
 
         // Verify
@@ -626,7 +626,7 @@ codeunit 134814 "ERM CA Budget"
         SetSharedVars('', '', '', 0, 0);
 
         // Exercise
-        Commit;
+        Commit();
         asserterror REPORT.Run(REPORT::"Copy Cost Acctg. Budget to G/L");
 
         // Verify
@@ -651,7 +651,7 @@ codeunit 134814 "ERM CA Budget"
         SetSharedVars(CostBudgetName.Name, GLBudgetName.Name, '', 1, 2);
 
         // Exercise
-        Commit;
+        Commit();
         asserterror REPORT.Run(REPORT::"Copy Cost Acctg. Budget to G/L");
 
         // Verify
@@ -676,7 +676,7 @@ codeunit 134814 "ERM CA Budget"
         LibraryCostAccounting.CreateCostBudgetName(TargetCostBudgetName);
 
         // Exercise:
-        Commit;
+        Commit();
         SetSharedVars(SourceCostBudgetName.Name, TargetCostBudgetName.Name, '1M', 1, 1);
         REPORT.Run(REPORT::"Copy Cost Budget");
 
@@ -703,7 +703,7 @@ codeunit 134814 "ERM CA Budget"
         LibraryCostAccounting.CreateCostBudgetName(TargetCostBudgetName);
 
         // Exercise:
-        Commit;
+        Commit();
         SetSharedVars(SourceCostBudgetName.Name, TargetCostBudgetName.Name, '1M', 2, 1);
         REPORT.Run(REPORT::"Copy Cost Budget");
 
@@ -730,7 +730,7 @@ codeunit 134814 "ERM CA Budget"
         LibraryCostAccounting.CreateCostBudgetName(TargetCostBudgetName);
 
         // Exercise:
-        Commit;
+        Commit();
         SetSharedVars(SourceCostBudgetName.Name, TargetCostBudgetName.Name, '2M', 1, 1);
         REPORT.Run(REPORT::"Copy Cost Budget");
 
@@ -757,7 +757,7 @@ codeunit 134814 "ERM CA Budget"
         LibraryCostAccounting.CreateCostBudgetName(TargetCostBudgetName);
 
         // Exercise:
-        Commit;
+        Commit();
         SetSharedVars(SourceCostBudgetName.Name, TargetCostBudgetName.Name, '1Y', 1, 1);
         REPORT.Run(REPORT::"Copy Cost Budget");
 
@@ -787,7 +787,7 @@ codeunit 134814 "ERM CA Budget"
         LibraryCostAccounting.CreateCostBudgetName(TargetCostBudgetName);
 
         // Exercise:
-        Commit;
+        Commit();
         NumberOfCopies := LibraryRandom.RandIntInRange(5, 10);
         DateFormula := StrSubstNo('%1M', LibraryRandom.RandInt(3));
         SetSharedVars(SourceCostBudgetName.Name, TargetCostBudgetName.Name, DateFormula, 1, NumberOfCopies);
@@ -811,7 +811,7 @@ codeunit 134814 "ERM CA Budget"
         LibraryCostAccounting.CreateCostBudgetName(TargetCostBudgetName);
 
         // Exercise:
-        Commit;
+        Commit();
         SetSharedVars('', TargetCostBudgetName.Name, '1M', 1, 1);
         asserterror REPORT.Run(REPORT::"Copy Cost Budget");
         Assert.IsTrue(StrPos(GetLastErrorText, SourceBudgetEmptyError) > 0, UnexpectedErrorMessage);
@@ -831,7 +831,7 @@ codeunit 134814 "ERM CA Budget"
         LibraryCostAccounting.CreateCostBudgetName(SourceCostBudgetName);
 
         // Exercise:
-        Commit;
+        Commit();
         SetSharedVars(SourceCostBudgetName.Name, '', '1M', 1, 1);
         asserterror REPORT.Run(REPORT::"Copy Cost Budget");
         Assert.IsTrue(StrPos(GetLastErrorText, TargetBudgetEmptyError) > 0, UnexpectedErrorMessage);
@@ -853,7 +853,7 @@ codeunit 134814 "ERM CA Budget"
         LibraryCostAccounting.CreateCostBudgetName(TargetCostBudgetName);
 
         // Exercise:
-        Commit;
+        Commit();
         SetSharedVars(SourceCostBudgetName.Name, TargetCostBudgetName.Name, '1M', 1, 0);
         asserterror REPORT.Run(REPORT::"Copy Cost Budget");
         Assert.IsTrue(StrPos(GetLastErrorText, NoOfCopiesZeroError) > 0, UnexpectedErrorMessage);
@@ -875,7 +875,7 @@ codeunit 134814 "ERM CA Budget"
         LibraryCostAccounting.CreateCostBudgetName(TargetCostBudgetName);
 
         // Exercise:
-        Commit;
+        Commit();
         SetSharedVars(SourceCostBudgetName.Name, TargetCostBudgetName.Name, '1M', 0, 1);
         asserterror REPORT.Run(REPORT::"Copy Cost Budget");
         Assert.IsTrue(StrPos(GetLastErrorText, MultiplicationFactorZeroError) > 0, UnexpectedErrorMessage);
@@ -897,7 +897,7 @@ codeunit 134814 "ERM CA Budget"
         LibraryCostAccounting.CreateCostBudgetName(TargetCostBudgetName);
 
         // Exercise:
-        Commit;
+        Commit();
         SetSharedVars(SourceCostBudgetName.Name, TargetCostBudgetName.Name, '', 1, 2);
         asserterror REPORT.Run(REPORT::"Copy Cost Budget");
         Assert.ExpectedError(DateChangeFormulaRequired);
@@ -960,7 +960,7 @@ codeunit 134814 "ERM CA Budget"
         // Test Transfer Budget To Actual with no source budget defined
         Initialize;
 
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue('');
         LibraryVariableStorage.Enqueue(Format(WorkDate));
         asserterror REPORT.Run(REPORT::"Transfer Budget to Actual");
@@ -980,7 +980,7 @@ codeunit 134814 "ERM CA Budget"
         LibraryCostAccounting.CreateCostBudgetName(CostBudgetName);
 
         // Exercise:
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(CostBudgetName.Name);
         LibraryVariableStorage.Enqueue('');
         asserterror REPORT.Run(REPORT::"Transfer Budget to Actual");
@@ -1002,16 +1002,16 @@ codeunit 134814 "ERM CA Budget"
         LibraryCostAccounting.CreateCostBudgetName(CostBudgetName);
 
         // Create budget entries
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(CostBudgetName.Name);
         REPORT.Run(REPORT::"Cost Allocation");
 
         // count the number of cost budget entries
         CostBudgetEntry.SetRange("Budget Name", CostBudgetName.Name);
-        BudgetEntriesCount := CostBudgetEntry.Count;
+        BudgetEntriesCount := CostBudgetEntry.Count();
 
         // Exercise:
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(CostBudgetName.Name);
         LibraryVariableStorage.Enqueue(Format(WorkDate));
         REPORT.Run(REPORT::"Transfer Budget to Actual");
@@ -1121,7 +1121,7 @@ codeunit 134814 "ERM CA Budget"
     var
         CostAccountingSetup: Record "Cost Accounting Setup";
     begin
-        CostAccountingSetup.Get;
+        CostAccountingSetup.Get();
         exit(CostAccountingSetup."Cost Center Dimension");
     end;
 
@@ -1129,7 +1129,7 @@ codeunit 134814 "ERM CA Budget"
     var
         CostAccountingSetup: Record "Cost Accounting Setup";
     begin
-        CostAccountingSetup.Get;
+        CostAccountingSetup.Get();
         exit(CostAccountingSetup."Cost Object Dimension");
     end;
 
@@ -1324,7 +1324,7 @@ codeunit 134814 "ERM CA Budget"
 
         LibraryERMCountryData.SetupCostAccounting;
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM CA Budget");
     end;
 
@@ -1342,7 +1342,7 @@ codeunit 134814 "ERM CA Budget"
         CreateCostCentersAndObjects;
 
         // Exercise:
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(GLBudgetName.Name);
         LibraryVariableStorage.Enqueue(CostBudgetName.Name);
         LibraryVariableStorage.Enqueue(Formula);
@@ -1450,7 +1450,7 @@ codeunit 134814 "ERM CA Budget"
     var
         CostAccountingSetup: Record "Cost Accounting Setup";
     begin
-        CostAccountingSetup.Get;
+        CostAccountingSetup.Get();
         CostAccountingSetup.Validate("Cost Center Dimension", CostCenterDimension);
         CostAccountingSetup.Validate("Cost Object Dimension", CostObjectDimension);
         CostAccountingSetup.Modify(true);

@@ -203,10 +203,10 @@ report 215 "Archived Sales Quote"
                         begin
                             if Number = 1 then begin
                                 if not DimSetEntry1.FindSet then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end else
                                 if not Continue then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                             Clear(DimText);
                             Continue := false;
@@ -230,7 +230,7 @@ report 215 "Archived Sales Quote"
                         trigger OnPreDataItem()
                         begin
                             if not ShowInternalInfo then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem("Sales Line Archive"; "Sales Line Archive")
@@ -241,7 +241,7 @@ report 215 "Archived Sales Quote"
 
                         trigger OnPreDataItem()
                         begin
-                            CurrReport.Break;
+                            CurrReport.Break();
                         end;
                     }
                     dataitem(RoundLoop; "Integer")
@@ -442,10 +442,10 @@ report 215 "Archived Sales Quote"
                             begin
                                 if Number = 1 then begin
                                     if not DimSetEntry2.FindSet then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
                                 end else
                                     if not Continue then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
 
                                 Clear(DimText);
                                 Continue := false;
@@ -469,7 +469,7 @@ report 215 "Archived Sales Quote"
                             trigger OnPreDataItem()
                             begin
                                 if not ShowInternalInfo then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end;
                         }
 
@@ -486,7 +486,7 @@ report 215 "Archived Sales Quote"
 
                         trigger OnPostDataItem()
                         begin
-                            SalesLineArchTmp.DeleteAll;
+                            SalesLineArchTmp.DeleteAll();
                         end;
 
                         trigger OnPreDataItem()
@@ -498,7 +498,7 @@ report 215 "Archived Sales Quote"
                             do
                                 MoreLines := SalesLineArchTmp.Next(-1) <> 0;
                             if not MoreLines then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             SalesLineArchTmp.SetRange("Line No.", 0, SalesLineArchTmp."Line No.");
                             SetRange(Number, 1, SalesLineArchTmp.Count);
                         end;
@@ -658,7 +658,7 @@ report 215 "Archived Sales Quote"
                         trigger OnPreDataItem()
                         begin
                             if VATAmount = 0 then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             SetRange(Number, 1, VATAmountLine.Count);
                         end;
                     }
@@ -754,7 +754,7 @@ report 215 "Archived Sales Quote"
                                ("Sales Header Archive"."Currency Code" = '') or
                                (VATAmountLine.GetTotalVATAmount = 0)
                             then
-                                CurrReport.Break;
+                                CurrReport.Break();
 
                             SetRange(Number, 1, VATAmountLine.Count);
                             Clear(VALVATBaseLCY);
@@ -831,7 +831,7 @@ report 215 "Archived Sales Quote"
                         trigger OnPreDataItem()
                         begin
                             if not ShowShippingAddr then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                 }
@@ -923,9 +923,9 @@ report 215 "Archived Sales Quote"
 
     trigger OnInitReport()
     begin
-        GLSetup.Get;
-        CompanyInfo.Get;
-        SalesSetup.Get;
+        GLSetup.Get();
+        CompanyInfo.Get();
+        SalesSetup.Get();
         case SalesSetup."Logo Position on Documents" of
             SalesSetup."Logo Position on Documents"::"No Logo":
                 ;
@@ -933,12 +933,12 @@ report 215 "Archived Sales Quote"
                 CompanyInfo.CalcFields(Picture);
             SalesSetup."Logo Position on Documents"::Center:
                 begin
-                    CompanyInfo1.Get;
+                    CompanyInfo1.Get();
                     CompanyInfo1.CalcFields(Picture);
                 end;
             SalesSetup."Logo Position on Documents"::Right:
                 begin
-                    CompanyInfo2.Get;
+                    CompanyInfo2.Get();
                     CompanyInfo2.CalcFields(Picture);
                 end;
         end;
@@ -1068,16 +1068,16 @@ report 215 "Archived Sales Quote"
         SalesLineArchive: Record "Sales Line Archive";
     begin
         Clear(SalesLineArchTmp);
-        SalesLineArchTmp.DeleteAll;
+        SalesLineArchTmp.DeleteAll();
         SalesLineArchive.SetRange("Document Type", "Sales Header Archive"."Document Type");
         SalesLineArchive.SetRange("Document No.", "Sales Header Archive"."No.");
         SalesLineArchive.SetRange("Version No.", "Sales Header Archive"."Version No.");
         if SalesLineArchive.FindSet then
             repeat
                 SalesLineArchTmp := SalesLineArchive;
-                SalesLineArchTmp.Insert;
+                SalesLineArchTmp.Insert();
                 TempSalesLine.TransferFields(SalesLineArchive);
-                TempSalesLine.Insert;
+                TempSalesLine.Insert();
             until SalesLineArchive.Next = 0;
 
         TempSalesHeader.TransferFields("Sales Header Archive");

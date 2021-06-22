@@ -41,7 +41,7 @@ codeunit 1802 "Data Migration Notifier"
     begin
         DataTypeManagement.GetRecordRef(RecordVariant, RecRef);
 
-        RecRef.Reset;
+        RecRef.Reset();
 
         if not RecRef.IsEmpty then
             exit;

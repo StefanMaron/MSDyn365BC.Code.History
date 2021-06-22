@@ -293,12 +293,9 @@ codeunit 139460 "User Access in SaaS Tests"
         Initialize;
         // [GIVEN] A existing user with no user login entry
 
-        UserGroupMember.DeleteAll;
+        UserGroupMember.DeleteAll();
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
         LibraryPermissions.CreateUser(User, UserEuropeDcst1FullTok, true);
-
-        // Populate table Plan if necessary
-        AzureADPlanTestLibrary.PopulatePlanTable();
 
         Plan.Open();
         Plan.Read();
@@ -379,7 +376,7 @@ codeunit 139460 "User Access in SaaS Tests"
         // [WHEN] The an extension attempts to modify a user through the code
         LibraryPermissions.CreateUser(User, UserEuropeDcst1FullTok, false);
         User."License Type" := User."License Type"::"Limited User";
-        asserterror User.Modify;
+        asserterror User.Modify();
 
         // [THEN] The user cannot be modified
         Assert.ExpectedError('are supported in the online environment.');
@@ -405,7 +402,7 @@ codeunit 139460 "User Access in SaaS Tests"
             User.Validate("License Type", LicenseType);
             User.Modify(true);
         end else begin
-            User.Init;
+            User.Init();
             User.Validate("User Name", UserName);
             User.Validate("License Type", LicenseType);
             User.Validate("User Security ID", CreateGuid);
@@ -425,7 +422,7 @@ codeunit 139460 "User Access in SaaS Tests"
             UserPersonalization.Delete(true);
         User.SetRange("User Name", UserName);
         User.FindFirst;
-        UserPersonalization.Init;
+        UserPersonalization.Init();
         UserPersonalization.Validate("User SID", User."User Security ID");
         UserPersonalization.Validate(Company, CompanyName);
         UserPersonalization.Insert(true);
@@ -444,11 +441,11 @@ codeunit 139460 "User Access in SaaS Tests"
     begin
         if UserGroup.Get(UserGroupO365FullAccessTxt) then
             exit;
-        UserGroup.Init;
+        UserGroup.Init();
         UserGroup.Code := UserGroupO365FullAccessTxt;
         UserGroup.Name := UserGroup.Code;
         UserGroup."Assign to All New Users" := true;
-        UserGroup.Insert;
+        UserGroup.Insert();
     end;
 
     [ModalPageHandler]

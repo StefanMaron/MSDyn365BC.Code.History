@@ -17,7 +17,7 @@ codeunit 63 "Sales-Explode BOM"
 
         CalcFields("Reserved Qty. (Base)");
         TestField("Reserved Qty. (Base)", 0);
-        ReservMgt.SetSalesLine(Rec);
+        ReservMgt.SetReservSource(Rec);
         ReservMgt.SetItemTrackingHandling(1);
         ReservMgt.DeleteReservEntries(true, 0);
 
@@ -33,7 +33,7 @@ codeunit 63 "Sales-Explode BOM"
         SalesHeader.TestField(Status, SalesHeader.Status::Open);
 
         FromBOMComp.SetRange("Parent Item No.", "No.");
-        NoOfBOMComp := FromBOMComp.Count;
+        NoOfBOMComp := FromBOMComp.Count();
 
         OnBeforeConfirmExplosion(Rec, Selection, HideDialog);
 
@@ -77,12 +77,12 @@ codeunit 63 "Sales-Explode BOM"
             BOMItemNo := "BOM Item No.";
 
         ToSalesLine := Rec;
-        ToSalesLine.Init;
+        ToSalesLine.Init();
         ToSalesLine.Description := Description;
         ToSalesLine."Description 2" := "Description 2";
         ToSalesLine."BOM Item No." := BOMItemNo;
         OnBeforeToSalesLineModify(ToSalesLine, Rec);
-        ToSalesLine.Modify;
+        ToSalesLine.Modify();
 
         if TransferExtendedText.SalesCheckIfAnyExtText(ToSalesLine, false) then
             TransferExtendedText.InsertSalesExtText(ToSalesLine);
@@ -117,7 +117,7 @@ codeunit 63 "Sales-Explode BOM"
         InsertLinesBetween: Boolean;
     begin
         with SalesLine do begin
-            ToSalesLine.Reset;
+            ToSalesLine.Reset();
             ToSalesLine.SetRange("Document Type", "Document Type");
             ToSalesLine.SetRange("Document No.", "Document No.");
             ToSalesLine := SalesLine;
@@ -139,11 +139,11 @@ codeunit 63 "Sales-Explode BOM"
             if LineSpacing = 0 then
                 Error(Text003);
 
-            FromBOMComp.Reset;
+            FromBOMComp.Reset();
             FromBOMComp.SetRange("Parent Item No.", "No.");
             FromBOMComp.FindSet;
             repeat
-                ToSalesLine.Init;
+                ToSalesLine.Init();
                 NextLineNo := NextLineNo + LineSpacing;
                 ToSalesLine."Line No." := NextLineNo;
 
@@ -201,7 +201,7 @@ codeunit 63 "Sales-Explode BOM"
 
                 OnInsertOfExplodedBOMLineToSalesLine(ToSalesLine, SalesLine, FromBOMComp);
 
-                ToSalesLine.Insert;
+                ToSalesLine.Insert();
 
                 ToSalesLine.Validate("Qty. to Assemble to Order");
 
@@ -212,7 +212,7 @@ codeunit 63 "Sales-Explode BOM"
                     ToSalesLine."Shortcut Dimension 1 Code" := "Shortcut Dimension 1 Code";
                     ToSalesLine."Shortcut Dimension 2 Code" := "Shortcut Dimension 2 Code";
                     ToSalesLine."Dimension Set ID" := "Dimension Set ID";
-                    ToSalesLine.Modify;
+                    ToSalesLine.Modify();
                 end;
 
                 if PreviousSalesLine."Document No." <> '' then

@@ -29,12 +29,10 @@ table 9650 "Custom Report Layout"
             Caption = 'Company Name';
             TableRelation = Company;
         }
-        field(6; Type; Option)
+        field(6; Type; Enum "Custom Report Layout Type")
         {
             Caption = 'Type';
             InitValue = Word;
-            OptionCaption = 'RDLC,Word';
-            OptionMembers = RDLC,Word;
         }
         field(7; "Layout"; BLOB)
         {
@@ -156,7 +154,7 @@ table 9650 "Custom Report Layout"
         if ReportID = 0 then
             exit;
 
-        CustomReportLayout.Init;
+        CustomReportLayout.Init();
         CustomReportLayout."Report ID" := ReportID;
         CustomReportLayout.Type := LayoutType;
         CustomReportLayout.Description := CopyStr(StrSubstNo(CopyOfTxt, BuiltInTxt), 1, MaxStrLen(Description));
@@ -233,7 +231,7 @@ table 9650 "Custom Report Layout"
         if (CustomLayoutCode <> '') and Get(CustomLayoutCode) then begin
             TestField(Type, Type::RDLC);
             if UpdateLayout(true, false) then
-                Commit; // Save the updated layout
+                Commit(); // Save the updated layout
             RdlcTxt := GetLayout;
         end else begin
             REPORT.RdlcLayout(ReportID, InStream);
@@ -352,7 +350,7 @@ table 9650 "Custom Report Layout"
             "File Extension" := FileExtension;
         SetDefaultCustomXmlPart;
         Modify(true);
-        Commit;
+        Commit();
 
         SetLayoutLastUpdated();
         if ErrorMessage <> '' then
@@ -584,12 +582,17 @@ table 9650 "Custom Report Layout"
         Clear(DataInStream);
         Clear(DataOutStream);
 
-        if Type = Type::Word then begin
-            InTempBlob.CreateInStream(DataInStream);
-            OutTempBlob.CreateOutStream(DataOutStream);
-        end else begin
-            InTempBlob.CreateInStream(DataInStream, TEXTENCODING::UTF8);
-            OutTempBlob.CreateOutStream(DataOutStream, TEXTENCODING::UTF8);
+        case Type of
+            Type::Word:
+                begin
+                    InTempBlob.CreateInStream(DataInStream);
+                    OutTempBlob.CreateOutStream(DataOutStream);
+                end;
+            Type::RDLC:
+                begin
+                    InTempBlob.CreateInStream(DataInStream, TEXTENCODING::UTF8);
+                    OutTempBlob.CreateOutStream(DataOutStream, TEXTENCODING::UTF8);
+                end;
         end;
 
         TempReportChangeLogCollection := ReportUpgrade.Upgrade(Description, DataInStream, DataOutStream);
@@ -604,7 +607,7 @@ table 9650 "Custom Report Layout"
                 ModifyLayout := true;
             end;
             if ModifyLayout then
-                Commit;
+                Commit();
         end;
 
         if TempReportChangeLogCollection.Count > 0 then begin
@@ -697,8 +700,8 @@ table 9650 "Custom Report Layout"
         end else
             LayoutCode := Row.Item('Code');
 
-        CustomReportLayout.Reset;
-        CustomReportLayout.Init;
+        CustomReportLayout.Reset();
+        CustomReportLayout.Init();
         CustomReportLayout.Code := LayoutCode;
         CustomReportLayout."App ID" := ExtensionAppId;
         CustomReportLayout.Type := Row.Item('Type');
@@ -708,7 +711,7 @@ table 9650 "Custom Report Layout"
         CustomReportLayout."Report ID" := Row.Item('ReportID');
         CustomReportLayout.CalcFields("Report Name");
         CustomReportLayout."Built-In" := true;
-        CustomReportLayout.Insert;
+        CustomReportLayout.Insert();
     end;
 
     procedure HasLayout(): Boolean
@@ -925,10 +928,12 @@ table 9650 "Custom Report Layout"
         if not ReportLayout.Layout.HasValue then
             exit('');
 
-        if Type = Type::RDLC then
-            ReportLayout.Layout.CreateInStream(InStr, TEXTENCODING::UTF8)
-        else
-            ReportLayout.Layout.CreateInStream(InStr);
+        case Type of
+            Type::RDLC:
+                ReportLayout.Layout.CreateInStream(InStr, TEXTENCODING::UTF8);
+            Type::Word:
+                ReportLayout.Layout.CreateInStream(InStr);
+        end;
 
         InStr.Read(Content);
         exit(Content);
@@ -958,10 +963,12 @@ table 9650 "Custom Report Layout"
     begin
         Clear(Layout);
         if Content <> '' then begin
-            if Type = Type::RDLC then
-                Layout.CreateOutStream(OutStr, TEXTENCODING::UTF8)
-            else
-                Layout.CreateOutStream(OutStr);
+            case Type of
+                Type::RDLC:
+                    Layout.CreateOutStream(OutStr, TEXTENCODING::UTF8);
+                Type::Word:
+                    Layout.CreateOutStream(OutStr);
+            end;
             OutStr.Write(Content);
         end;
         if CanModify then

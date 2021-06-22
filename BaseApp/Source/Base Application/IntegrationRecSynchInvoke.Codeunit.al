@@ -3,7 +3,7 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
 
     trigger OnRun()
     begin
-        CheckContext;
+        CheckContext();
         SynchRecord(
           IntegrationTableMappingContext, SourceRecordRefContext, DestinationRecordRefContext,
           IntegrationRecordSynchContext, SynchActionContext, IgnoreSynchOnlyCoupledRecordsContext,
@@ -44,7 +44,7 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
 
     procedure GetContext(var IntegrationTableMapping: Record "Integration Table Mapping"; var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef; var IntegrationRecordSynch: Codeunit "Integration Record Synch."; var SynchAction: Option)
     begin
-        CheckContext;
+        CheckContext();
         IntegrationTableMapping := IntegrationTableMappingContext;
         IntegrationRecordSynch := IntegrationRecordSynchContext;
         SourceRecordRef := SourceRecordRefContext;
@@ -58,15 +58,15 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
         LastModifiedOn: DateTime;
     begin
         LastModifiedOn := GetRowLastModifiedOn(IntegrationTableMapping, RecordRef);
-        if IntegrationTableMapping."Integration Table ID" = RecordRef.Number then
+        if IntegrationTableMapping."Integration Table ID" = RecordRef.Number() then
             exit(
               IntegrationRecordManagement.IsModifiedAfterIntegrationTableRecordLastSynch(
-                IntegrationTableConnectionTypeContext, RecordRef.Field(IntegrationTableMapping."Integration Table UID Fld. No.").Value,
+                IntegrationTableConnectionTypeContext, RecordRef.Field(IntegrationTableMapping."Integration Table UID Fld. No.").Value(),
                 IntegrationTableMapping."Table ID", LastModifiedOn));
 
         exit(
           IntegrationRecordManagement.IsModifiedAfterRecordLastSynch(
-            IntegrationTableConnectionTypeContext, RecordRef.RecordId, LastModifiedOn));
+            IntegrationTableConnectionTypeContext, RecordRef.RecordId(), LastModifiedOn));
     end;
 
     procedure GetRowLastModifiedOn(IntegrationTableMapping: Record "Integration Table Mapping"; FromRecordRef: RecordRef): DateTime
@@ -74,14 +74,14 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
         IntegrationRecord: Record "Integration Record";
         ModifiedFieldRef: FieldRef;
     begin
-        if FromRecordRef.Number = IntegrationTableMapping."Integration Table ID" then begin
+        if FromRecordRef.Number() = IntegrationTableMapping."Integration Table ID" then begin
             ModifiedFieldRef := FromRecordRef.Field(IntegrationTableMapping."Int. Tbl. Modified On Fld. No.");
-            exit(ModifiedFieldRef.Value);
+            exit(ModifiedFieldRef.Value());
         end;
 
-        if IntegrationRecord.FindByRecordId(FromRecordRef.RecordId) then
+        if IntegrationRecord.FindByRecordId(FromRecordRef.RecordId()) then
             exit(IntegrationRecord."Modified On");
-        Error(IntegrationRecordNotFoundErr, Format(FromRecordRef.RecordId, 0, 1));
+        Error(IntegrationRecordNotFoundErr, Format(FromRecordRef.RecordId(), 0, 1));
     end;
 
     local procedure CheckContext()
@@ -132,13 +132,13 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
             TransferFields(
               IntegrationRecordSynch, SourceRecordRef, DestinationRecordRef, SynchAction, AdditionalFieldsModified, JobId, ConflictText <> '');
 
-        WasModified := IntegrationRecordSynch.GetWasModified or AdditionalFieldsModified;
+        WasModified := IntegrationRecordSynch.GetWasModified() or AdditionalFieldsModified;
         if WasModified then
             if ConflictText <> '' then begin
                 SynchAction := SynchActionType::Fail;
                 LogSynchError(
                   SourceRecordRef, DestinationRecordRef,
-                  StrSubstNo(ConflictText, SourceRecordRef.Caption, DestinationRecordRef.Caption), JobId);
+                  StrSubstNo(ConflictText, SourceRecordRef.Caption(), DestinationRecordRef.Caption()), JobId);
                 MarkIntegrationRecordAsFailed(IntegrationTableMapping, SourceRecordRef, JobId, IntegrationTableConnectionType);
                 exit;
             end;
@@ -176,7 +176,7 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
             UpdateIntegrationRecordTimestamp(
               IntegrationTableMapping, SourceRecordRef, DestinationRecordRef, IntegrationTableConnectionType, JobId);
         end;
-        Commit;
+        Commit();
     end;
 
     local procedure ModifyRecord(var IntegrationTableMapping: Record "Integration Table Mapping"; var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef; var SynchAction: Option; JobId: Guid; IntegrationTableConnectionType: TableConnectionType)
@@ -194,10 +194,10 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
             SynchAction := SynchActionType::Fail;
             LogSynchError(
               SourceRecordRef, DestinationRecordRef,
-              StrSubstNo(ModifyFailedErr, DestinationRecordRef.Caption, RemoveTrailingDots(GetLastErrorText)), JobId);
+              StrSubstNo(ModifyFailedErr, DestinationRecordRef.Caption(), RemoveTrailingDots(GetLastErrorText())), JobId);
             MarkIntegrationRecordAsFailed(IntegrationTableMapping, SourceRecordRef, JobId, IntegrationTableConnectionType);
         end;
-        Commit;
+        Commit();
     end;
 
     local procedure ApplyConfigTemplate(var IntegrationTableMapping: Record "Integration Table Mapping"; var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef; JobId: Guid; var SynchAction: Option)
@@ -206,7 +206,7 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
         ConfigTemplateManagement: Codeunit "Config. Template Management";
         ConfigTemplateCode: Code[10];
     begin
-        if DestinationRecordRef.Number = IntegrationTableMapping."Integration Table ID" then
+        if DestinationRecordRef.Number() = IntegrationTableMapping."Integration Table ID" then
             ConfigTemplateCode := IntegrationTableMapping."Int. Tbl. Config Template Code"
         else
             ConfigTemplateCode := IntegrationTableMapping."Table Config Template Code";
@@ -215,14 +215,14 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
 
             if ConfigTemplateHeader.Get(ConfigTemplateCode) then begin
                 ConfigTemplateManagement.UpdateRecord(ConfigTemplateHeader, DestinationRecordRef);
-                if DestinationRecordRef.Number <> IntegrationTableMapping."Integration Table ID" then
+                if DestinationRecordRef.Number() <> IntegrationTableMapping."Integration Table ID" then
                     InsertDimensionsFromTemplate(ConfigTemplateHeader, DestinationRecordRef);
                 OnAfterApplyRecordTemplate(IntegrationTableMapping, SourceRecordRef, DestinationRecordRef);
             end else begin
                 SynchAction := SynchActionType::Fail;
                 LogSynchError(
                   SourceRecordRef, DestinationRecordRef,
-                  StrSubstNo(ConfigurationTemplateNotFoundErr, ConfigTemplateHeader.TableCaption, ConfigTemplateCode), JobId);
+                  StrSubstNo(ConfigurationTemplateNotFoundErr, ConfigTemplateHeader.TableCaption(), ConfigTemplateCode), JobId);
             end;
         end;
     end;
@@ -234,14 +234,14 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
         PrimaryKeyFieldRef: FieldRef;
     begin
         PrimaryKeyRef := DestinationRecordRef.KeyIndex(1);
-        if PrimaryKeyRef.FieldCount <> 1 then
+        if PrimaryKeyRef.FieldCount() <> 1 then
             exit;
 
         PrimaryKeyFieldRef := PrimaryKeyRef.FieldIndex(1);
-        if PrimaryKeyFieldRef.Type <> FieldType::Code then
+        if PrimaryKeyFieldRef.Type() <> FieldType::Code then
             exit;
 
-        DimensionsTemplate.InsertDimensionsFromTemplates(ConfigTemplateHeader, CopyStr(Format(PrimaryKeyFieldRef.Value), 1, 20), DestinationRecordRef.Number);
+        DimensionsTemplate.InsertDimensionsFromTemplates(ConfigTemplateHeader, CopyStr(Format(PrimaryKeyFieldRef.Value()), 1, 20), DestinationRecordRef.Number);
         DestinationRecordRef.Get(DestinationRecordRef.RecordId());
     end;
 
@@ -341,7 +341,7 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
         else
             CoupledRecordRef.Open(IntegrationTableMapping."Table ID");
 
-        CoupledRecordRef.Init;
+        CoupledRecordRef.Init();
     end;
 
     local procedure LogSynchError(var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef; ErrorMessage: Text; JobId: Guid)
@@ -362,9 +362,12 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
     end;
 
     local procedure TransferFields(var IntegrationRecordSynch: Codeunit "Integration Record Synch."; var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef; var SynchAction: Option; var AdditionalFieldsModified: Boolean; JobId: Guid; ConflictFound: Boolean)
+    var
+        CDSTransformationRuleMgt: Codeunit "CDS Transformation Rule Mgt.";
     begin
         OnBeforeTransferRecordFields(SourceRecordRef, DestinationRecordRef);
 
+        CDSTransformationRuleMgt.ApplyTransformations(SourceRecordRef, DestinationRecordRef);
         IntegrationRecordSynch.SetParameters(SourceRecordRef, DestinationRecordRef, SynchAction <> SynchActionType::Insert);
         if IntegrationRecordSynch.Run then begin
             if ConflictFound and IntegrationRecordSynch.GetWasModified then
@@ -378,7 +381,7 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
               SourceRecordRef, DestinationRecordRef,
               StrSubstNo(CopyDataErr, RemoveTrailingDots(GetLastErrorText)), JobId);
             MarkIntegrationRecordAsFailed(IntegrationTableMappingContext, SourceRecordRef, JobId, IntegrationTableConnectionTypeContext);
-            Commit;
+            Commit();
         end;
     end;
 
@@ -433,7 +436,7 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
         IntegrationRecordManagement.UpdateIntegrationTableTimestamp(
           IntegrationTableConnectionType, IntegrationTableUid, IntegrationTableModifiedOn,
           SourceRecordRef.Number, ModifiedOn, JobID, IntegrationTableMapping.Direction);
-        Commit;
+        Commit();
     end;
 
     local procedure ArrangeRecordRefs(var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef; TableID: Integer)

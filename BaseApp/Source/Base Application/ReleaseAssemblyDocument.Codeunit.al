@@ -22,7 +22,7 @@ codeunit 903 "Release Assembly Document"
         if not AssemblyLine.Find('-') then
             Error(Text001, "Document Type", "No.");
 
-        InvtSetup.Get;
+        InvtSetup.Get();
         if InvtSetup."Location Mandatory" then begin
             AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
             if AssemblyLine.FindSet then

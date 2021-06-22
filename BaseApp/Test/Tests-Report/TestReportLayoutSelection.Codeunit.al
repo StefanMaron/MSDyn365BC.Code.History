@@ -25,7 +25,7 @@ codeunit 134605 "Test Report Layout Selection"
         OrderProcessorRoleCenter: TestPage "Order Processor Role Center";
     begin
         // Init
-        ReportInbox.DeleteAll;
+        ReportInbox.DeleteAll();
         ReportInbox."User ID" := UserId;
         ReportInbox."Output Type" := ReportInbox."Output Type"::PDF;
         ReportInbox."Report ID" := 134600;
@@ -38,7 +38,7 @@ codeunit 134605 "Test Report Layout Selection"
         // Pre-validation
         Assert.AreEqual('134600', OrderProcessorRoleCenter.Control21.Description.Value, '');
         ReportInbox.Read := true;
-        ReportInbox.Modify;
+        ReportInbox.Modify();
 
         // Read/Unread
         OrderProcessorRoleCenter.Control21.Unread.Invoke;
@@ -65,7 +65,7 @@ codeunit 134605 "Test Report Layout Selection"
     begin
         // [FEATURE] [Report Inbox] [UI]
         // [SCENARIO 314312] Stan can download report from Report Inbox list page
-        ReportInbox.DeleteAll;
+        ReportInbox.DeleteAll();
         ReportInbox."User ID" := UserId;
         ReportInbox."Output Type" := ReportInbox."Output Type"::PDF;
         ReportInbox."Report ID" := 134600;
@@ -148,9 +148,9 @@ codeunit 134605 "Test Report Layout Selection"
 
         ReportLayoutSelection."Report ID" := 134600;
         ReportLayoutSelection.SetRange("Report ID", ReportLayoutSelection."Report ID");
-        ReportLayoutSelection.DeleteAll;
+        ReportLayoutSelection.DeleteAll();
         CustomReportLayout.SetRange("Report ID", ReportLayoutSelection."Report ID");
-        CustomReportLayout.DeleteAll;
+        CustomReportLayout.DeleteAll();
         ReportLayoutSelectionPage.GotoRecord(ReportLayoutSelection);
 
         // Execute. Opens modal pages.
@@ -222,7 +222,7 @@ codeunit 134605 "Test Report Layout Selection"
         BindSubscription(LibraryJobQueue);
 
         // Init;
-        JobQueueEntry.Init;
+        JobQueueEntry.Init();
         JobQueueEntry.Status := JobQueueEntry.Status::"On Hold";
         JobQueueEntry.Validate("Expiration Date/Time", CreateDateTime(20121212D, 121200T));
 

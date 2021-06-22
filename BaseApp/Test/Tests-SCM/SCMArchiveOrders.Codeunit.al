@@ -404,7 +404,7 @@ codeunit 137207 "SCM Archive Orders"
         // [SCENARIO 382257] "Doc. No. Occurrence" = 1 on PurchaseHeader.InitRecord()
         Initialize;
 
-        PurchaseHeader.Init;
+        PurchaseHeader.Init();
         PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Order;
         PurchaseHeader.InitRecord;
         Assert.AreEqual(1, PurchaseHeader."Doc. No. Occurrence", PurchaseHeader.FieldCaption("Doc. No. Occurrence"));
@@ -420,7 +420,7 @@ codeunit 137207 "SCM Archive Orders"
         // [SCENARIO 382257] "Doc. No. Occurrence" = 1 on PurchaseHeader.INSERT(TRUE)
         Initialize;
 
-        PurchaseHeader.Init;
+        PurchaseHeader.Init();
         PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Order;
         PurchaseHeader.Insert(true);
         Assert.AreEqual(1, PurchaseHeader."Doc. No. Occurrence", PurchaseHeader.FieldCaption("Doc. No. Occurrence"));
@@ -437,7 +437,7 @@ codeunit 137207 "SCM Archive Orders"
         // [FEATURE] [UT] [Doc. No. Occurrence] [Purchase]
         // [SCENARIO 382257] "Doc. No. Occurrence" = 2 on PurchaseHeader.InitRecord() after archive
 
-        PurchaseHeader.Init;
+        PurchaseHeader.Init();
         PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Order;
         PurchaseHeader.Insert(true);
         ArchiveManagement.ArchivePurchDocument(PurchaseHeader);
@@ -476,7 +476,7 @@ codeunit 137207 "SCM Archive Orders"
         // [SCENARIO 382257] "Doc. No. Occurrence" = 1 on SalesHeader.InitRecord()
         Initialize;
 
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
         SalesHeader.InitRecord;
         Assert.AreEqual(1, SalesHeader."Doc. No. Occurrence", SalesHeader.FieldCaption("Doc. No. Occurrence"));
@@ -492,7 +492,7 @@ codeunit 137207 "SCM Archive Orders"
         // [SCENARIO 382257] "Doc. No. Occurrence" = 1 on SalesHeader.INSERT(TRUE)
         Initialize;
 
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
         SalesHeader.Insert(true);
         Assert.AreEqual(1, SalesHeader."Doc. No. Occurrence", SalesHeader.FieldCaption("Doc. No. Occurrence"));
@@ -510,7 +510,7 @@ codeunit 137207 "SCM Archive Orders"
         // [SCENARIO 382257] "Doc. No. Occurrence" = 2 on SalesHeader.InitRecord() after archive
         Initialize;
 
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
         SalesHeader.Insert(true);
         ArchiveManagement.ArchiveSalesDocument(SalesHeader);
@@ -925,7 +925,7 @@ codeunit 137207 "SCM Archive Orders"
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Archive Orders");
     end;
 
@@ -991,7 +991,7 @@ codeunit 137207 "SCM Archive Orders"
             LibraryPurchase.CreatePurchaseLine(
               PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandDec(10, 2));
             TempPurchaseLine := PurchaseLine;
-            TempPurchaseLine.Insert;
+            TempPurchaseLine.Insert();
         end;
     end;
 
@@ -1031,7 +1031,7 @@ codeunit 137207 "SCM Archive Orders"
     var
         SalesHeader: Record "Sales Header";
     begin
-        SalesHeaderArchive.Init;
+        SalesHeaderArchive.Init();
         SalesHeaderArchive."Document Type" := SalesHeaderArchive."Document Type"::Order;
         SalesHeaderArchive."No." := LibraryUtility.GenerateRandomCode(SalesHeader.FieldNo("No."), DATABASE::"Sales Header");
         SalesHeaderArchive.Insert(true);
@@ -1041,7 +1041,7 @@ codeunit 137207 "SCM Archive Orders"
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        PurchaseHeaderArchive.Init;
+        PurchaseHeaderArchive.Init();
         PurchaseHeaderArchive."Document Type" := PurchaseHeaderArchive."Document Type"::Order;
         PurchaseHeaderArchive."No." := LibraryUtility.GenerateRandomCode(PurchaseHeader.FieldNo("No."), DATABASE::"Purchase Header");
         PurchaseHeaderArchive.Insert(true);
@@ -1077,7 +1077,7 @@ codeunit 137207 "SCM Archive Orders"
     var
         ArchivedPurchaseQuote: Report "Archived Purchase Quote";
     begin
-        Commit; // Required to run report with request page.
+        Commit(); // Required to run report with request page.
         Clear(ArchivedPurchaseQuote);
         PurchaseHeaderArchive.SetRecFilter;
         ArchivedPurchaseQuote.SetTableView(PurchaseHeaderArchive);
@@ -1088,7 +1088,7 @@ codeunit 137207 "SCM Archive Orders"
     var
         ArchivedPurchaseOrder: Report "Archived Purchase Order";
     begin
-        Commit; // Required to run report with request page.
+        Commit(); // Required to run report with request page.
         Clear(ArchivedPurchaseOrder);
         PurchaseHeaderArchive.SetRecFilter;
         ArchivedPurchaseOrder.SetTableView(PurchaseHeaderArchive);
@@ -1099,7 +1099,7 @@ codeunit 137207 "SCM Archive Orders"
     var
         ArchPurchReturnOrder: Report "Arch.Purch. Return Order";
     begin
-        Commit; // Required to run report with request page.
+        Commit(); // Required to run report with request page.
         Clear(ArchPurchReturnOrder);
         PurchaseHeaderArchive.SetRecFilter;
         ArchPurchReturnOrder.SetTableView(PurchaseHeaderArchive);
@@ -1118,7 +1118,7 @@ codeunit 137207 "SCM Archive Orders"
     begin
         SalesHeader.SetRange("No.", DocumentNo);
         LibraryVariableStorage.Enqueue(Archive);
-        Commit;
+        Commit();
         OrderConfirmation.SetTableView(SalesHeader);
         OrderConfirmation.UseRequestPage(UseRequestPage);
         OrderConfirmation.RunModal;
@@ -1131,7 +1131,7 @@ codeunit 137207 "SCM Archive Orders"
     begin
         SalesHeader.SetRange("No.", DocumentNo);
         LibraryVariableStorage.Enqueue(Archive);
-        Commit;
+        Commit();
         SalesQuote.SetTableView(SalesHeader);
         SalesQuote.UseRequestPage(UseRequestPage);
         SalesQuote.RunModal;
@@ -1144,7 +1144,7 @@ codeunit 137207 "SCM Archive Orders"
         LibraryVariableStorage.Enqueue(ExpectedArchiveValue);
         PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
         PurchaseHeader.SetRange("No.", OrderNo);
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Standard Purchase - Order", true, false, PurchaseHeader);
     end;
 
@@ -1152,7 +1152,7 @@ codeunit 137207 "SCM Archive Orders"
     var
         ObjectOptions: Record "Object Options";
     begin
-        ObjectOptions.DeleteAll;
+        ObjectOptions.DeleteAll();
     end;
 
     local procedure FindPurchaseArchive(var PurchaseHeaderArchive: Record "Purchase Header Archive"; var PurchaseLineArchive: Record "Purchase Line Archive"; DocumentType: Option; DocumentNo: Code[20]; DocNoOccurance: Integer; Version: Integer)
@@ -1232,11 +1232,11 @@ codeunit 137207 "SCM Archive Orders"
             TempPurchaseLine.SetRange(Amount, PurchaseLineArchive.Amount);
             Assert.AreEqual(1, TempPurchaseLine.Count, 'Archive line mismatch for line ' + Format(TempPurchaseLine."Line No."));
             TempPurchaseLine.FindFirst;
-            TempPurchaseLine.Delete;
+            TempPurchaseLine.Delete();
         until PurchaseLineArchive.Next = 0;
 
         // Verify there are no un-archived lines.
-        TempPurchaseLine.Reset;
+        TempPurchaseLine.Reset();
         Assert.RecordIsEmpty(TempPurchaseLine);
     end;
 

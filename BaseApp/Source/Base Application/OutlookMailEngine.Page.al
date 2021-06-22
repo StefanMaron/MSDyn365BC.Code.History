@@ -67,6 +67,8 @@ page 1600 "Outlook Mail Engine"
         end;
 
         GetDetailsFromFilters;
+        SendTelemetryOnAddinStarted();
+
         if Email = 'donotreply@contoso.com' then
             Page.Run(Page::"Office Welcome Dlg")
         else
@@ -78,6 +80,7 @@ page 1600 "Outlook Mail Engine"
 
     var
         OfficeMgt: Codeunit "Office Management";
+        OfficeAddinStartedTelemetryMsg: Label 'Office add-in is being started with filters: %1. Resulting fields are: %2. ', Locked = true;
 
     local procedure GetDetailsFromFilters()
     var
@@ -104,7 +107,7 @@ page 1600 "Outlook Mail Engine"
         Filter := FilterPrefixRegEx.Replace(Filter, '$1');
         Filter := SingleQuoteRegEx.Replace(Filter, '$1');
         if Filter <> '' then begin
-            if Format(FieldRef.Type) = 'Option' then
+            if FieldRef.Type = FieldType::Option then
                 while true do begin
                     OptionValue += 1;
                     if UpperCase(Filter) = UpperCase(SelectStr(OptionValue, FieldRef.OptionCaption)) then begin
@@ -115,6 +118,25 @@ page 1600 "Outlook Mail Engine"
             else
                 FieldRef.Value(Filter);
         end;
+    end;
+
+    local procedure SendTelemetryOnAddinStarted()
+    var
+        RecRef: RecordRef;
+        FldRef: FieldRef;
+        i: Integer;
+        FieldValuesText: Text;
+    begin
+        RecRef.GetTable(Rec);
+        for i := 1 to RecRef.FieldCount do begin
+            FldRef := RecRef.FieldIndex(i);
+            FieldValuesText += FldRef.Name + '=' + Format(FldRef.Value, 9) + ',';
+        end;
+        FieldValuesText := DelChr(FieldValuesText, '>', ',');
+
+        SendTraceTag('0000BOY', OfficeMgt.GetOfficeAddinTelemetryCategory(), Verbosity::Normal,
+            StrSubstNo(OfficeAddinStartedTelemetryMsg, GetFilters(), FieldValuesText),
+            DataClassification::CustomerContent);
     end;
 }
 

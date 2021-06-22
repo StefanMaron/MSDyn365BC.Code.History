@@ -65,7 +65,9 @@ codeunit 1294 "OCR Service Mgt."
         DocumentsDownloadedTxt: Label 'Documents were successfully downloaded from OCR service. Document count: %1.', Locked = true;
         DocumentNotUploadedTxt: Label 'The document is not uploaded.', Locked = true;
         CannotFindAttachmentTxt: Label 'Cannot find attachment.', Locked = true;
-        UploadFileSucceedTxt: Label 'The document failed to upload. Service Error: %1', Locked = true;
+        UploadFileSucceedTxt: Label 'A document was successfully uploaded to OCR service.', Locked = true;
+        FailedRequestResultTxt: Label 'Request to OCR service failed. Status code: %1. Message: %2. Details: %3.', Locked = true;
+        FailedRequestBodyTxt: Label 'Request to OCR service failed. Method: %1. URL: %2. Body: %3', Locked = true;
         TelemetryCategoryTok: Label 'AL OCR Service', Locked = true;
 
     procedure SetURLsToDefaultRSO(var OCRServiceSetup: Record "OCR Service Setup")
@@ -82,7 +84,7 @@ codeunit 1294 "OCR Service Mgt."
         with OCRServiceSetup do begin
             if not HasCredentials(OCRServiceSetup) then
                 if Confirm(StrSubstNo(GetCredentialsQstText), true) then begin
-                    Commit;
+                    Commit();
                     PAGE.RunModal(PAGE::"OCR Service Setup", OCRServiceSetup);
                 end;
 
@@ -198,7 +200,7 @@ codeunit 1294 "OCR Service Mgt."
 
         if XMLDOMManagement.FindNode(XMLRootNode, 'OrganizationId', XMLNode) then
             OCRServiceSetup."Organization ID" := CopyStr(XMLNode.InnerText, 1, MaxStrLen(OCRServiceSetup."Organization ID"));
-        OCRServiceSetup.Modify;
+        OCRServiceSetup.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -219,15 +221,15 @@ codeunit 1294 "OCR Service Mgt."
               DATACLASSIFICATION::SystemMetadata);
         XMLDOMManagement.LoadXMLNodeFromInStream(ResponseStr, XMLRootNode);
 
-        OCRServiceDocumentTemplate.LockTable;
-        OCRServiceDocumentTemplate.DeleteAll;
+        OCRServiceDocumentTemplate.LockTable();
+        OCRServiceDocumentTemplate.DeleteAll();
         foreach XMLNode in XMLRootNode.SelectNodes('AvailableDocumentTypes/UserConfigurationDocumentType') do begin
-            OCRServiceDocumentTemplate.Init;
+            OCRServiceDocumentTemplate.Init();
             XMLNode2 := XMLNode.SelectSingleNode('SystemName');
             OCRServiceDocumentTemplate.Code := CopyStr(XMLNode2.InnerText, 1, MaxStrLen(OCRServiceDocumentTemplate.Code));
             XMLNode2 := XMLNode.SelectSingleNode('Name');
             OCRServiceDocumentTemplate.Name := CopyStr(XMLNode2.InnerText, 1, MaxStrLen(OCRServiceDocumentTemplate.Name));
-            OCRServiceDocumentTemplate.Insert;
+            OCRServiceDocumentTemplate.Insert();
         end;
     end;
 
@@ -295,6 +297,35 @@ codeunit 1294 "OCR Service Mgt."
         exit(HttpWebRequestMgt.GetResponse(ResponseStr, HttpStatusCode, ResponseHeaders));
     end;
 
+    [Scope('OnPrem')]
+    procedure RsoRequest(PathQuery: Text; RequestAction: Code[6]; RequestBody: Text; var ResponseBody: Text; var ErrorMessage: Text; var ErrorDetails: Text; var StatusCode: Integer): Boolean
+    var
+        HttpWebRequestMgt: Codeunit "Http Web Request Mgt.";
+        ResponseHeaders: DotNet NameValueCollection;
+        HttpStatusCode: DotNet HttpStatusCode;
+        RequestUrl: Text;
+        Result: Boolean;
+    begin
+        GetOcrServiceSetup(true);
+
+        RequestUrl := StrSubstNo('%1/%2', OCRServiceSetup."Service URL", PathQuery);
+        HttpWebRequestMgt.Initialize(RequestUrl);
+        HttpWebRequestMgt.DisableUI;
+        RsoAddCookie(HttpWebRequestMgt);
+        RsoAddHeaders(HttpWebRequestMgt);
+        HttpWebRequestMgt.SetMethod(RequestAction);
+        if RequestBody <> '' then
+            HttpWebRequestMgt.AddBodyAsText(RequestBody);
+
+        Result := HttpWebRequestMgt.SendRequestAndReadTextResponse(ResponseBody, ErrorMessage, ErrorDetails, HttpStatusCode, ResponseHeaders);
+        if not Result then begin
+            StatusCode := HttpStatusCode;
+            SendTraceTag('0000BBJ', TelemetryCategoryTok, VERBOSITY::Warning, StrSubstNo(FailedRequestResultTxt, StatusCode, ErrorMessage, ErrorDetails), DATACLASSIFICATION::SystemMetadata);
+            SendTraceTag('0000BBK', TelemetryCategoryTok, VERBOSITY::Warning, StrSubstNo(FailedRequestBodyTxt, RequestAction, RequestUrl, RequestBody), DATACLASSIFICATION::CustomerContent);
+        end;
+        exit(Result);
+    end;
+
     local procedure RsoAddHeaders(var HttpWebRequestMgt: Codeunit "Http Web Request Mgt.")
     begin
         HttpWebRequestMgt.AddHeader('x-rs-version', '2011-10-14');
@@ -342,7 +373,7 @@ codeunit 1294 "OCR Service Mgt."
 
     procedure GetOcrServiceSetupExtended(var OCRServiceSetup: Record "OCR Service Setup"; VerifyEnable: Boolean)
     begin
-        OCRServiceSetup.Get;
+        OCRServiceSetup.Get();
         if OCRServiceSetup."Service URL" <> '' then
             exit;
         if VerifyEnable then
@@ -569,13 +600,13 @@ codeunit 1294 "OCR Service Mgt."
         if XMLDOMManagement.FindNode(OCRFileXMLRootNode, XPath, CorrectionXMLNode) then begin
             IncomingDocumentFieldRef := IncomingDocumentRecRef.Field(FieldNo);
 
-            case Format(IncomingDocumentFieldRef.Type) of
-                'Date':
+            case IncomingDocumentFieldRef.Type of
+                FieldType::Date:
                     begin
                         CorrectionValue := DateConvertXML2YYYYMMDD(Format(IncomingDocumentFieldRef.Value, 0, 9));
                         CorrectionNeeded := CorrectionXMLNode.InnerText <> CorrectionValue;
                     end;
-                'Decimal':
+                FieldType::Decimal:
                     begin
                         CorrectionValueAsDecimal := IncomingDocumentFieldRef.Value;
                         CorrectionValue := Format(IncomingDocumentFieldRef.Value, 0, 9);
@@ -728,7 +759,7 @@ codeunit 1294 "OCR Service Mgt."
             IncomingDocumentAttachment.SetRange(Default, true);
             IncomingDocumentAttachment.FindFirst;
             TempIncomingDocumentAttachment := IncomingDocumentAttachment;
-            TempIncomingDocumentAttachment.Insert;
+            TempIncomingDocumentAttachment.Insert();
         until IncomingDocument.Next = 0;
 
         GetBatches(TempIncomingDocumentAttachment, '');
@@ -752,7 +783,7 @@ codeunit 1294 "OCR Service Mgt."
             exit;
 
         TempIncomingDocumentAttachment := IncomingDocumentAttachment;
-        TempIncomingDocumentAttachment.Insert;
+        TempIncomingDocumentAttachment.Insert();
 
         GetBatches(TempIncomingDocumentAttachment, ExternalBatchFilter);
     end;
@@ -935,7 +966,7 @@ codeunit 1294 "OCR Service Mgt."
             SendTraceTag('00008KR', TelemetryCategoryTok, VERBOSITY::Normal, InsertingIncomingDocumentTxt,
               DATACLASSIFICATION::SystemMetadata);
             AttachmentName := CopyStr(XMLDOMManagement.FindNodeText(XMLRootNode, 'OriginalFilename'), 1, MaxStrLen(AttachmentName));
-            IncomingDocument.Init;
+            IncomingDocument.Init();
             IncomingDocument.CreateIncomingDocument(AttachmentName, '');
             IncomingDocumentAttachment.SetRange("External Document Reference");
             if not RsoGetRequestBinary(StrSubstNo('documents/rest/file/%1/image', DocId), ImageInStr, ContentType) then begin
@@ -953,7 +984,7 @@ codeunit 1294 "OCR Service Mgt."
         IncomingDocumentAttachment."Generated from OCR" := true;
         IncomingDocumentAttachment."OCR Service Document Reference" := DocId;
         IncomingDocumentAttachment.Validate(Default, true);
-        IncomingDocumentAttachment.Modify;
+        IncomingDocumentAttachment.Modify();
 
         IncomingDocument.Get(IncomingDocument."Entry No.");
         SendIncomingDocumentToOCR.SetStatusToReceived(IncomingDocument);
@@ -1041,7 +1072,7 @@ codeunit 1294 "OCR Service Mgt."
         ActivityLog.LogActivity(RelatedRecordID, ActivityLog.Status::Failed, LoggingConstTxt,
           ActivityDescription, ActivityMessage);
 
-        Commit;
+        Commit();
 
         if DelChr(ActivityMessage, '<>', ' ') <> '' then
             Error(ActivityMessage);
@@ -1054,7 +1085,7 @@ codeunit 1294 "OCR Service Mgt."
         RecRef: RecordRef;
     begin
         if not OCRServiceSetup.Get then begin
-            OCRServiceSetup.Init;
+            OCRServiceSetup.Init();
             OCRServiceSetup.Insert(true);
         end;
         RecRef.GetTable(OCRServiceSetup);
@@ -1159,7 +1190,7 @@ codeunit 1294 "OCR Service Mgt."
                             SendIncomingDocumentToOCR.SetStatusToVerify(IncomingDocument);
                     end;
 
-                    TempIncomingDocumentAttachment.Delete;
+                    TempIncomingDocumentAttachment.Delete();
                 until TempIncomingDocumentAttachment.Next = 0;
 
             // Remove filter

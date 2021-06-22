@@ -184,14 +184,13 @@ codeunit 135414 "Purchase Quote Plan-based E2E"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        AzureADPlanTestLibrary: Codeunit "Azure AD Plan Test Library";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Purchase Quote Plan-based E2E");
 
         LibraryNotificationMgt.ClearTemporaryNotificationContext;
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential));
 
-        PurchaseHeader.DeleteAll;
+        PurchaseHeader.DeleteAll();
 
         if IsInitialized then
             exit;
@@ -203,12 +202,9 @@ codeunit 135414 "Purchase Quote Plan-based E2E"
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
 
         IsInitialized := true;
-        Commit;
+        Commit();
 
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Purchase Quote Plan-based E2E");
-
-        // Populate table Plan if empty
-        AzureADPlanTestLibrary.PopulatePlanTable();
     end;
 
     local procedure CreatePurchaseQuoteAndMakeOrder(VendorNo: Code[20]; ItemNo: Code[20])

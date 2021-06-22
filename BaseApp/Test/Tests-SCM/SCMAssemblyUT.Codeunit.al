@@ -402,7 +402,7 @@ codeunit 137928 "SCM Assembly UT"
         CreateSalesLine(SalesHeader."Document Type"::Order, SalesHeader, SalesLine);
         CreateATOAssembly(SalesHeader."Document Type"::Order, AssemblyHeader, SalesLine);
         AssemblyHeader.Status := AssemblyHeader.Status::Open;
-        AssemblyHeader.Modify;
+        AssemblyHeader.Modify();
 
         // [GIVEN] Navigate to the list of assembly orders from the sales order.
         SalesOrder.OpenEdit;
@@ -541,7 +541,7 @@ codeunit 137928 "SCM Assembly UT"
         Item.Validate(Blocked, true);
         Item.Modify(true);
 
-        AssemblyHeader.Init;
+        AssemblyHeader.Init();
         asserterror AssemblyHeader.Validate("Item No.", Item."No.");
 
         Assert.ExpectedError('Blocked');
@@ -625,7 +625,7 @@ codeunit 137928 "SCM Assembly UT"
 
         LibraryInventory.CreateItemVariant(ItemVariant, LibraryInventory.CreateItemNo);
 
-        PostedAssemblyHeader.Init;
+        PostedAssemblyHeader.Init();
         PostedAssemblyHeader."No." := LibraryUtility.GenerateGUID;
         PostedAssemblyHeader."Item No." := ItemVariant."Item No.";
 
@@ -653,18 +653,18 @@ codeunit 137928 "SCM Assembly UT"
         LibraryAssembly.CreateItemSubstitution(ItemSubstitution,ItemNo);
 
         // [GIVEN] Assembly Order had Line with the Item
-        AssemblyHeader.Init;
+        AssemblyHeader.Init();
         AssemblyHeader."Document Type" := AssemblyHeader."Document Type"::Quote;
         AssemblyHeader."No." := LibraryUtility.GenerateGUID;
-        AssemblyHeader.Insert;
+        AssemblyHeader.Insert();
 
-        AssemblyLine.Init;
+        AssemblyLine.Init();
         AssemblyLine."Document Type" := AssemblyHeader."Document Type";
         AssemblyLine."Document No." := AssemblyHeader."No.";
         AssemblyLine."Line No." := LibraryUtility.GetNewRecNo(AssemblyLine,AssemblyLine.FieldNo("Line No."));
         AssemblyLine.Type := AssemblyLine.Type::Item;
         AssemblyLine."No." := ItemNo;
-        AssemblyLine.Insert;
+        AssemblyLine.Insert();
 
         // [GIVEN] Ran ItemAssemblySubstGet in codeunit "Item Subst."
         ItemSubst.ItemAssemblySubstGet(AssemblyLine);
@@ -803,12 +803,12 @@ codeunit 137928 "SCM Assembly UT"
         SalesHeader."Document Type" := SalesDocType;
         SalesHeader."No." := LibraryUtility.GenerateGUID;
         SalesHeader.Status := SalesHeader.Status::Released;
-        SalesHeader.Insert;
+        SalesHeader.Insert();
 
-        SalesLine.Init;
+        SalesLine.Init();
         SalesLine."Document Type" := SalesHeader."Document Type";
         SalesLine."Document No." := SalesHeader."No.";
-        SalesLine.Insert;
+        SalesLine.Insert();
     end;
 
     local procedure CreateATOAssembly(SalesDocType: Option; var AsmHeader: Record "Assembly Header"; SalesLine: Record "Sales Line")
@@ -826,7 +826,7 @@ codeunit 137928 "SCM Assembly UT"
         end;
         AsmHeader."No." := LibraryUtility.GenerateGUID;
         AsmHeader.Status := AsmHeader.Status::Released;
-        AsmHeader.Insert;
+        AsmHeader.Insert();
 
         // make ATO Link
         ATOLink."Assembly Document Type" := AsmHeader."Document Type";
@@ -835,14 +835,14 @@ codeunit 137928 "SCM Assembly UT"
         ATOLink."Document Type" := SalesLine."Document Type";
         ATOLink."Document No." := SalesLine."Document No.";
         ATOLink."Document Line No." := SalesLine."Line No.";
-        ATOLink.Insert;
+        ATOLink.Insert();
 
         // make assembly line to avoid error "Nothing to Release"
         AsmLine."Document Type" := AsmHeader."Document Type";
         AsmLine."Document No." := AsmHeader."No.";
         AsmLine.Type := AsmLine.Type::Item;
         AsmLine.Quantity := 1;
-        AsmLine.Insert;
+        AsmLine.Insert();
     end;
 
     local procedure SetupFullATOPostedCheckWarehouseShpt(var ATSWhseShptLine: Record "Warehouse Shipment Line"; SalesLineQty: Integer; SalesLineQtyToAsm: Integer; SalesLineQtyShipped: Integer; ATOQtyToShip: Integer; ATSQtyToShip: Integer; ATOandATSinDiffShip: Boolean)
@@ -856,7 +856,7 @@ codeunit 137928 "SCM Assembly UT"
         SalesLine."Qty. to Asm. to Order (Base)" := SalesLineQtyToAsm;
         SalesLine."Qty. Shipped (Base)" := SalesLineQtyShipped;
         SalesLine."Line No." := 10000;
-        SalesLine.Insert;
+        SalesLine.Insert();
 
         ATSWhseShptLine."No." := LibraryUtility.GenerateRandomCode(ATSWhseShptLine.FieldNo("No."), DATABASE::"Warehouse Shipment Line");
         ATSWhseShptLine."Line No." := 10000;
@@ -867,7 +867,7 @@ codeunit 137928 "SCM Assembly UT"
         ATSWhseShptLine."Source Line No." := 10000;
         ATSWhseShptLine."Qty. to Ship (Base)" := ATSQtyToShip;
         ATSWhseShptLine."Assemble to Order" := false;
-        ATSWhseShptLine.Insert;
+        ATSWhseShptLine.Insert();
 
         // ATO already shipped
         if SalesLineQtyShipped = SalesLineQtyToAsm then
@@ -879,7 +879,7 @@ codeunit 137928 "SCM Assembly UT"
         ATOWhseShptLine."Line No." := 20000;
         ATOWhseShptLine."Qty. to Ship (Base)" := ATOQtyToShip;
         ATOWhseShptLine."Assemble to Order" := true;
-        ATOWhseShptLine.Insert;
+        ATOWhseShptLine.Insert();
     end;
 
     local procedure NoWarningForDueDateWhenEndDateChangesOnATO(ChangeInDays: Integer)
@@ -939,12 +939,12 @@ codeunit 137928 "SCM Assembly UT"
         Item."No." := LibraryUtility.GenerateRandomCode(Item.FieldNo("No."), DATABASE::Item);
         Evaluate(Item."Lead Time Calculation", '<+1D>');
         Evaluate(Item."Safety Lead Time", '<+1D>');
-        Item.Insert;
+        Item.Insert();
         AssemblyHeader."Item No." := Item."No.";
         AssemblyHeader."Starting Date" := WorkDate;
         AssemblyHeader."Ending Date" := CalcDate(Item."Lead Time Calculation", AssemblyHeader."Starting Date");
         AssemblyHeader."Due Date" := CalcDate(Item."Safety Lead Time", AssemblyHeader."Ending Date");
-        AssemblyHeader.Insert;
+        AssemblyHeader.Insert();
     end;
 
     local procedure WarningForDueDateWhenEndDateChangeMakeATO(AssemblyHeader: Record "Assembly Header")
@@ -952,10 +952,10 @@ codeunit 137928 "SCM Assembly UT"
         AssembleToOrderLink: Record "Assemble-to-Order Link";
     begin
         // Mark the order as A-T-O
-        AssembleToOrderLink.Init;
+        AssembleToOrderLink.Init();
         AssembleToOrderLink."Assembly Document Type" := AssemblyHeader."Document Type";
         AssembleToOrderLink."Assembly Document No." := AssemblyHeader."No.";
-        AssembleToOrderLink.Insert;
+        AssembleToOrderLink.Insert();
     end;
 
     local procedure WarningForDueDateWhenEndDateChangesOnATS(ChangeInDays: Integer)

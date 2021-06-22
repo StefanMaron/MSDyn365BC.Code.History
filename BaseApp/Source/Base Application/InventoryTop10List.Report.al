@@ -18,9 +18,9 @@ report 711 "Inventory - Top 10 List"
                 Window.Update(1, "No.");
                 CalcFields("Sales (LCY)", Inventory);
                 if ("Sales (LCY)" = 0) and (Inventory = 0) and not PrintAlsoIfZero then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
-                ItemAmount.Init;
+                ItemAmount.Init();
                 ItemAmount."Item No." := "No.";
                 if ShowType = ShowType::"Sales (LCY)" then begin
                     ItemAmount.Amount := "Sales (LCY)";
@@ -33,12 +33,12 @@ report 711 "Inventory - Top 10 List"
                     ItemAmount.Amount := -ItemAmount.Amount;
                     ItemAmount."Amount 2" := -ItemAmount."Amount 2";
                 end;
-                ItemAmount.Insert;
+                ItemAmount.Insert();
                 if (NoOfRecordsToPrint = 0) or (i < NoOfRecordsToPrint) then
                     i := i + 1
                 else begin
                     ItemAmount.Find('+');
-                    ItemAmount.Delete;
+                    ItemAmount.Delete();
                 end;
 
                 TotalItemSales += "Sales (LCY)";
@@ -48,7 +48,7 @@ report 711 "Inventory - Top 10 List"
             trigger OnPreDataItem()
             begin
                 Window.Open(Text000);
-                ItemAmount.DeleteAll;
+                ItemAmount.DeleteAll();
                 i := 0;
             end;
         }
@@ -161,7 +161,7 @@ report 711 "Inventory - Top 10 List"
             begin
                 if Number = 1 then begin
                     if not ItemAmount.Find('-') then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     if ShowSorting = ShowSorting::Largest then
                         MaxAmount := -ItemAmount.Amount
                     else begin
@@ -172,7 +172,7 @@ report 711 "Inventory - Top 10 List"
                     end;
                 end else
                     if ItemAmount.Next = 0 then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 Item.Get(ItemAmount."Item No.");
                 Item.CalcFields("Sales (LCY)", Inventory);
                 if ShowSorting = ShowSorting::Largest then begin

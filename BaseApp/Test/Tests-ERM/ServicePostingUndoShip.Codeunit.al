@@ -53,7 +53,7 @@ codeunit 136117 "Service Posting - Undo Ship"
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.CreateGeneralPostingSetupData;
-        Commit;
+        Commit();
         isInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Posting - Undo Ship");
     end;
@@ -617,7 +617,7 @@ codeunit 136117 "Service Posting - Undo Ship"
         ItemTrackingCode.Validate("SN Sales Outbound Tracking", SNSpecific);
         ItemTrackingCode.Validate("Man. Expir. Date Entry Reqd.", false);
         ItemTrackingCode.Validate("Man. Warranty Date Entry Reqd.", false);
-        ItemTrackingCode.Modify;
+        ItemTrackingCode.Modify();
         exit(ItemTrackingCode.Code);
     end;
 
@@ -808,7 +808,7 @@ codeunit 136117 "Service Posting - Undo Ship"
         // (otherwise tests would fail)
         ExecuteUIHandlers;
 
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.Validate("Automatic Cost Posting", AutomaticCostPosting);
         InventorySetup.Validate("Expected Cost Posting to G/L", ExpectedCostPostingToGL);
         InventorySetup.Modify(true);
@@ -1094,7 +1094,7 @@ codeunit 136117 "Service Posting - Undo Ship"
     [Scope('OnPrem')]
     procedure ItemTrackingPageHandlerForLot(var ItemTrackingLines: TestPage "Item Tracking Lines")
     begin
-        Commit;
+        Commit();
         if SetHandler then
             ItemTrackingLines."Assign Lot No.".Invoke
         else
@@ -1107,7 +1107,7 @@ codeunit 136117 "Service Posting - Undo Ship"
     procedure ItemTrackingSummaryPageHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
     begin
         ItemTrackingSummary.OK.Invoke;
-        Commit;
+        Commit();
     end;
 
     [ModalPageHandler]
@@ -1121,7 +1121,7 @@ codeunit 136117 "Service Posting - Undo Ship"
     [Scope('OnPrem')]
     procedure ItemTrackingPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
     begin
-        Commit;
+        Commit();
         if SetHandler then
             ItemTrackingLines."Assign Serial No.".Invoke
         else

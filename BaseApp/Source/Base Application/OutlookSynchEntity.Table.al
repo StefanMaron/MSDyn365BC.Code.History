@@ -74,21 +74,21 @@ table 5300 "Outlook Synch. Entity"
                     Condition := '';
                     "Outlook Item" := '';
 
-                    OSynchDependency.Reset;
+                    OSynchDependency.Reset();
                     OSynchDependency.SetRange("Depend. Synch. Entity Code", Code);
                     OSynchDependency.DeleteAll(true);
 
-                    OSynchEntityElement.Reset;
+                    OSynchEntityElement.Reset();
                     OSynchEntityElement.SetRange("Synch. Entity Code", Code);
                     OSynchEntityElement.DeleteAll(true);
 
-                    OSynchField.Reset;
+                    OSynchField.Reset();
                     OSynchField.SetRange("Synch. Entity Code", Code);
                     OSynchField.DeleteAll(true);
 
-                    OSynchFilter.Reset;
+                    OSynchFilter.Reset();
                     OSynchFilter.SetRange("Record GUID", "Record GUID");
-                    OSynchFilter.DeleteAll;
+                    OSynchFilter.DeleteAll();
                 end;
 
                 CalcFields("Table Caption");
@@ -157,15 +157,15 @@ table 5300 "Outlook Synch. Entity"
                     exit;
                 end;
 
-                OSynchDependency.Reset;
+                OSynchDependency.Reset();
                 OSynchDependency.SetRange("Depend. Synch. Entity Code", Code);
                 OSynchDependency.DeleteAll(true);
 
-                OSynchEntityElement.Reset;
+                OSynchEntityElement.Reset();
                 OSynchEntityElement.SetRange("Synch. Entity Code", Code);
                 OSynchEntityElement.DeleteAll(true);
 
-                OSynchField.Reset;
+                OSynchField.Reset();
                 OSynchField.SetRange("Synch. Entity Code", Code);
                 OSynchField.DeleteAll(true);
             end;
@@ -197,7 +197,7 @@ table 5300 "Outlook Synch. Entity"
     var
         OutlookSynchUserSetup: Record "Outlook Synch. User Setup";
     begin
-        OSynchDependency.Reset;
+        OSynchDependency.Reset();
         OSynchDependency.SetRange("Depend. Synch. Entity Code", Code);
         if not OSynchDependency.IsEmpty then
             if not Confirm(Text004) then
@@ -207,20 +207,20 @@ table 5300 "Outlook Synch. Entity"
         if not OutlookSynchUserSetup.IsEmpty then
             Error(Text003, OutlookSynchUserSetup.TableCaption);
 
-        OSynchDependency.DeleteAll;
+        OSynchDependency.DeleteAll();
         OutlookSynchUserSetup.DeleteAll(true);
 
-        OSynchEntityElement.Reset;
+        OSynchEntityElement.Reset();
         OSynchEntityElement.SetRange("Synch. Entity Code", Code);
         OSynchEntityElement.DeleteAll(true);
 
-        OSynchField.Reset;
+        OSynchField.Reset();
         OSynchField.SetRange("Synch. Entity Code", Code);
         OSynchField.DeleteAll(true);
 
-        OSynchFilter.Reset;
+        OSynchFilter.Reset();
         OSynchFilter.SetRange("Record GUID", "Record GUID");
-        OSynchFilter.DeleteAll;
+        OSynchFilter.DeleteAll();
     end;
 
     trigger OnInsert()
@@ -248,7 +248,7 @@ table 5300 "Outlook Synch. Entity"
         if "Table No." = 0 then
             FieldError("Table No.");
 
-        OSynchField.Reset;
+        OSynchField.Reset();
         OSynchField.SetRange("Synch. Entity Code", Code);
         OSynchField.SetRange("Element No.", 0);
 
@@ -259,7 +259,7 @@ table 5300 "Outlook Synch. Entity"
     var
         OSynchUserSetup: Record "Outlook Synch. User Setup";
     begin
-        OSynchUserSetup.Reset;
+        OSynchUserSetup.Reset();
         OSynchUserSetup.SetRange("Synch. Entity Code", Code);
         if OSynchUserSetup.FindFirst then
             Error(Text006, OSynchUserSetup."User ID");

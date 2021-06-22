@@ -42,7 +42,7 @@ codeunit 1210 "Payment Export Mgt"
         BankAccount.Get(PaymentExportData."Sender Bank Account Code");
         PaymentExportData."Sender Bank Account No." :=
           CopyStr(BankAccount.GetBankAccountNo, 1, MaxStrLen(PaymentExportData."Sender Bank Account No."));
-        PaymentExportData.Modify;
+        PaymentExportData.Modify();
 
         DataExch.Get(PaymentExportData."Data Exch Entry No.");
         PaymentExportDataRecRef.GetTable(PaymentExportData);
@@ -86,7 +86,7 @@ codeunit 1210 "Payment Export Mgt"
 
             DataExchField.Get(DataExch."Entry No.", LineNo, DataExchFieldMapping."Column No.");
             DataExchField.Value := ValueAsString;
-            DataExchField.Modify;
+            DataExchField.Modify();
         until DataExchFieldMapping.Next = 0;
     end;
 
@@ -230,7 +230,7 @@ codeunit 1210 "Payment Export Mgt"
         else
             ExportToServerTempFile(DataExchDef."Reading/Writing XMLport", DataExchField);
 
-        DataExchField.DeleteAll;
+        DataExchField.DeleteAll();
         DataExch.Delete
     end;
 

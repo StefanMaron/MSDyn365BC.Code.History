@@ -885,16 +885,19 @@ page 8909 "Warehouse Manager Role Center"
                     Caption = 'ADCS';
                     action("ADCS Users")
                     {
+                        ApplicationArea = Warehouse;
                         Caption = 'ADCS Users';
                         RunObject = page "ADCS Users";
                     }
                     action("Miniforms")
                     {
+                        ApplicationArea = Warehouse;
                         Caption = 'Miniforms';
                         RunObject = page "Miniforms";
                     }
                     action("Miniform Functions Group")
                     {
+                        ApplicationArea = Warehouse;
                         Caption = 'Miniform Functions Group';
                         RunObject = page "Functions";
                     }

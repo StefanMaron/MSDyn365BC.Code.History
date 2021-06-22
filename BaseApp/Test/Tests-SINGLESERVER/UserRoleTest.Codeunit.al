@@ -10,7 +10,7 @@ codeunit 132900 UserRoleTest
         // [FEATURE] [User] [Permissions]
 
         LibraryApplicationArea.DisableApplicationAreaSetup;
-        Commit;
+        Commit();
     end;
 
     var
@@ -643,7 +643,7 @@ codeunit 132900 UserRoleTest
         AccessControl."User Security ID" := User."User Security ID";
         AccessControl."Company Name" := CompanyName;
         AccessControl."Role ID" := 'SUPER';
-        AccessControl.Insert;
+        AccessControl.Insert();
     end;
 
     local procedure FindUserPermissionSetSUPER(var AccessControl: Record "Access Control"; CompanyNameFilter: Text): Boolean
@@ -721,11 +721,11 @@ codeunit 132900 UserRoleTest
         ZeroGUID: Guid;
     begin
         if not TenantPermissionSet.Get(ZeroGUID, 'Role' + RoleNameSuffix) then begin
-            TenantPermissionSet.Init;
+            TenantPermissionSet.Init();
             TenantPermissionSet."App ID" := ZeroGUID;
             TenantPermissionSet."Role ID" := CopyStr('Role' + RoleNameSuffix, 1, 20);
             TenantPermissionSet.Name := CopyStr('Name' + RoleNameSuffix, 1, 30);
-            TenantPermissionSet.Insert;
+            TenantPermissionSet.Insert();
         end;
 
         PermissionSetsPage.OpenView;
@@ -759,11 +759,11 @@ codeunit 132900 UserRoleTest
         ZeroGUID: Guid;
     begin
         if not TenantPermissionSet.Get(ZeroGUID, 'Role' + RoleNameSuffix) then begin
-            TenantPermissionSet.Init;
+            TenantPermissionSet.Init();
             TenantPermissionSet."App ID" := ZeroGUID;
             TenantPermissionSet."Role ID" := CopyStr('Role' + RoleNameSuffix, 1, 20);
             TenantPermissionSet.Name := CopyStr('Name' + RoleNameSuffix, 1, 30);
-            TenantPermissionSet.Insert;
+            TenantPermissionSet.Insert();
         end;
 
         PermissionSetsPage.OpenView;
@@ -930,10 +930,10 @@ codeunit 132900 UserRoleTest
             if UserTable.State = 0 then begin
                 UserPersonalization.SetRange("User ID", UserTable.GetFilter("User Name"));
                 if UserPersonalization.FindFirst then
-                    UserPersonalization.Delete;
+                    UserPersonalization.Delete();
                 UserTable.State := 1;
             end;
-        UserTable.Delete;
+        UserTable.Delete();
     end;
 
     [ModalPageHandler]

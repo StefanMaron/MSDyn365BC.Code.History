@@ -24,7 +24,7 @@ codeunit 138949 "BC O365 Settings Tests"
     begin
         // [GIVEN] An Invoicing user with no SMTP email setup
         LibraryLowerPermissions.SetInvoiceApp;
-        SMTPMailSetup.DeleteAll;
+        SMTPMailSetup.DeleteAll();
 
         // [WHEN] The user opens settings
         BCO365EmailAccountSettings.OpenEdit;
@@ -55,7 +55,7 @@ codeunit 138949 "BC O365 Settings Tests"
         // Handler executed
 
         // [THEN] Business Information page is visible and correctly populated in MySettings page
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         OpenSettingsAndVerifyBusinessInformation(CompanyInformation);
 
         // [WHEN] The user edits Business Informations
@@ -63,7 +63,7 @@ codeunit 138949 "BC O365 Settings Tests"
         SetBusinessInformationInSettings(GlobalTempCompanyInformation);
 
         // [THEN] The Business Information is updated in the table
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInfoRecRef1.GetTable(CompanyInformation);
         CompanyInfoRecRef2.GetTable(GlobalTempCompanyInformation);
         SetTempFieldsToExclude(TempField);
@@ -179,19 +179,19 @@ codeunit 138949 "BC O365 Settings Tests"
         CountryRegion: Record "Country/Region";
         CompanyInformation: Record "Company Information";
     begin
-        O365BrandColor.Init;
+        O365BrandColor.Init();
         O365BrandColor.Code := CopyStr(LibraryRandom.RandText(MaxStrLen(O365BrandColor.Code)),
             1, MaxStrLen(O365BrandColor.Code));
         O365BrandColor.Name := CopyStr(O365BrandColor.Code, 1, MaxStrLen(O365BrandColor.Name));
-        O365BrandColor.Insert;
+        O365BrandColor.Insert();
 
-        CountryRegion.Init;
+        CountryRegion.Init();
         CountryRegion.Code := CopyStr(LibraryRandom.RandText(MaxStrLen(CountryRegion.Code)),
             1, MaxStrLen(CountryRegion.Code));
         CountryRegion.Name := CopyStr(CountryRegion.Code, 1, MaxStrLen(CountryRegion.Name));
-        CountryRegion.Insert;
+        CountryRegion.Insert();
 
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         OutputCompanyInformation.Copy(CompanyInformation);
 
         with OutputCompanyInformation do begin
@@ -219,16 +219,16 @@ codeunit 138949 "BC O365 Settings Tests"
     var
         DummyCompanyInformation: Record "Company Information";
     begin
-        TempField.Init;
+        TempField.Init();
         TempField.TableNo := DATABASE::"Company Information";
         TempField."No." := DummyCompanyInformation.FieldNo("Last Modified Date Time");
-        TempField.Insert;
+        TempField.Insert();
         TempField."No." := DummyCompanyInformation.FieldNo("Picture - Last Mod. Date Time");
-        TempField.Insert;
+        TempField.Insert();
         TempField."No." := DummyCompanyInformation.FieldNo("Created DateTime");
-        TempField.Insert;
+        TempField.Insert();
         TempField."No." := DummyCompanyInformation.FieldNo(Id);
-        TempField.Insert;
+        TempField.Insert();
     end;
 
     [ModalPageHandler]

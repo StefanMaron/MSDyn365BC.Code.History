@@ -138,7 +138,7 @@ report 109 "Customer - Summary Aging Simp."
                         PrintCust := true;
                 end;
                 if not PrintCust then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
             end;
 
             trigger OnPreDataItem()

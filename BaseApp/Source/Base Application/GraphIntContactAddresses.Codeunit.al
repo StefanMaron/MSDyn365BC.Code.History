@@ -143,7 +143,7 @@ codeunit 5460 "Graph Int. - Contact Addresses"
 
         if GraphCollectionMgtContact.HasHomeAddressOrPhone(AddressesString, PhonesString, WebsitesString) then begin
             if not ContactAltAddress.Get(Contact."No.", GetContactAlternativeHomeAddressCode) then begin
-                ContactAltAddress.Init;
+                ContactAltAddress.Init();
                 ContactAltAddress.Validate("Contact No.", Contact."No.");
                 ContactAltAddress.Validate(Code, GetContactAlternativeHomeAddressCode);
                 ContactAltAddress.Insert(true);
@@ -159,7 +159,7 @@ codeunit 5460 "Graph Int. - Contact Addresses"
 
         if GraphCollectionMgtContact.HasOtherAddressOrPhone(AddressesString, PhonesString, WebsitesString) then begin
             if not ContactAltAddress.Get(Contact."No.", GetContactAlternativeOtherAddressCode) then begin
-                ContactAltAddress.Init;
+                ContactAltAddress.Init();
                 ContactAltAddress.Validate("Contact No.", Contact."No.");
                 ContactAltAddress.Validate(Code, GetContactAlternativeOtherAddressCode);
                 ContactAltAddress.Insert(true);

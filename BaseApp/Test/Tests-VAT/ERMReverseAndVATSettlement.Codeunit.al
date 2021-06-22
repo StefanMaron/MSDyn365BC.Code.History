@@ -109,7 +109,7 @@ codeunit 134130 "ERM Reverse And VAT Settlement"
             exit;
         LibraryERMCountryData.CreateVATData;
         isInitialized := true;
-        Commit;
+        Commit();
     end;
 
     local procedure CreatePostGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; PostingDate: Date)
@@ -190,7 +190,7 @@ codeunit 134130 "ERM Reverse And VAT Settlement"
         VATEntry: Record "VAT Entry";
         Assert: Codeunit Assert;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         VATEntry.SetRange("Document No.", DocumentNo);
         VATEntry.SetRange(Type, VATEntry.Type::Settlement);
         VATEntry.FindFirst;

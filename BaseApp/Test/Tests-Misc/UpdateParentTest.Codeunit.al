@@ -30,9 +30,9 @@ codeunit 139142 UpdateParentTest
 
         UpdateParentRegisterMgt.Clear;
         UpdateParentRegisterMgt.Init('UpdateP');
-        UpdateParentHeader.DeleteAll;
-        UpdateParentLine.DeleteAll;
-        UpdateParentFactLine.DeleteAll;
+        UpdateParentHeader.DeleteAll();
+        UpdateParentLine.DeleteAll();
+        UpdateParentFactLine.DeleteAll();
 
         HeaderId := 139141;
         LineId := 139142; // The LIne not updating parent

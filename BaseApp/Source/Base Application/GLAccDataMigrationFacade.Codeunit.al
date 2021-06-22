@@ -61,7 +61,7 @@ codeunit 6110 "GL Acc. Data Migration Facade"
             exit;
         end;
 
-        GLAccount.Init;
+        GLAccount.Init();
 
         GLAccount.Validate("No.", AccountNoToSet);
         GLAccount.Validate(Name, AccountNameToSet);
@@ -79,15 +79,15 @@ codeunit 6110 "GL Acc. Data Migration Facade"
         GeneralPostingSetup: Record "General Posting Setup";
     begin
         if not GeneralPostingSetup.Get(GeneralPostingGroupCode, GeneralPostingGroupCode) then begin
-            GeneralPostingSetup.Init;
+            GeneralPostingSetup.Init();
             GeneralPostingSetup.Validate("Gen. Bus. Posting Group", GeneralPostingGroupCode);
             GeneralPostingSetup.Validate("Gen. Prod. Posting Group", GeneralPostingGroupCode);
             GeneralPostingSetup.Insert(true);
         end;
 
-        GeneralPostingSetup.Reset;
+        GeneralPostingSetup.Reset();
         if not GeneralPostingSetup.Get('', GeneralPostingGroupCode) then begin
-            GeneralPostingSetup.Init;
+            GeneralPostingSetup.Init();
             GeneralPostingSetup.Validate("Gen. Bus. Posting Group", '');
             GeneralPostingSetup.Validate("Gen. Prod. Posting Group", GeneralPostingGroupCode);
             GeneralPostingSetup.Insert(true);
@@ -101,7 +101,7 @@ codeunit 6110 "GL Acc. Data Migration Facade"
         if GenProductPostingGroup.Get(PostingGroupCode) then
             exit;
 
-        GenProductPostingGroup.Init;
+        GenProductPostingGroup.Init();
         GenProductPostingGroup.Validate(Code, PostingGroupCode);
         GenProductPostingGroup.Validate(Description, PostingGroupDescription);
         GenProductPostingGroup.Validate("Auto Insert Default", true);
@@ -115,7 +115,7 @@ codeunit 6110 "GL Acc. Data Migration Facade"
         if GenBusinessPostingGroup.Get(PostingGroupCode) then
             exit;
 
-        GenBusinessPostingGroup.Init;
+        GenBusinessPostingGroup.Init();
         GenBusinessPostingGroup.Validate(Code, PostingGroupCode);
         GenBusinessPostingGroup.Validate(Description, PostingGroupDescription);
         GenBusinessPostingGroup.Validate("Auto Insert Default", true);
@@ -243,7 +243,7 @@ codeunit 6110 "GL Acc. Data Migration Facade"
         GeneralPostingSetup.Validate("Sales Account", SalesAccount);
         GeneralPostingSetup.Modify(true);
 
-        GeneralPostingSetup.Reset;
+        GeneralPostingSetup.Reset();
         if not GeneralPostingSetup.Get('', GeneralPostingSetupCode) then
             Error(InternalGeneralPostingSetupNotSetErr);
 
@@ -261,7 +261,7 @@ codeunit 6110 "GL Acc. Data Migration Facade"
         GeneralPostingSetup.Validate("Sales Line Disc. Account", SalesLineDiscAccount);
         GeneralPostingSetup.Modify(true);
 
-        GeneralPostingSetup.Reset;
+        GeneralPostingSetup.Reset();
         if not GeneralPostingSetup.Get('', GeneralPostingSetupCode) then
             Error(InternalGeneralPostingSetupNotSetErr);
 
@@ -279,7 +279,7 @@ codeunit 6110 "GL Acc. Data Migration Facade"
         GeneralPostingSetup.Validate("Sales Inv. Disc. Account", SalesInvDiscAccount);
         GeneralPostingSetup.Modify(true);
 
-        GeneralPostingSetup.Reset;
+        GeneralPostingSetup.Reset();
         if not GeneralPostingSetup.Get('', GeneralPostingSetupCode) then
             Error(InternalGeneralPostingSetupNotSetErr);
 
@@ -297,7 +297,7 @@ codeunit 6110 "GL Acc. Data Migration Facade"
         GeneralPostingSetup.Validate("Sales Pmt. Disc. Debit Acc.", SalesPmtDiscDebitAccount);
         GeneralPostingSetup.Modify(true);
 
-        GeneralPostingSetup.Reset;
+        GeneralPostingSetup.Reset();
         if not GeneralPostingSetup.Get('', GeneralPostingSetupCode) then
             Error(InternalGeneralPostingSetupNotSetErr);
 
@@ -315,7 +315,7 @@ codeunit 6110 "GL Acc. Data Migration Facade"
         GeneralPostingSetup.Validate("Purch. Account", PurchAccount);
         GeneralPostingSetup.Modify(true);
 
-        GeneralPostingSetup.Reset;
+        GeneralPostingSetup.Reset();
         if not GeneralPostingSetup.Get('', GeneralPostingSetupCode) then
             Error(InternalGeneralPostingSetupNotSetErr);
 
@@ -333,7 +333,7 @@ codeunit 6110 "GL Acc. Data Migration Facade"
         GeneralPostingSetup.Validate("Purch. Line Disc. Account", PurchLineDiscAccount);
         GeneralPostingSetup.Modify(true);
 
-        GeneralPostingSetup.Reset;
+        GeneralPostingSetup.Reset();
         if not GeneralPostingSetup.Get('', GeneralPostingSetupCode) then
             Error(InternalGeneralPostingSetupNotSetErr);
 
@@ -351,7 +351,7 @@ codeunit 6110 "GL Acc. Data Migration Facade"
         GeneralPostingSetup.Validate("Purch. Inv. Disc. Account", PurchInvDiscAccount);
         GeneralPostingSetup.Modify(true);
 
-        GeneralPostingSetup.Reset;
+        GeneralPostingSetup.Reset();
         if not GeneralPostingSetup.Get('', GeneralPostingSetupCode) then
             Error(InternalGeneralPostingSetupNotSetErr);
 
@@ -369,7 +369,7 @@ codeunit 6110 "GL Acc. Data Migration Facade"
         GeneralPostingSetup.Validate("Purch. Credit Memo Account", PurchCreditMemoAccount);
         GeneralPostingSetup.Modify(true);
 
-        GeneralPostingSetup.Reset;
+        GeneralPostingSetup.Reset();
         if not GeneralPostingSetup.Get('', GeneralPostingSetupCode) then
             Error(InternalGeneralPostingSetupNotSetErr);
 
@@ -387,7 +387,7 @@ codeunit 6110 "GL Acc. Data Migration Facade"
         GeneralPostingSetup.Validate("COGS Account", CogsAccount);
         GeneralPostingSetup.Modify(true);
 
-        GeneralPostingSetup.Reset;
+        GeneralPostingSetup.Reset();
         if not GeneralPostingSetup.Get('', GeneralPostingSetupCode) then
             Error(InternalGeneralPostingSetupNotSetErr);
 
@@ -405,7 +405,7 @@ codeunit 6110 "GL Acc. Data Migration Facade"
         GeneralPostingSetup.Validate("Inventory Adjmt. Account", InventoryAdjmtAccount);
         GeneralPostingSetup.Modify(true);
 
-        GeneralPostingSetup.Reset;
+        GeneralPostingSetup.Reset();
         if not GeneralPostingSetup.Get('', GeneralPostingSetupCode) then
             Error(InternalGeneralPostingSetupNotSetErr);
 
@@ -423,7 +423,7 @@ codeunit 6110 "GL Acc. Data Migration Facade"
         GeneralPostingSetup.Validate("Sales Credit Memo Account", SalesCreditMemoAccount);
         GeneralPostingSetup.Modify(true);
 
-        GeneralPostingSetup.Reset;
+        GeneralPostingSetup.Reset();
         if not GeneralPostingSetup.Get('', GeneralPostingSetupCode) then
             Error(InternalGeneralPostingSetupNotSetErr);
 
@@ -441,7 +441,7 @@ codeunit 6110 "GL Acc. Data Migration Facade"
         GeneralPostingSetup.Validate("Purch. Pmt. Disc. Debit Acc.", PurchPmtDiscDebitAccount);
         GeneralPostingSetup.Modify(true);
 
-        GeneralPostingSetup.Reset;
+        GeneralPostingSetup.Reset();
         if not GeneralPostingSetup.Get('', GeneralPostingSetupCode) then
             Error(InternalGeneralPostingSetupNotSetErr);
 
@@ -459,7 +459,7 @@ codeunit 6110 "GL Acc. Data Migration Facade"
         GeneralPostingSetup.Validate("Purch. Prepayments Account", PurchPrepaymentsAccount);
         GeneralPostingSetup.Modify(true);
 
-        GeneralPostingSetup.Reset;
+        GeneralPostingSetup.Reset();
         if not GeneralPostingSetup.Get('', GeneralPostingSetupCode) then
             Error(InternalGeneralPostingSetupNotSetErr);
 
@@ -477,7 +477,7 @@ codeunit 6110 "GL Acc. Data Migration Facade"
         GeneralPostingSetup.Validate("Purchase Variance Account", PurchaseVarianceAccount);
         GeneralPostingSetup.Modify(true);
 
-        GeneralPostingSetup.Reset;
+        GeneralPostingSetup.Reset();
         if not GeneralPostingSetup.Get('', GeneralPostingSetupCode) then
             Error(InternalGeneralPostingSetupNotSetErr);
 

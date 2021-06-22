@@ -411,11 +411,11 @@ table 93 "Vendor Posting Group"
         PurchSetup: Record "Purchases & Payables Setup";
         PaymentTerms: Record "Payment Terms";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         PmtToleranceVisible := GLSetup.GetPmtToleranceVisible;
         PmtDiscountVisible := PaymentTerms.UsePaymentDiscount;
 
-        PurchSetup.Get;
+        PurchSetup.Get();
         InvRoundingVisible := PurchSetup."Invoice Rounding";
         ApplnRoundingVisible := PurchSetup."Appln. between Currencies" <> PurchSetup."Appln. between Currencies"::None;
     end;

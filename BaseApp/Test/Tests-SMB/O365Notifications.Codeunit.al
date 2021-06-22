@@ -19,7 +19,7 @@ codeunit 138030 "O365 Notifications"
         LibraryApplicationArea: Codeunit "Library - Application Area";
         isInitialized: Boolean;
         DontShowAgain: Integer;
-        LinesMissingQuantityErr: Label 'One or more document lines with a value in the Item No. field do not have a quantity specified.';
+        LinesMissingQuantityErr: Label 'One or more document lines with a value in the No. field do not have a quantity specified.';
         NothingToPostErr: Label 'There is nothing to post.';
 
     local procedure Initialize()
@@ -32,7 +32,7 @@ codeunit 138030 "O365 Notifications"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Notifications");
         LibraryVariableStorage.Clear;
         LibraryApplicationArea.EnableFoundationSetup;
-        UserPreference.DeleteAll;
+        UserPreference.DeleteAll();
 
         InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.QueryPostOnCloseCode);
         InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.ShowPostedConfirmationMessageCode);
@@ -46,13 +46,13 @@ codeunit 138030 "O365 Notifications"
 
         LibraryERMCountryData.CreateVATData;
 
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup."Stockout Warning" := false;
-        SalesSetup.Modify;
+        SalesSetup.Modify();
 
         DontShowAgain := 2;
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Notifications");
     end;
 
@@ -63,7 +63,7 @@ codeunit 138030 "O365 Notifications"
         LibraryLowerPermissions.SetOutsideO365Scope;
         case TableID of
             DATABASE::Resource:
-                Resource.DeleteAll;
+                Resource.DeleteAll();
         end;
         LibraryLowerPermissions.SetO365Full;
     end;
@@ -165,7 +165,7 @@ codeunit 138030 "O365 Notifications"
         Initialize;
 
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::"Credit Memo");
-        SalesHeader.DeleteAll;
+        SalesHeader.DeleteAll();
         SalesCreditMemos.OpenView;
         ErrorMessagesPage.Trap;
         SalesCreditMemos.Post.Invoke;
@@ -183,7 +183,7 @@ codeunit 138030 "O365 Notifications"
         Initialize;
 
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::"Credit Memo");
-        SalesHeader.DeleteAll;
+        SalesHeader.DeleteAll();
         SalesCreditMemos.OpenView;
         ErrorMessagesPage.Trap;
         SalesCreditMemos.PostAndSend.Invoke;

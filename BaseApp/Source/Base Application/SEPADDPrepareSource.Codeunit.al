@@ -18,7 +18,7 @@ codeunit 1232 "SEPA DD-Prepare Source"
             if FromDirectDebitCollectionEntry.FindSet then
                 repeat
                     ToDirectDebitCollectionEntry := FromDirectDebitCollectionEntry;
-                    ToDirectDebitCollectionEntry.Insert;
+                    ToDirectDebitCollectionEntry.Insert();
                 until FromDirectDebitCollectionEntry.Next = 0
         end else
             CreateTempCollectionEntries(FromDirectDebitCollectionEntry, ToDirectDebitCollectionEntry);

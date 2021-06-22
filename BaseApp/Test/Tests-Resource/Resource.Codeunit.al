@@ -54,6 +54,7 @@ codeunit 136907 Resource
         JobPlanningLineFilterErr: Label 'Entry count of %1 with filter %2 is invalid';
         DaysTok: Label 'day(s)';
         JobLedgEntryExistsErr: Label 'Incorrect Job Ledger Entry exists.';
+        DocumentExistsErr: Label 'You cannot delete resource %1 because there are one or more outstanding %2 that include this resource.';
 
     [Test]
     [HandlerFunctions('ConfirmHandler')]
@@ -1011,13 +1012,13 @@ codeunit 136907 Resource
         // Setup: create item, unit of measure, item unit of measure
         Initialize;
 
-        Item.Init;
+        Item.Init();
         Item.Insert(true);
 
         NewUnitOfMeasureCode := CreateNewUnitOfMeasureCode;
-        UnitOfMeasure.Init;
+        UnitOfMeasure.Init();
         UnitOfMeasure.Code := NewUnitOfMeasureCode;
-        UnitOfMeasure.Insert;
+        UnitOfMeasure.Insert();
 
         // Exercise: validate Base Unit of Measure with non-existent item unit of measure
         Item.Validate("Base Unit of Measure", NewUnitOfMeasureCode);
@@ -1038,7 +1039,7 @@ codeunit 136907 Resource
     begin
         Initialize;
 
-        Res.Init;
+        Res.Init();
         Res.Insert(true);
 
         CreateUoM_and_ResUoM(FirstUnitOfMeasure, ResUnitOfMeasure, Res);
@@ -1064,7 +1065,7 @@ codeunit 136907 Resource
     begin
         Initialize;
 
-        Res.Init;
+        Res.Init();
         Res.Insert(true);
 
         LibraryInventory.CreateUnitOfMeasureCode(FirstUnitOfMeasure);
@@ -1089,7 +1090,7 @@ codeunit 136907 Resource
     begin
         Initialize;
 
-        Item.Init;
+        Item.Init();
         Item.Insert(true);
 
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
@@ -1115,7 +1116,7 @@ codeunit 136907 Resource
     begin
         Initialize;
 
-        Res.Init;
+        Res.Init();
         Res.Insert(true);
 
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
@@ -1143,7 +1144,7 @@ codeunit 136907 Resource
     begin
         Initialize;
 
-        Item.Init;
+        Item.Init();
         Item.Insert(true);
 
         LibraryInventory.CreateUnitOfMeasureCode(FirstUnitOfMeasure);
@@ -1167,7 +1168,7 @@ codeunit 136907 Resource
     begin
         Initialize;
 
-        Item.Init;
+        Item.Init();
         Item.Insert(true);
 
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
@@ -1195,16 +1196,16 @@ codeunit 136907 Resource
         // Setup: create item, unit of measure, item unit of measure
         Initialize;
 
-        Res.Init;
+        Res.Init();
         Res.Insert(true);
 
         CreateUoM_and_ResUoM(UnitOfMeasure, ResUnitOfMeasure, Res);
 
         Res.Validate("Base Unit of Measure", ResUnitOfMeasure.Code);
-        Res.Modify;
+        Res.Modify();
 
         NewUnitOfMeasureCode := CreateNewUnitOfMeasureCode;
-        Commit;
+        Commit();
 
         // Exercise: rename unit of measure assigned to Item (and Item Unit of Measure)
         UnitOfMeasure.Rename(NewUnitOfMeasureCode);
@@ -1376,6 +1377,66 @@ codeunit 136907 Resource
         VerifyUnitPriceResLedgerEntry(DocNo, ResNo, UnitPrice);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ErrorOnRenamingResourceBaseUnitOfMeasureAfterPurchase()
+    var
+        Resource: Record Resource;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ResourceUnitOfMeasure: Record "Resource Unit of Measure";
+        UnitOfMeasure: Record "Unit of Measure";
+    begin
+        // [FEATURE] [Purchase] [Resource]
+        // [SCENARIO 289386] Resource base unit of measure cannot be renamed if it was purchased
+        Initialize;
+
+        // [GIVEN] Posted purchase order with resource line
+        LibraryResource.CreateResourceNew(Resource);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Resource, Resource."No.", LibraryRandom.RandInt(10));
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [GIVEN] New unit of measure
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+        ResourceUnitOfMeasure.Get(Resource."No.", Resource."Base Unit of Measure");
+
+        // [WHEN] Rename resource unit of measure
+        asserterror ResourceUnitOfMeasure.Rename(Resource."No.", UnitOfMeasure.Code);
+
+        // [THEN] Error message that resource unit of measure cannot be renamed because it is bease unit of measure is shown
+        Assert.ExpectedError(
+          StrSubstNo(
+            CannotModifyBaseUnitOfMeasureErr, ResourceUnitOfMeasure.TableCaption, Resource."Base Unit of Measure", Resource."No.",
+            Resource.FieldCaption("Base Unit of Measure")));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DeleteResourceExistedInPurchaseOrder()
+    var
+        Resource: Record Resource;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [FEATURE] [Resource]
+        // [SCENARIO 289386] Resource cannot be deleted if it exists in the purchase document
+        Initialize;
+
+        // [GIVEN] Resource
+        LibraryResource.CreateResourceNew(Resource);
+
+        // [GIVEN] Purchase order with resource
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Resource, Resource."No.", LibraryRandom.RandInt(10));
+
+        // [WHEN] Delete resource
+        asserterror Resource.Delete(true);
+
+        // [THEN] Error message that resource cannot be deleted is shown
+        Assert.ExpectedError(StrSubstNo(DocumentExistsErr, Resource."No.", PurchaseLine."Document Type"::Order));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1395,10 +1456,10 @@ codeunit 136907 Resource
 
         DummyJobsSetup."Allow Sched/Contract Lines Def" := false;
         DummyJobsSetup."Apply Usage Link by Default" := false;
-        DummyJobsSetup.Modify;
+        DummyJobsSetup.Modify();
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::Resource);
     end;
 
@@ -1424,15 +1485,15 @@ codeunit 136907 Resource
         SalesSetup: Record "Sales & Receivables Setup";
         JobsSetup: Record "Jobs Setup";
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesSetup.Modify(true);
 
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchasesPayablesSetup.Modify(true);
 
-        JobsSetup.Get;
+        JobsSetup.Get();
         JobsSetup.Validate("Job Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         JobsSetup.Modify(true);
     end;
@@ -2022,7 +2083,7 @@ codeunit 136907 Resource
     var
         JobsSetup: Record "Jobs Setup";
     begin
-        JobsSetup.Get;
+        JobsSetup.Get();
         OldAutomaticUpdateJobItemCost := JobsSetup."Automatic Update Job Item Cost";
         JobsSetup.Validate("Automatic Update Job Item Cost", NewAutomaticUpdateJobItemCost);
         JobsSetup.Modify(true);

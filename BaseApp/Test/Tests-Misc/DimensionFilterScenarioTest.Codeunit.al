@@ -35,7 +35,7 @@ codeunit 134828 "Dimension Filter Scenario Test"
         LibraryLowerPermissions.SetO365Basic;
 
         // Setup
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         ChartofAccounts.OpenView;
 
         // Exercise
@@ -62,7 +62,7 @@ codeunit 134828 "Dimension Filter Scenario Test"
         LibraryLowerPermissions.SetO365Basic;
 
         // Setup
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         ChartofAccounts.OpenView;
 
         // Exercise
@@ -90,7 +90,7 @@ codeunit 134828 "Dimension Filter Scenario Test"
         LibraryLowerPermissions.SetO365Basic;
 
         // Setup
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         ChartofAccounts.OpenView;
 
         // Exercise
@@ -118,7 +118,7 @@ codeunit 134828 "Dimension Filter Scenario Test"
         LibraryLowerPermissions.SetO365Basic;
 
         // Setup
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         ChartofAccounts.OpenView;
 
         // Exercise
@@ -146,7 +146,7 @@ codeunit 134828 "Dimension Filter Scenario Test"
         LibraryLowerPermissions.SetO365Basic;
 
         // Setup
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         ChartofAccounts.OpenView;
 
         // Exercise
@@ -174,7 +174,7 @@ codeunit 134828 "Dimension Filter Scenario Test"
         LibraryLowerPermissions.SetO365Basic;
 
         // Setup
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         ChartofAccounts.OpenView;
 
         // Exercise
@@ -201,7 +201,7 @@ codeunit 134828 "Dimension Filter Scenario Test"
         LibraryLowerPermissions.SetO365Basic;
 
         // Setup
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         ChartofAccounts.OpenView;
 
         // Exercise
@@ -228,7 +228,7 @@ codeunit 134828 "Dimension Filter Scenario Test"
         LibraryLowerPermissions.SetO365Basic;
 
         // Setup
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         ChartofAccounts.OpenView;
 
         // Exercise
@@ -256,7 +256,7 @@ codeunit 134828 "Dimension Filter Scenario Test"
         LibraryLowerPermissions.SetO365Basic;
 
         // Setup
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         ChartofAccounts.OpenView;
 
         // Exercise
@@ -285,7 +285,7 @@ codeunit 134828 "Dimension Filter Scenario Test"
         LibraryLowerPermissions.SetO365Basic;
 
         // Setup
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         ChartofAccounts.OpenView;
 
         // Exercise
@@ -313,7 +313,7 @@ codeunit 134828 "Dimension Filter Scenario Test"
         LibraryLowerPermissions.SetO365Basic;
 
         // Setup
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         ChartofAccounts.OpenView;
 
         // Exercise
@@ -341,7 +341,7 @@ codeunit 134828 "Dimension Filter Scenario Test"
         LibraryLowerPermissions.SetO365Basic;
 
         // Setup
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         ChartofAccounts.OpenView;
 
         // Exercise
@@ -369,7 +369,7 @@ codeunit 134828 "Dimension Filter Scenario Test"
         LibraryLowerPermissions.SetO365Basic;
 
         // Setup
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         ChartofAccounts.OpenView;
 
         // Exercise
@@ -397,7 +397,7 @@ codeunit 134828 "Dimension Filter Scenario Test"
         LibraryLowerPermissions.SetO365Basic;
 
         // Setup
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         ChartofAccounts.OpenView;
 
         // Exercise
@@ -428,7 +428,7 @@ codeunit 134828 "Dimension Filter Scenario Test"
         LibraryLowerPermissions.SetO365Basic;
 
         // Setup
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         ChartofAccounts.OpenView;
         EnqueueDimensionCodeAndValueFilter('', '');
         EnqueueDimensionCodeAndValueFilter(GeneralLedgerSetup."Shortcut Dimension 3 Code",
@@ -463,7 +463,7 @@ codeunit 134828 "Dimension Filter Scenario Test"
         LibraryLowerPermissions.SetO365Basic;
 
         // Setup
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         ChartofAccounts.OpenView;
 
         // Exercise
@@ -488,7 +488,7 @@ codeunit 134828 "Dimension Filter Scenario Test"
         LibraryLowerPermissions.SetO365Basic;
 
         // Setup
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         ChartofAccounts.OpenView;
 
         // Exercise
@@ -516,7 +516,7 @@ codeunit 134828 "Dimension Filter Scenario Test"
         NewGLAccountNo := CreateAndPostGenJnlLinesWithDimData;
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Dimension Filter Scenario Test");
     end;
 
@@ -531,12 +531,12 @@ codeunit 134828 "Dimension Filter Scenario Test"
         GeneralLedgerSetup: Record "General Ledger Setup";
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Dim3ValueCount := 4;
         Dim4ValueCount := 2;
         CreateDimensionWithDimensionValues(GeneralLedgerSetup."Shortcut Dimension 3 Code", Dim3ValueCount);
         CreateDimensionWithDimensionValues(GeneralLedgerSetup."Shortcut Dimension 4 Code", Dim4ValueCount);
-        GeneralLedgerSetup.Modify;
+        GeneralLedgerSetup.Modify();
         FillDimSetupArray(GeneralLedgerSetup."Shortcut Dimension 3 Code", 1);
         FillDimSetupArray(GeneralLedgerSetup."Shortcut Dimension 4 Code", 2);
         CreateDuplicateDimValues;
@@ -576,11 +576,11 @@ codeunit 134828 "Dimension Filter Scenario Test"
         DimensionValue: Record "Dimension Value";
     begin
         // duplicate value code in Dim3 and Dim4
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         DimensionValue.Get(GeneralLedgerSetup."Shortcut Dimension 3 Code", DimSetupArray[1] [Dim3ValueCount]);
         DimensionValue."Dimension Code" := GeneralLedgerSetup."Shortcut Dimension 4 Code";
         DimensionValue."Dimension Value ID" := 0;
-        DimensionValue.Insert;
+        DimensionValue.Insert();
         Dim4ValueCount += 1;
         DimSetupArray[2] [Dim4ValueCount] := DimSetupArray[1] [Dim3ValueCount]
     end;
@@ -593,7 +593,7 @@ codeunit 134828 "Dimension Filter Scenario Test"
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         GenJournalBatch."Bal. Account Type" := GenJournalBatch."Bal. Account Type"::"G/L Account";
         GenJournalBatch."Bal. Account No." := LibraryERM.CreateGLAccountNoWithDirectPosting;
-        GenJournalBatch.Modify;
+        GenJournalBatch.Modify();
     end;
 
     local procedure CreateAndPostGenJnlLines(GenJournalBatch: Record "Gen. Journal Batch") GLAccountNo: Code[20]
@@ -646,7 +646,7 @@ codeunit 134828 "Dimension Filter Scenario Test"
           GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"G/L Account", GLAccountNo, Amount);
         GenJournalLine.ValidateShortcutDimCode(DimShortCutId, DimValueCode);
         GenJournalLine.ValidateShortcutDimCode(DimShortCutId2, DimValueCode2);
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
     end;
 
     [ModalPageHandler]

@@ -47,7 +47,7 @@ codeunit 138085 "O365 Ship-to Addr. P.Q"
 
         // Verify - ShipToOptions is set to default
         PurchaseQuote.ShippingOptionWithLocation.AssertEquals(Format(ShipToOptions::"Default (Company Address)"));
-        CompanyInformation.Get;
+        CompanyInformation.Get();
 
         VerifyShipToAddressValues(
           PurchaseQuote,
@@ -340,7 +340,7 @@ codeunit 138085 "O365 Ship-to Addr. P.Q"
         // [SCENARIO 255272] ShipToOption = "Default (Company Address)" when create a new Purchase Quote from a Vendor card
         // [SCENARIO 255272] in case of blanked Location and Purchase Quote Nos Series "Manual Nos." = FALSE (forces DocNoVisible = FALSE)
         Initialize;
-        CompanyInformation.Get;
+        CompanyInformation.Get();
 
         // [GIVEN] Purchase Quote Nos Series "Manual Nos." = FALSE
         // [GIVEN] Vendor card with blanked Location
@@ -402,7 +402,7 @@ codeunit 138085 "O365 Ship-to Addr. P.Q"
         // [SCENARIO 255272] ShipToOption = "Default (Company Address)" when create a new Purchase Quote from a Vendor card
         // [SCENARIO 255272] in case of blanked Location and Purchase Quote Nos Series "Manual Nos." = TRUE (forces DocNoVisible = TRUE)
         Initialize;
-        CompanyInformation.Get;
+        CompanyInformation.Get();
 
         // [GIVEN] Purchase Quote Nos Series "Manual Nos." = TRUE
         // [GIVEN] Vendor card with blanked Location
@@ -466,7 +466,7 @@ codeunit 138085 "O365 Ship-to Addr. P.Q"
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
 
         IsInitialized := true;
-        Commit;
+        Commit();
     end;
 
     local procedure PrepareVendor(var Vendor: Record Vendor; LocationCode: Code[10]; ManualNosSeries: Boolean)
@@ -494,7 +494,7 @@ codeunit 138085 "O365 Ship-to Addr. P.Q"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         UpdateNoSeries(PurchasesPayablesSetup."Quote Nos.", ManualNos);
     end;
 

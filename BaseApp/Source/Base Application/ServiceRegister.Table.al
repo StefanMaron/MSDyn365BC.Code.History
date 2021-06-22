@@ -71,5 +71,12 @@ table 5934 "Service Register"
     fieldgroups
     {
     }
+
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("No.")))
+    end;
 }
 

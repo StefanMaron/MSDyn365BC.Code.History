@@ -72,7 +72,7 @@ table 7328 "Whse. Worksheet Template"
         WhseWkshLine.DeleteAll(true);
 
         WhseWkshName.SetRange("Worksheet Template Name", Name);
-        WhseWkshName.DeleteAll;
+        WhseWkshName.DeleteAll();
     end;
 
     trigger OnInsert()

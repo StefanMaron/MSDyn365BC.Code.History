@@ -159,7 +159,7 @@ table 9069 "O365 Sales Cue"
         SetFilter("CM Date Filter", '%1..%2', CalcDate('<CM+1D-1M>', RequestedDate), RequestedDate);
         SetFilter("YTD Date Filter", '%1..%2', AccountingPeriod."Starting Date", RequestedDate);
 
-        GLSetup.Get;
+        GLSetup.Get();
 
         CurrencyFormatTxt := StrSubstNo('%1<precision, 0:0><standard format, 0>', GLSetup.GetCurrencySymbol);
 
@@ -194,9 +194,9 @@ table 9069 "O365 Sales Cue"
         Month: Integer;
     begin
         Month := Date2DMY(WorkDate, 2);
-        TempNameValueBuffer.Init;
+        TempNameValueBuffer.Init();
         TempNameValueBuffer.ID := Month;
-        TempNameValueBuffer.Insert;
+        TempNameValueBuffer.Insert();
 
         PAGE.Run(PAGE::"O365 Sales Month Summary", TempNameValueBuffer);
     end;
@@ -254,7 +254,7 @@ table 9069 "O365 Sales Cue"
     begin
         SalesInvoiceEntityAggregate.SetRange(Posted, true);
         SalesInvoiceEntityAggregate.SetRange(Status, SalesInvoiceEntityAggregate.Status::Open);
-        Number := SalesInvoiceEntityAggregate.Count;
+        Number := SalesInvoiceEntityAggregate.Count();
     end;
 }
 

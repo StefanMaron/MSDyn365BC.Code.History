@@ -79,7 +79,7 @@ codeunit 1217 "Pre-map Incoming Purch. Doc"
         if IncomingDocument.GetGeneratedFromOCRAttachment(IncomingDocumentAttachment) then
             exit;
 
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         with IntermediateDataImport do begin
             if FindEntry(EntryNo, DATABASE::"Company Information", CompanyInformation.FieldNo("VAT Registration No."), 0, RecordNo) then
                 VatRegNo := Value;
@@ -131,7 +131,7 @@ codeunit 1217 "Pre-map Incoming Purch. Doc"
         NameNearness: Integer;
         AddressNearness: Integer;
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CompanyName := CompanyInfo.Name;
         CompanyAddr := CompanyInfo.Address;
         with IntermediateDataImport do begin
@@ -163,7 +163,7 @@ codeunit 1217 "Pre-map Incoming Purch. Doc"
         DocumentCurrency: Text;
         IsLCY: Boolean;
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         if GLSetup."LCY Code" = '' then
             LogErrorMessage(EntryNo, GLSetup, GLSetup.FieldNo("LCY Code"),
               StrSubstNo(FieldMustHaveAValueErr, GLSetup.FieldCaption("LCY Code")));
@@ -191,7 +191,7 @@ codeunit 1217 "Pre-map Incoming Purch. Doc"
 
             // Clear the additional currency values on header
             SetRange(Value);
-            DeleteAll;
+            DeleteAll();
 
             // check currency on the lines
             SetRange("Table ID", DATABASE::"Purchase Line");
@@ -204,7 +204,7 @@ codeunit 1217 "Pre-map Incoming Purch. Doc"
 
             // Clear the additional currency values on lines
             SetRange(Value);
-            DeleteAll;
+            DeleteAll();
         end;
     end;
 
@@ -295,7 +295,7 @@ codeunit 1217 "Pre-map Incoming Purch. Doc"
     begin
         ExistingValue := IntermediateDataImport.GetEntryValue(EntryNo, TableID, FieldID, 0, RecordNo);
         CorrectedValue := CopyStr(Format(IncomingDocumentValue, 0, 9), 1, MaxStrLen(CorrectedValue));
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         if (CorrectedValue <> ExistingValue) and ((CorrectedValue <> GeneralLedgerSetup."LCY Code") or (ExistingValue <> '')) then
             IntermediateDataImport.InsertOrUpdateEntry(EntryNo, TableID, FieldID, 0, RecordNo, CorrectedValue);
     end;
@@ -364,7 +364,7 @@ codeunit 1217 "Pre-map Incoming Purch. Doc"
             IncomingDocument.Validate("Due Date", Date);
 
             Evaluate(TextValue, GetEntryValue(EntryNo, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Currency Code"), 0, RecordNo));
-            GeneralLedgerSetup.Get;
+            GeneralLedgerSetup.Get();
             if (TextValue <> '') or (IncomingDocument."Currency Code" <> GeneralLedgerSetup."LCY Code") then
                 IncomingDocument."Currency Code" := CopyStr(TextValue, 1, MaxStrLen(IncomingDocument."Currency Code"));
 
@@ -388,7 +388,7 @@ codeunit 1217 "Pre-map Incoming Purch. Doc"
             IncomingDocument.Validate("Vendor Bank Account No.",
               CopyStr(TextValue, 1, MaxStrLen(IncomingDocument."Vendor Bank Account No.")));
 
-            IncomingDocument.Modify;
+            IncomingDocument.Modify();
         end;
     end;
 
@@ -436,7 +436,7 @@ codeunit 1217 "Pre-map Incoming Purch. Doc"
                     end;
                 end;
 
-            Vendor.Reset;
+            Vendor.Reset();
             VatRegNo := '';
 
             // Lookup VAT Reg No
@@ -538,7 +538,7 @@ codeunit 1217 "Pre-map Incoming Purch. Doc"
                 end;
             end;
 
-            Vendor.Reset;
+            Vendor.Reset();
 
             // Lookup VAT Reg No
             Vendor.SetFilter("VAT Registration No.", StrSubstNo('*%1', CopyStr(VatRegNo, StrLen(VatRegNo))));
@@ -625,7 +625,7 @@ codeunit 1217 "Pre-map Incoming Purch. Doc"
             end;
 
             if (VendorNo = '') and (VendorBankBranchNo <> '') and (VendorBankAccountNo <> '') then begin
-                VendorBankAccount.Reset;
+                VendorBankAccount.Reset();
                 VendorBankAccount.SetRange("Bank Branch No.", VendorBankBranchNo);
                 VendorBankAccount.SetRange("Bank Account No.", VendorBankAccountNo);
                 if VendorBankAccount.FindFirst then
@@ -806,7 +806,7 @@ codeunit 1217 "Pre-map Incoming Purch. Doc"
             exit(false);
 
         IntermediateDataImport.Value := Item."No.";
-        IntermediateDataImport.Modify;
+        IntermediateDataImport.Modify();
 
         IntermediateDataImport.InsertOrUpdateEntry(
           EntryNo, DATABASE::"Purchase Line", PurchaseLine.FieldNo(Type), HeaderNo, RecordNo, Format(PurchaseLine.Type::Item, 0, 9));
@@ -907,7 +907,7 @@ codeunit 1217 "Pre-map Incoming Purch. Doc"
             SetRange("Record No.", RecordNo);
             SetFilter("Field ID", '<>%1&<>%2&<>%3',
               PurchaseLine.FieldNo(Type), PurchaseLine.FieldNo(Description), PurchaseLine.FieldNo("Description 2"));
-            DeleteAll;
+            DeleteAll();
         end;
     end;
 
@@ -1133,7 +1133,7 @@ codeunit 1217 "Pre-map Incoming Purch. Doc"
         CompanyInformation: Record "Company Information";
     begin
         if CountryRegionCode = '' then begin
-            CompanyInformation.Get;
+            CompanyInformation.Get();
             CountryRegionCode := CompanyInformation."Country/Region Code";
         end;
         VatRegNo := UpperCase(VatRegNo);
@@ -1150,7 +1150,7 @@ codeunit 1217 "Pre-map Incoming Purch. Doc"
     begin
         CurrRecNo := -1;
         Clear(TempInteger);
-        TempInteger.DeleteAll;
+        TempInteger.DeleteAll();
 
         with IntermediateDataImport do begin
             SetRange("Data Exch. No.", DataExchEntryNo);
@@ -1165,7 +1165,7 @@ codeunit 1217 "Pre-map Incoming Purch. Doc"
                     CurrRecNo := "Record No.";
                     Clear(TempInteger);
                     TempInteger.Number := CurrRecNo;
-                    TempInteger.Insert;
+                    TempInteger.Insert();
                 end;
             until Next = 0;
         end;
@@ -1307,7 +1307,7 @@ codeunit 1217 "Pre-map Incoming Purch. Doc"
         end;
 
         // if you don't find any suggestion in Text-to-Account Mapping, then look in the Purchases & Payables table
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         case DocumentType of
             PurchaseHeader."Document Type"::Invoice:
                 begin

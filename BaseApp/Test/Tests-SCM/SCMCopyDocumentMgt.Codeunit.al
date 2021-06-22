@@ -561,7 +561,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         CopyPurchDocument(PurchaseHeader, PurchDocType::"Posted Invoice", PurchInvoiceNo);
 
         // [THEN] No Item Tracking for "I" is created.
-        ReservationEntry.Init;
+        ReservationEntry.Init();
         ReservationEntry.SetRange("Item No.", ItemNo);
         Assert.RecordIsEmpty(ReservationEntry);
     end;
@@ -1064,7 +1064,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         LibrarySetupStorage.Save(DATABASE::"Assembly Setup");
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Copy Document Mgt.");
     end;
 
@@ -1231,7 +1231,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         SalesHeader."Document Date" := WorkDate;
         SalesHeader."Sell-to Customer Template Code" := FindCustomerTemplate;
         SalesHeader."Bill-to Customer Template Code" := SalesHeader."Sell-to Customer Template Code";
-        SalesHeader.Modify;
+        SalesHeader.Modify();
         CreateBlankSalesLine(SalesHeader, SalesLine, SalesHeader."Document Type");
     end;
 
@@ -1264,7 +1264,7 @@ codeunit 137212 "SCM Copy Document Mgt."
 
     local procedure CreateEmptySalesHeader(var SalesHeader: Record "Sales Header"; Type: Option): Code[20]
     begin
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader.Validate("Document Type", Type);
         SalesHeader.Insert(true);
         exit(SalesHeader."No.");
@@ -1272,7 +1272,7 @@ codeunit 137212 "SCM Copy Document Mgt."
 
     local procedure CreateEmptyPurchHeader(var PurchaseHeader: Record "Purchase Header"; Type: Option): Code[20]
     begin
-        PurchaseHeader.Init;
+        PurchaseHeader.Init();
         PurchaseHeader.Validate("Document Type", Type);
         PurchaseHeader.Insert(true);
         exit(PurchaseHeader."No.");
@@ -1399,7 +1399,7 @@ codeunit 137212 "SCM Copy Document Mgt."
         RecRef: RecordRef;
     begin
         Clear(SalesLine);
-        SalesLine.Init;
+        SalesLine.Init();
         SalesLine.Validate("Document Type", DocumentType);
         SalesLine.Validate("Document No.", SalesHeader."No.");
         RecRef.GetTable(SalesLine);
@@ -1539,7 +1539,7 @@ codeunit 137212 "SCM Copy Document Mgt."
 
         DefaultDimSetID := SalesLine."Dimension Set ID";
         SalesLine."Dimension Set ID" := UpdateDimensionSet(SalesLine."Dimension Set ID");
-        SalesLine.Modify;
+        SalesLine.Modify();
         PostedDocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
         exit(DefaultDimSetID);
     end;
@@ -1553,7 +1553,7 @@ codeunit 137212 "SCM Copy Document Mgt."
           PurchLine, PurchHeader, PurchLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
         DefaultDimSetID := PurchLine."Dimension Set ID";
         PurchLine."Dimension Set ID" := UpdateDimensionSet(PurchLine."Dimension Set ID");
-        PurchLine.Modify;
+        PurchLine.Modify();
         PostedDocNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
         exit(DefaultDimSetID);
     end;

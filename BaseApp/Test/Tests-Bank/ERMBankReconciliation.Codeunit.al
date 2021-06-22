@@ -123,7 +123,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         DeleteCheckLedgerEntries.Run;
 
         // Verify check ledger entries are deleted
-        CheckLedgerEntry.Reset;
+        CheckLedgerEntry.Reset();
         CheckLedgerEntry.SetRange("Bank Account No.", BankAccount."No.");
         CheckLedgerEntry.SetRange("Entry Status", CheckLedgerEntry."Entry Status"::Posted);
         Assert.AreEqual(CheckLedgerEntry.Count, 0, 'Expected no posted check ledger entries to exist');
@@ -189,16 +189,17 @@ codeunit 134141 "ERM Bank Reconciliation"
     var
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
         BankAccount: Record "Bank Account";
+        DocumentNo: Code[20];
     begin
         // Verify Bank Reconciliation Lines for Check Ledger entries ,when Include Check is True on Suggest Bank Account Reconciliation Lines.
 
         // Setup: Create Bank Account, create Check Ledger Entries.
         Initialize;
-        PostCheck(BankAccount, CreateBankAccount, LibraryRandom.RandInt(1000));  // Take random Amount.
+        DocumentNo := PostCheck(BankAccount, CreateBankAccount, LibraryRandom.RandInt(1000));  // Take random Amount.
 
         // Exercise and Verification.
         LibraryLowerPermissions.AddAccountReceivables;
-        SuggestAndVerifyBankReconcLine(BankAccount, '', BankAccReconciliationLine.Type::"Check Ledger Entry", true);  // '' for DocumentNo, TRUE for 'Include Checks'.
+        SuggestAndVerifyBankReconcLine(BankAccount, DocumentNo, BankAccReconciliationLine.Type::"Check Ledger Entry", true);  // '' for DocumentNo, TRUE for 'Include Checks'.
     end;
 
     [Test]
@@ -298,11 +299,11 @@ codeunit 134141 "ERM Bank Reconciliation"
         // Setup.
         LibraryERM.CreateBankAccount(BankAccount);
         BankAccount."Last Statement No." := '';
-        BankAccount.Modify;
+        BankAccount.Modify();
 
         // Exercise.
         LibraryLowerPermissions.AddAccountReceivables;
-        BankAccReconciliation.Init;
+        BankAccReconciliation.Init();
         BankAccReconciliation.Validate("Statement Type", BankAccReconciliation."Statement Type"::"Bank Reconciliation");
         BankAccReconciliation.Validate("Bank Account No.", BankAccount."No.");
         BankAccReconciliation.Insert(true);
@@ -385,7 +386,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         // [GIVEN] Dimension 'D' with value 'V'. GLSetup."Shortcut Dimension 1 Code" = 'D'.
         // [GIVEN] Payment Reconciliation Journal Line.
         // [WHEN] Update journal line "Shortcut Dimension 1 Code" = 'V'
-        BankAccReconciliationLine.Init;
+        BankAccReconciliationLine.Init();
         for i := 1 to ArrayLen(DimensionValue) do begin
             LibraryDimension.FindDimensionValue(DimensionValue[i], LibraryERM.GetShortcutDimensionCode(i));
             BankAccReconciliationLine.ValidateShortcutDimCode(i, DimensionValue[i].Code);
@@ -420,7 +421,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         SourceCodeSetupPage.Close;
 
         // [THEN] Record SourceCodeSetup."Payment Reconciliation Journal" = "X"
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         Assert.AreEqual(
           SourceCode.Code,
           SourceCodeSetup."Payment Reconciliation Journal",
@@ -549,7 +550,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
         Customer."Salesperson Code" := SalespersonPurchaser.Code;
-        Customer.Modify;
+        Customer.Modify();
         CreateDefaultDimensionWithSpecCode(SalespersonPurchaser.Code, DATABASE::"Salesperson/Purchaser");
 
         // [GIVEN] Record of Bank Account Reconcilation Line
@@ -578,7 +579,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         LibraryPurchase.CreateVendor(Vendor);
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
         Vendor."Purchaser Code" := SalespersonPurchaser.Code;
-        Vendor.Modify;
+        Vendor.Modify();
         CreateDefaultDimensionWithSpecCode(SalespersonPurchaser.Code, DATABASE::"Salesperson/Purchaser");
 
         // [GIVEN] Record of Bank Account Reconcilation Line
@@ -589,6 +590,20 @@ codeunit 134141 "ERM Bank Reconciliation"
 
         // [THEN] Dimension set of Bank Account Reconcilation Line contains Purchaser Code = "X"
         VerifyDimSetEntryValue(BankAccReconciliationLine."Dimension Set ID", Vendor."Purchaser Code");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('VerifyNotificationIsSend')]
+    procedure BankAccReconciliationNotificationShownOnNew()
+    var
+        BankAccReconciliation: TestPage "Bank Acc. Reconciliation";
+    begin
+        // [FEATURE] [UI]
+        // [GIVEN] Open new Bank Account Reconciliation page 
+        // [WHEN] On Open New
+        // [THEN] A notification should be send to import bank data
+        BankAccReconciliation.OpenNew;
     end;
 
     [Test]
@@ -614,19 +629,19 @@ codeunit 134141 "ERM Bank Reconciliation"
         // [SCENARIO 381659] "Last Statement No." should be updated in Bank Account only on Bank Account Reconciliation insertion
 
         // [GIVEN] Bank Account Reconciliation "BA"
-        BankAccReconciliation.Init;
+        BankAccReconciliation.Init();
         BankAccReconciliation."Statement Type" := BankAccReconciliation."Statement Type"::"Bank Reconciliation";
 
         // [GIVEN] Bank Account "Bank1" is set for "BA" having "Last Statement No." = "X01"
         LibraryERM.CreateBankAccount(BankAccount[1]);
         BankAccount[1]."Last Statement No." := 'X01';
-        BankAccount[1].Modify;
+        BankAccount[1].Modify();
         BankAccReconciliation.Validate("Bank Account No.", BankAccount[1]."No.");
 
         // [GIVEN] Bank Account "Bank2" is set for "BA" (instead of "Bank1") having "Last Statement No." = "Y01"
         LibraryERM.CreateBankAccount(BankAccount[2]);
         BankAccount[2]."Last Statement No." := 'Y01';
-        BankAccount[2].Modify;
+        BankAccount[2].Modify();
         BankAccReconciliation.Validate("Bank Account No.", BankAccount[2]."No.");
         BankAccount[2].TestField("Last Statement No.", 'Y01');
 
@@ -652,19 +667,19 @@ codeunit 134141 "ERM Bank Reconciliation"
         // [SCENARIO 381659] "Last Payment Statement No." should be updated in Bank Account only on Bank Account Reconciliation insertion
 
         // [GIVEN] Bank Account Reconciliation "BA"
-        BankAccReconciliation.Init;
+        BankAccReconciliation.Init();
         BankAccReconciliation."Statement Type" := BankAccReconciliation."Statement Type"::"Payment Application";
 
         // [GIVEN] Bank Account "Bank1" is set for "BA" having "Last Payment Statement No." = "X01"
         LibraryERM.CreateBankAccount(BankAccount[1]);
         BankAccount[1]."Last Payment Statement No." := 'X01';
-        BankAccount[1].Modify;
+        BankAccount[1].Modify();
         BankAccReconciliation.Validate("Bank Account No.", BankAccount[1]."No.");
 
         // [GIVEN] Bank Account "Bank2" is set for "BA" (instead of "Bank1") having "Last Payment Statement No." = "Y01"
         LibraryERM.CreateBankAccount(BankAccount[2]);
         BankAccount[2]."Last Payment Statement No." := 'Y01';
-        BankAccount[2].Modify;
+        BankAccount[2].Modify();
         BankAccReconciliation.Validate("Bank Account No.", BankAccount[2]."No.");
         BankAccount[2].TestField("Last Payment Statement No.", 'Y01');
 
@@ -697,7 +712,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         Initialize;
 
         // [GIVEN] G/L Account "X" with Default dimension "DEPARTMENT - ADM"
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryDimension.CreateDimensionValue(DimensionValue, GeneralLedgerSetup."Global Dimension 1 Code");
         LibraryERM.CreateGLAccount(GLAccount);
         LibraryDimension.CreateDefaultDimension(
@@ -937,7 +952,7 @@ codeunit 134141 "ERM Bank Reconciliation"
           BankAccReconciliation, BankAccountNo, BankAccReconciliation."Statement Type"::"Bank Reconciliation");
         BankAccReconciliation.SetRecFilter;
 
-        Commit;
+        Commit();
 
         // [WHEN] Run report "Bank Acc. Recon. - Test" with enabled "Print outstanding transactions" for "B".
         RequestPageXML := REPORT.RunRequestPage(REPORT::"Bank Acc. Recon. - Test", RequestPageXML);
@@ -1782,7 +1797,7 @@ codeunit 134141 "ERM Bank Reconciliation"
 
     local procedure CreateDimensionValueWithSpecCode(var DimensionValue: Record "Dimension Value"; DimensionValueCode: Code[20]; DimensionCode: Code[20])
     begin
-        DimensionValue.Init;
+        DimensionValue.Init();
         DimensionValue.Validate("Dimension Code", DimensionCode);
         DimensionValue.Validate(Code, DimensionValueCode);
         DimensionValue.Insert(true);
@@ -1825,11 +1840,11 @@ codeunit 134141 "ERM Bank Reconciliation"
     var
         BankAccountStatement: Record "Bank Account Statement";
     begin
-        BankAccountStatement.Init;
+        BankAccountStatement.Init();
         BankAccountStatement."Bank Account No." := BankAccount."No.";
         BankAccountStatement."Statement No." := BankAccount."Last Statement No.";
         BankAccountStatement."Statement Date" := WorkDate;
-        BankAccountStatement.Insert;
+        BankAccountStatement.Insert();
     end;
 
     local procedure CreateBankReconciliation(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; BankAccountNo: Code[20]; BankReconType: Option)
@@ -1959,7 +1974,7 @@ codeunit 134141 "ERM Bank Reconciliation"
 
     local procedure MockBankAccLedgerEntry(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; BankAccountNo: Code[20]; IsReversed: Boolean)
     begin
-        BankAccountLedgerEntry.Init;
+        BankAccountLedgerEntry.Init();
         BankAccountLedgerEntry."Entry No." :=
           LibraryUtility.GetNewRecNo(BankAccountLedgerEntry, BankAccountLedgerEntry.FieldNo("Entry No."));
         BankAccountLedgerEntry."Bank Account No." := BankAccountNo;
@@ -1967,7 +1982,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         BankAccountLedgerEntry."Statement Status" := BankAccountLedgerEntry."Statement Status"::Open;
         BankAccountLedgerEntry.Open := true;
         BankAccountLedgerEntry.Reversed := IsReversed;
-        BankAccountLedgerEntry.Insert;
+        BankAccountLedgerEntry.Insert();
     end;
 
     local procedure CreateDimSet(DimSetID: Integer): Integer
@@ -1984,7 +1999,7 @@ codeunit 134141 "ERM Bank Reconciliation"
     var
         AppliedPaymentEntry: Record "Applied Payment Entry";
     begin
-        AppliedPaymentEntry.Init;
+        AppliedPaymentEntry.Init();
         AppliedPaymentEntry.TransferFromBankAccReconLine(BankAccReconciliationLine);
         AppliedPaymentEntry.Validate("Account Type", AccountType);
         AppliedPaymentEntry.Validate("Account No.", BankAccReconciliationLine."Account No.");
@@ -1999,7 +2014,7 @@ codeunit 134141 "ERM Bank Reconciliation"
     var
         AppliedPaymentEntry: Record "Applied Payment Entry";
     begin
-        AppliedPaymentEntry.Init;
+        AppliedPaymentEntry.Init();
         AppliedPaymentEntry.TransferFromBankAccReconLine(BankAccReconLine);
         AppliedPaymentEntry.Validate("Account Type", AppliedPaymentEntry."Account Type"::"G/L Account");
         AppliedPaymentEntry.Validate("Account No.", AccountNo);
@@ -2129,7 +2144,7 @@ codeunit 134141 "ERM Bank Reconciliation"
     local procedure InitLastStatementNo(var BankAccount: Record "Bank Account"; NewLastStatementNo: Code[20])
     begin
         BankAccount."Last Statement No." := NewLastStatementNo;
-        BankAccount.Modify;
+        BankAccount.Modify();
     end;
 
     local procedure SetupGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; BalAccountType: Option; BankAccountNo: Code[20])
@@ -2148,7 +2163,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
         BankAccountLedgerEntry.SetRange("Document No.", DocumentNo);
         BankAccountLedgerEntry.SetRange(Reversed, true);
@@ -2349,5 +2364,14 @@ codeunit 134141 "ERM Bank Reconciliation"
         PaymentApplication.AppliedAmount.SetValue(LibraryVariableStorage.DequeueDecimal);
         PaymentApplication.Accept.Invoke;
     end;
-}
 
+    [SendNotificationHandler]
+    [Scope('OnPrem')]
+    procedure VerifyNotificationIsSend(var Notification: Notification): Boolean;
+    begin
+        Assert.AreEqual('No bank statement lines exist. Choose the Import Bank Statement action to fill in the lines from a file, or enter lines manually.',
+          Notification.Message,
+          'A notification should have been shown with the expected text');
+    end;
+
+}

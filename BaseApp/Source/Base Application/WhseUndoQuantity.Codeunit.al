@@ -20,13 +20,13 @@ codeunit 7320 "Whse. Undo Quantity"
         WhseMgt: Codeunit "Whse. Management";
     begin
         with ItemJnlLine do begin
-            WhseEntry.Reset;
+            WhseEntry.Reset();
             WhseEntry.SetSourceFilter(SourceType, SourceSubType, SourceNo, SourceLineNo, true);
             WhseEntry.SetRange("Reference No.", "Document No.");
             WhseEntry.SetRange("Item No.", "Item No.");
             if WhseEntry.Find('+') then
                 repeat
-                    TempWhseJnlLine.Init;
+                    TempWhseJnlLine.Init();
                     if WhseEntry."Entry Type" = WhseEntry."Entry Type"::"Positive Adjmt." then
                         "Entry Type" := "Entry Type"::"Negative Adjmt."
                     else
@@ -46,8 +46,7 @@ codeunit 7320 "Whse. Undo Quantity"
                     TempWhseJnlLine.SetWhseDoc(WhseEntry."Whse. Document Type", WhseEntry."Whse. Document No.", 0);
                     TempWhseJnlLine."Unit of Measure Code" := WhseEntry."Unit of Measure Code";
                     TempWhseJnlLine."Line No." := NextLineNo;
-                    TempWhseJnlLine."Serial No." := WhseEntry."Serial No.";
-                    TempWhseJnlLine."Lot No." := WhseEntry."Lot No.";
+                    TempWhseJnlLine.CopyTrackingFromWhseEntry(WhseEntry);
                     TempWhseJnlLine."Expiration Date" := WhseEntry."Expiration Date";
                     if "Entry Type" = "Entry Type"::"Negative Adjmt." then begin
                         TempWhseJnlLine."From Zone Code" := TempWhseJnlLine."Zone Code";
@@ -57,7 +56,7 @@ codeunit 7320 "Whse. Undo Quantity"
                         TempWhseJnlLine."To Bin Code" := TempWhseJnlLine."Bin Code";
                     end;
                     OnBeforeTempWhseJnlLineInsert(TempWhseJnlLine, WhseEntry, ItemJnlLine);
-                    TempWhseJnlLine.Insert;
+                    TempWhseJnlLine.Insert();
                     NextLineNo := TempWhseJnlLine."Line No." + 10000;
                 until WhseEntry.Next(-1) = 0;
         end;
@@ -188,8 +187,8 @@ codeunit 7320 "Whse. Undo Quantity"
             end else
                 LineSpacing := 10000;
 
-            NewPostedWhseRcptLine.Reset;
-            NewPostedWhseRcptLine.Init;
+            NewPostedWhseRcptLine.Reset();
+            NewPostedWhseRcptLine.Init();
             NewPostedWhseRcptLine.Copy(OldPostedWhseRcptLine);
             NewPostedWhseRcptLine."Line No." := "Line No." + LineSpacing;
             NewPostedWhseRcptLine.Quantity := -Quantity;
@@ -198,7 +197,7 @@ codeunit 7320 "Whse. Undo Quantity"
             NewPostedWhseRcptLine."Qty. Put Away (Base)" := -"Qty. Put Away (Base)";
             NewPostedWhseRcptLine.Status := NewPostedWhseRcptLine.Status::"Completely Put Away";
             OnBeforePostedWhseRcptLineInsert(NewPostedWhseRcptLine, OldPostedWhseRcptLine);
-            NewPostedWhseRcptLine.Insert;
+            NewPostedWhseRcptLine.Insert();
 
             Status := Status::"Completely Put Away";
             Modify;
@@ -223,14 +222,14 @@ codeunit 7320 "Whse. Undo Quantity"
             end else
                 LineSpacing := 10000;
 
-            NewPostedWhseShptLine.Reset;
-            NewPostedWhseShptLine.Init;
+            NewPostedWhseShptLine.Reset();
+            NewPostedWhseShptLine.Init();
             NewPostedWhseShptLine.Copy(OldPostedWhseShptLine);
             NewPostedWhseShptLine."Line No." := "Line No." + LineSpacing;
             NewPostedWhseShptLine.Quantity := -Quantity;
             NewPostedWhseShptLine."Qty. (Base)" := -"Qty. (Base)";
             OnBeforePostedWhseShptLineInsert(NewPostedWhseShptLine, OldPostedWhseShptLine);
-            NewPostedWhseShptLine.Insert;
+            NewPostedWhseShptLine.Insert();
         end;
     end;
 
@@ -249,7 +248,7 @@ codeunit 7320 "Whse. Undo Quantity"
             if Sum = 0 then begin
                 WhsePutAwayRequest.SetRange("Document Type", WhsePutAwayRequest."Document Type"::Receipt);
                 WhsePutAwayRequest.SetRange("Document No.", PostedWhseRcptLine."No.");
-                WhsePutAwayRequest.DeleteAll;
+                WhsePutAwayRequest.DeleteAll();
             end;
         end;
     end;
@@ -270,7 +269,7 @@ codeunit 7320 "Whse. Undo Quantity"
                 WhsePickRequest.SetRange("Document Type", WhsePickRequest."Document Type"::Shipment);
                 WhsePickRequest.SetRange("Document No.", PostedWhseShptLine."No.");
                 if not WhsePickRequest.IsEmpty then
-                    WhsePickRequest.DeleteAll;
+                    WhsePickRequest.DeleteAll();
             end;
         end;
     end;
@@ -290,10 +289,10 @@ codeunit 7320 "Whse. Undo Quantity"
                     WhseRcptLine.Status := WhseRcptLine.Status::" ";
                     WhseRcptHeader.Get(WhseRcptLine."No.");
                     WhseRcptHeader."Document Status" := WhseRcptHeader."Document Status"::" ";
-                    WhseRcptHeader.Modify;
+                    WhseRcptHeader.Modify();
                 end;
                 OnBeforeWhseRcptLineModify(WhseRcptLine, PostedWhseRcptLine);
-                WhseRcptLine.Modify;
+                WhseRcptLine.Modify();
             end;
         end;
     end;
@@ -312,10 +311,10 @@ codeunit 7320 "Whse. Undo Quantity"
                     WhseShptLine.Status := WhseShptLine.Status::" ";
                     WhseShptHeader.Get(WhseShptLine."No.");
                     WhseShptHeader."Document Status" := WhseShptHeader."Document Status"::" ";
-                    WhseShptHeader.Modify;
+                    WhseShptHeader.Modify();
                 end;
                 OnBeforeWhseShptLineModify(WhseShptLine, PostedWhseShptLine);
-                WhseShptLine.Modify;
+                WhseShptLine.Modify();
             end;
         end;
     end;
@@ -337,7 +336,7 @@ codeunit 7320 "Whse. Undo Quantity"
         WhseItemEntryRelation: Record "Whse. Item Entry Relation";
     begin
         WhseItemEntryRelation.SetSourceFilter(SourceType, 0, SourceNo, SourceLineNo, true);
-        WhseItemEntryRelation.DeleteAll;
+        WhseItemEntryRelation.DeleteAll();
     end;
 
     local procedure UpdateWhseRequestRcpt(var PostedWhseRcptLine: Record "Posted Whse. Receipt Line")

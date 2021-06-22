@@ -27,11 +27,11 @@ codeunit 135153 "Data Classs Demo Data Tests"
         // [SCENARIO] Documents and Document Lines Contain Personal Fields
 
         // [GIVEN] DataSensitivity Table is empty
-        DataSensitivity.DeleteAll;
+        DataSensitivity.DeleteAll();
 
         Company.Get(CompanyName);
         Company."Evaluation Company" := true;
-        Company.Modify;
+        Company.Modify();
 
         // [WHEN] The evaluation data are created
         DataClassificationEvalData.CreateEvaluationData;

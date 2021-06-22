@@ -116,11 +116,11 @@ page 2108 "O365 Outstanding Customer List"
                 var
                     SalesHeader: Record "Sales Header";
                 begin
-                    SalesHeader.Init;
+                    SalesHeader.Init();
                     SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Invoice);
                     SalesHeader.Validate("Sell-to Customer No.", "No.");
                     SalesHeader.Insert(true);
-                    Commit;
+                    Commit();
 
                     PAGE.Run(PAGE::"O365 Sales Invoice", SalesHeader);
                 end;

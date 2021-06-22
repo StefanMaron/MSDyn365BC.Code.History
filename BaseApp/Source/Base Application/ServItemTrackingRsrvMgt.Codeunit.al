@@ -16,6 +16,7 @@ codeunit 5985 "Serv-Item Tracking Rsrv. Mgt."
         ServLineToCheck: Record "Service Line";
         ReservationEntry: Record "Reservation Entry";
         ItemTrackingCode: Record "Item Tracking Code";
+        ItemTrackingSetup: Record "Item Tracking Setup";
         Item: Record Item;
         ItemJnlLine: Record "Item Journal Line";
         CreateReservEntry: Codeunit "Create Reserv. Entry";
@@ -26,10 +27,6 @@ codeunit 5985 "Serv-Item Tracking Rsrv. Mgt."
         TrackingQtyHandled: Decimal;
         TrackingQtyToHandle: Decimal;
         Inbound: Boolean;
-        SNRequired: Boolean;
-        LotRequired: Boolean;
-        SNInfoRequired: Boolean;
-        LotInfoRequired: Boolean;
         CheckServLine: Boolean;
     begin
         // if a SalesLine is posted with ItemTracking then the whole quantity of
@@ -60,14 +57,9 @@ codeunit 5985 "Serv-Item Tracking Rsrv. Mgt."
                 if Item."Item Tracking Code" <> '' then begin
                     Inbound := (ServLineToCheck.Quantity * SignFactor) > 0;
                     ItemTrackingCode.Code := Item."Item Tracking Code";
-                    ItemTrackingMgt.GetItemTrackingSettings(ItemTrackingCode,
-                      ItemJnlLine."Entry Type"::Sale,
-                      Inbound,
-                      SNRequired,
-                      LotRequired,
-                      SNInfoRequired,
-                      LotInfoRequired);
-                    CheckServLine := not SNRequired and not LotRequired;
+                    ItemTrackingMgt.GetItemTrackingSetup(
+                        ItemTrackingCode, ItemJnlLine."Entry Type"::Sale, Inbound, ItemTrackingSetup);
+                    CheckServLine := not ItemTrackingSetup.TrackingRequired();
                     if CheckServLine then
                         CheckServLine := CheckTrackingExists(ServLineToCheck);
                 end else
@@ -138,15 +130,15 @@ codeunit 5985 "Serv-Item Tracking Rsrv. Mgt."
 
     procedure SaveInvoiceSpecification(var TempInvoicingSpecification: Record "Tracking Specification" temporary; var TempTrackingSpecification: Record "Tracking Specification")
     begin
-        TempInvoicingSpecification.Reset;
+        TempInvoicingSpecification.Reset();
         if TempInvoicingSpecification.Find('-') then begin
             repeat
                 TempInvoicingSpecification."Quantity Invoiced (Base)" += TempInvoicingSpecification."Qty. to Invoice (Base)";
                 TempTrackingSpecification := TempInvoicingSpecification;
                 TempTrackingSpecification."Buffer Status" := TempTrackingSpecification."Buffer Status"::MODIFY;
-                TempTrackingSpecification.Insert;
+                TempTrackingSpecification.Insert();
             until TempInvoicingSpecification.Next = 0;
-            TempInvoicingSpecification.DeleteAll;
+            TempInvoicingSpecification.DeleteAll();
         end;
     end;
 
@@ -154,7 +146,7 @@ codeunit 5985 "Serv-Item Tracking Rsrv. Mgt."
     var
         TrackingSpecification: Record "Tracking Specification";
     begin
-        TempTrackingSpecification.Reset;
+        TempTrackingSpecification.Reset();
         if TempTrackingSpecification.Find('-') then begin
             repeat
                 TrackingSpecification := TempTrackingSpecification;
@@ -165,9 +157,9 @@ codeunit 5985 "Serv-Item Tracking Rsrv. Mgt."
                 if TempTrackingSpecification."Buffer Status" = TempTrackingSpecification."Buffer Status"::MODIFY then
                     TrackingSpecification.Modify
                 else
-                    TrackingSpecification.Insert;
+                    TrackingSpecification.Insert();
             until TempTrackingSpecification.Next = 0;
-            TempTrackingSpecification.DeleteAll;
+            TempTrackingSpecification.DeleteAll();
         end;
 
         ReserveServLine.UpdateItemTrackingAfterPosting(ServHeader);
@@ -185,10 +177,10 @@ codeunit 5985 "Serv-Item Tracking Rsrv. Mgt."
                     TempTrackingSpecification."Source Batch Name" := '';
                     TempTrackingSpecification."Source Prod. Order Line" := 0;
                     TempTrackingSpecification."Source Ref. No." := "Line No.";
-                    if TempTrackingSpecification.Insert then;
+                    if TempTrackingSpecification.Insert() then;
                     if QtyToInvoiceNonZero then begin
                         TempTrackingSpecificationInv := TempTrackingSpecification;
-                        if TempTrackingSpecificationInv.Insert then;
+                        if TempTrackingSpecificationInv.Insert() then;
                     end;
                 until TempHandlingSpecification.Next = 0;
         end;
@@ -208,23 +200,23 @@ codeunit 5985 "Serv-Item Tracking Rsrv. Mgt."
     var
         ItemEntryRelation: Record "Item Entry Relation";
     begin
-        TempTrackingSpecificationInv.Reset;
+        TempTrackingSpecificationInv.Reset();
         if TempTrackingSpecificationInv.Find('-') then begin
             repeat
                 TempHandlingSpecification := TempTrackingSpecificationInv;
-                if TempHandlingSpecification.Insert then;
+                if TempHandlingSpecification.Insert() then;
             until TempTrackingSpecificationInv.Next = 0;
-            TempTrackingSpecificationInv.DeleteAll;
+            TempTrackingSpecificationInv.DeleteAll();
         end;
 
-        TempHandlingSpecification.Reset;
+        TempHandlingSpecification.Reset();
         if TempHandlingSpecification.Find('-') then begin
             repeat
                 ItemEntryRelation.InitFromTrackingSpec(TempHandlingSpecification);
                 ItemEntryRelation.TransferFieldsServShptLine(ServiceShptLine);
-                ItemEntryRelation.Insert;
+                ItemEntryRelation.Insert();
             until TempHandlingSpecification.Next = 0;
-            TempHandlingSpecification.DeleteAll;
+            TempHandlingSpecification.DeleteAll();
             exit(0);
         end;
         exit(ItemLedgShptEntryNo);
@@ -234,13 +226,13 @@ codeunit 5985 "Serv-Item Tracking Rsrv. Mgt."
     var
         ValueEntryRelation: Record "Value Entry Relation";
     begin
-        TempValueEntryRelation.Reset;
+        TempValueEntryRelation.Reset();
         if TempValueEntryRelation.Find('-') then begin
             repeat
                 ValueEntryRelation := TempValueEntryRelation;
-                ValueEntryRelation.Insert;
+                ValueEntryRelation.Insert();
             until TempValueEntryRelation.Next = 0;
-            TempValueEntryRelation.DeleteAll;
+            TempValueEntryRelation.DeleteAll();
         end;
     end;
 

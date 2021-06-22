@@ -246,7 +246,7 @@ codeunit 134273 "Currency Exch. Rate File Mgt."
 
         DataExchDef.Get(DataExchDefCode);
         DataExchDef."Ext. Data Handling Codeunit" := CODEUNIT::"ERM PE Source Test Mock";
-        DataExchDef.Modify;
+        DataExchDef.Modify();
     end;
 
     local procedure WriteLine(OutStream: OutStream; Text: Text)

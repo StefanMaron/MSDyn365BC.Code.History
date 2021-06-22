@@ -74,17 +74,17 @@ table 1802 "Assisted Company Setup Status"
         AssistedCompanySetupStatus: Record "Assisted Company Setup Status";
     begin
         if not AssistedCompanySetupStatus.Get(CompanyName) then begin
-            AssistedCompanySetupStatus.Init;
+            AssistedCompanySetupStatus.Init();
             AssistedCompanySetupStatus.Validate("Company Name", CompanyName);
             AssistedCompanySetupStatus.Validate(Enabled, Enable);
-            AssistedCompanySetupStatus.Insert;
+            AssistedCompanySetupStatus.Insert();
         end else begin
             AssistedCompanySetupStatus.Validate(Enabled, Enable);
             if ResetState then begin
                 AssistedCompanySetupStatus."Package Imported" := false;
                 AssistedCompanySetupStatus."Import Failed" := false;
             end;
-            AssistedCompanySetupStatus.Modify;
+            AssistedCompanySetupStatus.Modify();
         end;
     end;
 
@@ -113,9 +113,9 @@ table 1802 "Assisted Company Setup Status"
             exit;
 
         if AssistedCompanySetupStatus.GetCompanySetupStatus(CompanyNameFrom) = RefSetupStatus::Completed then begin
-            AssistedCompanySetupStatus.Init;
+            AssistedCompanySetupStatus.Init();
             AssistedCompanySetupStatus."Company Name" := CompanyNameTo;
-            if AssistedCompanySetupStatus.Insert then;
+            if AssistedCompanySetupStatus.Insert() then;
         end;
     end;
 }

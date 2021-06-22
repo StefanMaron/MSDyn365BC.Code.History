@@ -32,7 +32,7 @@ report 5611 "FA Posting Group - Net Change"
             trigger OnAfterGetRecord()
             begin
                 if not FAPostingGr.Get("FA Posting Group") then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 FANo := "FA No.";
                 DeprBookCode := "Depreciation Book Code";
                 if "Disposal Date" > 0D then begin
@@ -89,10 +89,10 @@ report 5611 "FA Posting Group - Net Change"
             begin
                 if Number = 1 then begin
                     if not FAPostGroupBuffer[1].Find('-') then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end else
                     if FAPostGroupBuffer[1].Next = 0 then
-                        CurrReport.Break;
+                        CurrReport.Break();
             end;
         }
         dataitem(Headline; "Integer")
@@ -110,8 +110,8 @@ report 5611 "FA Posting Group - Net Change"
                         FAPostGroupBuffer[1].SetRange("Account No.", FAPostGroupBuffer2."Account No.");
                         FAPostGroupBuffer[1].CalcSums(Amount);
                         FAPostGroupBuffer2.Amount := FAPostGroupBuffer[1].Amount;
-                        FAPostGroupBuffer2.Insert;
-                        FAPostGroupBuffer[1].DeleteAll;
+                        FAPostGroupBuffer2.Insert();
+                        FAPostGroupBuffer[1].DeleteAll();
                         FAPostGroupBuffer[1].SetRange("Account No.");
                     end;
                     OldAccNo := FAPostGroupBuffer2."Account No.";
@@ -159,10 +159,10 @@ report 5611 "FA Posting Group - Net Change"
             begin
                 if Number = 1 then begin
                     if not FAPostGroupBuffer2.Find('-') then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end else
                     if FAPostGroupBuffer2.Next = 0 then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 Clear(GLAcc);
                 if GLAcc.Get(FAPostGroupBuffer2."Account No.") then begin
                     GLAcc.SetRange("Date Filter", StartingDate, EndingDate);
@@ -218,8 +218,8 @@ report 5611 "FA Posting Group - Net Change"
 
     trigger OnPreReport()
     begin
-        FAPostGroupBuffer[1].DeleteAll;
-        FAPostGroupBuffer2.DeleteAll;
+        FAPostGroupBuffer[1].DeleteAll();
+        FAPostGroupBuffer2.DeleteAll();
         FAGenReport.ValidateDates(StartingDate, EndingDate);
         FADeprBookFilter := "FA Depreciation Book".GetFilters;
         FAGenReport.AppendPostingDateFilter(FADeprBookFilter, StartingDate, EndingDate);
@@ -275,9 +275,9 @@ report 5611 "FA Posting Group - Net Change"
         FAPostGroupBuffer[2] := FAPostGroupBuffer[1];
         if FAPostGroupBuffer[2].Find then begin
             FAPostGroupBuffer[2].Amount := FAPostGroupBuffer[2].Amount + FAPostGroupBuffer[1].Amount;
-            FAPostGroupBuffer[2].Modify;
+            FAPostGroupBuffer[2].Modify();
         end else
-            FAPostGroupBuffer[1].Insert;
+            FAPostGroupBuffer[1].Insert();
     end;
 
     local procedure CalculateAccount(FAPostingGrCode: Code[20]; var FieldCaptionText: Text[50]; var AccNo: Code[20]; var PostAmount: Decimal)

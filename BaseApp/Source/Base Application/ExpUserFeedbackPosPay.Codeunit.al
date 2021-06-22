@@ -42,7 +42,7 @@ codeunit 1710 "Exp. User Feedback Pos. Pay"
             LastUpdateDateTime := GetLastUploadDateTime(BankAccNo);
 
         // Initialize Pos. Pay Enties
-        PositivePayEntry.Init;
+        PositivePayEntry.Init();
         PositivePayEntry.Validate("Bank Account No.", BankAccNo);
         PositivePayEntry."Last Upload Date" := DT2Date(LastUpdateDateTime);
         PositivePayEntry."Last Upload Time" := DT2Time(LastUpdateDateTime);
@@ -52,7 +52,7 @@ codeunit 1710 "Exp. User Feedback Pos. Pay"
 
         CalcFields("File Content");
         PositivePayEntry."Exported File" := "File Content";
-        PositivePayEntry.Insert;
+        PositivePayEntry.Insert();
     end;
 
     local procedure GetLastUploadDateTime(BankAccNo: Code[20]): DateTime
@@ -73,7 +73,7 @@ codeunit 1710 "Exp. User Feedback Pos. Pay"
         PositivePayDetail.SetRange("Data Exch. Entry No.", EntryNo);
         if PositivePayDetail.FindSet then begin
             repeat
-                PositivePayEntryDetail.Init;
+                PositivePayEntryDetail.Init();
                 PositivePayEntryDetail."Upload Date-Time" := PositivePayEntry."Upload Date-Time";
                 PositivePayEntryDetail.CopyFromPosPayEntryDetail(PositivePayDetail, BankAccNo);
                 if PositivePayEntryDetail."Document Type" = PositivePayEntryDetail."Document Type"::CHECK then begin
@@ -84,7 +84,7 @@ codeunit 1710 "Exp. User Feedback Pos. Pay"
                     PositivePayEntry."Void Amount" += PositivePayEntryDetail.Amount;
                 end;
                 PositivePayEntry."Number of Uploads" += 1;
-                PositivePayEntryDetail.Insert;
+                PositivePayEntryDetail.Insert();
 
             until PositivePayDetail.Next = 0;
         end;

@@ -1,4 +1,4 @@
-﻿page 290 "Recurring Resource Jnl."
+page 290 "Recurring Resource Jnl."
 {
     ApplicationArea = Jobs;
     AutoSplitKey = true;

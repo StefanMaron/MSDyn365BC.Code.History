@@ -128,7 +128,7 @@ codeunit 134240 "ERM - XBRL Taxonomy Pages"
 
         LibraryXBRL.CreateXBRLGLMapLine(XBRLGLMapLine, XBRLTaxonomyLine);
         XBRLGLMapLine."G/L Account Filter" := LibraryUtility.GenerateGUID;
-        XBRLGLMapLine.Modify;
+        XBRLGLMapLine.Modify();
 
         OpenTaxonomyLinesFromTaxonomyCard(XBRLTaxonomyLines, XBRLTaxonomyLine);
 

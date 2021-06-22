@@ -618,7 +618,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         UpdateProductionForecastQty(ProductionForecastEntry);
 
         // Exercise: Generate the Production Forecast report.
-        Commit;
+        Commit();
         ProductionForecastEntry.SetRange("Item No.", Item."No.");
         REPORT.Run(REPORT::"Demand Forecast", true, false, ProductionForecastEntry);
 
@@ -862,7 +862,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         LibraryManufacturing.CreateBOMComponent(BOMComponent2, BOMComponent."No.", BOMComponent2.Type::Item, Item."No.", 1, '');
 
         // Exercise: Generate the BOM - Sub Assemblies report.
-        Commit;
+        Commit();
         Item.SetRange("No.", BOMComponent2."Parent Item No.");
         REPORT.Run(REPORT::"Assembly BOM - Subassemblies", true, false, Item);
 
@@ -886,7 +886,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         CreateProdOrderItemsSetup(Item);
 
         // Exercise: Generate the Quantity Explosion Of BOM report.
-        Commit;
+        Commit();
         Item.SetRange("No.", Item."No.");
         REPORT.Run(REPORT::"Quantity Explosion of BOM", true, false, Item);
 
@@ -907,7 +907,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         CreateProdOrderItemsSetup(Item);
 
         // Exercise: Generate the Routing Sheet report.
-        Commit;
+        Commit();
         Item.SetRange("No.", Item."No.");
         REPORT.Run(REPORT::"Routing Sheet", true, false, Item);
 
@@ -932,7 +932,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         CreateProductionOrderSetup(ProductionOrder, ProductionOrder.Status::Released);
 
         // Exercise: Generate the Machine Center Load report.
-        Commit;
+        Commit();
         RoutingLine.SetRange("Routing No.", ProductionOrder."Routing No.");
         RoutingLine.FindFirst;
         WorkCenter.SetRange("No.", RoutingLine."Work Center No.");
@@ -965,7 +965,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         CreateProductionOrderSetup(ProductionOrder, ProductionOrder.Status::Released);
 
         // Exercise: Generate the Work Center Load report.
-        Commit;
+        Commit();
         RoutingLine.SetRange("Routing No.", ProductionOrder."Routing No.");
         RoutingLine.FindFirst;
         WorkCenter.SetRange("No.", RoutingLine."Work Center No.");
@@ -1009,7 +1009,7 @@ codeunit 137304 "SCM Manufacturing Reports"
             SecondChildItem."Base Unit of Measure"), ParentItem."Manufacturing Policy"::"Make-to-Stock");
 
         // Exercise: Run and Save Quantity Explosion Of Bom Report.
-        Commit;
+        Commit();
         Item.SetRange("No.", ParentItem."No.");
         REPORT.Run(REPORT::"Quantity Explosion of BOM", true, false, Item);
 
@@ -1095,7 +1095,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         ItemJournalSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Manufacturing Reports");
     end;
 
@@ -1112,7 +1112,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         CreateProdBOMVersion(ProductionBOMVersion, Item, ProductionBOMHeader.Status::New, LibraryRandom.RandInt(5));
 
         // Run Quantity Explosion Of BOM report.
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Quantity Explosion of BOM", true, false, Item);
 
         exit(Item."Production BOM No.");
@@ -1133,7 +1133,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         Clear(ItemJournalLine);
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
-        ItemJournalLine.DeleteAll;
+        ItemJournalLine.DeleteAll();
     end;
 
     local procedure ConsumptionJournalSetup(var ItemJournalBatch2: Record "Item Journal Batch")
@@ -1299,7 +1299,7 @@ codeunit 137304 "SCM Manufacturing Reports"
           SalesHeader, SalesLine, Item, '', '', LibraryRandom.RandDec(1000, 2),
           WorkDate, LibraryRandom.RandDec(1000, 2));
         SalesLine.Validate("Shipment Date", CalcDate('<-1D>', WorkDate));
-        SalesLine.Modify;
+        SalesLine.Modify();
     end;
 
     local procedure SelectProductionOrder(var ProductionOrder: Record "Production Order"; Status: Option; No: Code[20])
@@ -1427,7 +1427,7 @@ codeunit 137304 "SCM Manufacturing Reports"
     local procedure SetItemMakeToOrder(var Item: Record Item)
     begin
         Item.Validate("Manufacturing Policy", Item."Manufacturing Policy"::"Make-to-Order");
-        Item.Modify;
+        Item.Modify();
     end;
 
     local procedure VerifyComponentsOnGeneratedReport(ParentItemNo: Code[20]; ChildItemNo: Code[20])
@@ -1451,7 +1451,7 @@ codeunit 137304 "SCM Manufacturing Reports"
     begin
         SelectProdOrderComponent(ProdOrderComponent, ProductionOrderNo, ProductionOrderStatus);
         repeat
-            LibraryReportDataset.Reset;
+            LibraryReportDataset.Reset();
             LibraryReportDataset.SetRange(ElementName, ProdOrderComponent."Item No.");
             Assert.IsTrue(LibraryReportDataset.GetNextRow, 'Element not found for ' + ProdOrderComponent."Item No.");
         until ProdOrderComponent.Next = 0;
@@ -1463,7 +1463,7 @@ codeunit 137304 "SCM Manufacturing Reports"
     begin
         SelectRoutingLine(RoutingLine, ProductionOrderRoutingNo);
         repeat
-            LibraryReportDataset.Reset;
+            LibraryReportDataset.Reset();
             LibraryReportDataset.SetRange(ElementName, RoutingLine."No.");
             Assert.IsTrue(LibraryReportDataset.GetNextRow, 'Element not found for ' + RoutingLine."No.");
         until RoutingLine.Next = 0;
@@ -1477,7 +1477,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         RoutingLine.SetRange(Type, RoutingLineType);
         RoutingLine.FindSet;
         repeat
-            LibraryReportDataset.Reset;
+            LibraryReportDataset.Reset();
             LibraryReportDataset.SetRange(ElementName, RoutingLine."No.");
             Assert.IsTrue(LibraryReportDataset.GetNextRow, 'Element not found for ' + RoutingLine."No.");
         until RoutingLine.Next = 0;
@@ -1485,7 +1485,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         RoutingLine.SetFilter(Type, '<>%1', RoutingLineType);
         RoutingLine.FindSet;
         repeat
-            LibraryReportDataset.Reset;
+            LibraryReportDataset.Reset();
             LibraryReportDataset.SetRange(ElementName, RoutingLine."No.");
             Assert.IsFalse(LibraryReportDataset.GetNextRow, 'Element found for ' + RoutingLine."No.");
         until RoutingLine.Next = 0;
@@ -1535,7 +1535,7 @@ codeunit 137304 "SCM Manufacturing Reports"
         RoutingLine.SetRange(Type, RoutingLineType);
         RoutingLine.FindSet;
         repeat
-            LibraryReportDataset.Reset;
+            LibraryReportDataset.Reset();
             LibraryReportDataset.SetRange('OPNo_ProdOrderRtngLine', RoutingLine."Operation No.");
             LibraryReportDataset.GetNextRow;
             LibraryReportDataset.AssertCurrentRowValueEquals('PONo_ProdOrderRtngLine', ProductionOrder."No.");

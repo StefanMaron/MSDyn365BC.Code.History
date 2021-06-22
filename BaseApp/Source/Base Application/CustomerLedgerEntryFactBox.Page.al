@@ -125,18 +125,18 @@ page 9106 "Customer Ledger Entry FactBox"
         ReminderFinChargeEntry: Record "Reminder/Fin. Charge Entry";
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
-        ReminderFinChargeEntry.Reset;
+        ReminderFinChargeEntry.Reset();
         ReminderFinChargeEntry.SetRange("Customer Entry No.", "Entry No.");
-        NoOfReminderFinEntries := ReminderFinChargeEntry.Count;
+        NoOfReminderFinEntries := ReminderFinChargeEntry.Count();
 
         NoOfAppliedEntries := 0;
         if "Entry No." <> 0 then
             NoOfAppliedEntries := GetNoOfAppliedEntries(Rec);
 
-        DetailedCustLedgEntry.Reset;
+        DetailedCustLedgEntry.Reset();
         DetailedCustLedgEntry.SetRange("Cust. Ledger Entry No.", "Entry No.");
         DetailedCustLedgEntry.SetRange("Customer No.", "Customer No.");
-        NoOfDetailedCustomerEntries := DetailedCustLedgEntry.Count;
+        NoOfDetailedCustomerEntries := DetailedCustLedgEntry.Count();
     end;
 
     local procedure GetNoOfAppliedEntries(CustLedgerEntry: Record "Cust. Ledger Entry"): Integer
@@ -161,7 +161,7 @@ page 9106 "Customer Ledger Entry FactBox"
                 if DtldCustLedgEntry1."Cust. Ledger Entry No." =
                    DtldCustLedgEntry1."Applied Cust. Ledger Entry No."
                 then begin
-                    DtldCustLedgEntry2.Init;
+                    DtldCustLedgEntry2.Init();
                     DtldCustLedgEntry2.SetCurrentKey("Applied Cust. Ledger Entry No.", "Entry Type");
                     DtldCustLedgEntry2.SetRange(
                       "Applied Cust. Ledger Entry No.", DtldCustLedgEntry1."Applied Cust. Ledger Entry No.");

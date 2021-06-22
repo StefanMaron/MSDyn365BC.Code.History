@@ -61,7 +61,7 @@ codeunit 1248 "Process Bank Acc. Rec Lines"
 
     procedure CreateBankAccRecLineTemplate(var BankAccReconLine: Record "Bank Acc. Reconciliation Line"; BankAccRecon: Record "Bank Acc. Reconciliation"; DataExch: Record "Data Exch.")
     begin
-        BankAccReconLine.Init;
+        BankAccReconLine.Init();
         BankAccReconLine."Statement Type" := BankAccRecon."Statement Type";
         BankAccReconLine."Statement No." := BankAccRecon."Statement No.";
         BankAccReconLine."Bank Account No." := BankAccRecon."Bank Account No.";
@@ -77,7 +77,7 @@ codeunit 1248 "Process Bank Acc. Rec Lines"
                 if TempBankAccReconLine.CanImport then begin
                     BankAccReconciliationLine := TempBankAccReconLine;
                     BankAccReconciliationLine."Statement Line No." += StatementLineNoOffset;
-                    BankAccReconciliationLine.Insert;
+                    BankAccReconciliationLine.Insert();
                 end;
             until TempBankAccReconLine.Next = 0;
     end;

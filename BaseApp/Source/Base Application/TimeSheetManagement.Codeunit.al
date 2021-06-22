@@ -57,7 +57,7 @@ codeunit 950 "Time Sheet Management"
     var
         TimeSheetList: Page "Time Sheet List";
     begin
-        Commit;
+        Commit();
         if TimeSheetNo <> '' then begin
             TimeSheetHeader.Get(TimeSheetNo);
             TimeSheetList.SetRecord(TimeSheetHeader);
@@ -75,7 +75,7 @@ codeunit 950 "Time Sheet Management"
     var
         ManagerTimeSheetList: Page "Manager Time Sheet List";
     begin
-        Commit;
+        Commit();
         if TimeSheetNo <> '' then begin
             TimeSheetHeader.Get(TimeSheetNo);
             ManagerTimeSheetList.SetRecord(TimeSheetHeader);
@@ -114,7 +114,7 @@ codeunit 950 "Time Sheet Management"
     var
         Resource: Record Resource;
     begin
-        Resource.Reset;
+        Resource.Reset();
         Resource.SetFilter("No.", '<>%1', CurrResourceNo);
         Resource.SetRange(Type, Resource.Type::Person);
         Resource.SetRange("Time Sheet Owner User ID", TimeSheetOwnerUserID);
@@ -128,7 +128,7 @@ codeunit 950 "Time Sheet Management"
 
     procedure CalcStatusFactBoxData(var TimeSheetHeader: Record "Time Sheet Header"; var OpenQty: Decimal; var SubmittedQty: Decimal; var RejectedQty: Decimal; var ApprovedQty: Decimal; var PostedQty: Decimal; var TotalQuantity: Decimal)
     var
-        Status: Option Open,Submitted,Rejected,Approved,Posted;
+        Status: Enum "Time Sheet Status";
     begin
         TotalQuantity := 0;
         TimeSheetHeader.SetRange("Date Filter", TimeSheetHeader."Starting Date", TimeSheetHeader."Ending Date");
@@ -222,7 +222,7 @@ codeunit 950 "Time Sheet Management"
     var
         TimeSheetArchiveList: Page "Time Sheet Archive List";
     begin
-        Commit;
+        Commit();
         if TimeSheetNo <> '' then begin
             TimeSheetHeaderArchive.Get(TimeSheetNo);
             TimeSheetArchiveList.SetRecord(TimeSheetHeaderArchive);
@@ -240,7 +240,7 @@ codeunit 950 "Time Sheet Management"
     var
         ManagerTimeSheetArcList: Page "Manager Time Sheet Arc. List";
     begin
-        Commit;
+        Commit();
         if TimeSheetNo <> '' then begin
             TimeSheetHeaderArchive.Get(TimeSheetNo);
             ManagerTimeSheetArcList.SetRecord(TimeSheetHeaderArchive);
@@ -292,15 +292,15 @@ codeunit 950 "Time Sheet Management"
             Check;
 
             TimeSheetHeaderArchive.TransferFields(TimeSheetHeader);
-            TimeSheetHeaderArchive.Insert;
+            TimeSheetHeaderArchive.Insert();
 
             TimeSheetLine.SetRange("Time Sheet No.", "No.");
             if TimeSheetLine.FindSet then begin
                 repeat
                     TimeSheetLineArchive.TransferFields(TimeSheetLine);
-                    TimeSheetLineArchive.Insert;
+                    TimeSheetLineArchive.Insert();
                 until TimeSheetLine.Next = 0;
-                TimeSheetLine.DeleteAll;
+                TimeSheetLine.DeleteAll();
             end;
 
             TimeSheetDetail.SetRange("Time Sheet No.", "No.");
@@ -309,16 +309,16 @@ codeunit 950 "Time Sheet Management"
                     TimeSheetDetailArchive.TransferFields(TimeSheetDetail);
                     TimeSheetDetailArchive.Insert
                 until TimeSheetDetail.Next = 0;
-                TimeSheetDetail.DeleteAll;
+                TimeSheetDetail.DeleteAll();
             end;
 
             TimeSheetCommentLine.SetRange("No.", "No.");
             if TimeSheetCommentLine.FindSet then begin
                 repeat
                     TimeSheetCmtLineArchive.TransferFields(TimeSheetCommentLine);
-                    TimeSheetCmtLineArchive.Insert;
+                    TimeSheetCmtLineArchive.Insert();
                 until TimeSheetCommentLine.Next = 0;
-                TimeSheetCommentLine.DeleteAll;
+                TimeSheetCommentLine.DeleteAll();
             end;
 
             Delete;
@@ -344,7 +344,7 @@ codeunit 950 "Time Sheet Management"
                 repeat
                     OnCopyPrevTimeSheetLinesOnBeforeCopyLine(FromTimeSheetLine);
                     LineNo := LineNo + 10000;
-                    ToTimeSheetLine.Init;
+                    ToTimeSheetLine.Init();
                     ToTimeSheetLine."Time Sheet No." := ToTimeSheetHeader."No.";
                     ToTimeSheetLine."Line No." := LineNo;
                     ToTimeSheetLine."Time Sheet Starting Date" := ToTimeSheetHeader."Starting Date";
@@ -380,7 +380,7 @@ codeunit 950 "Time Sheet Management"
         if TimeSheetHeader.Next(-1) <> 0 then begin
             TimeSheetLine.SetRange("Time Sheet No.", TimeSheetHeader."No.");
             TimeSheetLine.SetFilter(Type, '<>%1&<>%2', TimeSheetLine.Type::Service, TimeSheetLine.Type::"Assembly Order");
-            LinesQty := TimeSheetLine.Count;
+            LinesQty := TimeSheetLine.Count();
         end;
     end;
 
@@ -394,12 +394,12 @@ codeunit 950 "Time Sheet Management"
 
         FillJobPlanningBuffer(TimeSheetHeader, TempJobPlanningLine);
 
-        TempJobPlanningLine.Reset;
+        TempJobPlanningLine.Reset();
         if TempJobPlanningLine.FindSet then
             repeat
                 LineNo := LineNo + 10000;
                 CreatedLinesQty := CreatedLinesQty + 1;
-                TimeSheetLine.Init;
+                TimeSheetLine.Init();
                 TimeSheetLine."Time Sheet No." := TimeSheetHeader."No.";
                 TimeSheetLine."Line No." := LineNo;
                 TimeSheetLine."Time Sheet Starting Date" := TimeSheetHeader."Starting Date";
@@ -407,7 +407,7 @@ codeunit 950 "Time Sheet Management"
                 TimeSheetLine.Validate("Job No.", TempJobPlanningLine."Job No.");
                 TimeSheetLine.Validate("Job Task No.", TempJobPlanningLine."Job Task No.");
                 OnCreateLinesFromJobPlanningOnBeforeTimeSheetLineInsert(TimeSheetLine, TempJobPlanningLine);
-                TimeSheetLine.Insert;
+                TimeSheetLine.Insert();
             until TempJobPlanningLine.Next = 0;
     end;
 
@@ -443,16 +443,16 @@ codeunit 950 "Time Sheet Management"
                     if JobPlanningLineBuffer.IsEmpty then begin
                         JobPlanningLineBuffer."Job No." := JobPlanningLine."Job No.";
                         JobPlanningLineBuffer."Job Task No." := JobPlanningLine."Job Task No.";
-                        JobPlanningLineBuffer.Insert;
+                        JobPlanningLineBuffer.Insert();
                     end;
                 end;
             until JobPlanningLine.Next = 0;
-        JobPlanningLineBuffer.Reset;
+        JobPlanningLineBuffer.Reset();
     end;
 
     procedure FindTimeSheet(var TimeSheetHeader: Record "Time Sheet Header"; Which: Option Prev,Next): Code[20]
     begin
-        TimeSheetHeader.Reset;
+        TimeSheetHeader.Reset();
         TimeSheetHeader.SetCurrentKey("Resource No.", "Starting Date");
         TimeSheetHeader.SetRange("Resource No.", TimeSheetHeader."Resource No.");
         case Which of
@@ -466,7 +466,7 @@ codeunit 950 "Time Sheet Management"
 
     procedure FindTimeSheetArchive(var TimeSheetHeaderArchive: Record "Time Sheet Header Archive"; Which: Option Prev,Next): Code[20]
     begin
-        TimeSheetHeaderArchive.Reset;
+        TimeSheetHeaderArchive.Reset();
         TimeSheetHeaderArchive.SetCurrentKey("Resource No.", "Starting Date");
         TimeSheetHeaderArchive.SetRange("Resource No.", TimeSheetHeaderArchive."Resource No.");
         case Which of
@@ -595,13 +595,13 @@ codeunit 950 "Time Sheet Management"
             Posted := true;
             Insert;
 
-            TimeSheetDetail.Init;
+            TimeSheetDetail.Init();
             TimeSheetDetail.CopyFromTimeSheetLine(TimeSheetLine);
             TimeSheetDetail.Date := PostingDate;
             TimeSheetDetail.Quantity := Quantity;
             TimeSheetDetail."Posted Quantity" := Quantity;
             TimeSheetDetail.Posted := true;
-            TimeSheetDetail.Insert;
+            TimeSheetDetail.Insert();
 
             CreateTSPostingEntry(TimeSheetDetail, Quantity, PostingDate, DocumentNo, Description);
         end;
@@ -715,7 +715,7 @@ codeunit 950 "Time Sheet Management"
         if TimeSheetLineFrom.FindSet then
             repeat
                 TimeSheetLineTo := TimeSheetLineFrom;
-                TimeSheetLineTo.Insert;
+                TimeSheetLineTo.Insert();
             until TimeSheetLineFrom.Next = 0;
     end;
 
@@ -734,19 +734,19 @@ codeunit 950 "Time Sheet Management"
                     if TimeSheetDetail.Get("Time Sheet No.", "Line No.", TimeSheetDate) then begin
                         TimeSheetDetail.Quantity := AllocatedQty[i];
                         TimeSheetDetail."Posted Quantity" := TimeSheetDetail.Quantity;
-                        TimeSheetDetail.Modify;
+                        TimeSheetDetail.Modify();
                     end else begin
-                        TimeSheetDetail.Init;
+                        TimeSheetDetail.Init();
                         TimeSheetDetail.CopyFromTimeSheetLine(TimeSheetLine);
                         TimeSheetDetail.Posted := true;
                         TimeSheetDetail.Date := TimeSheetDate;
                         TimeSheetDetail.Quantity := AllocatedQty[i];
                         TimeSheetDetail."Posted Quantity" := TimeSheetDetail.Quantity;
-                        TimeSheetDetail.Insert;
+                        TimeSheetDetail.Insert();
                     end;
                 end else begin
                     if TimeSheetDetail.Get("Time Sheet No.", "Line No.", TimeSheetDate) then
-                        TimeSheetDetail.Delete;
+                        TimeSheetDetail.Delete();
                 end;
             end;
         end;
@@ -807,7 +807,7 @@ codeunit 950 "Time Sheet Management"
     var
         ResourcesSetup: Record "Resources Setup";
     begin
-        ResourcesSetup.Get;
+        ResourcesSetup.Get();
         if Date2DWY(Date, 1) = ResourcesSetup."Time Sheet First Weekday" + 1 then
             exit(Date);
 
@@ -840,7 +840,7 @@ codeunit 950 "Time Sheet Management"
                          ServiceLine."Time Sheet Date")
                     then begin
                         TempTimeSheetDetail := TimeSheetDetail;
-                        TempTimeSheetDetail.Insert;
+                        TempTimeSheetDetail.Insert();
                     end;
             until ServiceLine.Next = 0;
 
@@ -873,7 +873,7 @@ codeunit 950 "Time Sheet Management"
     begin
         QtyToPost := TimeSheetDetail.GetMaxQtyToPost;
         if QtyToPost <> 0 then begin
-            ServiceLine.Init;
+            ServiceLine.Init();
             ServiceLine."Document Type" := ServiceHeader."Document Type";
             ServiceLine."Document No." := ServiceHeader."No.";
             ServiceLine."Line No." := LineNo;
@@ -890,7 +890,7 @@ codeunit 950 "Time Sheet Management"
                 ServiceLine.Validate("Qty. to Consume", QtyToPost);
             ServiceLine."Planned Delivery Date" := TimeSheetDetail.Date;
             ServiceLine.Validate("Work Type Code", TimeSheetLine."Work Type Code");
-            ServiceLine.Insert;
+            ServiceLine.Insert();
         end;
     end;
 

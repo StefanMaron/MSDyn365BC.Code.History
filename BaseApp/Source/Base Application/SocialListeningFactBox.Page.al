@@ -41,9 +41,6 @@ page 875 "Social Listening FactBox"
         }
     }
 
-    actions
-    {
-    }
 
     trigger OnAfterGetCurrRecord()
     begin

@@ -628,7 +628,7 @@ codeunit 132547 "Test Data Exch.Import - XML"
         Encoding: DotNet Encoding;
     begin
         // Initialize
-        GLAccount.DeleteAll;
+        GLAccount.DeleteAll();
 
         // Pre-Setup
         TempBlobBigXml.CreateOutStream(OutStream);
@@ -646,7 +646,7 @@ codeunit 132547 "Test Data Exch.Import - XML"
         DataExchField.FindLast;
         DataExchField.CalcFields("Value BLOB");
         DataExchField."Line No." += 1;
-        DataExchField.Insert;
+        DataExchField.Insert();
 
         // Exercise.
         RecRef.GetTable(GLAccount);
@@ -683,7 +683,7 @@ codeunit 132547 "Test Data Exch.Import - XML"
         Encoding: DotNet Encoding;
     begin
         // Initialize
-        GLAccount.DeleteAll;
+        GLAccount.DeleteAll();
 
         // Pre-Setup
         TempBlobBigXml.CreateOutStream(OutStream);
@@ -1167,7 +1167,7 @@ codeunit 132547 "Test Data Exch.Import - XML"
         AddTempBlobToList(TempBlob);
 
         DataExchDef."Ext. Data Handling Codeunit" := CODEUNIT::"ERM PE Source Test Mock";
-        DataExchDef.Modify;
+        DataExchDef.Modify();
     end;
 
     local procedure SetupEmptySourceMoq(var DataExchDef: Record "Data Exch. Def")
@@ -1176,7 +1176,7 @@ codeunit 132547 "Test Data Exch.Import - XML"
     begin
         ErmPeSourceTestMock.ClearTempBlobList;
         DataExchDef."Ext. Data Handling Codeunit" := CODEUNIT::"ERM PE Empty Source Test mock";
-        DataExchDef.Modify;
+        DataExchDef.Modify();
     end;
 
     local procedure CreateFormatDefinition(var DataExch: Record "Data Exch."; var DataExchDef: Record "Data Exch. Def"; TempBlob: Codeunit "Temp Blob"; Path: Text[250])

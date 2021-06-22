@@ -52,7 +52,7 @@ table 1878 "VAT Assisted Setup Templates"
         VATAssistedSetupBusGrp: Record "VAT Assisted Setup Bus. Grp.";
         VATSetupPostingGroups: Record "VAT Setup Posting Groups";
     begin
-        DeleteAll;
+        DeleteAll();
         if ConfigTemplateHeader.FindSet then
             repeat
                 Code := ConfigTemplateHeader.Code;

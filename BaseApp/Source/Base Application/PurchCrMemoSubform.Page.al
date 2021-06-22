@@ -1,4 +1,4 @@
-﻿page 98 "Purch. Cr. Memo Subform"
+page 98 "Purch. Cr. Memo Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';
@@ -971,7 +971,7 @@
         ReservePurchLine: Codeunit "Purch. Line-Reserve";
     begin
         if (Quantity <> 0) and ItemExists("No.") then begin
-            Commit;
+            Commit();
             if not ReservePurchLine.DeleteLineConfirm(Rec) then
                 exit(false);
             ReservePurchLine.DeleteLine(Rec);
@@ -987,7 +987,7 @@
 
     trigger OnInit()
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         TempOptionLookupBuffer.FillBuffer(TempOptionLookupBuffer."Lookup Type"::Purchases);
         IsFoundation := ApplicationAreaMgmtFacade.IsFoundationEnabled;
         Currency.InitRoundingPrecision;
@@ -1035,8 +1035,6 @@
         ItemChargeStyleExpression: Text;
         UnitofMeasureCodeIsChangeable: Boolean;
         IsFoundation: Boolean;
-        IsCommentLine: Boolean;
-        IsBlankNumber: Boolean;
         CurrPageIsEditable: Boolean;
         DimVisible1: Boolean;
         DimVisible2: Boolean;
@@ -1047,6 +1045,10 @@
         DimVisible7: Boolean;
         DimVisible8: Boolean;
         UpdateInvDiscountQst: Label 'One or more lines have been invoiced. The discount distributed to invoiced lines will not be taken into account.\\Do you want to update the invoice discount?';
+
+    protected var
+        IsBlankNumber: Boolean;
+        IsCommentLine: Boolean;
 
     procedure ApproveCalcInvDisc()
     begin

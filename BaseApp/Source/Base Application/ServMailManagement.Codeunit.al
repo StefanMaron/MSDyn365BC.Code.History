@@ -30,7 +30,7 @@ codeunit 5916 ServMailManagement
             TempEmailItem."Send to" := "To Address";
             TempEmailItem."Send CC" := "Copy-to Address";
             TempEmailItem.Subject := "Subject Line";
-            TempEmailItem.Insert;
+            TempEmailItem.Insert();
         end;
     end;
 }

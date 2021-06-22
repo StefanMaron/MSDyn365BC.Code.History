@@ -48,7 +48,7 @@ table 7701 "Miniform Line"
                 FieldSelection: Codeunit "Field Selection";
             begin
                 if "Field Type" in ["Field Type"::Input, "Field Type"::Output] then begin
-                    Field.Reset;
+                    Field.Reset();
                     if FieldSelection.Open(Field) then begin
                         "Table No." := Field.TableNo;
                         Validate("Field No.", Field."No.");
@@ -59,7 +59,7 @@ table 7701 "Miniform Line"
             trigger OnValidate()
             begin
                 if "Table No." <> 0 then begin
-                    Field.Reset;
+                    Field.Reset();
                     Field.SetRange(TableNo, "Table No.");
                     Field.SetFilter(ObsoleteState, '<>%1', Field.ObsoleteState::Removed);
                     Field.FindFirst;
@@ -75,7 +75,7 @@ table 7701 "Miniform Line"
             var
                 FieldSelection: Codeunit "Field Selection";
             begin
-                Field.Reset;
+                Field.Reset();
                 Field.SetRange(TableNo, "Table No.");
                 if FieldSelection.Open(Field) then
                     Validate("Field No.", Field."No.");

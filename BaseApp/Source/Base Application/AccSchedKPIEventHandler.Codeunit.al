@@ -44,7 +44,7 @@ codeunit 198 "Acc. Sched. KPI Event Handler"
             exit;
         ResetAccSchedKPIWevSrvSetup;
         if TempAccSchedKPIWebSrvLine.Get(Rec."Acc. Schedule Name") then
-            TempAccSchedKPIWebSrvLine.Delete;
+            TempAccSchedKPIWebSrvLine.Delete();
     end;
 
     [EventSubscriber(ObjectType::Table, 85, 'OnAfterInsertEvent', '', true, true)]
@@ -101,11 +101,11 @@ codeunit 198 "Acc. Sched. KPI Event Handler"
             exit;
         if AccSchedKPIWebSrvSetup."Last G/L Entry Included" = 0 then
             exit;
-        AccSchedKPIWebSrvSetup.LockTable;
-        AccSchedKPIWebSrvSetup.Get;
+        AccSchedKPIWebSrvSetup.LockTable();
+        AccSchedKPIWebSrvSetup.Get();
         AccSchedKPIWebSrvSetup."Last G/L Entry Included" := 0;
         AccSchedKPIWebSrvSetup."Data Last Updated" := 0DT;
-        AccSchedKPIWebSrvSetup.Modify;
+        AccSchedKPIWebSrvSetup.Modify();
     end;
 
     local procedure ResetIfAccSchedChanged(AccSchedName: Code[10])
@@ -124,7 +124,7 @@ codeunit 198 "Acc. Sched. KPI Event Handler"
 
         if AccSchedKPIWebSrvLine.Get(AccSchedName) then begin
             TempAccSchedKPIWebSrvLine := AccSchedKPIWebSrvLine;
-            TempAccSchedKPIWebSrvLine.Insert;
+            TempAccSchedKPIWebSrvLine.Insert();
             ResetAccSchedKPIWevSrvSetup;
         end;
     end;

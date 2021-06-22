@@ -51,23 +51,31 @@ codeunit 132479 "Posting Codeunit Mock"
         ErrorMessageMgt.LogError(RecID, Description, '');
     end;
 
-    procedure RunWithActiveErrorHandling(var TempErrorMessage: Record "Error Message" temporary): Boolean
+    procedure RunWithActiveErrorHandling(var TempErrorMessage: Record "Error Message" temporary; Log: Boolean): Boolean
     var
         ErrorMessageMgt: Codeunit "Error Message Management";
         ErrorMessageHandler: Codeunit "Error Message Handler";
         PostingCodeunitMock: Codeunit "Posting Codeunit Mock";
     begin
         ErrorMessageMgt.Activate(ErrorMessageHandler);
-        Commit;
-        if not PostingCodeunitMock.Run(TempErrorMessage) then
+        Commit();
+        if not PostingCodeunitMock.Run(TempErrorMessage) then begin
+            if Log then
+                exit(ErrorMessageHandler.WriteMessagesToFile(GetLogFileName, true));
             exit(ErrorMessageHandler.ShowErrors);
+        end;
+    end;
+
+    procedure GetLogFileName(): Text;
+    begin
+        exit('ErrorMessage.Log');
     end;
 
     procedure TryRun(var TempErrorMessage: Record "Error Message" temporary): Boolean
     var
         PostingCodeunitMock: Codeunit "Posting Codeunit Mock";
     begin
-        Commit;
+        Commit();
         exit(PostingCodeunitMock.Run(TempErrorMessage));
     end;
 }

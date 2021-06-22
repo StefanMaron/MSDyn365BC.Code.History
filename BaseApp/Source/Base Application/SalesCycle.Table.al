@@ -95,7 +95,7 @@ table 5090 "Sales Cycle"
 
         RMCommentLine.SetRange("Table Name", RMCommentLine."Table Name"::"Sales Cycle");
         RMCommentLine.SetRange("No.", Code);
-        RMCommentLine.DeleteAll;
+        RMCommentLine.DeleteAll();
     end;
 
     var

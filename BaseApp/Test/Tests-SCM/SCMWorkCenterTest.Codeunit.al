@@ -49,7 +49,7 @@ codeunit 137800 "SCM Work Center Test"
 
         Initialize;
         UpdateMfgSetup(080000T, 230000T);
-        WorkCenter.Init;
+        WorkCenter.Init();
         SetupTime := 120.5;
         RunTime := 0.16123;
         Quantity := 45236;
@@ -319,7 +319,7 @@ codeunit 137800 "SCM Work Center Test"
 
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Work Center Test");
     end;
 
@@ -579,10 +579,10 @@ codeunit 137800 "SCM Work Center Test"
           ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, ChildItemNo2, 1);
 
         ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
-        ProductionBOMHeader.Modify;
+        ProductionBOMHeader.Modify();
 
         ParentItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
-        ParentItem.Modify;
+        ParentItem.Modify();
     end;
 
     local procedure CreateReleaseSalesOrder(Item: Record Item; Quantity: Decimal; OrderDate: Date)
@@ -592,7 +592,7 @@ codeunit 137800 "SCM Work Center Test"
     begin
         LibraryPatterns.MAKESalesOrder(SalesHeader, SalesLine, Item, '', '', Quantity, OrderDate, LibraryRandom.RandDec(1000, 2));
         SalesHeader.Validate("Shipment Date", OrderDate);
-        SalesHeader.Modify;
+        SalesHeader.Modify();
         LibrarySales.ReleaseSalesDocument(SalesHeader);
     end;
 

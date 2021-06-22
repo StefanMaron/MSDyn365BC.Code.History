@@ -40,7 +40,7 @@ report 7306 "Get Inbound Source Documents"
                     if "Whse. Put-away Request"."Document Type" <>
                        "Whse. Put-away Request"."Document Type"::Receipt
                     then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
             dataitem("Whse. Internal Put-away Header"; "Whse. Internal Put-away Header")
@@ -69,7 +69,7 @@ report 7306 "Get Inbound Source Documents"
                     if "Whse. Put-away Request"."Document Type" <>
                        "Whse. Put-away Request"."Document Type"::"Internal Put-away"
                     then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
         }

@@ -25,7 +25,7 @@ codeunit 1280 "Map Currency Exchange Rate"
         if DataExchField.IsEmpty then
             exit;
 
-        Commit;
+        Commit();
 
         CurrentLineNo := -1;
         if DataExchField.FindSet then
@@ -48,7 +48,7 @@ codeunit 1280 "Map Currency Exchange Rate"
             exit(false);
         RecordRef.SetTable(CurrencyExchangeRate);
 
-        Commit;
+        Commit();
         exit(true);
     end;
 
@@ -208,7 +208,7 @@ codeunit 1280 "Map Currency Exchange Rate"
     begin
         Field.Get(TableID, FieldID);
         TempField.Copy(Field);
-        TempField.Insert;
+        TempField.Insert();
     end;
 
     [EventSubscriber(ObjectType::Table, 1400, 'OnRegisterServiceConnection', '', false, false)]

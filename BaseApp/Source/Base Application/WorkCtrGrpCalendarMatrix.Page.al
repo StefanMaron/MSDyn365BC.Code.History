@@ -398,7 +398,7 @@ page 9295 "Work Ctr. Grp. Calendar Matrix"
     trigger OnOpenPage()
     begin
         MATRIX_CurrentNoOfMatrixColumn := ArrayLen(MATRIX_CaptionSet);
-        MfgSetup.Get;
+        MfgSetup.Get();
         MfgSetup.TestField("Show Capacity In");
     end;
 

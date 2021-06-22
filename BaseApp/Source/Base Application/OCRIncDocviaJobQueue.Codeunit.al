@@ -40,11 +40,11 @@ codeunit 137 "OCR Inc. Doc. via Job Queue"
 
     local procedure SetJobQueueStatus(var IncomingDocument: Record "Incoming Document"; NewStatus: Option)
     begin
-        IncomingDocument.LockTable;
+        IncomingDocument.LockTable();
         if IncomingDocument.Find then begin
             IncomingDocument."Job Queue Status" := NewStatus;
-            IncomingDocument.Modify;
-            Commit;
+            IncomingDocument.Modify();
+            Commit();
         end;
     end;
 

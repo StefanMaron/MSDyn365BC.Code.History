@@ -1023,7 +1023,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
 
         // Setup.
         Initialize;
-        TariffNumber.Init;
+        TariffNumber.Init();
 
         // Exercise.
         asserterror TariffNumber.Validate(
@@ -1329,7 +1329,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
 
         // [GIVEN] Purchase order "PO" with "Posting Date" = 21/02/2016, "Receive" = FALSE, "Invoice" = FALSE
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order);
-        Commit;
+        Commit();
 
         // [WHEN] Post "PO" as receipt
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
@@ -1361,7 +1361,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
 
         // [GIVEN] Purchase order "PO" posted as receipt with "Posting Date" = 21/01/2016, "Receive" = TRUE, "Invoice" = FALSE
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order);
-        Commit;
+        Commit();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
         PurchaseHeader.Find;
@@ -1371,7 +1371,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // [GIVEN] "PO"."Posting Date" changed to 01/02/2016
         PurchaseHeader.Validate("Posting Date", WorkDate + 11);
         PurchaseHeader.Modify(true);
-        Commit;
+        Commit();
 
         // [WHEN] Post "PO" as invoice
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
@@ -1403,7 +1403,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
 
         // [GIVEN] Sales order "SO" with "Posting Date" = 21/02/2016, "Ship" = FALSE, "Invoice" = FALSE
         CreateSalesOrder(SalesHeader, SalesLine, SalesHeader."Document Type"::Order);
-        Commit;
+        Commit();
 
         // [WHEN] Post "SO" as shipment
         asserterror LibrarySales.PostSalesDocument(SalesHeader, true, false);
@@ -1435,7 +1435,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
 
         // [GIVEN] Sals order "SO" posted as shipment with "Posting Date" = 21/01/2016, "Ship" = TRUE, "Invoice" = FALSE
         CreateSalesOrder(SalesHeader, SalesLine, SalesHeader."Document Type"::Order);
-        Commit;
+        Commit();
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
 
         SalesHeader.Find;
@@ -1445,7 +1445,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // [GIVEN] "SO"."Posting Date" changed to 01/02/2016
         SalesHeader.Validate("Posting Date", WorkDate + 11);
         SalesHeader.Modify(true);
-        Commit;
+        Commit();
 
         // [WHEN] Post "SO" as invoice
         asserterror LibrarySales.PostSalesDocument(SalesHeader, false, true);
@@ -1468,7 +1468,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
     begin
         // [FEATURE] [UT] [Sales]
         // [SCENARIO 379956] Throw error "There is nothing to post" without intermediate confirmations when send to post blank Sales Header
-        SalesHeader.Init;
+        SalesHeader.Init();
 
         asserterror CODEUNIT.Run(CODEUNIT::"Sales-Post (Yes/No)", SalesHeader);
 
@@ -1483,7 +1483,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
     begin
         // [FEATURE] [UT] [Purchase]
         // [SCENARIO 379956] Throw error "There is nothing to post" without intermediate confirmations when send to post blank Purchase Header
-        PurchaseHeader.Init;
+        PurchaseHeader.Init();
 
         asserterror CODEUNIT.Run(CODEUNIT::"Purch.-Post (Yes/No)", PurchaseHeader);
 
@@ -1504,7 +1504,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
         CreateSalesLinesAllTypes(SalesLine, SalesHeader);
 
-        Commit;
+        Commit();
 
         CodeCoverageMgt.StartApplicationCoverage;
         SalesHeader.CheckShippingAdvice;
@@ -1515,9 +1515,9 @@ codeunit 134383 "ERM Sales/Purch Status Error"
           StrSubstNo('%1 must be called once', ItemGETTok));
 
         SalesLine."Qty. Shipped (Base)" := LibraryRandom.RandIntInRange(2, 5);
-        SalesLine.Modify;
+        SalesLine.Modify();
 
-        Commit;
+        Commit();
         asserterror SalesHeader.CheckShippingAdvice;
         Assert.ExpectedError(NonCopleteOrderErr);
 
@@ -1555,7 +1555,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Sales/Purch Status Error");
     end;
 
@@ -1807,7 +1807,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
         LibraryDimension.CreateDefaultDimensionCustomer(DefaultDimension, CustNo, Dimension.Code, DimensionValue.Code);
         DefaultDimension.Validate("Value Posting", DefaultDimension."Value Posting"::"Code Mandatory");
-        DefaultDimension.Modify;
+        DefaultDimension.Modify();
     end;
 
     local procedure CreateSalesLinesAllTypes(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
@@ -1847,7 +1847,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         SalesHeader: Record "Sales Header";
         SalesDocumentTest: Report "Sales Document - Test";
     begin
-        Commit;
+        Commit();
         Clear(SalesDocumentTest);
         SalesHeader.SetRange("Document Type", DocumentType);
         SalesHeader.SetRange("No.", DocumentNo);
@@ -1861,7 +1861,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
     begin
         // Update Sales & Receivable Setup and Create Sales document.
 
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         UpdateSalesReceivableSetup(DefaultPostingDate, SalesReceivablesSetup."Default Posting Date"::"No Date");
         CreateSalesDocumentWithFCY(SalesHeader, DocumentType);
     end;
@@ -1872,7 +1872,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
     begin
         // Update Purchase & Payable Setup and Create Sales document.
 
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         UpdatePurchasePayableSetup(DefaultPostingDate, PurchasesPayablesSetup."Default Posting Date"::"No Date");
         CreatePurchaseDocumentFCY(PurchaseHeader, DocumentType);
     end;
@@ -1931,7 +1931,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
     begin
         LibraryERM.CreateReturnReasonCode(ReturnReason);
         ReturnReason."Inventory Value Zero" := InventoryValueZero;
-        ReturnReason.Modify;
+        ReturnReason.Modify();
         exit(ReturnReason.Code);
     end;
 
@@ -1948,7 +1948,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         OldDefaultPostingDate := SalesReceivablesSetup."Default Posting Date";
         SalesReceivablesSetup.Validate("Default Posting Date", DefaultPostingDate);
         SalesReceivablesSetup.Modify(true);
@@ -1958,7 +1958,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         OldDefaultPostingDate := PurchasesPayablesSetup."Default Posting Date";
         PurchasesPayablesSetup.Validate("Default Posting Date", DefaultPostingDate);
         PurchasesPayablesSetup.Modify(true);

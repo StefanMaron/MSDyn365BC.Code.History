@@ -64,18 +64,18 @@ codeunit 5812 "Calculate Standard Cost"
     begin
         CalcItems(Item, TempItem2);
 
-        ProdBOMVersionErrBuf.Reset;
+        ProdBOMVersionErrBuf.Reset();
         if ProdBOMVersionErrBuf.Find('-') then
             repeat
                 NewProdBOMVersionErrBuf := ProdBOMVersionErrBuf;
-                NewProdBOMVersionErrBuf.Insert;
+                NewProdBOMVersionErrBuf.Insert();
             until ProdBOMVersionErrBuf.Next = 0;
 
-        RtngVersionErrBuf.Reset;
+        RtngVersionErrBuf.Reset();
         if RtngVersionErrBuf.Find('-') then
             repeat
                 NewRtngVersionErrBuf := RtngVersionErrBuf;
-                NewRtngVersionErrBuf.Insert;
+                NewRtngVersionErrBuf.Insert();
             until RtngVersionErrBuf.Next = 0;
     end;
 
@@ -223,12 +223,12 @@ codeunit 5812 "Calculate Standard Cost"
         NoOfRecords: Integer;
         LineCount: Integer;
     begin
-        NewTempItem.DeleteAll;
+        NewTempItem.DeleteAll();
 
         Item2.Copy(Item);
         OnBeforeCalcItems(Item2);
 
-        NoOfRecords := Item.Count;
+        NoOfRecords := Item.Count();
         if ShowDialog then
             Window.Open(Text002);
 
@@ -243,11 +243,11 @@ codeunit 5812 "Calculate Standard Cost"
                     CalcMfgItem(Item2."No.", Item3, 0);
             until Item2.Next = 0;
 
-        TempItem.Reset;
+        TempItem.Reset();
         if TempItem.Find('-') then
             repeat
                 NewTempItem := TempItem;
-                NewTempItem.Insert;
+                NewTempItem.Insert();
             until TempItem.Next = 0;
 
         if ShowDialog then
@@ -522,7 +522,7 @@ codeunit 5812 "Calculate Standard Cost"
         end;
 
         TempItem := Item;
-        TempItem.Insert;
+        TempItem.Insert();
     end;
 
     local procedure SetProdBOMFilters(var ProdBOMLine: Record "Production BOM Line"; var PBOMVersionCode: Code[20]; ProdBOMNo: Code[20])
@@ -652,11 +652,11 @@ codeunit 5812 "Calculate Standard Cost"
         if IsRtng then begin
             RtngVersionErrBuf."Routing No." := No;
             RtngVersionErrBuf."Version Code" := Version;
-            if RtngVersionErrBuf.Insert then;
+            if RtngVersionErrBuf.Insert() then;
         end else begin
             ProdBOMVersionErrBuf."Production BOM No." := No;
             ProdBOMVersionErrBuf."Version Code" := Version;
-            if ProdBOMVersionErrBuf.Insert then;
+            if ProdBOMVersionErrBuf.Insert() then;
         end;
     end;
 
@@ -702,7 +702,7 @@ codeunit 5812 "Calculate Standard Cost"
 
             OnGetWorkCenterOnBeforeAssignWorkCenterToTemp(WorkCenter, TempItem);
             TempWorkCenter := WorkCenter;
-            TempWorkCenter.Insert;
+            TempWorkCenter.Insert();
         end;
     end;
 
@@ -724,10 +724,11 @@ codeunit 5812 "Calculate Standard Cost"
                         StdCostWksh."New Standard Cost", StdCostWksh."New Overhead Rate", StdCostWksh."New Indirect Cost %");
                 end;
             TempMachineCenter := MachineCenter;
-            TempMachineCenter.Insert;
+            TempMachineCenter.Insert();
         end;
     end;
 
+    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '16.0')]
     local procedure GetResCost(No: Code[20]; var ResCost: Record "Resource Cost")
     var
         StdCostWksh: Record "Standard Cost Worksheet";
@@ -735,7 +736,7 @@ codeunit 5812 "Calculate Standard Cost"
         if TempResCost.Get(TempResCost.Type::Resource, No) then
             ResCost := TempResCost
         else begin
-            ResCost.Init;
+            ResCost.Init();
             ResCost.Code := No;
             ResCost."Work Type Code" := '';
             CODEUNIT.Run(CODEUNIT::"Resource-Find Cost", ResCost);
@@ -750,7 +751,7 @@ codeunit 5812 "Calculate Standard Cost"
                         StdCostWksh."New Indirect Cost %");
                 end;
             TempResCost := ResCost;
-            TempResCost.Insert;
+            TempResCost.Insert();
         end;
     end;
 
@@ -761,7 +762,7 @@ codeunit 5812 "Calculate Standard Cost"
 
     procedure CalculateAssemblyCostExp(AssemblyHeader: Record "Assembly Header"; var ExpCost: array[5] of Decimal)
     begin
-        GLSetup.Get;
+        GLSetup.Get();
 
         ExpCost[RowIdx::AsmOvhd] :=
           Round(
@@ -777,7 +778,7 @@ codeunit 5812 "Calculate Standard Cost"
         Item: Record Item;
         StdTotalCost: Decimal;
     begin
-        GLSetup.Get;
+        GLSetup.Get();
 
         Item.Get(ItemNo);
         StdCost[RowIdx::MatCost] :=
@@ -809,7 +810,7 @@ codeunit 5812 "Calculate Standard Cost"
 
     local procedure CalculatePostedAssemblyCostExp(PostedAssemblyHeader: Record "Posted Assembly Header"; var ExpCost: array[5] of Decimal)
     begin
-        GLSetup.Get;
+        GLSetup.Get();
 
         ExpCost[RowIdx::AsmOvhd] :=
           Round(

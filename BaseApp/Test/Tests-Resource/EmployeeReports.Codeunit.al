@@ -41,7 +41,7 @@ codeunit 136903 "Employee Reports"
         CreateEmployeeRelative(EmployeeRelative, Employee."No.");
 
         // 2. Exercise: Generate the Employee - Relatives Report.
-        Commit;
+        Commit();
         Clear(EmployeeRelatives);
         EmployeeRelative.SetRange("Employee No.", EmployeeRelative."Employee No.");
         EmployeeRelatives.SetTableView(EmployeeRelative);
@@ -70,7 +70,7 @@ codeunit 136903 "Employee Reports"
         LibraryHumanResource.CreateConfidentialInformation(ConfidentialInformation, Employee."No.", FindConfidential);
 
         // 2. Exercise: Generate the Employee - Confidential Info. Report.
-        Commit;
+        Commit();
         Clear(EmployeeConfidentialInfo);
         ConfidentialInformation.SetRange("Employee No.", ConfidentialInformation."Employee No.");
         EmployeeConfidentialInfo.SetTableView(ConfidentialInformation);
@@ -103,7 +103,7 @@ codeunit 136903 "Employee Reports"
         ModifyMiscellaneousArticle(MiscArticleInformation, Employee."No.");
 
         // 2. Exercise: Generate the Employee - Misc. Article Info. Report.
-        Commit;
+        Commit();
         Clear(EmployeeMiscArticleInfo);
         MiscArticleInformation.SetRange("Employee No.", MiscArticleInformation."Employee No.");
         EmployeeMiscArticleInfo.SetTableView(MiscArticleInformation);
@@ -132,7 +132,7 @@ codeunit 136903 "Employee Reports"
         CreateEmployeeQualifications(EmployeeQualification, Employee."No.");
 
         // 2. Exercise: Generate the Employee - Qualifications Report.
-        Commit;
+        Commit();
         Clear(EmployeeQualifications);
         EmployeeQualification.SetRange("Employee No.", EmployeeQualification."Employee No.");
         EmployeeQualifications.SetTableView(EmployeeQualification);
@@ -161,7 +161,7 @@ codeunit 136903 "Employee Reports"
         ModifyEmployeeContracts(Employee, EmploymentContract.Code);
 
         // 2. Exercise: Generate Employee - Contracts Report.
-        Commit;
+        Commit();
         Clear(EmployeeContracts);
         EmploymentContract.SetRange(Code, EmploymentContract.Code);
         EmployeeContracts.SetTableView(EmploymentContract);
@@ -192,7 +192,7 @@ codeunit 136903 "Employee Reports"
         ModifyEmployeeUnions(Employee, Union.Code);
 
         // 2. Exercise: Generate Employee - Unions Report.
-        Commit;
+        Commit();
         Clear(EmployeeUnions);
         Union.SetRange(Code, Union.Code);
         EmployeeUnions.SetTableView(Union);
@@ -221,7 +221,7 @@ codeunit 136903 "Employee Reports"
         ModifyEmployeePhoneNos(Employee);
 
         // 2. Exercise: Generate Employee - Phone Nos Report.
-        Commit;
+        Commit();
         Clear(EmployeePhoneNos);
         Employee.SetRange("No.", Employee."No.");
         EmployeePhoneNos.SetTableView(Employee);
@@ -248,7 +248,7 @@ codeunit 136903 "Employee Reports"
         AttachBirthDate(Employee);
 
         // 2. Exercise: Generate Employee - Birthdays Report.
-        Commit;
+        Commit();
         Clear(EmployeeBirthdays);
         Employee.SetRange("No.", Employee."No.");
         EmployeeBirthdays.SetTableView(Employee);
@@ -278,7 +278,7 @@ codeunit 136903 "Employee Reports"
         AttachAddress(Employee);
 
         // 2. Exercise: Generate Employee - Addresses Report.
-        Commit;
+        Commit();
         Clear(EmployeeAddresses);
         Employee.SetRange("No.", Employee."No.");
         EmployeeAddresses.SetTableView(Employee);
@@ -308,7 +308,7 @@ codeunit 136903 "Employee Reports"
         AttachAlternativeAddress(Employee, AlternativeAddress.Code);
 
         // 2. Exercise: Generate Employee - Alt. Addresses Report.
-        Commit;
+        Commit();
         Clear(EmployeeAltAddresses);
         Employee.SetRange("No.", Employee."No.");
         EmployeeAltAddresses.SetTableView(Employee);
@@ -335,7 +335,7 @@ codeunit 136903 "Employee Reports"
         CreateEmployeeList(Employee);
 
         // 2. Exercise: Generate Resource Journal - Test.
-        Commit;
+        Commit();
         Clear(EmployeeList);
         Employee.SetRange("No.", Employee."No.");
         EmployeeList.SetTableView(Employee);
@@ -367,7 +367,7 @@ codeunit 136903 "Employee Reports"
         CreateEmployeeAbsence(EmployeeAbsence, EmployeeNo, CalcDate('<-' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate));
 
         // 2. Exercise: Generate Employee - Absences by Causes Report.
-        Commit;
+        Commit();
         Clear(EmployeeAbsencesByCauses);
         EmployeeAbsence.SetRange("Employee No.", EmployeeAbsence."Employee No.");
         EmployeeAbsencesByCauses.SetTableView(EmployeeAbsence);
@@ -396,7 +396,7 @@ codeunit 136903 "Employee Reports"
         CreateEmployeeAbsence(EmployeeAbsence, Employee."No.", WorkDate);
 
         // 2. Exercise: Generate Employee - Staff Absences Report.
-        Commit;
+        Commit();
         Clear(EmployeeStaffAbsences);
         EmployeeAbsence.SetRange("Employee No.", EmployeeAbsence."Employee No.");
         EmployeeStaffAbsences.SetTableView(EmployeeAbsence);
@@ -1156,7 +1156,7 @@ codeunit 136903 "Employee Reports"
         LibraryService.SetupServiceMgtNoSeries;
 
         isInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Employee Reports");
@@ -1262,7 +1262,7 @@ codeunit 136903 "Employee Reports"
         PostCode: Record "Post Code";
         LibraryERM: Codeunit "Library - ERM";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryERM.CreatePostCode(PostCode);
         DimensionValue.SetRange("Dimension Code", GeneralLedgerSetup."Global Dimension 1 Code");
         DimensionValue.FindFirst;
@@ -1277,10 +1277,10 @@ codeunit 136903 "Employee Reports"
 
     local procedure CreateCountryRegionWithAddressFormat(var CountryRegion: Record "Country/Region"; AddressFormat: Option)
     begin
-        CountryRegion.Init;
+        CountryRegion.Init();
         CountryRegion.Code := LibraryUtility.GenerateRandomCode(CountryRegion.FieldNo(Code), DATABASE::"Country/Region");
         CountryRegion."Address Format" := AddressFormat;
-        CountryRegion.Insert;
+        CountryRegion.Insert();
     end;
 
     local procedure GetCauseOfAbsenceCode(): Code[10]
@@ -1303,9 +1303,9 @@ codeunit 136903 "Employee Reports"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup."Local Address Format" := AddressFormat;
-        GeneralLedgerSetup.Modify;
+        GeneralLedgerSetup.Modify();
     end;
 
     local procedure FindRelative(): Code[10]

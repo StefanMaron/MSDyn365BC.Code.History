@@ -1,4 +1,4 @@
-﻿page 99000818 "Prod. Order Components"
+page 99000818 "Prod. Order Components"
 {
     AutoSplitKey = true;
     Caption = 'Prod. Order Components';
@@ -593,7 +593,7 @@
     var
         ReserveProdOrderComp: Codeunit "Prod. Order Comp.-Reserve";
     begin
-        Commit;
+        Commit();
         if not ReserveProdOrderComp.DeleteLineConfirm(Rec) then
             exit(false);
         ReserveProdOrderComp.DeleteLine(Rec);

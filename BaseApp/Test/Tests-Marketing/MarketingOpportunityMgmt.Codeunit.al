@@ -44,7 +44,6 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         ShowSalesQuoteErr: Label 'There is no sales quote that is assigned to this opportunity.';
         CloseOpportunityErr: Label '%1 for %2  must not exist.';
         WrongAttendeeCountErr: Label 'Wrong Attendee count';
-        AppointmentPropertyValueErr: Label 'Wrong Appointment property value';
         ActionShouldBeEnabledErr: Label 'Action should be enabled';
         OpportunityCreatedFromIntLogEntryMsg: Label 'Opportunity %1 was created based on selected interaction log entry.', Comment = '%1 - opportunity code';
         ActionShouldBeDisabledErr: Label 'Action should be disabled';
@@ -831,127 +830,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         SalesCycles.Run;
     end;
 
-    /*  
-        TODO: BUG
-        [Test]
-        [Scope('OnPrem')]
-        procedure AppointmentAddAttendees()
-        var
-            Task: Record "To-do";
-            AttendeeTemp: array[2] of Record Attendee;
-            Contact: array[2] of Record Contact;
-            Appointment: DotNet "Microsoft.Dynamics.Nav.Exchange.ALTest.Appointment";
-        begin
-            // [FEATURE] [Exchange] [To-Do] [Appointment]
-            // [SCENARIO 174746] AddAppointment Attendee adds required and optional attendee
-            Initialize;
-
-            // [GIVEN] Required Attendee "A1" and Optional attendee "A2"
-            CreateContactWithSalesPerson(Contact[1]);
-            CreateContactWithSalesPerson(Contact[2]);
-            CreateAttendee(
-              AttendeeTemp[1],
-              Contact[1]."Salesperson Code",
-              AttendeeTemp[1]."Attendance Type"::Required);
-            CreateAttendee(
-              AttendeeTemp[2],
-              Contact[2]."Salesperson Code",
-              AttendeeTemp[2]."Attendance Type"::Optional);
-
-            // [GIVEN] Appointment
-            Appointment := Appointment.Appointment;
-
-            // [WHEN] Attendees "A1" and "A2" added to Appointment
-            Task.AddAppointmentAttendee(Appointment, AttendeeTemp[1], LibraryUtility.GenerateRandomText(80));
-            Task.AddAppointmentAttendee(Appointment, AttendeeTemp[2], LibraryUtility.GenerateRandomText(80));
-
-            // [THEN] Appointment has 1 Required and 1 Optional Attendee
-            Assert.AreEqual(1, Appointment.RequiredAttendeesCount, WrongAttendeeCountErr);
-            Assert.AreEqual(1, Appointment.OptionalAttendeesCount, WrongAttendeeCountErr);
-
-            // [THEN] Attendees "A1" and "A2" have "Invitation Sent" = TRUE;
-            Assert.IsTrue(AttendeeTemp[1]."Invitation Sent", AppointmentPropertyValueErr);
-            Assert.IsTrue(AttendeeTemp[2]."Invitation Sent", AppointmentPropertyValueErr);
-        end; */
-
-    /*   [Test]
-      [Scope('OnPrem')]
-      procedure AppointmentUpdateValues()
-      var
-          Task: Record "To-do";
-          Appointment: DotNet "Microsoft.Dynamics.Nav.Exchange.ALTest.Appointment";
-          TimeZoneInfo: DotNet TimeZoneInfo;
-      begin
-          // [FEATURE] [Exchange] [To-Do] [Appointment]
-          // [SCENARIO 174746] Update Appointment with Subject, Location, Start/End Time
-          Initialize;
-
-          // [GIVEN] To-do with Description "D", Location "L", Start Date/Time = "SDT", End Date/Time = "EDT", TimeZone = "TZ"
-          Task.Init;
-          Task.Description := LibraryUtility.GenerateRandomCode(Task.FieldNo(Description), DATABASE::"To-do");
-          Task.Location := LibraryUtility.GenerateRandomCode(Task.FieldNo(Location), DATABASE::"To-do");
-          Task.Date := Today;
-          Task."Start Time" := Time;
-          Task."Ending Date" := Today;
-          Task."Ending Time" := Time + 60000; // +1 min as Assert.AreEqual() may hide seconds
-          Task.Insert(true);
-
-          // [WHEN] Appointment is updated
-          Appointment := Appointment.Appointment;
-          TimeZoneInfo := TimeZoneInfo.FindSystemTimeZoneById('Tokyo Standard Time');
-          Task.UpdateAppointment(Appointment, TimeZoneInfo);
-
-          // [THEN] Appointment Subject = "D", Location = "L"
-          Assert.AreEqual(Task.Description, Appointment.Subject, AppointmentPropertyValueErr);
-          Assert.AreEqual(Task.Location, Appointment.Location, AppointmentPropertyValueErr);
-
-          // [THEN] Appointment Start Date/Time ="SDT", End Date/Time = "EDT"
-          Assert.AreEqual(
-            CreateDateTime(Task.Date, Task."Start Time"), Appointment.MeetingStart, AppointmentPropertyValueErr);
-          Assert.AreEqual(
-            CreateDateTime(Task."Ending Date", Task."Ending Time"), Appointment.MeetingEnd, AppointmentPropertyValueErr);
-
-          // [THEN] Appointment StartTimeZone = EndTimeZone = "TZ"
-          Assert.AreEqual(TimeZoneInfo.DisplayName, Appointment.StartTimeZone.DisplayName, AppointmentPropertyValueErr);
-          Assert.AreEqual(TimeZoneInfo.DisplayName, Appointment.EndTimeZone.DisplayName, AppointmentPropertyValueErr);
-
-          // [THEN] Appointment is not All Day Event
-          Assert.IsFalse(Appointment.IsAllDayEvent, AppointmentPropertyValueErr);
-      end;
-
-      [Test]
-      [Scope('OnPrem')]
-      procedure AppointmentUpdateValuesAllDayEvent()
-      var
-          Task: Record "To-do";
-          Appointment: DotNet "Microsoft.Dynamics.Nav.Exchange.ALTest.Appointment";
-          TimeZoneInfo: DotNet TimeZoneInfo;
-      begin
-          // [FEATURE] [Exchange] [To-Do] [Appointment]
-          // [SCENARIO 174746] Update Appointment with All Day Event property
-          Initialize;
-
-          // [GIVEN] To-do with "All Day Event" = TRUE, Date = "D"
-          Task.Init;
-          Task.Date := Today;
-          Task.Validate("All Day Event", true);
-          Task.Insert(true);
-
-          // [WHEN] Appointment is updated
-          Appointment := Appointment.Appointment;
-          TimeZoneInfo := TimeZoneInfo.FindSystemTimeZoneById('Tokyo Standard Time');
-          Task.UpdateAppointment(Appointment, TimeZoneInfo);
-
-          // [THEN] Appointment, where MeetingStart = "D" at 0:00, MeetingEnd is <blank>
-          Assert.AreEqual(
-            CreateDateTime(Task.Date, Task."Start Time"), Appointment.MeetingStart, AppointmentPropertyValueErr);
-          Assert.AreEqual(CreateDateTime(0D, 0T), Appointment.MeetingEnd, AppointmentPropertyValueErr);
-
-          // [THEN] Appointment is All Day Event
-          Assert.IsTrue(Appointment.IsAllDayEvent, AppointmentPropertyValueErr);
-      end;
-   */
-
+  
     [Test]
     [HandlerFunctions('ModalFormHandlerOpportunity,CustomerTemplateListModalPageHandler,ConfirmMessageHandler,MessageHandler')]
     [Scope('OnPrem')]
@@ -1711,33 +1590,6 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         Result := PAGE.RunModal(0, SalesCycleStage) = ACTION::LookupOK;
         // OK is invoked at SalesCycleStagesModalPageHandler
         Assert.IsTrue(Result = true, 'Expected LookupOK');
-    end;
-
-    [Test]
-    [HandlerFunctions('UpdateOpportunityModalPageHandler,ConfirmMessageHandler')]
-    [Scope('OnPrem')]
-    procedure UpdateOppotunityPageFieldSalesCycleDescription();
-    var
-        Opportunity: Record Opportunity;
-        OpportunityEntry: Record "Opportunity Entry";
-        SalesCycle: Record "Sales Cycle";
-        SalesCycleStage: Record "Sales Cycle Stage";
-        UpdateOpportunity: TestPage "Update Opportunity";
-    begin
-        // [FEATURE] [UI]
-        // [SCENARIO 346726] Page "Update Entry" field "Sales Cycle Description" shows Description of Sales Cycle Stage.
-        Initialize;
-
-        // [GIVEN] Opportunity with Opportunity Entry.
-        LibraryMarketing.CreateOpportunity(Opportunity, LibraryMarketing.CreateCompanyContactNo());
-        Opportunity.StartActivateFirstStage();
-
-        // [WHEN] Page "Update Entry" is opened.
-        Opportunity.UpdateOpportunity();
-
-        // [THEN] Page "Update Entry" field "Sales Cycle Description" is equal to Description of Sales Cycle Stage.
-        SalesCycleStage.GET(Opportunity."Sales Cycle Code", LibraryVariableStorage.DequeueInteger);
-        Assert.AreEqual(SalesCycleStage.Description, LibraryVariableStorage.DequeueText(), '');
     end;
 
     local procedure Initialize()
@@ -2528,15 +2380,6 @@ codeunit 136209 "Marketing Opportunity Mgmt"
     procedure SalesCycleStagesModalPageHandler(var SalesCycleStages: TestPage "Sales Cycle Stages")
     begin
         SalesCycleStages.OK.Invoke;
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure UpdateOpportunityModalPageHandler(var UpdateOpportunity: TestPage "Update Opportunity");
-    begin
-        LibraryVariableStorage.Enqueue(UpdateOpportunity."Sales Cycle Stage".Value());
-        LibraryVariableStorage.Enqueue(UpdateOpportunity."Sales Cycle Stage Description".Value());
-        UpdateOpportunity.Cancel.Invoke();
     end;
 }
 

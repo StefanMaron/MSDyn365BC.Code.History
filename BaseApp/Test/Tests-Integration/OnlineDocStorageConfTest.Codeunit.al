@@ -17,16 +17,16 @@ codeunit 139100 "Online Doc. Storage Conf Test"
     var
         Config: Record "Document Service";
     begin
-        Config.DeleteAll;
+        Config.DeleteAll();
 
-        Config.Init;
+        Config.Init();
         Config."Service ID" := 'Service ID';
         Config.Description := 'Description';
         Config.Location := 'http://location';
         Config."User Name" := 'User Name';
         Config."Document Repository" := 'Document Repository';
         Config.Folder := 'Folder';
-        Config.Insert;
+        Config.Insert();
     end;
 
     [Test]
@@ -73,7 +73,7 @@ codeunit 139100 "Online Doc. Storage Conf Test"
         // Expect Test Connection to fail fast due to table validation failing.
         // This test intentionally only tests CAL code without testing the full validation stack.
 
-        DocumentService.DeleteAll;
+        DocumentService.DeleteAll();
         DocServPage.OpenEdit;
 
         // Description is not mandatory but we want to trigger validation on the record.
@@ -118,7 +118,7 @@ codeunit 139100 "Online Doc. Storage Conf Test"
         DocumentService: Record "Document Service";
         DocServPage: TestPage "Document Service Config";
     begin
-        DocumentService.DeleteAll;
+        DocumentService.DeleteAll();
         DocServPage.OpenEdit;
 
         Assert.IsFalse(DocServPage."Service ID".Value = '', 'The Service ID field should have been automatically populated');
@@ -159,8 +159,8 @@ codeunit 139100 "Online Doc. Storage Conf Test"
         InitializeConfig;
         DocumentService.FindFirst;
         DocumentService.Validate(Password, 'Password');
-        DocumentService.Modify;
-        Commit;
+        DocumentService.Modify();
+        Commit();
 
         DocServPage.OpenEdit;
         DocServPage."Set Password".Invoke;
@@ -181,8 +181,8 @@ codeunit 139100 "Online Doc. Storage Conf Test"
         InitializeConfig;
         DocumentService.FindFirst;
         DocumentService.Validate(Password, 'OldPwd');
-        DocumentService.Modify;
-        Commit;
+        DocumentService.Modify();
+        Commit();
 
         DocServPage.OpenEdit;
         DocServPage."Set Password".Invoke;

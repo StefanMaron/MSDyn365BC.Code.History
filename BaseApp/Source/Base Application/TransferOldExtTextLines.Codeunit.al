@@ -12,7 +12,7 @@ codeunit 379 "Transfer Old Ext. Text Lines"
     begin
         LineNoBuffer."Old Line Number" := OldLineNo;
         LineNoBuffer."New Line Number" := NewLineNo;
-        LineNoBuffer.Insert;
+        LineNoBuffer.Insert();
     end;
 
     procedure GetNewLineNumber(OldLineNo: Integer): Integer
@@ -25,7 +25,7 @@ codeunit 379 "Transfer Old Ext. Text Lines"
 
     procedure ClearLineNumbers()
     begin
-        LineNoBuffer.DeleteAll;
+        LineNoBuffer.DeleteAll();
     end;
 
     procedure TransferExtendedText(OldLineNo: Integer; NewLineNo: Integer; AttachedLineNo: Integer): Integer

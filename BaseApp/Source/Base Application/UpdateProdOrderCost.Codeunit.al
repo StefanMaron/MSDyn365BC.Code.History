@@ -13,10 +13,6 @@ codeunit 99000757 "Update Prod. Order Cost"
         ProdOrderComp: Record "Prod. Order Component";
         PlanningComponent: Record "Planning Component";
         ServiceInvLine: Record "Service Line";
-        ReservMgt: Codeunit "Reservation Management";
-        ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
-        ReserveProdOrderLine: Codeunit "Prod. Order Line-Reserve";
-        ReserveProdOrderComp: Codeunit "Prod. Order Comp.-Reserve";
 
     local procedure ModifyFor(ReservEntry: Record "Reservation Entry"; UnitCost: Decimal)
     var
@@ -24,8 +20,8 @@ codeunit 99000757 "Update Prod. Order Cost"
         ReqLine: Record "Requisition Line";
         QtyToReserveNonBase: Decimal;
         QtyToReserve: Decimal;
-        QtyReservedThisLineNonBase: Decimal;
-        QtyReservedThisLine: Decimal;
+        QtyReservedNonBase: Decimal;
+        QtyReserved: Decimal;
     begin
         if UnitCost = 0 then
             exit;
@@ -37,9 +33,7 @@ codeunit 99000757 "Update Prod. Order Cost"
             DATABASE::"Sales Line":
                 begin
                     SalesLine.Get(ReservEntry."Source Subtype", ReservEntry."Source ID", ReservEntry."Source Ref. No.");
-                    ReservMgt.SetSalesLine(SalesLine);
-                    ReservMgt.SalesLineUpdateValues(SalesLine, QtyToReserveNonBase, QtyToReserve,
-                      QtyReservedThisLineNonBase, QtyReservedThisLine);
+                    SalesLine.GetReservationQty(QtyReservedNonBase, QtyReserved, QtyToReserveNonBase, QtyToReserve);
                     if SalesLine."Qty. per Unit of Measure" <> 0 then
                         SalesLine."Unit Cost (LCY)" :=
                           Round(SalesLine."Unit Cost (LCY)" / SalesLine."Qty. per Unit of Measure");
@@ -47,19 +41,18 @@ codeunit 99000757 "Update Prod. Order Cost"
                         SalesLine."Unit Cost (LCY)" :=
                           Round(
                             (SalesLine."Unit Cost (LCY)" *
-                             (SalesLine."Quantity (Base)" - QtyReservedThisLine) +
-                             UnitCost * QtyReservedThisLine) / SalesLine."Quantity (Base)", 0.00001);
+                             (SalesLine."Quantity (Base)" - QtyReserved) +
+                             UnitCost * QtyReserved) / SalesLine."Quantity (Base)", 0.00001);
                     if SalesLine."Qty. per Unit of Measure" <> 0 then
                         SalesLine."Unit Cost (LCY)" :=
                           Round(SalesLine."Unit Cost (LCY)" * SalesLine."Qty. per Unit of Measure");
                     SalesLine.Validate("Unit Cost (LCY)");
-                    SalesLine.Modify;
+                    SalesLine.Modify();
                 end;
             DATABASE::"Requisition Line":
                 begin
                     ReqLine.Get(ReservEntry."Source ID", ReservEntry."Source Batch Name", ReservEntry."Source Ref. No.");
-                    ReservMgt.ReqLineUpdateValues(ReqLine, QtyToReserveNonBase, QtyToReserve,
-                      QtyReservedThisLineNonBase, QtyReservedThisLine);
+                    ReqLine.GetReservationQty(QtyReservedNonBase, QtyReserved, QtyToReserveNonBase, QtyToReserve);
                     if ReqLine."Qty. per Unit of Measure" <> 0 then
                         ReqLine."Direct Unit Cost" :=
                           Round(ReqLine."Direct Unit Cost" / ReqLine."Qty. per Unit of Measure");
@@ -67,13 +60,13 @@ codeunit 99000757 "Update Prod. Order Cost"
                         ReqLine."Direct Unit Cost" :=
                           Round(
                             (ReqLine."Direct Unit Cost" *
-                             (ReqLine."Quantity (Base)" - QtyReservedThisLine) +
-                             UnitCost * QtyReservedThisLine) / ReqLine."Quantity (Base)", 0.00001);
+                             (ReqLine."Quantity (Base)" - QtyReserved) +
+                             UnitCost * QtyReserved) / ReqLine."Quantity (Base)", 0.00001);
                     if ReqLine."Qty. per Unit of Measure" <> 0 then
                         ReqLine."Direct Unit Cost" :=
                           Round(ReqLine."Direct Unit Cost" * ReqLine."Qty. per Unit of Measure");
                     ReqLine.Validate("Direct Unit Cost");
-                    ReqLine.Modify;
+                    ReqLine.Modify();
                 end;
             DATABASE::"Purchase Line":
                 begin
@@ -85,13 +78,13 @@ codeunit 99000757 "Update Prod. Order Cost"
                         PurchLine."Unit Cost (LCY)" :=
                           Round(
                             (PurchLine."Unit Cost (LCY)" *
-                             (PurchLine."Quantity (Base)" - QtyReservedThisLine) +
-                             UnitCost * QtyReservedThisLine) / PurchLine."Quantity (Base)", 0.00001);
+                             (PurchLine."Quantity (Base)" - QtyReserved) +
+                             UnitCost * QtyReserved) / PurchLine."Quantity (Base)", 0.00001);
                     if PurchLine."Qty. per Unit of Measure" <> 0 then
                         PurchLine."Unit Cost (LCY)" :=
                           Round(PurchLine."Unit Cost (LCY)" * PurchLine."Qty. per Unit of Measure");
                     PurchLine.Validate("Unit Cost (LCY)");
-                    PurchLine.Modify;
+                    PurchLine.Modify();
                 end;
             DATABASE::"Item Journal Line":
                 begin
@@ -104,13 +97,13 @@ codeunit 99000757 "Update Prod. Order Cost"
                         ItemJnlLine."Unit Cost" :=
                           Round(
                             (ItemJnlLine."Unit Cost" *
-                             (ItemJnlLine."Quantity (Base)" - QtyReservedThisLine) +
-                             UnitCost * QtyReservedThisLine) / ItemJnlLine."Quantity (Base)", 0.00001);
+                             (ItemJnlLine."Quantity (Base)" - QtyReserved) +
+                             UnitCost * QtyReserved) / ItemJnlLine."Quantity (Base)", 0.00001);
                     if ItemJnlLine."Qty. per Unit of Measure" <> 0 then
                         ItemJnlLine."Unit Cost" :=
                           Round(ItemJnlLine."Unit Cost" * ItemJnlLine."Qty. per Unit of Measure");
                     ItemJnlLine.Validate("Unit Cost");
-                    ItemJnlLine.Modify;
+                    ItemJnlLine.Modify();
                 end;
             DATABASE::"Prod. Order Line":
                 begin
@@ -123,22 +116,20 @@ codeunit 99000757 "Update Prod. Order Cost"
                         ProdOrderLine."Unit Cost" :=
                           Round(
                             (ProdOrderLine."Unit Cost" *
-                             (ProdOrderLine."Quantity (Base)" - QtyReservedThisLine) +
-                             UnitCost * QtyReservedThisLine) / ProdOrderLine."Quantity (Base)", 0.00001);
+                             (ProdOrderLine."Quantity (Base)" - QtyReserved) +
+                             UnitCost * QtyReserved) / ProdOrderLine."Quantity (Base)", 0.00001);
                     if ProdOrderLine."Qty. per Unit of Measure" <> 0 then
                         ProdOrderLine."Unit Cost" :=
                           Round(ProdOrderLine."Unit Cost" * ProdOrderLine."Qty. per Unit of Measure");
                     ProdOrderLine.Validate("Unit Cost");
-                    ProdOrderLine.Modify;
+                    ProdOrderLine.Modify();
                 end;
             DATABASE::"Prod. Order Component":
                 begin
                     ProdOrderComp.Get(
                       ReservEntry."Source Subtype", ReservEntry."Source ID", ReservEntry."Source Prod. Order Line",
                       ReservEntry."Source Ref. No.");
-                    ReservMgt.SetProdOrderComponent(ProdOrderComp);
-                    ReservMgt.ProdOrderCompUpdateValues(ProdOrderComp, QtyToReserveNonBase, QtyToReserve,
-                      QtyReservedThisLineNonBase, QtyReservedThisLine);
+                    ProdOrderComp.GetReservationQty(QtyReservedNonBase, QtyReserved, QtyToReserveNonBase, QtyToReserve);
                     if ProdOrderComp."Qty. per Unit of Measure" <> 0 then
                         ProdOrderComp."Unit Cost" :=
                           Round(ProdOrderComp."Unit Cost" / ProdOrderComp."Qty. per Unit of Measure");
@@ -146,13 +137,13 @@ codeunit 99000757 "Update Prod. Order Cost"
                         ProdOrderComp."Unit Cost" :=
                           Round(
                             (ProdOrderComp."Unit Cost" *
-                             (ProdOrderComp."Expected Qty. (Base)" - QtyReservedThisLine) +
-                             UnitCost * QtyReservedThisLine) / ProdOrderComp."Expected Qty. (Base)", 0.00001);
+                             (ProdOrderComp."Expected Qty. (Base)" - QtyReserved) +
+                             UnitCost * QtyReserved) / ProdOrderComp."Expected Qty. (Base)", 0.00001);
                     if ProdOrderComp."Qty. per Unit of Measure" <> 0 then
                         ProdOrderComp."Unit Cost" :=
                           Round(ProdOrderComp."Unit Cost" * ProdOrderComp."Qty. per Unit of Measure");
                     ProdOrderComp.Validate("Unit Cost");
-                    ProdOrderComp.Modify;
+                    ProdOrderComp.Modify();
                 end;
             DATABASE::"Planning Component":
                 begin
@@ -168,20 +159,18 @@ codeunit 99000757 "Update Prod. Order Cost"
                         PlanningComponent."Unit Cost" :=
                           Round(
                             (PlanningComponent."Unit Cost" *
-                             (PlanningComponent."Expected Quantity (Base)" - QtyReservedThisLine) +
-                             UnitCost * QtyReservedThisLine) / PlanningComponent."Expected Quantity (Base)", 0.00001);
+                             (PlanningComponent."Expected Quantity (Base)" - QtyReserved) +
+                             UnitCost * QtyReserved) / PlanningComponent."Expected Quantity (Base)", 0.00001);
                     if PlanningComponent."Qty. per Unit of Measure" <> 0 then
                         PlanningComponent."Unit Cost" :=
                           Round(PlanningComponent."Unit Cost" * PlanningComponent."Qty. per Unit of Measure");
                     PlanningComponent.Validate("Unit Cost");
-                    PlanningComponent.Modify;
+                    PlanningComponent.Modify();
                 end;
             DATABASE::"Service Line":
                 begin
                     ServiceInvLine.Get(ReservEntry."Source Subtype", ReservEntry."Source ID", ReservEntry."Source Ref. No.");
-                    ReservMgt.SetServLine(ServiceInvLine);
-                    ReservMgt.ServiceInvLineUpdateValues(ServiceInvLine, QtyToReserveNonBase, QtyToReserve,
-                      QtyReservedThisLineNonBase, QtyReservedThisLine);
+                    ServiceInvLine.GetReservationQty(QtyReservedNonBase, QtyReserved, QtyToReserveNonBase, QtyToReserve);
                     if ServiceInvLine."Qty. per Unit of Measure" <> 0 then
                         ServiceInvLine."Unit Cost (LCY)" :=
                           Round(ServiceInvLine."Unit Cost (LCY)" / ServiceInvLine."Qty. per Unit of Measure");
@@ -189,13 +178,13 @@ codeunit 99000757 "Update Prod. Order Cost"
                         ServiceInvLine."Unit Cost (LCY)" :=
                           Round(
                             (ServiceInvLine."Unit Cost (LCY)" *
-                             (ServiceInvLine."Quantity (Base)" - QtyReservedThisLine) +
-                             UnitCost * QtyReservedThisLine) / ServiceInvLine."Quantity (Base)", 0.00001);
+                             (ServiceInvLine."Quantity (Base)" - QtyReserved) +
+                             UnitCost * QtyReserved) / ServiceInvLine."Quantity (Base)", 0.00001);
                     if ServiceInvLine."Qty. per Unit of Measure" <> 0 then
                         ServiceInvLine."Unit Cost (LCY)" :=
                           Round(ServiceInvLine."Unit Cost (LCY)" * ServiceInvLine."Qty. per Unit of Measure");
                     ServiceInvLine.Validate("Unit Cost (LCY)");
-                    ServiceInvLine.Modify;
+                    ServiceInvLine.Modify();
                 end;
         end;
     end;
@@ -326,8 +315,8 @@ codeunit 99000757 "Update Prod. Order Cost"
                 Item.Get(ProdOrderComp."Item No.");
                 if Item."Costing Method" <= Item."Costing Method"::Average then begin
                     ReservEntry."Source Type" := DATABASE::"Prod. Order Component";
-                    ReservEngineMgt.InitFilterAndSortingFor(ReservEntry, true);
-                    ReserveProdOrderComp.FilterReservFor(ReservEntry, ProdOrderComp);
+                    ReservEntry.InitSortingAndFilters(true);
+                    ProdOrderComp.SetReservationFilters(ReservEntry);
                     if ReservEntry.Find('-') then
                         SumTrackingCosts(ReservEntry, TotalUnitCost, TotalCostQty, MultipleLevels, Item);
                     ProdOrderComp.CalcFields("Reserved Qty. (Base)");
@@ -342,7 +331,7 @@ codeunit 99000757 "Update Prod. Order Cost"
                         UnitCost := TotalUnitCost / TotalCostQty * ProdOrderComp."Qty. per Unit of Measure";
                         if ProdOrderComp."Unit Cost" <> UnitCost then begin
                             ProdOrderComp.Validate("Unit Cost", UnitCost);
-                            ProdOrderComp.Modify;
+                            ProdOrderComp.Modify();
                         end;
                     end;
                 end;
@@ -366,12 +355,12 @@ codeunit 99000757 "Update Prod. Order Cost"
 
         OnUpdateUnitCostOnProdOrderOnAfterValidateUnitCost(ProdOrderLine);
 
-        ProdOrderLine.Modify;
+        ProdOrderLine.Modify();
         if UpdateReservation then begin
-            ReservEntry.Reset;
+            ReservEntry.Reset();
             ReservEntry."Source Type" := DATABASE::"Prod. Order Line";
-            ReservEngineMgt.InitFilterAndSortingFor(ReservEntry, false);
-            ReserveProdOrderLine.FilterReservFor(ReservEntry, ProdOrderLine);
+            ReservEntry.InitSortingAndFilters(false);
+            ProdOrderLine.SetReservationFilters(ReservEntry);
             if ProdOrderLine."Qty. per Unit of Measure" <> 0 then
                 UnitCost := Round(ProdOrderLine."Unit Cost" / ProdOrderLine."Qty. per Unit of Measure", 0.00001)
             else

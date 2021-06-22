@@ -81,7 +81,7 @@ codeunit 135408 "Return Order Plan-based E2E"
         Assert.ExpectedErrorCode('DB:ClientInsertDenied');
         LibraryE2EPlanPermissions.SetBusinessManagerPlan;
         CustomerNo := LibrarySales.CreateCustomerNo;
-        Commit;
+        Commit();
 
         // [GIVEN] A posted sales invoice
         // The team memeber can't create an item for the sales order
@@ -90,7 +90,7 @@ codeunit 135408 "Return Order Plan-based E2E"
         Assert.ExpectedErrorCode('TestValidation');
         LibraryE2EPlanPermissions.SetBusinessManagerPlan;
         CreatePostedSalesInvoice(CustomerNo);
-        Commit;
+        Commit();
 
         // [WHEN] A sales return  order is created from the sales order;
         // Team member can create the return order, but can't post it
@@ -143,7 +143,7 @@ codeunit 135408 "Return Order Plan-based E2E"
 
         LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
         CustomerNo := LibrarySales.CreateCustomerNo;
-        Commit;
+        Commit();
 
         // [GIVEN] A posted sales invoice
         // The team memeber can't create an item for the sales order
@@ -153,7 +153,7 @@ codeunit 135408 "Return Order Plan-based E2E"
 
         LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
         CreatePostedSalesInvoice(CustomerNo);
-        Commit;
+        Commit();
 
         // [WHEN] A sales return  order is created from the sales order;
         // Team member can create the return order, but can't post it
@@ -254,7 +254,7 @@ codeunit 135408 "Return Order Plan-based E2E"
         Assert.ExpectedErrorCode('DB:ClientInsertDenied');
         LibraryE2EPlanPermissions.SetBusinessManagerPlan;
         VendorNo := LibraryPurchase.CreateVendorNo;
-        Commit;
+        Commit();
 
         // [GIVEN] A posted purchase invoice
         // The team memeber can't create an item for the purchase order
@@ -263,7 +263,7 @@ codeunit 135408 "Return Order Plan-based E2E"
         Assert.ExpectedErrorCode('TestValidation');
         LibraryE2EPlanPermissions.SetBusinessManagerPlan;
         CreatePostedPurchaseInvoice(VendorNo);
-        Commit;
+        Commit();
 
         // [WHEN] A purchase return  order is created from the purchase order
         // Team member can't create the return order
@@ -317,7 +317,7 @@ codeunit 135408 "Return Order Plan-based E2E"
 
         LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
         VendorNo := LibraryPurchase.CreateVendorNo;
-        Commit;
+        Commit();
 
         // [GIVEN] A posted purchase invoice
         // The team memeber can't create an item for the purchase order
@@ -327,7 +327,7 @@ codeunit 135408 "Return Order Plan-based E2E"
 
         LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
         CreatePostedPurchaseInvoice(VendorNo);
-        Commit;
+        Commit();
 
         // [WHEN] A purchase return  order is created from the purchase order
         // Team member can't create the return order
@@ -368,7 +368,6 @@ codeunit 135408 "Return Order Plan-based E2E"
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        AzureADPlanTestLibrary: Codeunit "Azure AD Plan Test Library";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Return Order Plan-based E2E");
 
@@ -394,12 +393,9 @@ codeunit 135408 "Return Order Plan-based E2E"
         LibraryERMCountryData.RemoveBlankGenJournalTemplate;
 
         isInitialized := true;
-        Commit;
+        Commit();
 
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Return Order Plan-based E2E");
-
-        // Populate table Plan if empty
-        AzureADPlanTestLibrary.PopulatePlanTable();
     end;
 
     local procedure VerifySalesCreditMemoCreatedFromReturnOrder(SalesReturnOrderNo: Code[20]; CustomerNo: Code[20])
@@ -433,7 +429,7 @@ codeunit 135408 "Return Order Plan-based E2E"
         SalesReturnOrder.GetPostedDocumentLinesToReverse.Invoke;
         SalesReturnOrderNo := SalesReturnOrder."No.".Value;
         SalesReturnOrder.Post.Invoke;
-        Commit;
+        Commit();
     end;
 
     local procedure CreatePurchaseReturnOrderAndPostIt(VendorNo: Code[20]) PurchaseReturnOrderNo: Code[20]
@@ -446,7 +442,7 @@ codeunit 135408 "Return Order Plan-based E2E"
         PurchaseReturnOrderNo := PurchaseReturnOrder."No.".Value;
         PurchaseReturnOrder."Vendor Cr. Memo No.".SetValue(PurchaseReturnOrderNo);
         PurchaseReturnOrder.Post.Invoke;
-        Commit;
+        Commit();
     end;
 
     local procedure CreatePostedSalesInvoice(CustomerNo: Code[20])
@@ -460,7 +456,7 @@ codeunit 135408 "Return Order Plan-based E2E"
         SalesInvoice.SalesLines."No.".SetValue(CreateItem);
         SalesInvoice.SalesLines.Quantity.SetValue(LibraryRandom.RandDec(100, 1));
         SalesInvoice.Post.Invoke;
-        Commit;
+        Commit();
     end;
 
     local procedure CreatePostedPurchaseInvoice(VendorNo: Code[20])
@@ -476,7 +472,7 @@ codeunit 135408 "Return Order Plan-based E2E"
         PurchaseInvoice.PurchLines."No.".SetValue(CreateItem);
         PurchaseInvoice.PurchLines.Quantity.SetValue(LibraryRandom.RandDec(100, 1));
         PurchaseInvoice.Post.Invoke;
-        Commit;
+        Commit();
     end;
 
     local procedure CreateItem() ItemNo: Code[20]
@@ -488,7 +484,7 @@ codeunit 135408 "Return Order Plan-based E2E"
         ItemCard.Description.SetValue(LibraryUtility.GenerateRandomText(MaxStrLen(Item.Description)));
         ItemNo := ItemCard."No.".Value;
         ItemCard.OK.Invoke;
-        Commit;
+        Commit();
     end;
 
     local procedure CreateVendor() VendorNo: Code[20]
@@ -500,7 +496,7 @@ codeunit 135408 "Return Order Plan-based E2E"
         VendorCard.Name.SetValue(LibraryUtility.GenerateRandomText(MaxStrLen(Vendor.Name)));
         VendorNo := VendorCard."No.".Value;
         VendorCard.OK.Invoke;
-        Commit;
+        Commit();
     end;
 
     local procedure CreateCustomer() CustomerNo: Code[20]
@@ -512,7 +508,7 @@ codeunit 135408 "Return Order Plan-based E2E"
         CustomerCard.Name.SetValue(LibraryUtility.GenerateRandomText(MaxStrLen(Customer.Name)));
         CustomerNo := CustomerCard."No.".Value;
         CustomerCard.OK.Invoke;
-        Commit;
+        Commit();
     end;
 
     [StrMenuHandler]

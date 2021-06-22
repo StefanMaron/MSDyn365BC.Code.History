@@ -20,7 +20,7 @@ codeunit 131000 "Library - Utility"
 
     procedure CreateNoSeries(var NoSeries: Record "No. Series"; Default: Boolean; Manual: Boolean; DateOrder: Boolean)
     begin
-        NoSeries.Init;
+        NoSeries.Init();
         NoSeries.Validate(Code, GenerateRandomCode(NoSeries.FieldNo(Code), DATABASE::"No. Series"));
         NoSeries.Validate("Default Nos.", Default);
         NoSeries.Validate("Manual Nos.", Manual);
@@ -32,7 +32,7 @@ codeunit 131000 "Library - Utility"
     var
         RecRef: RecordRef;
     begin
-        NoSeriesLine.Init;
+        NoSeriesLine.Init();
         NoSeriesLine.Validate("Series Code", SeriesCode);
         RecRef.GetTable(NoSeriesLine);
         NoSeriesLine.Validate("Line No.", GetNewLineNo(RecRef, NoSeriesLine.FieldNo("Line No.")));
@@ -54,7 +54,7 @@ codeunit 131000 "Library - Utility"
     var
         NoSeriesRelationship: Record "No. Series Relationship";
     begin
-        NoSeriesRelationship.Init;
+        NoSeriesRelationship.Init();
         NoSeriesRelationship.Validate(Code, Code);
         NoSeriesRelationship.Validate("Series Code", SeriesCode);
         NoSeriesRelationship.Insert(true);
@@ -89,7 +89,6 @@ codeunit 131000 "Library - Utility"
         index1: Integer;
         index2: Integer;
         FldCount: Integer;
-        fieldType: Text[30];
         continue: Boolean;
     begin
         index1 := RecRef1.KeyIndex(1).FieldCount + 1;
@@ -113,10 +112,9 @@ codeunit 131000 "Library - Utility"
             if not continue then begin
                 FieldRef1 := RecRef1.FieldIndex(index1);
                 FieldRef2 := RecRef2.FieldIndex(index2);
-                if Format(FieldRef1.Type) <> Format(FieldRef2.Type) then
-                    Error(ERR_NotCompatible, FieldRef1.Number, Format(FieldRef1.Type), Format(FieldRef2.Type));
-                fieldType := UpperCase(Format(FieldRef1.Type));
-                if DiscardDateTimeFields and ((fieldType = 'DATE') or (fieldType = 'TIME') or (fieldType = 'DATETIME')) then
+                if FieldRef1.Type <> FieldRef2.Type then
+                    Error(ERR_NotCompatible, FieldRef1.Number, FieldRef1.Type, FieldRef2.Type);
+                if DiscardDateTimeFields and (FieldRef1.Type in [FieldType::Date, FieldType::Time, FieldType::DateTime]) then
                     continue := true;
                 if not continue then
                     if FieldRef1.Value <> FieldRef2.Value then begin
@@ -168,7 +166,7 @@ codeunit 131000 "Library - Utility"
 
     procedure FindControl(ObjectNo: Integer; FieldNo: Integer): Boolean
     var
-        NAVAppObjectMetadata: Record "NAV App Object Metadata";
+        AppObjectMetadata: Record "Application Object Metadata";
         AllObj: Record AllObj;
         MetaDataInstream: InStream;
         TestString: Text[1024];
@@ -176,10 +174,10 @@ codeunit 131000 "Library - Utility"
         TestString := '';
 
         AllObj.Get(AllObj."Object Type"::Page, ObjectNo);
-        NAVAppObjectMetadata.Get(AllObj."App Package ID", NAVAppObjectMetadata."Object Type"::Page, ObjectNo);
-        NAVAppObjectMetadata.CalcFields(Metadata);
-        if NAVAppObjectMetadata.Metadata.HasValue then
-            NAVAppObjectMetadata.Metadata.CreateInStream(MetaDataInstream);
+        AppObjectMetadata.Get(AllObj."App Runtime Package ID", AppObjectMetadata."Object Type"::Page, ObjectNo);
+        AppObjectMetadata.CalcFields(Metadata);
+        if AppObjectMetadata.Metadata.HasValue then
+            AppObjectMetadata.Metadata.CreateInStream(MetaDataInstream);
 
         while not MetaDataInstream.EOS do begin
             MetaDataInstream.ReadText(TestString);
@@ -305,7 +303,7 @@ codeunit 131000 "Library - Utility"
     begin
         // Init, get the global no series
         if not NoSeries.Get('GLOBAL') then begin
-            NoSeries.Init;
+            NoSeries.Init();
             NoSeries.Validate(Code, 'GLOBAL');
             NoSeries.Validate("Default Nos.", true);
             NoSeries.Validate("Manual Nos.", true);
@@ -336,17 +334,17 @@ codeunit 131000 "Library - Utility"
 
     local procedure GetPropertyValue(ObjectType: Option; ObjectNo: Integer; FieldNo: Integer; PropertyName: Text[30]; SuppressError: Boolean): Text[30]
     var
-        NAVAppObjectMetadata: Record "NAV App Object Metadata";
+        AppObjectMetadata: Record "Application Object Metadata";
         AllObj: Record AllObj;
         MetaDataInstream: InStream;
         ControlFound: Boolean;
         TestString: Text[1024];
     begin
         AllObj.Get(ObjectType, ObjectNo);
-        NAVAppObjectMetadata.Get(AllObj."App Package ID", ObjectType, ObjectNo);
-        NAVAppObjectMetadata.CalcFields(Metadata);
-        if NAVAppObjectMetadata.Metadata.HasValue then
-            NAVAppObjectMetadata.Metadata.CreateInStream(MetaDataInstream);
+        AppObjectMetadata.Get(AllObj."App Runtime Package ID", ObjectType, ObjectNo);
+        AppObjectMetadata.CalcFields(Metadata);
+        if AppObjectMetadata.Metadata.HasValue then
+            AppObjectMetadata.Metadata.CreateInStream(MetaDataInstream);
 
         while not MetaDataInstream.EOS do begin
             MetaDataInstream.ReadText(TestString);
@@ -361,7 +359,7 @@ codeunit 131000 "Library - Utility"
             end;
         end;
         if not ControlFound then begin
-            if ObjectType = NAVAppObjectMetadata."Object Type"::Page then
+            if ObjectType = AppObjectMetadata."Object Type"::Page then
                 Error(StrSubstNo(ControlForFieldNotFoundError, FieldNo, ObjectNo));
             Error(StrSubstNo(FieldNotFoundError, FieldNo, ObjectNo));
         end;
@@ -370,16 +368,16 @@ codeunit 131000 "Library - Utility"
 
     procedure GetPropertyValueForControl(ObjectNo: Integer; FieldNo: Integer; PropertyName: Text[30]; SuppressError: Boolean): Text[30]
     var
-        NAVAppObjectMetadata: Record "NAV App Object Metadata";
+        AppObjectMetadata: Record "Application Object Metadata";
     begin
-        exit(GetPropertyValue(NAVAppObjectMetadata."Object Type"::Page, ObjectNo, FieldNo, PropertyName, SuppressError));
+        exit(GetPropertyValue(AppObjectMetadata."Object Type"::Page, ObjectNo, FieldNo, PropertyName, SuppressError));
     end;
 
     procedure GetPropertyValueForField(ObjectNo: Integer; FieldNo: Integer; PropertyName: Text[30]; SuppressError: Boolean): Text[30]
     var
-        NAVAppObjectMetadata: Record "NAV App Object Metadata";
+        AppObjectMetadata: Record "Application Object Metadata";
     begin
-        exit(GetPropertyValue(NAVAppObjectMetadata."Object Type"::Table, ObjectNo, FieldNo, PropertyName, SuppressError));
+        exit(GetPropertyValue(AppObjectMetadata."Object Type"::Table, ObjectNo, FieldNo, PropertyName, SuppressError));
     end;
 
     procedure GetNextNoFromNoSeries(NoSeriesCode: Code[20]; PostingDate: Date): Code[20]
@@ -555,7 +553,7 @@ codeunit 131000 "Library - Utility"
         NoSeriesMgt: Codeunit NoSeriesManagement;
     begin
         if not NoSeries.Get('GUID') then begin
-            NoSeries.Init;
+            NoSeries.Init();
             NoSeries.Validate(Code, 'GUID');
             NoSeries.Validate("Default Nos.", true);
             NoSeries.Validate("Manual Nos.", true);
@@ -574,13 +572,13 @@ codeunit 131000 "Library - Utility"
     begin
         for i := 1 to RecRef.FieldCount do begin
             FieldRef := RecRef.FieldIndex(i);
-            if Format(FieldRef.Class) = 'Normal' then
-                case Format(FieldRef.Type) of
-                    'Text':
+            if FieldRef.Class = FieldClass::Normal then
+                case FieldRef.Type of
+                    FieldType::Text:
                         FieldRef.Value := GenerateRandomXMLText(FieldRef.Length);
-                    'Date':
+                    FieldType::Date:
                         FieldRef.Value := GenerateRandomDate(Today, CalcDate('<1Y>'));
-                    'Decimal':
+                    FieldType::Decimal:
                         FieldRef.Value := LibraryRandom.RandDec(9999999, 2);
                 end;
         end;
@@ -614,9 +612,9 @@ codeunit 131000 "Library - Utility"
 
     local procedure GetTextValue(ObjectType: Option): Text[30]
     var
-        NAVAppObjectMetadata: Record "NAV App Object Metadata";
+        AppObjectMetadata: Record "Application Object Metadata";
     begin
-        if ObjectType = NAVAppObjectMetadata."Object Type"::Page then
+        if ObjectType = AppObjectMetadata."Object Type"::Page then
             exit('DataColumnName="');
         exit('Field ID="');
     end;
@@ -665,7 +663,7 @@ codeunit 131000 "Library - Utility"
         NoSeriesCode := GetGlobalNoSeriesCode;
         if Format(FieldRef.Value) <> NoSeriesCode then begin
             FieldRef.Value(NoSeriesCode);
-            RecRef.Modify;
+            RecRef.Modify();
         end;
     end;
 
@@ -676,7 +674,7 @@ codeunit 131000 "Library - Utility"
         Clear(TempField);
         Field.Get(TableNo, FieldNo);
         TempField.TransferFields(Field, true);
-        TempField.Insert;
+        TempField.Insert();
     end;
 
     local procedure VerifyRecordHasCodeKey(TableID: Integer; var RecRef: RecordRef; var FieldRef: FieldRef)
@@ -721,7 +719,7 @@ codeunit 131000 "Library - Utility"
         RecRef.GetTable(RecVar);
         FieldRef := RecRef.Field(FieldNo);
         FieldRef.Value := GenerateRandomText(FieldRef.Length);
-        RecRef.Modify;
+        RecRef.Modify();
     end;
 
     procedure GetInetRoot(): Text

@@ -70,7 +70,7 @@ table 209 "Job Journal Template"
                     "Page ID" := PAGE::"Job Journal";
                 "Test Report ID" := REPORT::"Job Journal - Test";
                 "Posting Report ID" := REPORT::"Job Register";
-                SourceCodeSetup.Get;
+                SourceCodeSetup.Get();
                 "Source Code" := SourceCodeSetup."Job Journal";
                 if Recurring then
                     TestField("No. Series", '');
@@ -154,7 +154,7 @@ table 209 "Job Journal Template"
         JobJnlLine.SetRange("Journal Template Name", Name);
         JobJnlLine.DeleteAll(true);
         JobJnlBatch.SetRange("Journal Template Name", Name);
-        JobJnlBatch.DeleteAll;
+        JobJnlBatch.DeleteAll();
     end;
 
     trigger OnInsert()

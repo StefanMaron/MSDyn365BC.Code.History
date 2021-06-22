@@ -66,7 +66,7 @@ table 1053 "Line Fee Note on Report Hist."
             exit;
 
         if CustLedgerEntry."Currency Code" = '' then begin
-            GeneralLedgerSetup.Get;
+            GeneralLedgerSetup.Get();
             CurrencyCode := GeneralLedgerSetup."LCY Code";
         end else
             CurrencyCode := CustLedgerEntry."Currency Code";
@@ -82,7 +82,7 @@ table 1053 "Line Fee Note on Report Hist."
         LineFeeNoteOnReportHist: Record "Line Fee Note on Report Hist.";
     begin
         if LineFeeNoteOnReport <> '' then begin
-            LineFeeNoteOnReportHist.Init;
+            LineFeeNoteOnReportHist.Init();
             LineFeeNoteOnReportHist."Cust. Ledger Entry No" := CustLedgerEntryNo;
             LineFeeNoteOnReportHist."Due Date" := DueDate;
             LineFeeNoteOnReportHist."Language Code" := LanguageCode;

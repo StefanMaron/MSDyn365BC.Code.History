@@ -14,17 +14,15 @@ table 156 Resource
             trigger OnValidate()
             begin
                 if "No." <> xRec."No." then begin
-                    ResSetup.Get;
+                    ResSetup.Get();
                     NoSeriesMgt.TestManual(ResSetup."Resource Nos.");
                     "No. Series" := '';
                 end;
             end;
         }
-        field(2; Type; Option)
+        field(2; Type; Enum "Resource Type")
         {
             Caption = 'Type';
-            OptionCaption = 'Person,Machine';
-            OptionMembers = Person,Machine;
         }
         field(3; Name; Text[100])
         {
@@ -165,11 +163,11 @@ table 156 Resource
                     if "Base Unit of Measure" <> '' then begin
                         UnitOfMeasure.Get("Base Unit of Measure");
                         if not ResUnitOfMeasure.Get("No.", "Base Unit of Measure") then begin
-                            ResUnitOfMeasure.Init;
+                            ResUnitOfMeasure.Init();
                             ResUnitOfMeasure.Validate("Resource No.", "No.");
                             ResUnitOfMeasure.Validate(Code, "Base Unit of Measure");
                             ResUnitOfMeasure."Qty. per Unit of Measure" := 1;
-                            ResUnitOfMeasure.Insert;
+                            ResUnitOfMeasure.Insert();
                         end else begin
                             if ResUnitOfMeasure."Qty. per Unit of Measure" <> 1 then
                                 Error(BaseUnitOfMeasureQtyMustBeOneErr, "Base Unit of Measure", ResUnitOfMeasure."Qty. per Unit of Measure");
@@ -615,6 +613,8 @@ table 156 Resource
     }
 
     trigger OnDelete()
+    var
+        PurchaseLine: Record "Purchase Line";
     begin
         CheckJobPlanningLine;
 
@@ -622,47 +622,52 @@ table 156 Resource
 
         ResCapacityEntry.SetCurrentKey("Resource No.");
         ResCapacityEntry.SetRange("Resource No.", "No.");
-        ResCapacityEntry.DeleteAll;
+        ResCapacityEntry.DeleteAll();
 
         ResCost.SetRange(Type, ResCost.Type::Resource);
         ResCost.SetRange(Code, "No.");
-        ResCost.DeleteAll;
+        ResCost.DeleteAll();
 
         ResPrice.SetRange(Type, ResPrice.Type::Resource);
         ResPrice.SetRange(Code, "No.");
-        ResPrice.DeleteAll;
+        ResPrice.DeleteAll();
 
         CommentLine.SetRange("Table Name", CommentLine."Table Name"::Resource);
         CommentLine.SetRange("No.", "No.");
-        CommentLine.DeleteAll;
+        CommentLine.DeleteAll();
 
         ExtTextHeader.SetRange("Table Name", ExtTextHeader."Table Name"::Resource);
         ExtTextHeader.SetRange("No.", "No.");
         ExtTextHeader.DeleteAll(true);
 
-        ResSkill.Reset;
+        ResSkill.Reset();
         ResSkill.SetRange(Type, ResSkill.Type::Resource);
         ResSkill.SetRange("No.", "No.");
-        ResSkill.DeleteAll;
+        ResSkill.DeleteAll();
 
-        ResLoc.Reset;
+        ResLoc.Reset();
         ResLoc.SetCurrentKey("Resource No.", "Starting Date");
         ResLoc.SetRange("Resource No.", "No.");
-        ResLoc.DeleteAll;
+        ResLoc.DeleteAll();
 
-        ResServZone.Reset;
+        ResServZone.Reset();
         ResServZone.SetRange("Resource No.", "No.");
-        ResServZone.DeleteAll;
+        ResServZone.DeleteAll();
 
-        ResUnitMeasure.Reset;
+        ResUnitMeasure.Reset();
         ResUnitMeasure.SetRange("Resource No.", "No.");
-        ResUnitMeasure.DeleteAll;
+        ResUnitMeasure.DeleteAll();
 
         SalesOrderLine.SetCurrentKey(Type, "No.");
         SalesOrderLine.SetRange(Type, SalesOrderLine.Type::Resource);
         SalesOrderLine.SetRange("No.", "No.");
         if SalesOrderLine.FindFirst then
-            Error(SalesDocumentExistsErr, "No.", SalesOrderLine."Document Type");
+            Error(DocumentExistsErr, "No.", SalesOrderLine."Document Type");
+
+        PurchaseLine.SetRange(Type, PurchaseLine.Type::Resource);
+        PurchaseLine.SetRange("No.", "No.");
+        if PurchaseLine.FindFirst() then
+            Error(DocumentExistsErr, "No.", PurchaseLine."Document Type");
 
         if ExistUnprocessedTimeSheets then
             Error(Text006, TableCaption, "No.");
@@ -673,7 +678,7 @@ table 156 Resource
     trigger OnInsert()
     begin
         if "No." = '' then begin
-            ResSetup.Get;
+            ResSetup.Get();
             ResSetup.TestField("Resource Nos.");
             NoSeriesMgt.InitSeries(ResSetup."Resource Nos.", xRec."No. Series", 0D, "No.", "No. Series");
         end;
@@ -728,7 +733,7 @@ table 156 Resource
         Text006: Label 'You cannot delete %1 %2 because unprocessed time sheet lines exist for this resource.', Comment = 'You cannot delete Resource LIFT since unprocessed time sheet lines exist for this resource.';
         BaseUnitOfMeasureQtyMustBeOneErr: Label 'The quantity per base unit of measure must be 1. %1 is set up with %2 per unit of measure.', Comment = '%1 Name of Unit of measure (e.g. BOX, PCS, KG...), %2 Qty. of %1 per base unit of measure ';
         CannotDeleteResourceErr: Label 'You cannot delete resource %1 because it is used in one or more job planning lines.', Comment = '%1 = Resource No.';
-        SalesDocumentExistsErr: Label 'You cannot delete resource %1 because there are one or more outstanding %2 that include this resource.', Comment = '%1 = Resource No.';
+        DocumentExistsErr: Label 'You cannot delete resource %1 because there are one or more outstanding %2 that include this resource.', Comment = '%1 = Resource No.';
         PrivacyBlockedPostErr: Label 'You cannot post this line because resource %1 is blocked due to privacy.', Comment = '%1=resource no.';
         PrivacyBlockedErr: Label 'You cannot create this line because resource %1 is blocked due to privacy.', Comment = '%1=resource no.';
         ConfirmBlockedPrivacyBlockedQst: Label 'If you change the Blocked field, the Privacy Blocked field is changed to No. Do you want to continue?';
@@ -738,10 +743,10 @@ table 156 Resource
     begin
         with Res do begin
             Res := Rec;
-            ResSetup.Get;
+            ResSetup.Get();
             ResSetup.TestField("Resource Nos.");
             if NoSeriesMgt.SelectSeries(ResSetup."Resource Nos.", OldRes."No. Series", "No. Series") then begin
-                ResSetup.Get;
+                ResSetup.Get();
                 ResSetup.TestField("Resource Nos.");
                 NoSeriesMgt.SetSeries("No.");
                 Rec := Res;
@@ -759,7 +764,7 @@ table 156 Resource
             DimMgt.SaveDefaultDim(DATABASE::Resource, "No.", FieldNumber, ShortcutDimCode);
             Modify;
         end;
-	
+
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;
 

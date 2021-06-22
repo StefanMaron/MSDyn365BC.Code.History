@@ -103,5 +103,12 @@ table 343 "Item Application Entry History"
     fieldgroups
     {
     }
+
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Primary Entry No.")))
+    end;
 }
 

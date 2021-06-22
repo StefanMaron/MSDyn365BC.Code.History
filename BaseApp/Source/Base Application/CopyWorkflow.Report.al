@@ -47,7 +47,7 @@ report 1510 "Copy Workflow"
             ToWorkflow.Description := FromWorkflow.Description;
         if ToWorkflow.Category = '' then
             ToWorkflow.Category := FromWorkflow.Category;
-        ToWorkflow.Modify;
+        ToWorkflow.Modify();
 
         CopyWorkflowSteps;
     end;

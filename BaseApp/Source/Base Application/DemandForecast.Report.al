@@ -140,7 +140,7 @@ report 99003804 "Demand Forecast"
             trigger OnPreDataItem()
             begin
                 ProdForecastEntry2.Copy("Production Forecast Entry");
-                MfgSetup.Get;
+                MfgSetup.Get();
             end;
         }
     }

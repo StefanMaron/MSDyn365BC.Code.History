@@ -29,7 +29,7 @@ report 8616 "Get Package Tables"
                             ConfigSelection: Page "Config. Selection";
                         begin
                             ConfigSelection.Set(TempConfigSelection);
-                            Commit;
+                            Commit();
                             if ConfigSelection.RunModal = ACTION::OK then
                                 SelectedTables := ConfigSelection.Get(TempConfigSelection);
                         end;
@@ -65,25 +65,25 @@ report 8616 "Get Package Tables"
         if PackageCode = '' then
             Error(Text001);
 
-        TempConfigSelection.Reset;
+        TempConfigSelection.Reset();
         TempConfigSelection.SetRange("Line Type", TempConfigSelection."Line Type"::Table);
         TempConfigSelection.SetRange(Selected, true);
         if TempConfigSelection.FindSet then
             repeat
                 if DataExists(TempConfigSelection."Table ID") and not ConfigPackageTable.Get(PackageCode, TempConfigSelection."Table ID") then begin
-                    ConfigPackageTable.Init;
+                    ConfigPackageTable.Init();
                     ConfigPackageTable.Validate("Package Code", PackageCode);
                     ConfigPackageTable.Validate("Table ID", TempConfigSelection."Table ID");
                     ConfigPackageTable.Insert(true);
                     ConfigLine.Get(TempConfigSelection."Line No.");
                     if ConfigLine."Package Code" = '' then begin
                         ConfigLine."Package Code" := PackageCode;
-                        ConfigLine.Modify;
+                        ConfigLine.Modify();
                     end;
                 end;
             until TempConfigSelection.Next = 0;
 
-        CurrReport.Break;
+        CurrReport.Break();
     end;
 
     var

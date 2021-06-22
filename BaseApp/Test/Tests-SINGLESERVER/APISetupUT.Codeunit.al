@@ -42,10 +42,10 @@ codeunit 134636 "API Setup UT"
         APIMockEvents.SetIsAPIEnabled(false);
         BindSubscription(APIMockEvents);
         // [GIVEN] new Customer, with no integration record
-        Customer.Init;
+        Customer.Init();
         Customer.Insert(true);
         IntegrationRecord.Get(Customer.Id);
-        IntegrationRecord.Delete;
+        IntegrationRecord.Delete();
 
         // [WHEN] Run APISetupIfEnabled
         GraphMgtGeneralTools.APISetupIfEnabled;
@@ -62,7 +62,7 @@ codeunit 134636 "API Setup UT"
     begin
         // Setup
         Initialze;
-        Customer.Init;
+        Customer.Init();
         SetReferencedRecordCodesOnCustomer(Customer);
 
         // Execute
@@ -80,11 +80,11 @@ codeunit 134636 "API Setup UT"
     begin
         // Setup
         Initialze;
-        Customer.Init;
+        Customer.Init();
         SetReferencedRecordCodesOnCustomer(Customer);
 
         // Execute
-        Customer.Insert;
+        Customer.Insert();
 
         // Verify
         VerifyCustomerRelatedRecordIDs(Customer);
@@ -98,7 +98,7 @@ codeunit 134636 "API Setup UT"
     begin
         // Setup
         Initialze;
-        Customer.Init;
+        Customer.Init();
         Customer.Insert(true);
         SetReferencedRecordCodesOnCustomer(Customer);
 
@@ -117,12 +117,12 @@ codeunit 134636 "API Setup UT"
     begin
         // Setup
         Initialze;
-        Customer.Init;
+        Customer.Init();
         Customer.Insert(true);
         SetReferencedRecordCodesOnCustomer(Customer);
 
         // Execute
-        Customer.Modify;
+        Customer.Modify();
 
         // Verify
         VerifyCustomerRelatedRecordIDs(Customer);
@@ -195,7 +195,7 @@ codeunit 134636 "API Setup UT"
     begin
         // Setup
         Initialze;
-        Vendor.Init;
+        Vendor.Init();
         SetReferencedRecordCodesOnVendor(Vendor);
 
         // Execute
@@ -213,11 +213,11 @@ codeunit 134636 "API Setup UT"
     begin
         // Setup
         Initialze;
-        Vendor.Init;
+        Vendor.Init();
         SetReferencedRecordCodesOnVendor(Vendor);
 
         // Execute
-        Vendor.Insert;
+        Vendor.Insert();
 
         // Verify
         VerifyVendorRelatedRecordIDs(Vendor);
@@ -231,7 +231,7 @@ codeunit 134636 "API Setup UT"
     begin
         // Setup
         Initialze;
-        Vendor.Init;
+        Vendor.Init();
         Vendor.Insert(true);
         SetReferencedRecordCodesOnVendor(Vendor);
 
@@ -250,12 +250,12 @@ codeunit 134636 "API Setup UT"
     begin
         // Setup
         Initialze;
-        Vendor.Init;
+        Vendor.Init();
         Vendor.Insert(true);
         SetReferencedRecordCodesOnVendor(Vendor);
 
         // Execute
-        Vendor.Modify;
+        Vendor.Modify();
 
         // Verify
         VerifyVendorRelatedRecordIDs(Vendor);
@@ -328,7 +328,7 @@ codeunit 134636 "API Setup UT"
     begin
         // Setup
         Initialze;
-        item.Init;
+        item.Init();
         SetReferencedRecordCodesOnItem(item);
 
         // Execute
@@ -346,11 +346,11 @@ codeunit 134636 "API Setup UT"
     begin
         // Setup
         Initialze;
-        Item.Init;
+        Item.Init();
         SetReferencedRecordCodesOnItem(Item);
 
         // Execute
-        Item.Insert;
+        Item.Insert();
 
         // Verify
         VerifyItemRelatedRecordIDs(Item);
@@ -364,7 +364,7 @@ codeunit 134636 "API Setup UT"
     begin
         // Setup
         Initialze;
-        Item.Init;
+        Item.Init();
         Item.Insert(true);
         SetReferencedRecordCodesOnItem(Item);
 
@@ -383,12 +383,12 @@ codeunit 134636 "API Setup UT"
     begin
         // Setup
         Initialze;
-        Item.Init;
+        Item.Init();
         Item.Insert(true);
         SetReferencedRecordCodesOnItem(Item);
 
         // Execute
-        Item.Modify;
+        Item.Modify();
 
         // Verify
         VerifyItemRelatedRecordIDs(Item);
@@ -503,8 +503,8 @@ codeunit 134636 "API Setup UT"
         LibrarySales.CreateSalesInvoice(NewSalesHeader2);
 
         APIMockEvents.SetIsAPIEnabled(false);
-        NewSalesInvoiceHeader2.Delete;
-        NewSalesHeader.Delete;
+        NewSalesInvoiceHeader2.Delete();
+        NewSalesHeader.Delete();
         Assert.IsTrue(
           SalesInvoiceEntityAggregate.Get(NewSalesInvoiceHeader2."No.", true), 'Aggregate record should exist for Posted Invoice');
         Assert.IsTrue(SalesInvoiceEntityAggregate.Get(NewSalesHeader."No.", false), 'Aggregate record should exist for Draft Invoice');
@@ -574,7 +574,7 @@ codeunit 134636 "API Setup UT"
         LibrarySales.CreateSalesQuoteForCustomerNo(NewSalesHeader2, Customer."No.");
         APIMockEvents.SetIsAPIEnabled(false);
 
-        NewSalesHeader.Delete;
+        NewSalesHeader.Delete();
         APIMockEvents.SetIsAPIEnabled(true);
 
         // Execute
@@ -642,8 +642,8 @@ codeunit 134636 "API Setup UT"
         CreatePostedCreditMemo(NewSalesCrMemoHeader2);
 
         APIMockEvents.SetIsAPIEnabled(false);
-        NewSalesCrMemoHeader2.Delete;
-        NewSalesHeader.Delete;
+        NewSalesCrMemoHeader2.Delete();
+        NewSalesHeader.Delete();
 
         Assert.IsTrue(
           SalesCrMemoEntityBuffer.Get(NewSalesCrMemoHeader2."No.", true), 'Aggregate record should exist for Posted Invoice');
@@ -711,7 +711,7 @@ codeunit 134636 "API Setup UT"
         LibrarySales.CreateSalesOrder(NewSalesHeader2);
         APIMockEvents.SetIsAPIEnabled(false);
 
-        NewSalesHeader.Delete;
+        NewSalesHeader.Delete();
         APIMockEvents.SetIsAPIEnabled(true);
 
         // Execute
@@ -777,8 +777,8 @@ codeunit 134636 "API Setup UT"
         CreatePostedPurchaseInvoice(NewPurchInvHeader2);
 
         APIMockEvents.SetIsAPIEnabled(false);
-        NewPurchInvHeader2.Delete;
-        NewPurchaseHeader.Delete;
+        NewPurchInvHeader2.Delete();
+        NewPurchaseHeader.Delete();
 
         Assert.IsTrue(
           PurchInvEntityAggregate.Get(NewPurchInvHeader2."No.", true), 'Aggregate record should exist for Posted Invoice');
@@ -1099,9 +1099,9 @@ codeunit 134636 "API Setup UT"
         PurchInvEntityAggregate: Record "Purch. Inv. Entity Aggregate";
     begin
         PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Invoice);
-        PurchaseHeader.DeleteAll;
-        PurchInvHeader.DeleteAll;
-        PurchInvEntityAggregate.DeleteAll;
+        PurchaseHeader.DeleteAll();
+        PurchInvHeader.DeleteAll();
+        PurchInvEntityAggregate.DeleteAll();
     end;
 
     local procedure ClearExistingInvoices()
@@ -1111,9 +1111,9 @@ codeunit 134636 "API Setup UT"
         SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate";
     begin
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
-        SalesHeader.DeleteAll;
-        SalesInvoiceHeader.DeleteAll;
-        SalesInvoiceEntityAggregate.DeleteAll;
+        SalesHeader.DeleteAll();
+        SalesInvoiceHeader.DeleteAll();
+        SalesInvoiceEntityAggregate.DeleteAll();
     end;
 
     local procedure ClearExistingQuotes()
@@ -1122,8 +1122,8 @@ codeunit 134636 "API Setup UT"
         SalesQuoteEntityBuffer: Record "Sales Quote Entity Buffer";
     begin
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Quote);
-        SalesHeader.DeleteAll;
-        SalesQuoteEntityBuffer.DeleteAll;
+        SalesHeader.DeleteAll();
+        SalesQuoteEntityBuffer.DeleteAll();
     end;
 
     local procedure ClearExistingOrders()
@@ -1132,8 +1132,8 @@ codeunit 134636 "API Setup UT"
         SalesOrderEntityBuffer: Record "Sales Order Entity Buffer";
     begin
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
-        SalesHeader.DeleteAll;
-        SalesOrderEntityBuffer.DeleteAll;
+        SalesHeader.DeleteAll();
+        SalesOrderEntityBuffer.DeleteAll();
     end;
 
     local procedure ClearExistingCreditMemos()
@@ -1143,14 +1143,14 @@ codeunit 134636 "API Setup UT"
         SalesCrMemoEntityBuffer: Record "Sales Cr. Memo Entity Buffer";
     begin
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::"Credit Memo");
-        SalesHeader.DeleteAll;
-        SalesCrMemoHeader.DeleteAll;
-        SalesCrMemoEntityBuffer.DeleteAll;
+        SalesHeader.DeleteAll();
+        SalesCrMemoHeader.DeleteAll();
+        SalesCrMemoEntityBuffer.DeleteAll();
     end;
 
     local procedure CreateCustomerRunInsertTrigger(var Customer: Record Customer)
     begin
-        Customer.Init;
+        Customer.Init();
         SetReferencedRecordCodesOnCustomer(Customer);
         Customer.Insert(true);
     end;
@@ -1172,7 +1172,7 @@ codeunit 134636 "API Setup UT"
 
     local procedure CreateVendorRunInsertTrigger(var Vendor: Record Vendor)
     begin
-        Vendor.Init;
+        Vendor.Init();
         SetReferencedRecordCodesOnVendor(Vendor);
         Vendor.Insert(true);
     end;
@@ -1194,7 +1194,7 @@ codeunit 134636 "API Setup UT"
 
     local procedure CreateItemRunInsertTrigger(var Item: Record Item)
     begin
-        Item.Init;
+        Item.Init();
         SetReferencedRecordCodesOnItem(Item);
         Item.Insert(true);
     end;

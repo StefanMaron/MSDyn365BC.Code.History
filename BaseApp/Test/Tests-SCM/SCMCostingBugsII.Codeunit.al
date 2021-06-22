@@ -260,10 +260,10 @@ codeunit 137621 "SCM Costing Bugs II"
         // Setup produced and component item.
         LibraryPatterns.MAKEItem(ParentItem, ParentItem."Costing Method"::Standard, LibraryRandom.RandDec(100, 2), 0, 0, '');
         ParentItem.Validate("Replenishment System", ParentItem."Replenishment System"::"Prod. Order");
-        ParentItem.Modify;
+        ParentItem.Modify();
 
         LibraryPatterns.MAKEItem(CompItem, CompItem."Costing Method"::FIFO, 0, 0, 0, '');
-        CompItem.Modify;
+        CompItem.Modify();
 
         // Setup BOM and Routing.
         QtyPer := LibraryRandom.RandInt(10);
@@ -429,7 +429,7 @@ codeunit 137621 "SCM Costing Bugs II"
         ItemLedgerEntry.SetRange("Posting Date", PostingDate[2]);
         ItemLedgerEntry.FindFirst;
         ItemJournalLine."Applies-to Entry" := ItemLedgerEntry."Entry No.";
-        ItemJournalLine.Insert;
+        ItemJournalLine.Insert();
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
 
         // Post Sales of the remaining quantity
@@ -472,7 +472,7 @@ codeunit 137621 "SCM Costing Bugs II"
         ItemLedgerEntry.SetRange("Posting Date", PostingDate[2]);
         ItemLedgerEntry.FindFirst;
         ItemJournalLine."Applies-to Entry" := ItemLedgerEntry."Entry No."; // Quantity in ILE cannot cover negative adjustment
-        ItemJournalLine.Insert;
+        ItemJournalLine.Insert();
 
         asserterror LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
         Assert.ExpectedError(TooLowErr);
@@ -802,7 +802,7 @@ codeunit 137621 "SCM Costing Bugs II"
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
 
         // [THEN] Cost amount in the inbound transfer entry on location "L2" is "X" * 3.4 (= 2 * 1.1 * X + 1.2 * X)
-        GLSetup.Get;
+        GLSetup.Get();
         VerifyRevaluedTransferCostAmount(Item."No.", Location2.Code, Round(StandardCost * 3.4, GLSetup."Amount Rounding Precision"));
     end;
 
@@ -1674,7 +1674,7 @@ codeunit 137621 "SCM Costing Bugs II"
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         isInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
@@ -1722,7 +1722,7 @@ codeunit 137621 "SCM Costing Bugs II"
         ItemJournalBatch: Record "Item Journal Batch";
     begin
         InitItemJournalBatch(ItemJournalBatch, ItemJournalBatch."Template Type"::Consumption);
-        ItemJournalLine.Init;
+        ItemJournalLine.Init();
         ItemJournalLine."Entry Type" := ItemJournalLine."Entry Type"::Consumption;
 
         ItemJournalTemplate.Get(ItemJournalBatch."Journal Template Name");
@@ -1783,11 +1783,11 @@ codeunit 137621 "SCM Costing Bugs II"
         LibraryPatterns.MAKEItem(ParentItem, ParentItem."Costing Method"::FIFO, 0, 0, 0, '');
         ParentItem.Validate("Flushing Method", ParentItem."Flushing Method"::Backward);
         ParentItem.Validate("Replenishment System", ParentItem."Replenishment System"::"Prod. Order");
-        ParentItem.Modify;
+        ParentItem.Modify();
 
         LibraryPatterns.MAKEItem(CompItem, CompItem."Costing Method"::FIFO, 0, 0, 0, '');
         CompItem.Validate("Flushing Method", CompItem."Flushing Method"::Backward);
-        CompItem.Modify;
+        CompItem.Modify();
 
         QtyPer := LibraryRandom.RandInt(10);
         RoutingLink.FindFirst;
@@ -2207,7 +2207,7 @@ codeunit 137621 "SCM Costing Bugs II"
     begin
         ItemLedgerEntry.FindSet;
         repeat
-            ItemApplicationEntryHistory.Init;
+            ItemApplicationEntryHistory.Init();
             ItemApplicationEntryHistory.SetRange("Entry No.", 0);
             ItemApplicationEntryHistory.SetRange("Item Ledger Entry No.", ItemLedgerEntry."Entry No.");
             Assert.RecordIsEmpty(ItemApplicationEntryHistory);
@@ -2239,7 +2239,7 @@ codeunit 137621 "SCM Costing Bugs II"
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
         ItemJournalLine.FindFirst;
         ItemJournalLine.Validate("Applies-to Entry", EntryNo);
-        ItemJournalLine.Modify;
+        ItemJournalLine.Modify();
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
     end;
 

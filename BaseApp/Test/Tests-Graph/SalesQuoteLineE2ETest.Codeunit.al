@@ -24,15 +24,15 @@ codeunit 135529 "Sales Quote Line E2E Test"
 
     local procedure Initialize()
     begin
-        LibraryApplicationArea.EnableEssentialSetup();
-
         if IsInitialized then
             exit;
 
         LibrarySales.SetStockoutWarning(false);
 
+        LibraryApplicationArea.EnableFoundationSetup;
+
         IsInitialized := true;
-        Commit;
+        Commit();
     end;
 
     [Test]
@@ -94,7 +94,7 @@ codeunit 135529 "Sales Quote Line E2E Test"
         LibraryInventory.CreateItem(Item);
 
         QuoteLineJSON := CreateQuoteLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100));
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSON to the web service
         TargetURL := LibraryGraphMgt
@@ -154,7 +154,7 @@ codeunit 135529 "Sales Quote Line E2E Test"
         // [THEN] the line should be changed in the table and the response JSON text should contain our changed field
         Assert.AreNotEqual('', ResponseText, 'Response JSON should not be blank');
 
-        SalesLine.Reset;
+        SalesLine.Reset();
         SalesLineExists := FindSalesLine(SalesLine, LineNo, SalesHeader."No.");
         Assert.IsTrue(SalesLineExists, 'The  quote line should exist after modification');
         Assert.AreEqual(SalesLine.Quantity, SalesQuantity, 'The patch of Sales line quantity was unsuccessful');
@@ -182,7 +182,7 @@ codeunit 135529 "Sales Quote Line E2E Test"
         SalesLine.FindFirst;
         LineNo := SalesLine."Line No.";
 
-        Commit;
+        Commit();
 
         // [WHEN] we DELETE the first line of that quote
         TargetURL := LibraryGraphMgt
@@ -194,7 +194,7 @@ codeunit 135529 "Sales Quote Line E2E Test"
         LibraryGraphMgt.DeleteFromWebService(TargetURL, '', ResponseText);
 
         // [THEN] the line should no longer exist in the database
-        SalesLine.Reset;
+        SalesLine.Reset();
         SalesLineExists := FindSalesLine(SalesLine, LineNo, SalesHeader."No.");
         Assert.IsFalse(SalesLineExists, 'The quote line should not exist');
     end;
@@ -222,7 +222,7 @@ codeunit 135529 "Sales Quote Line E2E Test"
         DiscountPct := LibraryRandom.RandDecInDecimalRange(1, 90, 2);
         LibrarySmallBusiness.SetInvoiceDiscountToCustomer(Customer, DiscountPct, MinAmount, SalesHeader."Currency Code");
         QuoteLineJSON := CreateQuoteLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100));
-        Commit;
+        Commit();
 
         // [WHEN] We create a line through API
         TargetURL := LibraryGraphMgt
@@ -267,7 +267,7 @@ codeunit 135529 "Sales Quote Line E2E Test"
         FindFirstSalesLine(SalesHeader, SalesLine);
         SalesQuantity := SalesLine.Quantity * 2;
 
-        Commit;
+        Commit();
 
         QuoteLineJSON := LibraryGraphMgt.AddComplexTypetoJSON('{}', 'quantity', Format(SalesQuantity));
 
@@ -320,7 +320,7 @@ codeunit 135529 "Sales Quote Line E2E Test"
         CODEUNIT.Run(CODEUNIT::"Sales - Calc Discount By Type", SalesLine);
         SalesHeader.Find;
         Assert.AreEqual(SalesHeader."Invoice Discount Value", DiscountPct2, 'Discount Pct was not assigned');
-        Commit;
+        Commit();
 
         // [WHEN] we DELETE the line
         TargetURL := LibraryGraphMgt
@@ -363,7 +363,7 @@ codeunit 135529 "Sales Quote Line E2E Test"
         CODEUNIT.Run(CODEUNIT::"Sales - Calc Discount By Type", SalesLine);
         SalesHeader.Find;
         Assert.AreEqual(SalesHeader."Invoice Discount Value", DiscountPct, 'Discount Pct was not assigned');
-        Commit;
+        Commit();
 
         // [WHEN] we DELETE the line
         TargetURL := LibraryGraphMgt
@@ -396,7 +396,7 @@ codeunit 135529 "Sales Quote Line E2E Test"
         SetupAmountDiscountTest(SalesHeader, Item, DiscountAmount);
         QuoteLineJSON := CreateQuoteLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100));
 
-        Commit;
+        Commit();
 
         // [WHEN] We create a line through API
         TargetURL := LibraryGraphMgt
@@ -433,7 +433,7 @@ codeunit 135529 "Sales Quote Line E2E Test"
 
         SalesQuantity := 0;
         QuoteLineJSON := LibraryGraphMgt.AddComplexTypetoJSON('{}', 'quantity', Format(SalesQuantity));
-        Commit;
+        Commit();
 
         FindFirstSalesLine(SalesHeader, SalesLine);
 
@@ -468,7 +468,7 @@ codeunit 135529 "Sales Quote Line E2E Test"
         // [GIVEN] A quote for customer with discount pct
         Initialize;
         SetupAmountDiscountTest(SalesHeader, Item, DiscountAmount);
-        Commit;
+        Commit();
 
         FindFirstSalesLine(SalesHeader, SalesLine);
 
@@ -502,7 +502,7 @@ codeunit 135529 "Sales Quote Line E2E Test"
         Initialize;
         CreateSalesQuoteWithLines(SalesHeader);
 
-        Commit;
+        Commit();
 
         QuoteLineJSON := '{"description":"test"}';
 
@@ -546,7 +546,7 @@ codeunit 135529 "Sales Quote Line E2E Test"
 
         QuoteLineJSON := '{"' + LineTypeFieldNameTxt + '":"Comment","description":"test"}';
 
-        Commit;
+        Commit();
 
         // [WHEN] we just POST a blank line
         TargetURL := LibraryGraphMgt
@@ -744,7 +744,7 @@ codeunit 135529 "Sales Quote Line E2E Test"
         LibrarySmallBusiness.CreateCustomer(Customer);
         LibraryInventory.CreateItem(Item);
         LibrarySmallBusiness.CreateSalesQuoteHeaderWithLines(SalesHeader, Customer, Item, 2, 1);
-        Commit;
+        Commit();
         exit(SalesHeader.Id);
     end;
 

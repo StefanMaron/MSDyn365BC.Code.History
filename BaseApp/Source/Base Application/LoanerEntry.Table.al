@@ -86,14 +86,16 @@ table 5914 "Loaner Entry"
     {
     }
 
-    procedure GetNextEntryNo(): Integer
+    procedure GetLastEntryNo(): Integer;
     var
-        LoanerEntry: Record "Loaner Entry";
+        FindRecordManagement: Codeunit "Find Record Management";
     begin
-        LoanerEntry.Reset;
-        if LoanerEntry.FindLast then
-            exit(LoanerEntry."Entry No." + 1);
-        exit(1);
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
+    end;
+
+    procedure GetNextEntryNo(): Integer
+    begin
+        exit(GetLastEntryNo() + 1);
     end;
 }
 

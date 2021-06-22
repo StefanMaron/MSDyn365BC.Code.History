@@ -79,22 +79,22 @@ codeunit 132217 "Library - Lower Permissions"
         if PermissionSet.Get(XTestPermissionSetTxt) then
             exit; // Permission set has already been created
 
-        PermissionSet.Init;
+        PermissionSet.Init();
         PermissionSet."Role ID" := XTestPermissionSetTxt;
-        if PermissionSet.Insert then;
+        if PermissionSet.Insert() then;
 
         TestAllObj.SetRange("Object Type", TestAllObj."Object Type"::TableData);
         TestAllObj.SetRange("Object ID", 130000, 149999);
         if TestAllObj.FindSet then
             repeat
-                Permission.Init;
+                Permission.Init();
                 Permission."Role ID" := XTestPermissionSetTxt;
                 Permission."Object Type" := TestAllObj."Object Type";
                 Permission."Object ID" := TestAllObj."Object ID";
-                if Permission.Insert then;
+                if Permission.Insert() then;
             until TestAllObj.Next = 0;
         PermissionManager.UpdateHashForPermissionSet(PermissionSet."Role ID");
-        Commit;
+        Commit();
     end;
 
     procedure AddExtensionsPermissions()

@@ -113,7 +113,7 @@ report 5984 "Contract Invoicing"
                     else
                         ServLedgEntryTEMP.Next;
                     if ServLedgEntryTEMP."Posting Date" < "Service Contract Header"."Next Invoice Date" then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
 
                 trigger OnPreDataItem()
@@ -135,7 +135,7 @@ report 5984 "Contract Invoicing"
             trigger OnAfterGetRecord()
             begin
                 if "Starting Date" = 0D then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 InvoiceSum := 0;
                 CalcFields(Name);
                 BuildInvoicePlan("Service Contract Header");
@@ -166,6 +166,9 @@ report 5984 "Contract Invoicing"
                     SetFilter("Invoice Period", GetFilter("Invoice Period") + '&<>%1', "Invoice Period"::None)
                 else
                     SetFilter("Invoice Period", '<>%1', "Invoice Period"::None);
+
+                OnAfterServiceContractHeaderOnPreDataItem("Service Contract Header", PostingDate, InvoiceToDate);
+
                 DateSep := '..';
             end;
         }
@@ -262,7 +265,7 @@ report 5984 "Contract Invoicing"
         DateFormula: DateFormula;
         Stop: Boolean;
     begin
-        ServLedgEntryTEMP.DeleteAll;
+        ServLedgEntryTEMP.DeleteAll();
         InvoicePeriod := ServContractMgt.GetInvoicePeriodText(ServContrHeader."Invoice Period");
         Evaluate(DateFormula, InvoicePeriod);
         EntryNo := 0;
@@ -298,14 +301,14 @@ report 5984 "Contract Invoicing"
     local procedure InsertServLedgEntry(DateFrom: Date; DateTo: Date)
     begin
         EntryNo += 1;
-        ServLedgEntryTEMP.Init;
+        ServLedgEntryTEMP.Init();
         ServLedgEntryTEMP."Entry No." := EntryNo;
         ServLedgEntryTEMP."Posting Date" := DateFrom;
         ServLedgEntryTEMP."Contract Invoice Period" := Format(DateFrom) + DateSep + Format(DateTo);
         ServLedgEntryTEMP.Amount := CalcContrAmt("Service Contract Header", DateFrom, DateTo);
         if DateFrom >= "Service Contract Header"."Next Invoice Date" then
             InvoiceSum := InvoiceSum + ServLedgEntryTEMP.Amount;
-        ServLedgEntryTEMP.Insert;
+        ServLedgEntryTEMP.Insert();
     end;
 
     local procedure CalcContrAmt(ServContHeader: Record "Service Contract Header"; DateFrom: Date; DateTo: Date): Decimal
@@ -326,6 +329,11 @@ report 5984 "Contract Invoicing"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetInvoiceDates(var ServiceContractHeader: Record "Service Contract Header"; var InvoiceFrom: Date; var InvoiceTo: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterServiceContractHeaderOnPreDataItem(var ServiceContractHeader: Record "Service Contract Header"; PostingDate: Date; InvoiceToDate: Date)
     begin
     end;
 }

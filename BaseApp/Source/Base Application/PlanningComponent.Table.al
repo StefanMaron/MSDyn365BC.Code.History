@@ -316,11 +316,9 @@ table 99000829 "Planning Component"
                 Validate("Calculation Formula");
             end;
         }
-        field(44; "Calculation Formula"; Option)
+        field(44; "Calculation Formula"; Enum "Quantity Calculation Formula")
         {
             Caption = 'Calculation Formula';
-            OptionCaption = ' ,Length,Length * Width,Length * Width * Depth,Weight';
-            OptionMembers = " ",Length,"Length * Width","Length * Width * Depth",Weight;
 
             trigger OnValidate()
             begin
@@ -335,6 +333,8 @@ table 99000829 "Planning Component"
                         Quantity := Round(Length * Width * Depth * "Quantity per", UOMMgt.QtyRndPrecision);
                     "Calculation Formula"::Weight:
                         Quantity := Round(Weight * "Quantity per", UOMMgt.QtyRndPrecision);
+                    else
+                        OnValidateCalculationFormulaEnumExtension(Rec);
                 end;
                 OnValidateCalculationFormulaOnAfterSetQuantity(Rec);
                 "Quantity (Base)" := Quantity * "Qty. per Unit of Measure";
@@ -624,7 +624,6 @@ table 99000829 "Planning Component"
         GLSetup: Record "General Ledger Setup";
         ReqLine: Record "Requisition Line";
         Location: Record Location;
-        ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
         ReservePlanningComponent: Codeunit "Plng. Component-Reserve";
         UOMMgt: Codeunit "Unit of Measure Management";
         DimMgt: Codeunit DimensionManagement;
@@ -666,7 +665,7 @@ table 99000829 "Planning Component"
 
         "Due Date" := ReqLine."Starting Date";
 
-        PlanningRtngLine.Reset;
+        PlanningRtngLine.Reset();
         PlanningRtngLine.SetRange("Worksheet Template Name", "Worksheet Template Name");
         PlanningRtngLine.SetRange("Worksheet Batch Name", "Worksheet Batch Name");
         PlanningRtngLine.SetRange("Worksheet Line No.", "Worksheet Line No.");
@@ -689,15 +688,15 @@ table 99000829 "Planning Component"
     begin
         TestField("Item No.");
         Clear(Reservation);
-        Reservation.SetPlanningComponent(Rec);
-        Reservation.RunModal;
+        Reservation.SetReservSource(Rec);
+        Reservation.RunModal();
     end;
 
     procedure ShowReservationEntries(Modal: Boolean)
     begin
         TestField("Item No.");
-        ReservEngineMgt.InitFilterAndSortingLookupFor(ReservEntry, true);
-        ReservePlanningComponent.FilterReservFor(ReservEntry, Rec);
+        ReservEntry.InitSortingAndFilters(true);
+        SetReservationFilters(ReservEntry);
         if Modal then
             PAGE.RunModal(PAGE::"Reservation Entries", ReservEntry)
         else
@@ -844,7 +843,7 @@ table 99000829 "Planning Component"
     local procedure GetGLSetup()
     begin
         if not GLSetupRead then
-            GLSetup.Get;
+            GLSetup.Get();
         GLSetupRead := true;
     end;
 
@@ -888,9 +887,57 @@ table 99000829 "Planning Component"
             Validate("Bin Code", GetToBin);
     end;
 
+    procedure GetRemainingQty(var RemainingQty: Decimal; var RemainingQtyBase: Decimal)
+    begin
+        CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
+        RemainingQty := 0;
+        RemainingQtyBase := "Net Quantity (Base)" - Abs("Reserved Qty. (Base)");
+    end;
+
+    procedure GetReservationQty(var QtyReserved: Decimal; var QtyReservedBase: Decimal; var QtyToReserve: Decimal; var QtyToReserveBase: Decimal): Decimal
+    begin
+        CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
+        QtyReserved := "Reserved Quantity";
+        QtyReservedBase := "Reserved Qty. (Base)";
+        QtyToReserve := "Expected Quantity";
+        QtyToReserveBase := "Expected Quantity (Base)";
+        exit("Qty. per Unit of Measure");
+    end;
+
+    procedure GetSourceCaption(): Text
+    begin
+        GetReqLine;
+        exit(StrSubstNo('%1 %2 %3 %4', "Worksheet Template Name", "Worksheet Batch Name", ReqLine.Type, ReqLine."No."));
+    end;
+
+    procedure SetReservationEntry(var ReservEntry: Record "Reservation Entry")
+    begin
+        ReservEntry.SetSource(DATABASE::"Planning Component", 0, "Worksheet Template Name", "Line No.", "Worksheet Batch Name", "Worksheet Line No.");
+        ReservEntry.SetItemData("Item No.", Description, "Location Code", "Variant Code", "Qty. per Unit of Measure");
+        ReservEntry."Expected Receipt Date" := "Due Date";
+        ReservEntry."Shipment Date" := "Due Date";
+    end;
+
+    procedure SetReservationFilters(var ReservEntry: Record "Reservation Entry")
+    begin
+        ReservEntry.SetSourceFilter(DATABASE::"Planning Component", 0, "Worksheet Template Name", "Line No.", false);
+        ReservEntry.SetSourceFilter("Worksheet Batch Name", "Worksheet Line No.");
+
+        OnAfterSetReservationFilters(ReservEntry, Rec);
+    end;
+
+    procedure ReservEntryExist(): Boolean
+    var
+        ReservEntry: Record "Reservation Entry";
+    begin
+        ReservEntry.InitSortingAndFilters(false);
+        SetReservationFilters(ReservEntry);
+        exit(not ReservEntry.IsEmpty);
+    end;
+
     local procedure FindFirstRtngLine(var PlanningRoutingLine: Record "Planning Routing Line"; ReqLine: Record "Requisition Line"): Boolean
     begin
-        PlanningRoutingLine.Reset;
+        PlanningRoutingLine.Reset();
         PlanningRoutingLine.SetRange("Worksheet Template Name", ReqLine."Worksheet Template Name");
         PlanningRoutingLine.SetRange("Worksheet Batch Name", ReqLine."Journal Batch Name");
         PlanningRoutingLine.SetRange("Worksheet Line No.", ReqLine."Line No.");
@@ -926,6 +973,20 @@ table 99000829 "Planning Component"
     begin
         FilterLinesWithItemToPlan(Item);
         exit(Find('-'));
+    end;
+
+    procedure FindLinesForReservation(ReservationEntry: Record "Reservation Entry"; AvailabilityFilter: Text; Positive: Boolean)
+    begin
+        Reset;
+        SetCurrentKey("Item No.", "Variant Code", "Location Code", "Due Date");
+        SetRange("Item No.", ReservationEntry."Item No.");
+        SetRange("Variant Code", ReservationEntry."Variant Code");
+        SetRange("Location Code", ReservationEntry."Location Code");
+        SetFilter("Due Date", AvailabilityFilter);
+        if Positive then
+            SetFilter("Net Quantity (Base)", '<0')
+        else
+            SetFilter("Net Quantity (Base)", '>0');
     end;
 
     procedure FindCurrForecastName(var ForecastName: Code[10]): Boolean
@@ -1027,6 +1088,11 @@ table 99000829 "Planning Component"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetReservationFilters(var ReservEntry: Record "Reservation Entry"; PlanningComponent: Record "Planning Component");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterTransferFromComponent(var PlanningComponent: Record "Planning Component"; var ProdOrderComp: Record "Prod. Order Component")
     begin
     end;
@@ -1053,6 +1119,11 @@ table 99000829 "Planning Component"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePlanningNeeds(var PlanningComponent: Record "Planning Component"; var NeededQty: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateCalculationFormulaEnumExtension(var PlanningComponent: Record "Planning Component")
     begin
     end;
 

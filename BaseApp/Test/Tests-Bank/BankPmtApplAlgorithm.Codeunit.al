@@ -924,7 +924,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         // Setup
         CreateCustomer(Customer);
         Customer.Name := GenerateRandomTextWithSpecialChars;
-        Customer.Modify;
+        Customer.Modify();
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
         CreateAndPostSalesInvoiceWithOneLine(Customer."No.", GenerateExtDocNo, Amount);
 
@@ -2266,7 +2266,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
 
         // Execute
         RunMatch(BankAccReconciliation, true);
-        TempBankStatementMatchingBuffer.Reset;
+        TempBankStatementMatchingBuffer.Reset();
         Assert.AreEqual(
           3, TempBankStatementMatchingBuffer.Count, 'There should be two single mach entries and one multiple match entry present');
 
@@ -2513,8 +2513,8 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         // Remove all rules except multiple match rules, so they will be scored with 0
         BankPmtApplRule.SetFilter(
           "Doc. No./Ext. Doc. No. Matched", '<>%1', BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Yes - Multiple");
-        BankPmtApplRule.DeleteAll;
-        BankPmtApplRule.Reset;
+        BankPmtApplRule.DeleteAll();
+        BankPmtApplRule.Reset();
 
         CreateCustomer(Customer);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
@@ -3572,7 +3572,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         // Setup
         CreateVendor(Vendor);
         Vendor.Name := GenerateRandomTextWithSpecialChars;
-        Vendor.Modify;
+        Vendor.Modify();
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
         CreateAndPostPurchaseInvoiceWithOneLine(Vendor."No.", GenerateExtDocNo, Amount);
 
@@ -4908,7 +4908,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
 
         // Execute
         RunMatch(BankAccReconciliation, true);
-        TempBankStatementMatchingBuffer.Reset;
+        TempBankStatementMatchingBuffer.Reset();
         Assert.AreEqual(
           3, TempBankStatementMatchingBuffer.Count, 'There should be two single mach entries and one multiple match entry present');
 
@@ -5155,8 +5155,8 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         // Remove all rules except multiple match rules, so they will be scored with 0
         BankPmtApplRule.SetFilter(
           "Doc. No./Ext. Doc. No. Matched", '<>%1', BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::"Yes - Multiple");
-        BankPmtApplRule.DeleteAll;
-        BankPmtApplRule.Reset;
+        BankPmtApplRule.DeleteAll();
+        BankPmtApplRule.Reset();
 
         CreateVendor(Vendor);
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
@@ -5585,17 +5585,17 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Initialize;
 
         // [GIVEN] Customer Ledger Entry "CCC"
-        CustLedgerEntry.Init;
+        CustLedgerEntry.Init();
         CustLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, CustLedgerEntry.FieldNo("Entry No."));
         CustLedgerEntry.Open := true;
-        CustLedgerEntry.Insert;
+        CustLedgerEntry.Insert();
 
         // [GIVEN] Applied Payment Entry related to "CCC"
         MockAppliedPaymentEntry(AppliedPaymentEntry, CustLedgerEntry."Entry No.", AppliedPaymentEntry."Account Type"::Customer);
         MockBankAccReconciliation(AppliedPaymentEntry."Statement No.");
         StatementNo := AppliedPaymentEntry."Statement No.";
         CustLedgerEntry."Applies-to ID" := AppliedPaymentEntry."Statement No.";
-        CustLedgerEntry.Modify;
+        CustLedgerEntry.Modify();
 
         // [WHEN] Applied Payment Entry deleted
         AppliedPaymentEntry.Delete(true);
@@ -5622,17 +5622,17 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Initialize;
 
         // [GIVEN] Vendor Ledger Entry "VVV"
-        VendorLedgerEntry.Init;
+        VendorLedgerEntry.Init();
         VendorLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, VendorLedgerEntry.FieldNo("Entry No."));
         VendorLedgerEntry.Open := true;
-        VendorLedgerEntry.Insert;
+        VendorLedgerEntry.Insert();
 
         // [GIVEN] Applied Payment Entry related to "VVV"
         MockAppliedPaymentEntry(AppliedPaymentEntry, VendorLedgerEntry."Entry No.", AppliedPaymentEntry."Account Type"::Vendor);
         MockBankAccReconciliation(AppliedPaymentEntry."Statement No.");
         StatementNo := AppliedPaymentEntry."Statement No.";
         VendorLedgerEntry."Applies-to ID" := AppliedPaymentEntry."Statement No.";
-        VendorLedgerEntry.Modify;
+        VendorLedgerEntry.Modify();
 
         // [WHEN] Applied Payment Entry deleted
         AppliedPaymentEntry.Delete(true);
@@ -5653,7 +5653,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         CloseExistingEntries;
         ClearGlobals;
         LibraryVariableStorage.Clear;
-        BankPmtApplRule.DeleteAll;
+        BankPmtApplRule.DeleteAll();
         BankPmtApplRule.InsertDefaultMatchingRules;
 
         if isInitialized then
@@ -5687,17 +5687,17 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
     local procedure ClearGlobals()
     begin
         Clear(TempBankStatementMatchingBuffer);
-        TempBankStatementMatchingBuffer.DeleteAll;
+        TempBankStatementMatchingBuffer.DeleteAll();
     end;
 
     local procedure MockAppliedPaymentEntry(var AppliedPaymentEntry: Record "Applied Payment Entry"; EntryNo: Integer; AccountType: Option)
     begin
-        AppliedPaymentEntry.Init;
+        AppliedPaymentEntry.Init();
         AppliedPaymentEntry."Statement No." :=
           Format(LibraryUtility.GetNewRecNo(AppliedPaymentEntry, AppliedPaymentEntry.FieldNo("Statement No.")));
         AppliedPaymentEntry."Applies-to Entry No." := EntryNo;
         AppliedPaymentEntry."Account Type" := AccountType;
-        AppliedPaymentEntry.Insert;
+        AppliedPaymentEntry.Insert();
     end;
 
     local procedure MockBankAccReconciliation(StatementNo: Code[20])
@@ -5706,18 +5706,18 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
     begin
-        BankAccReconciliation.Init;
+        BankAccReconciliation.Init();
         BankAccReconciliation."Statement No." := StatementNo;
         BankAccount.SetRange("No.", '');
         if not BankAccount.FindFirst then begin
-            BankAccount.Init;
-            BankAccount.Insert;
+            BankAccount.Init();
+            BankAccount.Insert();
         end;
         BankAccReconciliation."Bank Account No." := BankAccount."No.";
-        BankAccReconciliation.Insert;
-        BankAccReconciliationLine.Init;
+        BankAccReconciliation.Insert();
+        BankAccReconciliationLine.Init();
         BankAccReconciliationLine."Statement No." := StatementNo;
-        BankAccReconciliationLine.Insert;
+        BankAccReconciliationLine.Insert();
     end;
 
     local procedure CreateCustomer(var Customer: Record Customer)
@@ -5914,7 +5914,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
           -CustLedgEntry."Remaining Amount");
         GenJournalLine.Validate("Applies-to Doc. Type", CustLedgEntry."Document Type");
         GenJournalLine.Validate("Applies-to Doc. No.", CustLedgEntry."Document No.");
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
@@ -5940,7 +5940,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         GenJournalLine.Validate("External Document No.", VendLedgerEntry."External Document No.");
         GenJournalLine.Validate("Applies-to Doc. Type", VendLedgerEntry."Document Type");
         GenJournalLine.Validate("Applies-to Doc. No.", VendLedgerEntry."Document No.");
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
@@ -6011,7 +6011,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
 
     local procedure GetOneToOneBankStatementMatchingBuffer(var TempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary; EntryNo: Integer)
     begin
-        TempBankStatementMatchingBuffer.Reset;
+        TempBankStatementMatchingBuffer.Reset();
         TempBankStatementMatchingBuffer.SetRange("Account Type", TempBankStatementMatchingBuffer."Account Type");
         TempBankStatementMatchingBuffer.SetRange("Entry No.", EntryNo);
         TempBankStatementMatchingBuffer.FindFirst;
@@ -6029,7 +6029,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
 
     local procedure VerifyReconciliation(ExpectedBankPmtApplRule: Record "Bank Pmt. Appl. Rule"; StatementLineNo: Integer)
     begin
-        TempBankStatementMatchingBuffer.Reset;
+        TempBankStatementMatchingBuffer.Reset();
         TempBankStatementMatchingBuffer.SetRange("Line No.", StatementLineNo);
         TempBankStatementMatchingBuffer.FindFirst;
 
@@ -6039,7 +6039,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
 
     local procedure VerifyTextEntryApplied(StatementLineNo: Integer)
     begin
-        TempBankStatementMatchingBuffer.Reset;
+        TempBankStatementMatchingBuffer.Reset();
         TempBankStatementMatchingBuffer.SetCurrentKey(Quality);
         TempBankStatementMatchingBuffer.Ascending(false);
         TempBankStatementMatchingBuffer.SetRange("Line No.", StatementLineNo);
@@ -6051,7 +6051,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
 
     local procedure VerifyTextEntryConsidered(StatementLineNo: Integer)
     begin
-        TempBankStatementMatchingBuffer.Reset;
+        TempBankStatementMatchingBuffer.Reset();
         TempBankStatementMatchingBuffer.SetRange("Line No.", StatementLineNo);
         TempBankStatementMatchingBuffer.SetRange(Quality, TempBankPmtApplRule.GetTextMapperScore);
 
@@ -6065,7 +6065,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         SetRule(BankPmtApplRule, BankPmtApplRule."Related Party Matched"::No,
           BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::No, BankPmtApplRule."Amount Incl. Tolerance Matched"::"No Matches");
 
-        TempBankStatementMatchingBuffer.Reset;
+        TempBankStatementMatchingBuffer.Reset();
         TempBankStatementMatchingBuffer.SetRange("Line No.", LineNo);
         Assert.IsFalse(TempBankStatementMatchingBuffer.FindFirst, 'Temp statement matching buffer should be empty in case of No Match');
     end;
@@ -6391,7 +6391,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
           'OneToManyTempBankStatementMatchingBuffer line was not created correctly');
 
         // Verify BankStatementMatchingBuffer Lines
-        TempBankStmtMultipleMatchLine.Reset;
+        TempBankStmtMultipleMatchLine.Reset();
         TempBankStmtMultipleMatchLine.SetRange("Line No.", OneToManyTempBankStatementMatchingBuffer."Line No.");
         TempBankStmtMultipleMatchLine.SetRange("Account Type", OneToManyTempBankStatementMatchingBuffer."Account Type");
         TempBankStmtMultipleMatchLine.SetRange("Account No.", OneToManyTempBankStatementMatchingBuffer."Account No.");
@@ -6414,7 +6414,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
           0, TempBankStatementMatchingBuffer."No. of Entries",
           'Current TempBankStatementMatchingBuffer was modified by calling Insert One to Many rule');
 
-        TempBankStatementMatchingBuffer.Reset;
+        TempBankStatementMatchingBuffer.Reset();
     end;
 
     local procedure VerifyMultipleApplicationsBankAccReconciliationLine(BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; Quality: Integer; ExpectedDifference: Decimal; ExpectedAppliedAmount: Decimal; AccountType: Option; AccountNo: Code[20]; ExpectedNoOfEntries: Integer)

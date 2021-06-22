@@ -190,7 +190,7 @@ codeunit 8800 "Custom Layout Reporting"
         end;
 
         // Download the .zip file containing the reports if one was generated (usually from being on the web client)
-        TempNameValueBuffer.Reset;  // Filters need to be cleared in order to get an accurate count.
+        TempNameValueBuffer.Reset();  // Filters need to be cleared in order to get an accurate count.
         if (ZipFileName <> '') and not SupressOutput and TempNameValueBuffer.FindSet then
             // If there's a single file, download it directly instead of the zip file
             if TempNameValueBuffer.Count = 1 then
@@ -382,11 +382,14 @@ codeunit 8800 "Custom Layout Reporting"
         case OutputType of
             OutputType::Email:
                 begin
-                    if CustomReportSelection."Send To Email" = '' then begin
+                    if CustomReportSelection.GetSendToEmail(true) = '' then begin
                         if EmailPrintIfEmailIsMissing then
-                            PrintReport(DataRecRef, ReportID, CustomReportLayoutCode)
+                            if IsWordLayout(ReportID, CustomReportLayoutCode) then
+                                SaveAsReport(DataRecRef, ReportID, REPORTFORMAT::Word)
+                            else
+                                SaveAsReport(DataRecRef, ReportID, REPORTFORMAT::PDF)
                         else
-                            CustomReportSelection.CheckEmailSendTo;
+                            CustomReportSelection.CheckEmailSendTo(DataRecRef);
                     end else
                         EmailReport(DataRecRef, ReportID, CustomReportSelection)
                 end;
@@ -397,7 +400,7 @@ codeunit 8800 "Custom Layout Reporting"
             OutputType::Word:
                 SaveAsReport(DataRecRef, ReportID, REPORTFORMAT::Word);
             OutputType::Print:
-                PrintReport(DataRecRef, ReportID, CustomReportLayoutCode);
+                PrintReport(DataRecRef, ReportID);
             OutputType::Preview:
                 PreviewReport(DataRecRef, ReportID, CustomReportLayoutCode);
             OutputType::XML:
@@ -414,7 +417,7 @@ codeunit 8800 "Custom Layout Reporting"
         NullCustomReportSelection: Record "Custom Report Selection";
     begin
         // If we know we don't need a custom report selection, e.g. we don't need layouts or won't be sending email
-        NullCustomReportSelection.Init;
+        NullCustomReportSelection.Init();
         RunReportWithCustomReportSelection(DataRecRef, ReportID, NullCustomReportSelection, EmailPrintRemaining);
     end;
 
@@ -472,22 +475,13 @@ codeunit 8800 "Custom Layout Reporting"
         exit(OutputType::XML);
     end;
 
-    local procedure PrintReport(var DataRecRef: RecordRef; ReportID: Integer; CustomReportLayoutCode: Code[20])
+    local procedure PrintReport(var DataRecRef: RecordRef; ReportID: Integer)
     begin
-        // If the print action is selected and we're on the web, shunt over to PDF output and ZIP file download
+        if SupressOutput then
+            exit;
 
-        if (IsWebClient or IsBackground) and not IsWordLayout(ReportID, CustomReportLayoutCode) then
-            SaveAsReport(DataRecRef, ReportID, REPORTFORMAT::Pdf);
-
-        // If we're on the web client, and Word layout, then run the default
-        if (IsWebClient or IsBackground) and IsWordLayout(ReportID, CustomReportLayoutCode) then
-            SaveAsReport(DataRecRef, ReportID, REPORTFORMAT::Word);
-
-        // Local client - print
-        if not IsWebClient and not SupressOutput and not IsBackground then begin
-            REPORT.Print(ReportID, GetRequestParametersText(ReportID), '', DataRecRef);
-            AnyOutputExists := true;
-        end;
+        REPORT.Print(ReportID, GetRequestParametersText(ReportID), '', DataRecRef);
+        AnyOutputExists := true;
     end;
 
     local procedure EmailReport(var DataRecRef: RecordRef; ReportID: Integer; CustomReportSelection: Record "Custom Report Selection")
@@ -753,7 +747,7 @@ codeunit 8800 "Custom Layout Reporting"
                     REPORT.RunModal(LocalRepId, true, false, DataVariant);
                     Error(''); // Exit early in an uninitialized state, prevents the full initialization flag from being set
                 end;
-                Commit;
+                Commit();
                 RequestPageParameters := RunRequestPage(LocalRepId);
                 // If the user cancelled out of the request page - exclude this report ID from processing:
                 if RequestPageParameters = '' then begin
@@ -793,9 +787,6 @@ codeunit 8800 "Custom Layout Reporting"
         OutputMethod: Text;
         OptionInt: Integer;
     begin
-        // Don't set based on the report ID if we're overriding the output type (for tests, output-specific functions)
-        if IsTestMode then
-            exit;
         // The request page should have the appropriate parameters set for the chosen output method
         OutputMethod := GetOptionValueFromRequestPage(GetRequestParametersText(ReportID), 'ChosenOutputMethod');
         if OutputMethod <> '' then begin
@@ -836,7 +827,7 @@ codeunit 8800 "Custom Layout Reporting"
             TempBlobList.Add(TempBlob);
             TempBlobIndicesNameValueBuffer.ID := ReportID;
             TempBlobIndicesNameValueBuffer.Value := Format(TempBlobList.Count);
-            TempBlobIndicesNameValueBuffer.Insert;
+            TempBlobIndicesNameValueBuffer.Insert();
         end;
     end;
 
@@ -941,7 +932,7 @@ codeunit 8800 "Custom Layout Reporting"
             ConfigValidateManagement.GetRelationInfoByIDs(
               ReportDataRecordRef.Number, ReportDataIteratorFieldRef.Number, RelationTable, RelationField);
             IteratorRecordRef.Open(DataRecordJoinTable);
-            Field.Reset;
+            Field.Reset();
             Field.SetRange(FieldName, IteratorTableFieldName);
             Field.SetRange(TableNo, IteratorRecordRef.Number);
             Field.SetFilter(ObsoleteState, '<>%1', Field.ObsoleteState::Removed);
@@ -1151,7 +1142,7 @@ codeunit 8800 "Custom Layout Reporting"
         MailSent: Boolean;
     begin
         MailSent := DocumentMailing.EmailFile(
-                CopyStr(TempFilePath, 1, 250), FileName, TempEmailBodyFilePath, '', CustomReportSelection."Send To Email",
+                CopyStr(TempFilePath, 1, 250), FileName, TempEmailBodyFilePath, '', CustomReportSelection.GetSendToEmail(true),
                 StrSubstNo('%1', FieldRef2.Value), true, CustomReportSelection.Usage);
         if Exists(TempFilePath) then begin
             TempEraseFileNameValueBuffer.AddNewEntry(TempFilePath, Format(FieldRef2.Value));

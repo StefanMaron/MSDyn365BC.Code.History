@@ -67,11 +67,11 @@ codeunit 136604 "ERM RS Package Dimensions"
 
         // 5. Clean up test data
         LibraryERM.ClearGenJournalLines(GenJnlBatch);
-        DimSetEntry.Reset;
+        DimSetEntry.Reset();
         DimSetEntry.SetRange("Dimension Value Code", DimValue.Code);
-        DimSetEntry.DeleteAll;
+        DimSetEntry.DeleteAll();
         DimValue.Delete(true);
-        GenJnlBatch.Delete;
+        GenJnlBatch.Delete();
     end;
 
     [Test]
@@ -117,7 +117,7 @@ codeunit 136604 "ERM RS Package Dimensions"
 
         // 5. Clean up test data
         LibraryERM.ClearGenJournalLines(GenJnlBatch);
-        GenJnlBatch.Delete;
+        GenJnlBatch.Delete();
     end;
 
     [Test]
@@ -139,7 +139,7 @@ codeunit 136604 "ERM RS Package Dimensions"
         Clear(DimensionSetEntry);
         DimensionSetEntry."Dimension Set ID" := NewDimSetID;
         DimensionSetEntry."Dimension Code" := Dimension.Code;
-        DimensionSetEntry.Insert;
+        DimensionSetEntry.Insert();
 
         DimensionValue.SetRange("Dimension Code", Dimension.Code);
         DimensionValue.FindFirst;
@@ -152,7 +152,7 @@ codeunit 136604 "ERM RS Package Dimensions"
         DimensionSetEntry.Get(NewDimSetID, Dimension.Code);
         Assert.AreEqual(DimensionValue.Code, DimensionSetEntry."Dimension Value Code", DimValueNotUpdatedErr);
 
-        DimensionSetEntry.Delete;
+        DimensionSetEntry.Delete();
     end;
 
     [Test]
@@ -180,7 +180,7 @@ codeunit 136604 "ERM RS Package Dimensions"
         Assert.AreEqual(0, GenJnlLine."Dimension Set ID", IncorrectDimSetError);
 
         LibraryERM.ClearGenJournalLines(GenJnlBatch);
-        GenJnlBatch.Delete;
+        GenJnlBatch.Delete();
     end;
 
     [Test]
@@ -210,7 +210,7 @@ codeunit 136604 "ERM RS Package Dimensions"
         Assert.AreEqual(DimSetID, GenJnlLine."Dimension Set ID", IncorrectDimSetError);
 
         LibraryERM.ClearGenJournalLines(GenJnlBatch);
-        GenJnlBatch.Delete;
+        GenJnlBatch.Delete();
     end;
 
     [Test]
@@ -242,7 +242,7 @@ codeunit 136604 "ERM RS Package Dimensions"
         LibraryRapidStart.CreatePackage(ConfigPackage);
         LibraryRapidStart.CreatePackageTable(ConfigPackageTable, ConfigPackage.Code, DATABASE::Customer);
         ConfigPackageTable."Data Template" := ConfigTemplateHeader.Code;
-        ConfigPackageTable.Modify;
+        ConfigPackageTable.Modify();
         LibraryRapidStart.CreatePackageData(ConfigPackage.Code, DATABASE::Customer, 1, Customer.FieldNo("No."), Customer."No.");
 
         // [WHEN] Apply package

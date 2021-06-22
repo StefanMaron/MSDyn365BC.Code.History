@@ -1,4 +1,4 @@
-﻿page 950 "Time Sheet"
+page 950 "Time Sheet"
 {
     AutoSplitKey = true;
     Caption = 'Time Sheet';
@@ -31,7 +31,7 @@
 
                     trigger OnValidate()
                     begin
-                        TimeSheetHeader.Reset;
+                        TimeSheetHeader.Reset();
                         TimeSheetMgt.FilterTimeSheets(TimeSheetHeader, TimeSheetHeader.FieldNo("Owner User ID"));
                         TimeSheetMgt.CheckTimeSheetNo(TimeSheetHeader, CurrTimeSheetNo);
                         CurrPage.SaveRecord;
@@ -643,7 +643,7 @@
             if CellData[ColumnNo] <> 0 then begin
                 TestTimeSheetLineStatus;
 
-                TimeSheetDetail.Init;
+                TimeSheetDetail.Init();
                 TimeSheetDetail.CopyFromTimeSheetLine(Rec);
                 TimeSheetDetail.Date := ColumnRecords[ColumnNo]."Period Start";
                 TimeSheetDetail.Quantity := CellData[ColumnNo];

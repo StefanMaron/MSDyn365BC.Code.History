@@ -35,7 +35,7 @@ codeunit 130012 "Backup Storage"
             Clear(RecordRefBackups[BackupNo]);
             TableBackupsCurrentIndices[BackupNo] := 0;
             TempTaintedTable.SetRange("Snapshot No.", BackupNo);
-            TempTaintedTable.DeleteAll;
+            TempTaintedTable.DeleteAll();
         end
     end;
 
@@ -50,11 +50,11 @@ codeunit 130012 "Backup Storage"
     begin
         BackupTableInBackupNo(BackupNo, CompanyName, TableID);
 
-        TempTaintedTable.Init;
+        TempTaintedTable.Init();
         TempTaintedTable."Snapshot No." := BackupNo;
         TempTaintedTable."Table No." := TableID;
         TempTaintedTable."Implicit Taint" := Implicit;
-        TempTaintedTable.Insert;
+        TempTaintedTable.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -62,7 +62,7 @@ codeunit 130012 "Backup Storage"
     begin
         TempTaintedTable.Get(BackupNo, TableID);
         TempTaintedTable."Implicit Taint" := false;
-        TempTaintedTable.Modify;
+        TempTaintedTable.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -75,13 +75,13 @@ codeunit 130012 "Backup Storage"
 
         // Copy list of tables to restore to local variable, as TempTaintedTable may be changed from the global
         // trigger when restoring a table.
-        TempTaintedTable.Reset;
+        TempTaintedTable.Reset();
         TempTaintedTable.SetRange("Snapshot No.", BackupNo);
         if TempTaintedTable.FindSet then
             repeat
-                TempTaintedTable2.Init;
+                TempTaintedTable2.Init();
                 TempTaintedTable2.Copy(TempTaintedTable);
-                TempTaintedTable2.Insert;
+                TempTaintedTable2.Insert();
             until TempTaintedTable.Next = 0;
 
         if TempTaintedTable2.FindSet then
@@ -93,7 +93,7 @@ codeunit 130012 "Backup Storage"
 
         if Clear then begin
             TempTaintedTable.SetRange("Snapshot No.", BackupNo);
-            TempTaintedTable.DeleteAll;
+            TempTaintedTable.DeleteAll();
             TableBackupsCurrentIndices[BackupNo] := 0;
         end;
     end;
@@ -101,12 +101,12 @@ codeunit 130012 "Backup Storage"
     [Scope('OnPrem')]
     procedure GetTaintedTables(var TempTaintedTable2: Record "Tainted Table" temporary)
     begin
-        TempTaintedTable.Reset;
+        TempTaintedTable.Reset();
         if TempTaintedTable.FindSet then
             repeat
-                TempTaintedTable2.Init;
+                TempTaintedTable2.Init();
                 TempTaintedTable2.Copy(TempTaintedTable);
-                TempTaintedTable2.Insert;
+                TempTaintedTable2.Insert();
             until TempTaintedTable.Next = 0
     end;
 
@@ -163,13 +163,13 @@ codeunit 130012 "Backup Storage"
         RecordRef.Open(TableNo, false, CompanyName);
         // if the table has not been backed up: empty table, exit
         if not GetTableBackup(BackupNo, TableNo, BackupRecordRef) then begin
-            RecordRef.DeleteAll;
+            RecordRef.DeleteAll();
             exit
         end;
 
         // if the table in the backup is empty: empty table, exit
         if not BackupRecordRef.FindSet then begin
-            RecordRef.DeleteAll;
+            RecordRef.DeleteAll();
             exit
         end;
 
@@ -177,14 +177,14 @@ codeunit 130012 "Backup Storage"
         if not RecordRef.FindFirst then begin
             repeat
                 CopyFields(BackupRecordRef, RecordRef);
-                RecordRef.Insert;
+                RecordRef.Insert();
             until BackupRecordRef.Next = 0;
 
             // It is necessary to explicitly comit changes between tables because these
             // can have auto_incrementing fields. If two tables are modified by the same
             // codeunit this will cause an exception during restore when trying to insert
             // into the second table.
-            Commit;
+            Commit();
             exit
         end;
 
@@ -208,7 +208,7 @@ codeunit 130012 "Backup Storage"
         // can have auto_incrementing fields. If two tables are modified by the same
         // codeunit this will cause an exception during restore when trying to insert
         // into the second table.
-        Commit;
+        Commit();
 
         // if no records have been removed and the record count has not changed, no records were inserted either
         if not RecordsRemoved then
@@ -219,14 +219,14 @@ codeunit 130012 "Backup Storage"
         RecordRef.FindSet;
         repeat
             if not BackupRecordRef.Get(RecordRef.RecordId) then
-                RecordRef.Delete;
+                RecordRef.Delete();
         until RecordRef.Next = 0;
 
         // It is necessary to explicitly comit changes between tables because these
         // can have auto_incrementing fields. If two tables are modified by the same
         // codeunit this will cause an exception during restore when trying to insert
         // into the second table.
-        Commit;
+        Commit();
     end;
 
     local procedure AreEqualRecords(var RecordRefLeft: RecordRef; var RecordRefRight: RecordRef): Boolean
@@ -242,7 +242,7 @@ codeunit 130012 "Backup Storage"
 
         for i := 1 to RecordRefLeft.FieldCount do begin
             LeftFieldRef := RecordRefLeft.FieldIndex(i);
-            if Format(LeftFieldRef.Class) = 'Normal' then begin
+            if LeftFieldRef.Class = FieldClass::Normal then begin
                 RightFieldRef := RecordRefRight.FieldIndex(i);
                 if LeftFieldRef.Value <> RightFieldRef.Value then
                     exit(false)
@@ -287,9 +287,9 @@ codeunit 130012 "Backup Storage"
     begin
         for i := 1 to RecordRefSource.FieldCount do begin
             SourceFieldRef := RecordRefSource.FieldIndex(i);
-            if Format(SourceFieldRef.Class) = 'Normal' then begin
+            if SourceFieldRef.Class = FieldClass::Normal then begin
                 DestinationFieldRef := RecordRefDestination.FieldIndex(i);
-                if Format(SourceFieldRef.Type) = 'BLOB' then
+                if SourceFieldRef.Type = FieldType::BLOB then
                     SourceFieldRef.CalcField;
                 DestinationFieldRef.Value(SourceFieldRef.Value)
             end;
@@ -311,7 +311,7 @@ codeunit 130012 "Backup Storage"
     [Scope('OnPrem')]
     procedure IsEmpty(BackupNo: Integer): Boolean
     begin
-        TempTaintedTable.Reset;
+        TempTaintedTable.Reset();
         TempTaintedTable.SetRange("Snapshot No.", BackupNo);
         exit(not TempTaintedTable.FindFirst);
     end;

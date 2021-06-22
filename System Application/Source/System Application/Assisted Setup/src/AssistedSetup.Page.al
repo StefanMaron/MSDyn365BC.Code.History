@@ -31,6 +31,7 @@ page 1801 "Assisted Setup"
             {
                 IndentationColumn = NameIndent;
                 IndentationControls = Name;
+                ShowAsTree = true;
                 field(Name; Name)
                 {
                     ApplicationArea = All;
@@ -94,6 +95,7 @@ page 1801 "Assisted Setup"
                     Caption = 'Translated Name';
                     ApplicationArea = All;
                     ToolTip = 'Specifies the name translated locally.';
+                    Visible = false;
 
                     trigger OnDrillDown()
                     var
@@ -108,6 +110,12 @@ page 1801 "Assisted Setup"
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the extension which has added this setup.';
+                    Visible = false;
+                }
+                field(Description; Description)
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the description of the set up.';
                 }
             }
         }

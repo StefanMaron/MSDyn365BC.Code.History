@@ -14,9 +14,9 @@ codeunit 375 "Bank Acc. Entry Set Recon.-No."
     begin
         OnBeforeApplyEntries(BankAccReconLine, BankAccLedgEntry, Relation);
 
-        BankAccLedgEntry.LockTable;
-        CheckLedgEntry.LockTable;
-        BankAccReconLine.LockTable;
+        BankAccLedgEntry.LockTable();
+        CheckLedgEntry.LockTable();
+        BankAccReconLine.LockTable();
         BankAccReconLine.Find;
 
         if BankAccLedgEntry.IsApplied then
@@ -41,9 +41,9 @@ codeunit 375 "Bank Acc. Entry Set Recon.-No."
     begin
         OnBeforeRemoveApplication(BankAccLedgEntry);
 
-        BankAccLedgEntry.LockTable;
-        CheckLedgEntry.LockTable;
-        BankAccReconLine.LockTable;
+        BankAccLedgEntry.LockTable();
+        CheckLedgEntry.LockTable();
+        BankAccReconLine.LockTable();
 
         if not BankAccReconLine.Get(
              BankAccReconLine."Statement Type"::"Bank Reconciliation",
@@ -65,7 +65,7 @@ codeunit 375 "Bank Acc. Entry Set Recon.-No."
     local procedure ModifyBankAccReconLine(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
     begin
         OnBeforeModifyBankAccReconLine(BankAccReconciliationLine);
-        BankAccReconciliationLine.Modify;
+        BankAccReconciliationLine.Modify();
     end;
 
     procedure SetReconNo(var BankAccLedgEntry: Record "Bank Account Ledger Entry"; var BankAccReconLine: Record "Bank Acc. Reconciliation Line")
@@ -79,9 +79,9 @@ codeunit 375 "Bank Acc. Entry Set Recon.-No."
           BankAccLedgEntry."Statement Status"::"Bank Acc. Entry Applied";
         BankAccLedgEntry."Statement No." := BankAccReconLine."Statement No.";
         BankAccLedgEntry."Statement Line No." := BankAccReconLine."Statement Line No.";
-        BankAccLedgEntry.Modify;
+        BankAccLedgEntry.Modify();
 
-        CheckLedgEntry.Reset;
+        CheckLedgEntry.Reset();
         CheckLedgEntry.SetCurrentKey("Bank Account Ledger Entry No.");
         CheckLedgEntry.SetRange("Bank Account Ledger Entry No.", BankAccLedgEntry."Entry No.");
         CheckLedgEntry.SetRange(Open, true);
@@ -94,7 +94,7 @@ codeunit 375 "Bank Acc. Entry Set Recon.-No."
                   CheckLedgEntry."Statement Status"::"Bank Acc. Entry Applied";
                 CheckLedgEntry."Statement No." := '';
                 CheckLedgEntry."Statement Line No." := 0;
-                CheckLedgEntry.Modify;
+                CheckLedgEntry.Modify();
             until CheckLedgEntry.Next = 0;
     end;
 
@@ -111,9 +111,9 @@ codeunit 375 "Bank Acc. Entry Set Recon.-No."
         BankAccLedgEntry."Statement Status" := BankAccLedgEntry."Statement Status"::Open;
         BankAccLedgEntry."Statement No." := '';
         BankAccLedgEntry."Statement Line No." := 0;
-        BankAccLedgEntry.Modify;
+        BankAccLedgEntry.Modify();
 
-        CheckLedgEntry.Reset;
+        CheckLedgEntry.Reset();
         CheckLedgEntry.SetCurrentKey("Bank Account Ledger Entry No.");
         CheckLedgEntry.SetRange("Bank Account Ledger Entry No.", BankAccLedgEntry."Entry No.");
         CheckLedgEntry.SetRange(Open, true);
@@ -128,7 +128,7 @@ codeunit 375 "Bank Acc. Entry Set Recon.-No."
                 CheckLedgEntry."Statement Status" := CheckLedgEntry."Statement Status"::Open;
                 CheckLedgEntry."Statement No." := '';
                 CheckLedgEntry."Statement Line No." := 0;
-                CheckLedgEntry.Modify;
+                CheckLedgEntry.Modify();
             until CheckLedgEntry.Next = 0;
     end;
 

@@ -99,7 +99,7 @@ table 6703 "Booking Service"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         if Currency = '' then begin
-            GeneralLedgerSetup.Get;
+            GeneralLedgerSetup.Get();
             Currency := GeneralLedgerSetup."LCY Code";
         end;
     end;

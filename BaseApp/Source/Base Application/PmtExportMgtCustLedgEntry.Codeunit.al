@@ -129,7 +129,7 @@ codeunit 1208 "Pmt Export Mgt Cust Ledg Entry"
         BankAccount: Record "Bank Account";
         BankExportImportSetup: Record "Bank Export/Import Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Customer.Get(CustLedgerEntry."Customer No.");
         CustomerBankAccount.Get(CustLedgerEntry."Customer No.", CustLedgerEntry."Recipient Bank Account");
 

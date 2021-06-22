@@ -80,7 +80,7 @@ table 1051 "Sorting Table"
         CurrMaxRemAmount := MaxRemAmount / CurrencyFactor;
         RemAmount := 0;
 
-        TempSortingTable.DeleteAll;
+        TempSortingTable.DeleteAll();
         NextEntryNo := 1;
 
         SetValuesAt(TempSortingTable, 0);
@@ -171,11 +171,11 @@ table 1051 "Sorting Table"
     begin
         if (RemAmount > CurrMaxRemAmount) and (CurrMaxRemAmount > 0) then
             exit;
-        TempSortingTable.Init;
+        TempSortingTable.Init();
         TempSortingTable.Integer := NextEntryNo;
         NextEntryNo += 1;
         TempSortingTable.Decimal := RemAmount; // Used as buffer to store decimals and sort them later
-        TempSortingTable.Insert;
+        TempSortingTable.Insert();
     end;
 }
 

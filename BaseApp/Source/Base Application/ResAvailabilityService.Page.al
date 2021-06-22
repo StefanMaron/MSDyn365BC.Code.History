@@ -122,7 +122,7 @@ page 6004 "Res. Availability (Service)"
 
     trigger OnOpenPage()
     begin
-        ServMgtSetup.Get;
+        ServMgtSetup.Get();
         ServHeader.Get(CurrentDocumentType, CurrentDocumentNo);
         SetColumns(SetWanted::Initial);
         UpdateFields;

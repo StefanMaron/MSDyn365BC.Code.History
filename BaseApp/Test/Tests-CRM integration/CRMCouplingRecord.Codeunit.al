@@ -224,7 +224,7 @@ codeunit 139174 "CRM Coupling Record"
     end;
 
     [Test]
-    [HandlerFunctions('CRMSystemuserListHandler')]
+    [HandlerFunctions('CRMSystemuserListHandler,ConfirmYes')]
     [Scope('OnPrem')]
     procedure LookupCouplingRecordForSalesperson()
     var
@@ -404,7 +404,7 @@ codeunit 139174 "CRM Coupling Record"
     begin
         Initialize;
         // [GIVEN] The CRM Uomschedule "A"
-        OtherCRMUom.Init;
+        OtherCRMUom.Init();
         OtherCRMUom.Name := 'AAA';
         LibraryCRMIntegration.CreateCRMUomAndUomSchedule(OtherCRMUom, OtherCRMUomschedule);
         // [GIVEN] The Unit Of Measure coupled to the CRM Uomschedule "B"
@@ -523,7 +523,7 @@ codeunit 139174 "CRM Coupling Record"
     end;
 
     [Test]
-    [HandlerFunctions('FilteredCRMSystemuserListHandler')]
+    [HandlerFunctions('FilteredCRMSystemuserListHandler,ConfirmYes')]
     [Scope('OnPrem')]
     procedure LookupFilteredCRMRecordForSalesperson()
     var
@@ -757,11 +757,11 @@ codeunit 139174 "CRM Coupling Record"
         // [GIVEN] The CRM Account "A", where Name = 'CCCC'
         LibraryCRMIntegration.CreateCRMAccount(CRMAccount1);
         CRMAccount1.Name := 'CCCC';
-        CRMAccount1.Modify;
+        CRMAccount1.Modify();
         // [GIVEN] The CRM Account "B", where Name = 'CC'
         LibraryCRMIntegration.CreateCRMAccount(CRMAccount2);
         CRMAccount2.Name := 'CC';
-        CRMAccount2.Modify;
+        CRMAccount2.Modify();
         // [GIVEN] The CRM Account "C", where Name = 'X'
         LibraryCRMIntegration.CreateCRMAccount(CRMAccount3);
 
@@ -881,20 +881,20 @@ codeunit 139174 "CRM Coupling Record"
     begin
         Initialize;
         // [GIVEN] Integration Table Mapping defines Name = 'A' for Table ID = 'Y'
-        IntegrationTableMapping.Init;
+        IntegrationTableMapping.Init();
         IntegrationTableMapping.Name := LibraryUtility.GenerateGUID;
         IntegrationTableMapping."Table ID" := DATABASE::Currency;
-        IntegrationTableMapping.Insert;
+        IntegrationTableMapping.Insert();
         // [GIVEN] Temporary Integration Table Mapping defines Name = 'T' for Table ID = 'X'
         IntegrationTableMapping.Name := LibraryUtility.GenerateGUID;
         IntegrationTableMapping."Table ID" := DATABASE::Customer;
         IntegrationTableMapping."Delete After Synchronization" := true;
-        IntegrationTableMapping.Insert;
+        IntegrationTableMapping.Insert();
         // [GIVEN] Integration Table Mapping defines Name = 'N' for Table ID = 'X'
         IntegrationTableMapping.Name := LibraryUtility.GenerateGUID;
         IntegrationTableMapping."Table ID" := DATABASE::Customer;
         IntegrationTableMapping."Delete After Synchronization" := false;
-        IntegrationTableMapping.Insert;
+        IntegrationTableMapping.Insert();
         // [WHEN] Set 'NAV Table ID' = 'X' in Coupling Record Buffer
         CouplingRecordBuffer.Validate("NAV Table ID", IntegrationTableMapping."Table ID");
         // [THEN] "CRM Table Name" is 'N' in Coupling Record Buffer
@@ -922,7 +922,7 @@ codeunit 139174 "CRM Coupling Record"
         IntegrationTableMapping.FindFirst;
         IntegrationFieldMapping.SetRange("Integration Table Mapping Name", IntegrationTableMapping.Name);
         IntegrationFieldMapping.FindFirst;
-        ExpectedFieldCount := IntegrationFieldMapping.Count;
+        ExpectedFieldCount := IntegrationFieldMapping.Count();
         // [GIVEN] A Customer is coupled to a CRM Account
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
 
@@ -1115,7 +1115,7 @@ codeunit 139174 "CRM Coupling Record"
     begin
         Initialize;
         LibrarySales.CreateCustomer(Customer);
-        Commit;
+        Commit();
         CouplingRecordBuffer.Initialize(Customer.RecordId);
 
         CouplingRecordBuffer."Sync Action" := SyncAction::DoNotSync;
@@ -1169,7 +1169,7 @@ codeunit 139174 "CRM Coupling Record"
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer[2], CRMAccount[2]);
 
         // [GIVEN] The first CRM Account is deleted
-        CRMAccount[1].Delete;
+        CRMAccount[1].Delete();
 
         // [WHEN] Synchronization is run for Customers
         IntegrationTableMapping.Get('CUSTOMER');
@@ -1243,7 +1243,7 @@ codeunit 139174 "CRM Coupling Record"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] GetLatestError() returns error message from the synch. job to CRM if 'to CRM' direction failed.
-        JobQueueEntry.DeleteAll;
+        JobQueueEntry.DeleteAll();
         LibraryCRMIntegration.CreateCoupledCurrencyAndTransactionCurrency(
           Currency, CRMTransactioncurrency);
 
@@ -1273,7 +1273,7 @@ codeunit 139174 "CRM Coupling Record"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] GetLatestError() returns error message from the synch. job to NAV if 'to NAV' direction failed.
-        JobQueueEntry.DeleteAll;
+        JobQueueEntry.DeleteAll();
         LibraryCRMIntegration.CreateCoupledCurrencyAndTransactionCurrency(
           Currency, CRMTransactioncurrency);
 
@@ -1534,7 +1534,7 @@ codeunit 139174 "CRM Coupling Record"
         IntegrationFieldMapping: Record "Integration Field Mapping";
     begin
         with IntegrationTableMapping do begin
-            DeleteAll;
+            DeleteAll();
             Init;
             Name := LibraryUtility.GenerateGUID;
             "Table ID" := TableId;
@@ -1546,7 +1546,7 @@ codeunit 139174 "CRM Coupling Record"
         end;
 
         with IntegrationFieldMapping do begin
-            DeleteAll;
+            DeleteAll();
             Init;
             "No." := 0;
             "Integration Table Mapping Name" := IntegrationTableMapping.Name;
@@ -1769,18 +1769,29 @@ codeunit 139174 "CRM Coupling Record"
         PAGE.Run(PAGE::"CRM Coupling Record", TempCouplingRecordBuffer);
     end;
 
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmYes(Question: Text; var Reply: Boolean)
+    begin
+        Reply := true;
+    end;
+
     local procedure InitCouplingRecordBuf(RecordID: RecordID; var CouplingRecordBuffer: Record "Coupling Record Buffer")
     begin
         CouplingRecordBuffer.Initialize(RecordID);
-        CouplingRecordBuffer.Insert;
+        CouplingRecordBuffer.Insert();
     end;
 
     local procedure ResetDefaultCRMSetupConfiguration()
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
+        CDSConnectionSetup: Record "CDS Connection Setup";
         CRMSetupDefaults: Codeunit "CRM Setup Defaults";
+        CDSSetupDefaults: Codeunit "CDS Setup Defaults";
     begin
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
+        CDSConnectionSetup.LoadConnectionStringElementsFromCRMConnectionSetup();
+        CDSSetupDefaults.ResetConfiguration(CDSConnectionSetup);
         CRMSetupDefaults.ResetConfiguration(CRMConnectionSetup);
     end;
 }

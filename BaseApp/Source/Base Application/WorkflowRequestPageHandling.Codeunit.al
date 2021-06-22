@@ -59,7 +59,7 @@ codeunit 1522 "Workflow Request Page Handling"
     var
         DynamicRequestPageEntity: Record "Dynamic Request Page Entity";
     begin
-        DynamicRequestPageEntity.Init;
+        DynamicRequestPageEntity.Init();
         DynamicRequestPageEntity.Name := Name;
         DynamicRequestPageEntity.Description := Description;
         DynamicRequestPageEntity.Validate("Table ID", TableId);
@@ -195,10 +195,10 @@ codeunit 1522 "Workflow Request Page Handling"
     var
         DynamicRequestPageField: Record "Dynamic Request Page Field";
     begin
-        DynamicRequestPageField.Init;
+        DynamicRequestPageField.Init();
         DynamicRequestPageField.Validate("Table ID", TableId);
         DynamicRequestPageField.Validate("Field ID", FieldId);
-        DynamicRequestPageField.Insert;
+        DynamicRequestPageField.Insert();
     end;
 
     local procedure AssignEntityToWorkflowEvent(TableID: Integer; DynamicReqPageEntityName: Code[20])

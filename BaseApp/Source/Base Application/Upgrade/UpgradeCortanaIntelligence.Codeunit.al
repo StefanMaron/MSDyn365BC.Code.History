@@ -26,7 +26,6 @@ codeunit 14040 "Upgrade Cortana Intelligence"
 
         CashFlowSetup."Show AzureAI Notification" := CashFlowSetup."Show Cortana Notification";
         CashFlowSetup."Azure AI Enabled" := CashFlowSetup."Cortana Intelligence Enabled";
-        
         CashFlowSetup.Modify();
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCashFlowCortanaFieldsUpgradeTag());
@@ -41,20 +40,21 @@ codeunit 14040 "Upgrade Cortana Intelligence"
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetCortanaIntelligenceUsageUpgradeTag()) then
             exit;
 
-        if not CortanaIntelligenceUsage.Get() then
-            exit;
+        if CortanaIntelligenceUsage.Get() then begin
+            if not AzureAIUsage.Get() then begin
+                AzureAIUsage.Init();
 
-        AzureAIUsage.Init();
+                AzureAIUsage.Service := CortanaIntelligenceUsage.Service;
+                AzureAIUsage."Total Resource Usage" := CortanaIntelligenceUsage."Total Resource Usage";
+                AzureAIUsage."Original Resource Limit" := CortanaIntelligenceUsage."Original Resource Limit";
+                AzureAIUsage."Limit Period" := CortanaIntelligenceUsage."Limit Period";
+                AzureAIUsage."Last DateTime Updated" := CortanaIntelligenceUsage."Last DateTime Updated";
 
-        AzureAIUsage.Service := CortanaIntelligenceUsage.Service;
-        AzureAIUsage."Total Resource Usage" := CortanaIntelligenceUsage."Total Resource Usage";
-        AzureAIUsage."Original Resource Limit" := CortanaIntelligenceUsage."Original Resource Limit";
-        AzureAIUsage."Limit Period" := CortanaIntelligenceUsage."Limit Period";
-        AzureAIUsage."Last DateTime Updated" := CortanaIntelligenceUsage."Last DateTime Updated";
+                AzureAIUsage.Insert();
+            end;
 
-        if AzureAIUsage.Insert() then;
-
-        CortanaIntelligenceUsage.DeleteAll();
+            CortanaIntelligenceUsage.DeleteAll();
+        end;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCortanaIntelligenceUsageUpgradeTag());
     end;

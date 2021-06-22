@@ -29,11 +29,9 @@ table 5625 "Maintenance Ledger Entry"
         {
             Caption = 'Posting Date';
         }
-        field(6; "Document Type"; Option)
+        field(6; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(7; "Document Date"; Date)
         {
@@ -134,11 +132,9 @@ table 5625 "Maintenance Ledger Entry"
         {
             Caption = 'Transaction No.';
         }
-        field(29; "Bal. Account Type"; Option)
+        field(29; "Bal. Account Type"; enum "Gen. Journal Account Type")
         {
             Caption = 'Bal. Account Type';
-            OptionCaption = 'G/L Account,Customer,Vendor,Bank Account,Fixed Asset';
-            OptionMembers = "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset";
         }
         field(30; "Bal. Account No."; Code[20])
         {
@@ -318,6 +314,13 @@ table 5625 "Maintenance Ledger Entry"
 
     var
         DimMgt: Codeunit DimensionManagement;
+
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
+    end;
 
     procedure ShowDimensions()
     begin

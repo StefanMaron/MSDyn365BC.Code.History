@@ -806,6 +806,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Budget and Analysis - NamedType DirectCostTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2014446531 - NamedType 1302612011" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot specify a %1 for %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Budget and Analysis - NamedType CanUseValueTypeErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2956518560 - NamedType 973351683" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Do you want to change ]]></Val>
@@ -3490,7 +3499,7 @@
   </Item>
   <Item ItemId=";Codeunit 2769833927 - NamedType 3605038922" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Do you want to reserve specific serial or lot numbers?]]></Val>
+      <Val><![CDATA[Do you want to reserve specific tracking numbers?]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -4755,6 +4764,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Inventory Reports - II - NamedType ValueEntriesWerePostedTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4039754121 - NamedType 2234197101" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The Business Central (Version 15.0) must be selected on the Price Calculation Setup page.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Inventory Reports - II - NamedType PriceCalculationV15Err)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1587373818 - NamedType 3942800427" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -13730,6 +13748,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Transfer Reservation - NamedType ExpectedDateConfclictErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 550613498 - NamedType 1945968095" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Cannot match item tracking.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Transfer Reservation - NamedType CannotMatchItemTrackingErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1950942247 - NamedType 1203950504" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[No. of Line Must Be Equal.]]></Val>
@@ -16707,6 +16734,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1: Field(Qty. Outstanding (Base)), %2: Quantity available to pick in bin.]D;]A;(LookupHint=Codeunit SCM Warehouse UOM - NamedType InsufficientQtyToPickInBinErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3383261961 - NamedType 2675155072" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot delete the unit of measure because it is assigned to one or more records.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Warehouse UOM - NamedType UoMIsStillUsedError)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2904136712 - NamedType 1794134907" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

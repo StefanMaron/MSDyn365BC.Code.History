@@ -227,7 +227,7 @@ codeunit 139053 "Office Addin Popout"
         OfficeManagement: Codeunit "Office Management";
         OfficeHost: DotNet OfficeHost;
     begin
-        OfficeAddinContext.DeleteAll;
+        OfficeAddinContext.DeleteAll();
         SetOfficeHostUnAvailable;
 
         SetOfficeHostProvider(CODEUNIT::"Library - Office Host Provider");
@@ -241,8 +241,8 @@ codeunit 139053 "Office Addin Popout"
     begin
         // Test Providers checks whether we have registered Host in NameValueBuffer or not
         if NameValueBuffer.Get(SessionId) then begin
-            NameValueBuffer.Delete;
-            Commit;
+            NameValueBuffer.Delete();
+            Commit();
         end;
     end;
 
@@ -250,9 +250,9 @@ codeunit 139053 "Office Addin Popout"
     var
         OfficeAddinSetup: Record "Office Add-in Setup";
     begin
-        OfficeAddinSetup.Get;
+        OfficeAddinSetup.Get();
         OfficeAddinSetup."Office Host Codeunit ID" := ProviderId;
-        OfficeAddinSetup.Modify;
+        OfficeAddinSetup.Modify();
     end;
 
     local procedure RandomEmail(): Text[80]
@@ -265,7 +265,7 @@ codeunit 139053 "Office Addin Popout"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         LibraryUtility: Codeunit "Library - Utility";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup."Stockout Warning" := false;
         if SalesReceivablesSetup."Blanket Order Nos." = '' then
             SalesReceivablesSetup.Validate("Blanket Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
@@ -277,7 +277,7 @@ codeunit 139053 "Office Addin Popout"
             SalesReceivablesSetup.Validate("Quote Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         if SalesReceivablesSetup."Customer Nos." = '' then
             SalesReceivablesSetup.Validate("Customer Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesReceivablesSetup.Modify;
+        SalesReceivablesSetup.Modify();
     end;
 
     local procedure SetupMarketing()
@@ -285,10 +285,10 @@ codeunit 139053 "Office Addin Popout"
         MarketingSetup: Record "Marketing Setup";
         LibraryUtility: Codeunit "Library - Utility";
     begin
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         if MarketingSetup."Contact Nos." = '' then
             MarketingSetup.Validate("Contact Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        MarketingSetup.Modify;
+        MarketingSetup.Modify();
     end;
 
     local procedure CreateContactFromCustomer(Email: Text[80]; var ContactNo: Code[20]; var NewBusinessRelationCode: Code[10]): Code[20]
@@ -316,7 +316,7 @@ codeunit 139053 "Office Addin Popout"
     var
         MarketingSetup: Record "Marketing Setup";
     begin
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         OriginalBusRelCodeForCustomers := MarketingSetup."Bus. Rel. Code for Customers";
         MarketingSetup.Validate("Bus. Rel. Code for Customers", BusRelCodeForCustomers);
         MarketingSetup.Modify(true);
@@ -326,7 +326,7 @@ codeunit 139053 "Office Addin Popout"
     var
         MarketingSetup: Record "Marketing Setup";
     begin
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         OriginalBusRelCodeForVendors := MarketingSetup."Bus. Rel. Code for Vendors";
         MarketingSetup.Validate("Bus. Rel. Code for Vendors", BusRelCodeForVendors);
         MarketingSetup.Modify(true);
@@ -437,12 +437,12 @@ codeunit 139053 "Office Addin Popout"
         NoSeries: Record "No. Series";
         DocNoSeries: Code[20];
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         DocNoSeries := PurchasesPayablesSetup."Credit Memo Nos.";
 
         NoSeries.Get(DocNoSeries);
         NoSeries."Manual Nos." := false;
-        NoSeries.Modify;
+        NoSeries.Modify();
     end;
 
     [PageHandler]

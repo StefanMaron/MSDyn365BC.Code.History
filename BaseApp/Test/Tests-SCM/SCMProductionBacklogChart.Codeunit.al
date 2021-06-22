@@ -31,7 +31,7 @@ codeunit 137111 "SCM Production Backlog Chart"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Production Backlog Chart");
     end;
 
@@ -58,7 +58,7 @@ codeunit 137111 "SCM Production Backlog Chart"
             CreateProdOrders(Item."No.", ProductionOrder.Status::"Firm Planned", FirmPlanned);
             CreateProdOrders(Item."No.", ProductionOrder.Status::Released, Released);
             TempItem := Item;
-            TempItem.Insert;
+            TempItem.Insert();
         end;
 
         // Verify query: Query - database consistency.
@@ -174,7 +174,7 @@ codeunit 137111 "SCM Production Backlog Chart"
             CreateProdOrders(Item."No.", ProductionOrder.Status::"Firm Planned", FirmPlanned);
             CreateProdOrders(Item."No.", ProductionOrder.Status::Released, Released);
             TempItem := Item;
-            TempItem.Insert;
+            TempItem.Insert();
         end;
 
         // Verify query: Query - database consistency.
@@ -238,13 +238,13 @@ codeunit 137111 "SCM Production Backlog Chart"
             CreateProdOrders(Item."No.", ProductionOrder.Status::"Firm Planned", FirmPlanned);
             CreateProdOrders(Item."No.", ProductionOrder.Status::Released, Released);
             if count mod 2 = 0 then begin
-                MyItem.Init;
+                MyItem.Init();
                 MyItem.Validate("User ID", UserId);
                 MyItem.Validate("Item No.", Item."No.");
-                MyItem.Insert;
+                MyItem.Insert();
             end;
             TempItem := Item;
-            TempItem.Insert;
+            TempItem.Insert();
         end;
 
         // Verify query: Query - database consistency.
@@ -298,13 +298,13 @@ codeunit 137111 "SCM Production Backlog Chart"
             CreateProdOrders(Item."No.", ProductionOrder.Status::"Firm Planned", FirmPlanned);
             CreateProdOrders(Item."No.", ProductionOrder.Status::Released, Released);
             if count mod 2 = 0 then begin
-                MyItem.Init;
+                MyItem.Init();
                 MyItem.Validate("User ID", UserId);
                 MyItem.Validate("Item No.", Item."No.");
-                MyItem.Insert;
+                MyItem.Insert();
             end;
             TempItem := Item;
-            TempItem.Insert;
+            TempItem.Insert();
         end;
 
         // Verify query: Query - database consistency.
@@ -349,7 +349,7 @@ codeunit 137111 "SCM Production Backlog Chart"
         ProductionOrder: Record "Production Order";
         "count": Integer;
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         for count := 1 to NoOfOrders do begin
             LibraryManufacturing.CreateProductionOrder(
               ProductionOrder, Status, ProductionOrder."Source Type"::Item, ItemNo, LibraryRandom.RandDec(10, 2));

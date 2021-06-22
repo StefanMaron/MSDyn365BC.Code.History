@@ -11,7 +11,7 @@ report 1496 "Suggest Bank Acc. Recon. Lines"
 
             trigger OnAfterGetRecord()
             begin
-                BankAccLedgEntry.Reset;
+                BankAccLedgEntry.Reset();
                 BankAccLedgEntry.SetCurrentKey("Bank Account No.", "Posting Date");
                 BankAccLedgEntry.SetRange("Bank Account No.", "No.");
                 BankAccLedgEntry.SetRange("Posting Date", StartDate, EndDate);
@@ -22,7 +22,7 @@ report 1496 "Suggest Bank Acc. Recon. Lines"
                 EOFBankAccLedgEntries := not BankAccLedgEntry.Find('-');
 
                 if IncludeChecks then begin
-                    CheckLedgEntry.Reset;
+                    CheckLedgEntry.Reset();
                     CheckLedgEntry.SetCurrentKey("Bank Account No.", "Check Date");
                     CheckLedgEntry.SetRange("Bank Account No.", "No.");
                     CheckLedgEntry.SetRange("Check Date", StartDate, EndDate);
@@ -44,7 +44,7 @@ report 1496 "Suggest Bank Acc. Recon. Lines"
                         (not EOFBankAccLedgEntries) and (not EOFCheckLedgEntries) and
                         (BankAccLedgEntry."Posting Date" <= CheckLedgEntry."Check Date"):
                             begin
-                                CheckLedgEntry2.Reset;
+                                CheckLedgEntry2.Reset();
                                 CheckLedgEntry2.SetCurrentKey("Bank Account Ledger Entry No.");
                                 CheckLedgEntry2.SetRange("Bank Account Ledger Entry No.", BankAccLedgEntry."Entry No.");
                                 CheckLedgEntry2.SetRange(Open, true);
@@ -60,7 +60,7 @@ report 1496 "Suggest Bank Acc. Recon. Lines"
                             end;
                         (not EOFBankAccLedgEntries) and EOFCheckLedgEntries:
                             begin
-                                CheckLedgEntry2.Reset;
+                                CheckLedgEntry2.Reset();
                                 CheckLedgEntry2.SetCurrentKey("Bank Account Ledger Entry No.");
                                 CheckLedgEntry2.SetRange("Bank Account Ledger Entry No.", BankAccLedgEntry."Entry No.");
                                 CheckLedgEntry2.SetRange(Open, true);
@@ -172,7 +172,7 @@ report 1496 "Suggest Bank Acc. Recon. Lines"
 
     local procedure EnterBankAccLine(var BankAccLedgEntry2: Record "Bank Account Ledger Entry")
     begin
-        BankAccReconLine.Init;
+        BankAccReconLine.Init();
         BankAccReconLine."Statement Line No." := BankAccReconLine."Statement Line No." + 10000;
         BankAccReconLine."Transaction Date" := BankAccLedgEntry2."Posting Date";
         BankAccReconLine.Description := BankAccLedgEntry2.Description;
@@ -182,12 +182,14 @@ report 1496 "Suggest Bank Acc. Recon. Lines"
         BankAccReconLine.Type := BankAccReconLine.Type::"Bank Account Ledger Entry";
         BankAccReconLine."Applied Entries" := 1;
         BankAccSetStmtNo.SetReconNo(BankAccLedgEntry2, BankAccReconLine);
-        BankAccReconLine.Insert;
+        BankAccReconLine.Insert();
     end;
 
     local procedure EnterCheckLine(var CheckLedgEntry3: Record "Check Ledger Entry")
+    var
+        BankAccLedg: record "Bank Account Ledger Entry";
     begin
-        BankAccReconLine.Init;
+        BankAccReconLine.Init();
         BankAccReconLine."Statement Line No." := BankAccReconLine."Statement Line No." + 10000;
         BankAccReconLine."Transaction Date" := CheckLedgEntry3."Check Date";
         BankAccReconLine.Description := CheckLedgEntry3.Description;
@@ -196,8 +198,10 @@ report 1496 "Suggest Bank Acc. Recon. Lines"
         BankAccReconLine.Type := BankAccReconLine.Type::"Check Ledger Entry";
         BankAccReconLine."Check No." := CheckLedgEntry3."Check No.";
         BankAccReconLine."Applied Entries" := 1;
+        if BankAccLedg.Get(CheckLedgEntry3."Bank Account Ledger Entry No.") then
+            BankAccReconLine."Document No." := BankAccLedg."Document No.";
         CheckSetStmtNo.SetReconNo(CheckLedgEntry3, BankAccReconLine);
-        BankAccReconLine.Insert;
+        BankAccReconLine.Insert();
     end;
 
     procedure InitializeRequest(NewStartDate: Date; NewEndDate: Date; NewIncludeChecks: Boolean)

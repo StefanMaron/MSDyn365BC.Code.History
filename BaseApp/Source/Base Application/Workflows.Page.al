@@ -95,7 +95,7 @@ page 1500 Workflows
                         end;
                         Workflow.SetRange(Template, false);
                         if Workflow.IsEmpty then
-                            Workflow.Insert;
+                            Workflow.Insert();
                         Workflow.FilterGroup := 2;
                         WorkflowPage.SetOpenNew(true);
                         WorkflowPage.SetTableView(Workflow);
@@ -372,11 +372,11 @@ page 1500 Workflows
         Workflow.SetRange(Template, false);
 
         TempWorkflowBuffer.Copy(Rec, true);
-        TempWorkflowBuffer.Reset;
+        TempWorkflowBuffer.Reset();
         TempWorkflowBuffer.SetFilter("Workflow Code", '<>%1', '');
         TempWorkflowBuffer.SetRange(Template, false);
 
-        WorkflowCountChanged := Workflow.Count <> TempWorkflowBuffer.Count;
+        WorkflowCountChanged := Workflow.Count <> TempWorkflowBuffer.Count();
 
         if CurrentWorkflowChanged or WorkflowCountChanged then begin
             InitBufferForWorkflows(Rec);

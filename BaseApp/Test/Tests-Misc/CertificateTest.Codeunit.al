@@ -93,7 +93,7 @@ codeunit 134666 "Certificate Test"
         // [SCENARIO] When adding a new certificate while No.Series tenant is empty, it should be initialized.
         // [WHEN] Cert and No. Series tenant are empty.
         IsolatedCertificate.DeleteAll(true);
-        NoSeriesTenant.DeleteAll;
+        NoSeriesTenant.DeleteAll();
 
         // [Then] Adding new cert should create No. Series record.
         InsertCertificate(IsolatedCertificate);

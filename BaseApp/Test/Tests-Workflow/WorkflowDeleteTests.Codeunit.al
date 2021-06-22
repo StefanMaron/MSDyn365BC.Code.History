@@ -61,7 +61,7 @@ codeunit 134305 "Workflow Delete Tests"
         // [THEN] The workflow and all workflow steps will be deleted.
 
         // Setup
-        WorkflowStepArgument.DeleteAll;
+        WorkflowStepArgument.DeleteAll();
         CreateWorkflow(Workflow);
 
         DisableWorkflow(Workflow);
@@ -351,7 +351,7 @@ codeunit 134305 "Workflow Delete Tests"
 
         // Setup
         LibraryWorkflow.DeleteAllExistingWorkflows;
-        LibraryRandom.Init;
+        LibraryRandom.Init();
         LibraryWorkflow.CreateWorkflow(Workflow);
 
         EntryPointEventStep :=
@@ -366,12 +366,12 @@ codeunit 134305 "Workflow Delete Tests"
         LibrarySales.CreateCustomer(Customer[1]);
         Customer[2].TransferFields(Customer[1]);
         Customer[2]."Credit Limit (LCY)" := LibraryRandom.RandDec(100, 2);
-        Customer[2].Modify;
+        Customer[2].Modify();
 
         LibrarySales.CreateCustomer(Customer[1]);
         Customer[3].TransferFields(Customer[1]);
         Customer[3]."Credit Limit (LCY)" := LibraryRandom.RandDec(100, 2);
-        Customer[3].Modify;
+        Customer[3].Modify();
 
         // Exercise
         Assert.RecordCount(WorkflowStepArgument, 2);

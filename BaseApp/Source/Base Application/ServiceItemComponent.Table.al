@@ -46,7 +46,7 @@ table 5941 "Service Item Component"
                         Validate("No.", Item."No.");
                 end else begin
                     ServItem.Get("Parent Service Item No.");
-                    ServItem2.Reset;
+                    ServItem2.Reset();
                     ServItem2.SetCurrentKey("Customer No.", "Ship-to Code");
                     ServItem2.SetRange("Customer No.", ServItem."Customer No.");
                     ServItem2.SetRange("Ship-to Code", ServItem."Ship-to Code");
@@ -107,7 +107,7 @@ table 5941 "Service Item Component"
                 case Type of
                     Type::Item:
                         begin
-                            ItemVariant.Reset;
+                            ItemVariant.Reset();
                             ItemVariant.SetRange("Item No.", "No.");
                             if PAGE.RunModal(PAGE::"Item Variants", ItemVariant) = ACTION::LookupOK then
                                 "Variant Code" := ItemVariant.Code;
@@ -116,7 +116,7 @@ table 5941 "Service Item Component"
                         begin
                             if "No." <> '' then begin
                                 ServItem.Get("No.");
-                                ItemVariant.Reset;
+                                ItemVariant.Reset();
                                 ItemVariant.SetRange("Item No.", ServItem."Item No.");
                             end else
                                 ItemVariant.SetRange("Item No.", '');
@@ -210,7 +210,7 @@ table 5941 "Service Item Component"
         ConfirmManagement: Codeunit "Confirm Management";
     begin
         if Active then begin
-            ServItemComponent.Reset;
+            ServItemComponent.Reset();
             ServItemComponent.SetCurrentKey(Active, "Parent Service Item No.", "From Line No.");
             ServItemComponent.SetRange(Active, false);
             ServItemComponent.SetRange("Parent Service Item No.", "Parent Service Item No.");
@@ -218,14 +218,14 @@ table 5941 "Service Item Component"
             if ServItemComponent.FindFirst then
                 if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text002, "No."), true) then
                     Error('');
-            ServItemComponent.DeleteAll;
+            ServItemComponent.DeleteAll();
         end;
     end;
 
     trigger OnModify()
     begin
         if Active and (Type <> xRec.Type) then begin
-            ServItemComponent.Reset;
+            ServItemComponent.Reset();
             ServItemComponent.SetCurrentKey(Active, "Parent Service Item No.", "Line No.");
             ServItemComponent.SetRange(Active, false);
             ServItemComponent.SetRange("Parent Service Item No.", "Parent Service Item No.");
@@ -238,7 +238,7 @@ table 5941 "Service Item Component"
             ServItemComponent."Line No." := NextNo;
             ServItemComponent."From Line No." := "Line No.";
             ServItemComponent."Last Date Modified" := Today;
-            ServItemComponent.Insert;
+            ServItemComponent.Insert();
         end;
     end;
 

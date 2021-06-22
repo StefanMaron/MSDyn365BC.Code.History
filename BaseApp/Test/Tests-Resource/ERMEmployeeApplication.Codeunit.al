@@ -90,7 +90,7 @@ codeunit 134115 "ERM Employee Application"
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
         // Setup. Post Employee Expense and Partial Payment with Random Amount.
-        GenJournalTemplate.DeleteAll;
+        GenJournalTemplate.DeleteAll();
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         SelectGenJournalBatch(GenJournalBatch);
         CreateGeneralJournalLines(
@@ -105,7 +105,7 @@ codeunit 134115 "ERM Employee Application"
         OpenEmployeeLedgerEntryPage(DocumentType2, GenJournalLine."Account No.");
 
         // Verify: Verify Page fields value on Apply Employee Entries Page.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryERM.FindEmployeeLedgerEntry(EmployeeLedgerEntry, DocumentType, GenJournalLine."Document No.");
         EmployeeLedgerEntry.CalcFields("Remaining Amount");
         Assert.AreNearlyEqual(
@@ -139,7 +139,7 @@ codeunit 134115 "ERM Employee Application"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Exercise.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         OpenEmployeeLedgerEntryPage(GenJournalLine."Document Type", GenJournalLine."Account No.");
 
         // Verify: Verify Amount and Remaining Amount on Employee Ledger Entries.
@@ -167,7 +167,7 @@ codeunit 134115 "ERM Employee Application"
         // Check that it is possible to enter an expense number without having a Employee number.
         // Setup: Create and post Employee Expense, create Payment and Apply Payment using Applies to Doc. No.
         Initialize;
-        GenJournalTemplate.DeleteAll;
+        GenJournalTemplate.DeleteAll();
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         CreateGeneralJournalLines(
@@ -213,7 +213,7 @@ codeunit 134115 "ERM Employee Application"
         GeneralJournal: TestPage "General Journal";
     begin
         // Setup: Create and Post General Line for Expense.
-        GenJournalTemplate.DeleteAll;
+        GenJournalTemplate.DeleteAll();
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         SelectGenJournalBatch(GenJournalBatch);
         LibraryERM.CreateGeneralJnlLine(
@@ -254,7 +254,7 @@ codeunit 134115 "ERM Employee Application"
         LibraryERM.PostEmplLedgerApplication(EmployeeLedgerEntry);
 
         // [THEN] All Employee Ledger Entries are closed
-        EmployeeLedgerEntry.Reset;
+        EmployeeLedgerEntry.Reset();
         EmployeeLedgerEntry.SetRange("Employee No.", EmployeeNo);
         EmployeeLedgerEntry.SetRange(Open, true);
         Assert.RecordIsEmpty(EmployeeLedgerEntry);
@@ -374,7 +374,7 @@ codeunit 134115 "ERM Employee Application"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Employee Application");
         LibraryVariableStorage.Clear;
 
-        EmployeePostingGroup.DeleteAll;
+        EmployeePostingGroup.DeleteAll();
         CreateEmployeePostingGroup(LibraryERM.CreateGLAccountNoWithDirectPosting);
 
         // Lazy Setup.
@@ -388,7 +388,7 @@ codeunit 134115 "ERM Employee Application"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Employee Application");
     end;
 
@@ -591,7 +591,7 @@ codeunit 134115 "ERM Employee Application"
     var
         EmployeePostingGroup: Record "Employee Posting Group";
     begin
-        EmployeePostingGroup.Init;
+        EmployeePostingGroup.Init();
         EmployeePostingGroup.Validate(Code, LibraryUtility.GenerateGUID);
         EmployeePostingGroup.Validate("Payables Account", ExpenseAccNo);
         EmployeePostingGroup.Insert(true);

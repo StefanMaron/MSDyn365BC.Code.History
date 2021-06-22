@@ -3,7 +3,6 @@ table 130451 "AL Test Suite"
     DataCaptionFields = Name, Description;
     LookupPageID = "AL Test Suites";
     ReplicateData = false;
-    Permissions = TableData "AL Test Suite" = rimd, TableData "Test Method Line" = rimd;
 
     fields
     {

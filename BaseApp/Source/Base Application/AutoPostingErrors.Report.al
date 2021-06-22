@@ -176,10 +176,10 @@ report 6250 "Auto Posting Errors"
                         begin
                             if Number = 1 then begin
                                 if not DimSetEntry.FindSet then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end else
                                 if not Continue then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                             DimText := GetDimensionText(DimSetEntry);
                         end;
@@ -187,8 +187,8 @@ report 6250 "Auto Posting Errors"
                         trigger OnPreDataItem()
                         begin
                             if not ShowDim then
-                                CurrReport.Break;
-                            DimSetEntry.Reset;
+                                CurrReport.Break();
+                            DimSetEntry.Reset();
                             DimSetEntry.SetRange("Dimension Set ID", "Gen. Journal Line"."Dimension Set ID")
                         end;
                     }
@@ -255,10 +255,10 @@ report 6250 "Auto Posting Errors"
                             begin
                                 if Number = 1 then begin
                                     if not DimSetEntry.FindFirst then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
                                 end else
                                     if not Continue then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
 
                                 AllocationDimText := GetDimensionText(DimSetEntry);
                             end;
@@ -266,8 +266,8 @@ report 6250 "Auto Posting Errors"
                             trigger OnPreDataItem()
                             begin
                                 if not ShowDim then
-                                    CurrReport.Break;
-                                DimSetEntry.Reset;
+                                    CurrReport.Break();
+                                DimSetEntry.Reset();
                                 DimSetEntry.SetRange("Dimension Set ID", "Gen. Jnl. Allocation"."Dimension Set ID")
                             end;
                         }
@@ -433,14 +433,14 @@ report 6250 "Auto Posting Errors"
                             LastEntrdDate := 0D;
                         end;
 
-                        TempGenJournalLineCustVendIC.Reset;
-                        TempGenJournalLineCustVendIC.DeleteAll;
+                        TempGenJournalLineCustVendIC.Reset();
+                        TempGenJournalLineCustVendIC.DeleteAll();
                         VATEntryCreated := false;
 
-                        GenJnlLine2.Reset;
+                        GenJnlLine2.Reset();
                         GenJnlLine2.CopyFilters("Gen. Journal Line");
 
-                        TempGLAccNetChange.DeleteAll;
+                        TempGLAccNetChange.DeleteAll();
                     end;
                 }
                 dataitem(ReconcileLoop; "Integer")
@@ -484,7 +484,7 @@ report 6250 "Auto Posting Errors"
 
                     trigger OnPostDataItem()
                     begin
-                        TempGLAccNetChange.DeleteAll;
+                        TempGLAccNetChange.DeleteAll();
                     end;
 
                     trigger OnPreDataItem()
@@ -496,9 +496,9 @@ report 6250 "Auto Posting Errors"
 
             trigger OnPreDataItem()
             begin
-                GLSetup.Get;
-                SalesSetup.Get;
-                PurchSetup.Get;
+                GLSetup.Get();
+                SalesSetup.Get();
+                PurchSetup.Get();
                 AmountLCY := 0;
                 BalanceLCY := 0;
             end;
@@ -559,7 +559,7 @@ report 6250 "Auto Posting Errors"
         Text020Txt: Label '%1 must not be %2 when %3 = %4.', Comment = '%1=Recurring Method field caption, %2=Recurring Method, %3=Bal. Account Type field caption, %4=Bal. Account Type';
         Text021Txt: Label 'Allocations can only be used with recurring journals.';
         Text022Txt: Label 'Specify %1 in the %2 allocation lines.', Comment = '%1=GenJnlAlloc. Account No. field caption, %2=GenJnlAlloc. Count';
-        Text023Txt: Label '<Month Text>';
+        Text023Txt: Label '<Month Text>', Locked = true;
         Text024Txt: Label '%1 %2 posted on %3, must be separated by an empty line.', Comment = '%1 - document type, %2 - document number, %3 - posting date';
         Text025Txt: Label '%1 %2 is out of balance by %3.', Comment = '%1=LastDocType, %2=LastDocNo, %3=DocBalance';
         Text026Txt: Label 'The reversing entries for %1 %2 are out of balance by %3.', Comment = '%1=LastDocType, %2=LastDocNo, %3=DocBalanceReverse';
@@ -744,7 +744,7 @@ report 6250 "Auto Posting Errors"
                ["Recurring Method"::"B  Balance",
                 "Recurring Method"::"RB Reversing Balance"]
             then begin
-                GenJnlAlloc.Reset;
+                GenJnlAlloc.Reset();
                 GenJnlAlloc.SetRange("Journal Template Name", "Journal Template Name");
                 GenJnlAlloc.SetRange("Journal Batch Name", "Journal Batch Name");
                 GenJnlAlloc.SetRange("Journal Line No.", "Line No.");
@@ -752,7 +752,7 @@ report 6250 "Auto Posting Errors"
                     AddError(Text061Txt);
             end;
 
-            GenJnlAlloc.Reset;
+            GenJnlAlloc.Reset();
             GenJnlAlloc.SetRange("Journal Template Name", "Journal Template Name");
             GenJnlAlloc.SetRange("Journal Batch Name", "Journal Batch Name");
             GenJnlAlloc.SetRange("Journal Line No.", "Line No.");
@@ -864,8 +864,8 @@ report 6250 "Auto Posting Errors"
                 if ("Posting Date" <> LastDate) or
                    ("Document Type" <> LastDocType) or ("Document No." <> LastDocNo)
                 then begin
-                    TempGenJournalLineCustVendIC.Reset;
-                    TempGenJournalLineCustVendIC.DeleteAll;
+                    TempGenJournalLineCustVendIC.Reset();
+                    TempGenJournalLineCustVendIC.DeleteAll();
                     VATEntryCreated := false;
                     CustPosting := false;
                     VendPosting := false;
@@ -928,11 +928,11 @@ report 6250 "Auto Posting Errors"
             DataMigrationError.Id := DataMigrationError.Id + 1
         else
             DataMigrationError.Id := 1;
-        DataMigrationError.Init;
+        DataMigrationError.Init();
         DataMigrationError."Migration Type" := GPMigrationTypeTxt;
         DataMigrationError."Error Message" :=
           StrSubstNo(PostingErrorTxt, "Gen. Journal Line"."Journal Batch Name", "Gen. Journal Line"."Document No.", Text);
-        DataMigrationError.Insert;
+        DataMigrationError.Insert();
     end;
 
     local procedure ReconcileGLAccNo(GLAccNo: Code[20]; ReconcileAmount: Decimal)
@@ -940,15 +940,15 @@ report 6250 "Auto Posting Errors"
         if not TempGLAccNetChange.Get(GLAccNo) then begin
             GLAcc.Get(GLAccNo);
             GLAcc.CalcFields("Balance at Date");
-            TempGLAccNetChange.Init;
+            TempGLAccNetChange.Init();
             TempGLAccNetChange."No." := GLAcc."No.";
             TempGLAccNetChange.Name := GLAcc.Name;
             TempGLAccNetChange."Balance after Posting" := GLAcc."Balance at Date";
-            TempGLAccNetChange.Insert;
+            TempGLAccNetChange.Insert();
         end;
         TempGLAccNetChange."Net Change in Jnl." := TempGLAccNetChange."Net Change in Jnl." + ReconcileAmount;
         TempGLAccNetChange."Balance after Posting" := TempGLAccNetChange."Balance after Posting" + ReconcileAmount;
-        TempGLAccNetChange.Modify;
+        TempGLAccNetChange.Modify();
     end;
 
     local procedure CheckGLAcc(var GenJnlLine: Record "Gen. Journal Line"; var AccName: Text[100])
@@ -1066,7 +1066,7 @@ report 6250 "Auto Posting Errors"
                        ["Document Type"::Invoice, "Document Type"::"Credit Memo",
                         "Document Type"::"Finance Charge Memo", "Document Type"::Reminder]
                     then begin
-                        OldCustLedgEntry.Reset;
+                        OldCustLedgEntry.Reset();
                         OldCustLedgEntry.SetCurrentKey("Document No.");
                         OldCustLedgEntry.SetRange("Document Type", "Document Type");
                         OldCustLedgEntry.SetRange("Document No.", "Document No.");
@@ -1083,7 +1083,7 @@ report 6250 "Auto Posting Errors"
                                   StrSubstNo(
                                     Text041Txt, FieldCaption("External Document No.")));
 
-                            OldCustLedgEntry.Reset;
+                            OldCustLedgEntry.Reset();
                             OldCustLedgEntry.SetCurrentKey("External Document No.");
                             OldCustLedgEntry.SetRange("Document Type", "Document Type");
                             OldCustLedgEntry.SetRange("Customer No.", "Account No.");
@@ -1156,7 +1156,7 @@ report 6250 "Auto Posting Errors"
                        ["Document Type"::Invoice, "Document Type"::"Credit Memo",
                         "Document Type"::"Finance Charge Memo", "Document Type"::Reminder]
                     then begin
-                        OldVendLedgEntry.Reset;
+                        OldVendLedgEntry.Reset();
                         OldVendLedgEntry.SetCurrentKey("Document No.");
                         OldVendLedgEntry.SetRange("Document Type", "Document Type");
                         OldVendLedgEntry.SetRange("Document No.", "Document No.");
@@ -1174,7 +1174,7 @@ report 6250 "Auto Posting Errors"
                                   StrSubstNo(
                                     Text041Txt, FieldCaption("External Document No.")));
 
-                            OldVendLedgEntry.Reset;
+                            OldVendLedgEntry.Reset();
                             OldVendLedgEntry.SetCurrentKey("External Document No.");
                             OldVendLedgEntry.SetRange("Document Type", "Document Type");
                             OldVendLedgEntry.SetRange("Vendor No.", "Account No.");
@@ -1355,7 +1355,7 @@ report 6250 "Auto Posting Errors"
                         Text051Txt,
                         FieldCaption("Posting Date"), FieldCaption("FA Posting Date")));
             CheckPostingDateFAFields(GenJnlLine);
-            FASetup.Get;
+            FASetup.Get();
             if ("FA Posting Type" = "FA Posting Type"::"Acquisition Cost") and
                ("Insurance No." <> '') and ("Depreciation Book Code" <> FASetup."Insurance Depr. Book")
             then
@@ -1513,7 +1513,7 @@ report 6250 "Auto Posting Errors"
             AccNo := GenJnlLine."Bal. Account No.";
         end;
 
-        TempGenJnlLine.Reset;
+        TempGenJnlLine.Reset();
         TempGenJnlLine.SetRange("External Document No.", GenJnlLine."External Document No.");
 
         while (i < 2) and not ErrorFound do begin
@@ -1538,9 +1538,9 @@ report 6250 "Auto Posting Errors"
             end;
         end;
 
-        TempGenJnlLine.Reset;
+        TempGenJnlLine.Reset();
         TempGenJnlLine := GenJnlLine;
-        TempGenJnlLine.Insert;
+        TempGenJnlLine.Insert();
     end;
 
     local procedure CheckICDocument()
@@ -1768,7 +1768,7 @@ report 6250 "Auto Posting Errors"
                             AllowFAPostingTo := UserSetup."Allow FA Posting To";
                         end;
                     if (AllowFAPostingFrom = 0D) and (AllowFAPostingTo = 0D) then begin
-                        FASetup.Get;
+                        FASetup.Get();
                         AllowFAPostingFrom := FASetup."Allow FA Posting From";
                         AllowFAPostingTo := FASetup."Allow FA Posting To";
                     end;

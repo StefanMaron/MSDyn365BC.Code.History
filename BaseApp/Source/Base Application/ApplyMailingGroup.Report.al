@@ -17,7 +17,7 @@ report 5184 "Apply Mailing Group"
             trigger OnPreDataItem()
             begin
                 if not DeleteOld then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 SetRange("Mailing Group Code", MailingGroupCode);
             end;
@@ -40,7 +40,7 @@ report 5184 "Apply Mailing Group"
                         "Contact Mailing Group"."Contact No." := "Segment Line"."Contact No.";
                         "Contact Mailing Group"."Mailing Group Code" := Code;
                         OnBeforeContactMailingGroupInsert("Contact Mailing Group", "Segment Header", "Segment Line");
-                        if "Contact Mailing Group".Insert then;
+                        if "Contact Mailing Group".Insert() then;
                     end;
                 }
             }

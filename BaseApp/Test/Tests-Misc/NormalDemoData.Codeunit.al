@@ -22,7 +22,7 @@ codeunit 138200 "Normal DemoData"
         CompanyInformation: Record "Company Information";
     begin
         // [SCENARIO] The current Company is a Demo Company
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         Assert.IsTrue(CompanyInformation."Demo Company", CompanyInformation.FieldName("Demo Company"));
     end;
 
@@ -223,7 +223,7 @@ codeunit 138200 "Normal DemoData"
     begin
         // [FEATURE] [Tax Invoice Threshold]
         // [SCENARIO 271628] "Tax Invoice Renaming Threshold" is 0.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.TestField("Tax Invoice Renaming Threshold", 0);
     end;
 
@@ -235,10 +235,12 @@ codeunit 138200 "Normal DemoData"
         UsageOption: Option;
     begin
         // [FEATURE] [Electronic Document]
-        // [SCENARIO 341241] Electronic document format has setup for PEPPOL BIS3 for all Usage options
+        // [SCENARIO 278316] Electronic document format has setup for PEPPOL 2.0, 2.1 for all Usage options
         with ElectronicDocumentFormat do
-            for UsageOption := Usage::"Sales Invoice" to Usage::"Service Validation" do
-                Get('PEPPOL BIS3', UsageOption);
+            for UsageOption := Usage::"Sales Invoice" to Usage::"Service Validation" do begin
+                Get('PEPPOL 2.0', UsageOption);
+                Get('PEPPOL 2.1', UsageOption);
+            end;
     end;
 
     [Test]

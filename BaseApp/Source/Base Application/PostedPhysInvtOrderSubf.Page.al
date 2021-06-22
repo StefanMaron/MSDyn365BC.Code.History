@@ -1,4 +1,4 @@
-﻿page 5885 "Posted Phys. Invt. Order Subf."
+page 5885 "Posted Phys. Invt. Order Subf."
 {
     AutoSplitKey = true;
     Caption = 'Lines';

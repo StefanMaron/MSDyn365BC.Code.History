@@ -137,7 +137,7 @@ table 1504 "Workflow Step Instance"
         WorkflowTableRelationValue.SetRange("Workflow Step Instance ID", ID);
         WorkflowTableRelationValue.SetRange("Workflow Code", "Workflow Code");
         if not WorkflowTableRelationValue.IsEmpty then
-            WorkflowTableRelationValue.DeleteAll;
+            WorkflowTableRelationValue.DeleteAll();
         DeleteStepInstanceRules;
         RemoveRecordRestrictions();
     end;
@@ -267,7 +267,7 @@ table 1504 "Workflow Step Instance"
         WorkflowRule: Record "Workflow Rule";
     begin
         if FindWorkflowRules(WorkflowRule) then
-            WorkflowRule.DeleteAll;
+            WorkflowRule.DeleteAll();
     end;
 
     local procedure RemoveRecordRestrictions()
@@ -342,10 +342,10 @@ table 1504 "Workflow Step Instance"
         SrcWorkflowStepInstance.FindFirst;
 
         Clear(TempWorkflowStepInstance);
-        TempWorkflowStepInstance.Init;
+        TempWorkflowStepInstance.Init();
         TempWorkflowStepInstance.Copy(SrcWorkflowStepInstance);
         TempWorkflowStepInstance."Workflow Step ID" := NewStepId;
-        TempWorkflowStepInstance.Insert;
+        TempWorkflowStepInstance.Insert();
     end;
 }
 

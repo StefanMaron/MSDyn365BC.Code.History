@@ -172,7 +172,7 @@ report 99000754 "Rolled-up Cost Shares"
                             Level := Level - 1;
                         Index := Index - 1;
                         if Index < 1 then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         if NoListType[Index] = NoListType[Index] ::Item then
                             MfgItem.Get(NoList[Index])
                         else
@@ -197,7 +197,7 @@ report 99000754 "Rolled-up Cost Shares"
                                 if CompItem.IsMfgItem and (CompItem."Production BOM No." <> '') then begin
                                     ProdBOMHeader.Get(CompItem."Production BOM No.");
                                     if ProdBOMHeader.Status = ProdBOMHeader.Status::Closed then
-                                        CurrReport.Skip;
+                                        CurrReport.Skip();
                                     NextIndex := Index + 1;
                                     if Index > 1 then
                                         if (NextIndex > 50) or (ProdBOMLine[Index]."No." = NoList[Index - 1]) then
@@ -223,7 +223,7 @@ report 99000754 "Rolled-up Cost Shares"
 
                                 ProdBOMHeader.Get(ProdBOMLine[Index]."No.");
                                 if ProdBOMHeader.Status = ProdBOMHeader.Status::Closed then
-                                    CurrReport.Skip;
+                                    CurrReport.Skip();
                                 if Index > 1 then
                                     if (NextIndex > 50) or (ProdBOMLine[Index]."No." = NoList[Index - 1]) then
                                         Error(ProductionBomErr, 50, Item."No.", MfgItem."Production BOM No.", Level);
@@ -270,13 +270,13 @@ report 99000754 "Rolled-up Cost Shares"
             trigger OnAfterGetRecord()
             begin
                 if not IsMfgItem or ("Production BOM No." = '') then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
             end;
 
             trigger OnPreDataItem()
             begin
                 ItemFilter := GetFilters;
-                GLSetup.Get;
+                GLSetup.Get();
             end;
         }
     }

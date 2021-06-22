@@ -11,6 +11,7 @@ codeunit 6702 "O365 Contact Sync. Helper"
         CreateExchangeContactTxt: Label 'Create exchange contact.';
         CreateNavContactTxt: Label 'Create contact. - %1', Comment = '%1 = The contact';
         UniqueCompanyNameErr: Label 'The Exchange Company Name is not unique in your company.';
+        LocalCountTelemetryTxt: Label 'Synchronizing %1 contacts to Exchange.', Locked = true;
 
     procedure GetO365Contacts(ExchangeSync: Record "Exchange Sync"; var TempContact: Record Contact temporary)
     var
@@ -19,20 +20,20 @@ codeunit 6702 "O365 Contact Sync. Helper"
         RecordsFound: Boolean;
         Success: Boolean;
     begin
-        TempContact.Reset;
-        TempContact.DeleteAll;
+        TempContact.Reset();
+        TempContact.DeleteAll();
 
         ExchangeContact.SetFilter(EMailAddress1, '<>%1', '');
         if TryFindContacts(ExchangeContact, RecordsFound, Success) and RecordsFound then
             repeat
                 Counter := Counter + 1;
                 Clear(TempContact);
-                TempContact.Init;
+                TempContact.Init();
                 TempContact."No." := StrSubstNo('%1', Counter);
                 TempContact.Type := TempContact.Type::Person;
 
                 TransferExchangeContactToNavContactNoValidate(ExchangeSync, ExchangeContact, TempContact);
-                TempContact.Insert; // Do not run the trigger so we preserve the dates.
+                TempContact.Insert(); // Do not run the trigger so we preserve the dates.
 
             until (ExchangeContact.Next = 0)
         else
@@ -57,7 +58,7 @@ codeunit 6702 "O365 Contact Sync. Helper"
         if ExchangeContact."Company Name" <> '' then
             if IsCompanyNameUnique(ExchangeContact."Company Name") then begin
                 ValidateCompanyName(NavContact, ExchangeContact."Company Name");
-                NavContact.Modify;
+                NavContact.Modify();
             end else
                 LogFailure(ExchangeSync, NavContact.FieldCaption("Company Name"), ExchangeContact."E-Mail");
 
@@ -83,17 +84,19 @@ codeunit 6702 "O365 Contact Sync. Helper"
         found: Boolean;
     begin
         if Contact.FindSet then begin
+            SendTraceTag('0000ACO', O365SyncManagement.TraceCategory(), Verbosity::Normal, StrSubstNo(LocalCountTelemetryTxt, Contact.Count()), DataClassification::SystemMetadata);
+
             repeat
                 found := false;
-                TempContact.Reset;
+                TempContact.Reset();
                 TempContact.SetRange("E-Mail", Contact."E-Mail");
                 if TempContact.FindFirst then begin
                     found := true;
-                    TempContact.Delete;
+                    TempContact.Delete();
                 end;
 
                 Clear(ExchangeContact);
-                ExchangeContact.Init;
+                ExchangeContact.Init();
 
                 if not TransferNavContactToExchangeContact(Contact, ExchangeContact) then
                     O365SyncManagement.LogActivityFailed(ExchangeSync.RecordId, ExchangeSync."User ID",
@@ -103,7 +106,7 @@ codeunit 6702 "O365 Contact Sync. Helper"
                         ExchangeContact.Modify
                     else begin
                         Clear(LocalExchangeContact);
-                        LocalExchangeContact.Init;
+                        LocalExchangeContact.Init();
                         LocalExchangeContact.SetFilter(EMailAddress1, '=%1', Contact."E-Mail");
                         if LocalExchangeContact.FindFirst then
                             O365SyncManagement.LogActivityFailed(ExchangeSync.RecordId, ExchangeSync."User ID",
@@ -646,7 +649,7 @@ codeunit 6702 "O365 Contact Sync. Helper"
     begin
         FieldRef := RecRef.Field(FieldNo);
         ConfigTryValidate.SetValidateParameters(FieldRef, Value);
-        Commit;
+        Commit();
         exit(ConfigTryValidate.Run);
     end;
 }

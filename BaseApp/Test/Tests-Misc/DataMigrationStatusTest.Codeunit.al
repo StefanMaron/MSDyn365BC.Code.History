@@ -92,7 +92,7 @@ codeunit 135023 "Data Migration Status Test"
           '"Migration Codeunit To Run" incorrect');
         Assert.AreEqual(DATABASE::Item, DataMigrationStatus."Destination Table ID", '"Destination Table ID" incorrect');
 
-        DataMigrationStatus.Delete;
+        DataMigrationStatus.Delete();
     end;
 
     [Test]
@@ -125,7 +125,7 @@ codeunit 135023 "Data Migration Status Test"
     begin
         // [SCENARIO] Test error cases
         LibraryLowerPermissions.SetO365Setup;
-        DataMigrationError.DeleteAll;
+        DataMigrationError.DeleteAll();
 
         // [WHEN] we register an error for the non staging table case
         DataMigrationStatusFacade.RegisterErrorNoStagingTablesCase('Test', DATABASE::Item, 'Very bad error happened.');
@@ -148,14 +148,14 @@ codeunit 135023 "Data Migration Status Test"
 
         LibraryLowerPermissions.SetO365Setup;
         // [GIVEN] G/L Account migration has been selected
-        DataMigrationStatus.Init;
+        DataMigrationStatus.Init();
         DataMigrationStatus."Migration Type" := 'Migration1';
         DataMigrationStatus."Destination Table ID" := DATABASE::"G/L Account";
-        DataMigrationStatus.Insert;
+        DataMigrationStatus.Insert();
 
-        DataMigrationParameters.Init;
+        DataMigrationParameters.Init();
         DataMigrationParameters."Migration Type" := 'Migration1';
-        DataMigrationParameters.Insert;
+        DataMigrationParameters.Insert();
 
         // [WHEN] HasMigratedChartOfAccounts is called
         // [THEN] It return TRUE
@@ -163,7 +163,7 @@ codeunit 135023 "Data Migration Status Test"
           'Chart of Accounts was expected to be migrated');
 
         // [GIVEN] G/L Account migration has not been selected
-        DataMigrationStatus.DeleteAll;
+        DataMigrationStatus.DeleteAll();
 
         // [WHEN] HasMigratedChartOfAccounts is called
         // [THEN] It return FALSE
@@ -193,8 +193,8 @@ codeunit 135023 "Data Migration Status Test"
 
         LibraryLowerPermissions.SetO365BusFull;
 
-        DataMigrationError.DeleteAll;
-        DataMigrationStatus.DeleteAll;
+        DataMigrationError.DeleteAll();
+        DataMigrationStatus.DeleteAll();
 
         // [GIVEN] The Migration for Item is selected
         DataMigrationStatusFacade.InitStatusLine(
@@ -204,7 +204,7 @@ codeunit 135023 "Data Migration Status Test"
         DataMigrationStatus.Get('Test', DATABASE::Item);
         DataMigrationStatus."Migrated Number" := 99;
         DataMigrationStatus.Status := DataMigrationStatus.Status::"Completed with Errors";
-        DataMigrationStatus.Modify;
+        DataMigrationStatus.Modify();
 
         // Dummy staging table record
         LibrarySales.CreateCustomer(Customer);
@@ -251,7 +251,7 @@ codeunit 135023 "Data Migration Status Test"
         // Verify in ItemJournalPageHandler
 
         DataMigrationOverview.Close;
-        DataMigrationStatus.DeleteAll;
+        DataMigrationStatus.DeleteAll();
 
         // [GIVEN] The Migration for Customer is selected
         DataMigrationStatusFacade.InitStatusLine(
@@ -261,7 +261,7 @@ codeunit 135023 "Data Migration Status Test"
         DataMigrationStatus.Get('Test', DATABASE::Customer);
         DataMigrationStatus."Migrated Number" := 100;
         DataMigrationStatus.Status := DataMigrationStatus.Status::Completed;
-        DataMigrationStatus.Modify;
+        DataMigrationStatus.Modify();
 
         // [GIVEN] Customer transaction have been created
         CustomerDataMigrationFacade.CreateCustomerIfNeeded('C001', '');
@@ -288,7 +288,7 @@ codeunit 135023 "Data Migration Status Test"
         // [THEN] General Journal page is opened
         // Verify in GeneralJournalPageHandler
 
-        DataMigrationStatus.DeleteAll;
+        DataMigrationStatus.DeleteAll();
         DataMigrationOverview.Close;
 
         // [GIVEN] The Migration for Vendor is selected
@@ -299,7 +299,7 @@ codeunit 135023 "Data Migration Status Test"
         DataMigrationStatus.Get('Test', DATABASE::Vendor);
         DataMigrationStatus.Status := DataMigrationStatus.Status::Completed;
         DataMigrationStatus."Migrated Number" := 100;
-        DataMigrationStatus.Modify;
+        DataMigrationStatus.Modify();
 
         // [GIVEN] Vendor transaction have been created
         VendorDataMigrationFacade.CreateVendorIfNeeded('V001', '');
@@ -326,7 +326,7 @@ codeunit 135023 "Data Migration Status Test"
         // Verify in GeneralJournalPageHandler
 
         DataMigrationOverview.Close;
-        DataMigrationStatus.DeleteAll;
+        DataMigrationStatus.DeleteAll();
 
         // [GIVEN] The Migration for Account is selected
         DataMigrationStatusFacade.InitStatusLine(
@@ -336,7 +336,7 @@ codeunit 135023 "Data Migration Status Test"
         DataMigrationStatus.Get('Test', DATABASE::"G/L Account");
         DataMigrationStatus."Migrated Number" := 99;
         DataMigrationStatus.Status := DataMigrationStatus.Status::Failed;
-        DataMigrationStatus.Modify;
+        DataMigrationStatus.Modify();
 
         CreateGenJournalLine;
 
@@ -417,12 +417,12 @@ codeunit 135023 "Data Migration Status Test"
         GenJournalBatch.SetRange(Name, 'GJB');
         GenJournalBatch.FindFirst;
 
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine."Journal Batch Name" := GenJournalBatch.Name;
         GenJournalLine."Journal Template Name" := GenJournalBatch."Journal Template Name";
         GenJournalLine."Account Type" := GenJournalLine."Account Type"::"G/L Account";
         GenJournalLine."Account No." := 'GL001';
-        GenJournalLine.Insert;
+        GenJournalLine.Insert();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 6100, 'OnFindBatchForAccountTransactions', '', false, false)]

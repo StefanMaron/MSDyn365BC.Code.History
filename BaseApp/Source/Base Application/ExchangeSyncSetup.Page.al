@@ -43,7 +43,7 @@ page 6700 "Exchange Sync. Setup"
                     trigger OnValidate()
                     begin
                         SetExchangeAccountPassword(ExchangeAccountPasswordTemp);
-                        Commit;
+                        Commit();
                     end;
                 }
             }
@@ -141,7 +141,7 @@ page 6700 "Exchange Sync. Setup"
             "User ID" := UserId;
             "Folder ID" := PRODUCTNAME.Short;
             Insert;
-            Commit;
+            Commit();
         end;
 
         PasswordRequired := AzureADMgt.GetAccessToken(AzureADMgt.GetO365Resource, AzureADMgt.GetO365ResourceName, false) = '';

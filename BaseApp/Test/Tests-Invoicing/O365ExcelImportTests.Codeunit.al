@@ -550,7 +550,7 @@ codeunit 138912 "O365 Excel Import Tests"
         // [GIVEN] Mock Excel Buffer Unit Price with text value
         TempExcelBuffer.Get(1, 2);
         TempExcelBuffer."Cell Value as Text" := LibraryUtility.GenerateGUID;
-        TempExcelBuffer.Modify;
+        TempExcelBuffer.Modify();
 
         // [WHEN] Import items is being run
         asserterror O365ExcelImportMgt.ImportData(TempExcelBuffer, TempO365FieldExcelMapping, StartRowNo, RefObjectType::Item);
@@ -634,11 +634,11 @@ codeunit 138912 "O365 Excel Import Tests"
 
     local procedure AddValueToExcelBuffer(var ExcelBuffer: Record "Excel Buffer"; RowNo: Integer; ColumnNo: Integer; CellValue: Text)
     begin
-        ExcelBuffer.Init;
+        ExcelBuffer.Init();
         ExcelBuffer."Row No." := RowNo;
         ExcelBuffer."Column No." := ColumnNo;
         ExcelBuffer."Cell Value as Text" := CopyStr(CellValue, 1, MaxStrLen(ExcelBuffer."Cell Value as Text"));
-        ExcelBuffer.Insert;
+        ExcelBuffer.Insert();
     end;
 
     local procedure AddCustomerDataToExcelBuffer(Customer: Record Customer; var ExcelBuffer: Record "Excel Buffer"; RowNo: Integer)
@@ -705,7 +705,7 @@ codeunit 138912 "O365 Excel Import Tests"
         ConfigTemplateHeader.Code :=
           LibraryUtility.GenerateRandomCode(ConfigTemplateHeader.FieldNo(Code), DATABASE::"Config. Template Header");
         ConfigTemplateHeader."Table ID" := DATABASE::Customer;
-        ConfigTemplateHeader.Insert;
+        ConfigTemplateHeader.Insert();
 
         if CustomerPostingGroup.FindFirst then
             CreateTemplateLine(
@@ -737,7 +737,7 @@ codeunit 138912 "O365 Excel Import Tests"
         ConfigTemplateHeader.Code :=
           LibraryUtility.GenerateRandomCode(ConfigTemplateHeader.FieldNo(Code), DATABASE::"Config. Template Header");
         ConfigTemplateHeader."Table ID" := DATABASE::Item;
-        ConfigTemplateHeader.Insert;
+        ConfigTemplateHeader.Insert();
 
         if InventoryPostingGroup.FindFirst then
             CreateTemplateLine(
@@ -757,7 +757,7 @@ codeunit 138912 "O365 Excel Import Tests"
         if ConfigTemplateLine.FindLast then;
         NextLineNo := ConfigTemplateLine."Line No." + 10000;
 
-        ConfigTemplateLine.Init;
+        ConfigTemplateLine.Init();
         ConfigTemplateLine.Validate("Data Template Code", ConfigTemplateHeader.Code);
         ConfigTemplateLine.Validate("Line No.", NextLineNo);
         ConfigTemplateLine.Validate(Type, ConfigTemplateLine.Type::Field);
@@ -772,16 +772,16 @@ codeunit 138912 "O365 Excel Import Tests"
         ConfigTemplateHeader: Record "Config. Template Header";
     begin
         ConfigTemplateHeader.SetRange("Table ID", TableID);
-        ConfigTemplateHeader.DeleteAll;
+        ConfigTemplateHeader.DeleteAll();
     end;
 
     local procedure EnableInvoicingAppArea()
     var
         ApplicationAreaSetup: Record "Application Area Setup";
     begin
-        ApplicationAreaSetup.DeleteAll;
+        ApplicationAreaSetup.DeleteAll();
         ApplicationAreaSetup.Invoicing := true;
-        ApplicationAreaSetup.Insert;
+        ApplicationAreaSetup.Insert();
     end;
 
     local procedure GetMaxExcelBufferColumnNo(var ExcelBuffer: Record "Excel Buffer"): Integer

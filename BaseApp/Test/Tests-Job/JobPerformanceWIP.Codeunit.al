@@ -561,7 +561,7 @@ codeunit 136304 "Job Performance WIP"
         PlanJobTask(JobTask, ScheduleAmount, ContractAmount, LibraryJob.ResourceType);
 
         // Setup: execute job
-        JobTask.Reset;
+        JobTask.Reset();
         JobTask.SetRange("Job No.", Job."No.");
         UseJobTasks(JobTask, UsageAmount / ScheduleAmount);
 
@@ -570,7 +570,7 @@ codeunit 136304 "Job Performance WIP"
 
         // Verify: only two job (out of three) tasks contribute to the recognized cost for the job
         Job.CalcFields("Recog. Costs Amount");
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Assert.AreNearlyEqual(2 * UsageAmount, Job."Recog. Costs Amount",
           GeneralLedgerSetup."Amount Rounding Precision",
           Job.FieldCaption("Recog. Costs Amount"))
@@ -617,7 +617,7 @@ codeunit 136304 "Job Performance WIP"
         PlanJobTask(JobTask, ScheduleAmount, ContractAmount, LibraryJob.ResourceType);
 
         // Setup: execute job
-        JobTask.Reset;
+        JobTask.Reset();
         JobTask.SetRange("Job No.", Job."No.");
         InvoiceJobTasks(JobTask, InvoicedAmount / ContractAmount);
 
@@ -626,7 +626,7 @@ codeunit 136304 "Job Performance WIP"
 
         // Verify: only two job (out of three) tasks contribute to the recognized cost for the job
         Job.CalcFields("Recog. Sales Amount");
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Assert.AreNearlyEqual(2 * InvoicedAmount, Job."Recog. Sales Amount",
           GeneralLedgerSetup."Amount Rounding Precision",
           Job.FieldCaption("Recog. Sales Amount"))
@@ -707,8 +707,8 @@ codeunit 136304 "Job Performance WIP"
 
         // Verify
 
-        JobLedgerEntry.Init;
-        JobWIPEntry.Init;
+        JobLedgerEntry.Init();
+        JobWIPEntry.Init();
         JobLedgerEntry.SetRange("Job No.", Job."No.");
         JobLedgerEntry.SetRange("Job Task No.", JobTask."Job Task No.");
         JobWIPEntry.SetRange("Job No.", Job."No.");
@@ -1593,7 +1593,7 @@ codeunit 136304 "Job Performance WIP"
         JobBatchJobs.SetJobNoSeries(JobsSetup, NoSeries);
 
         Initialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Job Performance WIP");
     end;
 
@@ -1840,7 +1840,7 @@ codeunit 136304 "Job Performance WIP"
         LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeSchedule, Type, JobTask, JobPlanningLine);
         JobPlanningLine."Total Cost (LCY)" := ScheduleAmount;
         JobPlanningLine."Line Amount (LCY)" := 1.1 * ScheduleAmount;
-        JobPlanningLine.Modify;
+        JobPlanningLine.Modify();
     end;
 
     local procedure ContractJobTask(JobTask: Record "Job Task"; ContractAmount: Decimal; Type: Option; var JobPlanningLine: Record "Job Planning Line")
@@ -1849,7 +1849,7 @@ codeunit 136304 "Job Performance WIP"
         LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract, Type, JobTask, JobPlanningLine);
         JobPlanningLine."Total Cost (LCY)" := 0.8 * ContractAmount;
         JobPlanningLine."Line Amount (LCY)" := ContractAmount;
-        JobPlanningLine.Modify;
+        JobPlanningLine.Modify();
     end;
 
     local procedure PlanJobTaskWithPrice(JobTask: Record "Job Task"; ScheduleCostAmount: Decimal; SchedulePriceAmount: Decimal; ContractCostAmount: Decimal; ContractPriceAmount: Decimal; Type: Option)
@@ -1868,7 +1868,7 @@ codeunit 136304 "Job Performance WIP"
         JobPlanningLine."Total Cost (LCY)" := TotalCost;
         JobPlanningLine."Total Price (LCY)" := TotalPrice;
         JobPlanningLine."Line Amount (LCY)" := LineAmount;
-        JobPlanningLine.Modify;
+        JobPlanningLine.Modify();
     end;
 
     local procedure UseJobTasks(var JobTask: Record "Job Task"; Fraction: Decimal)
@@ -1956,14 +1956,14 @@ codeunit 136304 "Job Performance WIP"
 
         // create the standard dimension
         if not Dimension.Get(Prefix + 'D') then begin
-            Dimension.Init;
+            Dimension.Init();
             Dimension.Validate(Code, Prefix + 'D');
             Dimension.Insert(true);
             Dimension.Get(Dimension.Code)
         end;
 
         // create a new value for it
-        DimensionValue.Init;
+        DimensionValue.Init();
         DimensionValue.SetRange("Dimension Code", Dimension.Code);
         if not DimensionValue.FindLast then
             DimensionValue.Validate(Code, Prefix + 'DV000');
@@ -1977,7 +1977,7 @@ codeunit 136304 "Job Performance WIP"
         TempDimSetEntry."Dimension Code" := Dimension.Code;
         TempDimSetEntry."Dimension Value Code" := DimensionValue.Code;
         TempDimSetEntry."Dimension Value ID" := DimensionValue."Dimension Value ID";
-        TempDimSetEntry.Insert;
+        TempDimSetEntry.Insert();
 
         DimensionSetID := DimMgt.GetDimensionSetID(TempDimSetEntry);
         exit(DimensionSetID);
@@ -2057,7 +2057,7 @@ codeunit 136304 "Job Performance WIP"
     local procedure AttachDimension2JobLedgerEntry(var JobLedgerEntry: Record "Job Ledger Entry"; DimensionSetID: Integer)
     begin
         JobLedgerEntry."Dimension Set ID" := DimensionSetID;
-        JobLedgerEntry.Modify;
+        JobLedgerEntry.Modify();
     end;
 
     local procedure CalculateWIP(Job: Record Job)
@@ -2196,7 +2196,7 @@ codeunit 136304 "Job Performance WIP"
         // Use a delta assertion to define the expected impact of WIP to GL
 
         DeltaAssert.Run;
-        DeltaAssert.Init;
+        DeltaAssert.Init();
         DeltaAssert.SetTolerance(GetRoundingPrecision);
 
         JobPostingGroup.Get(Job."Job Posting Group");
@@ -2452,7 +2452,7 @@ codeunit 136304 "Job Performance WIP"
 
     local procedure FilterJobTaskByType(var JobTask: Record "Job Task"; JobNo: Code[20])
     begin
-        JobTask.Reset;
+        JobTask.Reset();
         JobTask.SetRange("Job No.", JobNo);
         JobTask.SetRange("Job Task Type", JobTask."Job Task Type"::Posting);
     end;
@@ -2499,7 +2499,7 @@ codeunit 136304 "Job Performance WIP"
 
         Assert.AreEqual(JobTask."WIP-Total", JobTask."WIP-Total"::Total, 'Precondition violated');
 
-        TotalJobTask.Init;
+        TotalJobTask.Init();
 
         EndJobTaskNo := JobTask."Job Task No.";
 
@@ -2575,7 +2575,7 @@ codeunit 136304 "Job Performance WIP"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         exit(GeneralLedgerSetup."Amount Rounding Precision")
     end;
 
@@ -2668,7 +2668,7 @@ codeunit 136304 "Job Performance WIP"
     var
         JobWIPEntry: Record "Job WIP Entry";
     begin
-        JobWIPEntry.Init;
+        JobWIPEntry.Init();
         JobWIPEntry.SetRange("Job No.", JobNo);
         JobWIPEntry.SetRange(Type, Type);
         Assert.RecordIsEmpty(JobWIPEntry);

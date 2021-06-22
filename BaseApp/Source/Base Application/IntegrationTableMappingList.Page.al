@@ -50,7 +50,6 @@ page 5335 "Integration Table Mapping List"
                 field(Direction; Direction)
                 {
                     ApplicationArea = Suite;
-                    Editable = false;
                     ToolTip = 'Specifies the synchronization direction.';
                 }
                 field(IntegrationTableCaptionValue; IntegrationTableCaptionValue)
@@ -233,7 +232,8 @@ page 5335 "Integration Table Mapping List"
 
     trigger OnOpenPage()
     begin
-        SetCRMIntegrationEnabledState;
+        SetCRMIntegrationEnabledState();
+        SetCDSIntegrationEnabledState();
     end;
 
     var
@@ -270,7 +270,14 @@ page 5335 "Integration Table Mapping List"
     var
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
-        CRMIntegrationManagement.IsCRMIntegrationEnabled;
+        CRMIntegrationManagement.IsCRMIntegrationEnabled();
+    end;
+
+    local procedure SetCDSIntegrationEnabledState()
+    var
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+    begin
+        CRMIntegrationManagement.IsCDSIntegrationEnabled();
     end;
 }
 

@@ -306,7 +306,7 @@ codeunit 137165 "SCM Lot Nos By Bin"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         NoSeriesSetup;
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Lot Nos By Bin");
     end;
 
@@ -420,11 +420,11 @@ codeunit 137165 "SCM Lot Nos By Bin"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         LibraryUtility: Codeunit "Library - Utility";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchasesPayablesSetup.Modify(true);
 
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesReceivablesSetup.Modify(true);
     end;

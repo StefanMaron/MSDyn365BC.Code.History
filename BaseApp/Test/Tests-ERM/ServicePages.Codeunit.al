@@ -137,7 +137,7 @@ codeunit 136150 "Service Pages"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Service Pages");
 
-        Commit;
+        Commit();
         IsInitialized := true;
 
         LibraryERMCountryData.UpdateSalesReceivablesSetup;

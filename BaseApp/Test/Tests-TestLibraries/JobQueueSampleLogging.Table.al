@@ -40,7 +40,7 @@ table 132450 "Job Queue Sample Logging"
     var
         nextKey: Integer;
     begin
-        LockTable;
+        LockTable();
         if FindLast then
             nextKey := "No." + 1;
 
@@ -51,7 +51,7 @@ table 132450 "Job Queue Sample Logging"
         MessageToLog := '[' + Format(DT2Time(CurrentDateTime), 0, '<Hours24>:<Minutes>:<Seconds>.<Thousands>') + '] ' + Msg;
 
         Insert;
-        Commit;
+        Commit();
     end;
 }
 

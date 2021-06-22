@@ -170,7 +170,7 @@ codeunit 135508 "Item Category Entity E2E Test"
         ItemCategory: Record "Item Category";
     begin
         LibraryInventory.CreateItemCategory(ItemCategory);
-        Commit;
+        Commit();
 
         exit(ItemCategory.Code);
     end;

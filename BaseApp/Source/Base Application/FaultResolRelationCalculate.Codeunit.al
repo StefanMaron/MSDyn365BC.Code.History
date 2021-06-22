@@ -20,16 +20,16 @@ codeunit 5913 "FaultResolRelation-Calculate"
 
     procedure CopyResolutionRelationToTable(FromDate: Date; ToDate: Date; ServiceItemGroupRelation: Boolean; RetainManuallyInserted: Boolean)
     begin
-        TempFaultResolutionRelation.Reset;
+        TempFaultResolutionRelation.Reset();
         if RetainManuallyInserted then
             FaultResolutionRelation.SetRange("Created Manually", false);
 
-        FaultResolutionRelation.DeleteAll;
+        FaultResolutionRelation.DeleteAll();
 
         Clear(FaultResolutionRelation);
         if FaultResolutionRelation.Find('-') then
             repeat
-                TempFaultResolutionRelation.Init;
+                TempFaultResolutionRelation.Init();
                 TempFaultResolutionRelation."Fault Code" := FaultResolutionRelation."Fault Code";
                 TempFaultResolutionRelation."Fault Area Code" := FaultResolutionRelation."Fault Area Code";
                 TempFaultResolutionRelation."Symptom Code" := FaultResolutionRelation."Symptom Code";
@@ -38,17 +38,17 @@ codeunit 5913 "FaultResolRelation-Calculate"
                 TempFaultResolutionRelation.Occurrences := FaultResolutionRelation.Occurrences;
                 TempFaultResolutionRelation.Description := FaultResolutionRelation.Description;
                 TempFaultResolutionRelation."Created Manually" := FaultResolutionRelation."Created Manually";
-                TempFaultResolutionRelation.Insert;
+                TempFaultResolutionRelation.Insert();
             until FaultResolutionRelation.Next = 0;
 
         Clear(FaultResolutionRelation);
-        FaultResolutionRelation.DeleteAll;
+        FaultResolutionRelation.DeleteAll();
         Window.Open(
           Text000);
         ServShptHeader.SetCurrentKey("Posting Date");
         ServShptHeader.SetRange("Posting Date", FromDate, ToDate);
         if ServShptHeader.Find('-') then begin
-            ServMgtSetup.Get;
+            ServMgtSetup.Get();
             case ServMgtSetup."Fault Reporting Level" of
                 ServMgtSetup."Fault Reporting Level"::Fault:
                     begin
@@ -77,7 +77,7 @@ codeunit 5913 "FaultResolRelation-Calculate"
                         ServShptLine.SetFilter("Resolution Code", '<>%1', '');
                         if ServShptLine.Find('-') then
                             repeat
-                                TempFaultResolutionRelation.Init;
+                                TempFaultResolutionRelation.Init();
                                 TempFaultResolutionRelation."Fault Code" := ServShptLine."Fault Code";
                                 if ServiceItemGroupRelation then
                                     TempFaultResolutionRelation."Service Item Group Code" := ServShptItemLine."Service Item Group Code"
@@ -94,7 +94,7 @@ codeunit 5913 "FaultResolRelation-Calculate"
                                 TempFaultResolutionRelation."Resolution Code" := ServShptLine."Resolution Code";
                                 if ResolutionCode.Get(ServShptLine."Resolution Code") then
                                     TempFaultResolutionRelation.Description := ResolutionCode.Description;
-                                if not TempFaultResolutionRelation.Insert then begin
+                                if not TempFaultResolutionRelation.Insert() then begin
                                     FaultResolutionRelation.SetRange("Fault Code", ServShptLine."Fault Code");
                                     if AreaFlag then
                                         FaultResolutionRelation.SetRange("Fault Area Code", ServShptLine."Fault Area Code")
@@ -111,9 +111,9 @@ codeunit 5913 "FaultResolRelation-Calculate"
                                     FaultResolutionRelation.SetRange("Resolution Code", ServShptLine."Resolution Code");
                                     if FaultResolutionRelation.Find('-') then begin
                                         FaultResolutionRelation.Occurrences := FaultResolutionRelation.Occurrences + 1;
-                                        FaultResolutionRelation.Modify;
+                                        FaultResolutionRelation.Modify();
                                     end else begin
-                                        FaultResolutionRelation.Init;
+                                        FaultResolutionRelation.Init();
                                         FaultResolutionRelation."Fault Code" := ServShptLine."Fault Code";
                                         if AreaFlag then
                                             FaultResolutionRelation."Fault Area Code" := ServShptLine."Fault Area Code"
@@ -131,7 +131,7 @@ codeunit 5913 "FaultResolRelation-Calculate"
                                         if ResolutionCode.Get(ServShptLine."Resolution Code") then
                                             FaultResolutionRelation.Description := ResolutionCode.Description;
                                         FaultResolutionRelation.Occurrences := 1;
-                                        FaultResolutionRelation.Insert;
+                                        FaultResolutionRelation.Insert();
                                     end;
                                 end;
                             until ServShptLine.Next = 0;
@@ -158,9 +158,9 @@ codeunit 5913 "FaultResolRelation-Calculate"
                 FaultResolutionRelation.SetRange("Resolution Code", TempFaultResolutionRelation."Resolution Code");
                 if FaultResolutionRelation.Find('-') then begin
                     FaultResolutionRelation.Occurrences := FaultResolutionRelation.Occurrences + 1;
-                    FaultResolutionRelation.Modify;
+                    FaultResolutionRelation.Modify();
                 end else begin
-                    FaultResolutionRelation.Init;
+                    FaultResolutionRelation.Init();
                     FaultResolutionRelation."Fault Code" := TempFaultResolutionRelation."Fault Code";
                     if AreaFlag then
                         FaultResolutionRelation."Fault Area Code" := TempFaultResolutionRelation."Fault Area Code"
@@ -179,7 +179,7 @@ codeunit 5913 "FaultResolRelation-Calculate"
                         FaultResolutionRelation.Description := ResolutionCode.Description;
                     FaultResolutionRelation."Created Manually" := TempFaultResolutionRelation."Created Manually";
                     FaultResolutionRelation.Occurrences := 1;
-                    FaultResolutionRelation.Insert;
+                    FaultResolutionRelation.Insert();
                 end;
             until TempFaultResolutionRelation.Next = 0;
 

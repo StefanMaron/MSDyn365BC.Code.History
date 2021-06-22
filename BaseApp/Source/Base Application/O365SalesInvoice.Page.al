@@ -160,7 +160,7 @@ page 2110 "O365 Sales Invoice"
                         DummyCountryCode: Code[10];
                     begin
                         CurrPage.SaveRecord;
-                        Commit;
+                        Commit();
                         TempStandardAddress.CopyFromSalesHeaderSellTo(Rec);
                         if PAGE.RunModal(PAGE::"O365 Address", TempStandardAddress) = ACTION::LookupOK then begin
                             Find;
@@ -352,7 +352,7 @@ page 2110 "O365 Sales Invoice"
                     DocumentPath: Text[250];
                 begin
                     SetRecFilter;
-                    LockTable;
+                    LockTable();
                     Find;
                     ReportSelections.GetPdfReport(DocumentPath, ReportSelections.Usage::"S.Invoice Draft", Rec, "Sell-to Customer No.");
                     Download(DocumentPath, '', '', '', DocumentPath);
@@ -395,7 +395,7 @@ page 2110 "O365 Sales Invoice"
                     ForceExit := true;
 
                     if CustInvoiceDisc.Get("Invoice Disc. Code", "Currency Code", 0) then
-                        CustInvoiceDisc.Delete;
+                        CustInvoiceDisc.Delete();
                     Delete(true);
                 end;
             }
@@ -417,7 +417,7 @@ page 2110 "O365 Sales Invoice"
         ForceExit := true;
 
         if CustInvoiceDisc.Get("Invoice Disc. Code", "Currency Code", 0) then
-            CustInvoiceDisc.Delete;
+            CustInvoiceDisc.Delete();
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean

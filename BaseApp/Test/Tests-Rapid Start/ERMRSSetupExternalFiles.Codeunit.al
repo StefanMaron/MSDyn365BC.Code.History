@@ -349,10 +349,10 @@ codeunit 136607 "ERM RS Setup External Files"
           TotalValueInsured.FieldName("Total Value Insured"),
           'Field name must be equal to table name');
 
-        TotalValueInsured.DeleteAll;
-        TotalValueInsured.Init;
-        TotalValueInsured.Insert;
-        Commit;
+        TotalValueInsured.DeleteAll();
+        TotalValueInsured.Init();
+        TotalValueInsured.Insert();
+        Commit();
 
         // [GIVEN] Configuration package with table "A" exported to excel
         LibraryRapidStart.CreatePackage(ConfigPackage);
@@ -365,7 +365,7 @@ codeunit 136607 "ERM RS Setup External Files"
         // [THEN] 1 record imported into package without any error
         ConfigPackageRecord.SetRange("Package Code", ConfigPackage.Code);
         Assert.AreEqual(TotalValueInsured.Count, ConfigPackageRecord.Count, Text003);
-        ConfigPackageError.Init;
+        ConfigPackageError.Init();
         ConfigPackageError.SetRange("Package Code", ConfigPackage.Code);
         Assert.RecordIsEmpty(ConfigPackageError);
     end;

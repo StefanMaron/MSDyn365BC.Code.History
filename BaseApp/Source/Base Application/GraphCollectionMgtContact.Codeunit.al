@@ -1045,7 +1045,7 @@ codeunit 5458 "Graph Collection Mgt - Contact"
             end;
         end;
 
-        CountryRegion.Init;
+        CountryRegion.Init();
         CountryRegion.Code := CopyStr(CountryOrRegion, 1, MaxStrLen(CountryRegion.Code));
         CountryRegion.Name := CopyStr(CountryOrRegion, 1, MaxStrLen(CountryRegion.Name));
         CountryRegion.Insert(true);
@@ -1076,7 +1076,7 @@ codeunit 5458 "Graph Collection Mgt - Contact"
         RlshpMgtCommentLine.SetRange("Table Name", RlshpMgtCommentLine."Table Name"::Contact);
         RlshpMgtCommentLine.SetRange("No.", Contact."No.");
         if not RlshpMgtCommentLine.IsEmpty then
-            RlshpMgtCommentLine.DeleteAll;
+            RlshpMgtCommentLine.DeleteAll();
         if PersonalNotes <> '' then begin
             RlshpMgtCommentLine."Table Name" := RlshpMgtCommentLine."Table Name"::Contact;
             RlshpMgtCommentLine."No." := Contact."No.";
@@ -1101,7 +1101,7 @@ codeunit 5458 "Graph Collection Mgt - Contact"
         end;
 
         RlshpMgtCommentLine."Line No." += 10000;
-        RlshpMgtCommentLine.Insert;
+        RlshpMgtCommentLine.Insert();
         RlshpMgtCommentLine.Date := 0D;
         if RemainingPersonalNotes <> '' then
             InsertNextContactCommentLine(RlshpMgtCommentLine, RemainingPersonalNotes);

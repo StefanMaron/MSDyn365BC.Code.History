@@ -20,7 +20,7 @@ codeunit 134906 "ERM Finance Charge Memo Text"
         IsInitialized: Boolean;
         BeginningTextNew: Label 'Posting Date must be %1.';
         EndingTextNew: Label 'Please pay the total of %1.';
-        PrecisionText: Label '<Precision,%1><Standard format,0>';
+        PrecisionText: Label '<Precision,%1><Standard format,0>', Locked = true;
         DescriptionError: Label 'Wrong Description updated in Finance Charge Memo Line.';
 
     local procedure Initialize()
@@ -34,7 +34,7 @@ codeunit 134906 "ERM Finance Charge Memo Text"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Finance Charge Memo Text");
     end;
 
@@ -164,9 +164,9 @@ codeunit 134906 "ERM Finance Charge Memo Text"
       LibraryERM.CreateFinanceChargeTerms(FinanceChargeTerms);
 
       // [GIVEN] Page "Finance Charge Terms" was opened
-      FinanceChargeTerms_page.Openedit;
+      FinanceChargeTerms_page.Openedit();
       FinanceChargeTerms_page.Filter.Setfilter(Code,FinanceChargeTerms.Code);
-      FinanceChargeTerms_page.First;
+      FinanceChargeTerms_page.First();
 
       // [WHEN] Set value with 5 decimal places.
       FinanceChargeTerms_page."Interest Rate".Setvalue(9.12345);

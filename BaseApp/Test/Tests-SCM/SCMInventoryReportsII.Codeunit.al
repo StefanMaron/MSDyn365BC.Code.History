@@ -26,6 +26,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         LibraryCosting: Codeunit "Library - Costing";
         LibraryERM: Codeunit "Library - ERM";
         LibraryPatterns: Codeunit "Library - Patterns";
+        LibraryPriceCalculation: Codeunit "Library - Price Calculation";
         LibraryRandom: Codeunit "Library - Random";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         Assert: Codeunit Assert;
@@ -40,6 +41,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         StatusConstantCap: Label 'Finished';
         ReportQtyErr: Label 'Wrong Quantity on Report';
         ValueEntriesWerePostedTxt: Label 'value entries have been posted to the general ledger.';
+        PriceCalculationV15Err: Label 'The Business Central (Version 15.0) must be selected on the Price Calculation Setup page.';
 
     [Test]
     [HandlerFunctions('PriceListRequestPageHandler')]
@@ -76,7 +78,7 @@ codeunit 137302 "SCM Inventory Reports - II"
 
         // 2. Exercise: Generate the Price List.
         CustNo := LibrarySales.CreateCustomerNo;
-        Commit;
+        Commit();
         RunPriceListReport(Item."No.", SalesType::Customer, CustNo, CurrencyCode);
 
         // 3. Verify: Check the value of Item Unit Price in Price List.
@@ -119,7 +121,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         CreateCustomerWithPriceGroup(CustomerPriceGroup.Code);
 
         // 2. Exercise: Generate the Price List.
-        Commit;
+        Commit();
         RunPriceListReport(Item."No.", SalesType::"Customer Price Group", CustomerPriceGroup.Code, CurrencyCode);
 
         // 3. Verify: Check the value of Item Unit Price in Price List.
@@ -159,7 +161,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         UpdateItem(Item, Item.FieldNo("Unit Price"), LibraryRandom.RandDec(10, 2));
 
         // 2. Exercise: Generate the Price List.
-        Commit;
+        Commit();
         RunPriceListReport(Item."No.", SalesType::"All Customers", '', CurrencyCode);
 
         // 3. Verify: Check the value of Item Unit Price in Price List.
@@ -169,7 +171,8 @@ codeunit 137302 "SCM Inventory Reports - II"
     [Test]
     [HandlerFunctions('PriceListRequestPageHandler')]
     [Scope('OnPrem')]
-    procedure PriceListReportCampaign()
+    procedure PriceListReportCampaignNative()
+    var
     begin
         // Test Price List Report - Sales Type: Campaign.
         Initialize;
@@ -179,7 +182,7 @@ codeunit 137302 "SCM Inventory Reports - II"
     [Test]
     [HandlerFunctions('PriceListRequestPageHandler')]
     [Scope('OnPrem')]
-    procedure PriceListReportCampaignCurr()
+    procedure PriceListReportCampaignCurrNative()
     var
         CurrencyCode: Code[10];
     begin
@@ -189,20 +192,39 @@ codeunit 137302 "SCM Inventory Reports - II"
         CampaignPriceListReport(CurrencyCode);
     end;
 
+    /*
+    [Test]
+    [HandlerFunctions('PriceListRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure PriceListReportCampaignBestPrice()
+    begin
+        // [FEATURE] [Best Price]
+        // Test Price List Report - Sales Type: Campaign.
+        Initialize;
+        LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V16");
+        asserterror CampaignPriceListReport('');
+        // [THEN] Error message: 'Required "Native" in setup'.
+        Assert.ExpectedError(PriceCalculationV15Err);
+    end;
+    */
+
     local procedure CampaignPriceListReport(CurrencyCode: Code[10])
     var
         Item: Record Item;
         Campaign: Record Campaign;
         SalesPrice: Record "Sales Price";
+        PriceListLine: Record "Price List Line";
         SalesType: Option Customer,"Customer Price Group","All Customers",Campaign;
     begin
+        PriceListLine.DeleteAll();
         // 1. Setup: Create Item, Campaign and Sales Price.
         CreateItem(Item, '', '', Item."Manufacturing Policy"::"Make-to-Order");
         LibraryMarketing.CreateCampaign(Campaign);
         CreateSalesPriceForCampaign(SalesPrice, Item."No.", Campaign."No.");
+        //PriceListLine.CopyFrom(SalesPrice);
 
         // 2. Exercise: Generate the Price List.
-        Commit;
+        Commit();
         RunPriceListReport(Item."No.", SalesType::Campaign, Campaign."No.", CurrencyCode);
 
         // 3. Verify: Check the value of Unit Price from Sales Price.
@@ -223,12 +245,12 @@ codeunit 137302 "SCM Inventory Reports - II"
     begin
         // 1. Setup: Create Item and Item Journal Line.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         CreateItem(Item, '', '', Item."Manufacturing Policy"::"Make-to-Order");
         CreateItemJournalLine(ItemJournalBatch, ItemJournalLine, Item."No.");
 
         // 2. Exercise: Generate the Inventory Posting - Test report.
-        Commit;
+        Commit();
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
         REPORT.Run(REPORT::"Inventory Posting - Test", true, false, ItemJournalLine);
@@ -242,7 +264,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         LibraryReportDataset.AssertCurrentRowValueEquals('CostAmount', ItemJournalLine.Quantity * ItemJournalLine."Unit Cost");
 
         // 4. Tear Down.
-        ItemJournalBatch.DeleteAll;
+        ItemJournalBatch.DeleteAll();
     end;
 
     [Test]
@@ -273,7 +295,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         LibraryReportDataset.AssertCurrentRowValueEquals('RemainingQty', Item.Inventory);
 
         // 4. Tear Down.
-        ItemJournalBatch.DeleteAll;
+        ItemJournalBatch.DeleteAll();
     end;
 
     [Test]
@@ -293,7 +315,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         CreateItemLedgerEntry(ItemLedgerEntry, Item."No.");
         // [GIVEN] Item Ledger Entry for Item 'I', where Quantity='Q2' , 'Location' ='L2','Varian'= 'V2', 'Global Dim' = 'D2'
         CreateItemLedgerEntry(ItemLedgerEntry, Item."No.");
-        Commit;
+        Commit();
 
         // [WHEN]  Run 'Inventory Valuation - Cost Spec.' report with filters: 'L2', 'V2', 'D2'
         SetLimitsTotalsFilterOnItem(Item, ItemLedgerEntry);
@@ -330,7 +352,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         ItemJournalLine.TestField(Quantity, Quantity);
 
         // 4. Tear Down.
-        ItemJournalBatch.DeleteAll;
+        ItemJournalBatch.DeleteAll();
     end;
 
     [Test]
@@ -355,7 +377,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         OpenProductionJournal(ProductionOrder);
 
         // 2. Exercise: Generate the Inventory Valuation WIP report.
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(WorkDate);
         LibraryVariableStorage.Enqueue(WorkDate);
         REPORT.Run(REPORT::"Inventory Valuation - WIP", true, false, ProductionOrder);
@@ -485,7 +507,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         Clear(SalesLine);
 
         // Exercise: Generate the Sales Reservation Avail. report with Show Reservation Entries.
-        Commit;
+        Commit();
         RunSalesReservationAvail(SalesHeader."No.", true, true);
 
         // Verify: Check the Reserved Quantity in the report.
@@ -511,7 +533,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         CreateProdItemSetup(Item);
 
         // Exercise: Generate the Rolled up Cost Shares report.
-        Commit;
+        Commit();
         Item.SetRange("No.", Item."No.");
         REPORT.Run(REPORT::"Rolled-up Cost Shares", true, false, Item);
 
@@ -540,7 +562,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         CreateItem(Item, '', '', Item."Manufacturing Policy"::"Make-to-Order");
 
         // Exercise: Generate the Single Level Cost Shares report.
-        Commit;
+        Commit();
         Item.SetRange("No.", Item."No.");
         REPORT.Run(REPORT::"Single-level Cost Shares", true, false, Item);
 
@@ -564,7 +586,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         CreateProdItemSetup(Item);
 
         // Exercise: Generate the Detailed Calculation report.
-        Commit;
+        Commit();
         Item.SetRange("No.", Item."No.");
         REPORT.Run(REPORT::"Detailed Calculation", true, false, Item);
 
@@ -595,7 +617,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         SelectProductionBOMLines(ProductionBOMLine, Item."Production BOM No.");
 
         // Exercise: Generate the Where Used (Top Level) report.
-        Commit;
+        Commit();
         Item.SetRange("No.", ProductionBOMLine."No.");
         REPORT.Run(REPORT::"Where-Used (Top Level)", true, false, Item);
 
@@ -626,7 +648,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         CreateSalesOrder(SalesHeader, Item."No.", GrossReq);
 
         // Exercise: Generate the Inventory Availability report.
-        Commit;
+        Commit();
         Item.SetRange("No.", Item."No.");
         REPORT.Run(REPORT::"Inventory Availability", true, false, Item);
 
@@ -733,7 +755,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
 
         // Exercise: Run Inventory Valuation WIP Report.
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(CalcDate('<-CM>', WorkDate));
         LibraryVariableStorage.Enqueue(CalcDate('<CM>', WorkDate));
         ProductionOrder.Get(ProductionOrder.Status::Finished, ProductionOrder."No.");
@@ -769,7 +791,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         ExpectedPurchQty := PurchQty - 1;
 
         // Exercise: Generate the Sales Reservation Avail. report with Show Sales Line & Reservation Entries & Modify Qty. to Ship In Order Lines.
-        Commit;
+        Commit();
         RunSalesReservationAvailReport(SalesHeader."No.", true, true, true);
 
         // Verify: Check the Quantity On Hand(Base) in the report.
@@ -802,7 +824,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         AutoReserveForSalesOrder(SalesHeader, Item."No.", CalcDate('<+5D>', WorkDate), PurchQty - 1);
 
         // Exercise1: Generate the Sales Reservation Avail. report with Show Sales Line & Reservation Entries & Modify Qty. to Ship In Order Lines.
-        Commit;
+        Commit();
         RunSalesReservationAvailReport(SalesHeader."No.", true, true, true);
 
         // Verify: Check the Quantity On Hand(Base) in the Sales Reservation Avail. Report.
@@ -812,7 +834,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         Assert.AreEqual(0, SalesLine."Qty. to Ship", MsgQtytoShipErr);
 
         // Exercise2: Generate the Purchase Reservation Avail. report with Show Sales Line & Reservation Entries & Modify Qty. to Ship In Order Lines.
-        Commit;
+        Commit();
         RunPurchReserveAvailReport(PurchHeader."No.", true, true, true);
 
         // Verify: Check Qty. to Ship in Purchase Line.
@@ -847,7 +869,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         AutoReserveForSalesOrder(SalesHeader, Item."No.", CalcDate('<+7D>', WorkDate), 3 * PurchQty - 1);
         ExpectedPurchQty := 2 * PurchQty;
         // Exercise1: Generate the Sales Reservation Avail. report with Show Sales Line & Reservation Entries & Modify Qty. to Ship In Order Lines.
-        Commit;
+        Commit();
         RunSalesReservationAvailReport(SalesHeader."No.", true, true, true);
 
         // Verify: Check the Quantity On Hand(Base) in the report.
@@ -857,7 +879,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         Assert.AreEqual(ExpectedPurchQty, SalesLine."Qty. to Ship", MsgQtytoShipErr);
 
         // Exercise2: Generate the Purchase Reservation Avail. report with Show Sales Line & Reservation Entries & Modify Qty. to Ship In Order Lines.
-        Commit;
+        Commit();
         RunPurchReserveAvailReport(PurchHeader[3]."No.", true, true, true);
 
         // Verify: Check Qty. to Receive in Purchase Line.
@@ -873,6 +895,8 @@ codeunit 137302 "SCM Inventory Reports - II"
         SalesPrice: Record "Sales Price";
         ItemVariant1: Record "Item Variant";
         ItemVariant2: Record "Item Variant";
+        PriceListLine: Record "Price List Line";
+        SalesLineDiscount: Record "Sales Line Discount";
         SalesType: Option Customer,"Customer Price Group","All Customers",Campaign;
         CustomerNo: Code[20];
         MinimumQty: array[4] of Decimal;
@@ -882,6 +906,8 @@ codeunit 137302 "SCM Inventory Reports - II"
     begin
         // 1. Setup: Create Item with Variant Code, Sales Price & Line Discount.
         Initialize;
+        PriceListLine.DeleteAll();
+
         CustomerNo := LibrarySales.CreateCustomerNo;
         CreateItem(Item, '', '', Item."Manufacturing Policy"::"Make-to-Order");
         UpdateItem(Item, Item.FieldNo("Unit Price"), LibraryRandom.RandDec(100, 2));
@@ -901,12 +927,14 @@ codeunit 137302 "SCM Inventory Reports - II"
           Item, SalesPrice."Sales Type"::Customer, CustomerNo, ItemVariant1.Code, MinimumQty[1], UnitPrice[1]);
         CreateSalesPriceForItem(
           Item, SalesPrice."Sales Type"::Customer, CustomerNo, ItemVariant1.Code, MinimumQty[2], UnitPrice[2]);
+        //PriceListLine.CopyFrom(SalesPrice);
 
         CreateSalesLineDiscountForItem(Item, CustomerNo, ItemVariant2.Code, MinimumQty[3], LineDiscount[1]);
         CreateSalesLineDiscountForItem(Item, CustomerNo, ItemVariant2.Code, MinimumQty[4], LineDiscount[2]);
+        //PriceListLine.CopyFrom(SalesLineDiscount);
 
         // 2. Execise: Generate Price List Report.
-        Commit;
+        Commit();
         RunPriceListReport(Item."No.", SalesType::Customer, CustomerNo, '');
 
         // 3. Verify: Check Variant lines in Price List Report.
@@ -941,7 +969,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
 
         // Verify: Starting Date and Ending Date is work correctly in Inventory Valuation WIP report.
-        Commit;
+        Commit();
         RunInventoryValuationWIPReportWithTimePeriod(CalcDate('<-1M-1D>', WorkDate), CalcDate('<-1D>', WorkDate), ProdOrderArray);
         ValidateInventoryValuationWIPReport(ProdOrderArray);
 
@@ -1091,7 +1119,7 @@ codeunit 137302 "SCM Inventory Reports - II"
 
         // Run Adjust Cost Item Entries batch job
         LibraryCosting.AdjustCostItemEntries('', '');
-        Commit; // To avoid test failure.
+        Commit(); // To avoid test failure.
 
         // Exercise: Run Inventory Valuation - WIP report.
         RunInventoryValuationWIPReport(ProductionOrder, CalcDate('<+1D>', WorkDate), CalcDate('<' + Format(Number + 1) + 'D>', WorkDate));
@@ -1124,7 +1152,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         CreateReqLine(Item."No.", Qty);
 
         // [WHEN] Run Inventory Availability report
-        Commit;
+        Commit();
         Item.SetRange("No.", Item."No.");
         REPORT.Run(REPORT::"Inventory Availability", true, false, Item);
 
@@ -1168,7 +1196,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         ProductionBomVersion.Modify(true);
 
         // [WHEN] Run report "Detailed Calculation" for item "I1"
-        Commit;
+        Commit();
         ParentItem.SetRecFilter;
         REPORT.Run(REPORT::"Detailed Calculation", true, false, ParentItem);
 
@@ -1518,6 +1546,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Inventory Reports - II");
         LibraryVariableStorage.Clear;
         LibrarySetupStorage.Restore;
+        LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V15");
 
         if isInitialized then
             exit;
@@ -1528,7 +1557,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Inventory Reports - II");
     end;
 
@@ -2018,7 +2047,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         CreatePurchaseOrder(PurchaseHeader, ItemNo, LibraryRandom.RandDec(10, 2));  // Random Values not important.
 
         // Exercise: Generate the Purchase Reservation Avail. report.
-        Commit;
+        Commit();
         PurchLine.SetRange("Document Type", PurchLine."Document Type"::Order);
         PurchLine.SetRange("Document No.", PurchaseHeader."No.");
         LibraryVariableStorage.Enqueue(ShowPurchLines);
@@ -2100,7 +2129,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         CreateSalesOrder(SalesHeader, ItemNo, LibraryRandom.RandDec(10, 2));  // Random Values not important.
 
         // Exercise: Generate the Sales Reservation Avail. report.
-        Commit;
+        Commit();
         RunSalesReservationAvail(SalesHeader."No.", ShowSalesLines, false);
     end;
 
@@ -2214,7 +2243,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         ProductionBOMVersion.Modify(true);
         ProductionBOMLine.SetRange("Version Code", VersionCode);
         ProductionBOMLine.FindFirst;
-        ProductionBOMLine.Delete;
+        ProductionBOMLine.Delete();
     end;
 
     local procedure UpdatePurchaseLine(var PurchaseLine: Record "Purchase Line"; UnitOfMeasureCode: Code[10]; DirectUnitCost: Decimal)
@@ -2305,11 +2334,11 @@ codeunit 137302 "SCM Inventory Reports - II"
     local procedure OutputJournalSetup()
     begin
         Clear(OutputItemJournalTemplate);
-        OutputItemJournalTemplate.Init;
+        OutputItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(OutputItemJournalTemplate, OutputItemJournalTemplate.Type::Output);
 
         Clear(OutputItemJournalBatch);
-        OutputItemJournalBatch.Init;
+        OutputItemJournalBatch.Init();
         LibraryInventory.SelectItemJournalBatchName(
           OutputItemJournalBatch, OutputItemJournalTemplate.Type, OutputItemJournalTemplate.Name);
     end;
@@ -2326,12 +2355,12 @@ codeunit 137302 "SCM Inventory Reports - II"
     local procedure ConsumptionJournalSetup()
     begin
         Clear(ConsumptionItemJournalTemplate);
-        ConsumptionItemJournalTemplate.Init;
+        ConsumptionItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(
           ConsumptionItemJournalTemplate, ConsumptionItemJournalTemplate.Type::Consumption);
 
         Clear(ConsumptionItemJournalBatch);
-        ConsumptionItemJournalBatch.Init;
+        ConsumptionItemJournalBatch.Init();
         LibraryInventory.SelectItemJournalBatchName(ConsumptionItemJournalBatch, ConsumptionItemJournalTemplate.Type,
           ConsumptionItemJournalTemplate.Name);
     end;
@@ -2340,7 +2369,7 @@ codeunit 137302 "SCM Inventory Reports - II"
     var
         PostValueEntryToGL: Record "Post Value Entry to G/L";
     begin
-        Commit; // Required to run the report.
+        Commit(); // Required to run the report.
 
         LibraryVariableStorage.Enqueue(PostMethod);
         LibraryVariableStorage.Enqueue(''); // Blank for Document No..
@@ -2360,7 +2389,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         Item: Record Item;
     begin
         Item.SetRange("No.", ItemNo);
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Rolled-up Cost Shares", true, false, Item);
     end;
 
@@ -2386,7 +2415,7 @@ codeunit 137302 "SCM Inventory Reports - II"
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         BOMBuffer.SetRange("No.", Item."No.");
         BOMBuffer.FindFirst;
         Assert.AreEqual(Round(QtyPerTop + ScrapQty, 0.00001), BOMBuffer."Qty. per Parent", ReportQtyErr);

@@ -200,14 +200,14 @@ report 1125 "Cost Types Details"
                     trigger OnAfterGetRecord()
                     begin
                         if CostEntryLineNo = 0 then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                         if (CumulatedDebitAmount = 0) and
                            (CumulatedCreditAmount = 0) and
                            ((StartBalance = 0) or
                             not PrintAllWithBalance)
                         then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                     end;
                 }
 
@@ -239,7 +239,7 @@ report 1125 "Cost Types Details"
 
             trigger OnPreDataItem()
             begin
-                GLSetup.Get;
+                GLSetup.Get();
             end;
         }
     }

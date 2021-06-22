@@ -152,10 +152,10 @@ report 1005 "Job Journal - Test"
                         begin
                             if Number = 1 then begin
                                 if not DimSetEntry.FindSet then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end else
                                 if not Continue then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                             Clear(DimText);
                             Continue := false;
@@ -178,7 +178,7 @@ report 1005 "Job Journal - Test"
                         trigger OnPreDataItem()
                         begin
                             if not ShowDim then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             DimSetEntry.SetRange("Dimension Set ID", "Job Journal Line"."Dimension Set ID");
                         end;
                     }
@@ -394,7 +394,7 @@ report 1005 "Job Journal - Test"
         Text011: Label '%1 is not within your allowed range of posting dates.';
         Text012: Label 'There is a gap in the number series.';
         Text013: Label '%1 cannot be specified.';
-        Text014: Label '<Month Text>';
+        Text014: Label '<Month Text>', Locked = true;
         AccountingPeriod: Record "Accounting Period";
         Job: Record Job;
         JT: Record "Job Task";

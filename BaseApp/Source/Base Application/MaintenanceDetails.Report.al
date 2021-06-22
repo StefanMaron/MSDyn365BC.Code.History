@@ -120,7 +120,7 @@ report 5634 "Maintenance - Details"
             trigger OnAfterGetRecord()
             begin
                 if Inactive then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 if PrintOnlyOnePerPage then
                     GroupCounter += 1;
@@ -169,7 +169,7 @@ report 5634 "Maintenance - Details"
         trigger OnOpenPage()
         begin
             if DeprBookCode = '' then begin
-                FASetup.Get;
+                FASetup.Get();
                 DeprBookCode := FASetup."Default Depr. Book";
             end;
         end;

@@ -27,7 +27,7 @@ codeunit 134767 "Test OData Wizard US"
 		BaseAppID: Codeunit "BaseApp ID";
 		AssistedSetupGroup: Enum "Assisted Setup Group";
     begin
-		AssistedSetup.Add(BaseAppID.Get(), PAGE::"OData Setup Wizard", ODataWizardTxt, AssistedSetupGroup::Extensions);
+		AssistedSetup.Add(BaseAppID.Get(), PAGE::"OData Setup Wizard", ODataWizardTxt, AssistedSetupGroup::Customize);
     end;
 
     [Test]
@@ -42,7 +42,7 @@ codeunit 134767 "Test OData Wizard US"
         SelectText: Text;
     begin
         // [SCENARIO] Create new endpoint for page.
-        TenantWebService.DeleteAll;
+        TenantWebService.DeleteAll();
 
         ServiceName := 'Page22';
 
@@ -93,7 +93,7 @@ codeunit 134767 "Test OData Wizard US"
         SelectText: Text;
     begin
         // [SCENARIO] Create new endpoint for query.
-        TenantWebService.DeleteAll;
+        TenantWebService.DeleteAll();
 
         ServiceName := 'query100';
 
@@ -155,7 +155,7 @@ codeunit 134767 "Test OData Wizard US"
         NavFilterText: Text;
     begin
         // [SCENARIO] Create endpoint for page and edit it.
-        TenantWebService.DeleteAll;
+        TenantWebService.DeleteAll();
 
         ServiceName := 'Page22Edit';
         NavFilterText := 'SORTING(No.) WHERE(No.=FILTER(<>01121212),Name=FILTER(>A),Credit Limit (LCY)=FILTER(>100),Blocked=FILTER(Ship|Invoice),Combine Shipments=FILTER(Yes))';
@@ -226,7 +226,7 @@ codeunit 134767 "Test OData Wizard US"
         NavFilterText: Text;
     begin
         // [SCENARIO] Test Copy From option of OData endpoint for Page data set.
-        TenantWebService.DeleteAll;
+        TenantWebService.DeleteAll();
 
         ServiceName := 'Page22';
         NewName := 'Page22Copy';
@@ -301,7 +301,7 @@ codeunit 134767 "Test OData Wizard US"
         ExpectedODataV4FilterText: Text;
     begin
         // [SCENARIO] Create endpoint for query and edit it.
-        TenantWebService.DeleteAll;
+        TenantWebService.DeleteAll();
 
         ServiceName := 'Query101Edit';
 
@@ -400,7 +400,7 @@ codeunit 134767 "Test OData Wizard US"
         ExpectedODataV4FilterText: Text;
     begin
         // [SCENARIO] Test Copy scenario of OData endpoint for Query data set.
-        TenantWebService.DeleteAll;
+        TenantWebService.DeleteAll();
 
         ServiceName := 'Query101';
         newName := 'Query101Copy';
@@ -501,7 +501,7 @@ codeunit 134767 "Test OData Wizard US"
     begin
         // [SCENARIO] Test Creation of OData endpoint that has no select or filter.
         // The NavFilterText below is specific to the English-US regional settings.
-        TenantWebService.DeleteAll;
+        TenantWebService.DeleteAll();
 
         ServiceName := 'A';
         NavFilterText := '';
@@ -524,7 +524,7 @@ codeunit 134767 "Test OData Wizard US"
     begin
         // [SCENARIO] Test Creation of OData endpoint that doesn't have a filter.
         // The NavFilterText below is specific to the English-US regional settings.
-        TenantWebService.DeleteAll;
+        TenantWebService.DeleteAll();
 
         ServiceName := 'B';
         NavFilterText := '';
@@ -551,7 +551,7 @@ codeunit 134767 "Test OData Wizard US"
     begin
         // [SCENARIO] Create OData endpoint for customer list page.
         // The NavFilterText below is specific to the English-US regional settings.
-        TenantWebService.DeleteAll;
+        TenantWebService.DeleteAll();
 
         ServiceName := 'C';
         NavFilterText := 'SORTING(No.) WHERE(No.=FILTER(01121212|01454545),Name=FILTER(@*e?*),Credit Limit (LCY)=FILTER(<=1,234,567.89),Blocked=FILTER(Ship|Invoice),Last Date Modified=FILTER(<>05/30/00),Combine Shipments=FILTER(Yes))';
@@ -586,7 +586,7 @@ codeunit 134767 "Test OData Wizard US"
     begin
         // [SCENARIO] Create OData endpoint for Sales Dashboard query.
         // The NavFilterText below is specific to the English-US regional settings.
-        TenantWebService.DeleteAll;
+        TenantWebService.DeleteAll();
 
         ServiceName := 'E';
 
@@ -626,7 +626,7 @@ codeunit 134767 "Test OData Wizard US"
         ServiceName: Text[240];
     begin
         // [SCENARIO] Test Deletion of Tenant Web Service record and subordinates
-        TenantWebService.DeleteAll;
+        TenantWebService.DeleteAll();
         ServiceName := 'Cascade';
 
         // [GIVEN] The Tenant Web Service records and subordinates
@@ -660,7 +660,7 @@ codeunit 134767 "Test OData Wizard US"
         ServiceName: Text[240];
     begin
         // [SCENARIO]  Error scenarios are handled properly.
-        TenantWebService.DeleteAll;
+        TenantWebService.DeleteAll();
         ServiceName := 'page1';
         ODataSetupWizard.Trap;
         ODataSetupWizard.OpenEdit;
@@ -672,7 +672,7 @@ codeunit 134767 "Test OData Wizard US"
         Assert.AreEqual('Validation error for Field: Object ID,  Message = ''Invalid page Id. Only pages of type List are valid.''',
           GetLastErrorText, 'Unexpected Error text');
 
-        TenantWebService.Init;
+        TenantWebService.Init();
         TenantWebService.Validate("Object Type", ObjectTypeVariable::Query);
         TenantWebService.Validate("Object ID", QUERY::"Top Customer Overview");
         TenantWebService.Validate(Published, true);
@@ -807,7 +807,7 @@ codeunit 134767 "Test OData Wizard US"
         ServiceName: Text[240];
     begin
         // [SCENARIO] Test creation of an excel workbook.
-        TenantWebService.DeleteAll;
+        TenantWebService.DeleteAll();
 
         ServiceName := 'Page22WorkBook';
         NavFilterText := 'SORTING(No.) WHERE(No.=FILTER(01121212..01445544|10000),Name=FILTER(bo b|fra nk))';
@@ -878,7 +878,7 @@ codeunit 134767 "Test OData Wizard US"
         NavFilterText: Text;
     begin
         // [SCENARIO] Test creation of an excel workbook for a service with special characters in the name.
-        TenantWebService.DeleteAll;
+        TenantWebService.DeleteAll();
 
         ServiceName := 'Page22WorkBook:No. Series()';
         ExpectedServiceName := 'Page22WorkBook_No_Series';
@@ -994,12 +994,12 @@ codeunit 134767 "Test OData Wizard US"
     [Scope('OnPrem')]
     procedure AddTenantWebServiceRecord(ServiceNameParam: Text[240]; ObjectTypeParam: Option ,,,,,"Codeunit",,,"Page","Query"; ObjectIDParam: Integer; var TenantWebServiceParam: Record "Tenant Web Service")
     begin
-        TenantWebServiceParam.Init;
+        TenantWebServiceParam.Init();
         TenantWebServiceParam."Service Name" := ServiceNameParam;
         TenantWebServiceParam."Object Type" := ObjectTypeParam;
         TenantWebServiceParam."Object ID" := ObjectIDParam;
         TenantWebServiceParam.Published := true;
-        TenantWebServiceParam.Insert;
+        TenantWebServiceParam.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -1008,11 +1008,11 @@ codeunit 134767 "Test OData Wizard US"
         TenantWebServiceFilter: Record "Tenant Web Service Filter";
         WebServiceManagement: Codeunit "Web Service Management";
     begin
-        TenantWebServiceFilter.Init;
+        TenantWebServiceFilter.Init();
         TenantWebServiceFilter.TenantWebServiceID := TenantWebServiceIDParam;
         WebServiceManagement.SetTenantWebServiceFilter(TenantWebServiceFilter, FilterTextParam);
         TenantWebServiceFilter."Data Item" := DataItemParam;
-        TenantWebServiceFilter.Insert;
+        TenantWebServiceFilter.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -1020,13 +1020,13 @@ codeunit 134767 "Test OData Wizard US"
     var
         TenantWebServiceColumns: Record "Tenant Web Service Columns";
     begin
-        TenantWebServiceColumns.Init;
+        TenantWebServiceColumns.Init();
         TenantWebServiceColumns.TenantWebServiceID := TenantWebServiceIDParam;
         TenantWebServiceColumns."Data Item" := DataItemParam;
         TenantWebServiceColumns."Field Number" := FieldNumberParam;
         TenantWebServiceColumns."Field Name" := FieldNameParam;
         TenantWebServiceColumns.Include := true;
-        TenantWebServiceColumns.Insert;
+        TenantWebServiceColumns.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -1038,7 +1038,7 @@ codeunit 134767 "Test OData Wizard US"
         ODataV3FilterText: Text;
         ODataV4FilterText: Text;
     begin
-        TenantWebServiceOData.Init;
+        TenantWebServiceOData.Init();
         TenantWebServiceOData.TenantWebServiceID := TenantWebServiceIDParam;
         ODataUtility.GenerateSelectText(ServiceNameParam, ObjectTypeParam, SelectText);
         ODataUtility.GenerateODataV3FilterText(ServiceNameParam, ObjectTypeParam, ODataV3FilterText);
@@ -1046,7 +1046,7 @@ codeunit 134767 "Test OData Wizard US"
         WebServiceManagement.SetODataSelectClause(TenantWebServiceOData, SelectText);
         WebServiceManagement.SetODataFilterClause(TenantWebServiceOData, ODataV3FilterText);
         WebServiceManagement.SetODataV4FilterClause(TenantWebServiceOData, ODataV4FilterText);
-        TenantWebServiceOData.Insert;
+        TenantWebServiceOData.Insert();
     end;
 
     [Normal]
@@ -1168,8 +1168,8 @@ codeunit 134767 "Test OData Wizard US"
         FillContactFields(ExchangeContact);
 
         // [GIVEN] Navision Contact
-        NavContact.Init;
-        NavContact.Insert;
+        NavContact.Init();
+        NavContact.Insert();
 
         // [WHEN] Invoike "O365 Contact Sync. Helper".TransferExchangeContactToNavContact
         O365ContactSyncHelper.TransferExchangeContactToNavContact(ExchangeContact, NavContact, ExchangeSync);

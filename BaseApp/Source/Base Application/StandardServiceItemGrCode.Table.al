@@ -39,7 +39,7 @@ table 5998 "Standard Service Item Gr. Code"
 
     trigger OnDelete()
     begin
-        StdServiceLine.Reset;
+        StdServiceLine.Reset();
         StdServiceLine.SetRange("Standard Service Code", Code);
         if not StdServiceLine.IsEmpty then
             StdServiceLine.DeleteAll(true);
@@ -63,7 +63,7 @@ table 5998 "Standard Service Item Gr. Code"
         ServItemLine.TestField("Line No.");
 
         Clear(StdServItemGrCodesForm);
-        StdServItemGrCode.Reset;
+        StdServItemGrCode.Reset();
         if ServItemLine."Service Item Group Code" <> '' then
             StdServItemGrCode.SetRange("Service Item Group Code", ServItemLine."Service Item Group Code");
         StdServItemGrCodesForm.SetRecord(StdServItemGrCode);
@@ -93,11 +93,11 @@ table 5998 "Standard Service Item Gr. Code"
             Factor := 1
         else
             Factor := 0;
-        ServLine.LockTable;
-        StdServLine.LockTable;
+        ServLine.LockTable();
+        StdServLine.LockTable();
         if StdServLine.Find('-') then
             repeat
-                ServLine.Init;
+                ServLine.Init();
                 ServLine."Line No." := 0;
                 ServLine.Validate(Type, StdServLine.Type);
                 if ServHeader."Link Service to Service Item" then
@@ -136,7 +136,7 @@ table 5998 "Standard Service Item Gr. Code"
             until StdServLine.Next = 0;
     end;
 
-    local procedure InsertExtendedText(ServLine: Record "Service Line")
+    procedure InsertExtendedText(ServLine: Record "Service Line")
     var
         TransferExtendedText: Codeunit "Transfer Extended Text";
     begin
