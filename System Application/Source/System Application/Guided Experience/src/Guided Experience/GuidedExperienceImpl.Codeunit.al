@@ -281,6 +281,8 @@ codeunit 1991 "Guided Experience Impl."
         if not GuidedExperienceItem.WritePermission() then
             exit;
 
+        GetObjectTypeToRun(GuidedExperienceObjectType, ObjectType);
+
         FilterGuidedExperienceItem(GuidedExperienceItem, GuidedExperienceType, GuidedExperienceObjectType, ObjectID, '');
 
         Delete(GuidedExperienceItem);

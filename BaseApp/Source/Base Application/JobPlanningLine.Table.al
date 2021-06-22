@@ -1205,8 +1205,6 @@
     begin
         if CurrFieldNo <> CalledByFieldNo then
             exit;
-        if Reserve = Reserve::Always then
-            exit;
         if (Type <> Type::Item) or ("No." = '') then
             exit;
         if Quantity <= 0 then

@@ -206,7 +206,7 @@ report 1008 "Job Analysis"
                     field("CurrencyField[3]"; CurrencyField[3])
                     {
                         ApplicationArea = Jobs;
-                        Caption = 'Currency Field 1';
+                        Caption = 'Currency Field 3';
                         OptionCaption = 'Local Currency,Foreign Currency';
                         ToolTip = 'Specifies if the currency is specified in the local currency or in a foreign currency.';
                     }
@@ -220,7 +220,7 @@ report 1008 "Job Analysis"
                     field("CurrencyField[4]"; CurrencyField[4])
                     {
                         ApplicationArea = Jobs;
-                        Caption = 'Currency Field 2';
+                        Caption = 'Currency Field 4';
                         OptionCaption = 'Local Currency,Foreign Currency';
                         ToolTip = 'Specifies if the currency is specified in the local currency or in a foreign currency.';
                     }
@@ -234,7 +234,7 @@ report 1008 "Job Analysis"
                     field("CurrencyField[5]"; CurrencyField[5])
                     {
                         ApplicationArea = Jobs;
-                        Caption = 'Currency Field 1';
+                        Caption = 'Currency Field 5';
                         OptionCaption = 'Local Currency,Foreign Currency';
                         ToolTip = 'Specifies if the currency is specified in the local currency or in a foreign currency.';
                     }
@@ -248,7 +248,7 @@ report 1008 "Job Analysis"
                     field("CurrencyField[6]"; CurrencyField[6])
                     {
                         ApplicationArea = Jobs;
-                        Caption = 'Currency Field 2';
+                        Caption = 'Currency Field 6';
                         OptionCaption = 'Local Currency,Foreign Currency';
                         ToolTip = 'Specifies if the currency is specified in the local currency or in a foreign currency.';
                     }
@@ -262,7 +262,7 @@ report 1008 "Job Analysis"
                     field("CurrencyField[7]"; CurrencyField[7])
                     {
                         ApplicationArea = Jobs;
-                        Caption = 'Currency Field 1';
+                        Caption = 'Currency Field 7';
                         OptionCaption = 'Local Currency,Foreign Currency';
                         ToolTip = 'Specifies if the currency is specified in the local currency or in a foreign currency.';
                     }
@@ -276,7 +276,7 @@ report 1008 "Job Analysis"
                     field("CurrencyField[8]"; CurrencyField[8])
                     {
                         ApplicationArea = Jobs;
-                        Caption = 'Currency Field 2';
+                        Caption = 'Currency Field 8';
                         OptionCaption = 'Local Currency,Foreign Currency';
                         ToolTip = 'Specifies if the currency is specified in the local currency or in a foreign currency.';
                     }

@@ -1400,6 +1400,9 @@ codeunit 7000 "Sales Price Calc. Mgt."
                     end;
                 Type::Resource:
                     begin
+                        IsHandled := false;
+                        OnFindJobJnlLinePriceOnBeforeResourceGetJob(JobJnlLine, IsHandled);
+                        if not IsHandled then
                         Job.Get("Job No.");
                         SetResPrice("No.", "Work Type Code", "Currency Code");
                         OnBeforeFindJobJnlLineResPrice(JobJnlLine, ResPrice);
@@ -1999,6 +2002,11 @@ codeunit 7000 "Sales Price Calc. Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnFindJobJnlLinePriceOnBeforeJobJnlLineFindJTPrice(var JobJnlLine: Record "Job Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindJobJnlLinePriceOnBeforeResourceGetJob(var JobJnlLine: Record "Job Journal Line"; var IsHandled: Boolean)
     begin
     end;
 

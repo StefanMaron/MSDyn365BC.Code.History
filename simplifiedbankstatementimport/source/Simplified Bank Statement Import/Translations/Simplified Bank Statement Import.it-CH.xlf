@@ -3,6 +3,12 @@
   <file datatype="xml" source-language="en-US" target-language="it-CH" original="Simplified Bank Statement Import">
     <body>
       <group id="body">
+        <trans-unit id="Table 3726475704 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Bank Statement Import Preview</source>
+          <target state="translated">Anteprima importazione estratto conto bancario</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Bank Statement Import Preview - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 3726475704 - Field 636392376 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Amount</source>
           <target state="translated">Importo</target>
@@ -38,6 +44,11 @@
           <target state="translated">Chiave primaria</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Bank Statement Import Preview - Field Primary Key - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1261045762 - Method 2195781182" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>RunBankStatementFileWizard</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Bank Statement File Wizard - Method RunBankStatementFileWizard</note>
         </trans-unit>
         <trans-unit id="Codeunit 1261045762 - NamedType 4123649463" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Set up a bank statement file import format.</source>
@@ -530,6 +541,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Action ActionNext - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 3726475704 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Bank Statement Import Preview</source>
+          <target state="translated">Anteprima importazione estratto conto bancario</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement Import Preview - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 3726475704 - Control 636392376 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Transaction amount.</source>
           <target state="translated">Importo transazione.</target>
@@ -583,6 +600,13 @@
         <trans-unit id="PageExtension 674905867 - Action 1918701063 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Start the Bank Statement File Setup wizard to set up a bank statement file import format.</source>
           <target state="translated">Avviare l'installazione guidata del file di estratto conto bancario per impostare un formato di importazione del file estratto conto bancario.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 4286163337</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 674905867 - Action 1918701063 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Bank Statement File Format Wizard</source>
+          <target state="translated">Creazione guidata formato file estratto conto bancario</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 4286163337</note>

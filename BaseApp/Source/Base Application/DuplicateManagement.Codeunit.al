@@ -37,7 +37,13 @@ codeunit 5060 DuplicateManagement
     var
         DuplContSearchString: Record "Cont. Duplicate Search String";
         DuplCont: Record "Contact Duplicate";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeRemoveContIndex(Cont, KeepAccepted, IsHandled);
+        if IsHandled then
+            exit;
+
         DuplContSearchString.SetRange("Contact Company No.", Cont."No.");
         if DuplContSearchString.FindFirst then
             DuplContSearchString.DeleteAll();
@@ -180,6 +186,11 @@ codeunit 5060 DuplicateManagement
     procedure RunModalContactDuplicates(Notification: Notification)
     begin
         PAGE.RunModal(PAGE::"Contact Duplicates");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRemoveContIndex(Contact: Record Contact; KeepAccepted: Boolean; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

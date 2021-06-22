@@ -24,7 +24,7 @@ codeunit 134452 "ERM Fixed Assets Insurance"
         InsuranceAmountError: Label '%1 must be equal.';
         StartingDate: Date;
         EndingDate: Date;
-        EndingDateError: Label 'Ending Date must be specified.';
+        EndingDateError: Label 'You must specify an ending date.';
         Amount: Decimal;
         FANo: Code[20];
         RoundingFactorOption: Label 'None';
@@ -267,7 +267,7 @@ codeunit 134452 "ERM Fixed Assets Insurance"
     end;
 
     [Test]
-    [HandlerFunctions('CompressInsuranceLedgerHandler,DimensionSelectionHandler,ConfirmHandlerTrue')]
+    [HandlerFunctions('CompressInsuranceLedgerHandler')]
     [Scope('OnPrem')]
     procedure DateCompressInsuranceLedgerDatesError()
     begin
@@ -280,7 +280,7 @@ codeunit 134452 "ERM Fixed Assets Insurance"
         asserterror RunDateCompressInsuranceLedger;
 
         // 3. Verify: Verify error occurs on Running Date Compress Insurance Ledger Report without Starting and Ending Dates.
-        Assert.AreEqual(StrSubstNo(EndingDateError), GetLastErrorText, EndingDateError);
+        Assert.ExpectedError(EndingDateError);
     end;
 
     [Test]
@@ -290,19 +290,21 @@ codeunit 134452 "ERM Fixed Assets Insurance"
     var
         InsuranceRegister: Record "Insurance Register";
         InsCoverageLedgerEntry: Record "Ins. Coverage Ledger Entry";
+        DateCompression: Codeunit "Date Compression";
         JournalBatchName: Code[10];
     begin
         // Test and verify Date Compress Insurance Ledger Report functionality.
 
         // 1. Setup: Create and post Insurance Journal.
         Initialize;
+        LibraryFiscalYear.CreateClosedAccountingPeriods();
         JournalBatchName := CreateAndPostInsuranceJournal;
         FindInsuranceRegister(InsuranceRegister, JournalBatchName);
         Commit();
 
         // 2. Exercise: Run Date Compress Insurance Ledger Report with Starting and Ending Dates.
-        StartingDate := LibraryFiscalYear.GetLastPostingDate(true);
-        EndingDate := LibraryFiscalYear.GetLastPostingDate(true);
+        StartingDate := LibraryFiscalYear.GetFirstPostingDate(true);
+        EndingDate := DateCompression.CalcMaxEndDate();
         RunDateCompressInsuranceLedger;
 
         // 3. Verify: Ins. Coverage Ledger Entries must be deleted after running the Date Compress Insurance Ledger Report.
@@ -464,9 +466,6 @@ codeunit 134452 "ERM Fixed Assets Insurance"
         InsuranceJournalBatch: Record "Insurance Journal Batch";
         InsuranceJournalLine: Record "Insurance Journal Line";
     begin
-        LibraryFiscalYear.CreateFiscalYear;
-        LibraryFiscalYear.CloseFiscalYear;
-
         LibraryFixedAsset.CreateInsurance(Insurance);
         LibraryFixedAsset.CreateFixedAsset(FixedAsset);
 
@@ -474,9 +473,9 @@ codeunit 134452 "ERM Fixed Assets Insurance"
         JournalBatchName := InsuranceJournalBatch.Name;
 
         CreateInsuranceJournalLine(
-          InsuranceJournalLine, InsuranceJournalBatch, FixedAsset."No.", Insurance."No.", LibraryFiscalYear.GetLastPostingDate(true));
+          InsuranceJournalLine, InsuranceJournalBatch, FixedAsset."No.", Insurance."No.", LibraryFiscalYear.GetFirstPostingDate(true));
         CreateInsuranceJournalLine(
-          InsuranceJournalLine, InsuranceJournalBatch, FixedAsset."No.", Insurance."No.", LibraryFiscalYear.GetLastPostingDate(true));
+          InsuranceJournalLine, InsuranceJournalBatch, FixedAsset."No.", Insurance."No.", LibraryFiscalYear.GetFirstPostingDate(true));
         LibraryFixedAsset.PostInsuranceJournal(InsuranceJournalLine);
         LibraryUtility.GenerateGUID;  // Hack to fix problem with Generate GUID.
     end;

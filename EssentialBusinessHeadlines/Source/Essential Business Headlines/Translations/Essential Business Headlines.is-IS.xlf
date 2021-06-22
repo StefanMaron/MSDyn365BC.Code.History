@@ -3,6 +3,12 @@
   <file datatype="xml" source-language="en-US" target-language="is-IS" original="Essential Business Headlines">
     <body>
       <group id="body">
+        <trans-unit id="Table 3952093732 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Ess. Business Headline Per Usr</source>
+          <target state="translated">Nauðs. fyrirs. á not.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Ess. Business Headline Per Usr - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 3952093732 - Field 2429433402 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Headline Computation Period</source>
           <target state="translated">Headline Computation Period</target>
@@ -20,6 +26,12 @@
           <target state="translated">Headline Name</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Ess. Business Headline Per Usr - Field Headline Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3952093732 - Field 4254604467 - Property 62802879" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>MostPopularItem,BusiestResource,LargestSale,LargestOrder,SalesIncrease,TopCustomer,OpenVATReturn,OverdueVATReturn,RecentlyOverdueInvoices</source>
+          <target state="translated">MostPopularItem,BusiestResource,LargestSale,LargestOrder,SalesIncrease,TopCustomer,OpenVATReturn,OverdueVATReturn,RecentlyOverdueInvoices</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Ess. Business Headline Per Usr - Field Headline Name - Property OptionCaption</note>
         </trans-unit>
         <trans-unit id="Table 3952093732 - Field 148567781 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Headline Text</source>
@@ -44,6 +56,12 @@
           <target state="translated">Færslukenni skilatímabils VSK</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Ess. Business Headline Per Usr - Field VAT Return Period Record Id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 478926726 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Headline Details Per User</source>
+          <target state="translated">Upplýsingar fyrirsagnar fyrir hvern notanda</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Headline Details Per User - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 478926726 - Field 592951229 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Amount (LCY)</source>
@@ -75,6 +93,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Headline Details Per User - Field Type - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 478926726 - Field 1878130204 - Property 62802879" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Item,Resource,Customer</source>
+          <target state="translated">Vara,Forði,Viðskiptamaður</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Headline Details Per User - Field Type - Property OptionCaption</note>
+        </trans-unit>
         <trans-unit id="Table 478926726 - Field 1920046521 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Unit of Measure</source>
           <target state="translated">Mælieining</target>
@@ -86,6 +110,176 @@
           <target state="translated">Kenni notanda</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Headline Details Per User - Field User Id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1720308026 - Method 1499226648" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>OnBeforeUpdateLanguage</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Ess. Bus. Headline Subscribers - Method OnBeforeUpdateLanguage</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1720308026 - Method 2877106461" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>OnBeforeUpdateWorkdate</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Ess. Bus. Headline Subscribers - Method OnBeforeUpdateWorkdate</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1720308026 - Method 151971107" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>OnComputeRoleCenterHeadlines</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Ess. Bus. Headline Subscribers - Method OnComputeRoleCenterHeadlines</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1720308026 - Method 2166972098" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>OnIsAnyExtensionHeadlineVisible</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Ess. Bus. Headline Subscribers - Method OnIsAnyExtensionHeadlineVisible</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1720308026 - Method 1038689799" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>OnSetVisibilityBusinessManager</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Ess. Bus. Headline Subscribers - Method OnSetVisibilityBusinessManager</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1720308026 - Method 370032098" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>OnSetVisibilityBusinessManagerOpenVATReturn</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Ess. Bus. Headline Subscribers - Method OnSetVisibilityBusinessManagerOpenVATReturn</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1720308026 - Method 2357939388" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>OnSetVisibilityBusinessManagerOverdueVATReturn</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Ess. Bus. Headline Subscribers - Method OnSetVisibilityBusinessManagerOverdueVATReturn</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1720308026 - Method 4188018937" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>OnSetVisibilityOrderProcessor</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Ess. Bus. Headline Subscribers - Method OnSetVisibilityOrderProcessor</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1720308026 - Method 608768238" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>OnSetVisibilityAccountant</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Ess. Bus. Headline Subscribers - Method OnSetVisibilityAccountant</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1720308026 - Method 2178983206" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>OnSetVisibilityRelMgt</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Ess. Bus. Headline Subscribers - Method OnSetVisibilityRelMgt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3892878374 - Method 1236196211" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>HandleMostPopularItemHeadline</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Essential Bus. Headline Mgt. - Method HandleMostPopularItemHeadline</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3892878374 - Method 4185928268" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>GetBestItemPayload</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Essential Bus. Headline Mgt. - Method GetBestItemPayload</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3892878374 - Method 1053136162" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>OnDrillDownMostPopularItem</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Essential Bus. Headline Mgt. - Method OnDrillDownMostPopularItem</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3892878374 - Method 3342017451" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>HandleBusiestResourceHeadline</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Essential Bus. Headline Mgt. - Method HandleBusiestResourceHeadline</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3892878374 - Method 4280519445" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>GetBusiestResoucePayload</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Essential Bus. Headline Mgt. - Method GetBusiestResoucePayload</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3892878374 - Method 1962623247" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>OnDrillDownBusiestResource</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Essential Bus. Headline Mgt. - Method OnDrillDownBusiestResource</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3892878374 - Method 1533480752" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>HandleLargestOrderHeadline</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Essential Bus. Headline Mgt. - Method HandleLargestOrderHeadline</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3892878374 - Method 3971092492" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>OnDrillDownLargestOrder</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Essential Bus. Headline Mgt. - Method OnDrillDownLargestOrder</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3892878374 - Method 989487262" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>HandleLargestSaleHeadline</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Essential Bus. Headline Mgt. - Method HandleLargestSaleHeadline</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3892878374 - Method 1518478423" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>OnDrillDownLargestSale</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Essential Bus. Headline Mgt. - Method OnDrillDownLargestSale</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3892878374 - Method 2075625123" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>HandleSalesIncreaseHeadline</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Essential Bus. Headline Mgt. - Method HandleSalesIncreaseHeadline</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3892878374 - Method 2613721415" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>OnDrillDownSalesIncrease</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Essential Bus. Headline Mgt. - Method OnDrillDownSalesIncrease</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3892878374 - Method 4126326199" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>HandleRecentlyOverdueInvoices</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Essential Bus. Headline Mgt. - Method HandleRecentlyOverdueInvoices</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3892878374 - Method 3292343057" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>OnDrillDownRecentlyOverdueInvoices</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Essential Bus. Headline Mgt. - Method OnDrillDownRecentlyOverdueInvoices</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3892878374 - Method 3292562641" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>HandleTopCustomer</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Essential Bus. Headline Mgt. - Method HandleTopCustomer</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3892878374 - Method 1623657183" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>GetTopCustomerPayload</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Essential Bus. Headline Mgt. - Method GetTopCustomerPayload</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3892878374 - Method 1596231995" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>OnDrillDownTopCustomer</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Essential Bus. Headline Mgt. - Method OnDrillDownTopCustomer</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3892878374 - Method 3674280477" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>HideHeadline</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Essential Bus. Headline Mgt. - Method HideHeadline</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3892878374 - Method 889855026" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>FormatCurrency</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Essential Bus. Headline Mgt. - Method FormatCurrency</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3892878374 - Method 2327728617" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>FormatLocalCurrency</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Essential Bus. Headline Mgt. - Method FormatLocalCurrency</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3892878374 - Method 2083889792" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>HandleOpenVATReturn</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Essential Bus. Headline Mgt. - Method HandleOpenVATReturn</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3892878374 - Method 3480789690" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>HandleOverdueVATReturn</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Essential Bus. Headline Mgt. - Method HandleOverdueVATReturn</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3892878374 - Method 2368374155" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>OnDrillDownOpenVATReturn</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Essential Bus. Headline Mgt. - Method OnDrillDownOpenVATReturn</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3892878374 - Method 3018725040" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>OnDrillDownOverdueVATReturn</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Essential Bus. Headline Mgt. - Method OnDrillDownOverdueVATReturn</note>
         </trans-unit>
         <trans-unit id="Codeunit 3892878374 - NamedType 4046857381" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
           <source>%1 was busy, with %2 units booked</source>
@@ -171,11 +365,35 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Essential Bus. Headline Mgt. - NamedType VATReturnQualifierTxt</note>
         </trans-unit>
+        <trans-unit id="Page 3615731784 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Headline Details</source>
+          <target state="translated">Upplýsingar fyrirsagnar</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Headline Details - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 3615731784 - NamedType 3285233284" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Amount</source>
           <target state="translated">Upphæð</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Headline Details - NamedType AmountCaptionLbl</note>
+        </trans-unit>
+        <trans-unit id="Query 3009275761 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Best Sold Item Headline</source>
+          <target state="translated">Fyrirsögn mest seldu vöru</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query Best Sold Item Headline - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 608716126 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sales Increase Headline</source>
+          <target state="translated">Fyrirsögn söluaukningar</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query Sales Increase Headline - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 1526214987 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Top Customer Headline</source>
+          <target state="translated">Vinsælasta fyrirsögn viðskiptamanna</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query Top Customer Headline - Property Caption</note>
         </trans-unit>
       </group>
     </body>

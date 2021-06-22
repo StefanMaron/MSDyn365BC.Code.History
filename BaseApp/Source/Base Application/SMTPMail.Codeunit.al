@@ -31,7 +31,7 @@ codeunit 400 "SMTP Mail"
         InvoicingTroubleshootingUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2082472', Locked = true;
         BusinessCentralTroubleshootingUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2082540', Locked = true;
         SmtpConnectTelemetryErrorMsg: Label 'Unable to connect to SMTP server. Smtp server: %1, server port: %2, authentication: %3, error code: %4', Comment = '%1=the smtp server, %2=the server port, %3=authentication, %4=error code';
-        SmtpAuthenticateTelemetryErrorMsg: Label 'Unable to connect to SMTP server. Authentication email from: %1, smtp server: %2, authentication: %3, server port: %4, error code: %5', Comment = '%1=the from address, %2=the smtp server, %3=authentication, %4=the server port, %5=error code';
+        SmtpAuthenticateTelemetryErrorMsg: Label 'Unable to authenticate to SMTP server. Authentication email from: %1, smtp server: %2, authentication: %3, server port: %4, error code: %5', Comment = '%1=the from address, %2=the smtp server, %3=authentication, %4=the server port, %5=error code';
         SmtpSendTelemetryErrorMsg: Label 'Unable to send email. Login: %1, send from: %2, send to: %3, send cc: %4, send bcc: %5. send as: %6, %7, authentication: %8, error code: %9', Comment = '%1=the login address, %2=the from address, %3=the to address, %4=the cc address, %5=the bcc address, %6=is send as enabled, %7=the send as email, %8=authentication, %9=error code';
         SmtpConnectedTelemetryMsg: Label 'Connected to SMTP server. Smtp server: %1, server port: %2, authentication: %3', Comment = '%1=the smtp server, %2=the server port, %3=authentication';
         SmtpAuthenticateTelemetryMsg: Label 'Authenticated to SMTP server.  Authentication email from: %1, smtp server: %2, authentication: %3, server port: %4', Comment = '%1=the from address, %2=the smtp server, %3=authentication, %4=the server port';
@@ -386,8 +386,8 @@ codeunit 400 "SMTP Mail"
                     Session.LogMessage('00009XS', StrSubstNo(SmtpAuthenticateTelemetryErrorMsg,
                             ObsfuscateEmailAddress(SmtpMailSetup."User ID"),
                             SmtpMailSetup."SMTP Server",
-                            SmtpMailSetup."SMTP Server Port",
                             SmtpMailSetup.Authentication,
+                            SmtpMailSetup."SMTP Server Port",
                             SMTPErrorCode), Verbosity::Error, DataClassification::EndUserPseudonymousIdentifiers, TelemetryScope::ExtensionPublisher, 'Category', SmtpCategoryLbl);
                 end
                 else begin

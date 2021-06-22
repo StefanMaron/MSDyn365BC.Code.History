@@ -158,11 +158,35 @@ table 249 "VAT Registration Log"
 
     procedure OpenModifyDetails()
     var
+        Customer: Record Customer;
+        Vendor: Record Vendor;
+        Contact: Record Contact;
+        CustContUpdate: Codeunit "CustCont-Update";
+        VendContUpdate: Codeunit "VendCont-Update";
+        UpdateCustVendBank: Codeunit "CustVendBank-Update";
         RecordRef: RecordRef;
     begin
         GetAccountRecordRef(RecordRef);
-        if OpenDetailsForRecRef(RecordRef) then
+        if OpenDetailsForRecRef(RecordRef) then begin
             RecordRef.Modify();
+            case RecordRef.Number of
+                Database::Customer:
+                    begin
+                        RecordRef.SetTable(Customer);
+                        CustContUpdate.OnModify(Customer);
+                    end;
+                Database::Vendor:
+                    begin
+                        RecordRef.SetTable(Vendor);
+                        VendContUpdate.OnModify(Vendor);
+                    end;
+                Database::Contact:
+                    begin
+                        RecordRef.SetTable(Contact);
+                        UpdateCustVendBank.Run(Contact);
+                    end;
+            end;
+        end;
     end;
 
     procedure OpenDetailsForRecRef(var RecordRef: RecordRef): Boolean

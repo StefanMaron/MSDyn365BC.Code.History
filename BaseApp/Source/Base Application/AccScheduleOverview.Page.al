@@ -1087,6 +1087,8 @@ page 490 "Acc. Schedule Overview"
             else
                 ColumnStyle := 'Standard';
 
+        OnGetStyleOnBeforeAssignColumnStyle(Rec, ColumnNo, RowLineNo, ColumnLineNo, ColumnStyle);
+
         case ColumnNo of
             1:
                 ColumnStyle1 := ColumnStyle;
@@ -1147,6 +1149,11 @@ page 490 "Acc. Schedule Overview"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateDimFilterControls(var AccScheduleLine: Record "Acc. Schedule Line"; AnalysisView: Record "Analysis View"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetStyleOnBeforeAssignColumnStyle(AccScheduleLine: Record "Acc. Schedule Line"; ColumnNo: Integer; RowLineNo: Integer; ColumnLineNo: Integer; var ColumnStyle: Text);
     begin
     end;
 }

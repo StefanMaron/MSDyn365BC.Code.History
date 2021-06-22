@@ -3,6 +3,11 @@
   <file datatype="xml" source-language="en-US" target-language="en-US" original="Send To Email Printer">
     <body>
       <group id="body">
+        <trans-unit id="Table 3508446305 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Printer Settings</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Printer Settings - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 3508446305 - Field 3461834954 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Printer Description</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -107,6 +112,11 @@
           <source>The value in the Paper Width field must be greater than 0.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Setup Printers - NamedType WidthInputErr</note>
+        </trans-unit>
+        <trans-unit id="Page 3508446305 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Printer Settings</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3508446305 - NamedType 2891017306" size-unit="char" translate="yes" xml:space="preserve">
           <source>For this printer to work, a user with respective permissions needs to set up an email account in Business Central.</source>

@@ -687,6 +687,9 @@ codeunit 7205 "CDS Int. Table. Subscriber"
         If not CDSIntegrationImpl.IsIntegrationEnabled() then
             exit;
 
+        if CRMSynchHelper.IsContactBusinessRelationOptional() then
+            exit;
+
         if CRMSynchHelper.FindContactRelatedCustomer(SourceRecordRef, ContactBusinessRelation) then
             exit;
 
@@ -700,39 +703,51 @@ codeunit 7205 "CDS Int. Table. Subscriber"
     var
         CRMContact: Record "CRM Contact";
         ParentCustomerIdFieldRef: FieldRef;
+        AccountId: Guid;
+        Silent: Boolean;
     begin
         if not CDSIntegrationImpl.IsIntegrationEnabled() then
             exit;
 
-        // Tranfer the parent company id to the ParentCustomerId
-        ParentCustomerIdFieldRef := DestinationRecordRef.Field(CRMContact.FieldNo(ParentCustomerId));
-        ParentCustomerIdFieldRef.Value := FindParentCRMAccountForContact(SourceRecordRef);
+        Silent := CRMSynchHelper.IsContactBusinessRelationOptional();
+        if FindParentCRMAccountForContact(SourceRecordRef, Silent, AccountId) then begin
+            // Transfer the parent company id to the ParentCustomerId
+            ParentCustomerIdFieldRef := DestinationRecordRef.Field(CRMContact.FieldNo(ParentCustomerId));
+            ParentCustomerIdFieldRef.Value := AccountId;
+        end;
     end;
 
-    local procedure FindParentCRMAccountForContact(SourceRecordRef: RecordRef): Guid
+    local procedure FindParentCRMAccountForContact(SourceRecordRef: RecordRef; Silent: Boolean; var AccountId: Guid): Boolean
     var
         ContactBusinessRelation: Record "Contact Business Relation";
         Contact: Record Contact;
         Customer: Record Customer;
         Vendor: Record Vendor;
         CRMIntegrationRecord: Record "CRM Integration Record";
-        AccountId: Guid;
     begin
         if CRMSynchHelper.FindContactRelatedCustomer(SourceRecordRef, ContactBusinessRelation) then begin
-            if not Customer.Get(ContactBusinessRelation."No.") then
+            if Customer.Get(ContactBusinessRelation."No.") then begin
+                CRMIntegrationRecord.FindIDFromRecordID(Customer.RecordId(), AccountId);
+                exit(true);
+            end;
+            if not Silent then
                 Error(RecordNotFoundErr, Customer.TableCaption(), ContactBusinessRelation."No.");
-            CRMIntegrationRecord.FindIDFromRecordID(Customer.RecordId(), AccountId);
-            exit(AccountId);
+            exit(false);
         end;
 
         if CRMSynchHelper.FindContactRelatedVendor(SourceRecordRef, ContactBusinessRelation) then begin
-            if not Vendor.Get(ContactBusinessRelation."No.") then
+            if Vendor.Get(ContactBusinessRelation."No.") then begin
+                CRMIntegrationRecord.FindIDFromRecordID(Vendor.RecordId(), AccountId);
+                exit(true);
+            end;
+            if not Silent then
                 Error(RecordNotFoundErr, Vendor.TableCaption(), ContactBusinessRelation."No.");
-            CRMIntegrationRecord.FindIDFromRecordID(Vendor.RecordId(), AccountId);
-            exit(AccountId);
+            exit(false);
         end;
 
-        Error(ContactMustBeRelatedToCustomerOrVendorErr, SourceRecordRef.Field(Contact.FieldNo("No.")).Value());
+        if not Silent then
+            Error(ContactMustBeRelatedToCustomerOrVendorErr, SourceRecordRef.Field(Contact.FieldNo("No.")).Value());
+        exit(false);
     end;
 
     local procedure FixPrimaryContactNo(SourceRecordRef: RecordRef; DestinationRecordRef: RecordRef): Boolean

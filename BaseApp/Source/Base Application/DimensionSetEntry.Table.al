@@ -92,6 +92,8 @@ table 480 "Dimension Set Entry"
             "Dimension Value ID" := DimVal."Dimension Value ID"
         else
             "Dimension Value ID" := 0;
+
+        "Global Dimension No." := GetGlobalDimNo();
     end;
 
     trigger OnModify()
@@ -100,6 +102,8 @@ table 480 "Dimension Set Entry"
             "Dimension Value ID" := DimVal."Dimension Value ID"
         else
             "Dimension Value ID" := 0;
+
+        "Global Dimension No." := GetGlobalDimNo();
     end;
 
     var

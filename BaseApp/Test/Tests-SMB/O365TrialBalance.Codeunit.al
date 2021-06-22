@@ -12,31 +12,13 @@ codeunit 138029 "O365 Trial Balance"
     var
         LibraryFiscalYear: Codeunit "Library - Fiscal Year";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryERM: Codeunit "Library - ERM";
+        LibraryUtility: Codeunit "Library - Utility";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         ExpectedAmount: Decimal;
         PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
         isInitialized: Boolean;
-
-    local procedure Initialize()
-    var
-        LibraryApplicationArea: Codeunit "Library - Application Area";
-    begin
-        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Trial Balance");
-        LibraryVariableStorage.Clear;
-        LibraryApplicationArea.EnableFoundationSetup;
-
-        if isInitialized then
-            exit;
-        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Trial Balance");
-
-        if not LibraryFiscalYear.AccountingPeriodsExists then
-            LibraryFiscalYear.CreateFiscalYear;
-
-        isInitialized := true;
-        Commit();
-        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Trial Balance");
-    end;
 
     [Test]
     [Scope('OnPrem')]
@@ -240,6 +222,63 @@ codeunit 138029 "O365 Trial Balance"
         // [THEN] the Trial Balance opens with no errors and shows a single column
         Assert.IsTrue(TrialBalance.CurrentPeriodValues1.Visible, 'Current period should be visible');
         Assert.IsFalse(TrialBalance.CurrentPeriodMinusOneValues1.Visible, 'Current period minus one should not be visible');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AccountScheduleColumnHeaderPartOfColumnHeadersInTrialBalance()
+    var
+        ColumnLayoutName: Record "Column Layout Name";
+        ColumnLayout: array[2] of Record "Column Layout";
+        TrialBalanceCache: Record "Trial Balance Cache";
+        TrialBalanceSetup: Record "Trial Balance Setup";
+        TrialBalanceMgt: Codeunit "Trial Balance Mgt.";
+        Index: Integer;
+        DescriptionsArr: array[9] of Text[100];
+        ValuesArr: array[9, 2] of Decimal;
+        PeriodCaptionTxt: array[2] of Text;
+    begin
+        // [FEATURE] [Account Schedule]
+        // [SCENARIO 391104] In the Mini Trial Balance the column header is a part to the period filter
+        Initialize();
+
+        TrialBalanceCache.DeleteAll();
+
+        LibraryERM.CreateColumnLayoutName(ColumnLayoutName);
+        for Index := 1 to ArrayLen(ColumnLayout) do begin
+            LibraryERM.CreateColumnLayout(ColumnLayout[Index], ColumnLayoutName.Name);
+            ColumnLayout[Index].Validate("Column Header", LibraryUtility.GenerateGUID());
+            ColumnLayout[Index].Modify(true);
+        end;
+
+        TrialBalanceSetup.Get();
+        TrialBalanceSetup.Validate("Column Layout Name", ColumnLayoutName.Name);
+        TrialBalanceSetup.Modify(true);
+
+        TrialBalanceMgt.LoadData(DescriptionsArr, ValuesArr, PeriodCaptionTxt, 2);
+
+        for Index := ArrayLen(ColumnLayout) downto 1 do
+            Assert.ExpectedMessage(ColumnLayout[Index]."Column Header", PeriodCaptionTxt[3 - Index]);
+    end;
+
+    local procedure Initialize()
+    var
+        LibraryApplicationArea: Codeunit "Library - Application Area";
+    begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Trial Balance");
+        LibraryVariableStorage.Clear();
+        LibraryApplicationArea.EnableFoundationSetup();
+
+        if isInitialized then
+            exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Trial Balance");
+
+        if not LibraryFiscalYear.AccountingPeriodsExists() then
+            LibraryFiscalYear.CreateFiscalYear();
+
+        isInitialized := true;
+        Commit();
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Trial Balance");
     end;
 
     local procedure OpenAccSchedOverviewPage(var AccScheduleOverview: TestPage "Acc. Schedule Overview")

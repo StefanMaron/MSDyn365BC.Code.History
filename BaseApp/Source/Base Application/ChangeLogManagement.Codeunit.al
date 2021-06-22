@@ -272,6 +272,7 @@ codeunit 423 "Change Log Management"
         FldRef: FieldRef;
         i: Integer;
     begin
+        OnBeforeLogInsertion(RecRef);
         if RecRef.IsTemporary then
             exit;
 
@@ -294,6 +295,7 @@ codeunit 423 "Change Log Management"
         i: Integer;
         IsReadable: Boolean;
     begin
+        OnBeforeLogModification(RecRef);
         if RecRef.IsTemporary then
             exit;
 
@@ -325,6 +327,7 @@ codeunit 423 "Change Log Management"
         xFldRef: FieldRef;
         i: Integer;
     begin
+        OnBeforeLogRename(RecRef, xRecRefParam);
         if RecRef.IsTemporary then
             exit;
 
@@ -348,6 +351,7 @@ codeunit 423 "Change Log Management"
         FldRef: FieldRef;
         i: Integer;
     begin
+        OnBeforeLogDeletion(RecRef);
         if RecRef.IsTemporary then
             exit;
 
@@ -501,6 +505,26 @@ codeunit 423 "Change Log Management"
     local procedure OnBeforeInsertChangeLogEntryByValue(ChangeLogEntry: Record "Change Log Entry"; AlwaysLog: Boolean; var Handled: Boolean)
     begin
         OnBeforeInsertChangeLogEntry(ChangeLogEntry, AlwaysLog, Handled);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLogDeletion(var RecRef: RecordRef)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLogInsertion(var RecRef: RecordRef)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLogModification(var RecRef: RecordRef)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLogRename(var RecRef: RecordRef; var xRecRefParam: RecordRef)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

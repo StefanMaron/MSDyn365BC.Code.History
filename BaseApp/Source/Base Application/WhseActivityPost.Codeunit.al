@@ -180,7 +180,7 @@ codeunit 7324 "Whse.-Activity-Post"
             OnAfterCode(WhseActivLine, SuppressCommit, PrintDoc);
             if not SuppressCommit then
                 Commit();
-            OnAfterPostWhseActivHeader(WhseActivHeader);
+            OnAfterPostWhseActivHeader(WhseActivHeader, PurchHeader, SalesHeader, TransHeader);
 
             Clear(WhseJnlRegisterLine);
         end;
@@ -229,6 +229,7 @@ codeunit 7324 "Whse.-Activity-Post"
         SalesRelease: Codeunit "Release Sales Document";
         PurchRelease: Codeunit "Release Purchase Document";
         ModifyHeader: Boolean;
+        IsHandled: Boolean;
     begin
         OnBeforeInitSourceDocument(WhseActivHeader);
 
@@ -280,13 +281,17 @@ codeunit 7324 "Whse.-Activity-Post"
                             SalesLine.SetRange(Type, SalesLine.Type::Item);
                         if SalesLine.Find('-') then
                             repeat
-                                if "Source Document" = "Source Document"::"Sales Order" then
-                                    SalesLine.Validate("Qty. to Ship", 0)
-                                else
-                                    SalesLine.Validate("Return Qty. to Receive", 0);
-                                SalesLine.Validate("Qty. to Invoice", 0);
-                                ModifySalesLine(SalesLine);
-                                OnAfterSalesLineModify(SalesLine);
+                                IsHandled := false;
+                                OnInitSourceDocumentOnBeforeSalesLineLoopIteration(SalesHeader, SalesLine, WhseActivHeader, IsHandled);
+                                if not IsHandled then begin
+                                    if "Source Document" = "Source Document"::"Sales Order" then
+                                        SalesLine.Validate("Qty. to Ship", 0)
+                                    else
+                                        SalesLine.Validate("Return Qty. to Receive", 0);
+                                    SalesLine.Validate("Qty. to Invoice", 0);
+                                    ModifySalesLine(SalesLine);
+                                    OnAfterSalesLineModify(SalesLine);
+                                end;
                             until SalesLine.Next() = 0;
 
                         if (SalesHeader."Posting Date" <> "Posting Date") and ("Posting Date" <> 0D) then begin
@@ -552,6 +557,8 @@ codeunit 7324 "Whse.-Activity-Post"
                         PostedSourceSubType := 0;
                     end;
             end;
+
+        OnAfterPostSourceDocument(WhseActivHeader, PurchHeader, SalesHeader, TransHeader, PostingReference, HideDialog);
     end;
 
     local procedure PostWhseActivityLine(WhseActivHeader: Record "Warehouse Activity Header"; var WhseActivLine: Record "Warehouse Activity Line")
@@ -1048,7 +1055,12 @@ codeunit 7324 "Whse.-Activity-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPostWhseActivHeader(WhseActivHeader: Record "Warehouse Activity Header")
+    local procedure OnAfterPostWhseActivHeader(WhseActivHeader: Record "Warehouse Activity Header"; var PurchaseHeader: Record "Purchase Header"; var SalesHeader: Record "Sales Header"; var TransferHeader: Record "Transfer Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostSourceDocument(WarehouseActivityHeader: Record "Warehouse Activity Header"; var PurchaseHeader: Record "Purchase Header"; var SalesHeader: Record "Sales Header"; var TransferHeader: Record "Transfer Header"; PostingReference: Integer; HideDialog: Boolean)
     begin
     end;
 
@@ -1209,6 +1221,11 @@ codeunit 7324 "Whse.-Activity-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnAfterWhseActivLineSetFilters(var WhseActivHeader: Record "Warehouse Activity Header"; var WhseActivLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitSourceDocumentOnBeforeSalesLineLoopIteration(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; WarehouseActivityHeader: Record "Warehouse Activity Header"; var IsHandled: Boolean)
     begin
     end;
 

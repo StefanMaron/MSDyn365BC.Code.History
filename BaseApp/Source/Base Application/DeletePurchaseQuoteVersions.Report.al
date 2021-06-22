@@ -1,7 +1,11 @@
+#if not CLEAN19
 report 5177 "Delete Purchase Quote Versions"
 {
     Caption = 'Delete Archived Purchase Quote Versions';
     ProcessingOnly = true;
+    ObsoleteState = Pending;
+    ObsoleteTag = '19.0';
+    ObsoleteReason = 'Please use the retention policy module to clean up document archive records instead.';
 
     dataset
     {
@@ -55,4 +59,4 @@ report 5177 "Delete Purchase Quote Versions"
         Text000: Label '%1 archived versions deleted.', Comment = '%1=Count of deleted documents';
         DeletedDocuments: Integer;
 }
-
+#endif

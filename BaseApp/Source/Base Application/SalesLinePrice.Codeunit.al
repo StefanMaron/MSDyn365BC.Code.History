@@ -101,6 +101,7 @@ codeunit 7020 "Sales Line - Price" implements "Line With Price"
             else
                 AssetType := AssetType::" ";
         end;
+        OnAfterGetAssetType(SalesLine, AssetType);
     end;
 
     procedure CopyToBuffer(var PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt."): Boolean
@@ -291,6 +292,11 @@ codeunit 7020 "Sales Line - Price" implements "Line With Price"
             CampaignTargetGr.SetRange("No.", Contact."Company No.");
             Found := CampaignTargetGr.CopyTo(TempCampaignTargetGr);
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetAssetType(SalesLine: Record "Sales Line"; var AssetType: Enum "Price Asset Type")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

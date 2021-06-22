@@ -3,16 +3,22 @@ codeunit 1003 "Job Task-Indent"
     TableNo = "Job Task";
 
     trigger OnRun()
+    var
+        IsHandled: Boolean;
     begin
         TestField("Job No.");
-        if not
-           Confirm(
-             Text000 +
-             Text001 +
-             Text002 +
-             Text003, true)
-        then
-            exit;
+
+        IsHandled := false;
+        OnRunOnBeforeConfirm(Rec, IsHandled);
+        if not IsHandled then
+            if not
+               Confirm(
+                 Text000 +
+                 Text001 +
+                 Text002 +
+                 Text003, true)
+            then
+                exit;
 
         JobTask := Rec;
         Indent("Job No.");
@@ -69,6 +75,11 @@ codeunit 1003 "Job Task-Indent"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeJobTaskModify(var JobTask: Record "Job Task"; JobNo: Code[20]);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeConfirm(var JobTask: Record "Job Task"; var IsHandled: Boolean)
     begin
     end;
 }

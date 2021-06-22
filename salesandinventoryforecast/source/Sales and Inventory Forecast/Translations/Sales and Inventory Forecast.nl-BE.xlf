@@ -3,6 +3,12 @@
   <file datatype="xml" source-language="en-US" target-language="nl-BE" original="Sales and Inventory Forecast">
     <body>
       <group id="body">
+        <trans-unit id="Table 178869804 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>MS - Sales Forecast</source>
+          <target state="translated">MS - verkoopprognose</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 178869804 - Field 3192175264 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Date</source>
           <target state="translated">Datum</target>
@@ -21,6 +27,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast - Field Forecast Data - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 178869804 - Field 1530663077 - Property 62802879" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Base,Result</source>
+          <target state="translated">Basis,Resultaat</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast - Field Forecast Data - Property OptionCaption</note>
+        </trans-unit>
         <trans-unit id="Table 178869804 - Field 568743302 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Item No.</source>
           <target state="translated">Artikelnr.</target>
@@ -38,6 +50,12 @@
           <target state="translated">Verschil %</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast - Field Variance % - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 995188731 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>MS - Sales Forecast Parameter</source>
+          <target state="translated">MS - parameter van verkoopprognose</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast Parameter - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 995188731 - Field 1266072289 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Forecast Start Date</source>
@@ -74,6 +92,18 @@
           <target state="translated">Periodesoort van tijdreeks</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast Parameter - Field Time Series Period Type - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 995188731 - Field 1832902037 - Property 62802879" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Day,Week,Month,Quarter,Year</source>
+          <target state="translated">Dag,Week,Maand,Kwartaal,Jaar</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast Parameter - Field Time Series Period Type - Property OptionCaption</note>
+        </trans-unit>
+        <trans-unit id="Table 1767462481 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>MS - Sales Forecast Setup</source>
+          <target state="translated">MS - instelling van verkoopprognose</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast Setup - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1767462481 - NamedType 3726603109" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>It is not possible to have the Uri %1 in a field with a length of %2.</source>
@@ -135,6 +165,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast Setup - Field Period Type - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 1767462481 - Field 95864743 - Property 62802879" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Day,Week,Month,Quarter,Year</source>
+          <target state="translated">Dag,Week,Maand,Kwartaal,Jaar</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast Setup - Field Period Type - Property OptionCaption</note>
+        </trans-unit>
         <trans-unit id="Table 1767462481 - Field 1663593181 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Primary Key</source>
           <target state="translated">Primaire sleutel</target>
@@ -165,11 +201,52 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast Setup - Field Timeseries Model - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 1767462481 - Field 2908512707 - Property 62802879" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>ARIMA,ETS,STL,ETS+ARIMA,ETS+STL,ALL,TBATS</source>
+          <target state="translated">ARIMA,ETS,STL,ETS+ARIMA,ETS+STL,ALL,TBATS</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast Setup - Field Timeseries Model - Property OptionCaption</note>
+        </trans-unit>
         <trans-unit id="Table 1767462481 - Field 1620293444 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Variance %</source>
           <target state="translated">Verschil %</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast Setup - Field Variance % - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2836764293 - Method 317383965" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>CalculateForecast</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Handler - Method CalculateForecast</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2836764293 - Method 2630670452" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>PrepareForecast</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Handler - Method PrepareForecast</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2836764293 - Method 4135588582" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SetItemLedgerEntryFilters</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Handler - Method SetItemLedgerEntryFilters</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2836764293 - Method 2361799179" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>ThrowStatusError</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Handler - Method ThrowStatusError</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2836764293 - Method 2774771308" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>UpdateSalesForecastItemList</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Handler - Method UpdateSalesForecastItemList</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2836764293 - Method 2015558932" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>OnAfterPrepareSalesInvData</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Handler - Method OnAfterPrepareSalesInvData</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2836764293 - Method 2850381696" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>OnAfterHasMinimumSIHistData</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Handler - Method OnAfterHasMinimumSIHistData</note>
         </trans-unit>
         <trans-unit id="Codeunit 2836764293 - NamedType 2569145044" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Failed to initialize the forecast method. Please, contact your system administrator.</source>
@@ -219,6 +296,31 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Handler - NamedType UpdateDialogTxt</note>
         </trans-unit>
+        <trans-unit id="Codeunit 3420482273 - Method 3728894414" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>CreatePurchaseLineAction</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Notifier - Method CreatePurchaseLineAction</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3420482273 - Method 1802891409" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>DeactivateNotification</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Notifier - Method DeactivateNotification</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3420482273 - Method 1653805360" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>CreateAndShowPurchaseInvoice</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Notifier - Method CreateAndShowPurchaseInvoice</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3420482273 - Method 2732367176" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>CreateAndShowPurchaseOrder</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Notifier - Method CreateAndShowPurchaseOrder</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3420482273 - Method 2152780346" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>GetNotificationGuid</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Notifier - Method GetNotificationGuid</note>
+        </trans-unit>
         <trans-unit id="Codeunit 3420482273 - NamedType 2614170639" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Add them to this document</source>
           <target state="translated">Artikelen aan dit document toevoegen</target>
@@ -248,6 +350,41 @@
           <target state="translated">U hebt artikelen die deze leverancier normaal gesproken levert, niet meer in voorraad.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Notifier - NamedType NotificationTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3659386448 - Method 3446239166" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>CreateJobQueueEntryAndOpenCard</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Scheduler - Method CreateJobQueueEntryAndOpenCard</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3659386448 - Method 574670273" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>CreateJobQueueEntry</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Scheduler - Method CreateJobQueueEntry</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3659386448 - Method 2434378494" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>RemoveScheduledTaskIfUserInactive</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Scheduler - Method RemoveScheduledTaskIfUserInactive</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3659386448 - Method 1021611758" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SetupScheduledForecasting</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Scheduler - Method SetupScheduledForecasting</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3659386448 - Method 1802891409" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>DeactivateNotification</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Scheduler - Method DeactivateNotification</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3659386448 - Method 1741752359" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>GetSetupNotificationID</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Scheduler - Method GetSetupNotificationID</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3659386448 - Method 4098687409" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>JobQueueEntryCreationInProcess</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Scheduler - Method JobQueueEntryCreationInProcess</note>
         </trans-unit>
         <trans-unit id="Codeunit 3659386448 - NamedType 3507565196" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Don't ask again</source>
@@ -446,6 +583,12 @@
           <target state="translated">Hiermee wordt de verkoopprognose voor dit artikel verwijderd</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast - Action Delete Sales Forecast - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3449274493 - Action 2008385294 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Delete Sales Forecast</source>
+          <target state="translated">Verkoopprognose verwijderen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast - Action Delete Sales Forecast - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3449274493 - Action 740439730 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>View or edit the setup for the forecast.</source>
@@ -716,6 +859,12 @@
           <target state="translated">Prognose bijwerken</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast Setup Card - Action Update Forecast - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 1089168795 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sales Forecast Query</source>
+          <target state="translated">Query van verkoopprognose</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query Sales Forecast Query - Property Caption</note>
         </trans-unit>
         <trans-unit id="PageExtension 2565734565 - Action 3452445781 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Forecast</source>

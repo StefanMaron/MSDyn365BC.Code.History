@@ -18,6 +18,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Current User Connector - NamedType CurrentUserTok</note>
         </trans-unit>
+        <trans-unit id="Page 1036501575 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Current User Email Account</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Current User Email Account - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 1036501575 - Control 1205826660 - Property 1968111052" size-unit="char" translate="yes" xml:space="preserve">
           <source>An email account of this type is already set up for you. You can only use one account at a time.</source>
           <note from="Developer" annotates="general" priority="2"></note>

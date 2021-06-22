@@ -508,6 +508,36 @@ page 7200 "CDS Connection Setup"
                     Page.RunModal(PAGE::"CDS Owning Team Roles");
                 end;
             }
+            action("Dataverse Integration User")
+            {
+                ApplicationArea = Suite;
+                Caption = 'Dataverse Integration User';
+                Image = UserSetup;
+                Promoted = true;
+                PromotedCategory = Report;
+                Enabled = "Is Enabled";
+                ToolTip = 'Open the Dataverse integration user.';
+
+                trigger OnAction()
+                begin
+                    CDSIntegrationImpl.ShowIntegrationUser(Rec);
+                end;
+            }
+            action("Dataverse Owning Team")
+            {
+                ApplicationArea = Suite;
+                Caption = 'Dataverse Owning Team';
+                Image = UserSetup;
+                Promoted = true;
+                PromotedCategory = Report;
+                Enabled = "Is Enabled";
+                ToolTip = 'Open the Dataverse owning team.';
+
+                trigger OnAction()
+                begin
+                    CDSIntegrationImpl.ShowOwningTeam(Rec);
+                end;
+            }
         }
         area(Navigation)
         {

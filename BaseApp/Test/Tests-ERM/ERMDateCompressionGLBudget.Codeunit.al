@@ -14,6 +14,7 @@ codeunit 134037 "ERM Date Compression GL Budget"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryERM: Codeunit "Library - ERM";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryFiscalYear: Codeunit "Library - Fiscal Year";
         IsInitialized: Boolean;
         CopyFromBudgetName: Code[10];
         FromBudgetEntryCount: Integer;
@@ -64,6 +65,18 @@ codeunit 134037 "ERM Date Compression GL Budget"
         DateCompressionScenario(DateComprRegister."Period Length"::Period);
     end;
 
+    local procedure AgeGLBudget(GLBudgetName: Code[10]; Year: Integer);
+    var
+        GLBudgetEntry: Record "G/L Budget Entry";
+    begin
+        GLBudgetEntry.SetRange("Budget Name", GLBudgetName);
+        if GLBudgetEntry.FindSet() then
+            repeat
+                GLBudgetEntry.Date := DMY2Date(Date2DMY(GLBudgetEntry.Date, 1), Date2DMY(GLBudgetEntry.Date, 2), Year);
+                GLBudgetEntry.Modify;
+            until GLBudgetEntry.Next() = 0;
+    end;
+
     local procedure DateCompressionScenario(PeriodLength: Option)
     var
         GLBudgetName: Record "G/L Budget Name";
@@ -85,6 +98,8 @@ codeunit 134037 "ERM Date Compression GL Budget"
         GLBudgetEntry: Record "G/L Budget Entry";
     begin
         RunCopyGLBudget(FromBudget, ToBudget, '', 1);
+
+        AgeGLBudget(ToBudget, Date2DMY(LibraryFiscalYear.GetFirstPostingDate(true), 3));
 
         GLBudgetEntry.SetRange("Budget Name", ToBudget);
         GLBudgetEntry.FindFirst;
@@ -216,6 +231,7 @@ codeunit 134037 "ERM Date Compression GL Budget"
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Date Compression GL Budget");
+        LibraryFiscalYear.CreateClosedAccountingPeriods();
         LibraryERMCountryData.CreateVATData;
 
         // Find a budget

@@ -3,6 +3,11 @@
   <file datatype="xml" source-language="en-US" target-language="en-US" original="Late Payment Prediction">
     <body>
       <group id="body">
+        <trans-unit id="Table 523664430 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>LP Machine Learning Setup</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table LP Machine Learning Setup - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 523664430 - NamedType 358560748" size-unit="char" translate="yes" xml:space="preserve">
           <source>Cannot use the model because it does not exist. Try training a new model.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -97,6 +102,11 @@
           <source>Use My Azure Subscription</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table LP Machine Learning Setup - Field Use My Model Credentials - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1189492157 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>LP ML Input Data</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table LP ML Input Data - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1189492157 - Field 1552632244 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Average Days Late</source>
@@ -557,6 +567,11 @@
           <source>Visualize Model</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page LP Machine Learning Setup - Action Visualize Model - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3534437048 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>LP Prediction FactBox</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page LP Prediction FactBox - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3534437048 - Control 3865998304 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the reliability of the late payment prediction. High is above 90%, Medium is between 80% and 90%, and Low is less than 80%.</source>

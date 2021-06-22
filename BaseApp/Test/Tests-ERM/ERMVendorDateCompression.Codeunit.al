@@ -20,7 +20,6 @@ codeunit 134033 "ERM Vendor Date Compression"
         CountError: Label 'No. of Entries must be %1 in %2.';
 
     [Test]
-    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure DateCompressionByWeek()
     var
@@ -47,7 +46,6 @@ codeunit 134033 "ERM Vendor Date Compression"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure DateCompressionByMonth()
     var
@@ -62,7 +60,6 @@ codeunit 134033 "ERM Vendor Date Compression"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure DateCompressionByYear()
     var
@@ -108,6 +105,7 @@ codeunit 134033 "ERM Vendor Date Compression"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateLocalData;
+        LibraryFiscalYear.CreateClosedAccountingPeriods();
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Vendor Date Compression");
@@ -121,7 +119,6 @@ codeunit 134033 "ERM Vendor Date Compression"
     begin
         // Setup: Close the Open Fiscal Year. Make Payment and Invoice entries for a Vendor from General Journal Line with same random
         // amount and Post them.
-        LibraryFiscalYear.CloseFiscalYear;
         NoOfLines := LibraryRandom.RandInt(5);
         CreateDocumentLine(GenJournalLine, VendorNo, NoOfLines, FirstPostingDate, Period);
         JnlLineAmount := NoOfLines * GenJournalLine.Amount;
@@ -240,14 +237,6 @@ codeunit 134033 "ERM Vendor Date Compression"
         Assert.AreEqual(
           JnlLinePaymentAmt, VendorLedgerEntryAmt, StrSubstNo(AmountError, VendorLedgerEntry.FieldCaption(Amount),
             JnlLinePaymentAmt, VendorLedgerEntry.TableCaption, VendorLedgerEntry.FieldCaption("Entry No."), VendorLedgerEntry."Entry No."));
-    end;
-
-    [ConfirmHandler]
-    [Scope('OnPrem')]
-    procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
-    begin
-        // Confirm Handler for Date Compression confirmation message.
-        Reply := true;
     end;
 }
 

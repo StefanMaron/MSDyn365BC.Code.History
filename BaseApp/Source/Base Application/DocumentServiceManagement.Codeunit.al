@@ -437,18 +437,24 @@ codeunit 9510 "Document Service Management"
         DocumentServiceRec: Record "Document Service";
         DocumentServiceCache: Record "Document Service Cache";
         GetTokenFromCache: Boolean;
+        CreateCache: Boolean;
         Token: Text;
     begin
         if DocumentServiceCache.FindFirst() then
             GetTokenFromCache := DocumentServiceCache."Use Cached Token"
         else begin
-            DocumentServiceRec.FindFirst();
-            CreateDocumentServiceCache(DocumentServiceCache, DocumentServiceRec, true);
             GetTokenFromCache := true;
+            CreateCache := true;
         end;
 
         GetAccessToken(Location, Token, GetTokenFromCache);
         Session.SetDocumentServiceToken(Token);
+
+        if CreateCache then begin
+            DocumentServiceRec.FindFirst();
+            CreateDocumentServiceCache(DocumentServiceCache, DocumentServiceRec, true);
+        end;
+
         if not DocumentServiceCache."Use Cached Token" then begin
             DocumentServiceCache."Use Cached Token" := true;
             DocumentServiceCache.Modify();

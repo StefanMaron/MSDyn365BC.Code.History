@@ -362,7 +362,7 @@ codeunit 1800 "Assisted Company Setup"
 
         CurrentGlobalLanguage := GLOBALLANGUAGE;
         NavApp.GetCurrentModuleInfo(Info);
-        GuidedExperience.InsertAssistedSetup(InitialCompanySetupTxt, CopyStr(InitialCompanySetupShortTitleTxt, 1, 50), InitialCompanySetupDescTxt, 3,
+        GuidedExperience.InsertAssistedSetup(InitialCompanySetupTxt, InitialCompanySetupShortTitleTxt, InitialCompanySetupDescTxt, 3,
             ObjectType::Page, Page::"Assisted Company Setup Wizard", AssistedSetupGroup::GettingStarted, '', VideoCategory::GettingStarted, InitialCompanySetupHelpTxt);
 
         GlobalLanguage(Language.GetDefaultApplicationLanguageId());

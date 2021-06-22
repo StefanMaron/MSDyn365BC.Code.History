@@ -55,8 +55,9 @@ report 99 "Delete Empty G/L Registers"
             var
                 ConfirmManagement: Codeunit "Confirm Management";
             begin
-                if not ConfirmManagement.GetResponseOrDefault(DeleteRegistersQst, true) then
-                    CurrReport.Break();
+                if not SkipConfirm then
+                    if not ConfirmManagement.GetResponseOrDefault(DeleteRegistersQst, true) then
+                        CurrReport.Break();
 
                 Window.Open(
                   Text001 +
@@ -100,5 +101,11 @@ report 99 "Delete Empty G/L Registers"
         NoOfDeleted: Integer;
         NoOfDeleted2: Integer;
         DeleteRegistersQst: Label 'Do you want to delete the registers?';
+        SkipConfirm: Boolean;
+
+    procedure SetSkipConfirm()
+    begin
+        SkipConfirm := true;
+    end;
 }
 

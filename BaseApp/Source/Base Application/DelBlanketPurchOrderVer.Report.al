@@ -1,7 +1,11 @@
+#if not CLEAN19
 report 5173 "Del. Blanket Purch. Order Ver."
 {
     Caption = 'Delete Archived Blanket Purchase Order Versions';
     ProcessingOnly = true;
+    ObsoleteState = Pending;
+    ObsoleteTag = '19.0';
+    ObsoleteReason = 'Please use the retention policy module to clean up document archive records instead.';
 
     dataset
     {
@@ -47,4 +51,4 @@ report 5173 "Del. Blanket Purch. Order Ver."
     var
         ArchivedVersionsDeletedMsg: Label 'Archived versions deleted.';
 }
-
+#endif

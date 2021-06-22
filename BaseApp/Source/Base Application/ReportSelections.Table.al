@@ -953,12 +953,11 @@
     procedure SaveAsDocumentAttachment(ReportUsage: Integer; RecordVariant: Variant; DocumentNo: Code[20]; AccountNo: Code[20]; ShowNotificationAction: Boolean)
     var
         TempAttachReportSelections: Record "Report Selections" temporary;
-        DocumentAttachment: Record "Document Attachment";
         DocumentAttachmentMgmt: Codeunit "Document Attachment Mgmt";
         TempBlob: Codeunit "Temp Blob";
         RecRef: RecordRef;
-        FileName: Text[250];
         NumberOfReportsAttached: Integer;
+        IsHandled: Boolean;
     begin
         RecRef.GETTABLE(RecordVariant);
         if not RecRef.Find() then
@@ -974,20 +973,37 @@
                         SaveReportAsPDF(
                             "Report ID", RecordVariant, "Custom Report Layout Code", "Report Selection Usage".FromInteger(ReportUsage)));
 
-                    CLEAR(DocumentAttachment);
-                    DocumentAttachment.InitFieldsFromRecRef(RecRef);
-                    DocumentAttachment."Document Flow Sales" := RecRef.Number() = Database::"Sales Header";
-                    DocumentAttachment."Document Flow Purchase" := RecRef.Number() = Database::"Purchase Header";
-                    TempAttachReportSelections.CalcFields("Report Caption");
-                    FileName :=
-                        DocumentAttachment.FindUniqueFileName(
-                            STRSUBSTNO('%1 %2 %3', TempAttachReportSelections."Report ID", TempAttachReportSelections."Report Caption", DocumentNo), 'pdf');
-                    DocumentAttachment.SaveAttachment(RecRef, FileName, TempBlob);
-                    NumberOfReportsAttached += 1;
+                    SaveDocumentAttachmentFromRecRef(RecRef, TempAttachReportSelections, DocumentNo, AccountNo, TempBlob, NumberOfReportsAttached);
+
                 end;
             until Next() = 0;
 
-        DocumentAttachmentMgmt.ShowNotification(RecordVariant, NumberOfReportsAttached, ShowNotificationAction)
+        IsHandled := false;
+        OnSaveAsDocumentAttachmentOnBeforeShowNotification(RecordVariant, NumberOfReportsAttached, ShowNotificationAction, IsHandled);
+        if not IsHandled then
+            DocumentAttachmentMgmt.ShowNotification(RecordVariant, NumberOfReportsAttached, ShowNotificationAction)
+    end;
+
+    local procedure SaveDocumentAttachmentFromRecRef(RecRef: RecordRef; var TempAttachReportSelections: Record "Report Selections"; DocumentNo: Code[20]; AccountNo: Code[20]; var TempBlob: Codeunit "Temp Blob"; var NumberOfReportsAttached: Integer)
+    var
+        DocumentAttachment: Record "Document Attachment";
+        ReportDistributionMgt: Codeunit "Report Distribution Management";
+        FileName: Text[250];
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSaveDocumentAttachmentFromRecRef(RecRef, TempAttachReportSelections, DocumentNo, AccountNo, TempBlob, IsHandled);
+        if IsHandled then
+            exit;
+        DocumentAttachment.InitFieldsFromRecRef(RecRef);
+        DocumentAttachment."Document Flow Sales" := RecRef.Number() = Database::"Sales Header";
+        DocumentAttachment."Document Flow Purchase" := RecRef.Number() = Database::"Purchase Header";
+        TempAttachReportSelections.CalcFields("Report Caption");
+        FileName :=
+            DocumentAttachment.FindUniqueFileName(
+                StrSubstNo('%1 %2 %3', TempAttachReportSelections."Report ID", ReportDistributionMgt.GetFullDocumentTypeText(RecRef), DocumentNo), 'pdf');
+        DocumentAttachment.SaveAttachment(RecRef, FileName, TempBlob);
+        NumberOfReportsAttached += 1;
     end;
 
     local procedure GetAccountTableId(DocumentTableId: Integer): Integer
@@ -1205,6 +1221,7 @@
             with TempAttachReportSelections do begin
                 OfficeAttachmentManager.IncrementCount(Count - 1);
                 repeat
+                    OnSendEmailDirectlyOnBeforeSendFileLoop(ReportUsage, RecordVariant, DocNo, DocName, DefaultEmailAddress, ShowDialog, TempAttachReportSelections, CustomReportSelection);
                     EmailAddress := CopyStr(
                         GetNextEmailAddressFromCustomReportSelection(CustomReportSelection, DefaultEmailAddress, Usage, Sequence),
                         1, MaxStrLen(EmailAddress));
@@ -1469,8 +1486,10 @@
 
         ReportLayoutSelectionLocal.SetTempLayoutSelected(LayoutCode);
         OnBeforeSaveReportAsPDF(ReportID, RecordVariant, LayoutCode, IsHandled, FilePath, ReportUsage, false, TempBlob);
-        if not IsHandled then
+        if not IsHandled then begin
             Report.SaveAsPdf(ReportID, FilePath, RecordVariant);
+            FileManagement.BLOBImportFromServerFile(TempBlob, FilePath);
+        end;
         OnAfterSaveReportAsPDF(ReportID, RecordVariant, LayoutCode, FilePath, false, TempBlob);
 
         ReportLayoutSelectionLocal.SetTempLayoutSelected('');
@@ -1929,6 +1948,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeSaveDocumentAttachmentFromRecRef(RecRef: RecordRef; var TempAttachReportSelections: Record "Report Selections"; DocumentNo: Code[20]; AccountNo: Code[20]; var TempBlob: Codeunit "Temp Blob"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePrintDocument(TempReportSelections: Record "Report Selections" temporary; IsGUI: Boolean; RecVarToPrint: Variant; var IsHandled: Boolean)
     begin
     end;
@@ -1964,6 +1988,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnSendEmailDirectlyOnBeforeSendFileLoop(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; DocNo: Code[20]; DocName: Text[150]; var DefaultEmailAddress: Text[250]; ShowDialog: Boolean; var TempAttachReportSelections: Record "Report Selections" temporary; var CustomReportSelection: Record "Custom Report Selection")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnSendEmailDirectlyOnBeforeSendFiles(ReportUsage: Integer; RecordVariant: Variant; var DefaultEmailAddress: Text[250]; var TempAttachReportSelections: Record "Report Selections" temporary; var CustomReportSelection: Record "Custom Report Selection")
     begin
     end;
@@ -1980,6 +2009,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnSendEmailToVendorOnAfterSetParameterString(var RecRef: RecordRef; var ParameterString: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSaveAsDocumentAttachmentOnBeforeShowNotification(RecordVariant: Variant; NumberOfReportsAttached: Integer; ShowNotificationAction: Boolean; var IsHandled: Boolean)
     begin
     end;
 

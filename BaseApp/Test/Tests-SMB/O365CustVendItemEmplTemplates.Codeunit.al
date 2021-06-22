@@ -2039,6 +2039,92 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CustomerTemplateApplyAddressFieldsUT()
+    var
+        Customer: Record Customer;
+        CustomerTempl: Record "Customer Templ.";
+        PostCode: Record "Post Code";
+        Currency: Record Currency;
+        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
+        CustVendItemEmplTemplates: Codeunit "Cust/Vend/Item/Empl Templates";
+    begin
+        // [SCENARIO 395533] Address fields should not be cleared by template if they are not empty
+        Initialize();
+        BindSubscription(CustVendItemEmplTemplates);
+        CustVendItemEmplTemplates.SetCustTemplateFeatureEnabled(true);
+
+        // [GIVEN] Customer template with empty address fields
+        LibraryTemplates.CreateCustomerTemplate(CustomerTempl);
+
+        // [GIVEN] Customer with filled "Post Code", "City" and "Country/Region Code"
+        LibrarySales.CreateCustomer(Customer);
+        LibraryERM.CreatePostCode(PostCode);
+        LibraryERM.CreateCurrency(Currency);
+        Customer."Post Code" := PostCode.Code;
+        Customer.City := PostCode.City;
+        Customer."Country/Region Code" := PostCode."Country/Region Code";
+        Customer.County := LibraryUtility.GenerateRandomText(MaxStrLen(Customer.County));
+        Customer."Language Code" := LibraryERM.GetAnyLanguageDifferentFromCurrent();
+        Customer."Currency Code" := Currency.Code;
+        Customer.Modify();
+
+        // [WHEN] Apply customer template
+        CustomerTemplMgt.ApplyCustomerTemplate(Customer, CustomerTempl);
+
+        // [THEN] "Post Code", "City" and "Country/Region Code" are not changed
+        Assert.AreEqual(PostCode.Code, Customer."Post Code", 'Wrong Post Code after apply template');
+        Assert.AreEqual(PostCode.City, Customer.City, 'Wrong City after apply template');
+        Assert.AreEqual(PostCode."Country/Region Code", Customer."Country/Region Code", 'Wrong Country after apply template');
+        Customer.TestField(County);
+        Customer.TestField("Language Code");
+        Customer.TestField("Currency Code");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VendorTemplateApplyAddressFieldsUT()
+    var
+        Vendor: Record Vendor;
+        VendorTempl: Record "Vendor Templ.";
+        PostCode: Record "Post Code";
+        Currency: Record Currency;
+        VendorTemplMgt: Codeunit "Vendor Templ. Mgt.";
+        CustVendItemEmplTemplates: Codeunit "Cust/Vend/Item/Empl Templates";
+    begin
+        // [SCENARIO 395533] Address fields should not be cleared by template if they are not empty
+        Initialize();
+        BindSubscription(CustVendItemEmplTemplates);
+        CustVendItemEmplTemplates.SetCustTemplateFeatureEnabled(true);
+
+        // [GIVEN] Vendor template with empty address fields
+        LibraryTemplates.CreateVendorTemplate(VendorTempl);
+
+        // [GIVEN] Vendor with filled "Post Code", "City" and "Country/Region Code"
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryERM.CreatePostCode(PostCode);
+        LibraryERM.CreateCurrency(Currency);
+        Vendor."Post Code" := PostCode.Code;
+        Vendor.City := PostCode.City;
+        Vendor."Country/Region Code" := PostCode."Country/Region Code";
+        Vendor.County := LibraryUtility.GenerateRandomText(MaxStrLen(Vendor.County));
+        Vendor."Language Code" := LibraryERM.GetAnyLanguageDifferentFromCurrent();
+        Vendor."Currency Code" := Currency.Code;
+        Vendor.Modify();
+
+        // [WHEN] Apply Vendor template
+        VendorTemplMgt.ApplyVendorTemplate(Vendor, VendorTempl);
+
+        // [THEN] "Post Code", "City" and "Country/Region Code" are not changed
+        Assert.AreEqual(PostCode.Code, Vendor."Post Code", 'Wrong Post Code after apply template');
+        Assert.AreEqual(PostCode.City, Vendor.City, 'Wrong City after apply template');
+        Assert.AreEqual(PostCode."Country/Region Code", Vendor."Country/Region Code", 'Wrong Country after apply template');
+        Vendor.TestField(County);
+        Vendor.TestField("Language Code");
+        Vendor.TestField("Currency Code");
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Cust/Vend/Item/Empl Templates");

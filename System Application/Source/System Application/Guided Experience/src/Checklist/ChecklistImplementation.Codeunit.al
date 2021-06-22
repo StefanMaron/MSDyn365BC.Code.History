@@ -221,6 +221,9 @@ codeunit 1993 "Checklist Implementation"
         UserName := ChangeVisibilityNotification.GetData('UserName');
         SetChecklistVisibility(UserName, true, UserPersonalization);
 
+        if UserPersonalization."Profile ID" = '' then
+            if UserPersonalization.Get(UserSecurityId()) then;
+
         GuidedExperienceImpl.AddCompanyNameDimension(Dimensions);
         GuidedExperienceImpl.AddRoleDimension(Dimensions, UserPersonalization);
         Session.LogMessage('0000EIS', UserResurfacedBannerLbl, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);

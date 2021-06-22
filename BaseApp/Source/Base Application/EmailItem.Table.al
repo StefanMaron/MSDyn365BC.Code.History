@@ -189,7 +189,6 @@ table 9500 "Email Item"
             ObsoleteReason = 'Replaced with method AddAttachment that accepts Streams.';
             ObsoleteTag = '17.2';
         }
-#if not CLEAN19
         field(33; "Source Table"; Integer)
         {
             Access = Internal;
@@ -206,7 +205,6 @@ table 9500 "Email Item"
             ObsoleteReason = 'Replaced with method AddSourceDocument.';
             ObsoleteTag = '18.1';
         }
-#endif
     }
 
     keys

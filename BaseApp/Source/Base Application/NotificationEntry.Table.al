@@ -105,6 +105,10 @@ table 1511 "Notification Entry"
 
     var
         DataTypeManagement: Codeunit "Data Type Management";
+        NotificationTelemetryCategoryTxt: Label 'Notifications', Locked = true;
+        NoRecipientTelemetryTxt: Label 'Recipient is not set, cannot create notification', Locked = true;
+        NoUserSetupTelemetryTxt: Label 'No User Setup, cannot create notification', Locked = true;
+        NoValidRecordTelemetryTxt: Label 'Not a valid record, cannot create notification', Locked = true;
 
 #if not CLEAN17
     [Obsolete('Replaced by CreateNoficicationEntry().', '17.0')]
@@ -127,13 +131,24 @@ table 1511 "Notification Entry"
         NotificationSchedule: Record "Notification Schedule";
         UserSetup: Record "User Setup";
         NewRecRef: RecordRef;
+        TelemetryDimensions: Dictionary of [Text, Text];
     begin
-        if RecipientUserID = '' then
+        TelemetryDimensions := GetTelemetryDimensions(NewType);
+
+        if RecipientUserID = '' then begin
+            Session.LogMessage('0000F6C', NoRecipientTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, TelemetryDimensions);
             exit;
-        if not UserSetup.Get(RecipientUserID) then
+        end;
+
+        if not UserSetup.Get(RecipientUserID) then begin
+            Session.LogMessage('0000F6D', NoUserSetupTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, TelemetryDimensions);
             exit;
-        if not DataTypeManagement.GetRecordRef(NewRecord, NewRecRef) then
+        end;
+
+        if not DataTypeManagement.GetRecordRef(NewRecord, NewRecRef) then begin
+            Session.LogMessage('0000F6E', NoValidRecordTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, TelemetryDimensions);
             exit;
+        end;
 
         if InsertRec(NewType, RecipientUserID, NewRecRef.RecordId, NewLinkTargetPage, NewCustomLink, NewSenderUserID) then
             NotificationSchedule.ScheduleNotification(Rec);
@@ -164,5 +179,10 @@ table 1511 "Notification Entry"
         end;
         exit(true);
     end;
-}
 
+    internal procedure GetTelemetryDimensions(NotificationEntryType: Enum "Notification Entry Type") Dimensions: Dictionary of [Text, Text]
+    begin
+        Dimensions.Add('Category', NotificationTelemetryCategoryTxt);
+        Dimensions.Add('NotificationEntryType', Format(NotificationEntryType.AsInteger()));
+    end;
+}

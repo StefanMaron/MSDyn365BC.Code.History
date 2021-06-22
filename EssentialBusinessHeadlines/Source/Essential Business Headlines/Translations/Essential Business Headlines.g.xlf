@@ -3,6 +3,11 @@
   <file datatype="xml" source-language="en-US" target-language="en-US" original="Essential Business Headlines">
     <body>
       <group id="body">
+        <trans-unit id="Table 3952093732 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Ess. Business Headline Per Usr</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Ess. Business Headline Per Usr - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 3952093732 - Field 2429433402 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Headline Computation Period</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -17,6 +22,11 @@
           <source>Headline Name</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Ess. Business Headline Per Usr - Field Headline Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3952093732 - Field 4254604467 - Property 62802879" size-unit="char" translate="yes" xml:space="preserve">
+          <source>MostPopularItem,BusiestResource,LargestSale,LargestOrder,SalesIncrease,TopCustomer,OpenVATReturn,OverdueVATReturn,RecentlyOverdueInvoices</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Ess. Business Headline Per Usr - Field Headline Name - Property OptionCaption</note>
         </trans-unit>
         <trans-unit id="Table 3952093732 - Field 148567781 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Headline Text</source>
@@ -37,6 +47,11 @@
           <source>VAT Return Period Record Id</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Ess. Business Headline Per Usr - Field VAT Return Period Record Id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 478926726 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Headline Details Per User</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Headline Details Per User - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 478926726 - Field 592951229 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Amount (LCY)</source>
@@ -62,6 +77,11 @@
           <source>Type</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Headline Details Per User - Field Type - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 478926726 - Field 1878130204 - Property 62802879" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Item,Resource,Customer</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Headline Details Per User - Field Type - Property OptionCaption</note>
         </trans-unit>
         <trans-unit id="Table 478926726 - Field 1920046521 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Unit of Measure</source>
@@ -143,10 +163,30 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Essential Bus. Headline Mgt. - NamedType VATReturnQualifierTxt</note>
         </trans-unit>
+        <trans-unit id="Page 3615731784 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Headline Details</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Headline Details - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 3615731784 - NamedType 3285233284" size-unit="char" translate="yes" xml:space="preserve">
           <source>Amount</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Headline Details - NamedType AmountCaptionLbl</note>
+        </trans-unit>
+        <trans-unit id="Query 3009275761 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Best Sold Item Headline</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query Best Sold Item Headline - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 608716126 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sales Increase Headline</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query Sales Increase Headline - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 1526214987 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Top Customer Headline</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query Top Customer Headline - Property Caption</note>
         </trans-unit>
       </group>
     </body>

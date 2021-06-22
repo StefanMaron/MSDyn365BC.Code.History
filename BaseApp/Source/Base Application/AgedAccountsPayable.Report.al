@@ -181,6 +181,7 @@ report 322 "Aged Accounts Payable"
                 begin
                     SetRange("Posting Date", EndingDate + 1, DMY2Date(31, 12, 9999));
                     CopyDimFiltersFromVendor("Vendor Ledger Entry");
+                    Vendor.CopyFilter("Currency Filter", "Currency Code");
                 end;
             }
             dataitem(OpenVendorLedgEntry; "Vendor Ledger Entry")
@@ -207,6 +208,7 @@ report 322 "Aged Accounts Payable"
                         SetRange("Date Filter", 0D, EndingDate);
                     end;
                     CopyDimFiltersFromVendor(OpenVendorLedgEntry);
+                    Vendor.CopyFilter("Currency Filter", "Currency Code");
                 end;
             }
             dataitem(CurrencyLoop; "Integer")

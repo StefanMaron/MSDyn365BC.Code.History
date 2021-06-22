@@ -21,6 +21,8 @@ codeunit 136402 "Resource Batch Jobs"
         EndingDateError: Label 'Ending Date must be specified.';
         ResourceRegisterError: Label 'Resource Register must be deleted for %1 %2 .';
         UnknownError: Label 'Unknown Error';
+        DateCompressionEndingDateErr: Label 'The end date %1 is not valid. You must keep at least %2 years uncompressed.', Comment = '%1 is a date in short date format, %2 is an integer';
+        EndingDateMissingErr: Label 'You must specify an ending date.';
 
     local procedure Initialize()
     var
@@ -138,17 +140,19 @@ codeunit 136402 "Resource Batch Jobs"
     end;
 
     [Test]
-    [HandlerFunctions('DateCompressResourceLedgerHandler,ConfirmMessageHandlerTRUE,DimensionSelectionHandler')]
+    [HandlerFunctions('DateCompressResourceLedgerHandler')]
     [Scope('OnPrem')]
     procedure DateCompressWithoutStartEndDate()
     var
         Resource: Record Resource;
+        NoOfUnCompressedYears: Integer;
     begin
         // Test Functionality of Date Compress Resource Ledger without Start date and End Date.
 
         // 1. Setup: Create Resource.
         Initialize;
         CreateResourceWithUnitPrice(Resource);
+        NoOfUnCompressedYears := 5;
 
         // 2. Exercise: Run Date Compress Resource Ledger report without start date and end date.
         StartDate := 0D;
@@ -157,7 +161,7 @@ codeunit 136402 "Resource Batch Jobs"
         asserterror DateCompressResourceJournal(Resource."No.");
 
         // 3. Verify: Check expected ERROR must be come for End date.
-        Assert.AreEqual(StrSubstNo(EndingDateError), GetLastErrorText, UnknownError);
+        Assert.ExpectedError(EndingDateMissingErr);
     end;
 
     [Test]
@@ -265,14 +269,14 @@ codeunit 136402 "Resource Batch Jobs"
         ResJournalLine: Record "Res. Journal Line";
         ResJournalTemplate: Record "Res. Journal Template";
     begin
-        LibraryFiscalYear.CreateFiscalYear;
-        StartDate := LibraryFiscalYear.GetLastPostingDate(true);
-        EndDate := LibraryFiscalYear.GetLastPostingDate(true);
+        LibraryFiscalYear.CreateClosedAccountingPeriods();
+        StartDate := DMY2Date(1, 1, Date2DMY(Today(), 3) - 6);
+        EndDate := CalcDate('<+CY>', StartDate);
 
         LibraryResource.CreateResourceJournalTemplate(ResJournalTemplate);
         LibraryResource.CreateResourceJournalBatch(ResJournalBatch, ResJournalTemplate.Name);
         LibraryResource.CreateResJournalLine(ResJournalLine, ResJournalTemplate.Name, ResJournalBatch.Name);
-        ResJournalLine.Validate("Posting Date", LibraryFiscalYear.GetLastPostingDate(true));
+        ResJournalLine.Validate("Posting Date", StartDate);
         ResJournalLine.Validate("Resource No.", ResourceNo);
         ResJournalLine.Validate(Quantity, LibraryRandom.RandDec(10, 2));  // Value is not important here.
         ResJournalLine.Modify(true);

@@ -1232,7 +1232,7 @@ codeunit 134123 "Price List Line UT"
         // [SCENARIO] Verify sournce in the line fails on inconsistent source: Applies-to No. is filled.
         Initialize();
         // [GIVEN] New price list line, where "Source Type"::"All Locations", "Source No." is 'X'
-        PriceListLine."Source Type" := "Price Source Type"::"All Locations";
+        PriceListLine."Source Type" := "Price Source Type"::Test_All_Locations;
         PriceListLine."Source No." := 'X';
 
         // [WHEN] Verify source
@@ -1251,7 +1251,7 @@ codeunit 134123 "Price List Line UT"
         // [SCENARIO] Verify sournce in the line fails on inconsistent source: Applies-to No. is blank.
         Initialize();
         // [GIVEN] New price list line, where "Source Type"::"Location", "Parent Source No." is 'X', "Source No." is <blank>
-        PriceListLine."Source Type" := "Price Source Type"::Location;
+        PriceListLine."Source Type" := "Price Source Type"::Test_Location;
         PriceListLine."Parent Source No." := 'X';
         PriceListLine."Source No." := '';
 
@@ -1271,7 +1271,7 @@ codeunit 134123 "Price List Line UT"
         // [SCENARIO] Verify sournce in the line fails on inconsistent source: Applies-to Parent No. is filled.
         Initialize();
         // [GIVEN] New price list line, where "Source Type"::"All Locations", "Parent Source No." is 'X'
-        PriceListLine."Source Type" := "Price Source Type"::"All Locations";
+        PriceListLine."Source Type" := "Price Source Type"::Test_All_Locations;
         PriceListLine."Parent Source No." := 'X';
 
         // [WHEN] Verify source
@@ -1290,7 +1290,7 @@ codeunit 134123 "Price List Line UT"
         // [SCENARIO] Verify sournce in the line fails on inconsistent source: Applies-to Parent No. is blank.
         Initialize();
         // [GIVEN] New price list line, where "Source Type"::"Location", "Parent Source No." is <blank>
-        PriceListLine."Source Type" := "Price Source Type"::Location;
+        PriceListLine."Source Type" := "Price Source Type"::Test_Location;
         PriceListLine."Parent Source No." := '';
 
         // [WHEN] Verify source

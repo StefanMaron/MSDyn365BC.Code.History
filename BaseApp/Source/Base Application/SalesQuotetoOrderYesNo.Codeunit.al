@@ -3,10 +3,6 @@ codeunit 83 "Sales-Quote to Order (Yes/No)"
     TableNo = "Sales Header";
 
     trigger OnRun()
-    var
-        OfficeMgt: Codeunit "Office Management";
-        SalesOrder: Page "Sales Order";
-        OpenPage: Boolean;
     begin
         if IsOnRunHandled(Rec) then
             exit;
@@ -24,19 +20,9 @@ codeunit 83 "Sales-Quote to Order (Yes/No)"
         SalesQuoteToOrder.GetSalesOrderHeader(SalesHeader2);
         Commit();
 
-        OnAfterSalesQuoteToOrderRun(SalesHeader2);
+        OnAfterSalesQuoteToOrderRun(SalesHeader2, Rec);
 
-        if GuiAllowed then
-            if OfficeMgt.AttachAvailable then
-                OpenPage := true
-            else
-                OpenPage := Confirm(StrSubstNo(OpenNewInvoiceQst, SalesHeader2."No."), true);
-        if OpenPage then begin
-            Clear(SalesOrder);
-            SalesOrder.CheckNotificationsOnce;
-            SalesOrder.SetRecord(SalesHeader2);
-            SalesOrder.Run;
-        end;
+        ShowCreatedOrder();
     end;
 
     var
@@ -50,6 +36,31 @@ codeunit 83 "Sales-Quote to Order (Yes/No)"
         IsHandled := false;
         OnBeforeRun(SalesHeader, IsHandled);
         exit(IsHandled);
+    end;
+
+    local procedure ShowCreatedOrder()
+    var
+        OfficeMgt: Codeunit "Office Management";
+        SalesOrder: Page "Sales Order";
+        OpenPage: Boolean;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeShowCreatedOrder(SalesHeader2, IsHandled);
+        if IsHandled then
+            exit;
+
+        if GuiAllowed() then
+            if OfficeMgt.AttachAvailable then
+                OpenPage := true
+            else
+                OpenPage := Confirm(StrSubstNo(OpenNewInvoiceQst, SalesHeader2."No."), true);
+        if OpenPage then begin
+            Clear(SalesOrder);
+            SalesOrder.CheckNotificationsOnce;
+            SalesOrder.SetRecord(SalesHeader2);
+            SalesOrder.Run();
+        end;
     end;
 
     local procedure ConfirmConvertToOrder(SalesHeader: Record "Sales Header") Result: Boolean
@@ -69,7 +80,12 @@ codeunit 83 "Sales-Quote to Order (Yes/No)"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSalesQuoteToOrderRun(var SalesHeader2: Record "Sales Header")
+    local procedure OnAfterSalesQuoteToOrderRun(var SalesHeader2: Record "Sales Header"; var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowCreatedOrder(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 

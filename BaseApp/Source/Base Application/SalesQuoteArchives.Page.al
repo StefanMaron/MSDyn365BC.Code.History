@@ -249,6 +249,7 @@ page 9348 "Sales Quote Archives"
                 }
             }
         }
+#if not CLEAN19
         area(processing)
         {
             action("Delete Archived Versions")
@@ -258,8 +259,12 @@ page 9348 "Sales Quote Archives"
                 Image = Delete;
                 RunObject = Report "Delete Sales Quote Versions";
                 ToolTip = 'Find and delete archived sales quote versions when the original sales quote has been deleted.';
+                ObsoleteState = Pending;
+                ObsoleteTag = '19.0';
+                ObsoleteReason = 'Please use the retention policy module to clean up document archive records instead.';
             }
         }
+#endif
     }
 }
 

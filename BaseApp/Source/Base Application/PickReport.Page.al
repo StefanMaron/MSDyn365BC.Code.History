@@ -48,6 +48,12 @@ page 1561 "Pick Report"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Shared with All Users';
                     ToolTip = 'Specifies whether the report settings are available to all users or only the user assigned to the settings.';
+
+                    trigger OnValidate()
+                    begin
+                        if ObjectOptions."Public Visible" then
+                            ObjectOptions."User Name" := '';
+                    end;
                 }
             }
         }

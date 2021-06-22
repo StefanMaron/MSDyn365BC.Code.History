@@ -81,6 +81,7 @@ codeunit 7044 "Price Asset - Resource Group" implements "Price Asset"
         NewPriceAsset.Validate("Asset No.", ''); // blank means All Resources
         NewPriceAsset."Work Type Code" := PriceAsset."Work Type Code";
         PriceAssetList.Add(NewPriceAsset);
+        OnAfterPutRelatedAssetsToList(PriceAsset, PriceAssetList);
     end;
 
     procedure FillFromBuffer(var PriceAsset: Record "Price Asset"; PriceCalculationBuffer: Record "Price Calculation Buffer")
@@ -97,5 +98,10 @@ codeunit 7044 "Price Asset - Resource Group" implements "Price Asset"
         PriceAsset."Unit of Measure Code" := '';
         PriceAsset."Variant Code" := '';
         PriceAsset."Work Type Code" := '';
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPutRelatedAssetsToList(PriceAsset: Record "Price Asset"; var PriceAssetList: Codeunit "Price Asset List")
+    begin
     end;
 }

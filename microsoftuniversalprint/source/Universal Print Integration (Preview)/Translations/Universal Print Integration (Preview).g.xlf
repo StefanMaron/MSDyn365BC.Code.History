@@ -3,6 +3,11 @@
   <file datatype="xml" source-language="en-US" target-language="en-US" original="Universal Print Integration (Preview)">
     <body>
       <group id="body">
+        <trans-unit id="Table 4244855267 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Universal Print Share Buffer</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Universal Print Share Buffer - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 4244855267 - Field 3641927271 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Print Share ID</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -12,6 +17,11 @@
           <source>Print Share Name</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Universal Print Share Buffer - Field Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2804880794 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Universal Printer Settings</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Universal Printer Settings - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2804880794 - Field 1345097150 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Allow all users</source>
@@ -422,6 +432,11 @@
           <source>Print Share Name</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Universal Print Shares List - Control Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2804880794 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Universal Printer Settings</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Settings - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2804880794 - NamedType 757360088" size-unit="char" translate="yes" xml:space="preserve">
           <source>Learn more about how the data is handled.</source>

@@ -6,9 +6,10 @@ codeunit 5466 "Graph Mgt - In. Services Setup"
     end;
 
     var
-        BusinessSetupNameTxt: Label 'Integration Services Setup';
-        BusinessSetupDescriptionTxt: Label 'Define the data that you want to expose in integration services';
-        BusinessSetupKeywordsTxt: Label 'Integration,Service,Expose,Setup';
+        BusinessSetupTitleTxt: Label 'Set up integration services';
+        BusinessSetupShortTitleTxt: Label 'Integration services setup';
+        BusinessSetupDescriptionTxt: Label 'Specify the data that you want to expose in integration services.';
+        BusinessSetupKeywordsTxt: Label 'Integration, Service, Expose, Setup';
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Guided Experience", 'OnRegisterManualSetup', '', false, false)]
     local procedure HandleAPISetup(var Sender: Codeunit "Guided Experience")
@@ -18,7 +19,7 @@ codeunit 5466 "Graph Mgt - In. Services Setup"
     begin
         NavApp.GetCurrentModuleInfo(Info);
         Sender.InsertManualSetup(
-          BusinessSetupNameTxt, BusinessSetupNameTxt, BusinessSetupDescriptionTxt, 0, ObjectType::Page,
+          BusinessSetupTitleTxt, BusinessSetupShortTitleTxt, BusinessSetupDescriptionTxt, 5, ObjectType::Page,
           PAGE::"Integration Services Setup", ManualSetupCategory::Service, BusinessSetupKeywordsTxt);
     end;
 }

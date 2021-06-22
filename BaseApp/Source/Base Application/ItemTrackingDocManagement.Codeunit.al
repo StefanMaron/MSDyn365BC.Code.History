@@ -27,10 +27,12 @@ codeunit 6503 "Item Tracking Doc. Management"
         TempItemLedgEntry.SetTrackingFilterFromItemLedgEntry(TempItemLedgEntry2);
         TempItemLedgEntry.SetRange("Warranty Date", TempItemLedgEntry2."Warranty Date");
         TempItemLedgEntry.SetRange("Expiration Date", TempItemLedgEntry2."Expiration Date");
+        OnAddTempRecordToSetOnAfterTempItemLedgEntrySetFilters(TempItemLedgEntry, TempItemLedgEntry2);
         if TempItemLedgEntry.FindFirst() then begin
             TempItemLedgEntry.Quantity += TempItemLedgEntry2.Quantity;
             TempItemLedgEntry."Remaining Quantity" += TempItemLedgEntry2."Remaining Quantity";
             TempItemLedgEntry."Invoiced Quantity" += TempItemLedgEntry2."Invoiced Quantity";
+            OnAddTempRecordToSetOnBeforeTempItemLedgEntryModify(TempItemLedgEntry, TempItemLedgEntry2);
             TempItemLedgEntry.Modify();
         end else
             TempItemLedgEntry.Insert();
@@ -216,6 +218,7 @@ codeunit 6503 "Item Tracking Doc. Management"
         TempTrackingSpecBuffer.SetSourceFilter(Type, Subtype, ID, RefNo, true);
         TempTrackingSpecBuffer.SetSourceFilter(BatchName, ProdOrderLine);
         TempTrackingSpecBuffer.SetTrackingFilterFromItemTrackingSetup(ItemTrackingSetup);
+        OnItemTrackingExistsInBufferOnAfterTempTrackingSpecBufferSetFilters(TempTrackingSpecBuffer);
         if not TempTrackingSpecBuffer.IsEmpty() then begin
             TempTrackingSpecBuffer.FindFirst();
             exit(true);
@@ -879,6 +882,16 @@ codeunit 6503 "Item Tracking Doc. Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAddTempRecordToSetOnAfterTempItemLedgEntrySetFilters(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; TempItemLedgEntry2: Record "Item Ledger Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAddTempRecordToSetOnBeforeTempItemLedgEntryModify(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; TempItemLedgEntry2: Record "Item Ledger Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterAddTempRecordToSet(var TempItemLedgerEntry: Record "Item Ledger Entry" temporary; var TempItemLedgerEntry2: Record "Item Ledger Entry" temporary; SignFactor: Integer)
     begin
     end;
@@ -920,6 +933,11 @@ codeunit 6503 "Item Tracking Doc. Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateTrackingInformationOnAfterTrackingSpecLoop(TrackingSpecification: Record "Tracking Specification"; ItemTrackingCode: Record "Item Tracking Code"; Inbound: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnItemTrackingExistsInBufferOnAfterTempTrackingSpecBufferSetFilters(var TempTrackingSpecBuffer: Record "Tracking Specification" temporary)
     begin
     end;
 }

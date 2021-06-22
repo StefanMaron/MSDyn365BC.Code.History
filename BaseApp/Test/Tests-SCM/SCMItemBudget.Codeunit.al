@@ -225,7 +225,7 @@ codeunit 137401 "SCM Item Budget"
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Item Budget");
-
+        LibraryFiscalYear.CreateClosedAccountingPeriods();
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryApplicationArea.EnableItemBudgetSetup;
@@ -340,9 +340,10 @@ codeunit 137401 "SCM Item Budget"
     procedure DateCompItemBudgetEntriesHandler(var DateCompItemBudgetEntries: TestRequestPage "Date Comp. Item Budget Entries")
     var
         DateComprRegister: Record "Date Compr. Register";
+        DateCompression: Codeunit "Date Compression";
     begin
         DateCompItemBudgetEntries.StartingDate.SetValue(LibraryFiscalYear.GetFirstPostingDate(true));
-        DateCompItemBudgetEntries.EndingDate.SetValue(LibraryFiscalYear.GetLastPostingDate(true));
+        DateCompItemBudgetEntries.EndingDate.SetValue(DateCompression.CalcMaxEndDate());
         DateCompItemBudgetEntries.PeriodLength.SetValue(DateComprRegister."Period Length"::Week);
         DateCompItemBudgetEntries.PostingDescription.SetValue(PostingDescription);
         DateCompItemBudgetEntries.RetainDimensions.AssistEdit;

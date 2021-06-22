@@ -297,11 +297,14 @@ table 37 "Sales Line"
                 TestJobPlanningLine();
                 TestStatusOpen();
                 CheckAssocPurchOrder(FieldCaption("Location Code"));
-                if "Location Code" <> '' then
-                    if IsNonInventoriableItem then begin
-                        GetItem(Item);
-                        Item.TestField(Type, Item.Type::Inventory);
-                    end;
+                IsHandled := false;
+                OnBeforeUpdateLocationCode(Rec, IsHandled);
+                if not IsHandled then
+                    if "Location Code" <> '' then
+                        if IsNonInventoriableItem then begin
+                            GetItem(Item);
+                            Item.TestField(Type, Item.Type::Inventory);
+                        end;
                 if xRec."Location Code" <> "Location Code" then begin
                     if not FullQtyIsForAsmToOrder then begin
                         CalcFields("Reserved Qty. (Base)");
@@ -4190,6 +4193,8 @@ table 37 "Sales Line"
         GetPriceCalculationHandler(PriceType::Sale, SalesHeader, PriceCalculation);
         PriceCalculation.PickPrice();
         GetLineWithCalculatedPrice(PriceCalculation);
+
+        OnAfterPickPrice(Rec);
     end;
 
     procedure UpdateReferencePriceAndDiscount();
@@ -4605,9 +4610,6 @@ table 37 "Sales Line"
         if IsHandled then
             exit;
 
-        if Reserve = Reserve::Always then
-            exit;
-
         if "Shipment Date" = 0D then begin
             GetSalesHeader();
             if SalesHeader."Shipment Date" <> 0D then
@@ -4735,6 +4737,7 @@ table 37 "Sales Line"
             TestField("Shipment Date");
             ReservMgt.SetReservSource(Rec);
             ReservMgt.AutoReserve(FullAutoReservation, '', "Shipment Date", QtyToReserve, QtyToReserveBase);
+            CalcFields("Reserved Quantity");
             Find();
             SalesSetup.Get();
             if (not FullAutoReservation) and (not SalesSetup."Skip Manual Reservation") then begin
@@ -5015,30 +5018,45 @@ table 37 "Sales Line"
         ItemListPage: Page "Item List";
         SelectionFilter: Text;
     begin
+        OnBeforeSelectMultipleItems(Rec);
+
         if IsCreditDocType() then
             SelectionFilter := ItemListPage.SelectActiveItems
         else
             SelectionFilter := ItemListPage.SelectActiveItemsForSale;
         if SelectionFilter <> '' then
             AddItems(SelectionFilter);
+
+        OnAfterSelectMultipleItems(Rec);
     end;
 
     local procedure AddItems(SelectionFilter: Text)
     var
         Item: Record Item;
         SalesLine: Record "Sales Line";
-        LastSalesLine: Record "Sales Line";
+        IsHandled: Boolean;
     begin
-        OnBeforeAddItems(Rec, SelectionFilter);
+        IsHandled := false;
+        OnBeforeAddItems(Rec, SelectionFilter, IsHandled);
+        if IsHandled then
+            exit;
 
         InitNewLine(SalesLine);
         Item.SetFilter("No.", SelectionFilter);
         if Item.FindSet then
             repeat
+                AddItem(SalesLine, Item."No.");
+            until Item.Next() = 0;
+    end;
+
+    procedure AddItem(var SalesLine: Record "Sales Line"; ItemNo: Code[20])
+    var
+        LastSalesLine: Record "Sales Line";
+    begin
                 SalesLine.Init();
                 SalesLine."Line No." += 10000;
                 SalesLine.Validate(Type, Type::Item);
-                SalesLine.Validate("No.", Item."No.");
+        SalesLine.Validate("No.", ItemNo);
                 SalesLine.Insert(true);
 
                 if SalesLine.IsAsmToOrderRequired() then
@@ -5049,10 +5067,9 @@ table 37 "Sales Line"
                     SalesLine."Line No." := LastSalesLine."Line No."
                 end;
                 OnAfterAddItem(SalesLine, LastSalesLine);
-            until Item.Next() = 0;
     end;
 
-    local procedure InitNewLine(var NewSalesLine: Record "Sales Line")
+    procedure InitNewLine(var NewSalesLine: Record "Sales Line")
     var
         SalesLine: Record "Sales Line";
     begin
@@ -7364,8 +7381,13 @@ table 37 "Sales Line"
         if IsHandled then
             exit;
 
-        if not IsNonInventoriableItem then
-            "Location Code" := SalesHeader."Location Code";
+        IsHandled := false;
+        OnBeforeUpdateLocationCode(Rec, IsHandled);
+        if IsHandled then
+            "Location Code" := SalesHeader."Location Code"
+        else
+            if not IsNonInventoriableItem then
+                "Location Code" := SalesHeader."Location Code";
     end;
 
     local procedure InitDeferralCode()
@@ -7518,6 +7540,7 @@ table 37 "Sales Line"
         SalesSetup.TestField("Freight G/L Acc. No.");
 
         TestField("Document No.");
+        OnInsertFreightLineOnAfterCheckDocumentNo(SalesLine);
 
         SalesLine.SetRange("Document Type", "Document Type");
         SalesLine.SetRange("Document No.", "Document No.");
@@ -8112,6 +8135,11 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterPickPrice(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterShowNonStock(var SalesLine: Record "Sales Line"; NonstockItem: Record "Nonstock Item")
     begin
     end;
@@ -8137,7 +8165,7 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeAddItems(var SalesLine: Record "Sales Line"; SelectionFilter: Text)
+    local procedure OnBeforeAddItems(var SalesLine: Record "Sales Line"; SelectionFilter: Text; var IsHandled: Boolean)
     begin
     end;
 
@@ -8301,6 +8329,11 @@ table 37 "Sales Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeMaxQtyToInvoiceBase(SalesLine: Record "Sales Line"; var MaxQty: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSelectMultipleItems(var SalesLine: Record "Sales Line")
     begin
     end;
 
@@ -8616,6 +8649,11 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnInsertFreightLineOnAfterCheckDocumentNo(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnInitQtyToShip2OnBeforeCalcInvDiscToInvoice(var SalesLine: Record "Sales Line"; var xSalesLine: Record "Sales Line")
     begin
     end;
@@ -8747,6 +8785,11 @@ table 37 "Sales Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTestStatusOpen(var SalesLine: Record "Sales Line"; var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSelectMultipleItems(var SalesLine: Record "Sales Line")
     begin
     end;
 
@@ -9156,6 +9199,11 @@ table 37 "Sales Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnShowNonstockOnBeforeOpenCatalogItemList(var SalesLine: Record "Sales Line"; var NonstockItem: Record "Nonstock Item")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateLocationCode(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 }

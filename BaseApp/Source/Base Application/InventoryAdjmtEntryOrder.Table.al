@@ -189,6 +189,8 @@ table 5896 "Inventory Adjmt. Entry (Order)"
         "Single-Lvl Subcontrd Cost(ACY)" := RoundCost("Single-Lvl Subcontrd Cost(ACY)", ShareOfTotalCost, RndResACY, RndPrecACY);
         "Single-Lvl Cap. Ovhd Cost(ACY)" := RoundCost("Single-Lvl Cap. Ovhd Cost(ACY)", ShareOfTotalCost, RndResACY, RndPrecACY);
         "Single-Lvl Mfg. Ovhd Cost(ACY)" := RoundCost("Single-Lvl Mfg. Ovhd Cost(ACY)", ShareOfTotalCost, RndResACY, RndPrecACY);
+
+        OnAfterRoundAmounts(Rec, RndPrecLCY, RndPrecACY, ShareOfTotalCost);
     end;
 
     procedure CalcOvhdCost(OutputQty: Decimal)
@@ -352,6 +354,8 @@ table 5896 "Inventory Adjmt. Entry (Order)"
           "Single-Lvl Capacity Cost (ACY)" +
           "Single-Lvl Subcontrd Cost(ACY)" +
           "Single-Lvl Cap. Ovhd Cost(ACY)";
+
+        OnAfterCalcDirectCostFromCostShares(Rec);
     end;
 
     procedure CalcIndirectCostFromCostShares()
@@ -507,7 +511,17 @@ table 5896 "Inventory Adjmt. Entry (Order)"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcDirectCostFromCostShares(var InvtAdjmtEntryOrderRec: Record "Inventory Adjmt. Entry (Order)")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterGetSingleLevelCosts(var InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterRoundAmounts(var InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; RndPrecLCY: Decimal; RndPrecACY: Decimal; ShareOfTotalCost: Decimal)
     begin
     end;
 

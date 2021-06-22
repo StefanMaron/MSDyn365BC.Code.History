@@ -43,9 +43,6 @@ report 1495 "Delete Check Ledger Entries"
 
             trigger OnPreDataItem()
             begin
-                if not Confirm(Text000, false) then
-                    CurrReport.Break();
-
                 if EntrdDateComprReg."Ending Date" = 0D then
                     Error(Text003, EntrdDateComprReg.FieldCaption("Ending Date"));
 
@@ -88,6 +85,13 @@ report 1495 "Delete Check Ledger Entries"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Ending Date';
                         ToolTip = 'Specifies the last date of the period from which the check ledger entries are suggested. The batch job includes all entries from the starting date to this date.';
+
+                        trigger OnValidate()
+                        var
+                            DateCompression: Codeunit "Date Compression";
+                        begin
+                            DateCompression.VerifyDateCompressionDates(EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
+                        end;
                     }
                 }
             }
@@ -97,10 +101,22 @@ report 1495 "Delete Check Ledger Entries"
         {
         }
 
+        trigger OnQueryClosePage(CloseAction: Action): Boolean
+        var
+            ConfirmManagement: Codeunit "Confirm Management";
+        begin
+            if CloseAction = Action::Cancel then
+                exit;
+            if not ConfirmManagement.GetResponseOrDefault(CompressEntriesQst, true) then
+                CurrReport.Break();
+        end;
+
         trigger OnOpenPage()
+        var
+            DateCompression: Codeunit "Date Compression";
         begin
             if EntrdDateComprReg."Ending Date" = 0D then
-                EntrdDateComprReg."Ending Date" := Today;
+                EntrdDateComprReg."Ending Date" := DateCompression.CalcMaxEndDate();
         end;
     }
 
@@ -109,12 +125,16 @@ report 1495 "Delete Check Ledger Entries"
     }
 
     trigger OnPreReport()
+    var
+        DateCompression: Codeunit "Date Compression";
     begin
         CheckLedgEntryFilter := CopyStr("Check Ledger Entry".GetFilters, 1, MaxStrLen(DateComprReg.Filter));
+
+        DateCompression.VerifyDateCompressionDates(EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
     end;
 
     var
-        Text000: Label 'This batch job deletes entries. Therefore, it is important that you make a backup of the database before you run the batch job.\\Do you want to date compress the entries?';
+        CompressEntriesQst: Label 'This batch job deletes entries. We recommend that you create a backup of the database before you run the batch job.\\Do you want to continue?';
         Text003: Label '%1 must be specified.';
         Text004: Label 'Date compressing check ledger entries...\\Bank Account No.       #1##########\No. of entries deleted #4######';
         Text007: Label 'All records deleted';

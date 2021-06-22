@@ -1153,9 +1153,21 @@ codeunit 1521 "Workflow Response Handling"
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
+        ApprovalEntry: Record "Approval Entry";
         RecRef: RecordRef;
     begin
-        PurchaseHeader := VariantRecord;
+        RecRef.GetTable(VariantRecord);
+
+        case RecRef.Number of
+            DATABASE::"Approval Entry":
+                begin
+                    ApprovalEntry := VariantRecord;
+                    RecRef := ApprovalEntry."Record ID to Approve".GetRecord();
+                    RecRef.SetTable(PurchaseHeader);
+                end;
+            Database::"Purchase Header":
+                PurchaseHeader := VariantRecord;
+        end;
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange("Over-Receipt Approval Status", PurchaseLine."Over-Receipt Approval Status"::Pending);

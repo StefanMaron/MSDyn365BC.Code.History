@@ -849,7 +849,13 @@ table 5092 Opportunity
     var
         CustTemplate: Record "Customer Templ.";
         CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetNewCustomerTemplateCode(Cont, CustTemplateCode, IsHandled);
+        if IsHandled then
+            exit(CustTemplateCode);
+
         if GuiAllowed then begin
             CustTemplateCode := Cont.ChooseNewCustomerTemplate();
             if CustTemplateCode <> '' then
@@ -1193,6 +1199,11 @@ table 5092 Opportunity
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterInsertOpportunity(var Opportunity: Record Opportunity)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeGetNewCustomerTemplateCode(Cont: Record Contact; var CustTemplateCode: Code[20]; var IsHandled: Boolean)
     begin
     end;
 

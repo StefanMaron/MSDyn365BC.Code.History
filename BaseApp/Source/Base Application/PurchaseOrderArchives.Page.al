@@ -278,6 +278,7 @@ page 9347 "Purchase Order Archives"
                 }
             }
         }
+#if not CLEAN19
         area(processing)
         {
             action("Delete Order Versions")
@@ -287,8 +288,12 @@ page 9347 "Purchase Order Archives"
                 Image = Delete;
                 RunObject = Report "Delete Purchase Order Versions";
                 ToolTip = 'Find and delete order versions.';
+                ObsoleteState = Pending;
+                ObsoleteTag = '19.0';
+                ObsoleteReason = 'Please use the retention policy module to clean up document archive records instead.';
             }
         }
+#endif
     }
 
     trigger OnOpenPage()

@@ -3,11 +3,41 @@
   <file datatype="xml" source-language="en-US" target-language="nb-NO" original="_Exclude_APIV2_">
     <body>
       <group id="body">
+        <trans-unit id="Codeunit 3820070423 - Method 3333644984" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>CreateNewUsersFromAzureADInBackground</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Aut. Create New Users - Method CreateNewUsersFromAzureADInBackground</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3820070423 - Method 766640664" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>IsJobScheduled</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Aut. Create New Users - Method IsJobScheduled</note>
+        </trans-unit>
         <trans-unit id="Codeunit 3820070423 - NamedType 2290365638" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Create new users from Azure AD API job</source>
           <target state="translated">Opprett nye brukere fra Azure AD API-prosjekt</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Aut. Create New Users - NamedType JobQueueDescriptionLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4011536744 - Method 3758819518" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>CreateAndScheduleBackgroundJob</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Job Queue Management - Method CreateAndScheduleBackgroundJob</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4011536744 - Method 3169164124" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>IsJobScheduled</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Job Queue Management - Method IsJobScheduled</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1345440638 - Method 623035405" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SendCreditMemo</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Send Sales Document - Method SendCreditMemo</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1345440638 - Method 245949867" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SendQuote</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Send Sales Document - Method SendQuote</note>
         </trans-unit>
         <trans-unit id="Codeunit 1345440638 - NamedType 3903114897" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Thank you for your business. Your %1 has been cancelled.</source>
@@ -38,6 +68,12 @@
           <target state="translated">Legg til minst én linjevare i dokumentet.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Send Sales Document - NamedType ThereIsNothingToSellErr</note>
+        </trans-unit>
+        <trans-unit id="Page 3262323309 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Accounts</source>
+          <target state="translated">APIV2 – Konti</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Accounts - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3262323309 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Account</source>
@@ -104,6 +140,12 @@
           <target state="translated">Underkategori</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Accounts - Control subCategory - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1765811633 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Aged AP</source>
+          <target state="translated">APIV2 – Aldersfordelt AP</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aged AP - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1765811633 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Aged Accounts Payable</source>
@@ -183,6 +225,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aged AP - Control vendorNumber - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 490418399 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Aged AR</source>
+          <target state="translated">APIV2 – Aldersfordelt AR</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aged AR - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 490418399 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Aged Accounts Receivable</source>
           <target state="translated">Aldersfordelt saldoliste – kunde</target>
@@ -260,6 +308,12 @@
           <target state="translated">Periodelengde</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aged AR - Control periodLengthFilter - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2708256709 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Apply Vendor Entries</source>
+          <target state="translated">APIV2 – Utlign levrd.poster</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Apply Vendor Entries - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2708256709 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Apply Vendor Entry</source>
@@ -345,6 +399,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Apply Vendor Entries - Control vendorNumber - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 3383613133 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Attachments</source>
+          <target state="translated">APIV2 – Vedlegg</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Attachments - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 3383613133 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Attachment</source>
           <target state="translated">Vedlegg</target>
@@ -411,6 +471,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Attachments - Control parentType - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 3871833434 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Aut. Companies</source>
+          <target state="translated">APIV2 – Aut. selskaper</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Companies - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 3871833434 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Automation Company</source>
           <target state="translated">Automatiseringsselskap</target>
@@ -453,6 +519,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Companies - Control name - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 193372512 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Aut. Conf. Pack. File</source>
+          <target state="translated">APIV2 – Aut. konfig.pakkefil</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Conf. Pack. File - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 193372512 - Control 707985127 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Code</source>
           <target state="translated">Kode</target>
@@ -465,6 +537,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Conf. Pack. File - Control content - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 3600047326 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Aut. Config. Packages</source>
+          <target state="translated">APIV2 – Aut. konfig.pakker</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Config. Packages - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 3600047326 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Configuration Package</source>
           <target state="translated">Konfigurasjonspakke</target>
@@ -476,6 +554,16 @@
           <target state="translated">Konfigurasjonspakker</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Config. Packages - Property EntitySetCaption</note>
+        </trans-unit>
+        <trans-unit id="Page 3600047326 - Method 2956438658" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Import</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Config. Packages - Method Import</note>
+        </trans-unit>
+        <trans-unit id="Page 3600047326 - Method 2377652117" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Apply</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Config. Packages - Method Apply</note>
         </trans-unit>
         <trans-unit id="Page 3600047326 - NamedType 767948417" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Cannot apply a package while import or apply is in progress.</source>
@@ -591,6 +679,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Config. Packages - Control productVersion - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 3822022967 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Aut. Extension Depl.</source>
+          <target state="translated">APIV2 – Aut. utvidelsesdistr.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Extension Depl. - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 3822022967 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Extension Deployment Status</source>
           <target state="translated">Status for utvidelsesdistribusjon</target>
@@ -645,6 +739,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Extension Depl. - Control status - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 981369751 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Aut. Extension Upload</source>
+          <target state="translated">APIV2 – Aut. utvidelsesopplast.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Extension Upload - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 981369751 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Extension Upload</source>
           <target state="translated">Last opp utvidelse</target>
@@ -656,6 +756,11 @@
           <target state="translated">Last opp utvidelse</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Extension Upload - Property EntitySetCaption</note>
+        </trans-unit>
+        <trans-unit id="Page 981369751 - Method 1686785322" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Upload</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Extension Upload - Method Upload</note>
         </trans-unit>
         <trans-unit id="Page 981369751 - NamedType 594844556" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Extension content is empty</source>
@@ -681,6 +786,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Extension Upload - Control systemId - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 1323652375 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Aut. Extensions</source>
+          <target state="translated">APIV2 – Aut. utvidelser</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Extensions - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 1323652375 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Extension</source>
           <target state="translated">Utvidelse</target>
@@ -692,6 +803,21 @@
           <target state="translated">Utvidelser</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Extensions - Property EntitySetCaption</note>
+        </trans-unit>
+        <trans-unit id="Page 1323652375 - Method 1183212613" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>install</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Extensions - Method install</note>
+        </trans-unit>
+        <trans-unit id="Page 1323652375 - Method 1065785315" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>uninstall</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Extensions - Method uninstall</note>
+        </trans-unit>
+        <trans-unit id="Page 1323652375 - Method 4190107209" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>uninstallAndDeleteExtensionData</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Extensions - Method uninstallAndDeleteExtensionData</note>
         </trans-unit>
         <trans-unit id="Page 1323652375 - NamedType 2453902129" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The extension %1 is already installed.</source>
@@ -765,6 +891,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Extensions - Control versionRevision - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 270562431 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Aut. Permission Sets</source>
+          <target state="translated">APIV2 – Aut. tillatelsessett</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Permission Sets - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 270562431 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Permission Set</source>
           <target state="translated">Tillatelsessett</target>
@@ -806,6 +938,12 @@
           <target state="translated">Omfang</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Permission Sets - Control scope - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 230770102 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Aut. Scheduled Jobs</source>
+          <target state="translated">APIV2 – Aut. planlagte prosjekter</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Scheduled Jobs - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 230770102 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Scheduled Job</source>
@@ -861,6 +999,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Scheduled Jobs - Control status - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 2129153706 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Aut. User Gr. Members</source>
+          <target state="translated">APIV2 – Aut. brukergruppemedlemmer</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. User Gr. Members - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 2129153706 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>User Group Member</source>
           <target state="translated">Brukergruppemedlem</target>
@@ -909,6 +1053,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. User Gr. Members - Control userSecurityId - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 1158154494 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Aut. User Groups</source>
+          <target state="translated">APIV2 – Aut. brukergrupper</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. User Groups - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 1158154494 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>User Group</source>
           <target state="translated">Brukergruppe</target>
@@ -950,6 +1100,12 @@
           <target state="translated">ID</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. User Groups - Control id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2701267218 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Aut. User Permissions</source>
+          <target state="translated">APIV2 – Aut. brukertillatelser</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. User Permissions - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2701267218 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>User Permission</source>
@@ -1023,6 +1179,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. User Permissions - Control userSecurityId - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 1243228631 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Aut. Users</source>
+          <target state="translated">APIV2 – Aut. brukere</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Users - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 1243228631 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>User</source>
           <target state="translated">Bruker</target>
@@ -1034,6 +1196,16 @@
           <target state="translated">Brukere</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Users - Property EntitySetCaption</note>
+        </trans-unit>
+        <trans-unit id="Page 1243228631 - Method 160862419" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>GetNewUsersFromOffice365Async</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Users - Method GetNewUsersFromOffice365Async</note>
+        </trans-unit>
+        <trans-unit id="Page 1243228631 - Method 1138630540" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>GetNewUsersFromOffice365</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Users - Method GetNewUsersFromOffice365</note>
         </trans-unit>
         <trans-unit id="Page 1243228631 - NamedType 1932180400" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You cannot get new users while a task is already in progress.</source>
@@ -1089,6 +1261,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Users - Control userSecurityId - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 4215296100 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Balance Sheet</source>
+          <target state="translated">APIV2 – Balanse</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Balance Sheet - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 4215296100 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Balance Sheet</source>
           <target state="translated">Balanse</target>
@@ -1143,6 +1321,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Balance Sheet - Control lineType - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 3095745287 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Bank Accounts</source>
+          <target state="translated">APIV2 – Bankkonti</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Bank Accounts - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 3095745287 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Bank Account</source>
           <target state="translated">Bankkonto</target>
@@ -1172,6 +1356,12 @@
           <target state="translated">Nr.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Bank Accounts - Control number - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2291221921 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Cash Flow Statement</source>
+          <target state="translated">APIV2 – Kontantstrømutdrag</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Cash Flow Statement - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2291221921 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Cash Flow Statement</source>
@@ -1227,6 +1417,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Cash Flow Statement - Control netChange - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 2508781286 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Company Information</source>
+          <target state="translated">APIV2 – Selskapsopplysninger</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Company Information - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 2508781286 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Company Information</source>
           <target state="translated">Selskapsopplysninger</target>
@@ -1238,6 +1434,11 @@
           <target state="translated">Selskapsopplysninger</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Company Information - Property EntitySetCaption</note>
+        </trans-unit>
+        <trans-unit id="Page 2508781286 - Method 552923353" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>IsEnterpriseNumber</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Company Information - Method IsEnterpriseNumber</note>
         </trans-unit>
         <trans-unit id="Page 2508781286 - Control 1132957211 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Address Line 1</source>
@@ -1347,6 +1548,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Company Information - Control website - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 79567422 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Contacts</source>
+          <target state="translated">APIV2 – Kontakter</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Contacts - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 79567422 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Contact</source>
           <target state="translated">Kontakt</target>
@@ -1358,6 +1565,11 @@
           <target state="translated">Kontakter</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Contacts - Property EntitySetCaption</note>
+        </trans-unit>
+        <trans-unit id="Page 79567422 - Method 552923353" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>IsEnterpriseNumber</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Contacts - Method IsEnterpriseNumber</note>
         </trans-unit>
         <trans-unit id="Page 79567422 - NamedType 4261500932" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The blank "displayName" is not allowed.</source>
@@ -1509,6 +1721,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Contacts - Control website - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 1397900250 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Contacts Information</source>
+          <target state="translated">APIV2 – Kontaktopplysninger</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Contacts Information - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 1397900250 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Contact Information</source>
           <target state="translated">Kontaktopplysninger</target>
@@ -1569,6 +1787,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Contacts Information - Control relatedType - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 4000513861 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Countries/Regions</source>
+          <target state="translated">APIV2 – Land/områder</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Countries/Regions - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 4000513861 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Countries Region</source>
           <target state="translated">Land/område</target>
@@ -1610,6 +1834,12 @@
           <target state="translated">Siste endringsdato</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Countries/Regions - Control lastModifiedDateTime - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2273522380 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Currencies</source>
+          <target state="translated">APIV2 – Valutaer</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Currencies - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2273522380 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Currency</source>
@@ -1665,6 +1895,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Currencies - Control symbol - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 1301862717 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Cust Financial Details</source>
+          <target state="translated">APIV2 – Egendef. økonomisk informasjon</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Cust Financial Details - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 1301862717 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Customer Financial Detail</source>
           <target state="translated">Økonomisk informasjon for kunde</target>
@@ -1706,6 +1942,12 @@
           <target state="translated">Totalt salg eks. mva</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Cust Financial Details - Control totalSalesExcludingTax - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1983490561 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Cust. Paym. Journals</source>
+          <target state="translated">APIV2 – Egendef. betalingskladder</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Cust. Paym. Journals - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1983490561 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Customer Payment Journal</source>
@@ -1761,6 +2003,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Cust. Paym. Journals - Control lastModifiedDateTime - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 2390402837 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Cust. Return Reasons</source>
+          <target state="translated">APIV2 – Egendef. returårsaker</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Cust. Return Reasons - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 2390402837 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Customer Return Reason</source>
           <target state="translated">Returårsak for kunde</target>
@@ -1790,6 +2038,12 @@
           <target state="translated">ID</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Cust. Return Reasons - Control id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2757592336 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Customer Payments</source>
+          <target state="translated">APIV2 – Kundebetalinger</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Customer Payments - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2757592336 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Customer Payment</source>
@@ -1953,6 +2207,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Customer Payments - Control postingDate - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 1278155290 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Customers</source>
+          <target state="translated">APIV2 – Kunder</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Customers - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 1278155290 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Customer</source>
           <target state="translated">Kunde</target>
@@ -1964,6 +2224,11 @@
           <target state="translated">Kunder</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Customers - Property EntitySetCaption</note>
+        </trans-unit>
+        <trans-unit id="Page 1278155290 - Method 552923353" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>IsEnterpriseNumber</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Customers - Method IsEnterpriseNumber</note>
         </trans-unit>
         <trans-unit id="Page 1278155290 - NamedType 4191584408" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The blank "displayName" is not allowed.</source>
@@ -2187,6 +2452,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Customers - Control website - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 1039810403 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Default Dimensions</source>
+          <target state="translated">APIV2 – Standarddimensjoner</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Default Dimensions - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 1039810403 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Default Dimension</source>
           <target state="translated">Standarddimensjon</target>
@@ -2252,6 +2523,12 @@
           <target state="translated">Posteringsvalidering</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Default Dimensions - Control postingValidation - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2523640698 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Dimension Set Lines</source>
+          <target state="translated">APIV2 – Dimensjonssettlinjer</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Dimension Set Lines - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2523640698 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Dimension Set Line</source>
@@ -2397,6 +2674,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Dimension Set Lines - Control valueId - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 3816473662 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Dimensions</source>
+          <target state="translated">APIV2 – Dimensjoner</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Dimensions - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 3816473662 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Dimension</source>
           <target state="translated">Dimensjon</target>
@@ -2438,6 +2721,12 @@
           <target state="translated">Siste endringsdato</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Dimensions - Control lastModifiedDateTime - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 950291140 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Employees</source>
+          <target state="translated">APIV2 – Ansatte</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Employees - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 950291140 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Employee</source>
@@ -2607,6 +2896,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Employees - Control timeRegistrationEntries - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 2974691313 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - G/L Entries</source>
+          <target state="translated">APIV2 – Finansposter</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - G/L Entries - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 2974691313 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>General Ledger Entry</source>
           <target state="translated">Finanspost</target>
@@ -2697,6 +2992,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - G/L Entries - Control postingDate - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 3591290529 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Income Statement</source>
+          <target state="translated">APIV2 – Resultatregnskap</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Income Statement - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 3591290529 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Income Statement</source>
           <target state="translated">Resultatregnskap</target>
@@ -2751,6 +3052,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Income Statement - Control netChange - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 3336580910 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Item Categories</source>
+          <target state="translated">APIV2 – Varekategorier</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Item Categories - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 3336580910 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Item Category</source>
           <target state="translated">Varekategori</target>
@@ -2786,6 +3093,12 @@
           <target state="translated">Siste endringsdato</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Item Categories - Control lastModifiedDateTime - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 835543452 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Item Variants</source>
+          <target state="translated">APIV2 – Varevarianter</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Item Variants - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 835543452 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Item Variant</source>
@@ -2847,6 +3160,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Item Variants - Control itemNumber - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 1180930185 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Items</source>
+          <target state="translated">APIV2 – Varer</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Items - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 1180930185 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Item</source>
           <target state="translated">Vare</target>
@@ -2900,6 +3219,18 @@
           <target state="translated">Mva-gruppeverdiene samsvarer ikke med en bestemt mva-gruppe.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Items - NamedType TaxGroupValuesDontMatchErr</note>
+        </trans-unit>
+        <trans-unit id="Page 1180930185 - NamedType 3536423990" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The "baseUnitOfMeasureId" does not match to a Unit of Measure.</source>
+          <target state="translated">baseUnitOfMeasureId samsvarer ikke med en enhet.</target>
+          <note from="Developer" annotates="general" priority="2">baseUnitOfMeasureId is a field name and should not be translated.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Items - NamedType UnitOfMeasureIdDoesNotMatchAUnitOfMeasureErr</note>
+        </trans-unit>
+        <trans-unit id="Page 1180930185 - NamedType 1780786116" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The unit of measure values do not match to a specific Unit of Measure.</source>
+          <target state="translated">Enhetsverdiene samsvarer ikke med en bestemt enhet.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Items - NamedType UnitOfMeasureValuesDontMatchErr</note>
         </trans-unit>
         <trans-unit id="Page 1180930185 - Control 2571795694 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Unit Of Measure</source>
@@ -3027,6 +3358,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Items - Control unitPrice - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 3345245471 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Jobs</source>
+          <target state="translated">APIV2 – Prosjekter</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Jobs - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 3345245471 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Project</source>
           <target state="translated">Prosjekt</target>
@@ -3056,6 +3393,12 @@
           <target state="translated">Nr.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Jobs - Control number - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3494060223 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - JournalLines</source>
+          <target state="translated">APIV2 – Kladdelinjer</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - JournalLines - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3494060223 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Journal Line</source>
@@ -3225,6 +3568,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - JournalLines - Control taxCode - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 704928557 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Journals</source>
+          <target state="translated">APIV2 – Kladder</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Journals - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 704928557 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Journal</source>
           <target state="translated">Kladd</target>
@@ -3236,6 +3585,11 @@
           <target state="translated">Kladder</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Journals - Property EntitySetCaption</note>
+        </trans-unit>
+        <trans-unit id="Page 704928557 - Method 2826319982" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>post</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Journals - Method post</note>
         </trans-unit>
         <trans-unit id="Page 704928557 - NamedType 3903509543" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The General Journal Batch with ID %1 cannot be found.</source>
@@ -3290,6 +3644,12 @@
           <target state="translated">Dato/klokkeslett for siste endring</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Journals - Control lastModifiedDateTime - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2676188065 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Locations</source>
+          <target state="translated">APIV2 – Lokasjoner</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Locations - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2676188065 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Location</source>
@@ -3381,6 +3741,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Locations - Control website - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 4036526425 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Payment Methods</source>
+          <target state="translated">APIV2 – Betalingsmåter</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Payment Methods - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 4036526425 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Payment Method</source>
           <target state="translated">Betalingsmåte</target>
@@ -3416,6 +3782,12 @@
           <target state="translated">Siste endringsdato</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Payment Methods - Control lastModifiedDateTime - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 251039050 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Payment Terms</source>
+          <target state="translated">APIV2 – Betalingsbetingelser</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Payment Terms - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 251039050 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Payment Term</source>
@@ -3477,6 +3849,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Payment Terms - Control lastModifiedDateTime - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 922720640 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - PDF Document</source>
+          <target state="translated">APIV2 – PDF-dokument</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - PDF Document - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 922720640 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>PDF Document</source>
           <target state="translated">PDF-dokument</target>
@@ -3531,6 +3909,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - PDF Document - Control pdfDocumentContent - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 3476484666 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Pictures</source>
+          <target state="translated">APIV2 – Bilder</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Pictures - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 3476484666 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Picture</source>
           <target state="translated">Bilde</target>
@@ -3584,6 +3968,12 @@
           <target state="translated">Bredde</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Pictures - Control width - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 257135376 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Purch Receipt Lines</source>
+          <target state="translated">APIV2 – Mottakslinjer</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purch Receipt Lines - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 257135376 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Purchase Receipt Line</source>
@@ -3680,6 +4070,12 @@
           <target state="translated">Enhetskode</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purch Receipt Lines - Control unitOfMeasureCode - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2715273378 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Purchase Invoice Lines</source>
+          <target state="translated">APIV2 – Kjøpsfakturalinjer</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoice Lines - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2715273378 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Purchase Invoice Line</source>
@@ -3909,6 +4305,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoice Lines - Control unitOfMeasureId - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 4099491740 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Purchase Invoices</source>
+          <target state="translated">APIV2 – Kjøpsfakturaer</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoices - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 4099491740 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Purchase Invoice</source>
           <target state="translated">Kjøpsfaktura</target>
@@ -3920,6 +4322,11 @@
           <target state="translated">Kjøpsfakturaer</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoices - Property EntitySetCaption</note>
+        </trans-unit>
+        <trans-unit id="Page 4099491740 - Method 2826319982" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Post</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoices - Method Post</note>
         </trans-unit>
         <trans-unit id="Page 4099491740 - NamedType 3395634949" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>A "vendorNumber" or a "vendorID" must be provided.</source>
@@ -4275,6 +4682,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoices - Control vendorNumber - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 1779564587 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Purchase Order Lines</source>
+          <target state="translated">APIV2 – Bestillingslinjer</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 1779564587 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Purchase Order Line</source>
           <target state="translated">Bestillingslinje</target>
@@ -4526,6 +4939,12 @@
           <target state="translated">Enhets-ID</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - Control unitOfMeasureId - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Purchase Orders</source>
+          <target state="translated">APIV2 – Bestillinger</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 825103897 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Purchase Order</source>
@@ -4905,6 +5324,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control vendorNumber - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 3772100527 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Purchase Receipts</source>
+          <target state="translated">APIV2 – Kjøpsmottak</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Receipts - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 3772100527 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Purchase Receipt</source>
           <target state="translated">Kjøpsmottak</target>
@@ -4994,6 +5419,12 @@
           <target state="translated">Nr.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Receipts - Control number - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3772100527 - Control 3577402367 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Order No.</source>
+          <target state="translated">Bestillingsnr.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Receipts - Control orderNumber - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3772100527 - Control 2839400550 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Pay To Address Line 1</source>
@@ -5121,6 +5552,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Receipts - Control vendorNumber - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 1678353562 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Retained Earnings</source>
+          <target state="translated">APIV2 – Fri egenkapital</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Retained Earnings - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 1678353562 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Retained Earnings Statement</source>
           <target state="translated">Kontoutdrag for fri egenkapital</target>
@@ -5174,6 +5611,12 @@
           <target state="translated">Bevegelse</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Retained Earnings - Control netChange - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1420007888 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Sales Credit Mem Lines</source>
+          <target state="translated">APIV2 – Linjer i salgskreditnota</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Mem Lines - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1420007888 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sales Credit Memo Line</source>
@@ -5403,6 +5846,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Mem Lines - Control unitPrice - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 3006414751 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Sales Credit Memos</source>
+          <target state="translated">APIV2 – Salgskreditnotaer</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 3006414751 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sales Credit Memo</source>
           <target state="translated">Salgskreditnota</target>
@@ -5414,6 +5863,31 @@
           <target state="translated">Salgskreditnotaer</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - Property EntitySetCaption</note>
+        </trans-unit>
+        <trans-unit id="Page 3006414751 - Method 2826319982" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Post</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - Method Post</note>
+        </trans-unit>
+        <trans-unit id="Page 3006414751 - Method 1745666226" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>PostAndSend</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - Method PostAndSend</note>
+        </trans-unit>
+        <trans-unit id="Page 3006414751 - Method 3536390876" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Send</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - Method Send</note>
+        </trans-unit>
+        <trans-unit id="Page 3006414751 - Method 2965653801" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - Method Cancel</note>
+        </trans-unit>
+        <trans-unit id="Page 3006414751 - Method 1602697992" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>CancelAndSend</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - Method CancelAndSend</note>
         </trans-unit>
         <trans-unit id="Page 3006414751 - NamedType 2435911484" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The credit memo cannot be cancelled because it has already been canceled.</source>
@@ -5823,6 +6297,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - Control totalTaxAmount - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 2529413663 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Sales Invoice Lines</source>
+          <target state="translated">APIV2 – Salgsfakturalinjer</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoice Lines - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 2529413663 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sales Invoice Line</source>
           <target state="translated">Salgsfakturalinje</target>
@@ -6051,6 +6531,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoice Lines - Control unitPrice - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 3783002405 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Sales Invoices</source>
+          <target state="translated">APIV2 – Salgsfakturaer</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 3783002405 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sales Invoice</source>
           <target state="translated">Salgsfaktura</target>
@@ -6062,6 +6548,36 @@
           <target state="translated">Salgsfakturaer</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - Property EntitySetCaption</note>
+        </trans-unit>
+        <trans-unit id="Page 3783002405 - Method 2826319982" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Post</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - Method Post</note>
+        </trans-unit>
+        <trans-unit id="Page 3783002405 - Method 1745666226" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>PostAndSend</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - Method PostAndSend</note>
+        </trans-unit>
+        <trans-unit id="Page 3783002405 - Method 3536390876" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Send</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - Method Send</note>
+        </trans-unit>
+        <trans-unit id="Page 3783002405 - Method 2965653801" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Cancel</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - Method Cancel</note>
+        </trans-unit>
+        <trans-unit id="Page 3783002405 - Method 1602697992" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>CancelAndSend</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - Method CancelAndSend</note>
+        </trans-unit>
+        <trans-unit id="Page 3783002405 - Method 119245231" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>MakeCorrectiveCreditMemo</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - Method MakeCorrectiveCreditMemo</note>
         </trans-unit>
         <trans-unit id="Page 3783002405 - NamedType 2460998664" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The invoice cannot be canceled because it has already been canceled.</source>
@@ -6519,6 +7035,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - Control totalTaxAmount - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 957521806 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Sales Order Lines</source>
+          <target state="translated">APIV2 – Ordrelinjer</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Order Lines - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 957521806 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sales Order Line</source>
           <target state="translated">Ordrelinje</target>
@@ -6771,6 +7293,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Order Lines - Control unitPrice - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 48856144 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Sales Orders</source>
+          <target state="translated">APIV2 – Ordrer</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Orders - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 48856144 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sales Order</source>
           <target state="translated">Ordre</target>
@@ -6782,6 +7310,11 @@
           <target state="translated">Ordrer</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Orders - Property EntitySetCaption</note>
+        </trans-unit>
+        <trans-unit id="Page 48856144 - Method 845171118" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>ShipAndInvoice</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Orders - Method ShipAndInvoice</note>
         </trans-unit>
         <trans-unit id="Page 48856144 - NamedType 4220305845" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The bill-to customer values do not match to a specific Customer.</source>
@@ -7179,6 +7712,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Orders - Control totalTaxAmount - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 505573178 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Sales Quote Lines</source>
+          <target state="translated">APIV2 – Tilbudslinjer</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quote Lines - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 505573178 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sales Quote Line</source>
           <target state="translated">Tilbudslinje</target>
@@ -7395,6 +7934,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quote Lines - Control unitPrice - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 617149860 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Sales Quotes</source>
+          <target state="translated">APIV2 – Tilbud</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quotes - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 617149860 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sales Quote</source>
           <target state="translated">Tilbud</target>
@@ -7406,6 +7951,21 @@
           <target state="translated">Tilbud</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quotes - Property EntitySetCaption</note>
+        </trans-unit>
+        <trans-unit id="Page 617149860 - Method 1060152626" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>MakeInvoice</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quotes - Method MakeInvoice</note>
+        </trans-unit>
+        <trans-unit id="Page 617149860 - Method 3860688859" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>MakeOrder</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quotes - Method MakeOrder</note>
+        </trans-unit>
+        <trans-unit id="Page 617149860 - Method 3536390876" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Send</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quotes - Method Send</note>
         </trans-unit>
         <trans-unit id="Page 617149860 - NamedType 4220305845" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The bill-to customer values do not match to a specific Customer.</source>
@@ -7797,6 +8357,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quotes - Control validUntilDate - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 2511651920 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Sales Shipment Lines</source>
+          <target state="translated">APIV2 – Salgsleveringslinjer</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Shipment Lines - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 2511651920 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sales Shipment Line</source>
           <target state="translated">Salgsleveringslinje</target>
@@ -7898,6 +8464,12 @@
           <target state="translated">Salgspris</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Shipment Lines - Control unitPrice - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3546002718 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Sales Shipments</source>
+          <target state="translated">APIV2 – Salgsleveringer</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Shipments - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3546002718 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sales Shipment</source>
@@ -8163,6 +8735,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Shipments - Control shipToState - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 161664375 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Shipment Methods</source>
+          <target state="translated">APIV2 – Leveringsmåter</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Shipment Methods - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 161664375 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Shipment Method</source>
           <target state="translated">Leveringsmåte</target>
@@ -8198,6 +8776,12 @@
           <target state="translated">Siste endringsdato</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Shipment Methods - Control lastModifiedDateTime - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1395077076 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Tax Areas</source>
+          <target state="translated">APIV2 – Mva-områder</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Tax Areas - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1395077076 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Tax Area</source>
@@ -8241,6 +8825,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Tax Areas - Control taxType - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 114735500 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Tax Groups</source>
+          <target state="translated">APIV2 – Mva-grupper</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Tax Groups - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 114735500 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Tax Group</source>
           <target state="translated">Mva-gruppe</target>
@@ -8282,6 +8872,12 @@
           <target state="translated">Mva-type</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Tax Groups - Control taxType - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4020415616 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Time Registr. Entries</source>
+          <target state="translated">APIV2 – Tidsregistreringsposter</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Time Registr. Entries - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4020415616 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Time Registration Entry</source>
@@ -8451,6 +9047,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Time Registr. Entries - Control unitOfMeasureId - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 720133695 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Trial Balance</source>
+          <target state="translated">APIV2 – Råbalanse</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Trial Balance - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 720133695 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Trial Balance</source>
           <target state="translated">Råbalanse</target>
@@ -8517,6 +9119,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Trial Balance - Control totalDebit - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 3921797135 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Units of Measure</source>
+          <target state="translated">APIV2 – Enheter</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Units of Measure - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 3921797135 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Unit Of Measure</source>
           <target state="translated">Enhet</target>
@@ -8564,6 +9172,12 @@
           <target state="translated">Symbol</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Units of Measure - Control symbol - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4034971528 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Vendor Paym. Journals</source>
+          <target state="translated">APIV2 – Leverandørutbet.kladder</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendor Paym. Journals - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4034971528 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Vendor Payment Journal</source>
@@ -8618,6 +9232,12 @@
           <target state="translated">Leverandørbetalinger</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendor Paym. Journals - Control vendorPayments - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2253128152 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Vendor Payments</source>
+          <target state="translated">APIV2 – Leverandørbetalinger</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendor Payments - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2253128152 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Vendor Payment</source>
@@ -8787,6 +9407,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendor Payments - Control vendorNumber - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 2680707570 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Vendors</source>
+          <target state="translated">APIV2 – Leverandører</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendors - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 2680707570 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Vendor</source>
           <target state="translated">Leverandør</target>
@@ -8798,6 +9424,11 @@
           <target state="translated">Leverandører</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendors - Property EntitySetCaption</note>
+        </trans-unit>
+        <trans-unit id="Page 2680707570 - Method 552923353" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>IsEnterpriseNumber</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendors - Method IsEnterpriseNumber</note>
         </trans-unit>
         <trans-unit id="Page 2680707570 - NamedType 1805429782" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "currencyCode" does not match to a Currency.</source>
@@ -8985,6 +9616,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendors - Control website - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 3293418697 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 Dimension Values Entity</source>
+          <target state="translated">APIV2 – Enhet for dimensjonsverdier</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 Dimension Values Entity - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 3293418697 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Dimension Value</source>
           <target state="translated">Dimensjonsverdi</target>
@@ -9027,6 +9664,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 Dimension Values Entity - Control lastModifiedDateTime - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Query 1376762199 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Customer Sales</source>
+          <target state="translated">APIV2 – Kundesalg</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query APIV2 - Customer Sales - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Query 1376762199 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Customer Sale</source>
           <target state="translated">Kundesalg</target>
@@ -9068,6 +9711,12 @@
           <target state="translated">Navn</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Query APIV2 - Customer Sales - QueryColumn name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 190483135 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Vendor Purchases</source>
+          <target state="translated">APIV2 – Leverandørkjøp</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query APIV2 - Vendor Purchases - Property Caption</note>
         </trans-unit>
         <trans-unit id="Query 190483135 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Vendor Purchase</source>

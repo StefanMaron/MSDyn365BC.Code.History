@@ -40,6 +40,8 @@ codeunit 233 "Gen. Jnl.-B.Post"
             if not ConfirmManagement.GetResponseOrDefault(Text000, true) then
                 exit;
 
+            OnCodeOnBeforeFindGenJnlBatch(GenJnlBatch);
+
             Find('-');
             repeat
                 GenJnlLine.SetRange("Journal Template Name", "Journal Template Name");
@@ -90,6 +92,11 @@ codeunit 233 "Gen. Jnl.-B.Post"
                 Name := '';
             end;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforeFindGenJnlBatch(var GenJournalBatch: Record "Gen. Journal Batch")
+    begin
     end;
 }
 

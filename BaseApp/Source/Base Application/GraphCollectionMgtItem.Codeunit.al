@@ -59,22 +59,27 @@ codeunit 5470 "Graph Collection Mgt - Item"
 
     [Scope('Cloud')]
     procedure InsertItem(var Item: Record Item; var TempFieldSet: Record "Field" temporary)
-    var
-        GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
-        RecRef: RecordRef;
     begin
         If IsNullGuid(Item.SystemId) then
             Item.Insert(true)
         else
             Item.Insert(true, true);
 
+        ModifyItem(Item, TempFieldSet);
+    end;
+
+    [Scope('Cloud')]
+    procedure ModifyItem(var Item: Record Item; var TempFieldSet: Record "Field" temporary)
+    var
+        GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
+        RecRef: RecordRef;
+    begin
         RecRef.GetTable(Item);
         GraphMgtGeneralTools.ProcessNewRecordFromAPI(RecRef, TempFieldSet, Item."Last DateTime Modified");
         RecRef.SetTable(Item);
 
         Item.Modify(true);
     end;
-
 
     procedure ProcessComplexTypes(var Item: Record Item; BaseUOMJSON: Text)
     begin

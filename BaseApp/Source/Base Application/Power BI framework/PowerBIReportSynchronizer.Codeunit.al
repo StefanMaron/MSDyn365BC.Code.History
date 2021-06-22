@@ -23,12 +23,14 @@ codeunit 6325 "Power BI Report Synchronizer"
         PowerBIServiceMgt.SetIsRetryingUploads(false); // Backwards compatibility. Remove with SetIsRetryingUploads
 
         PowerBIServiceMgt.SetIsDeployingReports(true); // Backwards compatibility. Remove with SetIsDeployingReports
-        UploadDefaultReport();
+        UploadDefaultOOBReport();
+        UploadCustomerReports();
         PowerBIServiceMgt.SetIsDeployingReports(false); // Backwards compatibility. Remove with SetIsDeployingReports
 #else
         DeleteMarkedDefaultReports();
         RetryPartialUploadBatch();
-        UploadDefaultReport();
+        UploadDefaultOobReports();
+        UploadCustomerReports();
 #endif
 
         SelectDefaultReports();
@@ -40,7 +42,7 @@ codeunit 6325 "Power BI Report Synchronizer"
                 PowerBIServiceMgt.SynchronizeReportsInBackground();
     end;
 
-    local procedure UploadDefaultReport()
+    local procedure UploadDefaultOOBReport()
     var
         PageId: Text[50];
     begin
@@ -52,7 +54,7 @@ codeunit 6325 "Power BI Report Synchronizer"
             exit;
         end;
 
-        UploadDefaultReportForContext(PageId);
+        UploadOOBReportForContext(PageId);
     end;
 
     local procedure DeleteMarkedDefaultReports()
@@ -275,10 +277,9 @@ codeunit 6325 "Power BI Report Synchronizer"
         exit(PowerBIUserConfiguration."Page ID");
     end;
 
-    local procedure UploadDefaultReportForContext(Context: Text[50])
+    local procedure UploadOobReportForContext(Context: Text[50])
     var
         PowerBIBlob: Record "Power BI Blob";
-        PowerBICustomerReports: Record "Power BI Customer Reports";
         ApiRequest: DotNet ImportReportRequest;
         ApiRequestList: DotNet ImportReportRequestList;
         BlobStream: InStream;
@@ -308,6 +309,29 @@ codeunit 6325 "Power BI Report Synchronizer"
                 ApiRequest := ApiRequest.ImportReportRequest(PowerBIBlob.Id, BlobStream, MakeReportNameForUpload(PowerBIBlob.Name, EnvName), EnvName, NeedsOverwrite);
                 ApiRequestList.Add(ApiRequest);
             end;
+
+        UploadFromApiRequestList(ApiRequestList, EnvName);
+    end;
+
+    local procedure UploadCustomerReports()
+    var
+        PowerBICustomerReports: Record "Power BI Customer Reports";
+        ApiRequest: DotNet ImportReportRequest;
+        ApiRequestList: DotNet ImportReportRequestList;
+        BlobStream: InStream;
+        ReportsToUpload: Dictionary of [Guid, Boolean];
+        BlobId: Guid;
+        EnvName: Text;
+        NeedsOverwrite: Boolean;
+    begin
+        if not PowerBIServiceMgt.IsPBIServiceAvailable() then
+            exit;
+
+        // Prepare API Request List. 
+        // Note: this is not currently refactored to a separate function because otherwise the stream variable would fall out
+        // of scope and be disposed before being used. TODO this might cause issue in case of multiple reports uploaded at the same time.
+        ApiRequestList := ApiRequestList.ImportReportRequestList();
+        EnvName := EnvironmentInformation.GetEnvironmentName();
 
         // Customer
         PowerBICustomerReports.SetAutoCalcFields("Blob File");

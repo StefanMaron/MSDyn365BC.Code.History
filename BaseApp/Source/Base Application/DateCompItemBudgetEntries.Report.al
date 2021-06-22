@@ -95,11 +95,6 @@ report 7139 "Date Comp. Item Budget Entries"
             var
                 GLSetup: Record "General Ledger Setup";
             begin
-                if not
-                   Confirm(Text000, false)
-                then
-                    CurrReport.Break();
-
                 if EntrdDateComprReg."Ending Date" = 0D then
                     Error(
                       Text002,
@@ -112,7 +107,8 @@ report 7139 "Date Comp. Item Budget Entries"
 
                 if AnalysisView.FindFirst then begin
                     AnalysisView.CheckDimensionsAreRetained(3, REPORT::"Date Comp. Item Budget Entries", true);
-                    AnalysisView.CheckViewsAreUpdated;
+                    if not SkipAnalysisViewUpdateCheck then
+                        AnalysisView.CheckViewsAreUpdated;
                     Commit();
                 end;
 
@@ -180,6 +176,13 @@ report 7139 "Date Comp. Item Budget Entries"
                         Caption = 'Ending Date';
                         ClosingDates = true;
                         ToolTip = 'Specifies the end date.';
+
+                        trigger OnValidate()
+                        var
+                            DateCompression: Codeunit "Date Compression";
+                        begin
+                            DateCompression.VerifyDateCompressionDates(EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
+                        end;
                     }
                     field(PeriodLength; EntrdDateComprReg."Period Length")
                     {
@@ -214,6 +217,16 @@ report 7139 "Date Comp. Item Budget Entries"
         {
         }
 
+        trigger OnQueryClosePage(CloseAction: Action): Boolean
+        var
+            ConfirmManagement: Codeunit "Confirm Management";
+        begin
+            if CloseAction = Action::Cancel then
+                exit;
+            if not ConfirmManagement.GetResponseOrDefault(CompressEntriesQst, true) then
+                CurrReport.Break();
+        end;
+
         trigger OnOpenPage()
         begin
             InitializeVariables;
@@ -225,14 +238,24 @@ report 7139 "Date Comp. Item Budget Entries"
     }
 
     trigger OnPreReport()
+    var
+        DateCompression: Codeunit "Date Compression";
     begin
         DimSelectionBuf.CompareDimText(
           3, REPORT::"Date Comp. Item Budget Entries", '', RetainDimText, Text009);
         ItemBudgetEntryFilter := "Item Budget Entry".GetFilters;
+
+        DateCompression.VerifyDateCompressionDates(EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
+        LogStartTelemetryMessage();
+    end;
+
+    trigger OnPostReport()
+    begin
+        LogEndTelemetryMessage();
     end;
 
     var
-        Text000: Label 'This batch job deletes entries.\\Do you want to date compress the entries?';
+        CompressEntriesQst: Label 'This batch job deletes entries. We recommend that you create a backup of the database before you run the batch job.\\Do you want to continue?';
         Text002: Label '%1 must be specified.';
         Text003: Label 'Date compressing Item budget entries...\\';
         Text004: Label 'Budget Name          #1##########\';
@@ -268,6 +291,9 @@ report 7139 "Date Comp. Item Budget Entries"
         RetainDimText: Text[250];
         AnalysisAreaSelection: Enum "Analysis Area Type";
         ItemBudgetEntryFilter: Text;
+        SkipAnalysisViewUpdateCheck: Boolean;
+        StartDateCompressionTelemetryMsg: Label 'Running date compression report %1 %2.', Locked = true;
+        EndDateCompressionTelemetryMsg: Label 'Completed date compression report %1 %2.', Locked = true;
 
     local procedure InitRegisters()
     begin
@@ -414,7 +440,16 @@ report 7139 "Date Comp. Item Budget Entries"
         NewItemBudgetEntry.Insert();
     end;
 
-    procedure InitializeRequest(AnalAreaSelection: Option; StartDate: Date; EndDate: Date; PeriodLength: Option; Desc: Text[50])
+#if not CLEAN19
+    [Obsolete('Use the overload with RetainDimensions instead', '19.0')]
+    procedure InitializeRequest(AnalAreaSelection: Option; StartDate: Date; EndDate: Date; PeriodLength: Option; Desc: Text[100])
+    begin
+        RetainDimText := DimSelectionBuf.GetDimSelectionText(3, REPORT::"Date Comp. Item Budget Entries", '');
+        InitializeRequest(AnalAreaSelection, StartDate, EndDate, PeriodLength, Desc, RetainDimText);
+    end;
+#endif
+
+    procedure InitializeRequest(AnalAreaSelection: Option; StartDate: Date; EndDate: Date; PeriodLength: Option; Desc: Text[100]; RetainDimensions: Text[250])
     begin
         InitializeVariables;
         AnalysisAreaSelection := "Analysis Area Type".FromInteger(AnalAreaSelection);
@@ -422,22 +457,62 @@ report 7139 "Date Comp. Item Budget Entries"
         EntrdDateComprReg."Ending Date" := EndDate;
         EntrdDateComprReg."Period Length" := PeriodLength;
         EntrdItemBudgetEntry.Description := Desc;
+        RetainDimText := RetainDimensions;
     end;
 
     local procedure InitializeVariables()
+    var
+        DateCompression: Codeunit "Date Compression";
     begin
         if EntrdDateComprReg."Ending Date" = 0D then
-            EntrdDateComprReg."Ending Date" := Today;
+            EntrdDateComprReg."Ending Date" := DateCompression.CalcMaxEndDate();
 
-        with "Item Budget Entry" do begin
-            InsertField(FieldNo("Global Dimension 1 Code"), FieldCaption("Global Dimension 1 Code"));
-            InsertField(FieldNo("Global Dimension 2 Code"), FieldCaption("Global Dimension 2 Code"));
-            InsertField(FieldNo("Budget Dimension 1 Code"), FieldCaption("Budget Dimension 1 Code"));
-            InsertField(FieldNo("Budget Dimension 2 Code"), FieldCaption("Budget Dimension 2 Code"));
-            InsertField(FieldNo("Budget Dimension 3 Code"), FieldCaption("Budget Dimension 3 Code"));
-        end;
+        InsertField("Item Budget Entry".FieldNo("Global Dimension 1 Code"), "Item Budget Entry".FieldCaption("Global Dimension 1 Code"));
+        InsertField("Item Budget Entry".FieldNo("Global Dimension 2 Code"), "Item Budget Entry".FieldCaption("Global Dimension 2 Code"));
+        InsertField("Item Budget Entry".FieldNo("Budget Dimension 1 Code"), "Item Budget Entry".FieldCaption("Budget Dimension 1 Code"));
+        InsertField("Item Budget Entry".FieldNo("Budget Dimension 2 Code"), "Item Budget Entry".FieldCaption("Budget Dimension 2 Code"));
+        InsertField("Item Budget Entry".FieldNo("Budget Dimension 3 Code"), "Item Budget Entry".FieldCaption("Budget Dimension 3 Code"));
 
         RetainDimText := DimSelectionBuf.GetDimSelectionText(3, REPORT::"Date Comp. Item Budget Entries", '');
+    end;
+
+    internal procedure SetSkipAnalysisViewUpdateCheck();
+    begin
+        SkipAnalysisViewUpdateCheck := true;
+    end;
+
+    local procedure LogStartTelemetryMessage()
+    var
+        TelemetryDimensions: Dictionary of [Text, Text];
+    begin
+        // TelemetryDimensions.Add('CompanyName', CompanyName());
+        TelemetryDimensions.Add('ReportId', Format(CurrReport.ObjectId(false), 0, 9));
+        TelemetryDimensions.Add('ReportName', CurrReport.ObjectId(true));
+        TelemetryDimensions.Add('UseRequestPage', Format(CurrReport.UseRequestPage()));
+        TelemetryDimensions.Add('StartDate', Format(EntrdDateComprReg."Starting Date", 0, 9));
+        TelemetryDimensions.Add('PeriodLength', Format(EntrdDateComprReg."Period Length", 0, 9));
+        TelemetryDimensions.Add('EndDate', Format(EntrdDateComprReg."Ending Date", 0, 9));
+        // TelemetryDimensions.Add('Description', EntrdItemBudgetEntry.Description);
+        TelemetryDimensions.Add('AnalysisAreaSelection', Format(AnalysisAreaSelection, 0, 9));
+        TelemetryDimensions.Add('RetainDimensions', RetainDimText);
+        // TelemetryDimensions.Add('Filters', "Item Budget Entry".GetFilters()); // EndUserIdentifiableInformation
+
+        Session.LogMessage('0000F4E', StrSubstNo(StartDateCompressionTelemetryMsg, CurrReport.ObjectId(false), CurrReport.ObjectId(true)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, TelemetryDimensions);
+    end;
+
+    local procedure LogEndTelemetryMessage()
+    var
+        TelemetryDimensions: Dictionary of [Text, Text];
+    begin
+        // TelemetryDimensions.Add('CompanyName', CompanyName());
+        TelemetryDimensions.Add('ReportId', Format(CurrReport.ObjectId(false), 0, 9));
+        TelemetryDimensions.Add('ReportName', CurrReport.ObjectId(true));
+        TelemetryDimensions.Add('RegisterNo', Format(DateComprReg."Register No.", 0, 9));
+        TelemetryDimensions.Add('TableID', Format(DateComprReg."Table ID", 0, 9));
+        TelemetryDimensions.Add('NoRecordsDeleted', Format(DateComprReg."No. Records Deleted", 0, 9));
+        TelemetryDimensions.Add('NoofNewRecords', Format(DateComprReg."No. of New Records", 0, 9));
+
+        Session.LogMessage('0000F4F', StrSubstNo(EndDateCompressionTelemetryMsg, CurrReport.ObjectId(false), CurrReport.ObjectId(true)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, TelemetryDimensions);
     end;
 }
 

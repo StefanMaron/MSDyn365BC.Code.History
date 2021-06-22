@@ -126,7 +126,6 @@ report 99003802 "Copy Production Order Document"
             ToProdOrder.Description := FromProdOrder.Description;
             ToProdOrder."Search Description" := FromProdOrder."Search Description";
             ToProdOrder."Description 2" := FromProdOrder."Description 2";
-            ToProdOrder."Creation Date" := FromProdOrder."Creation Date";
             ToProdOrder."Last Date Modified" := FromProdOrder."Last Date Modified";
             ToProdOrder."Source Type" := FromProdOrder."Source Type";
             ToProdOrder."Source No." := FromProdOrder."Source No.";

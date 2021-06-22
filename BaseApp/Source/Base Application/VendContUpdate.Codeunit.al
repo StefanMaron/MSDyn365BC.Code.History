@@ -156,6 +156,7 @@ codeunit 5057 "VendCont-Update"
                 with Cont do begin
                     Init;
                     "No." := '';
+                    OnInsertNewContactPersonOnBeforeContactInsert(Cont, Vend);
                     Insert(true);
                     "Company No." := ContComp."No.";
                     Type := Type::Person;
@@ -212,6 +213,11 @@ codeunit 5057 "VendCont-Update"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnDelete(Vendor: Record Vendor; var ContactBusinessRelation: Record "Contact Business Relation"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertNewContactPersonOnBeforeContactInsert(var Contact: Record Contact; Vendor: Record Vendor)
     begin
     end;
 
