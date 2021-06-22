@@ -1,6 +1,6 @@
 page 6300 "Azure AD App Setup Wizard"
 {
-    Caption = 'SETUP AZURE ACTIVE DIRECTORY';
+    Caption = 'Set Up Azure Active Directory';
     PageType = NavigatePage;
 
     layout
@@ -41,7 +41,7 @@ page 6300 "Azure AD App Setup Wizard"
                     label("Para1.1.1")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'When you register an application in the Azure Portal, it enables on premise applications to communicate with Power BI, Microsoft Flow, Office 365 Exchange and other Azure services directly.  This registration is only required once for each Business Central instance.';
+                        Caption = 'When you register an application in the Azure Portal, it enables on-premises applications to communicate with Power BI, Power Automate, Office 365 Exchange and other Azure services directly.  This registration is only required once for each Business Central instance.';
                     }
                     label(Control24)
                     {
@@ -52,7 +52,7 @@ page 6300 "Azure AD App Setup Wizard"
                     label("Para1.1.2")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'This wizard will guide you through the steps required to register Business Central in the Azure Portal.';
+                        Caption = 'This setup guide helps you connect your Business Central on-premises solution with Azure.';
                     }
                     label(Control26)
                     {
@@ -63,13 +63,13 @@ page 6300 "Azure AD App Setup Wizard"
                     label("Para1.1.3")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'At the end of the registration process, the Azure Portal will provide an Application ID and Key that will be required to complete the setup.';
+                        Visible = False;
                     }
                 }
                 group("Para1.2")
                 {
                     Caption = 'Let''s go!';
-                    InstructionalText = 'Choose Next to step through the process of registering Business Central in the Azure Portal and obtaining the necessary information to complete this setup.';
+                    InstructionalText = 'Choose Next to step through the process of obtaining the necessary information from Azure to complete this setup.';
                 }
             }
             group(Step1)
@@ -78,12 +78,24 @@ page 6300 "Azure AD App Setup Wizard"
                 Visible = Step1Visible;
                 group("Para2.1")
                 {
-                    Caption = 'Registering Business Central';
+                    Caption = 'Connect with Azure';
                     label("Para2.1.1")
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'To obtain an Application ID and Key, or to regenerate a Key for an existing Application ID, select the Auto Register link below (recommended) or enter the Application ID and Key you manually created in the Azure Portal.  You can also find more information on how to manually create an Application ID and Key in the ''How to:  Register Business Central in the Azure Management Portal'' section of the documentation.';
+                        Caption = 'To connect to Azure, enter the Application ID and key that you created in the Azure portal.';
                     }
+
+                    field("Para2.1.2"; RegistrationDocsTxt)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Editable = false;
+                        ShowCaption = false;
+                        trigger OnDrillDown()
+                        begin
+                            Hyperlink(RegistrationDocsLinkTxt);
+                        end;
+                    }
+
                     part(AzureAdSetup; "Azure AD App Setup Part")
                     {
                         ApplicationArea = Basic, Suite;
@@ -93,6 +105,7 @@ page 6300 "Azure AD App Setup Wizard"
                     usercontrol(OAuthIntegration; "Microsoft.Dynamics.Nav.Client.OAuthIntegration")
                     {
                         ApplicationArea = Basic, Suite;
+                        Visible = false;
 
                         trigger AuthorizationCodeRetrieved(authorizationCode: Text)
                         begin
@@ -104,33 +117,14 @@ page 6300 "Azure AD App Setup Wizard"
 
                         trigger AppRegistrationInformationRetrieved(clientId: Text; clientSecret: Text)
                         begin
-                            CurrPage.AzureAdSetup.PAGE.SetAppDetails(clientId, clientSecret);
-                            CurrPage.Update;
                         end;
 
                         trigger AppRegistrationErrorOccurred(errorCode: Text; description: Text)
                         begin
-                            case errorCode of
-                                'NotSupported':
-                                    Message(NavRegistrationNotSupportedMsg);
-                                else
-                                    Error(NavRegistrationGenericErr);
-                            end;
                         end;
 
                         trigger ControlAddInReady()
-                        var
-                            AzureADAppSetup: Record "Azure AD App Setup";
-                            TypeHelper: Codeunit "Type Helper";
-                            Url: Text;
                         begin
-                            Url := CurrPage.AzureAdSetup.PAGE.GetRedirectUrl;
-                            Url := StrSubstNo(NavRegistrationPortalTxt, TypeHelper.UrlEncode(Url), Format(CreateDateTime(CalcDate('<1Y>', Today), Time), 0, 9));
-
-                            if AzureADAppSetup.FindFirst then
-                                Url := Url + '&clientId=' + Format(AzureADAppSetup."App ID");
-
-                            CurrPage.OAuthIntegration.RegisterApp(Url, AutoRegisterTxt, AutoRegisterTooltipTxt);
                         end;
                     }
                 }
@@ -249,11 +243,8 @@ page 6300 "Azure AD App Setup Wizard"
         StepOutOfRangeErr: Label 'Wizard step out of range.';
         PermissionsErr: Label 'Please contact an administrator to set up your Azure Active Directory application.';
         TopBannerVisible: Boolean;
-        NavRegistrationPortalTxt: Label 'https://go.microsoft.com/fwlink/?linkid=862265&version=v1&replyUrl=%1&keyExpiration=%2', Locked = true;
-        AutoRegisterTxt: Label 'Auto-Register';
-        AutoRegisterTooltipTxt: Label 'You will be redirected to App Registration Portal.';
-        NavRegistrationNotSupportedMsg: Label 'You must use the Windows Client or Web Client to register Business Central in the Azure Portal.';
-        NavRegistrationGenericErr: Label 'An error occurred while registering the app. Please try again or manually register the app using Azure portal.';
+        RegistrationDocsLinkTxt: Label 'https://go.microsoft.com/fwlink/?linkid=862265', Locked = true;
+        RegistrationDocsTxt: Label 'Learn more about how to register on Azure';
 
     local procedure SetStep(NewStep: Option)
     begin

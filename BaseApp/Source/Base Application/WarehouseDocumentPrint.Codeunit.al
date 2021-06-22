@@ -17,7 +17,7 @@ codeunit 5776 "Warehouse Document-Print"
 
         WhseActivHeader.SetRange(Type, WhseActivHeader.Type::Pick);
         WhseActivHeader.SetRange("No.", WhseActivHeader."No.");
-        ReportSelectionWhse.PrintWhseActivHeader(WhseActivHeader, ReportSelectionWhse.Usage::Pick, true);
+        ReportSelectionWhse.PrintWhseActivHeader(WhseActivHeader, ReportSelectionWhse.Usage::Pick, false);
     end;
 
     procedure PrintPutAwayHeader(WhseActivHeader: Record "Warehouse Activity Header")
@@ -32,7 +32,7 @@ codeunit 5776 "Warehouse Document-Print"
 
         WhseActivHeader.SetRange(Type, WhseActivHeader.Type::"Put-away");
         WhseActivHeader.SetRange("No.", WhseActivHeader."No.");
-        ReportSelectionWhse.PrintWhseActivHeader(WhseActivHeader, ReportSelectionWhse.Usage::"Put-away", true);
+        ReportSelectionWhse.PrintWhseActivHeader(WhseActivHeader, ReportSelectionWhse.Usage::"Put-away", false);
     end;
 
     procedure PrintMovementHeader(WhseActivHeader: Record "Warehouse Activity Header")
@@ -47,7 +47,7 @@ codeunit 5776 "Warehouse Document-Print"
 
         WhseActivHeader.SetRange(Type, WhseActivHeader.Type::Movement);
         WhseActivHeader.SetRange("No.", WhseActivHeader."No.");
-        ReportSelectionWhse.PrintWhseActivHeader(WhseActivHeader, ReportSelectionWhse.Usage::Movement, true);
+        ReportSelectionWhse.PrintWhseActivHeader(WhseActivHeader, ReportSelectionWhse.Usage::Movement, false);
     end;
 
     procedure PrintInvtPickHeader(WhseActivHeader: Record "Warehouse Activity Header"; HideDialog: Boolean)
@@ -63,7 +63,7 @@ codeunit 5776 "Warehouse Document-Print"
 
         WhseActivHeader.SetRange(Type, WhseActivHeader.Type::"Invt. Pick");
         WhseActivHeader.SetRange("No.", WhseActivHeader."No.");
-        ReportSelectionWhse.PrintWhseActivHeader(WhseActivHeader, ReportSelectionWhse.Usage::"Invt. Pick", not HideDialog);
+        ReportSelectionWhse.PrintWhseActivHeader(WhseActivHeader, ReportSelectionWhse.Usage::"Invt. Pick", HideDialog);
     end;
 
     procedure PrintInvtPutAwayHeader(WhseActivHeader: Record "Warehouse Activity Header"; HideDialog: Boolean)
@@ -78,7 +78,7 @@ codeunit 5776 "Warehouse Document-Print"
 
         WhseActivHeader.SetRange(Type, WhseActivHeader.Type::"Invt. Put-away");
         WhseActivHeader.SetRange("No.", WhseActivHeader."No.");
-        ReportSelectionWhse.PrintWhseActivHeader(WhseActivHeader, ReportSelectionWhse.Usage::"Invt. Put-away", not HideDialog);
+        ReportSelectionWhse.PrintWhseActivHeader(WhseActivHeader, ReportSelectionWhse.Usage::"Invt. Put-away", HideDialog);
     end;
 
     procedure PrintInvtMovementHeader(WhseActivHeader: Record "Warehouse Activity Header"; HideDialog: Boolean)
@@ -93,7 +93,7 @@ codeunit 5776 "Warehouse Document-Print"
 
         WhseActivHeader.SetRange(Type, WhseActivHeader.Type::"Invt. Movement");
         WhseActivHeader.SetRange("No.", WhseActivHeader."No.");
-        ReportSelectionWhse.PrintWhseActivHeader(WhseActivHeader, ReportSelectionWhse.Usage::"Invt. Movement", not HideDialog);
+        ReportSelectionWhse.PrintWhseActivHeader(WhseActivHeader, ReportSelectionWhse.Usage::"Invt. Movement", HideDialog);
     end;
 
     procedure PrintRcptHeader(WarehouseReceiptHeader: Record "Warehouse Receipt Header")

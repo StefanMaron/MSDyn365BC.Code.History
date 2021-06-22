@@ -150,7 +150,8 @@ table 175 "Standard Vendor Purchase Code"
                 PurchLine.Validate(Type, StdPurchLine.Type);
                 if StdPurchLine.Type = StdPurchLine.Type::" " then begin
                     PurchLine.Validate("No.", StdPurchLine."No.");
-                    PurchLine.Description := StdPurchLine.Description
+                    PurchLine.Description := StdPurchLine.Description;
+                    PurchLine."Buy-from Vendor No." := PurchHeader."Buy-from Vendor No.";
                 end else
                     if not StdPurchLine.EmptyLine then begin
                         StdPurchLine.TestField("No.");
@@ -201,6 +202,8 @@ table 175 "Standard Vendor Purchase Code"
     var
         TransferExtendedText: Codeunit "Transfer Extended Text";
     begin
+        if PurchLine.Type = PurchLine.Type::" " then
+            exit;
         if TransferExtendedText.PurchCheckIfAnyExtText(PurchLine, false) then
             TransferExtendedText.InsertPurchExtText(PurchLine);
     end;

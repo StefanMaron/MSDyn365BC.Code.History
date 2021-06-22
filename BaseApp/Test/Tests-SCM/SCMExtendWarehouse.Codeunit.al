@@ -4472,7 +4472,7 @@ codeunit 137030 "SCM Extend Warehouse"
         AssertProdOrderRoutingLine(ProductionOrder, ROUTING_LINE_10, RoutingLine.Type::"Machine Center",
           MachineCenter."No.", Location.Code, '', '', '', 1);
         AssertProdOrderRoutingLine(ProductionOrder, ROUTING_LINE_20, RoutingLine.Type::"Work Center",
-          WorkCenter[2]."No.", Location.Code, ToBin[2].Code, FromBin[2].Code, OSFBBin[2].Code, 1);
+          WorkCenter[2]."No.", Location.Code, ToBin[2].Code, BinCode.Code, OSFBBin[2].Code, 1);
     end;
 
     [Test]
@@ -5157,7 +5157,7 @@ codeunit 137030 "SCM Extend Warehouse"
         AssertProdOrderRoutingLine(ProductionOrder, ROUTING_LINE_10, RoutingLine.Type::"Machine Center",
           MachineCenter."No.", Location.Code, ToBin[2].Code, FromBin[2].Code, OSFBBin[2].Code, 1);
         AssertProdOrderRoutingLine(ProductionOrder, ROUTING_LINE_20, RoutingLine.Type::"Work Center",
-          WorkCenter[2]."No.", Location.Code, ToBin[1].Code, FromBin[1].Code, OSFBBin[1].Code, 1);
+          WorkCenter[2]."No.", Location.Code, ToBin[1].Code, FromBin[2].Code, OSFBBin[1].Code, 1);
     end;
 
     [Test]
@@ -5317,7 +5317,7 @@ codeunit 137030 "SCM Extend Warehouse"
         AssertProdOrderRoutingLine(ProductionOrder, ROUTING_LINE_10, RoutingLine.Type::"Machine Center",
           MachineCenter."No.", LocationSilv.Code, '', '', '', 1);
         AssertProdOrderRoutingLine(ProductionOrder, ROUTING_LINE_20, RoutingLine.Type::"Work Center",
-          WorkCenter[2]."No.", LocationSilv.Code, '', '', '', 1);
+          WorkCenter[2]."No.", LocationSilv.Code, '', FromBinS.Code, '', 1);
     end;
 
     [Test]
@@ -5402,7 +5402,7 @@ codeunit 137030 "SCM Extend Warehouse"
         AssertProdOrderRoutingLine(ProductionOrder, ROUTING_LINE_10, RoutingLine.Type::"Machine Center",
           MachineCenter."No.", LocationW.Code, '', '', '', 1);
         AssertProdOrderRoutingLine(ProductionOrder, ROUTING_LINE_20, RoutingLine.Type::"Work Center",
-          WorkCenter[2]."No.", LocationW.Code, '', '', '', 1);
+          WorkCenter[2]."No.", LocationW.Code, '', LocationW."From-Production Bin Code", '', 1);
     end;
 
     [Test]
@@ -5488,7 +5488,7 @@ codeunit 137030 "SCM Extend Warehouse"
         AssertProdOrderRoutingLine(ProductionOrder, ROUTING_LINE_10, RoutingLine.Type::"Machine Center",
           MachineCenter."No.", LocationW.Code, '', '', '', 1);
         AssertProdOrderRoutingLine(ProductionOrder, ROUTING_LINE_20, RoutingLine.Type::"Work Center",
-          WorkCenter[2]."No.", LocationW.Code, '', '', '', 1);
+          WorkCenter[2]."No.", LocationW.Code, '', LocationW."From-Production Bin Code", '', 1);
 
         // Change location code on the second component line
         FindComponent(ProdOrderComponent, ProductionOrder, ChildItem2, 1);
@@ -5585,7 +5585,7 @@ codeunit 137030 "SCM Extend Warehouse"
         AssertProdOrderRoutingLine(ProductionOrder, ROUTING_LINE_10, RoutingLine.Type::"Machine Center",
           MachineCenter."No.", LocationW.Code, '', '', '', 1);
         AssertProdOrderRoutingLine(ProductionOrder, ROUTING_LINE_20, RoutingLine.Type::"Work Center",
-          WorkCenter[2]."No.", LocationW.Code, '', '', '', 1);
+          WorkCenter[2]."No.", LocationW.Code, '', LocationW."From-Production Bin Code", '', 1);
 
         // Change location code on the second component line
         FindComponent(ProdOrderComponent, ProductionOrder, ChildItem2, 1);
@@ -7231,6 +7231,50 @@ codeunit 137030 "SCM Extend Warehouse"
         AssertQtyOnInvtPick(WarehouseActivityHeader, Quantity);
     end;
 
+    [Test]
+    [HandlerFunctions('ProdOrderRoutingModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure BinCodeOnProdOrderLineAfterViewingProdOrderRouring()
+    var
+        Item: Record Item;
+        Bin: array[2] of Record Bin;
+        RoutingHeader: Record "Routing Header";
+        WorkCenter: array[2] of Record "Work Center";
+        MachineCenter: Record "Machine Center";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+    begin
+        // [FEATURE] [Routing] [Bin] [Production Order]
+        // [SCENARIO 359569] Bin Code on Prod. Order Line remains equal to bin code on Production Order after viewing prod. order routing lines.
+        Initialize();
+
+        // [GIVEN] Bins "B1", "B2".
+        FindBin(Bin[1], LocationWhite, false, 1);
+        FindBin(Bin[2], LocationWhite, false, 2);
+
+        // [GIVEN] Create routing, set "From-Production Bin Code" on the work center = "B1".
+        RoutingSetup(RoutingHeader, WorkCenter, MachineCenter);
+        SetBinsOnWC(WorkCenter[2], LocationWhite.Code, '', Bin[1].Code, '');
+
+        // [GIVEN] Create production item and set routing number.
+        ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::Manual);
+        Item.Validate("Routing No.", RoutingHeader."No.");
+        Item.Modify(true);
+
+        // [GIVEN] Create and refresh released production order, set "Bin Code" = "B2" on the header.
+        CreateRelProdOrderAndRefresh(ProductionOrder, Item."No.", LibraryRandom.RandInt(10), LocationWhite.Code, Bin[2].Code);
+
+        // [WHEN] Open and close Routing page for the production order line.
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.FindFirst();
+        ProdOrderLine.ShowRouting();
+
+        // [THEN] "Bin Code" on the prod. order line remains "B2".
+        ProdOrderLine.Find();
+        ProdOrderLine.TestField("Bin Code", ProductionOrder."Bin Code");
+    end;
+
     local procedure PC5(var ParentItem: Record Item)
     var
         ProductionBOMHeader: Record "Production BOM Header";
@@ -7363,6 +7407,13 @@ codeunit 137030 "SCM Extend Warehouse"
         WorkCenter.Get(RoutingLine."No.");
         WorkCenter.Validate("Flushing Method", FlushingMethodOfWorkCenter);
         WorkCenter.Modify(true);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ProdOrderRoutingModalPageHandler(var ProdOrderRouting: TestPage "Prod. Order Routing")
+    begin
+        ProdOrderRouting.OK.Invoke;
     end;
 
     [MessageHandler]

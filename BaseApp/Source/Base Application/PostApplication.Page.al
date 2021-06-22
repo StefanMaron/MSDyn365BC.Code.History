@@ -35,15 +35,34 @@ page 579 "Post Application"
         PostingDate: Date;
 
     procedure SetValues(NewDocNo: Code[20]; NewPostingDate: Date)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetValues(NewDocNo, NewPostingDate, IsHandled);
+        if IsHandled then
+            exit;
+
         DocNo := NewDocNo;
         PostingDate := NewPostingDate;
     end;
 
     procedure GetValues(var NewDocNo: Code[20]; var NewPostingDate: Date)
     begin
+        OnBeforeGetValues(NewDocNo, NewPostingDate);
+
         NewDocNo := DocNo;
         NewPostingDate := PostingDate;
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeSetValues(var NewDocNo: Code[20]; var NewPostingDate: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeGetValues(var NewDocNo: Code[20]; var NewPostingDate: Date)
+    begin
     end;
 }
 

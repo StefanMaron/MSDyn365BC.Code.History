@@ -1085,6 +1085,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Translation Tests - NamedType CannotTranslateTempRecErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2113378131 - Method 417778269 - NamedType 2985667852" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1=%2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Uri Builder Test - Method SetAndGetQueryTest - NamedType QueryTemplateLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3594741044 - Method 888965819 - NamedType 2985667852" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1=%2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Uri Test - Method GetAbsoluteURITest - NamedType QueryTemplateLbl)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3358963001 - NamedType 1200477291" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[SUPER]]></Val>

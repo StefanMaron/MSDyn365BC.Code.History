@@ -480,10 +480,21 @@
     end;
 
     local procedure UpdateErrors()
+    var
+        IsHandled: Boolean;
     begin
-        CurrPage.ErrorMessagesPart.PAGE.SetRecordID(RecordId);
+        OnBeforeUpdateErrors(IsHandled);
+        if IsHandled then
+            exit;
+
+        CurrPage.ErrorMessagesPart.PAGE.SetRecordID(Rec.RecordId);
         CurrPage.ErrorMessagesPart.PAGE.GetStyleOfRecord(Rec, LineStyleExpression);
-        Mark(ErrorsExistOnCurrentLine);
+        Rec.Mark(ErrorsExistOnCurrentLine);
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeUpdateErrors(var IsHandled: boolean)
+    begin
     end;
 }
 

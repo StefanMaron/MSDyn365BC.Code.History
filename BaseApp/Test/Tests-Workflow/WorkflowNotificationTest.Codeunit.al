@@ -1997,6 +1997,63 @@ codeunit 134301 "Workflow Notification Test"
         Assert.AreEqual('', NotificationSetupPage.FILTER.GetFilter("User ID"), '');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreateNotificationEntryForSenderResponseTypeApporval()
+    var
+        Workflow: Record Workflow;
+        WorkflowStep: Record "Workflow Step";
+        SubWorkflowStep: Record "Workflow Step";
+        WorkflowStepArgument: Record "Workflow Step Argument";
+        WorkflowStepInstance: Record "Workflow Step Instance";
+        SalesHeader: Record "Sales Header";
+        ApprovalEntry: Record "Approval Entry";
+        NotificationEntry: Record "Notification Entry";
+        WorkflowEventHandling: Codeunit "Workflow Event Handling";
+        WorkflowResponseHandling: Codeunit "Workflow Response Handling";
+        RecVar: Variant;
+        WorkflowInstanceId: Guid;
+        EntryPointStepID: Integer;
+        NotificationStepId: Integer;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 361650] System creates Notification Entry when workflow processes "Create notification for <Sender>" response
+        LibraryWorkflow.CreateWorkflow(Workflow);
+
+        // [GIVEN] Workflow with "Create notification for <Sender>" response step
+        EntryPointStepID :=
+          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode());
+
+        NotificationStepId :=
+            LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode(), EntryPointStepID);
+
+        LibraryWorkflow.InsertNotificationArgument(NotificationStepId, UserId, 0, '');
+
+        WorkflowStep.Get(Workflow.Code, NotificationStepId);
+        WorkflowStepArgument.Get(WorkflowStep.Argument);
+        WorkflowStepArgument.Validate("Notify Sender", true);
+        WorkflowStepArgument.Validate("Notification Entry Type", WorkflowStepArgument."Notification Entry Type"::Approval);
+        WorkflowStepArgument.Modify(true);
+
+        WorkflowInstanceId := CreateGuid();
+        WorkflowStep.CreateInstance(WorkflowInstanceId, Workflow.Code, 0, SubWorkflowStep);
+        WorkflowStepInstance.SetRange(ID, WorkflowInstanceId);
+        WorkflowStepInstance.FindFirst();
+
+        LibrarySales.CreateSalesInvoice(SalesHeader);
+        CreateSalesApprovalEntry(
+            ApprovalEntry, SalesHeader, ApprovalEntry.Status::Approved, ApprovalEntry."Limit Type"::"Approval Limits");
+
+        RecVar := SalesHeader;
+
+        // [WHEN] System processes "Create notification for <Sender>" response step instance for a given approval entry
+        WorkflowResponseHandling.ExecuteResponse(RecVar, WorkflowStepInstance, ApprovalEntry);
+
+        // [THEN] Notification Entry created for sender with linked approval entry
+        NotificationEntry.SetRange("Triggered By Record", ApprovalEntry.RecordId);
+        Assert.RecordCount(NotificationEntry, 1);
+    end;
+
     local procedure Initialize()
     var
         UserSetup: Record "User Setup";

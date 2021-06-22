@@ -72,6 +72,7 @@ codeunit 139702 "APIV1 - Customers E2E"
 
         // [GIVEN] A customer exists and has values assigned to some of the fields contained in complex types.
         CreateCustomerWithAddress(Customer);
+        COMMIT();
 
         // [WHEN] The user calls GET for the given Customer.
         TargetURL := LibraryGraphMgt.CreateTargetURL(Customer.SystemId, PAGE::"APIV1 - Customers", ServiceNameTxt);
@@ -96,6 +97,7 @@ codeunit 139702 "APIV1 - Customers E2E"
         CreateCustomerWithAddress(Customer);
         Customer.Address := 'Test "Adress" 12æ åø"';
         Customer.MODIFY();
+        COMMIT();
 
         // [WHEN] The user calls GET for the given Customer.
         TargetURL := LibraryGraphMgt.CreateTargetURL(Customer.SystemId, PAGE::"APIV1 - Customers", ServiceNameTxt);

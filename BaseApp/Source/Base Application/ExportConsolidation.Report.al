@@ -174,7 +174,7 @@ report 91 "Export Consolidation"
                     Clear(GLEntryFile);
                     GLEntryFile.TextMode := true;
                     GLEntryFile.WriteMode := true;
-                    GLEntryFile.Create(ServerFileName);
+                    GLEntryFile.Create(ServerFileName, TEXTENCODING::UTF8);
                     GLEntryFile.Write(
                       StrSubstNo(
                         '<01>#1############################ #2####### #3####### #4#',

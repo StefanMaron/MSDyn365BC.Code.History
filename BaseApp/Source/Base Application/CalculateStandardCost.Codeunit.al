@@ -482,7 +482,7 @@ codeunit 5812 "Calculate Standard Cost"
                     LotSize := "Lot Size";
                 MfgItemQtyBase := CostCalcMgt.CalcQtyAdjdForBOMScrap(LotSize, "Scrap %");
                 OnCalcMfgItemOnBeforeCalcRtngCost(Item, Level, LotSize, MfgItemQtyBase);
-                CalcRtngCost("Routing No.", MfgItemQtyBase, SLCap, SLSub, SLCapOvhd);
+                CalcRtngCost("Routing No.", MfgItemQtyBase, SLCap, SLSub, SLCapOvhd, Item);
                 CalcProdBOMCost(
                   Item, "Production BOM No.", "Routing No.",
                   MfgItemQtyBase, true, Level, SLMat, RUMat, RUCap, RUSub, RUCapOvhd, RUMfgOvhd);
@@ -592,7 +592,7 @@ codeunit 5812 "Calculate Standard Cost"
         end;
     end;
 
-    local procedure CalcRtngCost(RtngHeaderNo: Code[20]; MfgItemQtyBase: Decimal; var SLCap: Decimal; var SLSub: Decimal; var SLCapOvhd: Decimal)
+    local procedure CalcRtngCost(RtngHeaderNo: Code[20]; MfgItemQtyBase: Decimal; var SLCap: Decimal; var SLSub: Decimal; var SLCapOvhd: Decimal; var ParentItem: Record Item)
     var
         RtngLine: Record "Routing Line";
         RtngHeader: Record "Routing Header";
@@ -604,6 +604,7 @@ codeunit 5812 "Calculate Standard Cost"
             end;
 
             repeat
+                OnCalcRtngCostOnBeforeCalcRtngLineCost(RtngLine, ParentItem);
                 CalcRtngLineCost(RtngLine, MfgItemQtyBase, SLCap, SLSub, SLCapOvhd);
             until RtngLine.Next = 0;
         end;
@@ -982,6 +983,11 @@ codeunit 5812 "Calculate Standard Cost"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcProdBOMCostOnAfterCalcMfgItem(var ProdBOMLine: Record "Production BOM Line"; MfgItem: Record Item; MfgItemQtyBase: Decimal; CompItem: Record Item; CompItemQtyBase: Decimal; Level: Integer; IsTypeItem: Boolean; UOMFactor: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcRtngCostOnBeforeCalcRtngLineCost(var RoutingLine: Record "Routing Line"; ParentItem: Record Item)
     begin
     end;
 

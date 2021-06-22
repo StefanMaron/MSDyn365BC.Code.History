@@ -1497,11 +1497,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit OAuth2Impl - NamedType AuthorizationCodeErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 2027814023 - NamedType 1863207932" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
-          <source>The Authorization code cannot be read from the JSON file.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit OAuth2Impl - NamedType CannotreadFromJsonErr</note>
-        </trans-unit>
         <trans-unit id="Codeunit 2027814023 - NamedType 4158249146" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
           <source>The code property cannot be extracted from the JSON body of the authorization code.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -2682,6 +2677,42 @@
           <note from="Developer" annotates="general" priority="2">%1 - From date, %2 - Till date</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Filter Tokens Impl. - Method ResolveDateFilter - NamedType DateFilterRangeLbl</note>
         </trans-unit>
+        <trans-unit id="Page 4237756452 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Geolocation request</source>
+          <target state="translated">Žádost o geolokaci</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Geolocation - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4237756452 - Control 3891454143 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Requesting geographical location...</source>
+          <target state="translated">Žádám o geografickou polohu...</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Geolocation - Control Location - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4237756452 - Control 3891454143 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Allow Business Central to access data about the geographical location of the device.</source>
+          <target state="translated">Povolit aplikaci Business Central přístup k datům o zeměpisné poloze zařízení.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Geolocation - Control Location - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 4237756452 - Control 2727144722 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Could not access the geographical location</source>
+          <target state="translated">Nelze získat přístup ke geografické poloze</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Geolocation - Control LocationNotSupported - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4237756452 - Control 2727144722 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Could not access the geographical location of the device. Make sure that you are using the app for Windows, Android, or iOS.</source>
+          <target state="translated">Nelze získat přístup ke geografické poloze zařízení. Ujistěte se, že používáte aplikaci pro Windows, Android nebo iOS.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Geolocation - Control LocationNotSupported - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2418065946 - NamedType 3780375893" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The geographical location data was not retrieved.</source>
+          <target state="translated">Geografická data o poloze nebyla načtena.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Geolocation Impl. - NamedType LocationNotRetrievedErrorMsg</note>
+        </trans-unit>
         <trans-unit id="Codeunit 2970873669 - NamedType 4087989245" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Good morning, %1!</source>
           <target state="translated">Dobré ráno, %1!</target>
@@ -3080,6 +3111,16 @@
           <source>Modification of the setup record has failed.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType CouldNotModifySetupRecordTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1499095144 - NamedType 2096275478" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>Cannot get earliest activate time. Last request time: %1, min delay time: %2.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType CannotGetEarliestActivateTimeTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1499095144 - NamedType 297961906" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>Cannot get next cache expiration time. Previous cache expiration time: %1, cache life time: %2.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType CannotGetNextExpireTimeTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 1499095144 - NamedType 167498497" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
           <source>Too short time since last activation try.</source>
@@ -6795,6 +6836,30 @@
           <target state="translated">Video</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum Media Type - EnumValue Video - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 247952896 - EnumValue 3920084379 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Available</source>
+          <target state="translated">K dispozici</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Geolocation Status - EnumValue Available - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 247952896 - EnumValue 4145213867 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No Data</source>
+          <target state="translated">Žádná data</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Geolocation Status - EnumValue No Data - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 247952896 - EnumValue 1892214913 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Timed Out</source>
+          <target state="translated">Čas vypršel</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Geolocation Status - EnumValue Timed Out - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 247952896 - EnumValue 1853313896 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Not Available</source>
+          <target state="translated">Není k dispozici</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Geolocation Status - EnumValue Not Available - Property Caption</note>
         </trans-unit>
         <trans-unit id="Enum 4244706559 - EnumValue 1476382836 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Uncategorized</source>

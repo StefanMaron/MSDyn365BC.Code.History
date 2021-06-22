@@ -349,7 +349,7 @@ codeunit 131337 "Library - XPath XML Reader"
         GetNodeList(xPath, NodeList);
         ActualNodeCount := 0;
         for i := 0 to NodeList.Count - 1 do
-            if NodeList.Item(i).InnerText = Value then
+            if DelChr(NodeList.Item(i).InnerText, '<>', ' ') = Value then
                 ActualNodeCount += 1;
         Assert.AreEqual(NodeCount, ActualNodeCount, StrSubstNo(NodeCountWithValueErr, Value, xPath));
     end;

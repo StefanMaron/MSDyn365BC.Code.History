@@ -1250,6 +1250,61 @@ codeunit 137292 "SCM Inventory Costing Orders"
         VerifyPairedItemLedgerEntriesAmount(Item."No.");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CostAdjustmentAfterLastAccoutingPeriod()
+    var
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        InventorySetup: Record "Inventory Setup";
+        AccountingPeriod: Record "Accounting Period";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Adjust Cost] [Purchase] [Sales] [Order] [Expected Cost]
+        Initialize;
+
+        // [GIVEN] Inventory Setup -> Automatic Cost Adjustment = Always and Costing Period as Accounting Period
+        InventorySetup.FindFirst();
+        InventorySetup."Automatic Cost Adjustment" := InventorySetup."Automatic Cost Adjustment"::Always;
+        InventorySetup."Average Cost Period" := InventorySetup."Average Cost Period"::"Accounting Period";
+        InventorySetup.Modify();
+        if not AccountingPeriod.FindLast() then begin
+            CreateAccountingPeriod();
+            AccountingPeriod.FindLast();
+        end;
+
+        // [GIVEN] Item with "Average" costing method.
+        Item.Get(CreateItem(Item."Costing Method"::Average, Item."Order Tracking Policy"::None));
+
+        // [GIVEN] Sales Order. Quantity = 10, "Unit Cost" = 4.0.
+        // [GIVEN] Post the Sales Order
+        Qty := LibraryRandom.RandIntInRange(10, 20);
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", Qty, '', WorkDate);
+        SalesHeader.Validate("Posting Date", CalcDate('<2D>', AccountingPeriod."Starting Date"));
+        SalesHeader.Modify(true);
+        SalesLine.Validate("Unit Cost", LibraryRandom.RandDecInRange(10, 20, 2));
+        SalesLine.Modify(true);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [GIVEN] Purchase Order. Quantity = 10, "Direct Unit Cost" = 5.0
+        // [GIVEN] Post the purchase receipt.
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', Item."No.", Qty, '', WorkDate);
+        PurchaseHeader.Validate("Posting Date", CalcDate('<2D>', AccountingPeriod."Starting Date"));
+        PurchaseHeader.Modify();
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(10, 20, 2));
+        PurchaseLine.Modify(true);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [THEN] The sum of expected and actual cost is 3 * 5.0 + 7 * 4.0 = 43.0.
+        // [THEN] This matches the sum of expected and actual cost.
+        VerifyPairedItemLedgerEntriesAmount(Item."No.");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1271,12 +1326,25 @@ codeunit 137292 "SCM Inventory Costing Orders"
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.UpdateSalesReceivablesSetup;
 
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
 
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Inventory Costing Orders");
+    end;
+
+    local procedure CreateAccountingPeriod()
+    var
+        AccountingPeriod: Record "Accounting Period";
+    begin
+        if AccountingPeriod.GetFiscalYearStartDate(WorkDate) = 0D then begin
+            AccountingPeriod.Init();
+            AccountingPeriod."Starting Date" := CalcDate('<-CY>', WorkDate);
+            AccountingPeriod."New Fiscal Year" := true;
+            AccountingPeriod.Insert();
+        end;
     end;
 
     local procedure CloseInventoryPeriod(var InventoryPeriod: Record "Inventory Period"; ItemNo: Code[20]; ReOpen: Boolean)

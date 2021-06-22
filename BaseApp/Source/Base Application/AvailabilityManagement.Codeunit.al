@@ -276,7 +276,7 @@ codeunit 99000889 AvailabilityManagement
                             NeededDate := "Requested Shipment Date"
                         else
                             NeededDate := WorkDate;
-                        AvailToPromise.SetPromisingReqShipDate(OrderPromisingLine);
+                        AvailToPromise.SetOriginalShipmentDate(OrderPromisingLine);
 
                         FeasibleDateFound := false;
                         if "Source Type" = "Source Type"::Sales then
@@ -287,7 +287,7 @@ codeunit 99000889 AvailabilityManagement
                                 end;
                         if not FeasibleDateFound then
                             FeasibleDate := AvailToPromise.EarliestAvailabilityDate(
-                                Item, Quantity, NeededDate, Quantity, "Requested Shipment Date", AvailQty,
+                                Item, Quantity, NeededDate, Quantity, "Original Shipment Date", AvailQty,
                                 CompanyInfo."Check-Avail. Time Bucket", CompanyInfo."Check-Avail. Period Calc.");
 
                         if (FeasibleDate <> 0D) and (FeasibleDate < "Requested Shipment Date") then

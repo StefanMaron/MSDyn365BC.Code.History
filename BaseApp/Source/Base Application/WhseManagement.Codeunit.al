@@ -225,6 +225,34 @@ codeunit 5775 "Whse. Management"
         end;
     end;
 
+    procedure SetSourceFilterForPostedWhseRcptLine(var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SetKey: Boolean)
+    begin
+        with PostedWhseReceiptLine do begin
+            if SetKey then
+                SetCurrentKey("Source Type", "Source Subtype", "Source No.", "Source Line No.");
+            SetRange("Source Type", SourceType);
+            if SourceSubType >= 0 then
+                SetRange("Source Subtype", SourceSubType);
+            SetRange("Source No.", SourceNo);
+            if SourceLineNo >= 0 then
+                SetRange("Source Line No.", SourceLineNo);
+        end;
+    end;
+
+    procedure SetSourceFilterForPostedWhseShptLine(var PostedWhseShipmentLine: Record "Posted Whse. Shipment Line"; SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SetKey: Boolean)
+    begin
+        with PostedWhseShipmentLine do begin
+            if SetKey then
+                SetCurrentKey("Source Type", "Source Subtype", "Source No.", "Source Line No.");
+            SetRange("Source Type", SourceType);
+            if SourceSubType >= 0 then
+                SetRange("Source Subtype", SourceSubType);
+            SetRange("Source No.", SourceNo);
+            if SourceLineNo >= 0 then
+                SetRange("Source Line No.", SourceLineNo);
+        end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetSrcDocLineQtyOutstanding(SourceType: Integer; SourceSubType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer; var QtyOutstanding: Decimal; var QtyBaseOutstanding: Decimal)
     begin

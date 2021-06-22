@@ -31,12 +31,24 @@ codeunit 5521 "Make Supply Orders (Yes/No)"
             ReqLine2.FilterGroup(2);
             CopyFilters(ReqLine2);
 
-            CarryOutActionMsgPlan.UseRequestPage(false);
-            CarryOutActionMsgPlan.SetDemandOrder(ReqLine, MfgUserTempl);
-            CarryOutActionMsgPlan.RunModal;
-            Clear(CarryOutActionMsgPlan);
-            CarriedOut := true;
+            RunCarryOutActionMsgPlan();
         end;
+    end;
+
+    local procedure RunCarryOutActionMsgPlan()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRunCarryOutActionMsgPlan(IsHandled, CarriedOut, ReqLine, MfgUserTempl);
+        if IsHandled then
+            exit;
+
+        CarryOutActionMsgPlan.UseRequestPage(false);
+        CarryOutActionMsgPlan.SetDemandOrder(ReqLine, MfgUserTempl);
+        CarryOutActionMsgPlan.RunModal;
+        Clear(CarryOutActionMsgPlan);
+        CarriedOut := true;
     end;
 
     procedure SetManufUserTemplate(ManufUserTemplate: Record "Manufacturing User Template")
@@ -50,13 +62,28 @@ codeunit 5521 "Make Supply Orders (Yes/No)"
     end;
 
     procedure SetCreatedDocumentBuffer(var TempDocumentEntry: Record "Document Entry" temporary)
+    var
+        IsHandled: Boolean;
     begin
-        CarryOutActionMsgPlan.SetCreatedDocumentBuffer(TempDocumentEntry);
+        IsHandled := false;
+        OnBeforeSetCreatedDocumentBuffer(IsHandled, TempDocumentEntry);
+        if not IsHandled then
+            CarryOutActionMsgPlan.SetCreatedDocumentBuffer(TempDocumentEntry);
     end;
 
     procedure ActionMsgCarriedOut(): Boolean
     begin
         exit(CarriedOut);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunCarryOutActionMsgPlan(var IsHandled: Boolean; var CarriedOut: Boolean; var ReqLine: Record "Requisition Line"; var MfgUserTempl: Record "Manufacturing User Template")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetCreatedDocumentBuffer(var IsHandled: Boolean; var TempDocumentEntry: Record "Document Entry" temporary)
+    begin
     end;
 }
 

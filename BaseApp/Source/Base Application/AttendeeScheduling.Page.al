@@ -212,7 +212,14 @@ page 5199 "Attendee Scheduling"
                     Visible = not IsSaas;
 
                     trigger OnAction()
+                    var
+                        IsHandled: Boolean;
                     begin
+                        IsHandled := false;
+                        OnBeforeSendMAPIInvitations(Rec, IsHandled);
+                        if IsHandled then
+                            exit;
+
                         SendMAPIInvitations(Rec, false);
                     end;
                 }
@@ -286,6 +293,11 @@ page 5199 "Attendee Scheduling"
     local procedure InteractionTemplateCodeOnAfter()
     begin
         EnableFields
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSendMAPIInvitations(var Todo: Record "To-do"; var IsHandled: Boolean)
+    begin
     end;
 }
 

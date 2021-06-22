@@ -466,6 +466,11 @@ codeunit 2 "Company-Initialize"
     begin
         if not ReportSelections.WritePermission then
             exit;
+
+        // Don't add report selection entries during upgrade
+        if GetExecutionContext() = ExecutionContext::Upgrade then
+            exit;
+
         ReportSelectionMgt.InitReportSelectionSales;
         ReportSelectionMgt.InitReportSelectionPurch;
         ReportSelectionMgt.InitReportSelectionBank;

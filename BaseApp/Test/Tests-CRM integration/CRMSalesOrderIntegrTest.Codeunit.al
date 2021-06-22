@@ -998,7 +998,6 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         SalesLine.TestField("No.", Resource."No.");
     end;
 
-    [Test]
     [Scope('OnPrem')]
     procedure LongProductDescriptionItem()
     var
@@ -1023,7 +1022,6 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         VerifySalesLinesDescription(SalesHeader, CRMSalesorderdetail.ProductDescription);
     end;
 
-    [Test]
     [Scope('OnPrem')]
     procedure LongProductDescriptionResource()
     var
@@ -1078,7 +1076,6 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         VerifySalesLinesDescription(SalesHeader, CRMSalesorderdetail.ProductDescription);
     end;
 
-    [Test]
     [Scope('OnPrem')]
     procedure LineItemDescriptionUsedInsteadOfProductDescription()
     var
@@ -1831,12 +1828,12 @@ codeunit 139175 "CRM Sales Order Integr. Test"
     [Scope('OnPrem')]
     procedure CreateNote(SalesHeader: Record "Sales Header"; AnnotationText: Text; var RecordLink: Record "Record Link")
     var
+        RecordLinkManagement: Codeunit "Record Link Management";
         OutStream: OutStream;
     begin
         RecordLink."Record ID" := SalesHeader.RecordId;
         RecordLink.Type := RecordLink.Type::Note;
-        RecordLink.Note.CreateOutStream(OutStream, TEXTENCODING::UTF8);
-        OutStream.Write(AnnotationText);
+        RecordLinkManagement.WriteNote(RecordLink, AnnotationText);
         RecordLink.Created := CurrentDateTime;
         RecordLink.Company := CompanyName;
         RecordLink.Insert(true);

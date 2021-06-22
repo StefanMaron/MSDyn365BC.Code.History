@@ -17,6 +17,7 @@ codeunit 99000752 "Check Routing Lines"
         UOMMgt: Codeunit "Unit of Measure Management";
         ErrList: Text[50];
         Text008: Label 'Operation %1 does not have a work center or a machine center defined.';
+        WorkMachineCenterNotExistErr: Label 'Operation no. %1 uses %2 no. %3 that no longer exists.', Comment = '%1 - Routing Line Operation No.; %2 - Work Center or Machine Center table caption; %3 - Work or Machine Center No.';
 
     local procedure ErrorInRouting(RoutingCode: Code[20]; Direction: Text[20]; ActualSequence: Integer; MaxSequences: Integer)
     begin
@@ -350,6 +351,8 @@ codeunit 99000752 "Check Routing Lines"
     var
         RtngLine: Record "Routing Line";
         RtngLine2: Record "Routing Line";
+        WorkCenter: Record "Work Center";
+        MachineCenter: Record "Machine Center";
         NoOfProcesses: Integer;
     begin
         ErrList := '';
@@ -360,6 +363,20 @@ codeunit 99000752 "Check Routing Lines"
         if RtngLine.FindFirst then
             Error(Text008, RtngLine."Operation No.");
         RtngLine.SetRange("No.");
+
+        if RtngLine.FindSet() then
+            repeat
+                if RtngLine.Type = RtngLine.Type::"Work Center" then begin
+                    if not WorkCenter.Get(RtngLine."No.") then
+                        Error(WorkMachineCenterNotExistErr, RtngLine."Operation No.", WorkCenter.TableCaption, RtngLine."No.");
+                    WorkCenter.TestField(Blocked, false);
+                end;
+                if RtngLine.Type = RtngLine.Type::"Machine Center" then begin
+                    if not MachineCenter.Get(RtngLine."No.") then
+                        Error(WorkMachineCenterNotExistErr, RtngLine."Operation No.", MachineCenter.TableCaption, RtngLine."No.");
+                    MachineCenter.TestField(Blocked, false);
+                end;
+            until RtngLine.Next() = 0;
 
         RtngLine.SetFilter("Next Operation No.", '%1', '');
 

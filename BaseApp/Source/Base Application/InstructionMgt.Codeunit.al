@@ -59,11 +59,15 @@ codeunit 1330 "Instruction Mgt."
         exit(not UserPreference.Get(UserId, InstructionType));
     end;
 
-    procedure IsUnpostedEnabledForRecord("Record": Variant): Boolean
+    procedure IsUnpostedEnabledForRecord(RecVariant: Variant) Enabled: Boolean
     var
         MyNotifications: Record "My Notifications";
+        IsHandled: Boolean;
     begin
-        exit(MyNotifications.IsEnabledForRecord(GetClosingUnpostedDocumentNotificationId, Record));
+        IsHandled := false;
+        OnBeforeIsUnpostedEnabledForRecord(RecVariant, Enabled, IsHandled);
+        if not IsHandled then
+            Enabled := MyNotifications.IsEnabledForRecord(GetClosingUnpostedDocumentNotificationId, RecVariant);
     end;
 
     procedure IsMyNotificationEnabled(NotificationID: Guid): Boolean
@@ -236,6 +240,11 @@ codeunit 1330 "Instruction Mgt."
                 else
                     DisableMessageForCurrentUser(ClosingUnreleasedOrdersCode);
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    procedure OnBeforeIsUnpostedEnabledForRecord(RecVariant: Variant; var Enabled: Boolean; var IsHandled: Boolean)
+    begin
     end;
 }
 

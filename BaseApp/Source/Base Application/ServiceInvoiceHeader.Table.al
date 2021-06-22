@@ -830,7 +830,6 @@ table 5992 "Service Invoice Header"
         ServInvLine: Record "Service Invoice Line";
         DimMgt: Codeunit DimensionManagement;
         UserSetupMgt: Codeunit "User Setup Management";
-        DocTxt: Label 'Service Invoice';
 
     procedure Navigate()
     var
@@ -846,19 +845,25 @@ table 5992 "Service Invoice Header"
     var
         DocumentSendingProfile: Record "Document Sending Profile";
         DummyReportSelections: Record "Report Selections";
+        ReportDistributionMgt: Codeunit "Report Distribution Management";
+        DocumentTypeTxt: Text[50];
     begin
+        DocumentTypeTxt := ReportDistributionMgt.GetFullDocumentTypeText(Rec);
         DocumentSendingProfile.SendCustomerRecords(
-          DummyReportSelections.Usage::"SM.Invoice", Rec, DocTxt, "Bill-to Customer No.", "No.",
+          DummyReportSelections.Usage::"SM.Invoice", Rec, DocumentTypeTxt, "Bill-to Customer No.", "No.",
           FieldNo("Bill-to Customer No."), FieldNo("No."));
     end;
 
     procedure SendProfile(var DocumentSendingProfile: Record "Document Sending Profile")
     var
         DummyReportSelections: Record "Report Selections";
+        ReportDistributionMgt: Codeunit "Report Distribution Management";
+        DocumentTypeTxt: Text[50];
     begin
+        DocumentTypeTxt := ReportDistributionMgt.GetFullDocumentTypeText(Rec);
         DocumentSendingProfile.Send(
           DummyReportSelections.Usage::"SM.Invoice", Rec, "No.", "Bill-to Customer No.",
-          DocTxt, FieldNo("Bill-to Customer No."), FieldNo("No."));
+          DocumentTypeTxt, FieldNo("Bill-to Customer No."), FieldNo("No."));
     end;
 
     procedure PrintRecords(ShowRequestPage: Boolean)

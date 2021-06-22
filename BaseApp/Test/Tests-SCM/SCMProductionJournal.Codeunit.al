@@ -1062,6 +1062,64 @@ codeunit 137034 "SCM Production Journal"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ProdOrderWithVeryLongDescriptionCanBeHandledbyConsumptionJournal()
+    var
+        ProductionOrder: Record "Production Order";
+        ConsumptionJournal: TestPage "Consumption Journal";
+    begin
+        // [FEATURE] [Consumption Journal] [UI]
+        // [SCENARIO 364799] Consumption Journal page can handle production order with description of length 100
+        Initialize();
+
+        // [GIVEN] Production Order with a description of Length = 100
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, LibraryInventory.CreateItemNo(),
+          LibraryRandom.RandDec(10, 2));
+        ProductionOrder.Validate(Description, LibraryUtility.GenerateRandomAlphabeticText(100, 0));
+        ProductionOrder.Modify(true);
+
+        // [GIVEN] Consumption Journal page was open
+        ConsumptionJournal.OpenEdit();
+        ConsumptionJournal.New();
+
+        // [WHEN] Validate Order No. in the page
+        ConsumptionJournal."Order No.".SetValue(ProductionOrder."No.");
+
+        // [THEN] No error, description is displayed
+        ConsumptionJournal.Description.AssertEquals(ProductionOrder.Description);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ProdOrderWithVeryLongDescriptionCanBeHandledbyRecurringConsumptionJournal()
+    var
+        ProductionOrder: Record "Production Order";
+        RecurringConsumptionJournal: TestPage "Recurring Consumption Journal";
+    begin
+        // [FEATURE] [Consumption Journal] [UI]
+        // [SCENARIO 364799] Recurring Consumption Journal page can handle production order with description of length 100
+        Initialize();
+
+        // [GIVEN] Production Order with a description of Length = 100
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, LibraryInventory.CreateItemNo(),
+          LibraryRandom.RandDec(10, 2));
+        ProductionOrder.Validate(Description, LibraryUtility.GenerateRandomAlphabeticText(100, 0));
+        ProductionOrder.Modify(true);
+
+        // [GIVEN] Recurring Consumption Journal page was open
+        RecurringConsumptionJournal.OpenEdit();
+        RecurringConsumptionJournal.New();
+
+        // [WHEN] Validate Order No. in the page
+        RecurringConsumptionJournal."Order No.".SetValue(ProductionOrder."No.");
+
+        // [THEN] No error, description is displayed
+        RecurringConsumptionJournal.Description.AssertEquals(ProductionOrder.Description);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

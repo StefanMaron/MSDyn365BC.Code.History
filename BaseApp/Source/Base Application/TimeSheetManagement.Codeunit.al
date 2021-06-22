@@ -331,6 +331,7 @@ codeunit 950 "Time Sheet Management"
         FromTimeSheetLine: Record "Time Sheet Line";
         ToTimeSheetLine: Record "Time Sheet Line";
         LineNo: Integer;
+        IsHandled: Boolean;
     begin
         LineNo := ToTimeSheetHeader.GetLastLineNo;
 
@@ -342,27 +343,30 @@ codeunit 950 "Time Sheet Management"
             FromTimeSheetLine.SetFilter(Type, '<>%1&<>%2', FromTimeSheetLine.Type::Service, FromTimeSheetLine.Type::"Assembly Order");
             if FromTimeSheetLine.FindSet() then
                 repeat
-                    OnCopyPrevTimeSheetLinesOnBeforeCopyLine(FromTimeSheetLine);
-                    LineNo := LineNo + 10000;
-                    ToTimeSheetLine.Init();
-                    ToTimeSheetLine."Time Sheet No." := ToTimeSheetHeader."No.";
-                    ToTimeSheetLine."Line No." := LineNo;
-                    ToTimeSheetLine."Time Sheet Starting Date" := ToTimeSheetHeader."Starting Date";
-                    ToTimeSheetLine.Type := FromTimeSheetLine.Type;
-                    case ToTimeSheetLine.Type of
-                        ToTimeSheetLine.Type::Job:
-                            begin
-                                ToTimeSheetLine.Validate("Job No.", FromTimeSheetLine."Job No.");
-                                ToTimeSheetLine.Validate("Job Task No.", FromTimeSheetLine."Job Task No.");
-                            end;
-                        ToTimeSheetLine.Type::Absence:
-                            ToTimeSheetLine.Validate("Cause of Absence Code", FromTimeSheetLine."Cause of Absence Code");
+                    IsHandled := false;
+                    OnCopyPrevTimeSheetLinesOnBeforeCopyLine(FromTimeSheetLine, IsHandled);
+                    if not IsHandled then begin
+                        LineNo := LineNo + 10000;
+                        ToTimeSheetLine.Init();
+                        ToTimeSheetLine."Time Sheet No." := ToTimeSheetHeader."No.";
+                        ToTimeSheetLine."Line No." := LineNo;
+                        ToTimeSheetLine."Time Sheet Starting Date" := ToTimeSheetHeader."Starting Date";
+                        ToTimeSheetLine.Type := FromTimeSheetLine.Type;
+                        case ToTimeSheetLine.Type of
+                            ToTimeSheetLine.Type::Job:
+                                begin
+                                    ToTimeSheetLine.Validate("Job No.", FromTimeSheetLine."Job No.");
+                                    ToTimeSheetLine.Validate("Job Task No.", FromTimeSheetLine."Job Task No.");
+                                end;
+                            ToTimeSheetLine.Type::Absence:
+                                ToTimeSheetLine.Validate("Cause of Absence Code", FromTimeSheetLine."Cause of Absence Code");
+                        end;
+                        ToTimeSheetLine.Description := FromTimeSheetLine.Description;
+                        ToTimeSheetLine.Chargeable := FromTimeSheetLine.Chargeable;
+                        ToTimeSheetLine."Work Type Code" := FromTimeSheetLine."Work Type Code";
+                        OnBeforeToTimeSheetLineInsert(ToTimeSheetLine, FromTimeSheetLine);
+                        ToTimeSheetLine.Insert();
                     end;
-                    ToTimeSheetLine.Description := FromTimeSheetLine.Description;
-                    ToTimeSheetLine.Chargeable := FromTimeSheetLine.Chargeable;
-                    ToTimeSheetLine."Work Type Code" := FromTimeSheetLine."Work Type Code";
-                    OnBeforeToTimeSheetLineInsert(ToTimeSheetLine, FromTimeSheetLine);
-                    ToTimeSheetLine.Insert();
                 until FromTimeSheetLine.Next() = 0;
         end;
 
@@ -929,7 +933,7 @@ codeunit 950 "Time Sheet Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCopyPrevTimeSheetLinesOnBeforeCopyLine(var TimeSheetLine: Record "Time Sheet Line")
+    local procedure OnCopyPrevTimeSheetLinesOnBeforeCopyLine(var TimeSheetLine: Record "Time Sheet Line"; var IsHandled: Boolean)
     begin
     end;
 

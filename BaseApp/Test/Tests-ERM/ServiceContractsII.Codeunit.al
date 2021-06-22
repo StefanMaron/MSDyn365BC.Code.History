@@ -788,17 +788,21 @@ codeunit 136145 "Service Contracts II"
     [Test]
     [HandlerFunctions('MultipleDialogsConfirmHandler,SelectServiceContractTemplateListHandler,CreateContractInvoicesRequestPageHandler,MessageHandler')]
     [Scope('OnPrem')]
-    procedure NoRoundingVarianceOnMultipleServiceInvoiceWithFCYPrepaidContract()
+    procedure NoRoundingVarianceOnMultipleServiceInvoiceWithFCYPrepaidContractPositiveVarianceScenario()
     var
         ServContractHeader: Record "Service Contract Header";
         ServContractLine: Record "Service Contract Line";
+        ServiceLine: Record "Service Line";
+        ServiceHeader: Record "Service Header";
+        ServiceInvoiceLine: Record "Service Invoice Line";
+        ServiceInvoiceHeader: Record "Service Invoice Header";
         CustomExchRate: Decimal;
     begin
         // [FEATURE] [FCY] [Rounding]
         // [SCENARIO 379879] Total amount is correct without rounding variance in Service Invoice with multiple lines for Prepaid Service Contract
         Initialize();
 
-        // [GIVEN] Prepaid Service Contract with FCY. Exchange Rate equal 1/7.95
+        // [GIVEN] Prepaid Service Contract with FCY. Exchange Rate equal 1 / 7.95
         CustomExchRate := 1 / 7.95;
         CreateServiceContractHeaderWithCurrency(
           ServContractHeader, LibrarySales.CreateCustomerNo,
@@ -817,11 +821,117 @@ codeunit 136145 "Service Contracts II"
         // [WHEN] Create Service Invoice
         RunCreateContractInvoices;
 
-        // [THEN] Total amount of multiple Service Lines is 5000 (39750 * 1/7.95)
+        // [THEN] Total amount of multiple Service Lines is 5000 (39750 * 1 / 7.95)
+        VerifyServContractLineAmountSplitByPeriod(
+                ServContractHeader."Contract No.", ServContractLine."Service Item No.",
+                GetServContractGLAcc(ServContractHeader."Serv. Contract Acc. Gr. Code", true),
+                ServContractHeader."Next Invoice Period Start", 12, 5000);
+
+        // [THEN] Some service invoice lines are going to be different.
+        FilterServiceLine(ServiceLine, ServContractHeader."Contract No.", GetServContractGLAcc(ServContractHeader."Serv. Contract Acc. Gr. Code", true), WorkDate);
+        FindServiceDocumentHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, ServContractHeader."Contract No.");
+        ServiceLine.SetRange("Document No.", ServiceHeader."No.");
+        ServiceLine.SetRange("Line Amount", 416.67);
+        Assert.AreEqual(8, ServiceLine.Count(), 'Some service invoice lines will have the values rounded up');
+        ServiceLine.SetRange("Line Amount", 416.66); // slightly lesser to take care of rounding
+        Assert.AreEqual(4, ServiceLine.Count(), 'Some service invoice lines will have the values rounded down');
+        ServiceLine.SetRange("Line Amount");
+        ServiceLine.FindSet();
+        repeat
+            Assert.AreEqual(0, ServiceLine."Line Discount Amount", 'Discount should be 0!');
+        until ServiceLine.Next() = 0;
+
+        // [GIVEN] First post the previous invoice for this contract
+        ServiceHeader.SetRange("Document Type", ServiceHeader."Document Type"::Invoice);
+        ServiceHeader.SetRange("Contract No.", ServContractHeader."Contract No.");
+        ServiceHeader.FindFirst();
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
+
+        // [WHEN] Post Service Invoice with rounded amounts
+        ServiceHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.");
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
+
+        // [THEN] Match the total amount
+        ServiceInvoiceHeader.SetRange("Pre-Assigned No.", ServiceHeader."No.");
+        ServiceInvoiceHeader.FindFirst();
+        ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
+        ServiceInvoiceLine.CalcSums(Amount);
+        Assert.AreEqual(5000, ServiceInvoiceLine.Amount, '5000 = (39750 * 1 / 7.95)');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('MultipleDialogsConfirmHandler,SelectServiceContractTemplateListHandler,CreateContractInvoicesRequestPageHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure NoRoundingVarianceOnMultipleServiceInvoiceWithFCYPrepaidContractNegativeVarianceScenario()
+    var
+        ServContractHeader: Record "Service Contract Header";
+        ServContractLine: Record "Service Contract Line";
+        ServiceLine: Record "Service Line";
+        ServiceHeader: Record "Service Header";
+        ServiceInvoiceLine: Record "Service Invoice Line";
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        CustomExchRate: Decimal;
+    begin
+        // [FEATURE] [FCY] [Rounding]
+        // [SCENARIO 379879] Total amount is correct without rounding variance in Service Invoice with multiple lines for Prepaid Service Contract
+
+        Initialize;
+
+        // [GIVEN] Prepaid Service Contract with FCY. Exchange Rate equal 100/64.8824
+        CustomExchRate := 100 / 64.8824;
+        CreateServiceContractHeaderWithCurrency(
+          ServContractHeader, LibrarySales.CreateCustomerNo,
+          LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, CustomExchRate, CustomExchRate));
+
+        // [GIVEN] Service Contract Line has amount 36933
+        CreateContractLineWithSpecificAmount(ServContractLine, ServContractHeader, 36933);
+        UpdateServContractHeader(ServContractHeader);
+        LibraryVariableStorage.Enqueue(StrSubstNo(SignServContractQst, ServContractHeader."Contract No."));
+        LibraryVariableStorage.Enqueue(CreateInvoiceMsg);
+        SignContract(ServContractHeader);
+
+        WorkDate := ServContractHeader."Next Invoice Period Start";
+        LibraryVariableStorage.Enqueue(ServContractHeader."Next Invoice Period Start");
+        LibraryVariableStorage.Enqueue(ServContractHeader."Contract No.");
+
+        // [WHEN] Create Service Invoice
+        RunCreateContractInvoices;
+
+        // [THEN] Total amount of multiple Service Lines is 56922.99 (36933 * 100/64.8824)
         VerifyServContractLineAmountSplitByPeriod(
           ServContractHeader."Contract No.", ServContractLine."Service Item No.",
-          GetServContractGLAcc(ServContractHeader."Serv. Contract Acc. Gr. Code", true),
-          ServContractHeader."Next Invoice Period Start", 12, 5000);
+          GetServContractGLAcc(ServContractHeader."Serv. Contract Acc. Gr. Code", true), WorkDate, 12, 56922.99);
+
+        // [THEN] Some service invoice lines are going to be different.
+        FilterServiceLine(ServiceLine, ServContractHeader."Contract No.", GetServContractGLAcc(ServContractHeader."Serv. Contract Acc. Gr. Code", true), WorkDate);
+        ServiceLine.SetRange("Line Amount", 4743.58);
+        Assert.AreEqual(9, ServiceLine.Count(), 'Some service invoice lines will have the values rounded down');
+        ServiceLine.SetRange("Line Amount", 4743.59); // slightly greater to take care of rounding
+        Assert.AreEqual(3, ServiceLine.Count(), 'Some service invoice lines will have the values rounded up');
+        ServiceLine.SetRange("Line Amount");
+        ServiceLine.FindSet();
+        repeat
+            Assert.AreEqual(0, ServiceLine."Line Discount Amount", 'Discount should be 0!');
+        until ServiceLine.Next() = 0;
+
+        // [GIVEN] First post the previous invoice for this contract
+        ServiceHeader.SetRange("Document Type", ServiceHeader."Document Type"::Invoice);
+        ServiceHeader.SetRange("Contract No.", ServContractHeader."Contract No.");
+        ServiceHeader.FindFirst();
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
+
+        // [WHEN] Post Service Invoice with rounded amounts
+        ServiceHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.");
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
+
+        // [THEN] Match the total amount
+        ServiceInvoiceHeader.SetRange("Pre-Assigned No.", ServiceHeader."No.");
+        ServiceInvoiceHeader.FindFirst();
+        ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
+        ServiceInvoiceLine.CalcSums(Amount);
+        Assert.AreEqual(56922.99, ServiceInvoiceLine.Amount, '56922.99 = (36933 * 100/64.8824)');
 
         LibraryVariableStorage.AssertEmpty();
     end;
@@ -2114,6 +2224,8 @@ codeunit 136145 "Service Contracts II"
         Assert.RecordCount(ServiceLine, NoOfLines);
         ServiceLine.CalcSums(Amount);
         ServiceLine.TestField(Amount, ExpectedAmount);
+        ServiceLine.CalcSums("Line Amount");
+        ServiceLine.TestField("Line Amount", ExpectedAmount);
     end;
 
     local procedure VerifyFirstServiceLineForServiceContractLine(ContractNo: Code[20]; ServItemNo: Code[20]; GLAccNo: Code[20]; PostingDate: Date; StartingDate: Date; EndingDate: Date; ExpectedAmount: Decimal)

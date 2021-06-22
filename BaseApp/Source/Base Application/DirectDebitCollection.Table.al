@@ -121,10 +121,16 @@ table 1207 "Direct Debit Collection"
             DirectDebitCollectionEntry.ExportSEPA;
     end;
 
-    procedure HasPaymentFileErrors(): Boolean
+    procedure HasPaymentFileErrors() Result: Boolean
     var
         GenJnlLine: Record "Gen. Journal Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeHasPaymentFileErrors(Rec, GenJnlLine, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         GenJnlLine."Document No." := CopyStr(Format("No."), 1, MaxStrLen(GenJnlLine."Document No."));
         exit(GenJnlLine.HasPaymentFileErrorsInBatch);
     end;
@@ -146,6 +152,11 @@ table 1207 "Direct Debit Collection"
             repeat
                 DirectDebitCollectionEntry.DeletePaymentFileErrors;
             until DirectDebitCollectionEntry.Next = 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeHasPaymentFileErrors(DirectDebitCollection: Record "Direct Debit Collection"; var DirectDebit: Record "Gen. Journal Line"; var Result: Boolean; var IsHandled: Boolean)
+    begin
     end;
 }
 

@@ -142,9 +142,14 @@ codeunit 359 PeriodFormManagement
             Calendar."Period End" := AccountingPeriodMgt.GetDefaultPeriodEndingDate(Calendar."Period Start")
         else
             if AccountingPeriod.Next = 0 then
-                Calendar."Period End" := DMY2Date(31, 12, 9998)
+                Calendar."Period End" := EndOfPeriod()
             else
                 Calendar."Period End" := AccountingPeriod."Starting Date" - 1;
+    end;
+
+    procedure EndOfPeriod(): Date
+    begin
+        exit(DMY2Date(31, 12, 9999));
     end;
 
     procedure GetFullPeriodDateFilter(PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period"; DateFilter: Text): Text

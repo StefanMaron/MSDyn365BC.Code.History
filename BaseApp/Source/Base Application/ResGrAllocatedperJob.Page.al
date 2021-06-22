@@ -1,4 +1,4 @@
-page 228 "Res. Gr. Allocated per Job"
+﻿page 228 "Res. Gr. Allocated per Job"
 {
     Caption = 'Res. Gr. Allocated per Job';
     DataCaptionExpression = '';
@@ -94,6 +94,7 @@ page 228 "Res. Gr. Allocated per Job"
                     JobPlanningLine.SetRange("Resource Group No.", ResourceGrFilter);
                     JobPlanningLine.SetRange(Type, JobPlanningLine.Type::Resource);
                     JobRec.SetRange("Resource Gr. Filter", ResourceGrFilter);
+                    OnActionShowMatrixOnAfterSetJobFilters(JobRec);
                     ResGrpPerJobFormWithMatrix.Load(JobRec, JobPlanningLine, MatrixColumnCaptions, MatrixRecords);
                     ResGrpPerJobFormWithMatrix.RunModal;
                 end;
@@ -170,6 +171,11 @@ page 228 "Res. Gr. Allocated per Job"
 
     [IntegrationEvent(false, false)]
     local procedure OnActionShowMatrix(var JobRec: Record Job; ResourceGrFilter: Text; MatrixColumnCaptions: Array[32] of Text; MatrixRecords: Array[32] of Record Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnActionShowMatrixOnAfterSetJobFilters(var JobRec: Record Job)
     begin
     end;
 }

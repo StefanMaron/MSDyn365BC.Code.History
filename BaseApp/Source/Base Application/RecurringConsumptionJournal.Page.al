@@ -540,7 +540,7 @@ page 99000850 "Recurring Consumption Journal"
     var
         ItemJnlMgt: Codeunit ItemJnlManagement;
         ReportPrint: Codeunit "Test Report-Print";
-        ProdOrderDescription: Text[50];
+        ProdOrderDescription: Text[100];
         CurrentJnlBatchName: Code[10];
         ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;

@@ -5823,6 +5823,69 @@ codeunit 134327 "ERM Purchase Order"
         Assert.ExpectedError(StrSubstNo(DisposedErr, DepreciationCalc.FAName(FixedAsset, FADeprBook."Depreciation Book Code")));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostPurchaseOrderAfterLastAccoutningPeriodWithAutomaticCostAdjustment()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        AccountingPeriod: Record "Accounting Period";
+        InventorySetup: Record "Inventory Setup";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        Item: Record Item;
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Cost Adjustment]
+        // It's possible to Post when posting date is greater than the last accounting period.
+        Initialize();
+        InventorySetup.FindFirst();
+        InventorySetup."Automatic Cost Adjustment" := InventorySetup."Automatic Cost Adjustment"::Always;
+        InventorySetup."Average Cost Period" := InventorySetup."Average Cost Period"::"Accounting Period";
+        InventorySetup.Modify();
+
+        // Setup: Create an Item and set the costing method to average
+        Item.Get(CreateItem());
+        Item.Validate("Costing Method", Item."Costing Method"::Average);
+        Item.Modify();
+
+        // [GIVEN] Purchase Order with Purchase Line.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        if not AccountingPeriod.FindLast() then begin
+            CreateAccountingPeriod();
+            AccountingPeriod.FindLast();
+        end;
+        PurchaseHeader.Validate("Posting Date", CalcDate('<2D>', AccountingPeriod."Starting Date"));
+        PurchaseHeader.Modify(true);
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Post Invoice and Receive Purchase Order.
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] Posting finishes successfully and vendor ledger entry can be found.
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, DocumentNo);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CopyInvNoToPmtRefExistsInPurchPayablesSetup()
+    var
+        PurchasesPayablesSetup: TestPage "Purchases & Payables Setup";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 362612] A "Copy Inv. No. To Pmt. Ref." field is visible in the Purchases & Payables Setup page
+
+        Initialize();
+        LibraryApplicationArea.EnableFoundationSetup();
+
+        PurchasesPayablesSetup.OpenEdit();
+        Assert.IsTrue(PurchasesPayablesSetup."Copy Inv. No. To Pmt. Ref.".Visible, 'A field is not visible');
+        PurchasesPayablesSetup.Close();
+
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -5849,6 +5912,18 @@ codeunit 134327 "ERM Purchase Order"
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Purchase Order");
+    end;
+
+    local procedure CreateAccountingPeriod()
+    var
+        AccountingPeriod: Record "Accounting Period";
+    begin
+        if AccountingPeriod.GetFiscalYearStartDate(WorkDate) = 0D then begin
+            AccountingPeriod.Init();
+            AccountingPeriod."Starting Date" := CalcDate('<-CY>', WorkDate);
+            AccountingPeriod."New Fiscal Year" := true;
+            AccountingPeriod.Insert();
+        end;
     end;
 
     local procedure LightInit()
@@ -6882,7 +6957,7 @@ codeunit 134327 "ERM Purchase Order"
         PurchasesPayablesSetup.Modify();
     end;
 
-    local procedure MockDisposedFA(var FADepreciationBook : Record "FA Depreciation Book");
+    local procedure MockDisposedFA(var FADepreciationBook: Record "FA Depreciation Book");
     var
         DepreciationBook: Record "Depreciation Book";
         FixedAsset: Record "Fixed Asset";

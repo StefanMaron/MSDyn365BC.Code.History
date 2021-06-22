@@ -302,12 +302,12 @@ table 304 "Issued Fin. Charge Memo Header"
         FinChrgCommentLine: Record "Fin. Charge Comment Line";
         FinChrgMemoIssue: Codeunit "FinChrgMemo-Issue";
         DimMgt: Codeunit DimensionManagement;
-        FinanceChargeTxt: Label 'Issued Finance Charge Memo';
 
     procedure PrintRecords(ShowRequestForm: Boolean; SendAsEmail: Boolean; HideDialog: Boolean)
     var
         DummyReportSelections: Record "Report Selections";
         DocumentSendingProfile: Record "Document Sending Profile";
+        ReportDistributionMgt: Codeunit "Report Distribution Management";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -317,7 +317,8 @@ table 304 "Issued Fin. Charge Memo Header"
 
         if SendAsEmail then
             DocumentSendingProfile.TrySendToEMail(
-              DummyReportSelections.Usage::"Fin.Charge", Rec, FieldNo("No."), FinanceChargeTxt, FieldNo("Customer No."), not HideDialog)
+              DummyReportSelections.Usage::"Fin.Charge", Rec, FieldNo("No."), ReportDistributionMgt.GetFullDocumentTypeText(Rec),
+              FieldNo("Customer No."), not HideDialog)
         else
             DocumentSendingProfile.TrySendToPrinter(
               DummyReportSelections.Usage::"Fin.Charge", Rec, FieldNo("Customer No."), ShowRequestForm)

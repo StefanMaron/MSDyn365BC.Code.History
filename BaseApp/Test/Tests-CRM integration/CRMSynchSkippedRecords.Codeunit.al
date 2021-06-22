@@ -173,17 +173,17 @@ codeunit 139186 "CRM Synch. Skipped Records"
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer[2], CRMAccount[2]);
         // [GIVEN] IntegrationTableMapping 'CUSTOMER' has Modified On Filters set
         IntegrationTableMapping.Get('CUSTOMER');
-        IntegrationTableMapping."Synch. Modified On Filter" := CurrentDateTime - 5000;
-        IntegrationTableMapping."Synch. Int. Tbl. Mod. On Fltr." := CurrentDateTime - 4000;
+        IntegrationTableMapping."Synch. Int. Tbl. Mod. On Fltr." := CurrentDateTime + 10000;
+        IntegrationTableMapping."Synch. Modified On Filter" := CurrentDateTime + 9000;
         IntegrationTableMapping.Modify();
 
         // [GIVEN] Both Customer 10000 and CRM Account 10000 are modified after the last synch. job.
-        LibraryCRMIntegration.ShiftModifiedOnBy(Customer[1].RecordId, -1000);
-        CRMAccount[1].ModifiedOn := IntegrationTableMapping."Synch. Int. Tbl. Mod. On Fltr." + 2000;
+        LibraryCRMIntegration.ShiftModifiedOnBy(Customer[1].RecordId, 60000);
+        CRMAccount[1].ModifiedOn := IntegrationTableMapping."Synch. Modified On Filter" + 60000;
         CRMAccount[1].Modify();
         // [GIVEN] Customer 20000 is modified on CRM side only
-        LibraryCRMIntegration.MockLastSyncModifiedOn(Customer[2].RecordId, IntegrationTableMapping."Synch. Modified On Filter" - 1000);
-        CRMAccount[2].Name := LibraryUtility.GenerateGUID;
+        LibraryCRMIntegration.MockLastSyncModifiedOn(Customer[2].RecordId, IntegrationTableMapping."Synch. Int. Tbl. Mod. On Fltr." - 10000);
+        CRMAccount[2].ModifiedOn := IntegrationTableMapping."Synch. Modified On Filter" + 65000;
         CRMAccount[2].Modify();
 
         // [GIVEN] Run sync job for customers
@@ -212,7 +212,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
         // [THEN] Sync Job: one record is failed, the second - unchanged
         Clear(IntegrationSynchJob);
         IntegrationSynchJob.Failed := 1;
-        IntegrationSynchJob.Unchanged := 2;
+        IntegrationSynchJob.Unchanged := 1;
         VerifyIntSynchJobs(JobQueueEntryID, IntegrationSynchJob);
     end;
 

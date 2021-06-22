@@ -10,6 +10,15 @@ page 1394 "Trial Balance Setup"
     {
         area(content)
         {
+            group(Step0)
+            {
+                Caption = '';
+                group(Control1)
+                {
+                    InstructionalText = 'Note that the trial balance page shows a maximum of 9 rows because it is intended to show a simplified version of the G/L Trial Balance chart.';
+                    ShowCaption = false;
+                }
+            }
             group(General)
             {
                 field("Account Schedule Name"; "Account Schedule Name")

@@ -1498,6 +1498,72 @@ codeunit 134006 "ERM Apply Unapply Customer"
         VATEntry.TestField("Additional-Currency Amount", 0);
     end;
 
+    [Test]
+    [HandlerFunctions('UnapplyCustomerEntriesModalPageHandler,ConfirmHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure UnapplyMultipleEntrisAfterCurrencyAdjustment()
+    var
+        Customer: Record Customer;
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: array[3] of Record "Gen. Journal Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        CustEntryApplyPostedEntries: Codeunit "CustEntry-Apply Posted Entries";
+        Amount: array[3] of Decimal;
+        CurrencyCode: Code[10];
+    begin
+        // [FEATURE] [FCY] [Adjust Exchange Rate]
+        // [SCENARIO 360284] Two Invoices are correctly unapplied from the Payment after running Currency Adjustment for the later date
+        Initialize;
+
+        // [GIVEN] Create Currency Code with Exchange Rate "ER1" for 01.01
+        CurrencyCode := CreateCurrencyAndExchangeRate(LibraryRandom.RandDec(10, 2), 1, WorkDate);
+
+        // [GIVEN] Invoice "INV001" of 100 USD posted on 01.01
+        LibrarySales.CreateCustomer(Customer);
+        SelectGenJournalBatch(GenJournalBatch, false);
+        Amount[1] := LibraryRandom.RandDecInRange(10000, 20000, 2);
+        CreateAndPostGenJnlLineWithCurrency(
+          GenJournalLine[1], GenJournalBatch, WorkDate,
+          GenJournalLine[1]."Document Type"::Invoice, Customer."No.", CurrencyCode, Amount[1]);
+
+        // [GIVEN] Invoice "INV001" of 200 USD posted on 02.01
+        Amount[2] := LibraryRandom.RandDecInRange(10000, 20000, 2);
+        CreateAndPostGenJnlLineWithCurrency(
+          GenJournalLine[2], GenJournalBatch, WorkDate + 1,
+          GenJournalLine[2]."Document Type"::Invoice, Customer."No.", CurrencyCode, Amount[2]);
+
+        // [GIVEN] Payment of 300 USD posted on 05.01
+        Amount[3] := -Amount[1] - Amount[2];
+        CreateAndPostGenJnlLineWithCurrency(
+          GenJournalLine[3], GenJournalBatch, WorkDate + 4,
+          GenJournalLine[3]."Document Type"::Payment, Customer."No.", CurrencyCode, Amount[3]);
+
+        // [GIVEN] Payment applied to Invoices
+        ApplyAndPostCustomerEntry(
+          GenJournalLine[1]."Document No.", GenJournalLine[3]."Document No.", Amount[1],
+          GenJournalLine[1]."Document Type", GenJournalLine[3]."Document Type");
+        ApplyAndPostCustomerEntry(
+          GenJournalLine[2]."Document No.", GenJournalLine[3]."Document No.", Amount[2],
+          GenJournalLine[2]."Document Type", GenJournalLine[3]."Document Type");
+
+        // [GIVEN] Created Exchange Rate "ER2" for 03.01
+        CreateExchangeRate(CurrencyCode, LibraryRandom.RandDec(10, 2), 1, WorkDate + 2);
+
+        // [GIVEN] Payment has been adjusted by "ER2"
+        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate + 3, WorkDate + 3);
+
+        // [WHEN] Unapply Invoices from Payment
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, GenJournalLine[1]."Document Type", GenJournalLine[1]."Document No.");
+        CustEntryApplyPostedEntries.UnApplyCustLedgEntry(CustLedgerEntry."Entry No.");
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, GenJournalLine[2]."Document Type", GenJournalLine[2]."Document No.");
+        CustEntryApplyPostedEntries.UnApplyCustLedgEntry(CustLedgerEntry."Entry No.");
+
+        // [THEN] Invoices and Payment are balanced to its adjusted exchange rate
+        VerifyCustLedgerEntryRemAmtLCYisBalanced(GenJournalLine[1]."Document No.", GenJournalLine[1]."Document Type");
+        VerifyCustLedgerEntryRemAmtLCYisBalanced(GenJournalLine[2]."Document No.", GenJournalLine[2]."Document Type");
+        VerifyCustLedgerEntryRemAmtLCYisBalanced(GenJournalLine[3]."Document No.", GenJournalLine[3]."Document Type");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

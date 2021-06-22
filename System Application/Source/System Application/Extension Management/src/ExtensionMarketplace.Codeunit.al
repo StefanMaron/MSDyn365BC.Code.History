@@ -12,10 +12,10 @@
 /// and needs to be parsed for the key information we need to perform an
 /// install.
 /// At current the key pieces of that object look like this:
-/// "msgType":"<type name string>",
+/// "msgType":"&lt;type name string&gt;",
 /// "data":
-///    "applicationId":"<string identifier for selected extension>",
-///    "telemetryUrl":"<url>",
+///    "applicationId":"&lt;string identifier for selected extension&gt;",
+///    "telemetryUrl":"&lt;url&gt;",
 /// </summary>
 codeunit 2501 "Extension Marketplace"
 {

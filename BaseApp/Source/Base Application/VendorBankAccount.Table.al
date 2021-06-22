@@ -21,6 +21,11 @@ table 288 "Vendor Bank Account"
         field(3; Name; Text[100])
         {
             Caption = 'Name';
+
+            trigger OnLookup()
+            begin
+                OnBeforeLookupName(xRec);
+            end;
         }
         field(5; "Name 2"; Text[50])
         {
@@ -227,6 +232,11 @@ table 288 "Vendor Bank Account"
 
         if "Bank Account No." <> '' then
             exit("Bank Account No.");
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeLookupName(xVendorBankAccount: Record "Vendor Bank Account")
+    begin
     end;
 }
 

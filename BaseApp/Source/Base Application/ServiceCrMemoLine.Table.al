@@ -355,8 +355,6 @@ table 5995 "Service Cr.Memo Line"
             Caption = 'Product Group Code';
             ObsoleteReason = 'Product Groups became first level children of Item Categories.';
             ObsoleteState = Removed;
-            TableRelation = "Product Group".Code WHERE("Item Category Code" = FIELD("Item Category Code"));
-            ValidateTableRelation = false;
             ObsoleteTag = '15.0';
         }
         field(5811; "Appl.-from Item Entry"; Integer)
@@ -588,6 +586,7 @@ table 5995 "Service Cr.Memo Line"
             repeat
                 TempVATAmountLine.Init();
                 TempVATAmountLine.CopyFromServCrMemoLine(Rec);
+                OnCalcVATAmountLinesOnBeforeInsertLine(ServCrMemoHeader, TempVATAmountLine);
                 TempVATAmountLine.InsertLine;
             until Next = 0;
     end;
@@ -648,6 +647,11 @@ table 5995 "Service Cr.Memo Line"
         ValueEntry.SetRange("Document No.", "Document No.");
         ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Service Credit Memo");
         ValueEntry.SetRange("Document Line No.", "Line No.");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcVATAmountLinesOnBeforeInsertLine(ServiceCrMemoHeader: Record "Service Cr.Memo Header"; var TempVATAmountLine: Record "VAT Amount Line" temporary)
+    begin
     end;
 }
 

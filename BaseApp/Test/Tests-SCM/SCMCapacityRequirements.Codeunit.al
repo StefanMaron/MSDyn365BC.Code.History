@@ -1321,6 +1321,152 @@ codeunit 137074 "SCM Capacity Requirements"
 
     [Test]
     [Scope('OnPrem')]
+    procedure RefreshBackwardProdOrderWithSendAheadAndWaitTime()
+    var
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        WorkCenterCode: array[3] of Code[20];
+        WorkCenterStartTime: array[3] of Time;
+        WorkCenterEndTime: array[3] of Time;
+        SetupTime: array[3] of Decimal;
+        RunTime: array[3] of Decimal;
+        WaitTime: array[3] of Decimal;
+        MoveTime: array[3] of Decimal;
+        SendAheadQty: array[3] of Integer;
+        i: Integer;
+    begin
+        // [FEATURE] [Routing] [Production Order] [Send-Ahead]
+        // [SCENARIO 360987] Refresh Release Production Order in Backward direction in case of "Wait Time" > "Run Time" * Send-ahead Quantity > 0.
+        Initialize();
+
+        // [GIVEN] Production Item "I" with Serial Routing with Send-ahead Quantity 3, 5; "Run Time" 10, 35, 60 minutes; "Wait Time" = 360.
+        // [GIVEN] Three Work Centers with operational hours: 09:00 - 14:00, 08:00 - 17:00, 08:00 - 23:00.
+        for i := 1 to ArrayLen(RunTime) do begin
+            SetupTime[i] := 0;
+            WaitTime[i] := 360;
+            MoveTime[i] := 0;
+            RunTime[i] := i * 25 - 15;
+            SendAheadQty[i] := i * 2 + 1;
+        end;
+
+        SetWorkCentersOperationalHours(WorkCenterStartTime, WorkCenterEndTime, 090000T, 140000T, 080000T, 170000T, 080000T, 230000T);
+        CreateProductionItemWithSerialRoutingSetupWaitMoveTime(
+          Item, WorkCenterCode, SetupTime, RunTime, WaitTime, MoveTime, SendAheadQty, WorkCenterStartTime, WorkCenterEndTime, 20200131D);
+
+        // [WHEN] Create Firm Planned Production Order for "I" with Quantity = 10 and Refresh it in Backward direction. Due Date is 31.01.20, this is Friday.
+        CreateAndRefreshBackwardFirmPlannedProductionOrder(ProductionOrder, Item."No.", 10, 20200131D);
+
+        // . |--|-----|
+        // .    |---|   --> Wait Time, can be outside of working hours
+        // .        |-----------|
+        // [THEN] "Wait Time" is added to the end of production period for every Send-ahead lot of "Prod. Order Routing Line", but it affects only the next "Prod. Order Routing Line".
+        // [THEN] "Wait Time" does not affect the production of the next lot of the current "Prod. Order Routing Line", i.e. current Work Center works without delays.
+        // [THEN] "Wait Time" is added once to the end of production period of the current "Prod. Order Routing Line".
+        ProdOrderRoutingLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderRoutingLine.FindFirst();
+        VerifyProdOrderStartEndDateTime(
+          ProdOrderRoutingLine, CreateDateTime(20200128D, 134500T), CreateDateTime(20200129D, 162500T));
+        GetNextProdOrderRoutingLine(ProdOrderRoutingLine, ProdOrderRoutingLine."Next Operation No.");
+        VerifyProdOrderStartEndDateTime(
+          ProdOrderRoutingLine, CreateDateTime(20200129D, 111000T), CreateDateTime(20200130D, 120000T));
+        GetNextProdOrderRoutingLine(ProdOrderRoutingLine, ProdOrderRoutingLine."Next Operation No.");
+        VerifyProdOrderStartEndDateTime(
+          ProdOrderRoutingLine, CreateDateTime(20200129D, 220000T), CreateDateTime(20200130D, 230000T));
+
+        // [THEN] "Starting Time" and Date of the first Capacity Need are equal to "Starting Time" and "Starting Date" of "Prod. Order Routing Line".
+        // [THEN] "Ending Time" and Date of the last Capacity Need are earlier than "Ending Time" and "Ending Date" of "Prod. Order Routing Line" by value "Wait Time".
+        VerifyCapacityNeedFirstStartLastEndDateTime(
+          ProductionOrder."No.", '', WorkCenterCode[1],
+          CreateDateTime(20200128D, 134500T), CreateDateTime(20200129D, 102500T));
+        VerifyCapacityNeedFirstStartLastEndDateTime(
+          ProductionOrder."No.", '', WorkCenterCode[2],
+          CreateDateTime(20200129D, 111000T), CreateDateTime(20200129D, 170000T));
+        VerifyCapacityNeedFirstStartLastEndDateTime(
+          ProductionOrder."No.", '', WorkCenterCode[3],
+          CreateDateTime(20200129D, 220000T), CreateDateTime(20200130D, 170000T));
+
+        // [THEN] Sum of "Allocated Time" of Capacity Need lines for Work Center is equal to Prod. Order Quantity multiply by "Run time" of a Routing Line.
+        for i := 1 to ArrayLen(RunTime) do
+            VerifyCapacityNeedTotalAllocatedTime(
+              ProductionOrder."No.", '', WorkCenterCode[i], 10 * RunTime[i]);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RefreshBackwardProdOrderWithSendAheadAndMoveTime()
+    var
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        WorkCenterCode: array[3] of Code[20];
+        WorkCenterStartTime: array[3] of Time;
+        WorkCenterEndTime: array[3] of Time;
+        SetupTime: array[3] of Decimal;
+        RunTime: array[3] of Decimal;
+        WaitTime: array[3] of Decimal;
+        MoveTime: array[3] of Decimal;
+        SendAheadQty: array[3] of Integer;
+        i: Integer;
+    begin
+        // [FEATURE] [Routing] [Production Order] [Send-Ahead]
+        // [SCENARIO 360987] Refresh Release Production Order in Backward direction in case of "Move Time" > "Run Time" * Send-ahead Quantity > 0.
+        Initialize();
+
+        // [GIVEN] Production Item "I" with Serial Routing with Send-ahead Quantity 3, 5; "Run Time" 10, 35, 60 minutes; "Move Time" = 360.
+        // [GIVEN] Three Work Centers with operational hours: 09:00 - 14:00, 08:00 - 17:00, 08:00 - 23:00.
+        for i := 1 to ArrayLen(RunTime) do begin
+            SetupTime[i] := 0;
+            WaitTime[i] := 0;
+            MoveTime[i] := 360;
+            RunTime[i] := i * 25 - 15;
+            SendAheadQty[i] := i * 2 + 1;
+        end;
+
+        SetWorkCentersOperationalHours(WorkCenterStartTime, WorkCenterEndTime, 090000T, 140000T, 080000T, 170000T, 080000T, 230000T);
+        CreateProductionItemWithSerialRoutingSetupWaitMoveTime(
+          Item, WorkCenterCode, SetupTime, RunTime, WaitTime, MoveTime, SendAheadQty, WorkCenterStartTime, WorkCenterEndTime, 20200131D);
+
+        // [WHEN] Create Firm Planned Production Order for "I" with Quantity = 10 and Refresh it in Backward direction. Due Date is 31.01.20, this is Friday.
+        CreateAndRefreshBackwardFirmPlannedProductionOrder(ProductionOrder, Item."No.", 10, 20200131D);
+
+        // . |--|-----|
+        // .    |---|   --> Move Time, only working hours
+        // .        |-----------|
+        // [THEN] "Move Time" is added to the end of production period for every Send-ahead lot of "Prod. Order Routing Line", but it affects only the next "Prod. Order Routing Line".
+        // [THEN] "Move Time" does not affect the production of the next lot of the current "Prod. Order Routing Line", i.e. current Work Center works without delays.
+        // [THEN] "Move Time" is added once to the end of production period of the current "Prod. Order Routing Line".
+        ProdOrderRoutingLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderRoutingLine.FindFirst();
+        VerifyProdOrderStartEndDateTime(
+          ProdOrderRoutingLine, CreateDateTime(20200128D, 112000T), CreateDateTime(20200129D, 140000T));
+        GetNextProdOrderRoutingLine(ProdOrderRoutingLine, ProdOrderRoutingLine."Next Operation No.");
+        VerifyProdOrderStartEndDateTime(
+          ProdOrderRoutingLine, CreateDateTime(20200129D, 091000T), CreateDateTime(20200130D, 120000T));
+        GetNextProdOrderRoutingLine(ProdOrderRoutingLine, ProdOrderRoutingLine."Next Operation No.");
+        VerifyProdOrderStartEndDateTime(
+          ProdOrderRoutingLine, CreateDateTime(20200129D, 220000T), CreateDateTime(20200130D, 230000T));
+
+        // [THEN] "Starting Time" and Date of the first Capacity Need are equal to "Starting Time" and "Starting Date" of "Prod. Order Routing Line".
+        // [THEN] "Ending Time" and Date of the last Capacity Need are earlier than "Ending Time" and "Ending Date" of "Prod. Order Routing Line" by value "Move Time".
+        VerifyCapacityNeedFirstStartLastEndDateTime(
+          ProductionOrder."No.", '', WorkCenterCode[1],
+          CreateDateTime(20200128D, 112000T), CreateDateTime(20200128D, 130000T));
+        VerifyCapacityNeedFirstStartLastEndDateTime(
+          ProductionOrder."No.", '', WorkCenterCode[2],
+          CreateDateTime(20200129D, 091000T), CreateDateTime(20200129D, 150000T));
+        VerifyCapacityNeedFirstStartLastEndDateTime(
+          ProductionOrder."No.", '', WorkCenterCode[3],
+          CreateDateTime(20200129D, 220000T), CreateDateTime(20200130D, 170000T));
+
+        // [THEN] Sum of "Allocated Time" of Capacity Need lines for Work Center is equal to Prod. Order Quantity multiply by "Run time" of a Routing Line.
+        for i := 1 to ArrayLen(RunTime) do
+            VerifyCapacityNeedTotalAllocatedTime(
+              ProductionOrder."No.", '', WorkCenterCode[i], 10 * RunTime[i]);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure RefreshBackwardPlanningLineWithZeroSendAhead()
     var
         Item: Record Item;
@@ -1724,6 +1870,152 @@ codeunit 137074 "SCM Capacity Requirements"
 
     [Test]
     [Scope('OnPrem')]
+    procedure RefreshBackwardPlanningLineWithSendAheadAndWaitTime()
+    var
+        Item: Record Item;
+        RequisitionLine: Record "Requisition Line";
+        PlanningRoutingLine: Record "Planning Routing Line";
+        WorkCenterCode: array[3] of Code[20];
+        WorkCenterStartTime: array[3] of Time;
+        WorkCenterEndTime: array[3] of Time;
+        SetupTime: array[3] of Decimal;
+        RunTime: array[3] of Decimal;
+        WaitTime: array[3] of Decimal;
+        MoveTime: array[3] of Decimal;
+        SendAheadQty: array[3] of Integer;
+        i: Integer;
+    begin
+        // [FEATURE] [Routing] [Planning] [Send-Ahead]
+        // [SCENARIO 360987] Refresh Planning Line in Backward direction in case of "Wait Time" > "Run Time" * Send-ahead Quantity > 0.
+        Initialize();
+
+        // [GIVEN] Production Item "I" with Serial Routing with Send-ahead Quantity 3, 5; "Run Time" 10, 35, 60 minutes; "Wait Time" = 360.
+        // [GIVEN] Three Work Centers with operational hours: 09:00 - 14:00, 08:00 - 17:00, 08:00 - 23:00.
+        for i := 1 to ArrayLen(RunTime) do begin
+            SetupTime[i] := 0;
+            WaitTime[i] := 360;
+            MoveTime[i] := 0;
+            RunTime[i] := i * 25 - 15;
+            SendAheadQty[i] := i * 2 + 1;
+        end;
+        SetWorkCentersOperationalHours(WorkCenterStartTime, WorkCenterEndTime, 090000T, 140000T, 080000T, 170000T, 080000T, 230000T);
+        CreateProductionItemWithSerialRoutingSetupWaitMoveTime(
+          Item, WorkCenterCode, SetupTime, RunTime, WaitTime, MoveTime, SendAheadQty, WorkCenterStartTime, WorkCenterEndTime, 20200131D);
+
+        // [WHEN] Create Planning Line for "I" with Quantity = 10 and Refresh it in Backward direction. Due Date is 31.01.20, this is Friday.
+        CreateAndRefreshBackwardPlanningLine(RequisitionLine, Item."No.", 10, 20200131D);
+
+        // . |--|-----|
+        // .    |---|   --> Wait Time, can be outside of working hours
+        // .        |-----------|
+        // [THEN] "Wait Time" is added to the end of production period for every Send-ahead lot of "Planning Routing Line", but it affects only the next "Planning Routing Line".
+        // [THEN] "Wait Time" does not affect the production of the next lot of the current "Planning Routing Line", i.e. current Work Center works without delays.
+        // [THEN] "Wait Time" is added once to the end of production period of the current "Planning Routing Line".
+        PlanningRoutingLine.SetRange("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
+        PlanningRoutingLine.SetRange("Worksheet Line No.", RequisitionLine."Line No.");
+        PlanningRoutingLine.FindFirst();
+        VerifyPlanningLineStartEndDateTime(
+          PlanningRoutingLine, CreateDateTime(20200128D, 134500T), CreateDateTime(20200129D, 162500T));
+        GetNextPlanningRoutingLine(PlanningRoutingLine, PlanningRoutingLine."Next Operation No.");
+        VerifyPlanningLineStartEndDateTime(
+          PlanningRoutingLine, CreateDateTime(20200129D, 111000T), CreateDateTime(20200130D, 120000T));
+        GetNextPlanningRoutingLine(PlanningRoutingLine, PlanningRoutingLine."Next Operation No.");
+        VerifyPlanningLineStartEndDateTime(
+          PlanningRoutingLine, CreateDateTime(20200129D, 220000T), CreateDateTime(20200130D, 230000T));
+
+        // [THEN] "Starting Time" and Date of the first Capacity Need are equal to "Starting Time" and "Starting Date" of "Planning Routing Line".
+        // [THEN] "Ending Time" and Date of the last Capacity Need are earlier than "Ending Time" and "Ending Date" of "Planning Routing Line" by value "Wait Time".
+        VerifyCapacityNeedFirstStartLastEndDateTime(
+          RequisitionLine."Ref. Order No.", PlanningRoutingLine."Worksheet Template Name", WorkCenterCode[1],
+          CreateDateTime(20200128D, 134500T), CreateDateTime(20200129D, 102500T));
+        VerifyCapacityNeedFirstStartLastEndDateTime(
+          RequisitionLine."Ref. Order No.", PlanningRoutingLine."Worksheet Template Name", WorkCenterCode[2],
+          CreateDateTime(20200129D, 111000T), CreateDateTime(20200129D, 170000T));
+        VerifyCapacityNeedFirstStartLastEndDateTime(
+          RequisitionLine."Ref. Order No.", PlanningRoutingLine."Worksheet Template Name", WorkCenterCode[3],
+          CreateDateTime(20200129D, 220000T), CreateDateTime(20200130D, 170000T));
+
+        // [THEN] Sum of "Allocated Time" of Capacity Need lines for Work Center is equal to Planning Line Quantity multiply by "Run time" of a Routing Line.
+        for i := 1 to ArrayLen(RunTime) do
+            VerifyCapacityNeedTotalAllocatedTime(
+              RequisitionLine."Ref. Order No.", PlanningRoutingLine."Worksheet Template Name", WorkCenterCode[i], 10 * RunTime[i]);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RefreshBackwardPlanningLineWithSendAheadAndMoveTime()
+    var
+        Item: Record Item;
+        RequisitionLine: Record "Requisition Line";
+        PlanningRoutingLine: Record "Planning Routing Line";
+        WorkCenterCode: array[3] of Code[20];
+        WorkCenterStartTime: array[3] of Time;
+        WorkCenterEndTime: array[3] of Time;
+        SetupTime: array[3] of Decimal;
+        RunTime: array[3] of Decimal;
+        WaitTime: array[3] of Decimal;
+        MoveTime: array[3] of Decimal;
+        SendAheadQty: array[3] of Integer;
+        i: Integer;
+    begin
+        // [FEATURE] [Routing] [Planning] [Send-Ahead]
+        // [SCENARIO 360987] Refresh Planning Line in Backward direction in case of "Move Time" > "Run Time" * Send-ahead Quantity > 0.
+        Initialize();
+
+        // [GIVEN] Production Item "I" with Serial Routing with Send-ahead Quantity 3, 5; "Run Time" 10, 35, 60 minutes; "Move Time" = 360.
+        // [GIVEN] Three Work Centers with operational hours: 09:00 - 14:00, 08:00 - 17:00, 08:00 - 23:00.
+        for i := 1 to ArrayLen(RunTime) do begin
+            SetupTime[i] := 0;
+            WaitTime[i] := 0;
+            MoveTime[i] := 360;
+            RunTime[i] := i * 25 - 15;
+            SendAheadQty[i] := i * 2 + 1;
+        end;
+        SetWorkCentersOperationalHours(WorkCenterStartTime, WorkCenterEndTime, 090000T, 140000T, 080000T, 170000T, 080000T, 230000T);
+        CreateProductionItemWithSerialRoutingSetupWaitMoveTime(
+          Item, WorkCenterCode, SetupTime, RunTime, WaitTime, MoveTime, SendAheadQty, WorkCenterStartTime, WorkCenterEndTime, 20200131D);
+
+        // [WHEN] Create Planning Line for "I" with Quantity = 10 and Refresh it in Forward direction. Due Date is 31.01.20, this is Friday.
+        CreateAndRefreshBackwardPlanningLine(RequisitionLine, Item."No.", 10, 20200131D);
+
+        // . |--|-----|
+        // .    |---|   --> Move Time, only working hours
+        // .        |-----------|
+        // [THEN] "Move Time" is added to the end of production period for every Send-ahead lot of "Planning Routing Line", but it affects only the next "Planning Routing Line".
+        // [THEN] "Move Time" does not affect the production of the next lot of the current "Planning Routing Line", i.e. current Work Center works without delays.
+        // [THEN] "Move Time" is added once to the end of production period of the current "Planning Routing Line".
+        PlanningRoutingLine.SetRange("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
+        PlanningRoutingLine.SetRange("Worksheet Line No.", RequisitionLine."Line No.");
+        PlanningRoutingLine.FindFirst();
+        VerifyPlanningLineStartEndDateTime(
+          PlanningRoutingLine, CreateDateTime(20200128D, 112000T), CreateDateTime(20200129D, 140000T));
+        GetNextPlanningRoutingLine(PlanningRoutingLine, PlanningRoutingLine."Next Operation No.");
+        VerifyPlanningLineStartEndDateTime(
+          PlanningRoutingLine, CreateDateTime(20200129D, 091000T), CreateDateTime(20200130D, 120000T));
+        GetNextPlanningRoutingLine(PlanningRoutingLine, PlanningRoutingLine."Next Operation No.");
+        VerifyPlanningLineStartEndDateTime(
+          PlanningRoutingLine, CreateDateTime(20200129D, 220000T), CreateDateTime(20200130D, 230000T));
+
+        // [THEN] "Starting Time" and Date of the first Capacity Need are equal to "Starting Time" and "Starting Date" of "Planning Routing Line".
+        // [THEN] "Ending Time" and Date of the last Capacity Need are earlier than "Ending Time" and "Ending Date" of "Planning Routing Line" by value "Move Time".
+        VerifyCapacityNeedFirstStartLastEndDateTime(
+          RequisitionLine."Ref. Order No.", PlanningRoutingLine."Worksheet Template Name", WorkCenterCode[1],
+          CreateDateTime(20200128D, 112000T), CreateDateTime(20200128D, 130000T));
+        VerifyCapacityNeedFirstStartLastEndDateTime(
+          RequisitionLine."Ref. Order No.", PlanningRoutingLine."Worksheet Template Name", WorkCenterCode[2],
+          CreateDateTime(20200129D, 091000T), CreateDateTime(20200129D, 150000T));
+        VerifyCapacityNeedFirstStartLastEndDateTime(
+          RequisitionLine."Ref. Order No.", PlanningRoutingLine."Worksheet Template Name", WorkCenterCode[3],
+          CreateDateTime(20200129D, 220000T), CreateDateTime(20200130D, 170000T));
+
+        // [THEN] Sum of "Allocated Time" of Capacity Need lines for Work Center is equal to Planning Line Quantity multiply by "Run time" of a Routing Line.
+        for i := 1 to ArrayLen(RunTime) do
+            VerifyCapacityNeedTotalAllocatedTime(
+              RequisitionLine."Ref. Order No.", PlanningRoutingLine."Worksheet Template Name", WorkCenterCode[i], 10 * RunTime[i]);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure RefreshForwardProdOrderWithZeroSendAhead()
     var
         Item: Record Item;
@@ -2049,7 +2341,7 @@ codeunit 137074 "SCM Capacity Requirements"
 
     [Test]
     [Scope('OnPrem')]
-    procedure RefreshForwardProdOrderWithSetupTime()
+    procedure RefreshForwardProdOrderWithSendAheadAndSetupTime()
     var
         Item: Record Item;
         ProductionOrder: Record "Production Order";
@@ -2249,6 +2541,152 @@ codeunit 137074 "SCM Capacity Requirements"
         VerifyCapacityNeedFirstStartLastEndDateTime(
           ProductionOrder."No.", '', WorkCenterCode[3],
           CreateDateTime(20200127D, 180300T), CreateDateTime(20200128D, 130300T));
+
+        // [THEN] Sum of "Allocated Time" of Capacity Need lines for Work Center is equal to Prod. Order Quantity multiply by "Run time" of a Routing Line.
+        for i := 1 to ArrayLen(RunTime) do
+            VerifyCapacityNeedTotalAllocatedTime(
+              ProductionOrder."No.", '', WorkCenterCode[i], 10 * RunTime[i]);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RefreshForwardProdOrderWithSendAheadAndWaitTime()
+    var
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        WorkCenterCode: array[3] of Code[20];
+        WorkCenterStartTime: array[3] of Time;
+        WorkCenterEndTime: array[3] of Time;
+        SetupTime: array[3] of Decimal;
+        RunTime: array[3] of Decimal;
+        WaitTime: array[3] of Decimal;
+        MoveTime: array[3] of Decimal;
+        SendAheadQty: array[3] of Integer;
+        i: Integer;
+    begin
+        // [FEATURE] [Routing] [Production Order] [Send-Ahead]
+        // [SCENARIO 360987] Refresh Release Production Order in Forward direction in case of "Wait Time" > "Run Time" * Send-ahead Quantity > 0.
+        Initialize();
+
+        // [GIVEN] Production Item "I" with Serial Routing with Send-ahead Quantity 3, 5; "Run Time" 10, 35, 60 minutes; "Wait Time" = 360.
+        // [GIVEN] Three Work Centers with operational hours: 09:00 - 14:00, 08:00 - 17:00, 08:00 - 23:00.
+        for i := 1 to ArrayLen(RunTime) do begin
+            SetupTime[i] := 0;
+            WaitTime[i] := 360;
+            MoveTime[i] := 0;
+            RunTime[i] := i * 25 - 15;
+            SendAheadQty[i] := i * 2 + 1;
+        end;
+
+        SetWorkCentersOperationalHours(WorkCenterStartTime, WorkCenterEndTime, 090000T, 140000T, 080000T, 170000T, 080000T, 230000T);
+        CreateProductionItemWithSerialRoutingSetupWaitMoveTime(
+          Item, WorkCenterCode, SetupTime, RunTime, WaitTime, MoveTime, SendAheadQty, WorkCenterStartTime, WorkCenterEndTime, 20200128D);
+
+        // [WHEN] Create Firm Planned Production Order for "I" with Quantity = 10 and Refresh it in Forward direction. Starting Date is 27.01.20, Starting Time is 12:05.
+        CreateAndRefreshForwardFirmPlannedProductionOrder(ProductionOrder, Item."No.", 10, 20200127D, 120500T);
+
+        // . |--|-----|
+        // .    |---|   --> Wait Time, can be outside of working hours
+        // .        |-----------|
+        // [THEN] "Wait Time" is added to the end of production period for every Send-ahead lot of "Prod. Order Routing Line", but it affects only the next "Prod. Order Routing Line".
+        // [THEN] "Wait Time" does not affect the production of the next lot of the current "Prod. Order Routing Line", i.e. current Work Center works without delays.
+        // [THEN] "Wait Time" is added once to the end of production period of the current "Prod. Order Routing Line".
+        ProdOrderRoutingLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderRoutingLine.FindFirst();
+        VerifyProdOrderStartEndDateTime(
+          ProdOrderRoutingLine, CreateDateTime(20200127D, 120500T), CreateDateTime(20200127D, 194500T));
+        GetNextProdOrderRoutingLine(ProdOrderRoutingLine, ProdOrderRoutingLine."Next Operation No.");
+        VerifyProdOrderStartEndDateTime(
+          ProdOrderRoutingLine, CreateDateTime(20200128D, 080000T), CreateDateTime(20200128D, 195000T));
+        GetNextProdOrderRoutingLine(ProdOrderRoutingLine, ProdOrderRoutingLine."Next Operation No.");
+        VerifyProdOrderStartEndDateTime(
+          ProdOrderRoutingLine, CreateDateTime(20200128D, 165500T), CreateDateTime(20200129D, 175500T));
+
+        // [THEN] "Starting Time" and Date of the first Capacity Need are equal to "Starting Time" and "Starting Date" of "Prod. Order Routing Line".
+        // [THEN] "Ending Time" and Date of the last Capacity Need are earlier than "Ending Time" and "Ending Date" of "Prod. Order Routing Line" by value "Wait Time".
+        VerifyCapacityNeedFirstStartLastEndDateTime(
+          ProductionOrder."No.", '', WorkCenterCode[1],
+          CreateDateTime(20200127D, 120500T), CreateDateTime(20200127D, 134500T));
+        VerifyCapacityNeedFirstStartLastEndDateTime(
+          ProductionOrder."No.", '', WorkCenterCode[2],
+          CreateDateTime(20200128D, 080000T), CreateDateTime(20200128D, 135000T));
+        VerifyCapacityNeedFirstStartLastEndDateTime(
+          ProductionOrder."No.", '', WorkCenterCode[3],
+          CreateDateTime(20200128D, 165500T), CreateDateTime(20200129D, 115500T));
+
+        // [THEN] Sum of "Allocated Time" of Capacity Need lines for Work Center is equal to Prod. Order Quantity multiply by "Run time" of a Routing Line.
+        for i := 1 to ArrayLen(RunTime) do
+            VerifyCapacityNeedTotalAllocatedTime(
+              ProductionOrder."No.", '', WorkCenterCode[i], 10 * RunTime[i]);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RefreshForwardProdOrderWithSendAheadAndMoveTime()
+    var
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        WorkCenterCode: array[3] of Code[20];
+        WorkCenterStartTime: array[3] of Time;
+        WorkCenterEndTime: array[3] of Time;
+        SetupTime: array[3] of Decimal;
+        RunTime: array[3] of Decimal;
+        WaitTime: array[3] of Decimal;
+        MoveTime: array[3] of Decimal;
+        SendAheadQty: array[3] of Integer;
+        i: Integer;
+    begin
+        // [FEATURE] [Routing] [Production Order] [Send-Ahead]
+        // [SCENARIO 360987] Refresh Release Production Order in Forward direction in case of "Move Time" > "Run Time" * Send-ahead Quantity > 0.
+        Initialize();
+
+        // [GIVEN] Production Item "I" with Serial Routing with Send-ahead Quantity 3, 5; "Run Time" 10, 35, 60 minutes; "Move Time" = 360.
+        // [GIVEN] Three Work Centers with operational hours: 09:00 - 14:00, 08:00 - 17:00, 08:00 - 23:00.
+        for i := 1 to ArrayLen(RunTime) do begin
+            SetupTime[i] := 0;
+            WaitTime[i] := 0;
+            MoveTime[i] := 360;
+            RunTime[i] := i * 25 - 15;
+            SendAheadQty[i] := i * 2 + 1;
+        end;
+
+        SetWorkCentersOperationalHours(WorkCenterStartTime, WorkCenterEndTime, 090000T, 140000T, 080000T, 170000T, 080000T, 230000T);
+        CreateProductionItemWithSerialRoutingSetupWaitMoveTime(
+          Item, WorkCenterCode, SetupTime, RunTime, WaitTime, MoveTime, SendAheadQty, WorkCenterStartTime, WorkCenterEndTime, 20200128D);
+
+        // [WHEN] Create Firm Planned Production Order for "I" with Quantity = 10 and Refresh it in Forward direction. Starting Date is 27.01.20, Starting Time is 12:05.
+        CreateAndRefreshForwardFirmPlannedProductionOrder(ProductionOrder, Item."No.", 10, 20200127D, 120500T);
+
+        // . |--|-----|
+        // .    |---|   --> Move Time, only working hours
+        // .        |-----------|
+        // [THEN] "Move Time" is added to the end of production period for every Send-ahead lot of "Prod. Order Routing Line", but it affects only the next "Prod. Order Routing Line".
+        // [THEN] "Move Time" does not affect the production of the next lot of the current "Prod. Order Routing Line", i.e. current Work Center works without delays.
+        // [THEN] "Move Time" is added once to the end of production period of the current "Prod. Order Routing Line".
+        ProdOrderRoutingLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderRoutingLine.FindFirst();
+        VerifyProdOrderStartEndDateTime(
+          ProdOrderRoutingLine, CreateDateTime(20200127D, 120500T), CreateDateTime(20200129D, 094500T));
+        GetNextProdOrderRoutingLine(ProdOrderRoutingLine, ProdOrderRoutingLine."Next Operation No.");
+        VerifyProdOrderStartEndDateTime(
+          ProdOrderRoutingLine, CreateDateTime(20200128D, 133500T), CreateDateTime(20200129D, 162500T));
+        GetNextProdOrderRoutingLine(ProdOrderRoutingLine, ProdOrderRoutingLine."Next Operation No.");
+        VerifyProdOrderStartEndDateTime(
+          ProdOrderRoutingLine, CreateDateTime(20200129D, 133000T), CreateDateTime(20200130D, 143000T));
+
+        // [THEN] "Starting Time" and Date of the first Capacity Need are equal to "Starting Time" and "Starting Date" of "Prod. Order Routing Line".
+        // [THEN] "Ending Time" and Date of the last Capacity Need are earlier than "Ending Time" and "Ending Date" of "Prod. Order Routing Line" by value "Move Time".
+        VerifyCapacityNeedFirstStartLastEndDateTime(
+          ProductionOrder."No.", '', WorkCenterCode[1],
+          CreateDateTime(20200127D, 120500T), CreateDateTime(20200127D, 134500T));
+        VerifyCapacityNeedFirstStartLastEndDateTime(
+          ProductionOrder."No.", '', WorkCenterCode[2],
+          CreateDateTime(20200128D, 133500T), CreateDateTime(20200129D, 102500T));
+        VerifyCapacityNeedFirstStartLastEndDateTime(
+          ProductionOrder."No.", '', WorkCenterCode[3],
+          CreateDateTime(20200129D, 133000T), CreateDateTime(20200130D, 083000T));
 
         // [THEN] Sum of "Allocated Time" of Capacity Need lines for Work Center is equal to Prod. Order Quantity multiply by "Run time" of a Routing Line.
         for i := 1 to ArrayLen(RunTime) do
@@ -2588,7 +3026,7 @@ codeunit 137074 "SCM Capacity Requirements"
 
     [Test]
     [Scope('OnPrem')]
-    procedure RefreshForwardPlanningLineWithSetupTime()
+    procedure RefreshForwardPlanningLineWithSendAheadAndSetupTime()
     var
         Item: Record Item;
         RequisitionLine: Record "Requisition Line";
@@ -2797,6 +3235,213 @@ codeunit 137074 "SCM Capacity Requirements"
         for i := 1 to ArrayLen(RunTime) do
             VerifyCapacityNeedTotalAllocatedTime(
               RequisitionLine."Ref. Order No.", PlanningRoutingLine."Worksheet Template Name", WorkCenterCode[i], 10 * RunTime[i]);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RefreshForwardPlanningLineWithSendAheadAndWaitTime()
+    var
+        Item: Record Item;
+        RequisitionLine: Record "Requisition Line";
+        PlanningRoutingLine: Record "Planning Routing Line";
+        WorkCenterCode: array[3] of Code[20];
+        WorkCenterStartTime: array[3] of Time;
+        WorkCenterEndTime: array[3] of Time;
+        SetupTime: array[3] of Decimal;
+        RunTime: array[3] of Decimal;
+        WaitTime: array[3] of Decimal;
+        MoveTime: array[3] of Decimal;
+        SendAheadQty: array[3] of Integer;
+        i: Integer;
+    begin
+        // [FEATURE] [Routing] [Planning] [Send-Ahead]
+        // [SCENARIO 360987] Refresh Planning Line in Forward direction in case of "Wait Time" > "Run Time" * Send-ahead Quantity > 0.
+        Initialize();
+
+        // [GIVEN] Production Item "I" with Serial Routing with Send-ahead Quantity 3, 5; "Run Time" 10, 35, 60 minutes; "Wait Time" = 360.
+        // [GIVEN] Three Work Centers with operational hours: 09:00 - 14:00, 08:00 - 17:00, 08:00 - 23:00.
+        for i := 1 to ArrayLen(RunTime) do begin
+            SetupTime[i] := 0;
+            WaitTime[i] := 360;
+            MoveTime[i] := 0;
+            RunTime[i] := i * 25 - 15;
+            SendAheadQty[i] := i * 2 + 1;
+        end;
+        SetWorkCentersOperationalHours(WorkCenterStartTime, WorkCenterEndTime, 090000T, 140000T, 080000T, 170000T, 080000T, 230000T);
+        CreateProductionItemWithSerialRoutingSetupWaitMoveTime(
+          Item, WorkCenterCode, SetupTime, RunTime, WaitTime, MoveTime, SendAheadQty, WorkCenterStartTime, WorkCenterEndTime, 20200128D);
+
+        // [WHEN] Create Planning Line for "I" with Quantity = 10 and Refresh it in Forward direction. Starting Date is 27.01.20, Starting Time is 12:05.
+        CreateAndRefreshForwardPlanningLine(RequisitionLine, Item."No.", 10, 20200127D, 120500T);
+
+        // . |--|-----|
+        // .    |---|   --> Wait Time, can be outside of working hours
+        // .        |-----------|
+        // [THEN] "Wait Time" is added to the end of production period for every Send-ahead lot of "Planning Routing Line", but it affects only the next "Planning Routing Line".
+        // [THEN] "Wait Time" does not affect the production of the next lot of the current "Planning Routing Line", i.e. current Work Center works without delays.
+        // [THEN] "Wait Time" is added once to the end of production period of the current "Planning Routing Line".
+        PlanningRoutingLine.SetRange("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
+        PlanningRoutingLine.SetRange("Worksheet Line No.", RequisitionLine."Line No.");
+        PlanningRoutingLine.FindFirst();
+        VerifyPlanningLineStartEndDateTime(
+          PlanningRoutingLine, CreateDateTime(20200127D, 120500T), CreateDateTime(20200127D, 194500T));
+        GetNextPlanningRoutingLine(PlanningRoutingLine, PlanningRoutingLine."Next Operation No.");
+        VerifyPlanningLineStartEndDateTime(
+          PlanningRoutingLine, CreateDateTime(20200128D, 080000T), CreateDateTime(20200128D, 195000T));   // Wait Time is out of working hours
+        GetNextPlanningRoutingLine(PlanningRoutingLine, PlanningRoutingLine."Next Operation No.");
+        VerifyPlanningLineStartEndDateTime(
+          PlanningRoutingLine, CreateDateTime(20200128D, 165500T), CreateDateTime(20200129D, 175500T));
+
+        // [THEN] "Starting Time" and Date of the first Capacity Need are equal to "Starting Time" and "Starting Date" of "Planning Routing Line".
+        // [THEN] "Ending Time" and Date of the last Capacity Need are earlier than "Ending Time" and "Ending Date" of "Planning Routing Line" by value "Wait Time".
+        VerifyCapacityNeedFirstStartLastEndDateTime(
+          RequisitionLine."Ref. Order No.", PlanningRoutingLine."Worksheet Template Name", WorkCenterCode[1],
+          CreateDateTime(20200127D, 120500T), CreateDateTime(20200127D, 134500T));
+        VerifyCapacityNeedFirstStartLastEndDateTime(
+          RequisitionLine."Ref. Order No.", PlanningRoutingLine."Worksheet Template Name", WorkCenterCode[2],
+          CreateDateTime(20200128D, 080000T), CreateDateTime(20200128D, 135000T));
+        VerifyCapacityNeedFirstStartLastEndDateTime(
+          RequisitionLine."Ref. Order No.", PlanningRoutingLine."Worksheet Template Name", WorkCenterCode[3],
+          CreateDateTime(20200128D, 165500T), CreateDateTime(20200129D, 115500T));
+
+        // [THEN] Sum of "Allocated Time" of Capacity Need lines for Work Center is equal to Planning Line Quantity multiply by "Run time" of a Routing Line.
+        for i := 1 to ArrayLen(RunTime) do
+            VerifyCapacityNeedTotalAllocatedTime(
+              RequisitionLine."Ref. Order No.", PlanningRoutingLine."Worksheet Template Name", WorkCenterCode[i], 10 * RunTime[i]);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RefreshForwardPlanningLineWithSendAheadAndMoveTime()
+    var
+        Item: Record Item;
+        RequisitionLine: Record "Requisition Line";
+        PlanningRoutingLine: Record "Planning Routing Line";
+        WorkCenterCode: array[3] of Code[20];
+        WorkCenterStartTime: array[3] of Time;
+        WorkCenterEndTime: array[3] of Time;
+        SetupTime: array[3] of Decimal;
+        RunTime: array[3] of Decimal;
+        WaitTime: array[3] of Decimal;
+        MoveTime: array[3] of Decimal;
+        SendAheadQty: array[3] of Integer;
+        i: Integer;
+    begin
+        // [FEATURE] [Routing] [Planning] [Send-Ahead]
+        // [SCENARIO 360987] Refresh Planning Line in Forward direction in case of "Move Time" > "Run Time" * Send-ahead Quantity > 0.
+        Initialize();
+
+        // [GIVEN] Production Item "I" with Serial Routing with Send-ahead Quantity 3, 5; "Run Time" 10, 35, 60 minutes; "Move Time" = 360.
+        // [GIVEN] Three Work Centers with operational hours: 09:00 - 14:00, 08:00 - 17:00, 08:00 - 23:00.
+        for i := 1 to ArrayLen(RunTime) do begin
+            SetupTime[i] := 0;
+            WaitTime[i] := 0;
+            MoveTime[i] := 360;
+            RunTime[i] := i * 25 - 15;
+            SendAheadQty[i] := i * 2 + 1;
+        end;
+        SetWorkCentersOperationalHours(WorkCenterStartTime, WorkCenterEndTime, 090000T, 140000T, 080000T, 170000T, 080000T, 230000T);
+        CreateProductionItemWithSerialRoutingSetupWaitMoveTime(
+          Item, WorkCenterCode, SetupTime, RunTime, WaitTime, MoveTime, SendAheadQty, WorkCenterStartTime, WorkCenterEndTime, 20200128D);
+
+        // [WHEN] Create Planning Line for "I" with Quantity = 10 and Refresh it in Forward direction. Starting Date is 27.01.20, Starting Time is 12:05.
+        CreateAndRefreshForwardPlanningLine(RequisitionLine, Item."No.", 10, 20200127D, 120500T);
+
+        // . |--|-----|
+        // .    |---|   --> Move Time, only working hours
+        // .        |-----------|
+        // [THEN] "Move Time" is added to the end of production period for every Send-ahead lot of "Planning Routing Line", but it affects only the next "Planning Routing Line".
+        // [THEN] "Move Time" does not affect the production of the next lot of the current "Planning Routing Line", i.e. current Work Center works without delays.
+        // [THEN] "Move Time" is added once to the end of production period of the current "Planning Routing Line".
+        PlanningRoutingLine.SetRange("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
+        PlanningRoutingLine.SetRange("Worksheet Line No.", RequisitionLine."Line No.");
+        PlanningRoutingLine.FindFirst();
+        VerifyPlanningLineStartEndDateTime(
+          PlanningRoutingLine, CreateDateTime(20200127D, 120500T), CreateDateTime(20200129D, 094500T));
+        GetNextPlanningRoutingLine(PlanningRoutingLine, PlanningRoutingLine."Next Operation No.");
+        VerifyPlanningLineStartEndDateTime(
+          PlanningRoutingLine, CreateDateTime(20200128D, 133500T), CreateDateTime(20200129D, 162500T));
+        GetNextPlanningRoutingLine(PlanningRoutingLine, PlanningRoutingLine."Next Operation No.");
+        VerifyPlanningLineStartEndDateTime(
+          PlanningRoutingLine, CreateDateTime(20200129D, 133000T), CreateDateTime(20200130D, 143000T));
+
+        // [THEN] "Starting Time" and Date of the first Capacity Need are equal to "Starting Time" and "Starting Date" of "Planning Routing Line".
+        // [THEN] "Ending Time" and Date of the last Capacity Need are earlier than "Ending Time" and "Ending Date" of "Planning Routing Line" by value "Move Time".
+        VerifyCapacityNeedFirstStartLastEndDateTime(
+          RequisitionLine."Ref. Order No.", PlanningRoutingLine."Worksheet Template Name", WorkCenterCode[1],
+          CreateDateTime(20200127D, 120500T), CreateDateTime(20200127D, 134500T));
+        VerifyCapacityNeedFirstStartLastEndDateTime(
+          RequisitionLine."Ref. Order No.", PlanningRoutingLine."Worksheet Template Name", WorkCenterCode[2],
+          CreateDateTime(20200128D, 133500T), CreateDateTime(20200129D, 102500T));
+        VerifyCapacityNeedFirstStartLastEndDateTime(
+          RequisitionLine."Ref. Order No.", PlanningRoutingLine."Worksheet Template Name", WorkCenterCode[3],
+          CreateDateTime(20200129D, 133000T), CreateDateTime(20200130D, 083000T));
+
+        // [THEN] Sum of "Allocated Time" of Capacity Need lines for Work Center is equal to Planning Line Quantity multiply by "Run time" of a Routing Line.
+        for i := 1 to ArrayLen(RunTime) do
+            VerifyCapacityNeedTotalAllocatedTime(
+              RequisitionLine."Ref. Order No.", PlanningRoutingLine."Worksheet Template Name", WorkCenterCode[i], 10 * RunTime[i]);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure IncreaseEndingTimeManuallyProdOrderRoutingLineWithRunMoveTime()
+    var
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        WorkCenterCode: array[3] of Code[20];
+        WorkCenterStartTime: array[3] of Time;
+        WorkCenterEndTime: array[3] of Time;
+        DummySetupTime: array[3] of Decimal;
+        RunTime: array[3] of Decimal;
+        DummyWaitTime: array[3] of Decimal;
+        MoveTime: array[3] of Decimal;
+        DummySendAheadQty: array[3] of Integer;
+    begin
+        // [FEATURE] [Routing] [Production Order]
+        // [SCENARIO 363120] Set "Ending Date-Time" of Prod. Order Routing Line manually to increase production time in case < 0.00001 ms of Run Time remains unallocated.
+        Initialize();
+
+        // [GIVEN] Production Item "I" with Serial Routing with "Run Time" 7 minutes and "Move Time" 960 minutes (16 hours) for the first Routing Line.
+        // [GIVEN] Three Work Centers with operational hours 08:00 - 23:00, each of them works for 15 hours per day.
+        MoveTime[1] := 960;
+        RunTime[1] := 7;
+        RunTime[2] := 10;
+        RunTime[3] := 10;
+
+        SetWorkCentersOperationalHours(WorkCenterStartTime, WorkCenterEndTime, 080000T, 230000T, 080000T, 230000T, 080000T, 230000T);
+        CreateProductionItemWithSerialRoutingSetupWaitMoveTime(
+          Item, WorkCenterCode, DummySetupTime, RunTime, DummyWaitTime, MoveTime,
+          DummySendAheadQty, WorkCenterStartTime, WorkCenterEndTime, 20200129D);
+
+        // [GIVEN] Firm Planned Production Order for "I" with Quantity = 21, that was refreshed in Backward direction. Due Date is 29.01.20, this is Wednesday.
+        // [GIVEN] Three Prod. Order Routing Lines are created, the first one has Starting Date-Time = "27.01.2020 12:33", Enging Date-Time = "28.01.2020 16:00".
+        CreateAndRefreshBackwardFirmPlannedProductionOrder(ProductionOrder, Item."No.", 21, 20200129D);
+
+        // [GIVEN] "Schedule Manually" is set for the first Prod. Order Routing Line of Firm Planned Production Order.
+        FindFirstProdOrderRoutingLine(ProdOrderRoutingLine, ProductionOrder."No.");
+        UpdateScheduleManuallyOnProdOrderRoutingLine(ProdOrderRoutingLine, true);
+        ProdOrderRoutingLine.Validate("Ending Date-Time", CreateDateTime(20200130D, 080000T));  // set "Ending Date-Time" > "29.01.20 22:20" first to avoid bug with allocation
+
+        // [WHEN] Set "Ending Date-Time" of the first Prod. Order Routing Line to "29.01.2020 22:20"; 1427 minutes of Work Center time is allocated to produce Item "I".
+        ProdOrderRoutingLine.Validate("Ending Date-Time", CreateDateTime(20200129D, 222000T));
+        ProdOrderRoutingLine.Modify(true);
+
+        // [THEN] The second Prod. Order Routing Line starts at 22:20 on 29.01.20, it starts at the same time as the first Prod. Order Routing Line ends.
+        VerifyProdOrderStartEndDateTime(
+          ProdOrderRoutingLine, CreateDateTime(20200127D, 123300T), CreateDateTime(20200129D, 222000T));
+        GetNextProdOrderRoutingLine(ProdOrderRoutingLine, ProdOrderRoutingLine."Next Operation No.");
+        VerifyProdOrderStartEndDateTime(
+          ProdOrderRoutingLine, CreateDateTime(20200129D, 222000T), CreateDateTime(20200130D, 105000T));
+
+        // [THEN] Total "Run Time" 21 * 7 = 147 minutes of the first Prod. Order Routing Line is evenly distributed over 1427 minutes of allocated Work Center time.
+        VerifyCapacityNeedFirstStartLastEndDateTime(
+          ProductionOrder."No.", '', WorkCenterCode[1],
+          CreateDateTime(20200127D, 123300T), CreateDateTime(20200128D, 211954.443T));  // Ending Time is 21:19:54.443 due to rounding
+        VerifyCapacityNeedFirstStartLastEndDateTime(
+          ProductionOrder."No.", '', WorkCenterCode[2],
+          CreateDateTime(20200129D, 222000T), CreateDateTime(20200130D, 105000T));
     end;
 
     local procedure Initialize()
@@ -3496,6 +4141,12 @@ codeunit 137074 "SCM Capacity Requirements"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandDec(10, 2));
     end;
 
+    local procedure FindFirstProdOrderRoutingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProductionOrderNo: Code[20])
+    begin
+        ProdOrderRoutingLine.SetRange("Prod. Order No.", ProductionOrderNo);
+        ProdOrderRoutingLine.FindFirst();
+    end;
+
     local procedure FindProdOrderRoutingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProdOrderNo: Code[20]; Type: Option; No: Code[20])
     begin
         ProdOrderRoutingLine.SetRange("Prod. Order No.", ProdOrderNo);
@@ -3589,6 +4240,12 @@ codeunit 137074 "SCM Capacity Requirements"
     begin
         Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
         Item.Modify(true);
+    end;
+
+    local procedure UpdateScheduleManuallyOnProdOrderRoutingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ScheduleManually: Boolean)
+    begin
+        ProdOrderRoutingLine.Validate("Schedule Manually", ScheduleManually);
+        ProdOrderRoutingLine.Modify(true);
     end;
 
     local procedure VerifyWorkCenterLoad(WorkCenterLoad: TestPage "Work Center Load"; PeriodStart: Date; CapacityAvailable: Decimal; CapacityEfficiency: Decimal)

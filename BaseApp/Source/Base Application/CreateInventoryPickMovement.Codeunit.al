@@ -124,6 +124,8 @@ codeunit 7322 "Create Inventory Pick/Movement"
                 SetRange("Source No.", WhseActivHeader."Source No.");
             SetRange("Completely Handled", false);
             FilterGroup := 0;
+
+            OnGetWhseRequestOnBeforeSourceDocumentsRun(WhseRequest, WhseActivHeader);
             if PAGE.RunModal(PAGE::"Source Documents", WhseRequest, "Source No.") = ACTION::LookupOK then
                 exit(true);
         end;
@@ -373,7 +375,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
                 SetFilter("Qty. to Ship", '>%1', 0)
             else
                 SetFilter("Return Qty. to Receive", '<%1', 0);
-            OnBeforeFindSalesLine(SalesLine, SalesHeader, WhseActivHeader);
+            OnBeforeFindSalesLine(SalesLine, SalesHeader, WhseActivHeader, WhseRequest);
             exit(Find('-'));
         end;
     end;
@@ -625,6 +627,11 @@ codeunit 7322 "Create Inventory Pick/Movement"
         end;
     end;
 
+    procedure RunCreatePickOrMoveLine(NewWhseActivLine: Record "Warehouse Activity Line"; var RemQtyToPickBase: Decimal; OutstandingQtyBase: Decimal; ReservationExists: Boolean)
+    begin
+        CreatePickOrMoveLine(NewWhseActivLine, RemQtyToPickBase, OutstandingQtyBase, ReservationExists);
+    end;
+
     local procedure CreatePickOrMoveLine(NewWhseActivLine: Record "Warehouse Activity Line"; var RemQtyToPickBase: Decimal; OutstandingQtyBase: Decimal; ReservationExists: Boolean)
     var
         ReservationEntry: Record "Reservation Entry";
@@ -652,6 +659,9 @@ codeunit 7322 "Create Inventory Pick/Movement"
         then
             QtyAvailToPickBase += ATOSalesLine.QtyToAsmBaseOnATO;
 
+        OnCreatePickOrMoveLineOnAfterCalcQtyAvailToPickBase(
+            NewWhseActivLine, WhseItemTrackingSetup."Serial No. Required", WhseItemTrackingSetup."Lot No. Required",
+            ReservationExists, RemQtyToPickBase, QtyAvailToPickBase);
         if RemQtyToPickBase > QtyAvailToPickBase then begin
             RemQtyToPickBase := QtyAvailToPickBase;
             CompleteShipment := false;
@@ -1441,7 +1451,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
         NewWhseActivLine."Qty. to Handle" := 0;
         NewWhseActivLine."Qty. to Handle (Base)" := 0;
         RemQtyToPickBase := RemQtyToPickBase - QtyToPickBase;
-        OnBeforeNewWhseActivLineInsert(NewWhseActivLine);
+        OnBeforeNewWhseActivLineInsert(NewWhseActivLine, WhseActivHeader);
         NewWhseActivLine.Insert();
 
         if Location."Bin Mandatory" and IsInvtMovement then begin
@@ -1663,7 +1673,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeNewWhseActivLineInsert(var WarehouseActivityLine: Record "Warehouse Activity Line")
+    local procedure OnBeforeNewWhseActivLineInsert(var WarehouseActivityLine: Record "Warehouse Activity Line"; WarehouseActivityHeader: Record "Warehouse Activity Header")
     begin
     end;
 
@@ -1698,7 +1708,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeFindSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; WarehouseActivityHeader: Record "Warehouse Activity Header")
+    local procedure OnBeforeFindSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; WarehouseActivityHeader: Record "Warehouse Activity Header"; WarehouseRequest: Record "Warehouse Request")
     begin
     end;
 
@@ -1752,6 +1762,11 @@ codeunit 7322 "Create Inventory Pick/Movement"
     begin
     end;
 
+    [IntegrationEvent(true, false)]
+    local procedure OnCreatePickOrMoveLineOnAfterCalcQtyAvailToPickBase(var WarehouseActivityLine: Record "Warehouse Activity Line"; SNRequired: Boolean; LNRequired: Boolean; ReservationExists: Boolean; var RemQtyToPickBase: Decimal; var QtyAvailToPickBase: Decimal)
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnCheckSourceDocForWhseRequest(var WarehouseRequest: Record "Warehouse Request"; SourceDocRecRef: RecordRef; WhseActivHeader: Record "Warehouse Activity Header"; CheckLineExist: Boolean; var Result: Boolean; var IsHandled: Boolean)
     begin
@@ -1789,6 +1804,11 @@ codeunit 7322 "Create Inventory Pick/Movement"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetSourceDocHeaderFromWhseRequest(var WarehouseRequest: Record "Warehouse Request"; var SourceDocRecRef: RecordRef; var PostingDate: Date; VendorDocNo: Code[35])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetWhseRequestOnBeforeSourceDocumentsRun(var WarehouseRequest: Record "Warehouse Request"; var WarehouseActivityHeader: Record "Warehouse Activity Header");
     begin
     end;
 

@@ -29,6 +29,7 @@ codeunit 139155 "PEPPOL Management Tests"
         NoItemDescriptionErr: Label 'Description field is empty.';
         NoInternationalStandardCodeErr: Label 'You must specify a valid International Standard Code for the Unit of Measure for %1.';
         NegativeUnitPriceErr: Label 'It cannot be negative if you want to send the posted document as an electronic document. \\Do you want to continue?', Comment = '%1 - record ID';
+        FieldMustHaveValueErr: Label '%1 must have a value';
 
     [Test]
     [Scope('OnPrem')]
@@ -2963,6 +2964,62 @@ codeunit 139155 "PEPPOL Management Tests"
         CODEUNIT.Run(CODEUNIT::"PEPPOL Validation", SalesHeader);
 
         // [THEN] Validation is finished sucessfully
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestPeppolValidationISOCodeOnCompanyCountry()
+    var
+        SalesHeader: Record "Sales Header";
+        CompanyInformation: Record "Company Information";
+        CountryRegion: Record "Country/Region";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 362281] Error when validate document and ISO code in not specified in Country/Region of Company
+        Initialize;
+
+        // [GIVEN] Company information has Country/Region with ISO Code not specified
+        CompanyInformation.Get;
+        CountryRegion.Code := Format(LibraryRandom.RandIntInRange(10, 99));
+        CountryRegion.Insert;
+        CompanyInformation."Country/Region Code" := CountryRegion.Code;
+        CompanyInformation.Modify;
+
+        // [GIVEN] Sales Invoice is created
+        CreateGenericSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice);
+
+        // [WHEN] Run PEPPOL validation for the Sales Invoice
+        asserterror CODEUNIT.Run(CODEUNIT::"PEPPOL Validation", SalesHeader);
+
+        // [THEN] Error appeared that 'ISO Code must have a value'
+        Assert.ExpectedError(StrSubstNo(FieldMustHaveValueErr, CountryRegion.FieldCaption("ISO Code")));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestPeppolValidationISOCodeOnSalesDocCountry()
+    var
+        SalesHeader: Record "Sales Header";
+        CountryRegion: Record "Country/Region";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 362281] Error when validate document and ISO code in not specified in Country/Region of sales document
+        Initialize;
+
+        // [GIVEN] Country/Region with ISO Code not specified
+        CountryRegion.Code := Format(LibraryRandom.RandIntInRange(10, 99));
+        CountryRegion.Insert;
+
+        // [GIVEN] Sales Invoice is created with the Country/Resion above
+        CreateGenericSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice);
+        SalesHeader."Bill-to Country/Region Code" := CountryRegion.Code;
+        SalesHeader.Modify;
+
+        // [WHEN] Run PEPPOL validation for the Sales Invoice
+        asserterror CODEUNIT.Run(CODEUNIT::"PEPPOL Validation", SalesHeader);
+
+        // [THEN] Error appeared that 'ISO Code must have a value'
+        Assert.ExpectedError(StrSubstNo(FieldMustHaveValueErr, CountryRegion.FieldCaption("ISO Code")));
     end;
 
     local procedure Initialize()

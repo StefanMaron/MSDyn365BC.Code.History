@@ -882,6 +882,40 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         VerifyPurchaseLine(PurchaseHeader);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure AutoInsertStdTextPurchLinesWhenCreateNewPurchaseOrderFromVendorList()
+    var
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        VendorList: TestPage "Vendor List";
+        PurchaseOrder: TestPage "Purchase Order";
+    begin
+        // [FEATURE] [UI] [Automatic mode] [Order]
+        // [SCENARIO 361171] Purchase Line from text Std. Purchase Codes should be added when new Purchase Order is created from Vendor List
+        Initialize();
+
+        // [GIVEN] Vendor VEND with text standard purch code where Insert Rec. Lines On Orders = Automatic
+        Vendor.Get(
+            GetNewVendNoWithStandardPurchCodeForCode(RefDocType::Order, RefMode::Automatic, CreateStandardPurchaseCodeWithTextLine()));
+
+        // [GIVEN] Vendor List on vendor "V" record
+        VendorList.OpenEdit();
+        VendorList.GotoRecord(Vendor);
+
+        // [GIVEN] Perform page action: New Purchase Document -> Purchase Order
+        PurchaseOrder.Trap();
+        VendorList.NewPurchaseOrder.Invoke();
+
+        // [WHEN] Activate "Buy-from Vendor No." field
+        PurchaseOrder."Buy-from Vendor No.".Activate();
+        PurchaseOrder.PurchLines.First();
+
+        // [THEN] Text recurring purchase line created
+        PurchaseHeader.Get(PurchaseHeader."Document Type"::Order, PurchaseOrder."No.".Value);
+        VerifyPurchaseLine(PurchaseHeader);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -979,6 +1013,16 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         exit(StandardPurchaseLine."Standard Purchase Code");
     end;
 
+    local procedure CreateStandardPurchaseCodeWithTextLine(): Code[10]
+    var
+        StandardPurchaseLine: Record "Standard Purchase Line";
+    begin
+        StandardPurchaseLine."Standard Purchase Code" := CreateStandardPurchaseCode;
+        StandardPurchaseLine.Description := LibraryUTUtility.GetNewCode();
+        StandardPurchaseLine.Insert();
+        exit(StandardPurchaseLine."Standard Purchase Code");
+    end;
+
     local procedure FilterOnPurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header")
     begin
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
@@ -999,9 +1043,17 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
     var
         StandardVendorPurchaseCode: Record "Standard Vendor Purchase Code";
     begin
+        exit(
+            GetNewVendNoWithStandardPurchCodeForCode(DocType, Mode, CreateStandardPurchaseCodeWithItemLine()));
+    end;
+
+    local procedure GetNewVendNoWithStandardPurchCodeForCode(DocType: Option; Mode: Integer; PurchCode: code[10]): Code[20]
+    var
+        StandardVendorPurchaseCode: Record "Standard Vendor Purchase Code";
+    begin
         StandardVendorPurchaseCode.Init();
         StandardVendorPurchaseCode."Vendor No." := LibraryPurchase.CreateVendorNo;
-        StandardVendorPurchaseCode.Code := CreateStandardPurchaseCodeWithItemLine;
+        StandardVendorPurchaseCode.Code := PurchCode;
         case DocType of
             RefDocType::Quote:
                 StandardVendorPurchaseCode."Insert Rec. Lines On Quotes" := Mode;
@@ -1098,6 +1150,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         FilterOnPurchaseLine(PurchaseLine, PurchaseHeader);
         Assert.IsTrue(PurchaseLine.FindFirst, StrSubstNo(ValueMustExistMsg, PurchaseLine.TableCaption));
         FindStandardPurchaseLine(StandardPurchaseLine, PurchaseLine."Buy-from Vendor No.");
+        PurchaseLine.TestField(Type, StandardPurchaseLine.Type);
         PurchaseLine.TestField("No.", StandardPurchaseLine."No.");
         PurchaseLine.TestField(Quantity, StandardPurchaseLine.Quantity);
     end;

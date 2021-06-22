@@ -223,7 +223,7 @@ report 5405 "Calc. Consumption"
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         ItemTrackingLines: Page "Item Tracking Lines";
     begin
-        if ItemJournalLine.Quantity > 0 then
+        if ItemJournalLine.Quantity >= 0 then
             ItemTrackingMgt.CopyItemTracking(ProdOrderComponent.RowID1, ItemJournalLine.RowID1, false)
         else begin
             ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Consumption);

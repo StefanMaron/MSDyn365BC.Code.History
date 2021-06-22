@@ -106,6 +106,7 @@ codeunit 5750 "Whse.-Create Source Document"
                 "Bin Code" := WhseReceiptHeader."Bin Code";
             if "Bin Code" = '' then
                 "Bin Code" := SalesLine."Bin Code";
+            OnSalesLine2ReceiptLineOnBeforeUpdateReceiptLine(WhseReceiptLine, SalesLine);
             UpdateReceiptLine(WhseReceiptLine, WhseReceiptHeader);
             OnBeforeCreateReceiptLineFromSalesLine(WhseReceiptLine, WhseReceiptHeader, SalesLine);
             CreateReceiptLine(WhseReceiptLine);
@@ -218,6 +219,7 @@ codeunit 5750 "Whse.-Create Source Document"
             if "Bin Code" = '' then
                 "Bin Code" := PurchLine."Bin Code";
             UpdateReceiptLine(WhseReceiptLine, WhseReceiptHeader);
+            OnPurchLine2ReceiptLineOnAfterUpdateReceiptLine(WhseReceiptLine, WhseReceiptHeader);
             CreateReceiptLine(WhseReceiptLine);
             OnAfterCreateRcptLineFromPurchLine(WhseReceiptLine, WhseReceiptHeader, PurchLine);
             exit(not HasErrorOccured);
@@ -647,6 +649,11 @@ codeunit 5750 "Whse.-Create Source Document"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnSalesLine2ReceiptLineOnBeforeUpdateReceiptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnFromServiceLine2ShptLineOnAfterInitNewLine(var WhseShptLine: Record "Warehouse Shipment Line"; WhseShptHeader: Record "Warehouse Shipment Header"; ServiceLine: Record "Service Line")
     begin
     end;
@@ -668,6 +675,11 @@ codeunit 5750 "Whse.-Create Source Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnPurchLine2ReceiptLineOnAfterSetQtysOnRcptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPurchLine2ReceiptLineOnAfterUpdateReceiptLine(var WhseReceiptLine: Record "Warehouse Receipt Line"; var WhseReceiptHeader: Record "Warehouse Receipt Header")
     begin
     end;
 

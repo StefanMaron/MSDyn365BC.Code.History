@@ -1,4 +1,4 @@
-codeunit 64 "Sales-Get Shipment"
+﻿codeunit 64 "Sales-Get Shipment"
 {
     TableNo = "Sales Line";
 
@@ -84,7 +84,7 @@ codeunit 64 "Sales-Get Shipment"
                         if Type = Type::"Charge (Item)" then
                             GetItemChargeAssgnt(SalesShptLine2, SalesLine."Qty. to Invoice");
                     end;
-                    OnAfterInsertLine(SalesShptLine, SalesLine);
+                    OnAfterInsertLine(SalesShptLine, SalesLine, SalesShptLine2, TransferLine);
                 until Next = 0;
 
                 OnAfterInsertLines(SalesHeader);
@@ -267,7 +267,7 @@ codeunit 64 "Sales-Get Shipment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInsertLine(var SalesShptLine: Record "Sales Shipment Line"; var SalesLine: Record "Sales Line")
+    local procedure OnAfterInsertLine(var SalesShptLine: Record "Sales Shipment Line"; var SalesLine: Record "Sales Line"; SalesShptLine2: Record "Sales Shipment Line"; TransferLine: Boolean)
     begin
     end;
 

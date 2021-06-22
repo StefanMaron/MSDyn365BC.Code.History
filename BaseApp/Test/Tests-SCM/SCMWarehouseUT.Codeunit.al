@@ -1381,6 +1381,47 @@ codeunit 137831 "SCM - Warehouse UT"
         WarehouseActivityLine2.TestField("Serial No.", WarehouseActivityLine1."Serial No.");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure BinContentsLocationFilterFromSelectionFilter()
+    var
+        Location: array[10] of Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        BinContents: TestPage "Bin Contents";
+        Index: Integer;
+        FilterValue: Text[250];
+        LocationRange: Text[40];
+        LocationSelection: Text[30];
+        ExpectedLocationFilter: Text[250];
+    begin
+        // [FEATURE] [Bin Content] [Warehouse Employee] [UI]
+        // [SCENARIO 363777] Bin Contents page shows Locations filter created using SelectionFilterManagement codeunit.
+        WarehouseEmployee.DeleteAll();
+
+        // [GIVEN] 10 Locations "L001..L010" where "L001..L003" and "L007" and "L009" are assigned to a WarehouseEmployee
+        for Index := 1 to ArrayLen(Location) do
+            LibraryWarehouse.CreateLocationWMS(Location[Index], true, false, false, false, false);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location[1].Code, false);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location[2].Code, false);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location[3].Code, false);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location[7].Code, false);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location[9].Code, false);
+
+        // [WHEN] Open Bin Contents page.
+        BinContents.OpenView();
+
+        // [THEN] "Location Code" filter contains "L001..L003" range together with "L007|L009" selections
+        FilterValue := CopyStr(BinContents.FILTER.GetFilter("Location Code"), 1, MaxStrLen(FilterValue));
+        LocationRange := StrSubstNo('%1..%2', Location[1].Code, Location[3].Code);
+        LocationSelection := StrSubstNo('%1|%2', Location[7].Code, Location[9].Code);
+        ExpectedLocationFilter := StrSubstNo('%1|%2', LocationRange, LocationSelection);
+        Assert.IsTrue(StrPos(FilterValue, LocationRange) > 0, 'Expected range of Locations in the filter');
+        Assert.IsTrue(StrPos(FilterValue, LocationSelection) > 0, 'Expected selections of Locations in the filter');
+        Assert.AreEqual(ExpectedLocationFilter, FilterValue, 'Expected filter string to contain range and selection');
+
+        BinContents.Close();
+    end;
+
     local procedure CreateItemWithSNWhseTracking(): Code[20]
     var
         Item: Record Item;

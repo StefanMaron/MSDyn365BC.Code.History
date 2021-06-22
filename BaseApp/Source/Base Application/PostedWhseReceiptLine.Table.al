@@ -348,16 +348,12 @@ table 7319 "Posted Whse. Receipt Line"
         OnAfterCopyTrackingFromWhseItemTrackingLine(rec, WhseItemTrackingLine);
     end;
 
+    [Obsolete('Reference SetSourceFilterForPostedWhseRcptLine function from codeunit Whse. Management instead', '17.0')]
     procedure SetSourceFilter(SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SetKey: Boolean)
+    var
+        WhseManagement: Codeunit "Whse. Management";
     begin
-        if SetKey then
-            SetCurrentKey("Source Type", "Source Subtype", "Source No.", "Source Line No.");
-        SetRange("Source Type", SourceType);
-        if SourceSubType >= 0 then
-            SetRange("Source Subtype", SourceSubType);
-        SetRange("Source No.", SourceNo);
-        if SourceLineNo >= 0 then
-            SetRange("Source Line No.", SourceLineNo);
+        WhseManagement.SetSourceFilterForPostedWhseRcptLine(Rec, SourceType, SourceSubType, SourceNo, SourceLineNo, SetKey);
     end;
 
     procedure SetTracking(SerialNo: Code[50]; LotNo: Code[50]; WarrantyDate: Date; ExpirationDate: Date)

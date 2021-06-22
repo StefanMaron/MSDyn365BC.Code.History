@@ -1,4 +1,4 @@
-report 11 "G/L - VAT Reconciliation"
+﻿report 11 "G/L - VAT Reconciliation"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './GLVATReconciliation.rdlc';
@@ -266,6 +266,7 @@ report 11 "G/L - VAT Reconciliation"
                             end;
                         end;
 
+                        OnBeforeCalcTotalAmount("VAT Statement Line", TempVATEntryTable, Amount1, VAT);
                         TotalAmount := TotalAmount + Amount1;
                         TotalVAT := TotalVAT + VAT;
                     end;
@@ -498,6 +499,11 @@ report 11 "G/L - VAT Reconciliation"
             CurrencyExchRate.ExchangeAmtLCYToFCY(
               WorkDate, GLSetup."Additional Reporting Currency", Amount, CurrencyFactor),
             Currency."Amount Rounding Precision"));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcTotalAmount(VATStmtLine: Record "VAT Statement Line"; var TempVATEntryTable: Record "VAT Entry" temporary; var Amount1: Decimal; var VAT: Decimal)
+    begin
     end;
 }
 

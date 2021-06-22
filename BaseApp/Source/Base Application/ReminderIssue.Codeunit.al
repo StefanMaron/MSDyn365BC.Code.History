@@ -471,6 +471,7 @@ codeunit 393 "Reminder-Issue"
         CustLedgerEntry2.SetCurrentKey("Closed by Entry No.");
         CustLedgerEntry2.SetRange("Closed by Entry No.", EntryNo);
         CustLedgerEntry2.SetRange("Closing Interest Calculated", false);
+        OnUpdateCustLedgEntriesCalculateInterestOnBeforeCustLedgerEntry2ModifyAll(CustLedgerEntry2, CustLedgerEntry);
         CustLedgerEntry2.ModifyAll("Closing Interest Calculated", true);
     end;
 
@@ -545,6 +546,11 @@ codeunit 393 "Reminder-Issue"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateCustLedgEntryLastIssuedReminderLevelOnBeforeModify(var CustLedgEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateCustLedgEntriesCalculateInterestOnBeforeCustLedgerEntry2ModifyAll(var CustLedgEntry2: Record "Cust. Ledger Entry"; CustLedgEntry: Record "Cust. Ledger Entry")
     begin
     end;
 

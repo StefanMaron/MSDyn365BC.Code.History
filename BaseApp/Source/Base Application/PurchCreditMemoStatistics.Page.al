@@ -216,7 +216,7 @@ page 401 "Purch. Credit Memo Statistics"
 
                 OnCalculateTotalsOnAfterAddLineTotals(
                     PurchCrMemoLine, VendAmount, AmountInclVAT, InvDiscAmount,
-                    LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels)
+                    LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels, VATPercentage)
             until PurchCrMemoLine.Next = 0;
     end;
 
@@ -226,7 +226,7 @@ page 401 "Purch. Credit Memo Statistics"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalculateTotalsOnAfterAddLineTotals(var PurchCrMemoLine: Record "Purch. Cr. Memo Line"; var VendAmount: Decimal; var AmountInclVAT: Decimal; var InvDiscAmount: Decimal; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal)
+    local procedure OnCalculateTotalsOnAfterAddLineTotals(var PurchCrMemoLine: Record "Purch. Cr. Memo Line"; var VendAmount: Decimal; var AmountInclVAT: Decimal; var InvDiscAmount: Decimal; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal; var VATPercentage: Decimal)
     begin
     end;
 }

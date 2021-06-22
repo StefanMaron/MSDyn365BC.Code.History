@@ -1158,7 +1158,6 @@ codeunit 139165 "Integration Table Synch. Test"
         CRMAccount: Record "CRM Account";
         Customer: Record Customer;
         IntegrationSynchJob: Record "Integration Synch. Job";
-        AllowUnchanged: Integer;
     begin
         // [FEATURE] [Integration Synch. Job]
         Initialize;
@@ -1203,14 +1202,7 @@ codeunit 139165 "Integration Table Synch. Test"
         IntegrationSynchJob.Reset();
         IntegrationSynchJob.SetCurrentKey("Start Date/Time");
         IntegrationSynchJob.FindSet;
-        AllowUnchanged := 1;
-        repeat
-            Assert.AreEqual(0, IntegrationSynchJob.Inserted, 'Did not expect any inserted rows in second run.');
-            Assert.AreEqual(0, IntegrationSynchJob.Modified, 'Did not expect any modified rows in second run.');
-            Assert.AreEqual(0, IntegrationSynchJob.Failed, 'Did not expect any failed rows in second run.\' + ConstructAllFailuresMessage);
-            Assert.AreEqual(AllowUnchanged, IntegrationSynchJob.Unchanged, 'wrong Unchanged row in second run.');
-            AllowUnchanged := 0;
-        until IntegrationSynchJob.Next = 0;
+        VerifySyncJobTotals(IntegrationSynchJob, 0, 0, 0, 2);
 
         // [WHEN] Running the synchronization a third time
         IntegrationSynchJob.Reset();
@@ -1221,12 +1213,7 @@ codeunit 139165 "Integration Table Synch. Test"
         // [THEN] Nothing gets inserted or modified;
         IntegrationSynchJob.Reset();
         IntegrationSynchJob.FindSet;
-        repeat
-            Assert.AreEqual(0, IntegrationSynchJob.Inserted, 'Did not expect any inserted rows in third run. ');
-            Assert.AreEqual(0, IntegrationSynchJob.Modified, 'Did not expect any modified rows in third run.');
-            Assert.AreEqual(0, IntegrationSynchJob.Failed, 'Did not expect any failed rows in third run.\' + ConstructAllFailuresMessage);
-            Assert.AreEqual(0, IntegrationSynchJob.Unchanged, 'Did not expect any unchaged rows in third run.');
-        until IntegrationSynchJob.Next = 0;
+        VerifySyncJobTotals(IntegrationSynchJob, 0, 0, 0, 1);
     end;
 
     [Test]
@@ -1562,6 +1549,26 @@ codeunit 139165 "Integration Table Synch. Test"
         IntegrationSynchJobErrors.FindFirst;
         IntegrationSynchJobErrors.TestField("Source Record ID", SourceRecID);
         IntegrationSynchJobErrors.TestField("Destination Record ID", DestinationRecID);
+    end;
+
+    local procedure VerifySyncJobTotals(IntegrationSynchJob: Record "Integration Synch. Job"; ExpectedInserted: Integer; ExpectedModified: Integer; ExpectedFailed: Integer; ExpectedUnchanged: Integer)
+    var
+        TotalInserted: Integer;
+        TotalModified: Integer;
+        TotalFailed: Integer;
+        TotalUnchanged: Integer;
+    begin
+        repeat
+            TotalInserted += IntegrationSynchJob.Inserted;
+            TotalModified += IntegrationSynchJob.Modified;
+            TotalFailed += IntegrationSynchJob.Failed;
+            TotalUnchanged += IntegrationSynchJob.Unchanged;
+        until IntegrationSynchJob.Next() = 0;
+
+        Assert.AreEqual(ExpectedInserted, TotalInserted, 'Unexpected inserted rows.');
+        Assert.AreEqual(ExpectedModified, TotalModified, 'Unexpected modified row');
+        Assert.AreEqual(ExpectedFailed, TotalFailed, 'Unexpected failed rows.\' + ConstructAllFailuresMessage);
+        Assert.AreEqual(ExpectedUnchanged, TotalUnchanged, 'Unexpected unchanged row.');
     end;
 
     [SendNotificationHandler]

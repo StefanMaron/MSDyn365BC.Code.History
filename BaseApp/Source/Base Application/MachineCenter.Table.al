@@ -586,14 +586,13 @@ table 99000758 "Machine Center"
         ProdOrderRtngLine: Record "Prod. Order Routing Line";
         StdCostWksh: Record "Standard Cost Worksheet";
         CapLedgEntry: Record "Capacity Ledger Entry";
-        RoutingLine: Record "Routing Line";
     begin
         CapLedgEntry.SetRange(Type, CapLedgEntry.Type::"Machine Center");
         CapLedgEntry.SetRange("No.", "No.");
         if not CapLedgEntry.IsEmpty then
             Error(Text007, TableCaption, "No.", CapLedgEntry.TableCaption);
 
-        RoutingLine.CheckCertifiedRouting(RoutingLine.Type::"Machine Center", "No.");
+        CheckRoutingWithMachineCenterExists();
 
         StdCostWksh.Reset();
         StdCostWksh.SetRange(Type, StdCostWksh.Type::"Machine Center");
@@ -715,6 +714,16 @@ table 99000758 "Machine Center"
           FlushingMethod::Backward:
                 exit("Open Shop Floor Bin Code");
         end;
+    end;
+
+    local procedure CheckRoutingWithMachineCenterExists()
+    var
+        RoutingLine: Record "Routing Line";
+    begin
+        RoutingLine.SetRange(Type, RoutingLine.Type::"Machine Center");
+        RoutingLine.SetRange("No.", "No.");
+        if not RoutingLine.IsEmpty() then
+            Error(Text007, TableCaption, "No.", RoutingLine.TableCaption);
     end;
 
     [IntegrationEvent(false, false)]

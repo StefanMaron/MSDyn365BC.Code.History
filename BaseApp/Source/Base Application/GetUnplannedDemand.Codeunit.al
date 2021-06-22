@@ -71,6 +71,7 @@ codeunit 5520 "Get Unplanned Demand"
         TempItem: Record Item temporary;
         Item: Record Item;
         TypeHelper: Codeunit "Type Helper";
+        SelectionFilterMgt: Codeunit SelectionFilterManagement;
         ItemFilter: Text;
     begin
         SalesLine.SetRange(Type, SalesLine.Type::Item);
@@ -104,7 +105,7 @@ codeunit 5520 "Get Unplanned Demand"
                     exit;
                 end;
 
-                ItemFilter += StrSubstNo(FilterStringBuilderLbl, TempItem."No.");
+                ItemFilter += StrSubstNo(FilterStringBuilderLbl, SelectionFilterMgt.AddQuotes(TempItem."No."));
             Until TempItem.Next() = 0;
 
             ItemFilter := CopyStr(ItemFilter, 1, StrLen(ItemFilter) - 1);
@@ -409,6 +410,7 @@ codeunit 5520 "Get Unplanned Demand"
         TempUnplannedDemand: Record "Unplanned Demand" temporary;
         OrderPlanningMgt: Codeunit "Order Planning Mgt.";
         HeaderExists: Boolean;
+        ForceIncludeDemand: Boolean;
     begin
         with TempUnplannedDemand do begin
             UnplannedDemand.Reset();
@@ -430,7 +432,13 @@ codeunit 5520 "Get Unplanned Demand"
                             CalcDemand(TempUnplannedDemand, false) + CalcDemand(UnplannedDemand, true),
                             "Quantity (Base)");
 
-                    if UnplannedDemand."Needed Qty. (Base)" > 0 then begin
+                    ForceIncludeDemand :=
+                      (UnplannedDemand."Demand Order No." = IncludeMetDemandForSpecificSalesOrderNo) and
+                      (UnplannedDemand."Demand Type" = UnplannedDemand."Demand Type"::Sales) and
+                      (UnplannedDemand."Demand SubType" = SalesLine."Document Type"::Order.AsInteger());
+
+                    if ForceIncludeDemand or (UnplannedDemand."Needed Qty. (Base)" > 0)
+                    then begin
                         UnplannedDemand.Insert();
                         if not HeaderExists then begin
                             InsertUnplannedDemandHeader(TempUnplannedDemand, UnplannedDemand);

@@ -44,17 +44,13 @@ codeunit 139151 DocumentSendingPostTests
         DocExchServiceNotEnabledErr: Label 'The document exchange service is not enabled.';
         ElementNameErr: Label 'Element with name ''%1'' was not found', Comment = '%1 = Element Name';
         EmailSubjectCapTxt: Label '%1 - %2 %3', Comment = '%1 = Customer Name. %2 = Document Type %3 = Invoice No.';
-        ReportAsPdfFileNameMsg: Label 'Sales %1 %2.pdf', Comment = '%1 = Document Type %2 = Invoice No.';
+        ReportAsPdfFileNameMsg: Label '%1 %2.pdf', Comment = '%1 = Document Type %2 = Invoice No.';
         EmailSubjectCapPluralTxt: Label '%1 - %2', Comment = '%1 = Customer Name. %2 = Document Type in plural form';
         ReportAsPdfFileNamePluralMsg: Label 'Sales %1.pdf', Comment = '%1 = Document Type in plural form';
-        InvoiceTxt: Label 'Invoice';
-        InvoicesTxt: Label 'Invoices';
-        CrMemoTxt: Label 'Credit Memo';
-        CrMemosTxt: Label 'Credit Memos';
-        ShipmentTxt: Label 'Shipment';
-        ShipmentsTxt: Label 'Shipments';
-        ReceiptTxt: Label 'Receipt';
-        ReceiptsTxt: Label 'Receipts';
+        SalesInvoiceTxt: Label 'Sales Invoice';
+        SalesCrMemoTxt: Label 'Sales Credit Memo';
+        SalesShipmentTxt: Label 'Sales Shipment';
+        SalesReceiptTxt: Label 'Sales Receipt';
         YesUseDefaultSettingsTxt: Label 'Yes (Use Default Settings)';
         PdfTxt: Label 'PDF';
         ProfileSelectionQst: Label 'Confirm the first profile and use it for all selected documents.,Confirm the profile for each document.,Use the default profile for all selected documents without confimation.';
@@ -402,6 +398,7 @@ codeunit 139151 DocumentSendingPostTests
         // create a sales invoice and post it
         if not CountryRegion.Get('AB') then begin
             CountryRegion.Validate(Code, 'AB');
+            CountryRegion."ISO Code" := Format(LibraryRandom.RandIntInRange(10, 99));
             CountryRegion.Insert(true);
         end;
 
@@ -1432,6 +1429,7 @@ codeunit 139151 DocumentSendingPostTests
         // create a Service invoice and post it
         if not CountryRegion.Get('AB') then begin
             CountryRegion.Validate(Code, 'AB');
+            CountryRegion."ISO Code" := Format(LibraryRandom.RandIntInRange(10, 99));
             CountryRegion.Insert(true);
         end;
 
@@ -1833,6 +1831,7 @@ codeunit 139151 DocumentSendingPostTests
         // create a service credit memo and post it
         if not CountryRegion.Get('AB') then begin
             CountryRegion.Validate(Code, 'AB');
+            CountryRegion."ISO Code" := Format(LibraryRandom.RandIntInRange(10, 99));
             CountryRegion.Insert(true);
         end;
 
@@ -2190,15 +2189,15 @@ codeunit 139151 DocumentSendingPostTests
         Initialize();
 
         // [GIVEN] Company Name = "C"
-        // [GIVEN] Select posted Invoice "A"
+        // [GIVEN] Select posted Sales Invoice "A"
         CreatePostSevSalesInvoices(SalesInvoiceHeader, 1);
 
         // [WHEN] Run "Email" action
-        EnqueueValuesForEmailDialog(InvoiceTxt, SalesInvoiceHeader."No.");
+        EnqueueValuesForEmailDialog(SalesInvoiceTxt, SalesInvoiceHeader."No.");
         SalesInvoiceHeader.EmailRecords(true);
 
         // [THEN] Page "Email Dialog" is opened with following values:
-        // [THEN] "Subject" = "C" - Invoice "A"
+        // [THEN] "Subject" = "C" - Sales Invoice "A"
         // [THEN] "Attachment Name" = Sales Invoice "A".pdf
         // Verify is done in EmailDialogVerifySubjectAndAttahcmentNamesMPH()
     end;
@@ -2209,6 +2208,7 @@ codeunit 139151 DocumentSendingPostTests
     procedure EmailSubjectAndAttachmentNamesForSeveralSalesInvoices()
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
+        SecondSalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         // [FEATURE] [Email] [Sales] [Invoice]
         Initialize();
@@ -2216,9 +2216,12 @@ codeunit 139151 DocumentSendingPostTests
         // [GIVEN] Company Name = "C"
         // [GIVEN] Select several posted Invoices
         CreatePostSevSalesInvoices(SalesInvoiceHeader, 2);
+        SecondSalesInvoiceHeader := SalesInvoiceHeader;
+        SalesInvoiceHeader.FindFirst();
 
         // [WHEN] Run "Email" action
-        EnqueueValuesForEmailDialogPluralMode(InvoicesTxt);
+        EnqueueValuesForEmailDialog(SalesInvoiceTxt, SalesInvoiceHeader."No.");
+        EnqueueValuesForEmailDialog(SalesInvoiceTxt, SecondSalesInvoiceHeader."No.");
         SalesInvoiceHeader.EmailRecords(true);
 
         // [THEN] Page "Email Dialog" is opened with following values:
@@ -2238,15 +2241,15 @@ codeunit 139151 DocumentSendingPostTests
         Initialize();
 
         // [GIVEN] Company Name = "C"
-        // [GIVEN] Select posted Credit Memo "A"
+        // [GIVEN] Select posted Sales Credit Memo "A"
         CreatePostSevSalesCrMemos(SalesCrMemoHeader, 1);
 
         // [WHEN] Run "Email" action
-        EnqueueValuesForEmailDialog(CrMemoTxt, SalesCrMemoHeader."No.");
+        EnqueueValuesForEmailDialog(SalesCrMemoTxt, SalesCrMemoHeader."No.");
         SalesCrMemoHeader.EmailRecords(true);
 
         // [THEN] Page "Email Dialog" is opened with following values:
-        // [THEN] "Subject" = "C" - Credit Memo "A"
+        // [THEN] "Subject" = "C" - Sales Credit Memo "A"
         // [THEN] "Attachment Name" = Sales Credit Memo "A".pdf
         // Verify is done in EmailDialogVerifySubjectAndAttahcmentNamesMPH()
     end;
@@ -2257,6 +2260,7 @@ codeunit 139151 DocumentSendingPostTests
     procedure EmailSubjectAndAttachmentNamesForSeveralSalesCrMemos()
     var
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        SecondSalesCrMemoHeader: Record "Sales Cr.Memo Header";
     begin
         // [FEATURE] [Email] [Sales] [Credit Memo]
         Initialize();
@@ -2264,9 +2268,12 @@ codeunit 139151 DocumentSendingPostTests
         // [GIVEN] Company Name = "C"
         // [GIVEN] Select several posted Credit Memos
         CreatePostSevSalesCrMemos(SalesCrMemoHeader, 2);
+        SecondSalesCrMemoHeader := SalesCrMemoHeader;
+        SalesCrMemoHeader.FindFirst();
 
         // [WHEN] Run "Email" action
-        EnqueueValuesForEmailDialogPluralMode(CrMemosTxt);
+        EnqueueValuesForEmailDialog(SalesCrMemoTxt, SalesCrMemoHeader."No.");
+        EnqueueValuesForEmailDialog(SalesCrMemoTxt, SecondSalesCrMemoHeader."No.");
         SalesCrMemoHeader.EmailRecords(true);
 
         // [THEN] Page "Email Dialog" is opened with following values:
@@ -2286,15 +2293,15 @@ codeunit 139151 DocumentSendingPostTests
         Initialize();
 
         // [GIVEN] Company Name = "C"
-        // [GIVEN] Select posted Shipment "A"
+        // [GIVEN] Select posted Sales Shipment "A"
         CreatePostSevSalesShipments(SalesShipmentHeader, 1);
 
         // [WHEN] Run "Email" action
-        EnqueueValuesForEmailDialog(ShipmentTxt, SalesShipmentHeader."No.");
+        EnqueueValuesForEmailDialog(SalesShipmentTxt, SalesShipmentHeader."No.");
         SalesShipmentHeader.EmailRecords(true);
 
         // [THEN] Page "Email Dialog" is opened with following values:
-        // [THEN] "Subject" = "C" - Shipment "A"
+        // [THEN] "Subject" = "C" - Sales Shipment "A"
         // [THEN] "Attachment Name" = Sales Shipment "A".pdf
         // Verify is done in EmailDialogVerifySubjectAndAttahcmentNamesMPH()
     end;
@@ -2305,6 +2312,7 @@ codeunit 139151 DocumentSendingPostTests
     procedure EmailSubjectAndAttachmentNamesForSeveralSalesShipments()
     var
         SalesShipmentHeader: Record "Sales Shipment Header";
+        SecondSalesShipmentHeader: Record "Sales Shipment Header";
     begin
         // [FEATURE] [Email] [Sales] [Shipment]
         Initialize();
@@ -2312,9 +2320,12 @@ codeunit 139151 DocumentSendingPostTests
         // [GIVEN] Company Name = "C"
         // [GIVEN] Select several posted Shipments
         CreatePostSevSalesShipments(SalesShipmentHeader, 2);
+        SecondSalesShipmentHeader := SalesShipmentHeader;
+        SalesShipmentHeader.FindFirst();
 
         // [WHEN] Run "Email" action
-        EnqueueValuesForEmailDialogPluralMode(ShipmentsTxt);
+        EnqueueValuesForEmailDialog(SalesShipmentTxt, SalesShipmentHeader."No.");
+        EnqueueValuesForEmailDialog(SalesShipmentTxt, SecondSalesShipmentHeader."No.");
         SalesShipmentHeader.EmailRecords(true);
 
         // [THEN] Page "Email Dialog" is opened with following values:
@@ -2338,11 +2349,11 @@ codeunit 139151 DocumentSendingPostTests
         CreatePostSevReturnReceipts(ReturnReceiptHeader, 1);
 
         // [WHEN] Run "Email" action
-        EnqueueValuesForEmailDialog(ReceiptTxt, ReturnReceiptHeader."No.");
+        EnqueueValuesForEmailDialog(SalesReceiptTxt, ReturnReceiptHeader."No.");
         ReturnReceiptHeader.EmailRecords(true);
 
         // [THEN] Page "Email Dialog" is opened with following values:
-        // [THEN] "Subject" = "C" - Receipt "A"
+        // [THEN] "Subject" = "C" - Sales Receipt "A"
         // [THEN] "Attachment Name" = Sales Receipt "A".pdf
         // Verify is done in EmailDialogVerifySubjectAndAttahcmentNamesMPH()
     end;
@@ -2353,6 +2364,7 @@ codeunit 139151 DocumentSendingPostTests
     procedure EmailSubjectAndAttachmentNamesForSeveralReturnReceipts()
     var
         ReturnReceiptHeader: Record "Return Receipt Header";
+        SecondReturnReceiptHeader: Record "Return Receipt Header";
     begin
         // [FEATURE] [Email] [Sales] [Return Receipt]
         Initialize();
@@ -2360,9 +2372,12 @@ codeunit 139151 DocumentSendingPostTests
         // [GIVEN] Company Name = "C"
         // [GIVEN] Select several posted Return Receipts
         CreatePostSevReturnReceipts(ReturnReceiptHeader, 2);
+        SecondReturnReceiptHeader := ReturnReceiptHeader;
+        ReturnReceiptHeader.FindFirst();
 
         // [WHEN] Run "Email" action
-        EnqueueValuesForEmailDialogPluralMode(ReceiptsTxt);
+        EnqueueValuesForEmailDialog(SalesReceiptTxt, ReturnReceiptHeader."No.");
+        EnqueueValuesForEmailDialog(SalesReceiptTxt, SecondReturnReceiptHeader."No.");
         ReturnReceiptHeader.EmailRecords(true);
 
         // [THEN] Page "Email Dialog" is opened with following values:
@@ -3365,6 +3380,8 @@ codeunit 139151 DocumentSendingPostTests
         LibraryERM.CreatePostCode(PostCode);
         LibraryERM.CreateCountryRegion(CountryRegion);
         CountryRegion.Rename(LibraryUtility.GenerateRandomText(2));
+        CountryRegion."ISO Code" := Format(LibraryRandom.RandIntInRange(10, 99));
+        CountryRegion.Modify();
 
         Commit();
         IsInitialized := true;
@@ -3827,15 +3844,6 @@ codeunit 139151 DocumentSendingPostTests
         CompanyInformation.Get();
         LibraryVariableStorage.Enqueue(StrSubstNo(EmailSubjectCapTxt, CompanyInformation.Name, DocName, DocNo));
         LibraryVariableStorage.Enqueue(StrSubstNo(ReportAsPdfFileNameMsg, DocName, DocNo));
-    end;
-
-    local procedure EnqueueValuesForEmailDialogPluralMode(DocName: Text)
-    var
-        CompanyInformation: Record "Company Information";
-    begin
-        CompanyInformation.Get();
-        LibraryVariableStorage.Enqueue(StrSubstNo(EmailSubjectCapPluralTxt, CompanyInformation.Name, DocName));
-        LibraryVariableStorage.Enqueue(StrSubstNo(ReportAsPdfFileNamePluralMsg, DocName));
     end;
 
     local procedure GenerateGUIDWithSpecialSymbol(): Code[20]

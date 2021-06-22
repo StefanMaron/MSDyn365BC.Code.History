@@ -13,15 +13,17 @@ table 5330 "CRM Connection Setup"
             Caption = 'Dynamics 365 Sales URL';
 
             trigger OnValidate()
+            var
+                EnvironmentInfo: Codeunit "Environment Information";
             begin
                 CRMIntegrationManagement.CheckModifyCRMConnectionURL("Server Address");
 
-                if StrPos("Server Address", '.dynamics.com') > 0 then
-                    "Authentication Type" := "Authentication Type"::Office365
-                else
-                    "Authentication Type" := "Authentication Type"::AD;
-                if "User Name" <> '' then
-                    UpdateConnectionString;
+                if "Server Address" <> '' then
+                    if EnvironmentInfo.IsSaaS() or (StrPos("Server Address", '.dynamics.com') > 0) then
+                        "Authentication Type" := "Authentication Type"::Office365
+                    else
+                        "Authentication Type" := "Authentication Type"::AD;
+                UpdateConnectionString();
             end;
         }
         field(3; "User Name"; Text[250])
