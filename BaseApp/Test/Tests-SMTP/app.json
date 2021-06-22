@@ -2,7 +2,7 @@
     "id":  "c49d9d39-1c94-46d2-8bf7-3cce15ba54dc",
     "name":  "Tests-SMTP",
     "publisher":  "Microsoft",
-    "version":  "16.0.11240.12076",
+    "version":  "16.0.11240.12085",
     "platform":  "16.0.0.0",
     "dependencies":  [
                          {
