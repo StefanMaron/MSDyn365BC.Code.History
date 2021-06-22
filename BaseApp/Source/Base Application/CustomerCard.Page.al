@@ -602,20 +602,20 @@ page 21 "Customer Card"
                         Caption = 'Money Owed - Expected';
                         Editable = false;
                         Importance = Additional;
-                        ToolTip = 'Specifies the payment amount that the customer will owe when ongoing sales invoices and credit memos are completed.';
+                        ToolTip = 'Specifies the payment amount that the customer will owe when ongoing sales invoices and credit memos are completed. The value is calculated asynchronously so there might be a delay in updating this field.';
 
                         trigger OnDrillDown()
                         begin
                             CustomerMgt.DrillDownMoneyOwedExpected("No.");
                         end;
                     }
-                    field(TotalMoneyOwed; "Balance (LCY)" + ExpectedMoneyOwed)
+                    field(TotalMoneyOwed; TotalMoneyOwed)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Money Owed - Total';
                         Style = Strong;
                         StyleExpr = TRUE;
-                        ToolTip = 'Specifies the payment amount that the customer owes for completed sales plus sales that are still ongoing. The value is the sum of the values in the Money Owed - Current and Money Owed - Expected fields.';
+                        ToolTip = 'Specifies the payment amount that the customer owes for completed sales plus sales that are still ongoing. The value is calculated asynchronously so there might be a delay in updating this field.';
                     }
                     field(CreditLimit; "Credit Limit (LCY)")
                     {
@@ -660,13 +660,13 @@ page 21 "Customer Card"
                         Caption = 'Payments This Year';
                         ToolTip = 'Specifies the sum of payments received from the customer in the current fiscal year.';
                     }
-                    field("CustomerMgt.AvgDaysToPay(""No."")"; CustomerMgt.AvgDaysToPay("No."))
+                    field("CustomerMgt.AvgDaysToPay(""No."")"; AvgDaysToPay)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Average Collection Period (Days)';
                         DecimalPlaces = 0 : 1;
                         Importance = Additional;
-                        ToolTip = 'Specifies how long the customer typically takes to pay invoices in the current fiscal year.';
+                        ToolTip = 'Specifies how long the customer typically takes to pay invoices in the current fiscal year. The value is calculated asynchronously so there might be a delay in updating this field.';
                     }
                     field(DaysPaidPastDueDate; DaysPastDueDate)
                     {
@@ -676,7 +676,7 @@ page 21 "Customer Card"
                         Importance = Additional;
                         Style = Attention;
                         StyleExpr = AttentionToPaidDay;
-                        ToolTip = 'Specifies the average number of days the customer is late with payments.';
+                        ToolTip = 'Specifies the average number of days the customer is late with payments. The value is calculated asynchronously so there might be a delay in updating this field.';
                     }
                 }
                 group("Sales This Year")
@@ -2092,7 +2092,8 @@ page 21 "Customer Card"
         WorkflowManagement: Codeunit "Workflow Management";
         WorkflowEventHandling: Codeunit "Workflow Event Handling";
         WorkflowWebhookManagement: Codeunit "Workflow Webhook Management";
-        AgedAccReceivable: Codeunit "Aged Acc. Receivable";
+        CustomerCardCalculation: Codeunit "Customer Card Calculations";
+        Args: Dictionary of [Text, Text];
     begin
         CreateCustomerFromTemplate;
         ActivateFields;
@@ -2109,8 +2110,21 @@ page 21 "Customer Card"
         if FoundationOnly and ("No." <> '') then begin
             OnBeforeGetSalesPricesAndSalesLineDisc(LoadOnDemand);
             BalanceExhausted := 10000 <= CalcCreditLimitLCYExpendedPct;
-            DaysPastDueDate := AgedAccReceivable.InvoicePaymentDaysAverage("No.");
-            AttentionToPaidDay := DaysPastDueDate > 0;
+
+            if (BackgroundTaskId <> 0) then
+                CurrPage.CancelBackgroundTask(BackgroundTaskId);
+
+            DaysPastDueDate := 0;
+            ExpectedMoneyOwed := 0;
+            AvgDaysToPay := 0;
+            TotalMoneyOwed := 0;
+            AttentionToPaidDay := false;
+
+            Args.Add(CustomerCardCalculation.GetCustomerNoLabel(), "No.");
+            CurrPage.EnqueueBackgroundTask(BackgroundTaskId, Codeunit::"Customer Card Calculations", Args);
+
+            SendTraceTag('0000D4Q', CustomerCardServiceCategoryTxt, VERBOSITY::Normal,
+              StrSubstNo(PageBckGrndTaskStartedTxt, "No."), DATACLASSIFICATION::SystemMetadata);
         end;
 
         CanCancelApprovalForRecord := ApprovalsMgmt.CanCancelApprovalForRecord(RecordId);
@@ -2122,8 +2136,6 @@ page 21 "Customer Card"
 
         WorkflowWebhookManagement.GetCanRequestAndCanCancel(RecordId, CanRequestApprovalForFlow, CanCancelApprovalForFlow);
 
-
-        ExpectedMoneyOwed := GetMoneyOwedExpected;
     end;
 
     trigger OnInit()
@@ -2131,8 +2143,6 @@ page 21 "Customer Card"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         FoundationOnly := ApplicationAreaMgmtFacade.IsFoundationEnabled;
-
-        SetCustomerNoVisibilityOnFactBoxes;
 
         ContactEditable := true;
 
@@ -2162,6 +2172,32 @@ page 21 "Customer Card"
 
         SetNoFieldVisible;
         IsSaaS := EnvironmentInfo.IsSaaS;
+    end;
+
+    trigger OnPageBackgroundTaskCompleted(TaskId: Integer; Results: Dictionary of [Text, Text])
+    var
+        CustomerCardCalculations: Codeunit "Customer Card Calculations";
+        DictionaryValue: Text;
+    begin
+        if (TaskId = BackgroundTaskId) then begin
+            if Results.Count() = 0 then
+                exit;
+
+            if TryGetDictionaryValueFromKey(Results, CustomerCardCalculations.GetAvgDaysPastDueDateLabel(), DictionaryValue) then
+                Evaluate(DaysPastDueDate, DictionaryValue);
+
+            if TryGetDictionaryValueFromKey(Results, CustomerCardCalculations.GetExpectedMoneyOwedLabel(), DictionaryValue) then
+                Evaluate(ExpectedMoneyOwed, DictionaryValue);
+
+            if TryGetDictionaryValueFromKey(Results, CustomerCardCalculations.GetAvgDaysToPayLabel(), DictionaryValue) then
+                Evaluate(AvgDaysToPay, DictionaryValue);
+
+            AttentionToPaidDay := DaysPastDueDate > 0;
+            TotalMoneyOwed := "Balance (LCY)" + ExpectedMoneyOwed;
+
+            SendTraceTag('0000D4R', CustomerCardServiceCategoryTxt, VERBOSITY::Normal,
+              PageBckGrndTaskCompletedTxt, DATACLASSIFICATION::SystemMetadata);
+        end;
     end;
 
     var
@@ -2212,7 +2248,12 @@ page 21 "Customer Card"
         OutstandingInvoicesMsg: Label 'Ongoing Invoices (%1)', Comment = 'Ongoing Invoices (4)';
         OutstandingCrMemosMsg: Label 'Ongoing Credit Memos (%1)', Comment = 'Ongoing Credit Memos (4)';
         ShowMapLbl: Label 'Show on Map';
+        CustomerCardServiceCategoryTxt: Label 'Customer Card', Locked = true;
+        PageBckGrndTaskStartedTxt: Label 'Page Background Task to calculate customer statistics for customer %1 started.', Locked = true, Comment = '%1 = Customer No.';
+        PageBckGrndTaskCompletedTxt: Label 'Page Background Task to calculate customer statistics completed successfully.', Locked = true;
         ExpectedMoneyOwed: Decimal;
+        TotalMoneyOwed: Decimal;
+        AvgDaysToPay: Decimal;
         FoundationOnly: Boolean;
         CanCancelApprovalForRecord: Boolean;
         EnabledApprovalWorkflowsExist: Boolean;
@@ -2225,6 +2266,13 @@ page 21 "Customer Card"
         IsCountyVisible: Boolean;
         StatementFileNameTxt: Label 'Statement', Comment = 'Shortened form of ''Customer Statement''';
         LoadOnDemand: Boolean;
+        BackgroundTaskId: Integer;
+
+    [TryFunction]
+    local procedure TryGetDictionaryValueFromKey(var DictionaryToLookIn: Dictionary of [Text, Text]; KeyToSearchFor: Text; var ReturnValue: Text)
+    begin
+        ReturnValue := DictionaryToLookIn.Get(KeyToSearchFor);
+    end;
 
     local procedure GetTotalSales(): Decimal
     begin
@@ -2270,11 +2318,6 @@ page 21 "Customer Card"
         exit(AmountOnOutstandingCrMemos)
     end;
 
-    local procedure GetMoneyOwedExpected(): Decimal
-    begin
-        exit(CustomerMgt.CalculateAmountsWithVATOnUnpostedDocuments("No."))
-    end;
-
     local procedure ActivateFields()
     var
         OfficeManagement: Codeunit "Office Management";
@@ -2303,13 +2346,6 @@ page 21 "Customer Card"
         DocumentNoVisibility: Codeunit DocumentNoVisibility;
     begin
         NoFieldVisible := DocumentNoVisibility.CustomerNoIsVisible;
-    end;
-
-    local procedure SetCustomerNoVisibilityOnFactBoxes()
-    begin
-        CurrPage.SalesHistSelltoFactBox.PAGE.SetCustomerNoVisibility(false);
-        CurrPage.SalesHistBilltoFactBox.PAGE.SetCustomerNoVisibility(false);
-        CurrPage.CustomerStatisticsFactBox.PAGE.SetCustomerNoVisibility(false);
     end;
 
     procedure RunReport(ReportNumber: Integer; CustomerNumber: Code[20])

@@ -9,6 +9,7 @@ codeunit 5790 "Available to Promise"
 
     var
         ChangedSalesLine: Record "Sales Line";
+        CurrentOrderPromisingLine: Record "Order Promising Line";
         ChangedAssemblyLine: Record "Assembly Line";
         OldRecordExists: Boolean;
         ReqShipDate: Date;
@@ -196,22 +197,22 @@ codeunit 5790 "Available to Promise"
             AvailableQtyPeriod := AvailabilityAtDate."Scheduled Receipt" - AvailabilityAtDate."Gross Requirement";
             if AvailabilityAtDate."Scheduled Receipt" <= AvailabilityAtDate."Gross Requirement" then begin
                 AvailableQty := AvailableQty + AvailableQtyPeriod;
+                AvailableDate := AvailabilityAtDate."Period End";
                 if AvailableQty < NeededQty then
                     QtyIsAvailable := false;
-            end else begin
-                if not QtyIsAvailable then begin
+            end else
+                if QtyIsAvailable then
+                    AvailabilityAtDate.FindLast()
+                else begin
                     AvailableQty := AvailableQty + AvailableQtyPeriod;
-                    if AvailableQty >= NeededQty then
+                    if AvailableQty >= NeededQty then begin
                         QtyIsAvailable := true;
+                        AvailableDate := AvailabilityAtDate."Period End";
+                        PeriodStart := AvailabilityAtDate."Period Start";
+                        PeriodEnd := AvailabilityAtDate."Period End";
+                        AvailabilityAtDate.FindLast();
+                    end;
                 end;
-
-                if QtyIsAvailable then begin
-                    AvailableDate := AvailabilityAtDate."Period End";
-                    PeriodStart := AvailabilityAtDate."Period Start";
-                    PeriodEnd := AvailabilityAtDate."Period End";
-                    AvailabilityAtDate.FindLast();
-                end;
-            end;
         end;
 
         if QtyIsAvailable then begin
@@ -409,6 +410,7 @@ codeunit 5790 "Available to Promise"
 
     procedure SetOriginalShipmentDate(OrderPromisingLine: Record "Order Promising Line")
     begin
+        CurrentOrderPromisingLine := OrderPromisingLine;
         ReqShipDate := OrderPromisingLine."Original Shipment Date";
     end;
 
@@ -571,9 +573,7 @@ codeunit 5790 "Available to Promise"
         with SalesLine do begin
             if FindLinesWithItemToPlan(Item, "Document Type"::Order) then
                 repeat
-                    if not IsSalesLineChanged(SalesLine) and
-                       ((ReqShipDate = 0D) or (CalcReqShipDate(SalesLine) <= ReqShipDate))
-                    then begin
+                    if IncludeSalesLineToAvailCalc(SalesLine) then begin
                         CalcFields("Reserved Qty. (Base)");
                         UpdateGrossRequirement(AvailabilityAtDate, "Shipment Date", "Outstanding Qty. (Base)" - "Reserved Qty. (Base)")
                     end
@@ -642,26 +642,45 @@ codeunit 5790 "Available to Promise"
         with AsmLine do
             if FindLinesWithItemToPlan(Item, "Document Type"::Order) then
                 repeat
-                    if not IsAsmLineChanged(AsmLine) then begin
+                    if not AreEqualAssemblyLines(ChangedAssemblyLine, AsmLine) then begin
                         CalcFields("Reserved Qty. (Base)");
                         UpdateGrossRequirement(AvailabilityAtDate, "Due Date", "Remaining Quantity (Base)" - "Reserved Qty. (Base)");
                     end;
                 until Next = 0;
     end;
 
-    local procedure IsSalesLineChanged(SalesLine: Record "Sales Line"): Boolean
+    local procedure IncludeSalesLineToAvailCalc(SalesLine: Record "Sales Line"): Boolean
+    var
+        OrderPromisingSalesLine: Record "Sales Line";
     begin
-        exit((ChangedSalesLine."Document Type" = SalesLine."Document Type") and
-          (ChangedSalesLine."Document No." = SalesLine."Document No.") and
-          (ChangedSalesLine."Line No." = SalesLine."Line No."));
+        // always include order promising line being calculated now
+        if CurrentOrderPromisingLine."Source Type" = CurrentOrderPromisingLine."Source Type"::Sales then
+            if OrderPromisingSalesLine.Get(
+                 CurrentOrderPromisingLine."Source Subtype", CurrentOrderPromisingLine."Source ID",
+                 CurrentOrderPromisingLine."Source Line No.")
+            then
+                if AreEqualSalesLines(OrderPromisingSalesLine, SalesLine) then
+                    exit(true);
+
+        // already calculated sales line
+        if AreEqualSalesLines(ChangedSalesLine, SalesLine) then
+            exit(false);
+
+        // sales line requested to be shipped later
+        if (ReqShipDate <> 0D) and (CalcReqShipDate(SalesLine) > ReqShipDate) then
+            exit(false);
+
+        exit(true);
     end;
 
-    local procedure IsAsmLineChanged(AssemblyLine: Record "Assembly Line"): Boolean
+    local procedure AreEqualSalesLines(xSalesLine: Record "Sales Line"; SalesLine: Record "Sales Line"): Boolean
     begin
-        exit(
-          (ChangedAssemblyLine."Document Type" = AssemblyLine."Document Type") and
-          (ChangedAssemblyLine."Document No." = AssemblyLine."Document No.") and
-          (ChangedAssemblyLine."Line No." = AssemblyLine."Line No."));
+        exit(xSalesLine.RecordId() = SalesLine.RecordId());
+    end;
+
+    local procedure AreEqualAssemblyLines(xAssemblyLine: Record "Assembly Line"; AssemblyLine: Record "Assembly Line"): Boolean
+    begin
+        exit(xAssemblyLine.RecordId() = AssemblyLine.RecordId());
     end;
 
     [IntegrationEvent(TRUE, false)]

@@ -331,7 +331,10 @@ page 5330 "CRM Connection Setup"
                 trigger OnAction()
                 var
                     AssistedSetup: Codeunit "Assisted Setup";
+                    CRMIntegrationMgt: Codeunit "CRM Integration Management";
                 begin
+                    CRMIntegrationMgt.RegisterAssistedSetup();
+                    Commit(); // Make sure all data is committed before we run the wizard
                     AssistedSetup.Run(Page::"CRM Connection Setup Wizard");
                     CurrPage.Update(false);
                 end;

@@ -11,6 +11,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
 
     var
         Assert: Codeunit Assert;
+        LibraryCosting: Codeunit "Library - Costing";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryUtility: Codeunit "Library - Utility";
@@ -1287,6 +1288,54 @@ codeunit 134330 "ERM Purchase Credit Memo"
         // [WHEN] GetFullDocTypeTxt is called
         // [THEN] 'Purchase Create Memo' is returned
         Assert.AreEqual('Purchase Credit Memo', PurchaseHeader.GetFullDocTypeTxt(), 'The expected full document type is incorrect');
+    end;
+
+    [Test]
+    [HandlerFunctions('PostedPurchaseDocumentLinesHandler')]
+    [Scope('OnPrem')]
+    procedure CreditMemoLineUnitCostNotRecalculatedAfterChangingLineQty()
+    var
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchasePrice: Record "Purchase Price";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        Vendor: Record Vendor;
+    begin
+        // [FEATURE] [Line Discount] [Get Document Lines to Reverse]
+        // [SCEANRIO 365623] "Unit Cost" in purchase credit memo line is not recalculated if the line is copied from a posted invoice
+        Initialize();
+
+        // [GIVEN] Purchase special "Unit Cost" 10 for item "I" and customer "V", minimum quantity is 10
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryInventory.CreateItem(Item);
+        LibraryCosting.CreatePurchasePrice(
+          PurchasePrice, Vendor."No.", Item."No.", 0D, '', '', Item."Base Unit of Measure", LibraryRandom.RandIntInRange(10, 20));
+
+        // [GIVEN] Purchase order for vendor "V", 20 pcs of item "I" are purchased
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", PurchasePrice."Minimum Quantity");
+
+        // [GIVEN] Post the purchase order
+        PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+
+        // [GIVEN] Create a purchase credit memo
+        LibraryPurchase.CreatePurchHeader(
+          PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", Vendor."No.");
+        LibraryVariableStorage.Enqueue(PostedDocType::PostedInvoices);
+
+        // [GIVEN] Run "Get Document Lines to Reverse" function to copy lines from the posted invoice
+        PurchaseHeader.GetPstdDocLinesToRevere();
+        FilterOnPurchaseLine(PurchaseLine, PurchaseHeader."Document Type", PurchaseHeader."No.");
+        PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
+        PurchaseLine.FindFirst();
+
+        // [WHEN] Change quantity in the credit memo line from 10 to 9
+        PurchaseLine.Validate(Quantity, PurchasePrice."Minimum Quantity" - 1);
+
+        // [THEN] "Unit Cost" in the credit memo line remains 10
+        PurchaseLine.TestField("Unit Cost", PurchasePrice."Direct Unit Cost");
     end;
 
     local procedure Initialize()

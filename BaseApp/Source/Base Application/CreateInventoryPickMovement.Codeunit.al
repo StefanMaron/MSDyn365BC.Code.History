@@ -1,4 +1,4 @@
-codeunit 7322 "Create Inventory Pick/Movement"
+﻿codeunit 7322 "Create Inventory Pick/Movement"
 {
     Permissions = TableData "Whse. Item Tracking Line" = rimd;
     TableNo = "Warehouse Activity Header";
@@ -1280,6 +1280,8 @@ codeunit 7322 "Create Inventory Pick/Movement"
             Message(ActivityCreatedMsg, WhseActivHeader.Type, WhseActivHeader."No.");
         end else
             Message(TrackingNotFullyAppliedMsg, WhseActivHeader.Type, WhseActivHeader."No.");
+
+        OnAfterCreateInvtMvntWithoutSource(WhseActivHeader, InternalMovementHeader);
     end;
 
     local procedure DeleteHandledInternalMovementLines(InternalMovementHeaderNo: Code[20]): Boolean
@@ -1604,6 +1606,11 @@ codeunit 7322 "Create Inventory Pick/Movement"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateInventoryPickMovement(var WarehouseRequest: Record "Warehouse Request"; LineCreated: Boolean; var WarehouseActivityHeader: Record "Warehouse Activity Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateInvtMvntWithoutSource(WhseActivHeader: Record "Warehouse Activity Header"; var InternalMovementHeader: Record "Internal Movement Header")
     begin
     end;
 

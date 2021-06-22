@@ -234,6 +234,9 @@
             until WhseActivHeader.Next = 0;
 
             if PrintDoc then begin
+                // new pick has been created - in order to run a report to print it, a COMMIT is needed.
+                Commit();
+
                 IsHandled := false;
                 OnBeforePrintPickingList(WhseActivHeader, IsHandled);
                 if not IsHandled then

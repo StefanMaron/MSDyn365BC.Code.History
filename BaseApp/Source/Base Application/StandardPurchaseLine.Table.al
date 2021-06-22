@@ -1,4 +1,4 @@
-table 174 "Standard Purchase Line"
+﻿table 174 "Standard Purchase Line"
 {
     Caption = 'Standard Purchase Line';
 
@@ -278,7 +278,14 @@ table 174 "Standard Purchase Line"
     end;
 
     procedure LookupShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeLookupShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode, IsHandled);
+        if IsHandled then
+            exit;
+
         DimMgt.LookupDimValueCode(FieldNumber, ShortcutDimCode);
         DimMgt.ValidateShortcutDimValues(FieldNumber, ShortcutDimCode, "Dimension Set ID");
     end;
@@ -294,6 +301,11 @@ table 174 "Standard Purchase Line"
             exit(CommentLbl);
 
         exit(Format(Type));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupShortcutDimCode(var StandardPurchaseLine: Record "Standard Purchase Line"; var xStandardPurchaseLine: Record "Standard Purchase Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20]; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

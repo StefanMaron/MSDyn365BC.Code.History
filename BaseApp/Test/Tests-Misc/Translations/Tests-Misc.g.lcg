@@ -8402,6 +8402,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UI Ledger Entries Page - NamedType GLEntryExistsErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 977603404 - NamedType 1095402467" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Editing the Exported to Payment File field will change the payment suggestions in the Payment Journal. Edit this field only if you must correct a mistake.\Do you want to continue?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UI Ledger Entries Page - NamedType ExportToPaymentFileConfirmTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 436666293 - NamedType 2103980160" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[This customer is not registered. To continue, choose one of the following options:]]></Val>

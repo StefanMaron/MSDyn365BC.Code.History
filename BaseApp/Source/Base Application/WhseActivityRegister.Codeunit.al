@@ -895,9 +895,11 @@
                           InsufficientQtyItemTrkgErr, TempWhseActivLine."Source Line No.", TempWhseActivLine."Source Document",
                           TempWhseActivLine."Source No.");
 
-                    if TempWhseActivLine.TrackingExists then
+                    if TempWhseActivLine.TrackingExists then begin
+                        WhseItemTrackingSetup.CopyTrackingFromWhseActivityLine(TempWhseActivLine);
                         if not IsQtyAvailToPickNonSpecificReservation(TempWhseActivLine, WhseItemTrackingSetup, QtyToRegisterBase) then
                             AvailabilityError(TempWhseActivLine);
+                    end;
 
                     // Clear filters, Lot/SN
                     TempWhseActivLine.ClearTrackingFilter;

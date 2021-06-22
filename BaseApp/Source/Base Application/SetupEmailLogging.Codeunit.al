@@ -53,17 +53,22 @@ codeunit 1641 "Setup Email Logging"
         ClientCredentialsAccessTokenErr: Label 'No client credentials access token received', Locked = true;
         AccessTokenErrMsg: Label 'Failed to acquire an access token.';
         AuthTokenOrCodeNotReceivedErr: Label 'No access token or authorization error code received.', Locked = true;
+        AdminAccessTokenReceivedTxt: Label 'Admin access token has been received.', Locked = true;
+        ClientAccessTokenReceivedTxt: Label 'Client access token has been received.', Locked = true;
+        AcquireAccessTokenTxt: Label 'Asquire access token.', Locked = true;
         IgnoredClientCredentialsTxt: Label 'Ignored client credentials.', Locked = true;
         InvalidClientCredentialsTxt: Label 'Invalid client credentials.', Locked = true;
         EmptyRedirectUrlTxt: Label 'Redirect URL is empty, the default URL will be used.', Locked = true;
         RootFolderPathTemplateTxt: Label '\%1\', Locked = true;
         PublicFolderPathTemplateTxt: Label '\%1\%2\', Locked = true;
         FolderDoesNotExistErr: Label 'The specified Exchange folder does not exist.';
+        FolderDoesNotExistTxt: Label 'Exchange folder %1 (%2) does not exist.', Locked = true;
         SetupEmailLoggingTitleTxt: Label 'Set up email logging';
         SetupEmailLoggingHelpTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2115467', Locked = true;
         VideoUrlSetupEmailLoggingTxt: Label 'https://go.microsoft.com/fwlink/?linkid=843360', Locked = true;
         SetupEmailLoggingDescriptionTxt: Label 'Track email exchanges between your sales team and customers and prospects, and then turning them into actionable opportunities.';
         EmptyAccessTokenTxt: Label 'Access token is empty.', Locked = true;
+        TenantIdExtractedTxt: Label 'Tenant ID %1 has been extracted from token.', Locked = true;
         CannotExtractTenantIdTxt: Label 'Cannot extract tenant ID from token %1.', Locked = true;
         CannotExtractTenantIdErr: Label 'Cannot extract tenant ID from the access token.';
 
@@ -329,13 +334,17 @@ codeunit 1641 "Setup Email Logging"
     procedure GetExchangeFolder(var ExchangeWebServicesClient: Codeunit "Exchange Web Services Client"; var ExchangeFolder: Record "Exchange Folder"; FoldersCaption: Text): Boolean
     var
         ExchangeFoldersPage: Page "Exchange Folders";
+        FolderID: Text;
     begin
         ExchangeFoldersPage.Initialize(ExchangeWebServicesClient, FoldersCaption);
         ExchangeFoldersPage.LookupMode(true);
         if Action::LookupOK = ExchangeFoldersPage.RunModal() then begin
             ExchangeFoldersPage.GetRecord(ExchangeFolder);
-            if not ExchangeWebServicesClient.FolderExists(ExchangeFolder.ReadUniqueID()) then
+            FolderID := ExchangeFolder.ReadUniqueID();
+            if not ExchangeWebServicesClient.FolderExists(FolderID) then begin
+                SendTraceTag('0000D9L', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, StrSubstNo(FolderDoesNotExistTxt, FolderID, ExchangeFolder.FullPath), DataClassification::CustomerContent);
                 Error(FolderDoesNotExistErr);
+            end;
             exit(true);
         end;
         exit(false);
@@ -445,6 +454,7 @@ codeunit 1641 "Setup Email Logging"
         if RedirectURL = '' then
             RedirectURL := GetRedirectURL();
 
+        SendTraceTag('0000D9M', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, AcquireAccessTokenTxt, DataClassification::SystemMetadata);
         OAuth2.AcquireTokenByAuthorizationCode(
                     ClientId,
                     ClientSecret,
@@ -460,6 +470,7 @@ codeunit 1641 "Setup Email Logging"
                 SendTraceTag('0000CFB', EmailLoggingTelemetryCategoryTxt, Verbosity::Error, AuthTokenOrCodeNotReceivedErr, DataClassification::SystemMetadata);
             Error(AccessTokenErrMsg);
         end;
+        SendTraceTag('0000D9N', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, AdminAccessTokenReceivedTxt, DataClassification::SystemMetadata);
     end;
 
     [Scope('OnPrem')]
@@ -494,6 +505,7 @@ codeunit 1641 "Setup Email Logging"
             SendTraceTag('0000CFC', EmailLoggingTelemetryCategoryTxt, Verbosity::Error, ClientCredentialsAccessTokenErr, DataClassification::SystemMetadata);
             Error(AccessTokenErrMsg);
         end;
+        SendTraceTag('0000D9O', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, ClientAccessTokenReceivedTxt, DataClassification::SystemMetadata);
     end;
 
     [Scope('OnPrem')]
@@ -502,10 +514,11 @@ codeunit 1641 "Setup Email Logging"
     begin
         if AccessToken <> '' then begin
             if TryExtractTenantIdFromAccessToken(TenantId, AccessToken) then begin
-                if TenantId <> '' then
-                    exit
-                else
-                    SendTraceTag('0000CR1', EmailLoggingTelemetryCategoryTxt, Verbosity::Error, StrSubstNo(CannotExtractTenantIdTxt, AccessToken), DataClassification::CustomerContent);
+                if TenantId <> '' then begin
+                    SendTraceTag('0000D9P', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, StrSubstNo(TenantIdExtractedTxt, TenantId), DataClassification::CustomerContent);
+                    exit;
+                end;
+                SendTraceTag('0000CR1', EmailLoggingTelemetryCategoryTxt, Verbosity::Error, StrSubstNo(CannotExtractTenantIdTxt, AccessToken), DataClassification::CustomerContent);
             end else
                 SendTraceTag('0000CR2', EmailLoggingTelemetryCategoryTxt, Verbosity::Error, StrSubstNo(CannotExtractTenantIdTxt, AccessToken), DataClassification::CustomerContent)
         end else
@@ -557,6 +570,7 @@ codeunit 1641 "Setup Email Logging"
             exit(ClientId);
         end;
 
+        SendTraceTag('0000D9Q', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, MissingClientIdTelemetryTxt, DataClassification::SystemMetadata);
         Error(MissingClientIdOrSecretErr);
     end;
 
@@ -591,7 +605,8 @@ codeunit 1641 "Setup Email Logging"
             exit(ClientSecret);
         end;
 
-        Error(MissingClientIdorSecretErr);
+        SendTraceTag('0000D9R', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, MissingClientSecretTelemetryTxt, DataClassification::SystemMetadata);
+        Error(MissingClientIdOrSecretErr);
     end;
 
     [Scope('OnPrem')]

@@ -126,6 +126,7 @@ codeunit 1302 "Customer Mgt."
 
     procedure CalculateAmountsWithVATOnUnpostedDocuments(CustNo: Code[20]): Decimal
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         SalesLine: Record "Sales Line";
         Result: Decimal;
     begin
@@ -158,6 +159,7 @@ codeunit 1302 "Customer Mgt."
 
     local procedure CalculateAmountsOnUnpostedDocs(CustNo: Code[20]; var RecCount: Integer; DocumentType: Integer): Decimal
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         SalesLine: Record "Sales Line";
         Result: Decimal;
         VAT: Decimal;
@@ -196,6 +198,7 @@ codeunit 1302 "Customer Mgt."
 
     procedure DrillDownOnPostedInvoices(CustNo: Code[20])
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         with SalesInvoiceHeader do begin
@@ -208,6 +211,7 @@ codeunit 1302 "Customer Mgt."
 
     procedure DrillDownOnPostedCrMemo(CustNo: Code[20])
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
     begin
         with SalesCrMemoHeader do begin
@@ -220,6 +224,7 @@ codeunit 1302 "Customer Mgt."
 
     procedure DrillDownOnOrders(CustNo: Code[20])
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         SalesHeader: Record "Sales Header";
     begin
         with SalesHeader do begin
@@ -232,6 +237,7 @@ codeunit 1302 "Customer Mgt."
 
     procedure DrillDownOnQuotes(CustNo: Code[20])
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         SalesHeader: Record "Sales Header";
     begin
         with SalesHeader do begin
@@ -244,6 +250,7 @@ codeunit 1302 "Customer Mgt."
 
     procedure DrillDownMoneyOwedExpected(CustNo: Code[20])
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         SalesHeader: Record "Sales Header";
     begin
         SetFilterForUnpostedDocs(SalesHeader, CustNo, -1);
@@ -252,6 +259,7 @@ codeunit 1302 "Customer Mgt."
 
     procedure DrillDownOnUnpostedInvoices(CustNo: Code[20])
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         SalesHeader: Record "Sales Header";
     begin
         SetFilterForUnpostedDocs(SalesHeader, CustNo, SalesHeader."Document Type"::Invoice);
@@ -260,6 +268,7 @@ codeunit 1302 "Customer Mgt."
 
     procedure DrillDownOnUnpostedCrMemos(CustNo: Code[20])
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         SalesHeader: Record "Sales Header";
     begin
         SetFilterForUnpostedDocs(SalesHeader, CustNo, SalesHeader."Document Type"::"Credit Memo");

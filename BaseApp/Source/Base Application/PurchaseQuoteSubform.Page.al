@@ -963,6 +963,18 @@ page 97 "Purchase Quote Subform"
             exit;
 
         DocumentTotals.PurchaseDeltaUpdateTotals(Rec, xRec, TotalPurchaseLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
+        CheckSendLineInvoiceDiscountResetNotification();
+    end;
+
+    local procedure CheckSendLineInvoiceDiscountResetNotification()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckSendLineInvoiceDiscountResetNotification(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Line Amount" <> xRec."Line Amount" then
             SendLineInvoiceDiscountResetNotification;
     end;
@@ -1047,6 +1059,11 @@ page 97 "Purchase Quote Subform"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertExtendedText(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckSendLineInvoiceDiscountResetNotification(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 

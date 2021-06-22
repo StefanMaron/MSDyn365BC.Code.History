@@ -1227,6 +1227,7 @@ page 6510 "Item Tracking Lines"
 
                     if AddTracking then begin
                         TempTrackingSpecification.TransferFields(ReservEntry);
+                        OnAddReservEntriesToTempRecSetOnAfterTempTrackingSpecificationTransferFields(TempTrackingSpecification, ReservEntry);
                         // Ensure uniqueness of Entry No. by making it negative:
                         TempTrackingSpecification."Entry No." *= -1;
                         if SwapSign then
@@ -1759,6 +1760,7 @@ page 6510 "Item Tracking Lines"
                     ReservEntry2.TransferFields(NewTrackingSpecification);
 
                     ReservEntry1."Entry No." := ReservEntry2."Entry No."; // If only entry no. has changed it should not trigger
+                    OnRegisterChangeOnChangeTypeModifyOnBeforeCheckEntriesAreIdentical(ReservEntry1, ReservEntry2, OldTrackingSpecification, NewTrackingSpecification, IdenticalArray);
                     if EntriesAreIdentical(ReservEntry1, ReservEntry2, IdenticalArray) then
                         exit(QtyToHandleAndInvoiceChanged(ReservEntry1, ReservEntry2));
 
@@ -2788,6 +2790,11 @@ page 6510 "Item Tracking Lines"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAddReservEntriesToTempRecSetOnAfterTempTrackingSpecificationTransferFields(var TempTrackingSpecification: Record "Tracking Specification" temporary; var ReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCopyTrackingSpec(var SourceTrackingSpec: Record "Tracking Specification"; var DestTrkgSpec: Record "Tracking Specification")
     begin
     end;
@@ -2944,6 +2951,11 @@ page 6510 "Item Tracking Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnRegisterChangeOnAfterModify(var NewTrackingSpecification: Record "Tracking Specification"; var OldTrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRegisterChangeOnChangeTypeModifyOnBeforeCheckEntriesAreIdentical(var ReservEntry1: Record "Reservation Entry"; var ReservEntry2: Record "Reservation Entry"; var OldTrackingSpecification: Record "Tracking Specification"; var NewTrackingSpecification: Record "Tracking Specification"; var IdenticalArray: array[2] of Boolean)
     begin
     end;
 

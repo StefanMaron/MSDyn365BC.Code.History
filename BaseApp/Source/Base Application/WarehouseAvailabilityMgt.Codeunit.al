@@ -1,4 +1,4 @@
-codeunit 7314 "Warehouse Availability Mgt."
+﻿codeunit 7314 "Warehouse Availability Mgt."
 {
 
     trigger OnRun()
@@ -136,6 +136,7 @@ codeunit 7314 "Warehouse Availability Mgt."
         QtyOnDedicatedBins: Decimal;
         ReservedQtyOnInventory: Decimal;
         SubTotal: Decimal;
+        QtyPicked: Decimal;
     begin
         // Returns the available quantity to pick for pick/ship/receipt/put-away
         // locations without directed put-away and pick
@@ -160,16 +161,19 @@ codeunit 7314 "Warehouse Availability Mgt."
             ReservedQtyOnInventory := "Reserved Qty. on Inventory";
             OnAfterCalcReservedQtyOnInventory(Item, ReservedQtyOnInventory, Location);
 
+            QtyPicked := "Qty. Picked";
+            OnAfterCalcQtyPicked(Item, QtyPicked, Location);
+
             // The reserved qty might exceed the qty available in warehouse and thereby
             // having reserved from the qty not yet put-away
-            if (Inventory - QtyReceivedNotAvail - QtyAssgndtoPick - "Qty. Picked" + QtyShipped - QtyOnDedicatedBins) <
+            if (Inventory - QtyReceivedNotAvail - QtyAssgndtoPick - QtyPicked + QtyShipped - QtyOnDedicatedBins) <
                (Abs(ReservedQtyOnInventory) - QtyReservedOnPickShip)
             then
                 exit(0);
 
             SubTotal :=
               Inventory - QtyReceivedNotAvail - QtyAssgndtoPick -
-              Abs(ReservedQtyOnInventory) - "Qty. Picked" + QtyShipped;
+              Abs(ReservedQtyOnInventory) - QtyPicked + QtyShipped;
 
             exit(SubTotal);
         end;
@@ -382,43 +386,120 @@ codeunit 7314 "Warehouse Availability Mgt."
 
     procedure CalcQtyOnOutboundBins(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; WhseItemTrackingSetup: Record "Item Tracking Setup"; ExcludeDedicatedBinContent: Boolean) QtyOnOutboundBins: Decimal
     var
-        WhseEntry: Record "Warehouse Entry";
         WhseShptLine: Record "Warehouse Shipment Line";
+        Location: Record Location;
+        TempBinContentBuffer: Record "Bin Content Buffer" temporary;
+    begin
+        Location.Get(LocationCode);
+        if not Location."Require Pick" then
+            exit(0);
+
+        if Location."Directed Put-away and Pick" then
+            QtyOnOutboundBins :=
+                CalcQtyOnOutboundBinsOnDirectedPutAwayPickLocation(
+                  LocationCode, ItemNo, VariantCode, WhseItemTrackingSetup, ExcludeDedicatedBinContent)
+        else
+            if Location."Bin Mandatory" and WhseItemTrackingSetup.TrackingExists() then begin
+                GetOutboundBinsOnBasicWarehouseLocation(
+                  TempBinContentBuffer, LocationCode, ItemNo, VariantCode, WhseItemTrackingSetup);
+                TempBinContentBuffer.CalcSums("Qty. Outstanding (Base)");
+                QtyOnOutboundBins := TempBinContentBuffer."Qty. Outstanding (Base)";
+            end else begin
+                WhseShptLine.SetRange("Item No.", ItemNo);
+                WhseShptLine.SetRange("Location Code", LocationCode);
+                WhseShptLine.SetRange("Variant Code", VariantCode);
+                WhseShptLine.CalcSums("Qty. Picked (Base)", "Qty. Shipped (Base)");
+                QtyOnOutboundBins := WhseShptLine."Qty. Picked (Base)" - WhseShptLine."Qty. Shipped (Base)";
+            end;
+    end;
+
+    local procedure CalcQtyOnOutboundBinsOnDirectedPutAwayPickLocation(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; WhseItemTrackingSetup: Record "Item Tracking Setup"; ExcludeDedicatedBinContent: Boolean) QtyOnOutboundBins: Decimal
+    var
+        WhseEntry: Record "Warehouse Entry";
         Location: Record Location;
         CreatePick: Codeunit "Create Pick";
     begin
-        // Directed put-away and pick
         Location.Get(LocationCode);
+        if not Location."Directed Put-away and Pick" then
+            exit(0);
 
         WhseItemTrackingSetup."Serial No. Required" := true;
         WhseItemTrackingSetup."Lot No. Required" := true;
 
-        if Location."Directed Put-away and Pick" then begin
-            WhseEntry.SetCalculationFilters(ItemNo, LocationCode, VariantCode, WhseItemTrackingSetup, ExcludeDedicatedBinContent);
-            WhseEntry.SetFilter("Bin Type Code", CreatePick.GetBinTypeFilter(1)); // Shipping area
+        WhseEntry.SetCalculationFilters(ItemNo, LocationCode, VariantCode, WhseItemTrackingSetup, ExcludeDedicatedBinContent);
+        WhseEntry.SetFilter("Bin Type Code", CreatePick.GetBinTypeFilter(1)); // Shipping area
+        WhseEntry.CalcSums("Qty. (Base)");
+        QtyOnOutboundBins := WhseEntry."Qty. (Base)";
+        if Location."Adjustment Bin Code" <> '' then begin
+            WhseEntry.SetRange("Bin Type Code");
+            WhseEntry.SetRange("Bin Code", Location."Adjustment Bin Code");
             WhseEntry.CalcSums("Qty. (Base)");
-            QtyOnOutboundBins := WhseEntry."Qty. (Base)";
-            if Location."Adjustment Bin Code" <> '' then begin
-                WhseEntry.SetRange("Bin Type Code");
-                WhseEntry.SetRange("Bin Code", Location."Adjustment Bin Code");
-                WhseEntry.CalcSums("Qty. (Base)");
-                QtyOnOutboundBins += WhseEntry."Qty. (Base)";
-            end;
-        end else
-            if Location."Require Pick" then
-                if Location."Bin Mandatory" and WhseItemTrackingSetup.TrackingExists() then begin
-                    WhseEntry.SetCalculationFilters(ItemNo, LocationCode, VariantCode, WhseItemTrackingSetup, false);
-                    WhseEntry.SetRange("Whse. Document Type", WhseEntry."Whse. Document Type"::Shipment);
-                    WhseEntry.SetRange("Reference Document", WhseEntry."Reference Document"::Pick);
-                    WhseEntry.SetFilter("Qty. (Base)", '>%1', 0);
-                    QtyOnOutboundBins := CalcResidualPickedQty(WhseEntry);
-                end else begin
-                    WhseShptLine.SetRange("Item No.", ItemNo);
-                    WhseShptLine.SetRange("Location Code", LocationCode);
-                    WhseShptLine.SetRange("Variant Code", VariantCode);
-                    WhseShptLine.CalcSums("Qty. Picked (Base)", "Qty. Shipped (Base)");
-                    QtyOnOutboundBins := WhseShptLine."Qty. Picked (Base)" - WhseShptLine."Qty. Shipped (Base)";
+            QtyOnOutboundBins += WhseEntry."Qty. (Base)";
+        end;
+    end;
+
+    procedure GetOutboundBinsOnBasicWarehouseLocation(var TempBinContentBuffer: Record "Bin Content Buffer" temporary; LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; WhseItemTrackingSetup: Record "Item Tracking Setup")
+    var
+        Location: Record Location;
+        WhseEntry: Record "Warehouse Entry";
+        QtyInBin: Decimal;
+    begin
+        TempBinContentBuffer.DeleteAll();
+
+        Location.Get(LocationCode);
+        if not Location."Bin Mandatory" then
+            exit;
+        if not Location."Require Pick" or Location."Directed Put-away and Pick" then
+            exit;
+
+        WhseItemTrackingSetup."Serial No. Required" := true;
+        WhseItemTrackingSetup."Lot No. Required" := true;
+
+        WhseEntry.SetCalculationFilters(ItemNo, LocationCode, VariantCode, WhseItemTrackingSetup, false);
+        WhseEntry.SetRange("Whse. Document Type", WhseEntry."Whse. Document Type"::Shipment);
+        WhseEntry.SetRange("Reference Document", WhseEntry."Reference Document"::Pick);
+        WhseEntry.SetFilter("Qty. (Base)", '>%1', 0);
+        if WhseEntry.FindSet() then
+            repeat
+                WhseEntry.SetRange("Bin Code", WhseEntry."Bin Code");
+                QtyInBin := CalcQtyOnBin(LocationCode, WhseEntry."Bin Code", ItemNo, VariantCode, WhseItemTrackingSetup);
+                if QtyInBin > 0 then begin
+                    TempBinContentBuffer.Init();
+                    TempBinContentBuffer."Location Code" := LocationCode;
+                    TempBinContentBuffer."Bin Code" := WhseEntry."Bin Code";
+                    TempBinContentBuffer."Item No." := ItemNo;
+                    TempBinContentBuffer."Variant Code" := VariantCode;
+                    TempBinContentBuffer."Qty. Outstanding (Base)" := QtyInBin;
+                    TempBinContentBuffer.Insert();
                 end;
+
+                WhseEntry.FindLast();
+                WhseEntry.SetRange("Bin Code");
+            until WhseEntry.Next() = 0;
+    end;
+
+    procedure CalcQtyOnSpecialBinsOnLocation(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; WhseItemTrackingSetup: Record "Item Tracking Setup"; var TempBinContentBufferExcluded: Record "Bin Content Buffer" temporary) QtyOnSpecialBins: Decimal
+    var
+        Location: Record Location;
+        SpecialBins: List of [Code[20]];
+        SpecialBin: Code[20];
+    begin
+        Location.Get(LocationCode);
+
+        if Location."To-Assembly Bin Code" <> '' then
+            SpecialBins.Add(Location."To-Assembly Bin Code");
+        if (Location."Open Shop Floor Bin Code" <> '') and not SpecialBins.Contains(Location."Open Shop Floor Bin Code") then
+            SpecialBins.Add(Location."Open Shop Floor Bin Code");
+        if (Location."To-Production Bin Code" <> '') and not SpecialBins.Contains(Location."To-Production Bin Code") then
+            SpecialBins.Add(Location."To-Production Bin Code");
+
+        foreach SpecialBin in SpecialBins do begin
+            TempBinContentBufferExcluded.SetRange("Location Code", LocationCode);
+            TempBinContentBufferExcluded.SetRange("Bin Code", SpecialBin);
+            if TempBinContentBufferExcluded.IsEmpty() then
+                QtyOnSpecialBins +=
+                    CalcQtyOnBin(LocationCode, SpecialBin, ItemNo, VariantCode, WhseItemTrackingSetup);
+        end;
     end;
 
     procedure CalcResidualPickedQty(var WhseEntry: Record "Warehouse Entry") Result: Decimal
@@ -525,6 +606,11 @@ codeunit 7314 "Warehouse Availability Mgt."
         WarehouseActivityLine.CalcSums("Qty. Outstanding (Base)");
 
         exit(WhseActivityLine."Qty. Outstanding (Base)" + WarehouseActivityLine."Qty. Outstanding (Base)");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcQtyPicked(var Item: Record Item; var QtyPicked: Decimal; Location: Record Location)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

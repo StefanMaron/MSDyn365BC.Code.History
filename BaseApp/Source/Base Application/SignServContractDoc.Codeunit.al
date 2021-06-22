@@ -1,4 +1,4 @@
-codeunit 5944 SignServContractDoc
+﻿codeunit 5944 SignServContractDoc
 {
     Permissions = TableData "Filed Service Contract Header" = rimd;
     TableNo = "Service Contract Header";
@@ -632,7 +632,7 @@ codeunit 5944 SignServContractDoc
         OnBeforeCheckServContractQuote(FromServContractHeader);
 
         FromServContractHeader.TestField("Serv. Contract Acc. Gr. Code");
-        FromServContractHeader.TestField("Service Period");
+        CheckContractHeaderServicePeriod(FromServContractHeader);
         FromServContractHeader.CalcFields("Calcd. Annual Amount");
         if FromServContractHeader."Calcd. Annual Amount" < 0 then
             Error(Text019);
@@ -640,16 +640,7 @@ codeunit 5944 SignServContractDoc
 
         ServContractMgt.CheckContractGroupAccounts(FromServContractHeader);
 
-        FromServContractLine.Reset();
-        FromServContractLine.SetRange("Contract Type", FromServContractHeader."Contract Type");
-        FromServContractLine.SetRange("Contract No.", FromServContractHeader."Contract No.");
-        FromServContractLine.SetRange("Line Amount", 0);
-        FromServContractLine.SetFilter("Line Discount %", '<%1', 100);
-        if FromServContractLine.FindFirst then
-            Error(
-              Text001,
-              FromServContractHeader."Contract No.",
-              FromServContractLine.FieldCaption("Line Amount"));
+        CheckMissingServiceContractLines(FromServContractHeader);
 
         FromServContractHeader.TestField("Starting Date");
         CheckServContractNonZeroAmounts(FromServContractHeader);
@@ -687,6 +678,27 @@ codeunit 5944 SignServContractDoc
         OnAfterCheckServContractQuote(FromServContractHeader);
     end;
 
+    local procedure CheckMissingServiceContractLines(FromServContractHeader: Record "Service Contract Header")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckMissingServiceContractLines(FromServContractHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        FromServContractLine.Reset();
+        FromServContractLine.SetRange("Contract Type", FromServContractHeader."Contract Type");
+        FromServContractLine.SetRange("Contract No.", FromServContractHeader."Contract No.");
+        FromServContractLine.SetRange("Line Amount", 0);
+        FromServContractLine.SetFilter("Line Discount %", '<%1', 100);
+        if FromServContractLine.FindFirst then
+            Error(
+              Text001,
+              FromServContractHeader."Contract No.",
+              FromServContractLine.FieldCaption("Line Amount"));
+    end;
+
     procedure CheckServContract(var ServContractHeader: Record "Service Contract Header"): Boolean
     var
         ServContractLine: Record "Service Contract Line";
@@ -696,7 +708,7 @@ codeunit 5944 SignServContractDoc
         if ServContractHeader.Status = ServContractHeader.Status::Canceled then
             Error(Text024);
         ServContractHeader.TestField("Serv. Contract Acc. Gr. Code");
-        ServContractHeader.TestField("Service Period");
+        CheckContractHeaderServicePeriod(ServContractHeader);
         ServContractHeader.CalcFields("Calcd. Annual Amount");
 
         if ServContractHeader."Annual Amount" <> ServContractHeader."Calcd. Annual Amount" then
@@ -733,6 +745,18 @@ codeunit 5944 SignServContractDoc
             exit(CheckServContractNextPlannedServiceDate(ServContractHeader));
 
         exit(true);
+    end;
+
+    local procedure CheckContractHeaderServicePeriod(ServContractHeader: Record "Service Contract Header")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckContractHeaderServicePeriod(ServContractHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        ServContractHeader.TestField("Service Period");
     end;
 
     local procedure CheckServContractNextInvoiceDate(ServContractHeader: Record "Service Contract Header")
@@ -975,6 +999,16 @@ codeunit 5944 SignServContractDoc
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckServContractHasZeroAmounts(ServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckContractHeaderServicePeriod(ServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckMissingServiceContractLines(ServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
     begin
     end;
 

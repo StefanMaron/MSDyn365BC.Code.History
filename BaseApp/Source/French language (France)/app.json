@@ -2,7 +2,7 @@
     "id":  "c75a45c6-4e83-46e1-b17b-48c6506c19f3",
     "name":  "French language (France)",
     "publisher":  "Microsoft",
-    "version":  "16.4.14693.15445",
+    "version":  "16.5.15897.15953",
     "dependencies":  [
 
                      ],
@@ -15,5 +15,5 @@
     "EULA":  "https://www.microsoft.com/en-us/download/details.aspx?id=56765",
     "help":  "https://go.microsoft.com/fwlink/?linkid=2115116",
     "url":  "https://www.microsoft.com/en-us/dynamics365/contact-us",
-    "application":  "16.4.0.0"
+    "application":  "16.5.0.0"
 }

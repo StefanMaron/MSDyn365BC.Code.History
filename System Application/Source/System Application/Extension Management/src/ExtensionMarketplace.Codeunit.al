@@ -32,6 +32,13 @@ codeunit 2501 "Extension Marketplace"
         MarketPlaceSuccInstallTxt: Label 'The extension was successfully installed.';
         MarketPlaceUnsuccInstallTxt: Label 'The market place extension installation has failed with the result ''%1''. Error message: ''%2''', Comment = '%1 - OperationResult parameter value, %2 - Error message';
         AlreadyInstalledMsg: Label 'The extension %1 is already installed.', Comment = '%1=name of app';
+        AppsourceTxt: Label 'https://appsource.microsoft.com', Locked = true;
+        EmbedRelativeTxt: Label '/embed/en-us/marketplace?product=dynamics-365-business-central', Locked = true;
+        ExtensionNotFoundErr: Label 'Selected extension could not be installed because a valid App Id or package ID is not passed.', Comment = 'Error message for trying to install an extension where a valid id is not passed;';
+        TelemetryExtensionNotFoundErr: Label 'Selected extension could not be installed because a valid App Id or package ID is not passed. Application ID : %1.', Comment = 'Telemetry error message for trying to install an extension a valid id is not passed; %1 is the applicaiton id recieved from appsource.';
+        MissingAppIdErr: Label 'Selected extension could not be installed because the extension is not published and a valid App Id is not passed. Application ID : %1.', Comment = 'Telemetry error message for trying to install an extension a valid id is not passed; %1 is the applicaiton id recieved from appsource.';
+        TelemetryTok: Label 'ExtensionManagementTelemetryCategoryTok', Locked = true;
+        ExtensionInstallationFailureErr: Label 'ENU=The extension %1 failed to install.', Comment = '"%1=name of extension"';
         OperationResult: Option UserNotAuthorized,DeploymentFailedDueToPackage,DeploymentFailed,Successful,UserCancel,UserTimeOut;
 
     local procedure GetValue(JObject: DotNet JObject; Property: Text; ThrowError: Boolean): Text
@@ -220,6 +227,60 @@ codeunit 2501 "Extension Marketplace"
             ExtensionOperationImpl.DeployExtension(ApplicationId, lcid, true);
     end;
 
+
+    [TryFunction]
+    PROCEDURE InstallAppsourceExtension(ApplicationID: Text; TelemetryURL: Text);
+    VAR
+        PublishedApplication: Record "Published Application";
+        ExtensionInstallation: Page "Extension Installation";
+        APPID: GUID;
+        PackageID: GUID;
+    BEGIN
+        APPID := MapMarketplaceIdToAppId(ApplicationID);
+        if not IsNullGuid(APPID) then begin
+            PublishedApplication.SETFILTER(ID, '%1', APPID);
+            PublishedApplication.ID := APPID;
+        end else begin
+            PackageID := MapMarketplaceIdToPackageId(ApplicationID);
+            if IsNullGuid(PackageID) then begin
+                SendTraceTag('0088AQQ', TelemetryTok, VERBOSITY::Normal, StrSubstNo(TelemetryExtensionNotFoundErr, ApplicationID), DataClassification::SystemMetadata);
+                ERROR(ExtensionNotFoundErr);
+            end;
+
+            PublishedApplication.SETFILTER("Package ID", '%1', PackageID);
+            if PublishedApplication.IsEmpty then begin
+                SendTraceTag('0088BQQ', TelemetryTok, VERBOSITY::Normal, StrSubstNo(MissingAppIdErr, ApplicationID), DataClassification::SystemMetadata);
+                ERROR(ExtensionNotFoundErr);
+            end;
+
+            PublishedApplication."Package ID" := PackageID;
+        end;
+
+        PublishedApplication.responseUrl := CopyStr(TelemetryUrl, 1, MaxStrLen(PublishedApplication.responseUrl));
+        ExtensionInstallation.SETRECORD(PublishedApplication);
+        IF ExtensionInstallation.RUNMODAL() = ACTION::OK THEN
+            EXIT;
+        PublishedApplication.RESET();
+        ExtensionInstallation.GETRECORD(PublishedApplication);
+
+        IF NOT AppIsInstalled(APPID, PackageID) then
+            ERROR(ExtensionInstallationFailureErr);
+    END;
+
+    local procedure AppIsInstalled(APPID: Guid; PackageID: Guid): Boolean;
+    var
+        ExtensionInstallationImpl: Codeunit "Extension Installation Impl";
+    begin
+        if not IsNullGuid(APPID) then
+            exit(ExtensionInstallationImpl.IsInstalledByAppId(APPID));
+
+        if not IsNullGuid(PackageID) then
+            exit(ExtensionInstallationImpl.IsInstalledByPackageId(PackageID));
+
+        // This condition is ckecked before and a proper error and telemetry signal is sent
+        exit(false);
+    end;
+
     [TryFunction]
     procedure InstallExtension(ApplicationID: Text; ResponseURL: Text)
     var
@@ -233,8 +294,6 @@ codeunit 2501 "Extension Marketplace"
         if MarketplaceExtnDeployment.GetInstalledSelected() then
             InstallMarketplaceExtension(ID, ResponseURL, MarketplaceExtnDeployment.GetLanguageId());
     end;
-
-
 
     procedure IsMarketplaceEnabled(): Boolean
     var
@@ -313,6 +372,27 @@ codeunit 2501 "Extension Marketplace"
         exit(false);
     end;
 
+
+    PROCEDURE GetMarketplaceEmbeddedUrl(): Text;
+    BEGIN
+        EXIT(AppsourceTxt + EmbedRelativeTxt);
+    END;
+
+    PROCEDURE GetMessageType(JObject: DotNet JObject): Text;
+    BEGIN
+        // Extracts the 'msgType' property from the
+        EXIT(GetValue(JObject, 'msgType', TRUE));
+    END;
+
+    PROCEDURE GetApplicationIdFromData(JObject: DotNet JObject): Text;
+    VAR
+        TempObject: DotNet JObject;
+    BEGIN
+        // Extracts the applicationId property out of the data object return by the SPZA site
+        TempObject := TempObject.Parse(GetValue(JObject, 'data', TRUE));
+        EXIT(GetValue(TempObject, 'applicationId', true));
+    END;
+
     [EventSubscriber(ObjectType::Codeunit, 2000000006, 'InvokeExtensionInstallation', '', false, false)]
     local procedure InvokeExtensionInstallation(AppId: Text; ResponseUrl: Text)
     begin
@@ -320,7 +400,7 @@ codeunit 2501 "Extension Marketplace"
             Message(GetLastErrorText());
     end;
 
-    [IntegrationEvent(false, false)]
+    [InternalEvent(false)]
     internal procedure OnOverrideUrl(var Url: Text)
     begin
         // Provides an option to rewrite URL in non SaaS environments.

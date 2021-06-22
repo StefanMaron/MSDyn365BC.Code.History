@@ -608,10 +608,7 @@ codeunit 134389 "ERM Customer Statistics"
         CustomerCard.OpenView;
         CodeCoverageMgt.StopApplicationCoverage;
 
-        // [THEN] "Average Late Payments (Days)" and "Usage Of Credit Limit" are calculated on the page.
-        Assert.IsTrue(
-          IsCodeLineHitByCodeCoverage(CodeCoverage."Object Type"::Page, PAGE::"Customer Card", 'InvoicePaymentDaysAverage'),
-          '"Average Late Payments (Days)" field must be calculated on customer card when Foundation is enabled.');
+        // [THEN] "Usage Of Credit Limit" are calculated on the page.
         Assert.IsTrue(
           IsCodeLineHitByCodeCoverage(CodeCoverage."Object Type"::Page, PAGE::"Customer Card", 'CalcCreditLimitLCYExpendedPct'),
           '"Usage Of Credit Limit" field must be calculated on customer card when Foundation is enabled.');

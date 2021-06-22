@@ -284,6 +284,14 @@ page 25 "Customer Ledger Entries"
                     ApplicationArea = Basic, Suite;
                     Editable = true;
                     ToolTip = 'Specifies that the entry was created as a result of exporting a payment journal line.';
+
+                    trigger OnValidate()
+                    var
+                        ConfirmManagement: Codeunit "Confirm Management";
+                    begin
+                        if not ConfirmManagement.GetResponseOrDefault(ExportToPaymentFileConfirmTxt, true) then
+                            Error('');
+                    end;
                 }
                 field("Message to Recipient"; "Message to Recipient")
                 {
@@ -308,6 +316,11 @@ page 25 "Customer Ledger Entries"
                     Editable = false;
                     ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
                     Visible = false;
+                }
+                field(RecipientBankAccount; "Recipient Bank Account")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the bank account to transfer the amount to.';
                 }
             }
         }
@@ -653,6 +666,7 @@ page 25 "Customer Ledger Entries"
         AmountVisible: Boolean;
         DebitCreditVisible: Boolean;
         CustNameVisible: Boolean;
+        ExportToPaymentFileConfirmTxt: Label 'Editing the Exported to Payment File field will change the payment suggestions in the Payment Journal. Edit this field only if you must correct a mistake.\Do you want to continue?';
 
     local procedure SetControlVisibility()
     var

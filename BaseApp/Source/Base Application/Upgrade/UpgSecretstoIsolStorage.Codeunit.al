@@ -74,12 +74,14 @@ codeunit 104020 "Upg Secrets to Isol. Storage"
             exit;
 
         AzureADAppSetup.CalcFields("Secret Key");
+
+        if not AzureADAppSetup."Secret Key".HasValue() then
+            exit;
+
         AzureADAppSetup."Secret Key".CreateInStream(InStream);
         InStream.Read(SecretKey);
 
-        if EncryptionEnabled() then
-            DecryptedSecretKey := Decrypt(SecretKey)
-        else
+        if not TryDecrypt(SecretKey, DecryptedSecretKey) then
             DecryptedSecretKey := SecretKey;
 
         AzureADAppSetup.SetSecretKeyToIsolatedStorage(DecryptedSecretKey);
@@ -87,6 +89,13 @@ codeunit 104020 "Upg Secrets to Isol. Storage"
         AzureADAppSetup.Modify();
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetMoveAzureADAppSetupSecretToIsolatedStorageTag());
+    end;
+
+    [TryFunction]
+    local procedure TryDecrypt(SecretKey: text; DecryptedSecretKey: Text)
+    begin
+        if EncryptionEnabled() then
+            DecryptedSecretKey := Decrypt(SecretKey);
     end;
 
     local procedure MoveToIsolatedStorage(KeyGuid: Guid)

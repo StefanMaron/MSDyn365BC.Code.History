@@ -1,4 +1,4 @@
-codeunit 5912 "ServLedgEntries-Post"
+﻿codeunit 5912 "ServLedgEntries-Post"
 {
     Permissions = TableData "Service Ledger Entry" = rimd,
                   TableData "Warranty Ledger Entry" = rimd,
@@ -68,6 +68,7 @@ codeunit 5912 "ServLedgEntries-Post"
     procedure InsertServLedgerEntry(var NextEntryNo: Integer; var ServHeader: Record "Service Header"; var TempServLine: Record "Service Line"; var ServItemLine: Record "Service Item Line"; Qty: Decimal; DocNo: Code[20]): Integer
     var
         LineAmount: Decimal;
+        IsHandled: Boolean;
     begin
         ServLedgEntry.LockTable();
         with TempServLine do begin
@@ -89,9 +90,12 @@ codeunit 5912 "ServLedgEntries-Post"
             ServLedgEntry.CopyFromServHeader(ServHeader);
             ServLedgEntry.CopyFromServLine(TempServLine, DocNo);
 
-            if not CopyServicedInfoFromServiceItemLine(ServLedgEntry, "Document Type", "Document No.", "Service Item Line No.") then
-                if not CopyServicedInfoFromServiceItem(ServLedgEntry, "Service Item No.") then
-                    CopyServicedInfoFromServiceLedgerEntry(ServLedgEntry, "Appl.-to Service Entry");
+            IsHandled := false;
+            OnInsertServLedgerEntryOnBeforeCopyServicedInfoFromServiceItemLine(ServLedgEntry, TempServLine, IsHandled);
+            if not IsHandled then
+                if not CopyServicedInfoFromServiceItemLine(ServLedgEntry, "Document Type", "Document No.", "Service Item Line No.") then
+                    if not CopyServicedInfoFromServiceItem(ServLedgEntry, "Service Item No.") then
+                        CopyServicedInfoFromServiceLedgerEntry(ServLedgEntry, "Appl.-to Service Entry");
 
             ServLedgEntry."User ID" := UserId;
             ServLedgEntry."No." := "No.";
@@ -203,7 +207,7 @@ codeunit 5912 "ServLedgEntries-Post"
             if not CopyServicedInfoFromServiceItemLine(
                  ServLedgEntry, ServLine."Document Type",
                  ServLine."Document No.", ServLine."Service Item Line No.")
-            then
+            then begin
                 if (ServLine."Shipment No." <> '') and (ServLine."Shipment Line No." <> 0) then begin
                     ServShptLine.Get(ServLine."Shipment No.", ServLine."Shipment Line No.");
                     CopyServicedInfoFromServiceItemLine(
@@ -211,6 +215,8 @@ codeunit 5912 "ServLedgEntries-Post"
                       ServShptLine."Order No.", ServShptLine."Service Item Line No.");
                 end else
                     CopyServicedInfoFromServiceItem(ServLedgEntry, ServLine."Service Item No.");
+                OnInsertServLedgerEntrySaleOnAfterCopyFromServItemLine(ServLedgEntry, ServItemLine);
+            end;
 
             case ServHeader."Document Type" of
                 ServHeader."Document Type"::"Credit Memo":
@@ -447,8 +453,7 @@ codeunit 5912 "ServLedgEntries-Post"
 
             ServLedgEntry."Service Contract No." := "Contract No.";
 
-            if not CopyServicedInfoFromServiceItemLine(ServLedgEntry, "Document Type", "Document No.", "Service Item Line No.") then
-                CopyServicedInfoFromServiceItem(ServLedgEntry, "Service Item No.");
+            CopyServicedInfoCrMemoUsage(ServLine);
 
             ServLedgEntry."User ID" := UserId;
             ServLedgEntry."No." := "No.";
@@ -500,6 +505,19 @@ codeunit 5912 "ServLedgEntries-Post"
             NextEntryNo := NextEntryNo + 1;
             NextServLedgerEntryNo := NextEntryNo;
         end;
+    end;
+
+    local procedure CopyServicedInfoCrMemoUsage(var ServLine: Record "Service Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCopyServicedInfoCrMemoUsage(ServLedgEntry, ServLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        if not CopyServicedInfoFromServiceItemLine(ServLedgEntry, ServLine."Document Type", ServLine."Document No.", ServLine."Service Item Line No.") then
+            CopyServicedInfoFromServiceItem(ServLedgEntry, ServLine."Service Item No.");
     end;
 
     procedure InsertWarrantyLedgerEntry(var PassedWarrantyEntryNo: Integer; var ServHeader: Record "Service Header"; var ServLine: Record "Service Line"; var ServItemLine: Record "Service Item Line"; Qty: Decimal; GenJnlLineDocNo: Code[20]): Integer
@@ -1035,6 +1053,11 @@ codeunit 5912 "ServLedgEntries-Post"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyServicedInfoCrMemoUsage(var ServiceLedgerEntry: Record "Service Ledger Entry"; var ServiceLine: Record "Service Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeServLedgerEntryInsert(var ServiceLedgerEntry: Record "Service Ledger Entry"; ServiceLine: Record "Service Line"; ServiceItemLine: Record "Service Item Line"; ServiceHeader: Record "Service Header")
     begin
     end;
@@ -1056,6 +1079,11 @@ codeunit 5912 "ServLedgEntries-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertServLedgerEntryCrMUsageOnBeforeServLedgEntryInsert(var ServiceLedgerEntry: Record "Service Ledger Entry"; ServiceHeader: Record "Service Header"; ServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertServLedgerEntryOnBeforeCopyServicedInfoFromServiceItemLine(var ServLedgEntry: Record "Service Ledger Entry"; var TempServLine: Record "Service Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -1086,6 +1114,11 @@ codeunit 5912 "ServLedgEntries-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertServLedgerEntrySaleOnBeforeCloseEntries(var ServiceLedgerEntry: Record "Service Ledger Entry"; var ApplyToServLedgEntry: Record "Service Ledger Entry"; var ServiceLine: Record "Service Line"; var ServHeader: Record "Service Header");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertServLedgerEntrySaleOnAfterCopyFromServItemLine(var ServLedgEntry: Record "Service Ledger Entry"; var ServItemLine: Record "Service Item Line")
     begin
     end;
 

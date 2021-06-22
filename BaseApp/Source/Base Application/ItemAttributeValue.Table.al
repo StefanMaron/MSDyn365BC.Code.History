@@ -334,6 +334,7 @@ table 7501 "Item Attribute Value"
                     if ItemAttributeValue.Get(ItemAttributeValueMapping."Item Attribute ID", ItemAttributeValueMapping."Item Attribute Value ID") then
                         if not AttributeExists(ItemAttributeValue."Attribute ID") then begin
                             TransferFields(ItemAttributeValue);
+                            OnLoadItemAttributesFactBoxDataOnBeforeInsert(ItemAttributeValueMapping, Rec);
                             Insert;
                         end;
                 until ItemAttributeValueMapping.Next = 0;

@@ -55,6 +55,14 @@ codeunit 132203 "Library - Planning"
         OrderPlanningMgt.GetOrdersToPlan(RequisitionLine);
     end;
 
+    procedure CalculateOrderPlanAssembly(var RequisitionLine: Record "Requisition Line")
+    var
+        OrderPlanningMgt: Codeunit "Order Planning Mgt.";
+    begin
+        OrderPlanningMgt.SetAsmOrder();
+        OrderPlanningMgt.GetOrdersToPlan(RequisitionLine);
+    end;
+
     procedure CalculateOrderPlanSales(var RequisitionLine: Record "Requisition Line")
     var
         OrderPlanningMgt: Codeunit "Order Planning Mgt.";

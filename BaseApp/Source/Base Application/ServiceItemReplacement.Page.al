@@ -1,4 +1,4 @@
-page 5985 "Service Item Replacement"
+﻿page 5985 "Service Item Replacement"
 {
     Caption = 'Service Item Replacement';
     PageType = StandardDialog;
@@ -102,6 +102,8 @@ page 5985 "Service Item Replacement"
                             ItemLedgEntry.SetFilter("Serial No.", '<>%1', '');
                             if PAGE.RunModal(0, ItemLedgEntry) = ACTION::LookupOK then
                                 NewSerialNo := ItemLedgEntry."Serial No.";
+
+                            OnAfterOnAssistEditNewSerialNo(ItemLedgEntry, ItemNo, VariantCode, NewSerialNo, CopyComponentsFrom);
                         end;
                     }
                     field(CopyComponents; CopyComponentsFrom)
@@ -218,5 +220,11 @@ page 5985 "Service Item Replacement"
         CopyComponentsFrom := NewCopyComponentsFrom;
         Replacement := ReplacementFrom;
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnAssistEditNewSerialNo(var ItemLedgEntry: Record "Item Ledger Entry"; var ItemNo: Code[20]; var VariantCode: Code[10]; var NewSerialNo: Code[50]; var CopyComponentsFrom: Option "None","Item BOM","Old Service Item","Old Service Item w/o Serial No.")
+    begin
+    end;
+
 }
 

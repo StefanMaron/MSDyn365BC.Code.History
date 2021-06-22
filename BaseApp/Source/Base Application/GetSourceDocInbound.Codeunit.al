@@ -7,6 +7,12 @@ codeunit 5751 "Get Source Doc. Inbound"
 
     var
         GetSourceDocuments: Report "Get Source Documents";
+        ServVendDocNo: Code[20];
+
+    procedure SetServVendDocNo(NewServVendDocNo: Code[20]);
+    begin
+        ServVendDocNo := NewServVendDocNo;
+    end;
 
     local procedure CreateWhseReceiptHeaderFromWhseRequest(var WarehouseRequest: Record "Warehouse Request"): Boolean
     var
@@ -19,7 +25,7 @@ codeunit 5751 "Get Source Doc. Inbound"
         GetSourceDocuments.UseRequestPage(false);
         GetSourceDocuments.SetTableView(WarehouseRequest);
         GetSourceDocuments.SetHideDialog(true);
-        OnBeforeGetSourceDocumentsRun(GetSourceDocuments, WarehouseRequest);
+        OnBeforeGetSourceDocumentsRun(GetSourceDocuments, WarehouseRequest, ServVendDocNo);
         GetSourceDocuments.RunModal;
 
         GetSourceDocuments.GetLastReceiptHeader(WhseReceiptHeader);
@@ -223,9 +229,13 @@ codeunit 5751 "Get Source Doc. Inbound"
     local procedure OpenWarehouseReceiptPage()
     var
         WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+        IsHandled: Boolean;
     begin
         GetSourceDocuments.GetLastReceiptHeader(WarehouseReceiptHeader);
-        PAGE.Run(PAGE::"Warehouse Receipt", WarehouseReceiptHeader);
+        IsHandled := false;
+        OnOpenWarehouseReceiptPage(WarehouseReceiptHeader, ServVendDocNo, IsHandled);
+        if not IsHandled then
+            PAGE.Run(PAGE::"Warehouse Receipt", WarehouseReceiptHeader);
     end;
 
     local procedure UpdateReceiptHeaderStatus(var WarehouseReceiptHeader: Record "Warehouse Receipt Header")
@@ -300,7 +310,12 @@ codeunit 5751 "Get Source Doc. Inbound"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetSourceDocumentsRun(var GetSourceDocuments: Report "Get Source Documents"; WarehouseRequest: Record "Warehouse Request")
+    local procedure OnBeforeGetSourceDocumentsRun(var GetSourceDocuments: Report "Get Source Documents"; WarehouseRequest: Record "Warehouse Request"; ServVendDocNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOpenWarehouseReceiptPage(WarehouseReceiptHeader: Record "Warehouse Receipt Header"; ServVendDocNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 }

@@ -123,9 +123,12 @@ codeunit 134934 "Manual Setup Test"
 
     local procedure AddExtension() ExtensionID: Guid
     var
+        PublishedApplication: Record "Published Application";
         Extension: Record "Published Application";
         TenantInformation: Codeunit "Tenant Information";
     begin
+        PublishedApplication.FindFirst();
+
         ExtensionID := CreateGuid();
 
         Extension.Init();
@@ -134,6 +137,10 @@ codeunit 134934 "Manual Setup Test"
         Extension."Runtime Package ID" := ExtensionID;
         Extension."Tenant ID" := CopyStr(TenantInformation.GetTenantId(), 1, 128);
         Extension.Name := CopyStr(TestExtensionName, 1, 250);
+
+        // these fields needs to be filled in, just add the hash and any blob.
+        Extension."Package Hash" := PublishedApplication."Package Hash";
+        Extension.Blob := PublishedApplication.Blob;
         Extension.Insert();
     end;
 

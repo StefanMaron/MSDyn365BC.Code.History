@@ -23,6 +23,7 @@ codeunit 136100 "Service Contract"
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         DistributionType: Option Even,Profit,Line;
         isInitialized: Boolean;
         ConfirmType: Option Create,Sign,Invoice;
@@ -620,15 +621,21 @@ codeunit 136100 "Service Contract"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Service Contract");
+
         if isInitialized then
             exit;
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateAccountsInServiceContractAccountGroups;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Service Contract");
+
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateAccountsInServiceContractAccountGroups();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
         isInitialized := true;
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Service Contract");
     end;
 
     local procedure RunCreateServiceInvoice(ContractNo: Code[20])

@@ -405,7 +405,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateReservEntriesOnAfterTempPhysInvtTrackingBufferModify(AllBufferLines: Boolean; MaxQtyToTransfer: Decimal; QtyToTransfer: Decimal)
+    local procedure OnCreateReservEntriesOnAfterTempPhysInvtTrackingBufferModify(AllBufferLines: Boolean; var MaxQtyToTransfer: Decimal; QtyToTransfer: Decimal)
     begin
     end;
 

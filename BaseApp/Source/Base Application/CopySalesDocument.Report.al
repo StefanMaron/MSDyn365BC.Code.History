@@ -1,4 +1,4 @@
-report 292 "Copy Sales Document"
+﻿report 292 "Copy Sales Document"
 {
     Caption = 'Copy Sales Document';
     ProcessingOnly = true;
@@ -177,12 +177,16 @@ report 292 "Copy Sales Document"
     }
 
     trigger OnPreReport()
+    var
+        ExactCostReversingMandatory: Boolean;
     begin
         OnBeforePreReport();
 
         SalesSetup.Get();
+        ExactCostReversingMandatory := SalesSetup."Exact Cost Reversing Mandatory";
+
         CopyDocMgt.SetProperties(
-          IncludeHeader, RecalculateLines, false, false, false, SalesSetup."Exact Cost Reversing Mandatory", false);
+          IncludeHeader, RecalculateLines, false, false, false, ExactCostReversingMandatory, false);
         CopyDocMgt.SetArchDocVal(DocNoOccurrence, DocVersionNo);
 
         OnPreReportOnBeforeCopySalesDoc(CopyDocMgt, DocType, DocNo, SalesHeader);

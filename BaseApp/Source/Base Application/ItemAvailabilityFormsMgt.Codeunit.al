@@ -1,4 +1,4 @@
-codeunit 353 "Item Availability Forms Mgt"
+﻿codeunit 353 "Item Availability Forms Mgt"
 {
 
     trigger OnRun()
@@ -1014,7 +1014,7 @@ codeunit 353 "Item Availability Forms Mgt"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeShowItemAvailByEvent(var Item: Record Item; FieldCaption: Text[80]; OldDate: Date; var NewDate: Date; IncludeForecast: Boolean; var Result: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeShowItemAvailByEvent(var Item: Record Item; FieldCaption: Text[80]; OldDate: Date; var NewDate: Date; var IncludeForecast: Boolean; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

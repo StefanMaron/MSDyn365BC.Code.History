@@ -853,6 +853,112 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
           CalcGainLossAmount(GenJournalLine.Amount, GenJournalLine."Amount (LCY)", GenJournalLine."Currency Code"));
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure AdjustExchRateForCustomerTwiceGainsToHigherLosses()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        Currency: Record Currency;
+        ExchRateAmt: Decimal;
+        AdjDocNo: Code[20];
+        LossesAmount: Decimal;
+        k: Decimal;
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 365816] Run Adjust Exchange Rate report twice when exch.rate is changed upper and then lower than invoice's exch.rate
+        Initialize();
+
+        // [GIVEN] Sales Invoice with Amount = 4000, Amount LCY = 4720 is posted with exch.rate = 1.18
+        Currency.Get(CreateCurrency);
+        FindCurrencyExchRate(CurrencyExchangeRate, Currency.Code);
+        ExchRateAmt := CurrencyExchangeRate."Relational Exch. Rate Amount";
+        k := 0.1;
+        CreateGenAndModifyExchRate(
+          GenJournalLine, GenJournalLine."Account Type"::Customer, CreateCustomer(Currency.Code),
+          GenJournalLine."Document Type"::Invoice, LibraryRandom.RandDec(100, 2),
+          ExchRateAmt * k);
+
+        // [GIVEN] Exch. rates is changed to 1.2 (delta = 0.02) and adjustment completed.
+        RunAdjustExchRate(GenJournalLine."Currency Code", WorkDate);
+
+        // [GIVEN] Dtld. Cust. Ledger Entry is created with amount = 80 (4000 * 0.02) for Unrealized Gain type
+        VerifyDtldCLEGain(
+          GenJournalLine."Currency Code",
+          -CalcGainLossAmount(GenJournalLine.Amount, GenJournalLine."Amount (LCY)", GenJournalLine."Currency Code"));
+
+        // [GIVEN] Exch. rates is changed to 1.15 (delta = -0.05)
+        ModifyExchangeRate(GenJournalLine."Currency Code", -ExchRateAmt * 2 * k);
+        AdjDocNo := LibraryUtility.GenerateGUID();
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, GenJournalLine."Document No.");
+        CustLedgerEntry.CalcFields("Amount (LCY)");
+        LossesAmount := CustLedgerEntry."Amount (LCY)";
+
+        // [WHEN] Run report Adjust Exchange Rates second time
+        RunAdjustExchRateForDocNo(AdjDocNo, GenJournalLine."Currency Code", WorkDate);
+
+        // [THEN] Dtld. Cust. Ledger Entry is created with amount = -200 (4000 * -0.05) for Unrealized Loss type
+        CustLedgerEntry.CalcFields("Amount (LCY)");
+        LossesAmount := CustLedgerEntry."Amount (LCY)" - LossesAmount;
+        VerifyDtldCLELoss(AdjDocNo, LossesAmount);
+        VerifyGLEntryForDocument(AdjDocNo, Currency."Unrealized Losses Acc.", -LossesAmount);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure AdjustExchRateForCustomerTwiceLossesToHigherGains()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        Currency: Record Currency;
+        ExchRateAmt: Decimal;
+        AdjDocNo: Code[20];
+        GainsAmount: Decimal;
+        k: Decimal;
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 365816] Run Adjust Exchange Rates report twice when exch.rate is changed lower and then upper than invoice's exch.rate
+        Initialize();
+
+        // [GIVEN] Sales Invoice with Amount = 4000, Amount LCY = 4720 is posted with exch.rate = 1.18
+        Currency.Get(CreateCurrency);
+        FindCurrencyExchRate(CurrencyExchangeRate, Currency.Code);
+        ExchRateAmt := CurrencyExchangeRate."Relational Exch. Rate Amount";
+        k := 0.1;
+        CreateGenAndModifyExchRate(
+          GenJournalLine, GenJournalLine."Account Type"::Customer, CreateCustomer(Currency.Code),
+          GenJournalLine."Document Type"::Invoice, LibraryRandom.RandDec(100, 2),
+          -ExchRateAmt * k);
+
+        // [GIVEN] Exch. rates is changed to 1.16 (delta = -0.02) and adjustment completed.
+        RunAdjustExchRate(GenJournalLine."Currency Code", WorkDate);
+
+        // [GIVEN] Dtld. Cust. Ledger Entry is created with amount = -80 (4000 * -0.02) for Unrealized Loss type
+        VerifyDtldCLELoss(
+          GenJournalLine."Currency Code",
+          -CalcGainLossAmount(GenJournalLine.Amount, GenJournalLine."Amount (LCY)", GenJournalLine."Currency Code"));
+
+        // [GIVEN] Exch. rates is changed to 1.21 (delta = 0.05)
+        ModifyExchangeRate(GenJournalLine."Currency Code", ExchRateAmt * 2 * k);
+        AdjDocNo := LibraryUtility.GenerateGUID();
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, GenJournalLine."Document No.");
+        CustLedgerEntry.CalcFields("Amount (LCY)");
+        GainsAmount := CustLedgerEntry."Amount (LCY)";
+
+        // [WHEN] Run report Adjust Exchange Rates second time
+        RunAdjustExchRateForDocNo(AdjDocNo, GenJournalLine."Currency Code", WorkDate);
+
+        // [THEN] Dtld. Cust. Ledger Entry is created with amount = 200 (4000 * 0.05) for Unrealized Gain type
+        CustLedgerEntry.CalcFields("Amount (LCY)");
+        GainsAmount := CustLedgerEntry."Amount (LCY)" - GainsAmount;
+        VerifyDtldCLEGain(AdjDocNo, GainsAmount);
+        VerifyGLEntryForDocument(AdjDocNo, Currency."Unrealized Gains Acc.", -GainsAmount);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1340,13 +1446,18 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     end;
 
     local procedure RunAdjustExchRate("Code": Code[10]; EndDate: Date)
+    begin
+        RunAdjustExchRateForDocNo(Code, Code, EndDate); // Using Currency Code for Document No. parameter.
+    end;
+
+    local procedure RunAdjustExchRateForDocNo(DocumentNo: Code[20]; CurrencyCode: Code[10]; EndDate: Date)
     var
         Currency: Record Currency;
         AdjustExchangeRates: Report "Adjust Exchange Rates";
     begin
-        Currency.SetRange(Code, Code);
+        Currency.SetRange(Code, CurrencyCode);
         AdjustExchangeRates.SetTableView(Currency);
-        AdjustExchangeRates.InitializeRequest2(0D, EndDate, 'Test', EndDate, Code, true, false); // Using Currency Code for Document No. parameter.
+        AdjustExchangeRates.InitializeRequest2(0D, EndDate, 'Test', EndDate, DocumentNo, true, false);
         AdjustExchangeRates.UseRequestPage(false);
         AdjustExchangeRates.Run;
     end;
@@ -1402,6 +1513,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         DetailedCustLedgEntry.SetRange("Entry Type", EntryType);
         DetailedCustLedgEntry.FindFirst;
         DetailedCustLedgEntry.TestField("Ledger Entry Amount", true);
+        DetailedCustLedgEntry.CalcSums("Amount (LCY)");
         Currency.Get(DetailedCustLedgEntry."Currency Code");
         Assert.AreNearlyEqual(
           Amount, DetailedCustLedgEntry."Amount (LCY)", Currency."Amount Rounding Precision",
@@ -1435,6 +1547,14 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
           Amount, GLEntry.Amount, Currency."Amount Rounding Precision",
           StrSubstNo(
             AmountErr, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption, GLEntry.FieldCaption("Entry No."), GLEntry."Entry No."));
+    end;
+
+    local procedure VerifyGLEntryForDocument(DocumentNo: Code[20]; AccountNo: Code[20]; EntryAmount: Decimal)
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        FindGLEntry(GLEntry, DocumentNo, AccountNo, GLEntry."Document Type"::" ");
+        GLEntry.TestField(Amount, EntryAmount);
     end;
 
     local procedure VerifyGLEntryReverseBalance(CurrencyCode: Code[10]; AccountNo: Code[20]; DocumentType: Option; DocumentNo: Code[20])

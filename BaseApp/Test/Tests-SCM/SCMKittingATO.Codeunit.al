@@ -5206,6 +5206,55 @@ codeunit 137096 "SCM Kitting - ATO"
         end;
     end;
 
+    [Test]
+    [HandlerFunctions('ItemListModalPageHandler,MsgHandler')]
+    [Scope('OnPrem')]
+    procedure UsingSelectItemsCreatesATO()
+    var
+        ATOItem: Record Item;
+        ATSItem: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        AssemblyHeader: Record "Assembly Header";
+    begin
+        // [FEATURE] [Select Items]
+        // [SCENARIO 365390] Using "Select Items" on sales order subform page creates a linked assemble-to-order when needed.
+        Initialize();
+
+        // [GIVEN] Enable "Default Item Quantity" on the Sales Setup.
+        SetItemDefaultQtyOnSalesSetup(true);
+        LibraryAssembly.SetStockoutWarning(false);
+
+        // [GIVEN] Assemble-to-order item "ATO" and assemble-to-stock item "ATS".
+        CreateAssembledItemWithAssemblyPolicy(ATOItem, ATOItem."Assembly Policy"::"Assemble-to-Order");
+        CreateAssembledItemWithAssemblyPolicy(ATSItem, ATSItem."Assembly Policy"::"Assemble-to-Stock");
+
+        // [GIVEN] Sales order.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+
+        // [WHEN] Consequently create sales lines for "ATO" and "ATS" items using "Select Items".
+        LibrarySales.CreateSalesLineSimple(SalesLine, SalesHeader);
+        LibraryVariableStorage.Enqueue(ATOItem."No.");
+        SalesLine.SelectMultipleItems();
+        LibraryVariableStorage.Enqueue(ATSItem."No.");
+        SalesLine.SelectMultipleItems();
+
+        // [THEN] A linked assemble-to-order has been created for item "ATO".
+        SalesLine.SetAutoCalcFields("Reserved Quantity");
+        FindSalesLine(SalesHeader, SalesLine, ATOItem."No.");
+        SalesLine.TestField("Qty. to Assemble to Order", 1);
+        Assert.IsTrue(SalesLine.AsmToOrderExists(AssemblyHeader), 'Assemble-to-order has not been created.');
+        SalesLine.TestField("Reserved Quantity", 1);
+
+        // [THEN] No assemble-to-order has been created for item "ATS".
+        FindSalesLine(SalesHeader, SalesLine, ATSItem."No.");
+        SalesLine.TestField("Qty. to Assemble to Order", 0);
+        Assert.IsFalse(SalesLine.AsmToOrderExists(AssemblyHeader), 'Assemble-to-order has been created.');
+        SalesLine.TestField("Reserved Quantity", 0);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure SetQtyToAssembleToOrder(var SalesLine: Record "Sales Line"; Quantity: Decimal)
     begin
         SalesLine.Validate("Qty. to Assemble to Order", Quantity);
@@ -5410,6 +5459,15 @@ codeunit 137096 "SCM Kitting - ATO"
         while AssemblyOrders.Next do
             i += 1;
         Assert.AreEqual(NoOfAsmOrders, i, NumberAsmOrderFromSalesHeaderMsg);
+    end;
+
+    local procedure SetItemDefaultQtyOnSalesSetup(ItemDefQty: Boolean)
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Default Item Quantity", ItemDefQty);
+        SalesReceivablesSetup.Modify(true);
     end;
 
     local procedure UpdateItemTrackingToExcludeNumberOfSerialNos(SourceType: Integer; SourceID: Code[20]; NoOfSerialNos: Integer)
@@ -5815,6 +5873,14 @@ codeunit 137096 "SCM Kitting - ATO"
     procedure ItemTrackingSummaryHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
     begin
         ItemTrackingSummary.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemListModalPageHandler(var ItemList: TestPage "Item List")
+    begin
+        ItemList.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        ItemList.OK.Invoke();
     end;
 
     [StrMenuHandler]

@@ -1,4 +1,4 @@
-report 5198 "Add Contacts"
+﻿report 5198 "Add Contacts"
 {
     Caption = 'Add Contacts';
     ProcessingOnly = true;
@@ -265,6 +265,8 @@ report 5198 "Add Contacts"
         if AllowCoRepdByContPerson then
             AddCompanies;
 
+        OnPostReportOnBeforeUpdateSegLines("Segment Header");
+
         UpdateSegLines;
     end;
 
@@ -513,6 +515,11 @@ report 5198 "Add Contacts"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateSegLines(var SegmentHeader: Record "Segment Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostReportOnBeforeUpdateSegLines(var SegmentHeader: Record "Segment Header")
     begin
     end;
 }

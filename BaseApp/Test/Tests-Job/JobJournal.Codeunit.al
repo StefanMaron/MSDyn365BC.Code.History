@@ -1186,6 +1186,8 @@ codeunit 136305 "Job Journal"
         Initialize;
         PriceListLine.DeleteAll();
 
+        // [GIVEN] "Copy Line Descr. to G/L Entry" = true in Sales Receivables Setup
+        UpdateSalesSetupCopyLineDescr(true);
         // [GIVEN] A Job GL Price with Discount Percent and Unit Price, Create and Update Job Planning Line, Create Sales Invoice from Job Planning Line.
         CreateJobWithJobTask(JobTask);
         CreateAndUpdateJobGLAccountPrice(JobGLAccountPrice, JobTask);
@@ -2136,6 +2138,79 @@ codeunit 136305 "Job Journal"
         // See [EventSubscriber] OnBeforeRunCheck
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue,MessageHandler,JobTransferToSalesInvoiceRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure BinCodeOnSalesLineFromJobPlanningLine()
+    var
+        ItemJournalLine: Record "Item Journal Line";
+        JobTask: Record "Job Task";
+        JobJournalLine: Record "Job Journal Line";
+        JobPlanningLine: Record "Job Planning Line";
+        SalesLine: Record "Sales Line";
+        JobCreateInvoice: Codeunit "Job Create-Invoice";
+    begin
+        // [FEATURE] [Bin]
+        // [SCENARIO 365042] "Bin Code" is transferred from Job Planning Line when we run Create Sales Invoice from line
+        Initialize();
+
+        // [GIVEN] Created Bin and Job Journal Line with accordin Bin Code
+        CreateItemJournalWithBinLocation(ItemJournalLine);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+        CreateJobWithJobTask(JobTask);
+        CreateJobJournalLineWithBin(JobJournalLine, JobTask, ItemJournalLine, ItemJournalLine.Quantity - ItemJournalLine.Quantity / 2);
+
+        // [GIVEN] Posted Job Journal Line
+        JobJournalLine.Validate("Line Type", JobJournalLine."Line Type"::Billable);
+        JobJournalLine.Validate("Line Amount", JobJournalLine."Line Amount" - LibraryUtility.GenerateRandomFraction);
+        JobJournalLine.Modify(true);
+        LibraryJob.PostJobJournal(JobJournalLine);
+
+        // [WHEN] Creating a sales invoice from the Job Planning Line
+        FindJobPlanningLine(JobPlanningLine, JobJournalLine."Job No.", JobJournalLine."Job Task No.");
+        LibraryVariableStorage.Enqueue(WorkDate);
+        Commit();
+        JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, false);
+
+        // [THEN] Verify that the sales lines contain the updated line discounts
+        FindSalesLine(SalesLine, SalesLine."Document Type"::Invoice, SalesLine.Type::Item, JobJournalLine."Job No.");
+        SalesLine.TestField("Bin Code", JobPlanningLine."Bin Code");
+    end;
+
+    [Test]
+    [HandlerFunctions('JobTransferToSalesInvoiceRequestPageHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceForGLAccountOnJobLedgerEntry()
+    var
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        JobLedgerEntry: Record "Job Ledger Entry";
+        JobCreateInvoice: Codeunit "Job Create-Invoice";
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO 364448] Posting Sales Invoice for G/L Account Job Planning Line when "Copy Line Descr. to G/L Entry" = false.
+
+        Initialize();
+        // [GIVEN] "Copy Line Descr. to G/L Entry" = false in Sales Receivables Setup
+        UpdateSalesSetupCopyLineDescr(false);
+        // [GIVEN] G/L Account in a Job Planning Line, Sales Invoice from Job Planning Line and created Sales Invoice.
+        CreateJobWithJobTask(JobTask);
+        LibraryJob.CreateJobPlanningLine(
+          JobPlanningLine."Line Type"::Billable, JobPlanningLine.Type::"G/L Account", JobTask, JobPlanningLine);
+        Commit();
+        LibraryVariableStorage.Enqueue(WorkDate);
+        JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, false);
+        FindSalesHeader(SalesHeader, SalesLine."Document Type"::Invoice, JobTask."Job No.", SalesLine.Type::"G/L Account");
+
+        // [WHEN] Posting Sales Invoice created from Job Planning Line.
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] Job Ledger Entry is created for posted sales invoice
+        FindJobLedgerEntry(JobLedgerEntry, DocumentNo, JobTask."Job No.", JobLedgerEntry.Type::"G/L Account", JobPlanningLine."No.");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2690,6 +2765,15 @@ codeunit 136305 "Job Journal"
         JobJournal.CurrentJnlBatchName.SetValue(JobJournalBatchName);
         JobJournal."Unit of Measure Code".Lookup;
         JobJournal.OK.Invoke;
+    end;
+
+    local procedure UpdateSalesSetupCopyLineDescr(CopyLineDescr: Boolean)
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup."Copy Line Descr. to G/L Entry" := CopyLineDescr;
+        SalesReceivablesSetup.Modify();
     end;
 
     local procedure UpdateJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; JobTask: Record "Job Task"; AccountNo: Code[20])

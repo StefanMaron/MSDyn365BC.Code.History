@@ -1,4 +1,4 @@
-codeunit 23 "Item Jnl.-Post Batch"
+﻿codeunit 23 "Item Jnl.-Post Batch"
 {
     Permissions = TableData "Item Journal Batch" = imd,
                   TableData "Warehouse Register" = r;
@@ -640,13 +640,17 @@ codeunit 23 "Item Jnl.-Post Batch"
     procedure PostWhseJnlLine(ItemJnlLine: Record "Item Journal Line"; OriginalQuantity: Decimal; OriginalQuantityBase: Decimal; var TempTrackingSpecification: Record "Tracking Specification" temporary)
     var
         ItemJnlTemplateType: Option;
+        IsHandled: Boolean;
     begin
         with ItemJnlLine do begin
             Quantity := OriginalQuantity;
             "Quantity (Base)" := OriginalQuantityBase;
             GetLocation("Location Code");
             ItemJnlTemplateType := ItemJnlTemplate.Type;
-            OnPostWhseJnlLineOnBeforeCreateWhseJnlLines(ItemJnlLine, ItemJnlTemplateType);
+            IsHandled := false;
+            OnPostWhseJnlLineOnBeforeCreateWhseJnlLines(ItemJnlLine, ItemJnlTemplateType, IsHandled);
+            if IsHandled then
+                exit;
             if not ("Entry Type" in ["Entry Type"::Consumption, "Entry Type"::Output]) then
                 PostWhseJnlLines(ItemJnlLine, TempTrackingSpecification, ItemJnlTemplateType, false);
 
@@ -664,6 +668,11 @@ codeunit 23 "Item Jnl.-Post Batch"
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePostWhseJnlLines(ItemJnlLine, TempTrackingSpecification, ItemJnlTemplateType, ToTransfer, IsHandled);
+        if IsHandled then
+            exit;
+
         with ItemJnlLine do
             if Location."Bin Mandatory" then
                 if WMSMgmt.CreateWhseJnlLine(ItemJnlLine, ItemJnlTemplateType, WhseJnlLine, ToTransfer) then begin
@@ -932,6 +941,11 @@ codeunit 23 "Item Jnl.-Post Batch"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforePostWhseJnlLines(ItemJnlLine: Record "Item Journal Line"; var TempTrackingSpecification: Record "Tracking Specification" temporary; ItemJnlTemplateType: Enum "Item Journal Template Type"; ToTransfer: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeRaiseExceedLengthError(var ItemJournalBatch: Record "Item Journal Batch"; var RaiseError: Boolean)
     begin
     end;
@@ -1013,7 +1027,7 @@ codeunit 23 "Item Jnl.-Post Batch"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostWhseJnlLineOnBeforeCreateWhseJnlLines(ItemJournalLine: Record "Item Journal Line"; var ItemJnlTemplateType: Option)
+    local procedure OnPostWhseJnlLineOnBeforeCreateWhseJnlLines(ItemJournalLine: Record "Item Journal Line"; var ItemJnlTemplateType: Option; var IsHandled: Boolean)
     begin
     end;
 

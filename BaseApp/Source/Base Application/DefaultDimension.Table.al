@@ -645,70 +645,95 @@ table 352 "Default Dimension"
         "Table ID" := IntegrationRecord."Table ID";
     end;
 
-    local procedure UpdateParentId()
+    local procedure UpdateParentId(): Boolean
     var
         Customer: Record Customer;
         Item: Record Item;
         Vendor: Record Vendor;
         Employee: Record Employee;
+        NewParentId: Guid;
     begin
         case "Table ID" of
             DATABASE::Item:
                 begin
                     if Item.Get("No.") then
-                        ParentId := Item.Id;
+                        NewParentId := Item.Id;
                 end;
             DATABASE::Customer:
                 begin
                     if Customer.Get("No.") then
-                        ParentId := Customer.Id;
+                        NewParentId := Customer.Id;
                 end;
             DATABASE::Vendor:
                 begin
                     if Vendor.Get("No.") then
-                        ParentId := Vendor.Id;
+                        NewParentId := Vendor.Id;
                 end;
             DATABASE::Employee:
                 begin
                     if Employee.Get("No.") then
-                        ParentId := Employee.Id;
+                        NewParentId := Employee.Id;
                 end;
         end;
+
+        if NewParentId = ParentId then
+            exit(false);
+
+        ParentId := NewParentId;
+        exit(true);
     end;
 
-    local procedure UpdateDimensionId()
+    local procedure UpdateDimensionId(): Boolean
     var
         Dimension: Record Dimension;
     begin
-        if Dimension.Get("Dimension Code") then
-            DimensionId := Dimension.Id;
+        if not Dimension.Get("Dimension Code") then
+            exit(false);
+
+        if DimensionId = Dimension.Id then
+            exit(false);
+
+        DimensionId := Dimension.Id;
+        exit(true);
     end;
 
-    local procedure UpdateDimensionValueId()
+    local procedure UpdateDimensionValueId(): Boolean
     var
         DimensionValue: Record "Dimension Value";
     begin
-        if DimensionValue.Get("Dimension Code", "Dimension Value Code") then
+        if DimensionValue.Get("Dimension Code", "Dimension Value Code") then begin
+            if DimensionValueId = DimensionValue.Id then
+                exit(false);
+
             DimensionValueId := DimensionValue.Id;
-        if "Dimension Value Code" = '' then
+            exit(true);
+        end;
+
+        if "Dimension Value Code" = '' then begin
+            if IsNullGuid(DimensionValueId) then
+                exit(false);
+
             Clear(DimensionValueId);
+            exit(true);
+        end;
+
+        exit(false);
     end;
 
     procedure UpdateReferencedIds()
     begin
-        UpdateParentId;
-        UpdateDimensionId;
-        UpdateDimensionValueId;
-        ModifyIfIsDirty(false);
+        if UpdateReferencedIdFields() then
+            Modify(false);
     end;
 
-    local procedure ModifyIfIsDirty(RunTrigger: Boolean)
+    procedure UpdateReferencedIdFields(): Boolean
     var
-        RecRef: RecordRef;
+        Modified: Boolean;
     begin
-        RecRef.GetTable(Rec);
-        If RecRef.IsDirty() then
-            Modify(RunTrigger);
+        Modified := UpdateParentId();
+        Modified := Modified or UpdateDimensionId();
+        Modified := Modified or UpdateDimensionValueId();
+        exit(Modified);
     end;
 
     local procedure ThrowEntityNotSupportedError(var IntegrationRecord: Record "Integration Record")

@@ -36,6 +36,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         PayToAddressFieldsNotEditableErr: Label 'Pay-to address fields should not be editable.';
         PayToAddressFieldsEditableErr: Label 'Pay-to address fields should be editable.';
         BlockedResourceErr: Label 'Blocked must be equal to ''No''  in Resource';
+        EmptyBlanketOrderLineNoErr: Label '%1 must have a value in %2: Document Type=%3, Document No.=%4, Line No.=%5. It cannot be zero or empty.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1155,6 +1156,45 @@ codeunit 134326 "ERM Purchase Blanket Order"
 
         // [THEN] Error "Blocked must be equal to 'No'  in Resource: No.= ***. Current value is 'Yes'."
         Assert.ExpectedError(BlockedResourceErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostPurchOrderWithLinkedBlanketPurchOrderAndEmptyBlanketPurchOrderLineNo()
+    var
+        BlanketPurchaseHeader: Record "Purchase Header";
+        BlanketPurchaseLine: Record "Purchase Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VendorNo: Code[20];
+    begin
+        // [SCENARIO 364712] Posting of purchase order with blanket purchase order throws error if "Blanket Purchase Order Line No." is equal 0
+        Initialize();
+
+        // [GIVEN] Blanked purchase order with "No." = 1001
+        VendorNo := LibraryPurchase.CreateVendorNo();
+        CreatePurchaseBlanketOrder(
+            BlanketPurchaseHeader, BlanketPurchaseLine, LibraryRandom.RandIntInRange(1, 10),
+            VendorNo, LibraryInventory.CreateItemNo());
+
+        // [GIVEN] Purchase order with purchase line
+        // [GIVEN] "Purchase Line"."Blanket Order No." = 1001
+        // [GIVEN] "Purchase Line"."Blanket Order Line No." = 0
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine, PurchaseHeader, BlanketPurchaseLine.Type,
+            BlanketPurchaseLine."No.", BlanketPurchaseLine.Quantity);
+        PurchaseLine.Validate("Blanket Order No.", BlanketPurchaseHeader."No.");
+        PurchaseLine.Modify();
+
+        // [WHEN] Post purchase header
+        asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] The TestField Error was shown
+        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedError(StrSubstNo(EmptyBlanketOrderLineNoErr, PurchaseLine.FieldName("Blanket Order Line No."),
+            PurchaseLine.TableName, PurchaseLine."Document Type", PurchaseLine."Document No.",
+            PurchaseLine."Line No."));
     end;
 
     local procedure Initialize()

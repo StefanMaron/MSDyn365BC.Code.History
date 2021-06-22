@@ -2296,12 +2296,12 @@ report 402 "Purchase Document - Test"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckDimValuePostingHeader(var PurchaseHeader: Record "Purchase Header"; TableID: array[10] of Integer; No: array[10] of Code[20]);
+    local procedure OnBeforeCheckDimValuePostingHeader(var PurchaseHeader: Record "Purchase Header"; var TableID: array[10] of Integer; var No: array[10] of Code[20]);
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckDimValuePostingLine(var PurchaseLine: Record "Purchase Line"; TableID: array[10] of Integer; No: array[10] of Code[20]);
+    local procedure OnBeforeCheckDimValuePostingLine(var PurchaseLine: Record "Purchase Line"; var TableID: array[10] of Integer; var No: array[10] of Code[20]);
     begin
     end;
 

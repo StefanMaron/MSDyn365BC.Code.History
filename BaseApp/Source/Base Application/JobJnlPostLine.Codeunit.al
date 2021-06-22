@@ -1,4 +1,4 @@
-codeunit 1012 "Job Jnl.-Post Line"
+﻿codeunit 1012 "Job Jnl.-Post Line"
 {
     Permissions = TableData "Job Ledger Entry" = imd,
                   TableData "Job Register" = imd,
@@ -413,7 +413,13 @@ codeunit 1012 "Job Jnl.-Post Line"
         TempWarehouseJournalLine: Record "Warehouse Journal Line" temporary;
         ItemTrackingManagement: Codeunit "Item Tracking Management";
         WMSManagement: Codeunit "WMS Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePostWhseJnlLine(ItemJnlLine, OriginalQuantity, OriginalQuantityBase, TempTrackingSpecification, IsHandled);
+        if IsHandled then
+            exit;
+
         with ItemJnlLine do begin
             if "Entry Type" in ["Entry Type"::Consumption, "Entry Type"::Output] then
                 exit;
@@ -474,7 +480,14 @@ codeunit 1012 "Job Jnl.-Post Line"
     end;
 
     local procedure UpdateJobJnlLineAmount(var JobJnlLineToUpdate: Record "Job Journal Line"; var RemainingAmount: Decimal; var RemainingAmountLCY: Decimal; var RemainingQtyToTrack: Decimal; AmtRoundingPrecision: Decimal)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateJobJnlLineAmount(JobJnlLineToUpdate, RemainingAmount, RemainingAmountLCY, RemainingQtyToTrack, AmtRoundingPrecision, IsHandled);
+        if IsHandled then
+            exit;
+
         with JobJnlLineToUpdate do begin
             "Line Amount" := Round(RemainingAmount * Quantity / RemainingQtyToTrack, AmtRoundingPrecision);
             "Line Amount (LCY)" := Round(RemainingAmountLCY * Quantity / RemainingQtyToTrack, AmtRoundingPrecision);
@@ -626,6 +639,16 @@ codeunit 1012 "Job Jnl.-Post Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostResource(var JobJournalLine: Record "Job Journal Line"; var JobJnlLine2: Record "Job Journal Line"; var EntryNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostWhseJnlLine(ItemJnlLine: Record "Item Journal Line"; OriginalQuantity: Decimal; OriginalQuantityBase: Decimal; var TempTrackingSpecification: Record "Tracking Specification" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateJobJnlLineAmount(var JobJnlLineToUpdate: Record "Job Journal Line"; var RemainingAmount: Decimal; var RemainingAmountLCY: Decimal; var RemainingQtyToTrack: Decimal; AmtRoundingPrecision: Decimal; var IsHandled: Boolean)
     begin
     end;
 

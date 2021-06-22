@@ -2259,6 +2259,18 @@
           <note from="Developer" annotates="general" priority="2">Indicates that users need to restart their activity to pick up new menusuite items. %1=Name of Extension</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Extension Installation Impl - NamedType RestartActivityUninstallMsg</note>
         </trans-unit>
+        <trans-unit id="Codeunit 1128445799 - NamedType 4098040153" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Enabling Delete Extension Data will delete the tables that contain data for the %1 extension on uninstall. This action cannot be undone. Do you want to continue?</source>
+          <target state="translated">L'abilitazione di Elimina dati dell'estensione elimina le tabelle che contengono i dati per l'estensione %1 in fase di disinstallazione. Questa azione non può essere annullata. Continuare?</target>
+          <note from="Developer" annotates="general" priority="2">%1=name of app</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Extension Installation Impl - NamedType ClearExtensionSchemaQst</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1128445799 - NamedType 2879639004" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You have selected to delete extension data for the %1 extension. Continuing uninstall will delete the tables that contain data for the %1 extension. This action cannot be undone. Do you want to continue?</source>
+          <target state="translated">È stata selezionata l'eliminazione dei dati dell'estensione %1. Se si continua la disinstallazione vengono eliminate le tabelle contenenti i dati per l'estensione %1. Questa azione non può essere annullata. Continuare?</target>
+          <note from="Developer" annotates="general" priority="2">%1=name of app</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Extension Installation Impl - NamedType ClearExtensionSchemaMsg</note>
+        </trans-unit>
         <trans-unit id="Codeunit 1128445799 - NamedType 4267348099" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You do not have sufficient permissions to manage extensions. Please contact your administrator.</source>
           <target state="translated">Non si dispone di autorizzazioni sufficienti per gestire le estensioni. Contattare l'amministratore.</target>
@@ -2531,6 +2543,45 @@
           <target state="translated">L'estensione %1 è già installata.</target>
           <note from="Developer" annotates="general" priority="2">%1=name of app</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Extension Marketplace - NamedType AlreadyInstalledMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3666029466 - NamedType 506076632" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>https://appsource.microsoft.com</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Extension Marketplace - NamedType AppsourceTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3666029466 - NamedType 505839841" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>/embed/en-us/marketplace?product=dynamics-365-business-central</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Extension Marketplace - NamedType EmbedRelativeTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3666029466 - NamedType 4219651073" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Selected extension could not be installed because a valid App Id or package ID is not passed.</source>
+          <target state="translated">Impossibile installare l'estensione selezionata perché non è stato passato un ID app o un ID pacchetto valido.</target>
+          <note from="Developer" annotates="general" priority="2">Error message for trying to install an extension where a valid id is not passed;</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Extension Marketplace - NamedType ExtensionNotFoundErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3666029466 - NamedType 2491398484" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Selected extension could not be installed because a valid App Id or package ID is not passed. Application ID : %1.</source>
+          <target state="translated">Impossibile installare l'estensione selezionata perché non è stato passato un ID app o un ID pacchetto valido. ID applicazione: %1.</target>
+          <note from="Developer" annotates="general" priority="2">Telemetry error message for trying to install an extension a valid id is not passed; %1 is the applicaiton id recieved from appsource.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Extension Marketplace - NamedType TelemetryExtensionNotFoundErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3666029466 - NamedType 345714831" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Selected extension could not be installed because the extension is not published and a valid App Id is not passed. Application ID : %1.</source>
+          <target state="translated">Impossibile installare l'estensione selezionata perché non è stata pubblicata e non è stato passato un ID app valido. ID applicazione: %1.</target>
+          <note from="Developer" annotates="general" priority="2">Telemetry error message for trying to install an extension a valid id is not passed; %1 is the applicaiton id recieved from appsource.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Extension Marketplace - NamedType MissingAppIdErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3666029466 - NamedType 3759951673" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>ExtensionManagementTelemetryCategoryTok</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Extension Marketplace - NamedType TelemetryTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3666029466 - NamedType 3799005900" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>ENU=The extension %1 failed to install.</source>
+          <target state="translated">ENU = Impossibile installare l'estensione %1.</target>
+          <note from="Developer" annotates="general" priority="2">"%1=name of extension"</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Extension Marketplace - NamedType ExtensionInstallationFailureErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 4126082712 - NamedType 4148403172" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
           <source>%1_%2_%3.zip</source>
@@ -3111,6 +3162,16 @@
           <source>Modification of the setup record has failed.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType CouldNotModifySetupRecordTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1499095144 - NamedType 2096275478" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>Cannot get earliest activate time. Last request time: %1, min delay time: %2.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType CannotGetEarliestActivateTimeTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1499095144 - NamedType 297961906" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>Cannot get next cache expiration time. Previous cache expiration time: %1, cache life time: %2.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Satisfaction Survey Impl. - NamedType CannotGetNextExpireTimeTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 1499095144 - NamedType 167498497" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
           <source>Too short time since last activation try.</source>
@@ -5024,6 +5085,18 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Extension Details - Control Un_Id - Property ToolTip</note>
         </trans-unit>
+        <trans-unit id="Page 2252665413 - Control 2348294640 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Delete Extension Data</source>
+          <target state="translated">Elimina dati dell'estensione</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Extension Details - Control Un_ClearSchema - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2252665413 - Control 2348294640 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies if the tables that contain data owned by this extension should be deleted on uninstall. This action cannot be undone.</source>
+          <target state="translated">Specifica se le tabelle contenenti i dati di proprietà di questa estensione devono essere eliminate o disinstallate. Questa azione non può essere annullata.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Extension Details - Control Un_ClearSchema - Property ToolTip</note>
+        </trans-unit>
         <trans-unit id="Page 2252665413 - Control 4195137539 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Terms and Conditions</source>
           <target state="translated">Condizioni</target>
@@ -6857,33 +6930,28 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum Manual Setup Category - EnumValue Uncategorized - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Enum 1379843859 - EnumValue 3259251506 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+        <trans-unit id="Enum 1379843859 - EnumValue 3259251506 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
           <source>GET</source>
-          <target state="translated">OTTIENI</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum Http Request Type - EnumValue GET - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Enum 1379843859 - EnumValue 1280774356 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+        <trans-unit id="Enum 1379843859 - EnumValue 1280774356 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
           <source>POST</source>
-          <target state="translated">REGISTRA</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum Http Request Type - EnumValue POST - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Enum 1379843859 - EnumValue 731819298 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+        <trans-unit id="Enum 1379843859 - EnumValue 731819298 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
           <source>PATCH</source>
-          <target state="translated">PATCH</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum Http Request Type - EnumValue PATCH - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Enum 1379843859 - EnumValue 2677525307 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+        <trans-unit id="Enum 1379843859 - EnumValue 2677525307 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
           <source>PUT</source>
-          <target state="translated">STOCCA</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum Http Request Type - EnumValue PUT - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Enum 1379843859 - EnumValue 2824216035 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+        <trans-unit id="Enum 1379843859 - EnumValue 2824216035 - Property 2879900210" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
           <source>DELETE</source>
-          <target state="translated">ELIMINA</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum Http Request Type - EnumValue DELETE - Property Caption</note>
         </trans-unit>

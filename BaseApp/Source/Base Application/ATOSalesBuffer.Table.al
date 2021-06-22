@@ -1,4 +1,4 @@
-table 915 "ATO Sales Buffer"
+﻿table 915 "ATO Sales Buffer"
 {
     Caption = 'ATO Sales Buffer';
     ReplicateData = false;
@@ -87,6 +87,7 @@ table 915 "ATO Sales Buffer"
             "Sales Cost" += CompATOSalesBuffer."Sales Cost";
             "Sales Amount" += CalcSalesAmt(CompATOSalesBuffer."Sales Cost", ProfitPct);
             "Profit %" := CalcSalesProfitPct("Sales Cost", "Sales Amount");
+            OnUpdateBufferWithCompOnBeforeModify(Rec, CompATOSalesBuffer);
             Modify;
             exit;
         end;
@@ -95,6 +96,7 @@ table 915 "ATO Sales Buffer"
         "Sales Cost" := CompATOSalesBuffer."Sales Cost";
         "Sales Amount" := CalcSalesAmt(CompATOSalesBuffer."Sales Cost", ProfitPct);
         "Profit %" := ProfitPct;
+        OnUpdateBufferWithCompOnBeforeInsert(Rec, CompATOSalesBuffer);
         Insert;
     end;
 
@@ -128,6 +130,7 @@ table 915 "ATO Sales Buffer"
             "Sales Cost" += -(ItemLedgEntry."Cost Amount (Expected)" + ItemLedgEntry."Cost Amount (Actual)");
             "Sales Amount" += ItemLedgEntry."Sales Amount (Actual)" + ItemLedgEntry."Sales Amount (Expected)";
             "Profit %" := CalcSalesProfitPct("Sales Cost", "Sales Amount");
+            OnUpdateBufferWithItemLedgEntryOnBeforeModify(Rec, ItemLedgEntry);
             Modify;
             exit;
         end;
@@ -136,6 +139,7 @@ table 915 "ATO Sales Buffer"
         "Sales Cost" := -(ItemLedgEntry."Cost Amount (Expected)" + ItemLedgEntry."Cost Amount (Actual)");
         "Sales Amount" := ItemLedgEntry."Sales Amount (Actual)" + ItemLedgEntry."Sales Amount (Expected)";
         "Profit %" := CalcSalesProfitPct("Sales Cost", "Sales Amount");
+        OnUpdateBufferWithItemLedgEntryOnBeforeInsert(Rec, ItemLedgEntry);
         Insert;
     end;
 
@@ -176,6 +180,26 @@ table 915 "ATO Sales Buffer"
         if SalesAmt = 0 then
             exit(0);
         exit(Round(100 * (SalesAmt - CostAmt) / SalesAmt));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateBufferWithCompOnBeforeInsert(var ATOSalesBuffer: Record "ATO Sales Buffer"; CompATOSalesBuffer: Record "ATO Sales Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateBufferWithCompOnBeforeModify(var ATOSalesBuffer: Record "ATO Sales Buffer"; CompATOSalesBuffer: Record "ATO Sales Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateBufferWithItemLedgEntryOnBeforeInsert(var ATOSalesBuffer: Record "ATO Sales Buffer"; ItemLedgEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateBufferWithItemLedgEntryOnBeforeModify(var ATOSalesBuffer: Record "ATO Sales Buffer"; ItemLedgEntry: Record "Item Ledger Entry")
+    begin
     end;
 }
 

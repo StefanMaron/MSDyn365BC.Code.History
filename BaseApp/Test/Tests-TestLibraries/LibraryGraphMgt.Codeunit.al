@@ -179,7 +179,7 @@ codeunit 130618 "Library - Graph Mgt"
         TargetURL: Text;
         ReplaceWith: Text;
     begin
-        TargetURL := GetODataTargetURL(PageNumber);
+        TargetURL := GetODataTargetURL(ObjectType::Page, PageNumber);
         if ID <> '' then begin
             ReplaceWith := StrSubstNo('%1(%2)', ServiceNameTxt, StripBrackets(ID));
             TargetURL := STRREPLACE(TargetURL, ServiceNameTxt, ReplaceWith);
@@ -188,11 +188,22 @@ codeunit 130618 "Library - Graph Mgt"
     end;
 
     [Normal]
+    procedure CreateQueryTargetURL(QueryNumber: Integer; ServiceNameTxt: Text): Text
+    var
+        TargetURL: Text;
+        ReplaceWith: Text;
+    begin
+        TargetURL := GetODataTargetURL(ObjectType::Query, QueryNumber);
+        TargetURL += ServiceNameTxt;
+        exit(TargetURL);
+    end;
+
+    [Normal]
     procedure CreateTargetURLWithSubpage(ID: Text; PageNumber: Integer; ServiceNameTxt: Text; ServiceSubPageTxt: Text): Text
     var
         TargetURL: Text;
     begin
-        TargetURL := GetODataTargetURL(PageNumber);
+        TargetURL := GetODataTargetURL(ObjectType::Page, PageNumber);
         exit(AppendSubpageToTargetURL(ID, TargetURL, ServiceNameTxt, ServiceSubPageTxt));
     end;
 
@@ -202,7 +213,7 @@ codeunit 130618 "Library - Graph Mgt"
         TargetURL: Text;
         ReplaceWith: Text;
     begin
-        TargetURL := GetODataTargetURL(PageNumber);
+        TargetURL := GetODataTargetURL(ObjectType::Page, PageNumber);
         if (ID1 <> '') and (ID2 <> '') then begin
             ReplaceWith := StrSubstNo('%1(%2,%3)', ServiceNameTxt, StripBrackets(ID1), StripBrackets(ID2));
             TargetURL := STRREPLACE(TargetURL, ServiceNameTxt, ReplaceWith);
@@ -215,7 +226,7 @@ codeunit 130618 "Library - Graph Mgt"
     var
         TargetURL: Text;
     begin
-        TargetURL := GetODataTargetURL(PageNumber);
+        TargetURL := GetODataTargetURL(ObjectType::Page, PageNumber);
         exit(AppendSubpageToTargetURLWithTwoKeyFields(ID1, ID2, TargetURL, ServiceNameTxt, ServiceSubPageTxt));
     end;
 
@@ -257,7 +268,7 @@ codeunit 130618 "Library - Graph Mgt"
         TargetURL: Text;
         ReplaceWith: Text;
     begin
-        TargetURL := GetODataTargetURL(ParentPagePageNumber);
+        TargetURL := GetODataTargetURL(ObjectType::Page, ParentPagePageNumber);
 
         TargetURL := STRREPLACE(TargetURL, ParentPageServiceNameTxt, SubpageServiceNameTxt);
 
@@ -342,25 +353,35 @@ codeunit 130618 "Library - Graph Mgt"
         exit(false);
     end;
 
-    procedure GetODataTargetURL(PageNumber: Integer): Text
+    procedure GetODataTargetURL(ObjType: ObjectType; ObjectNumber: Integer): Text
     var
         ApiWebService: Record "Api Web Service";
         WebServiceAggregate: Record "Web Service Aggregate";
         WebServiceManagement: Codeunit "Web Service Management";
         WebServiceClientType: Enum "Client Type";
+        ApiWebServiceObjectType: Option;
+        WebServiceAggregateObjectType: Option;
         OdataUrl: Text;
     begin
+        if ObjType = OBJECTTYPE::Page then begin
+            ApiWebServiceObjectType := ApiWebService."Object Type"::Page;
+            WebServiceAggregateObjectType := WebServiceAggregate."Object Type"::Page;
+        end else begin
+            ApiWebServiceObjectType := ApiWebService."Object Type"::Query;
+            WebServiceAggregateObjectType := WebServiceAggregate."Object Type"::Query;
+        end;
+
         ApiWebService.SetRange(Published, true);
-        ApiWebService.SetRange("Object ID", PageNumber);
-        ApiWebService.SetRange("Object Type", ApiWebService."Object Type"::Page);
+        ApiWebService.SetRange("Object ID", ObjectNumber);
+        ApiWebService.SetRange("Object Type", ApiWebServiceObjectType);
         if ApiWebService.FindFirst then begin
-            OdataUrl := GetUrl(CLIENTTYPE::Api, CompanyName, OBJECTTYPE::Page, PageNumber);
+            OdataUrl := GetUrl(CLIENTTYPE::Api, CompanyName, ObjType, ObjectNumber);
             exit(OdataUrl);
         end;
         WebServiceManagement.LoadRecords(WebServiceAggregate);
         WebServiceAggregate.SetRange(Published, true);
-        WebServiceAggregate.SetRange("Object ID", PageNumber);
-        WebServiceAggregate.SetRange("Object Type", WebServiceAggregate."Object Type"::Page);
+        WebServiceAggregate.SetRange("Object ID", ObjectNumber);
+        WebServiceAggregate.SetRange("Object Type", WebServiceAggregateObjectType);
         WebServiceAggregate.FindFirst;
         OdataUrl := WebServiceManagement.GetWebServiceUrl(WebServiceAggregate, WebServiceClientType::ODataV4);
         exit(OdataUrl);
@@ -793,7 +814,7 @@ codeunit 130618 "Library - Graph Mgt"
     var
         TargetURL: Text;
     begin
-        TargetURL := GetODataTargetURL(PageNumber);
+        TargetURL := GetODataTargetURL(ObjectType::Page, PageNumber);
         TargetURL := AppendSubpageToTargetURL(ID, TargetURL, ServiceNameTxt, ServiceSubPageTxt);
         exit(AppendSubpageToTargetURL(SubPageID, TargetURL, ServiceSubPageTxt, ServiceSubSubPageTxt));
     end;

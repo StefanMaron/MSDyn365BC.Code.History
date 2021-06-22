@@ -298,12 +298,25 @@ page 29 "Vendor Ledger Entries"
                     ApplicationArea = Basic, Suite;
                     Editable = true;
                     ToolTip = 'Specifies that the entry was created as a result of exporting a payment journal line.';
+
+                    trigger OnValidate()
+                    var
+                        ConfirmManagement: Codeunit "Confirm Management";
+                    begin
+                        if not ConfirmManagement.GetResponseOrDefault(ExportToPaymentFileConfirmTxt, true) then
+                            Error('');
+                    end;
                 }
                 field("Dimension Set ID"; "Dimension Set ID")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies a reference to a combination of dimension values. The actual values are stored in the Dimension Set Entry table.';
                     Visible = false;
+                }
+                field(RecipientBankAcc; "Recipient Bank Account")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the bank account to transfer the amount to.';
                 }
             }
         }
@@ -639,6 +652,7 @@ page 29 "Vendor Ledger Entries"
         AmountVisible: Boolean;
         DebitCreditVisible: Boolean;
         VendNameVisible: Boolean;
+        ExportToPaymentFileConfirmTxt: Label 'Editing the Exported to Payment File field will change the payment suggestions in the Payment Journal. Edit this field only if you must correct a mistake.\Do you want to continue?';
 
     local procedure SetControlVisibility()
     var
