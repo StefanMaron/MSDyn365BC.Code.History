@@ -59,10 +59,25 @@ page 9800 Users
                     ApplicationArea = Basic, Suite;
                     Caption = 'Windows User Name';
                     ToolTip = 'Specifies the user''s name on Windows.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Desktop client is not supported in versions 15 and higher.';
-                    ObsoleteTag = '15.3';
+                    Visible = not IsSaaS;
+
+                    trigger OnValidate()
+                    var
+                        UserSID: Text;
+                    begin
+                        if WindowsUserName = '' then
+                            "Windows Security ID" := ''
+                        else begin
+                            UserSID := Sid(WindowsUserName);
+                            WindowsUserName := IdentityManagement.UserName(UserSID);
+                            if WindowsUserName <> '' then begin
+                                "Windows Security ID" := UserSID;
+                                ValidateSid;
+                                SetUserName;
+                            end else
+                                Error(Text001Err, WindowsUserName);
+                        end;
+                    end;
                 }
                 field("License Type"; "License Type")
                 {

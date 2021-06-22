@@ -3,14 +3,16 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 
-codeunit 1909 "Media Upload Impl."
+codeunit 1909 "Media Upload Page Impl."
 {
     Access = Internal;
 
     var
         FileHelper: Codeunit "File Helper";
+        FileTempBlob: Codeunit "Temp Blob";
         CameraOptions: DotNet CameraOptions;
         AreCameraOptionsInitialized: Boolean;
+        NoMediaWasSelectedErr: Label 'No media was selected.';
 
     procedure MediaInteractionOnOpenPage(var CameraProvider: DotNet CameraProvider; var MediaUploadAvailable: Boolean)
     begin
@@ -63,12 +65,19 @@ codeunit 1909 "Media Upload Impl."
 
     procedure GetMedia(var TempBlob: Codeunit "Temp Blob")
     begin
-        FileHelper.GetFile(TempBlob);
+        if not FileHelper.GetFile(TempBlob) then
+            Error(NoMediaWasSelectedErr);
     end;
 
     procedure GetMedia(Stream: InStream)
     begin
-        FileHelper.GetFile(Stream);
+        GetMedia(FileTempBlob);
+        FileTempBlob.CreateInStream(Stream);
+    end;
+
+    procedure HasMedia(): Boolean
+    begin
+        exit(FileHelper.FileExists());
     end;
 
     procedure MediaInteractionOnPictureAvailable(FilePath: Text)

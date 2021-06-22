@@ -421,6 +421,173 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Post Migration Checklist - NamedType ResetupSalesConnectionTxt</note>
         </trans-unit>
+        <trans-unit id="Table 2364229666 - Field 2766253784 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>App ID</source>
+          <target>Sovelluksen tunnus</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Migration Table Mapping - Field App ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2364229666 - Field 3135334477 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Table ID</source>
+          <target>Taulukon tunnus</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Migration Table Mapping - Field Table ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2364229666 - Field 3808951907 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Table Name</source>
+          <target>Taulukon nimi</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Migration Table Mapping - Field Table Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2364229666 - Field 2311163528 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Source Table Name</source>
+          <target>Lähdetaulukon nimi</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Migration Table Mapping - Field Source Table Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2364229666 - Field 944264468 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Data Per Company</source>
+          <target>Yrityskohtaiset tiedot</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Migration Table Mapping - Field Data Per Company - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2364229666 - Field 3846472926 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Locked</source>
+          <target>Lukittu</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Migration Table Mapping - Field Locked - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2364229666 - Field 2515772770 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Extension Name</source>
+          <target>Laajennuksen nimi</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Migration Table Mapping - Field Extension Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2364229666 - Field 4023146010 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Extension Package ID</source>
+          <target>Laajennuspaketin tunnus</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Migration Table Mapping - Field Extension Package ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2364229666 - NamedType 1272031509" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Extensions from the specified publisher (%1) are not enabled for custom table mapping.</source>
+          <target>Määritetyn julkaisijan (%1) laajennuksia ei ole otettu käyttöön mukautetun taulukon yhdistämismäärityksessä.</target>
+          <note from="Developer" annotates="general" priority="2">%1 - The publisher of the extension they tried to select.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Migration Table Mapping - NamedType InvalidExtensionPublisherErr</note>
+        </trans-unit>
+        <trans-unit id="Table 2364229666 - NamedType 4224791215" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This table does not exist in the specified extension.</source>
+          <target>Tätä taulukkoa ei ole määritetyssä laajennuksessa.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Migration Table Mapping - NamedType InvalidTableNameErr</note>
+        </trans-unit>
+        <trans-unit id="Table 2364229666 - NamedType 1538903795" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>To choose %1, you must install it first.</source>
+          <target>Jotta voit valita laajennuksen %1, sinun on ensin asennettava se.</target>
+          <note from="Developer" annotates="general" priority="2">%1 - The name of the extension they tried to select.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Migration Table Mapping - NamedType ExtensionNotInstalledErr</note>
+        </trans-unit>
+        <trans-unit id="Table 2364229666 - NamedType 3180966121" maxwidth="0" size-unit="char" translate="no" xml:space="preserve">
+          <source>Microsoft</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Migration Table Mapping - NamedType InvalidPublisherTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 2364229666 - Control 2515772770 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Extension Name</source>
+          <target>Laajennuksen nimi</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Migration Table Mapping - Control Extension Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2364229666 - Control 2515772770 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the name of the extension for the mapping.</source>
+          <target>Määrittää yhdistämismäärityksen laajennuksen nimen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Migration Table Mapping - Control Extension Name - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2364229666 - Control 3808951907 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Table Name</source>
+          <target>Taulukon nimi</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Migration Table Mapping - Control Table Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2364229666 - Control 3808951907 - Property 2001309823" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the name of the table for the mapping.</source>
+          <target>Määrittää yhdistämismäärityksen taulukon nimen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Migration Table Mapping - Control Table Name - Property Tooltip</note>
+        </trans-unit>
+        <trans-unit id="Page 2364229666 - Control 2311163528 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Source Table Name</source>
+          <target>Lähdetaulukon nimi</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Migration Table Mapping - Control Source Table Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2364229666 - Control 2311163528 - Property 2001309823" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the name of the source table for the mapping. This is used in the case that the name of the table differs between the source and destination databases.</source>
+          <target>Määrittää yhdistämismäärityksen lähdetaulukon nimen. Tätä käytetään, jos taulukon nimi on eri lähde- ja kohdetietokannoissa.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Migration Table Mapping - Control Source Table Name - Property Tooltip</note>
+        </trans-unit>
+        <trans-unit id="Page 2364229666 - Action 2108379467 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Populate From Extension</source>
+          <target>Täytä laajennuksesta</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Migration Table Mapping - Action PopulateFromExtension - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2364229666 - Action 2108379467 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Populate the list with all tables from an existing extension.</source>
+          <target>Täytä luettelo nykyisen laajennuksen kaikilla taulukoilla.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Migration Table Mapping - Action PopulateFromExtension - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2364229666 - Action 1532468774 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Delete All For Extension</source>
+          <target>Poista kaikki laajennuksesta</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Migration Table Mapping - Action DeleteAllForExtension - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2364229666 - Action 1532468774 - Property 2001309823" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Deletes all records belonging to this extension.</source>
+          <target>Poistaa kaikki tähän laajennukseen kuuluvat tietueet.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Migration Table Mapping - Action DeleteAllForExtension - Property Tooltip</note>
+        </trans-unit>
+        <trans-unit id="Page 2364229666 - NamedType 3054663037" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No tables exist in the specified extension.</source>
+          <target>Määritetyssä laajennuksessa ei ole taulukoita.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Migration Table Mapping - NamedType NoTablesInExtensionMsg</note>
+        </trans-unit>
+        <trans-unit id="Table 2408135808 - Field 2565378072 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Run ID</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Intelligent Cloud Table Status - Field Run ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2408135808 - Field 3808951907 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Table Name</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Intelligent Cloud Table Status - Field Table Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2408135808 - Field 3997336476 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Company Name</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Intelligent Cloud Table Status - Field Company Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2408135808 - Field 3463590698 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>New Version</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Intelligent Cloud Table Status - Field New Version - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2408135808 - Field 3676003639 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Error Code</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Intelligent Cloud Table Status - Field Error Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2408135808 - Field 2852966117 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Error Message</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Intelligent Cloud Table Status - Field Error Message - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 3234064634 - Field 3997336476 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Company Name</source>
           <target>Yrityksen nimi</target>
@@ -472,6 +639,12 @@
           <source>IntelligentCloudService_%1</source>
           <note from="Developer" annotates="general" priority="2">%1 - The source product id</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Hybrid Cloud Management - NamedType ServiceSubscriptionFormatTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4272545970 - NamedType 2479714532" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Set up Cloud Migration</source>
+          <target>Määritä pilveen siirto</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Hybrid Cloud Management - NamedType DataSyncWizardPageNameTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 4272545970 - Method 3518468256 - NamedType 2684810677" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>https://businesscentral.dynamics.com/%1</source>
@@ -647,6 +820,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Hybrid Message Management - NamedType UnsupportedVersionErr</note>
         </trans-unit>
+        <trans-unit id="Codeunit 4202943371 - NamedType 248683348" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Failed to create company for the Data Migration setup.\\\\%1</source>
+          <target>Yrityksen luonti tietojen siirron asetuksia varten epäonnistui.\\\\%1</target>
+          <note from="Developer" annotates="general" priority="2">%1 - Error message</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Handle Create Company Failure - NamedType CompanyCreationFailedErr</note>
+        </trans-unit>
         <trans-unit id="Codeunit 594380566 - NamedType 585235238" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>An update is available for the Cloud Migration.</source>
           <target>Pilveen siirtoon on saatavilla päivitys.</target>
@@ -681,6 +860,12 @@
           <target>Tietojen siirron asetukset</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Hybrid Cloud Setup Wizard - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2532438947 - Property 3863440606" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>migration,data migration,cloud migration,intelligent,cloud,sync,replication</source>
+          <target>siirto,tiedonsiirto,pilvisiirto,älykäs,pilvi,synkronointi,replikointi</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Hybrid Cloud Setup Wizard - Property AdditionalSearchTerms</note>
         </trans-unit>
         <trans-unit id="Page 2532438947 - Control 3724241072 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Welcome to the on-premises to Business Central cloud Data Migration Setup</source>
@@ -1249,6 +1434,18 @@
           <target>Valitse siirrettävät yritykset</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Intelligent Cloud Management - Action UpdateReplicationCompanies - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1208606375 - Action 2819242017 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Manage Custom Tables</source>
+          <target>Hallitse mukautettuja taulukoita</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Intelligent Cloud Management - Action ManageCustomTables - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1208606375 - Action 2819242017 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Manage custom table mappings for the migration.</source>
+          <target>Hallitse siirron mukautettuja taulukon yhdistämismäärityksiä.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Intelligent Cloud Management - Action ManageCustomTables - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 1208606375 - NamedType 2374652963" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Are you sure you want to trigger migration?</source>

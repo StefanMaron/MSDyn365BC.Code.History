@@ -258,9 +258,10 @@ codeunit 99000813 "Carry Out Action"
                 ProdOrderLine.Validate(Quantity, Quantity);
                 OnProdOrderChgAndResheduleOnAfterValidateQuantity(ProdOrderLine, ReqLine);
                 ProdOrderLine."Ending Time" := "Ending Time";
-                ProdOrderLine."Due Date" := "Due Date";
                 ProdOrderLine.Validate("Planning Flexibility", "Planning Flexibility");
                 ProdOrderLine.Validate("Ending Date", "Ending Date");
+                ProdOrderLine."Due Date" := "Due Date";
+                ProdOrderLine.Modify();
                 ReqLineReserve.TransferPlanningLineToPOLine(ReqLine, ProdOrderLine, 0, true);
                 ReqLineReserve.UpdateDerivedTracking(ReqLine);
                 ReservMgt.SetProdOrderLine(ProdOrderLine);

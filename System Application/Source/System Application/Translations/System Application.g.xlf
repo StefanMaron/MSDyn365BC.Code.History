@@ -418,6 +418,16 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Temp Blob - Field Blob - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 3029408820 - Field 1663593181 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Primary Key</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Temp Media - Field Primary Key - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3029408820 - Field 3252935640 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Media</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Temp Media - Field Media - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 2488342448 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Cue Setup</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -1333,11 +1343,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD User Mgmt. Impl. - NamedType UserCreatedMsg</note>
         </trans-unit>
-        <trans-unit id="Codeunit 390433962 - NamedType 2534762797" size-unit="char" translate="yes" xml:space="preserve">
-          <source>User %1 was not found in Office 365. We will turn off the user account.</source>
-          <note from="Developer" annotates="general" priority="2">%1=user name</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD User Mgmt. Impl. - NamedType UserNotFoundMsg</note>
-        </trans-unit>
         <trans-unit id="Codeunit 4215518646 - NamedType 1905859220" size-unit="char" translate="yes" xml:space="preserve">
           <source>%1 is not an application secret.</source>
           <note from="Developer" annotates="general" priority="2">%1 = Secret Name.</note>
@@ -1378,15 +1383,65 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Temp Blob List Impl. - NamedType InvalidNoObjectsRequestedErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 2308444729 - NamedType 1037556188" size-unit="char" translate="yes" xml:space="preserve">
+        <trans-unit id="Page 2776087363 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Camera</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Camera - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2776087363 - Control 426738318 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Taking picture...</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Camera - Control TakingPicture - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2776087363 - Control 426738318 - Property 1968111052" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Please, take a picture using your camera.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Camera - Control TakingPicture - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 2776087363 - Control 2966611030 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Could not connect to camera</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Camera - Control CameraNotSupported - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2776087363 - Control 2966611030 - Property 1968111052" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Could not access the camera on the device. Make sure that you are using the app for Windows, Android, or iOS.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Camera - Control CameraNotSupported - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2308444729 - NamedType 3828681647" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Picture_%1.jpeg</source>
+          <note from="Developer" annotates="general" priority="2">%1 = String generated from current datetime to make sure file names are unique </note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Camera Impl. - NamedType PictureFileNameTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2308444729 - NamedType 1398852855" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The existing picture will be replaced. Do you want to continue?</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Camera Impl. - NamedType OverrideImageQst</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2308444729 - NamedType 3567299321" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The provided field must be of type 'Media'.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Camera Impl. - NamedType NotAMediaFieldErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2458010968 - NamedType 1037556188" size-unit="char" translate="yes" xml:space="preserve">
           <source>The picture quality must be in the range from 0 to 100.</source>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Camera Impl. - NamedType QualityOutOfRangeErr</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Camera Page Impl. - NamedType QualityOutOfRangeErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2458010968 - NamedType 2942640116" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No picture was taken.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Camera Page Impl. - NamedType NoPictureWasTakenErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 3793537252 - NamedType 1061121529" size-unit="char" translate="yes" xml:space="preserve">
           <source>The file is not available.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit File Helper - NamedType FileNotAvailableErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1804873446 - NamedType 1156808680" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No media was selected.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Media Upload Page Impl. - NamedType NoMediaWasSelectedErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 3211594149 - NamedType 1626488870" size-unit="char" translate="yes" xml:space="preserve">
           <source>Choose the location where you want to save the encryption key.</source>
@@ -2233,16 +2288,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Translation Implementation - NamedType NoRecordIdErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 1346609467 - NamedType 3583900385" size-unit="char" translate="no" xml:space="preserve">
-          <source>User Login</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit User Login Time Tracker Impl. - NamedType UserLoginTelemetryCategoryLbl</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1346609467 - NamedType 620129682" size-unit="char" translate="no" xml:space="preserve">
-          <source>User Login information was not updated for user %1 as it is in a child session.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit User Login Time Tracker Impl. - NamedType ChildSessionLoginInfoNotUpdatedTelemetryTxt</note>
-        </trans-unit>
         <trans-unit id="Codeunit 1726821529 - NamedType 1200477291" size-unit="char" translate="no" xml:space="preserve">
           <source>SUPER</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -2252,6 +2297,11 @@
           <source>There should be at least one enabled 'SUPER' user.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit User Permissions Impl. - NamedType SUPERPermissionErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1726821529 - NamedType 3564394649" size-unit="char" translate="no" xml:space="preserve">
+          <source>SECURITY</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit User Permissions Impl. - NamedType SECURITYPermissionSetTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 3866175241 - NamedType 142027412" size-unit="char" translate="yes" xml:space="preserve">
           <source>The user name %1 does not exist.</source>
@@ -2367,31 +2417,6 @@
           <source>Specifies the subscription plan.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page User Plan Members FactBox - Control Plan Name - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 2776087363 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Camera</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Camera - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 2776087363 - Control 426738318 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Taking picture...</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Camera - Control TakingPicture - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 2776087363 - Control 426738318 - Property 1968111052" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Please, take a picture using your camera.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Camera - Control TakingPicture - Property InstructionalText</note>
-        </trans-unit>
-        <trans-unit id="Page 2776087363 - Control 2966611030 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Could not connect to camera</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Camera - Control CameraNotSupported - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 2776087363 - Control 2966611030 - Property 1968111052" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Could not access the camera on the device. Make sure that you are using the app for Windows, Android, or iOS.</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Camera - Control CameraNotSupported - Property InstructionalText</note>
         </trans-unit>
         <trans-unit id="Page 3036139225 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Media Upload</source>

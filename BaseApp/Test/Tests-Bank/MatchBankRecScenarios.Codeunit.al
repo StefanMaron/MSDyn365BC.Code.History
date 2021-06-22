@@ -16,8 +16,10 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryUtility: Codeunit "Library - Utility";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryPurchase: Codeunit "Library - Purchase";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
+        FileMgt: Codeunit "File Management";
         isInitialized: Boolean;
 
     [Test]
@@ -274,6 +276,274 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         GLEntryPaymentDocTypeAfterPostPmtReconJnlWithGLAcc(-0.01);
     end;
 
+    [Test]
+    [HandlerFunctions('CheckSaveAsPdfReportHandler')]
+    [Scope('OnPrem')]
+    procedure RemoveMatchOnChecks()
+    var
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        TempBankAccReconciliationLine: Record "Bank Acc. Reconciliation Line" temporary;
+        TempBankAccLedgerEntry: Record "Bank Account Ledger Entry" temporary;
+        BankAccLedgerEntry: Record "Bank Account Ledger Entry";
+        MatchBankRecLines: Codeunit "Match Bank Rec. Lines";
+        BankAccountNo: Code[20];
+        StatementLineNo: Integer;
+        EntryNo: Integer;
+        BankAccLedgerEntryNos: List of [Integer];
+        BankAccReconStmtLineNos: List of [Integer];
+        UnappliedBankAccLedgerEntries: List of [Integer];
+        UnappliedCheckLedgerEntryNos: List of [Integer];
+        CheckLedgerEntryNos: List of [Integer];
+    begin
+        // [FEATURE] [Check]
+        // [SCENARIO 342941] Run RemoveMatch function of "Match Bank Rec. Lines" codeunit on Bank Account Reconciliation Lines and applied Bank Acc. Ledger Entries.
+        Initialize();
+
+        // [GIVEN] Three Bank Account Reconciliation Lines R1, R2, R3 with Type "Check Ledger Entry".
+        // [GIVEN] Each Reconciliation Line has three applied Check Ledger Entries C1..C9.
+        BankAccountNo := CreateBankAccount();
+        LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccountNo, BankAccReconciliation."Statement Type"::"Bank Reconciliation");
+        CreateBankAccReconLinesWithCheckType(BankAccReconStmtLineNos, BankAccReconciliation, BankAccountNo, 3);
+        foreach StatementLineNo in BankAccReconStmtLineNos do begin
+            CreateBankAccLedgerEntriesWithCheckLedgerEntries(BankAccLedgerEntryNos, CheckLedgerEntryNos, BankAccountNo, 3);
+            BankAccReconciliationLine.Get(
+                BankAccReconciliation."Statement Type", BankAccountNo, BankAccReconciliation."Statement No.", StatementLineNo);
+            ApplyCheckEntriesToBankAccReconLine(BankAccReconciliationLine, CheckLedgerEntryNos);
+
+            UnappliedBankAccLedgerEntries.AddRange(BankAccLedgerEntryNos);
+            UnappliedCheckLedgerEntryNos.AddRange(CheckLedgerEntryNos);
+            TempBankAccReconciliationLine := BankAccReconciliationLine;
+            TempBankAccReconciliationLine.Insert();
+        end;
+        foreach EntryNo in UnappliedBankAccLedgerEntries do begin
+            BankAccLedgerEntry.Get(EntryNo);
+            TempBankAccLedgerEntry := BankAccLedgerEntry;
+            TempBankAccLedgerEntry.Insert();
+        end;
+
+        // [WHEN] Run RemoveMatch function of "Match Bank Rec. Lines" codeunit on Bank Account Reconciliation Lines R1, R2, R3.
+        // [WHEN] Run RemoveMatch function of "Match Bank Rec. Lines" codeunit on Bank Account Ledger Entries C1..C9.
+        MatchBankRecLines.RemoveMatch(TempBankAccReconciliationLine, TempBankAccLedgerEntry);
+
+        // [THEN] Bank Account Reconciliation Lines R1, R2, R3 were unapplied from their Check Ledger Entries.
+        VerifyEntriesUnapplied(TempBankAccReconciliationLine, UnappliedCheckLedgerEntryNos);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('CheckSaveAsPdfReportHandler')]
+    [Scope('OnPrem')]
+    procedure RemoveMatchOnChecksWhenRunOnBankAccReconLines()
+    var
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        TempBankAccReconciliationLine: Record "Bank Acc. Reconciliation Line" temporary;
+        DummyTempBankAccLedgerEntry: Record "Bank Account Ledger Entry" temporary;
+        MatchBankRecLines: Codeunit "Match Bank Rec. Lines";
+        BankAccountNo: Code[20];
+        StatementLineNo: Integer;
+        BankAccLedgerEntryNos: List of [Integer];
+        BankAccReconStmtLineNos: List of [Integer];
+        UnappliedCheckLedgerEntryNos: List of [Integer];
+        CheckLedgerEntryNos: List of [Integer];
+    begin
+        // [FEATURE] [Check]
+        // [SCENARIO 342941] Run RemoveMatch function of "Match Bank Rec. Lines" codeunit on Bank Account Reconciliation Lines.
+        Initialize();
+
+        // [GIVEN] Three Bank Account Reconciliation Lines R1, R2, R3 with Type "Check Ledger Entry".
+        // [GIVEN] Each Reconciliation Line has three applied Check Ledger Entries.
+        BankAccountNo := CreateBankAccount();
+        LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccountNo, BankAccReconciliation."Statement Type"::"Bank Reconciliation");
+        CreateBankAccReconLinesWithCheckType(BankAccReconStmtLineNos, BankAccReconciliation, BankAccountNo, 2);
+        foreach StatementLineNo in BankAccReconStmtLineNos do begin
+            CreateBankAccLedgerEntriesWithCheckLedgerEntries(BankAccLedgerEntryNos, CheckLedgerEntryNos, BankAccountNo, 3);
+            BankAccReconciliationLine.Get(
+                BankAccReconciliation."Statement Type", BankAccountNo, BankAccReconciliation."Statement No.", StatementLineNo);
+            ApplyCheckEntriesToBankAccReconLine(BankAccReconciliationLine, CheckLedgerEntryNos);
+
+            UnappliedCheckLedgerEntryNos.AddRange(CheckLedgerEntryNos);
+            TempBankAccReconciliationLine := BankAccReconciliationLine;
+            TempBankAccReconciliationLine.Insert();
+        end;
+
+        CreateBankAccReconLinesWithCheckType(BankAccReconStmtLineNos, BankAccReconciliation, BankAccountNo, 1);
+        CreateBankAccLedgerEntriesWithCheckLedgerEntries(BankAccLedgerEntryNos, CheckLedgerEntryNos, BankAccountNo, 3);
+        BankAccReconciliationLine.Get(
+            BankAccReconciliation."Statement Type", BankAccountNo, BankAccReconciliation."Statement No.", BankAccReconStmtLineNos.Get(1));
+        ApplyCheckEntriesToBankAccReconLine(BankAccReconciliationLine, CheckLedgerEntryNos);
+
+        // [WHEN] Run RemoveMatch function of "Match Bank Rec. Lines" codeunit on Bank Account Reconciliation Lines R1 and R2.
+        MatchBankRecLines.RemoveMatch(TempBankAccReconciliationLine, DummyTempBankAccLedgerEntry);
+
+        // [THEN] Bank Account Reconciliation Lines R1 and R2 were unapplied from their Check Ledger Entries.
+        // [THEN] Bank Account Reconciliation Line R3 is applied to its Check Ledger Entries.
+        VerifyEntriesUnapplied(TempBankAccReconciliationLine, UnappliedCheckLedgerEntryNos);
+        VerifyEntryApplied(BankAccReconciliationLine, CheckLedgerEntryNos);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('CheckSaveAsPdfReportHandler')]
+    [Scope('OnPrem')]
+    procedure RemoveMatchOnChecksWhenRunOnBankAccLedgerEntries()
+    var
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        DummyTempBankAccReconciliationLine: Record "Bank Acc. Reconciliation Line" temporary;
+        TempBankAccLedgerEntry: Record "Bank Account Ledger Entry" temporary;
+        BankAccLedgerEntry: Record "Bank Account Ledger Entry";
+        MatchBankRecLines: Codeunit "Match Bank Rec. Lines";
+        BankAccountNo: Code[20];
+        EntryNo: Integer;
+        BankAccLedgerEntryNos: List of [Integer];
+        BankAccReconStmtLineNos: List of [Integer];
+        CheckLedgerEntryNos: List of [Integer];
+    begin
+        // [FEATURE] [Check]
+        // [SCENARIO 342941] Run RemoveMatch function of "Match Bank Rec. Lines" codeunit on Bank Account Ledger Entries.
+        Initialize();
+
+        // [GIVEN] Bank Account Reconciliation Line with Type "Check Ledger Entry", it has three applied Check Ledger Entries C1, C2, C3.
+        // [GIVEN] Each Check Ledger Entry has linked Bank Account Ledger Entry B1, B2, B3.
+        BankAccountNo := CreateBankAccount();
+        LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccountNo, BankAccReconciliation."Statement Type"::"Bank Reconciliation");
+        CreateBankAccReconLinesWithCheckType(BankAccReconStmtLineNos, BankAccReconciliation, BankAccountNo, 1);
+        CreateBankAccLedgerEntriesWithCheckLedgerEntries(BankAccLedgerEntryNos, CheckLedgerEntryNos, BankAccountNo, 3);
+        BankAccReconciliationLine.Get(
+            BankAccReconciliation."Statement Type", BankAccountNo, BankAccReconciliation."Statement No.", BankAccReconStmtLineNos.Get(1));
+        ApplyCheckEntriesToBankAccReconLine(BankAccReconciliationLine, CheckLedgerEntryNos);
+
+        foreach EntryNo in BankAccLedgerEntryNos.GetRange(1, 2) do begin
+            BankAccLedgerEntry.Get(EntryNo);
+            TempBankAccLedgerEntry := BankAccLedgerEntry;
+            TempBankAccLedgerEntry.Insert();
+        end;
+
+        // [WHEN] Run RemoveMatch function of "Match Bank Rec. Lines" codeunit on Bank Account Ledger Entries B1 and B2.
+        MatchBankRecLines.RemoveMatch(DummyTempBankAccReconciliationLine, TempBankAccLedgerEntry);
+
+        // [THEN] Check Ledger Entries C1 and C2 were unapplied from Bank Account Reconciliation Line.
+        // [THEN] Check Ledger Entry C3 is applied to Bank Account Reconciliation Line.
+        VerifyEntryPartiallyApplied(BankAccReconciliationLine, CheckLedgerEntryNos.GetRange(3, 1), CheckLedgerEntryNos.GetRange(1, 2));
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('CheckSaveAsPdfReportHandler')]
+    [Scope('OnPrem')]
+    procedure RemoveMatchOnChecksWhenRunOnBankAccReconLinesAndBankAccLedgerEntries()
+    var
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        TempBankAccReconciliationLine: Record "Bank Acc. Reconciliation Line" temporary;
+        TempBankAccLedgerEntry: Record "Bank Account Ledger Entry" temporary;
+        BankAccLedgerEntry: Record "Bank Account Ledger Entry";
+        MatchBankRecLines: Codeunit "Match Bank Rec. Lines";
+        BankAccountNo: Code[20];
+        StatementLineNo: Integer;
+        EntryNo: Integer;
+        BankAccLedgerEntryNos: List of [Integer];
+        UnappliedBankAccLedgerEntry: List of [Integer];
+        BankAccReconStmtLineNos: List of [Integer];
+        CheckLedgerEntryNos: List of [Integer];
+        UnappliedCheckLedgerEntryNos: List of [Integer];
+    begin
+        // [FEATURE] [Check]
+        // [SCENARIO 342941] Run RemoveMatch function of "Match Bank Rec. Lines" codeunit on Bank Account Reconciliation Lines and Bank Account Ledger Entries.
+        Initialize();
+
+        // [GIVEN] Two Bank Account Reconciliation Lines R1, R2 with Type "Check Ledger Entry".
+        // [GIVEN] Each Reconciliation Line has three applied Check Ledger Entries C1..C6.
+        BankAccountNo := CreateBankAccount();
+        LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccountNo, BankAccReconciliation."Statement Type"::"Bank Reconciliation");
+        CreateBankAccReconLinesWithCheckType(BankAccReconStmtLineNos, BankAccReconciliation, BankAccountNo, 2);
+        foreach StatementLineNo in BankAccReconStmtLineNos do begin
+            CreateBankAccLedgerEntriesWithCheckLedgerEntries(BankAccLedgerEntryNos, CheckLedgerEntryNos, BankAccountNo, 3);
+            BankAccReconciliationLine.Get(
+                BankAccReconciliation."Statement Type", BankAccountNo, BankAccReconciliation."Statement No.", StatementLineNo);
+            ApplyCheckEntriesToBankAccReconLine(BankAccReconciliationLine, CheckLedgerEntryNos);
+
+            UnappliedBankAccLedgerEntry.AddRange(BankAccLedgerEntryNos);
+            UnappliedCheckLedgerEntryNos.AddRange(CheckLedgerEntryNos);
+        end;
+        foreach EntryNo in UnappliedBankAccLedgerEntry.GetRange(1, 2) do begin
+            BankAccLedgerEntry.Get(EntryNo);
+            TempBankAccLedgerEntry := BankAccLedgerEntry;
+            TempBankAccLedgerEntry.Insert();
+        end;
+        TempBankAccReconciliationLine := BankAccReconciliationLine;
+        TempBankAccReconciliationLine.Insert();
+
+        // [WHEN] Run RemoveMatch codeunit of "Match Bank Rec. Lines" codeunit on Bank Account Reconciliation Line R2.
+        // [WHEN] Run RemoveMatch on Bank Account Ledger Entries C1 and C2.
+        MatchBankRecLines.RemoveMatch(TempBankAccReconciliationLine, TempBankAccLedgerEntry);
+
+        // [THEN] Check Ledger Entries C1, C2 were unapplied from Bank Account Reconciliation Line R1.
+        // [THEN] Check Ledger Entry C3 is applied to Bank Account Reconciliation Line R1.
+        // [THEN] Bank Account Reconciliation Line R2 were unapplied from Check Ledger Entries C4..C6.
+        BankAccReconciliationLine.Get(
+            BankAccReconciliation."Statement Type", BankAccountNo, BankAccReconciliation."Statement No.", BankAccReconStmtLineNos.Get(1));
+        VerifyEntryPartiallyApplied(
+            BankAccReconciliationLine, UnappliedCheckLedgerEntryNos.GetRange(3, 1), UnappliedCheckLedgerEntryNos.GetRange(1, 2));
+        VerifyEntriesUnapplied(TempBankAccReconciliationLine, UnappliedCheckLedgerEntryNos.GetRange(4, 3));
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('CheckSaveAsPdfReportHandler')]
+    [Scope('OnPrem')]
+    procedure RemoveMatchOnChecksWhenRunOnBankAccReconLinesPaymentApplication()
+    var
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        TempBankAccReconciliationLine: Record "Bank Acc. Reconciliation Line" temporary;
+        TempBankAccLedgerEntry: Record "Bank Account Ledger Entry" temporary;
+        BankAccLedgerEntry: Record "Bank Account Ledger Entry";
+        MatchBankRecLines: Codeunit "Match Bank Rec. Lines";
+        BankAccountNo: Code[20];
+        EntryNo: Integer;
+        BankAccLedgerEntryNos: List of [Integer];
+        BankAccReconStmtLineNos: List of [Integer];
+        CheckLedgerEntryNos: List of [Integer];
+    begin
+        // [FEATURE] [Check]
+        // [SCENARIO 342941] Run RemoveMatch function of "Match Bank Rec. Lines" codeunit on Bank Account Reconciliation Lines with Statement Type "Payment Application".
+        Initialize();
+
+        // [GIVEN] Bank Account Reconciliation Line with Type "Check Ledger Entry" and Statement Type "Payment Application".
+        // [GIVEN] Reconciliation Line has three applied Check Ledger Entries.
+        BankAccountNo := CreateBankAccount();
+        LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccountNo, BankAccReconciliation."Statement Type"::"Payment Application");
+        CreateBankAccReconLinesWithCheckType(BankAccReconStmtLineNos, BankAccReconciliation, BankAccountNo, 1);
+        CreateBankAccLedgerEntriesWithCheckLedgerEntries(BankAccLedgerEntryNos, CheckLedgerEntryNos, BankAccountNo, 3);
+        BankAccReconciliationLine.Get(
+            BankAccReconciliation."Statement Type", BankAccountNo, BankAccReconciliation."Statement No.", BankAccReconStmtLineNos.Get(1));
+        ApplyCheckEntriesToBankAccReconLine(BankAccReconciliationLine, CheckLedgerEntryNos);
+
+        foreach EntryNo in BankAccLedgerEntryNos do begin
+            BankAccLedgerEntry.Get(EntryNo);
+            TempBankAccLedgerEntry := BankAccLedgerEntry;
+            TempBankAccLedgerEntry.Insert();
+        end;
+        TempBankAccReconciliationLine := BankAccReconciliationLine;
+        TempBankAccReconciliationLine.Insert();
+
+        // [WHEN] Run RemoveMatch codeunit of "Match Bank Rec. Lines" codeunit on Bank Account Reconciliation Line.
+        // [WHEN] Run RemoveMatch on Bank Account Ledger Entries.
+        MatchBankRecLines.RemoveMatch(TempBankAccReconciliationLine, TempBankAccLedgerEntry);
+
+        // [THEN] Bank Account Reconciliation Line is applied to Check Ledger Entries.
+        VerifyEntryApplied(BankAccReconciliationLine, CheckLedgerEntryNos);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure GLEntryPaymentDocTypeAfterPostPmtReconJnlWithGLAcc(AmountToApply: Decimal)
     var
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
@@ -308,6 +578,28 @@ codeunit 134253 "Match Bank Rec. Scenarios"
 
         isInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Match Bank Rec. Scenarios");
+    end;
+
+    local procedure ApplyCheckEntriesToBankAccReconLine(BankAccReconLine: Record "Bank Acc. Reconciliation Line"; CheckLedgerEntryNos: List of [Integer])
+    var
+        CheckLedgerEntry: Record "Check Ledger Entry";
+        CheckEntrySetReconNo: Codeunit "Check Entry Set Recon.-No.";
+        EntryNo: Integer;
+    begin
+        foreach EntryNo in CheckLedgerEntryNos do begin
+            CheckLedgerEntry.Get(EntryNo);
+            CheckEntrySetReconNo.ToggleReconNo(CheckLedgerEntry, BankAccReconLine, false);
+        end;
+    end;
+
+    local procedure CreateBankAccount(): Code[20]
+    var
+        BankAccount: Record "Bank Account";
+    begin
+        LibraryERM.CreateBankAccount(BankAccount);
+        BankAccount."Last Check No." := Format(LibraryUtility.GenerateGUID());
+        BankAccount.Modify();
+        exit(BankAccount."No.");
     end;
 
     local procedure CreatePaymentApplication(var BankAccReconLine: Record "Bank Acc. Reconciliation Line"; AmountToApply: Decimal)
@@ -348,6 +640,58 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         end;
     end;
 
+    local procedure CreateAndPostVendorPaymentWithCheck(GenJournalBatch: Record "Gen. Journal Batch"; VendorNo: Code[20]; BankAccountNo: Code[20]; LineAmount: Decimal): Code[20]
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        DocPrint: Codeunit "Document-Print";
+    begin
+        with GenJournalLine do begin
+            LibraryERM.CreateGeneralJnlLineWithBalAcc(
+                GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, "Document Type"::Payment,
+                "Account Type"::Vendor, VendorNo, "Bal. Account Type"::"Bank Account", BankAccountNo, LineAmount);
+            Validate("Bank Payment Type", "Bank Payment Type"::"Computer Check");
+            Modify(true);
+            Commit();
+
+            GenJournalLine.SetRecFilter();
+            LibraryVariableStorage.Enqueue(BankAccountNo);
+            LibraryVariableStorage.Enqueue(GenJournalLine.GetView());
+            DocPrint.PrintCheck(GenJournalLine);
+
+            Get("Journal Template Name", "Journal Batch Name", "Line No.");
+            LibraryERM.PostGeneralJnlLine(GenJournalLine);
+            SetRange("Journal Template Name", "Journal Template Name");
+            SetRange("Journal Batch Name", "Journal Batch Name");
+            DeleteAll();
+            exit("Document No.");
+        end;
+    end;
+
+    local procedure CreateBankAccLedgerEntriesWithCheckLedgerEntries(var BankAccLedgerEntryNos: List of [Integer]; var CheckLedgerEntryNos: List of [Integer]; BankAccountNo: Code[20]; EntryCount: Integer)
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        BankAccLedgerEntry: Record "Bank Account Ledger Entry";
+        CheckLedgerEntry: Record "Check Ledger Entry";
+        DummyGenJournalLine: Record "Gen. Journal Line";
+        DocumentNo: Code[20];
+        i: Integer;
+    begin
+        Clear(BankAccLedgerEntryNos);
+        Clear(CheckLedgerEntryNos);
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        for i := 1 to EntryCount do begin
+            DocumentNo :=
+                CreateAndPostVendorPaymentWithCheck(
+                    GenJournalBatch, LibraryPurchase.CreateVendorNo(), BankAccountNo, LibraryRandom.RandDecInRange(100, 200, 2));
+            FindBankAccountLedgerEntry(BankAccLedgerEntry, BankAccountNo, DummyGenJournalLine."Document Type"::Payment, DocumentNo);
+            BankAccLedgerEntryNos.Add(BankAccLedgerEntry."Entry No.");
+            FindCheckLedgerEntry(CheckLedgerEntry, BankAccountNo, BankAccLedgerEntry."Entry No.");
+            CheckLedgerEntryNos.Add(CheckLedgerEntry."Entry No.");
+        end;
+    end;
+
     local procedure CreateBankAccReconciliation(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; BankAccountNo: Code[20])
     begin
         BankAccReconciliation.Init;
@@ -356,6 +700,38 @@ codeunit 134253 "Match Bank Rec. Scenarios"
           LibraryUtility.GenerateRandomCode(BankAccReconciliation.FieldNo("Statement No."), DATABASE::"Bank Acc. Reconciliation"));
         BankAccReconciliation.Validate("Statement Date", WorkDate);
         BankAccReconciliation.Insert(true);
+    end;
+
+    local procedure CreateBankAccReconLinesWithCheckType(var StatementLineNos: List of [Integer]; BankAccReconciliation: Record "Bank Acc. Reconciliation"; BankAccountNo: Code[20]; LineCount: Integer)
+    var
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        i: Integer;
+    begin
+        Clear(StatementLineNos);
+        for i := 1 to LineCount do begin
+            LibraryERM.CreateBankAccReconciliationLn(BankAccReconciliationLine, BankAccReconciliation);
+            BankAccReconciliationLine.Validate(Type, BankAccReconciliationLine.Type::"Check Ledger Entry");
+            BankAccReconciliationLine.Validate("Statement Amount", LibraryRandom.RandDecInRange(100, 200, 2));
+            BankAccReconciliationLine.Modify(true);
+            StatementLineNos.Add(BankAccReconciliationLine."Statement Line No.");
+        end;
+    end;
+
+    local procedure FindBankAccountLedgerEntry(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; BankAccountNo: Code[20]; DocumentType: Option; DocumentNo: Code[20])
+    begin
+        with BankAccountLedgerEntry do begin
+            SetRange("Bank Account No.", BankAccountNo);
+            SetRange("Document Type", DocumentType);
+            SetRange("Document No.", DocumentNo);
+            FindFirst();
+        end;
+    end;
+
+    local procedure FindCheckLedgerEntry(var CheckLedgerEntry: Record "Check Ledger Entry"; BankAccountNo: Code[20]; BankAccLedgerEntryNo: Integer)
+    begin
+        CheckLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
+        CheckLedgerEntry.SetRange("Bank Account Ledger Entry No.", BankAccLedgerEntryNo);
+        CheckLedgerEntry.FindFirst();
     end;
 
     local procedure SetupManualMatch(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var BankAccReconciliationPage: TestPage "Bank Acc. Reconciliation"; var ExpectedAmount: Decimal; MatchFactor: Decimal)
@@ -463,6 +839,84 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         Assert.RecordIsNotEmpty(DummyGLEntry);
     end;
 
+    local procedure VerifyEntriesUnapplied(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; CheckLedgerEntryNos: List of [Integer])
+    var
+        CheckLedgerEntry: Record "Check Ledger Entry";
+        EntryNo: Integer;
+    begin
+        with BankAccReconciliationLine do begin
+            FindSet();
+            repeat
+                TestField("Applied Amount", 0);
+                TestField("Applied Entries", 0);
+                TestField("Check No.", '');
+            until Next() = 0;
+        end;
+
+        foreach EntryNo in CheckLedgerEntryNos do begin
+            CheckLedgerEntry.Get(EntryNo);
+            CheckLedgerEntry.TestField("Statement Status", CheckLedgerEntry."Statement Status"::Open);
+            CheckLedgerEntry.TestField("Statement No.", '');
+            CheckLedgerEntry.TestField("Statement Line No.", 0);
+        end;
+    end;
+
+    local procedure VerifyEntryApplied(BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; CheckLedgerEntryNos: List of [Integer])
+    var
+        CheckLedgerEntry: Record "Check Ledger Entry";
+        EntryNo: Integer;
+        AppliedEntries: Integer;
+        AppliedAmount: Decimal;
+    begin
+        BankAccReconciliationLine.Get(
+            BankAccReconciliationLine."Statement Type", BankAccReconciliationLine."Bank Account No.",
+            BankAccReconciliationLine."Statement No.", BankAccReconciliationLine."Statement Line No.");
+
+        foreach EntryNo in CheckLedgerEntryNos do begin
+            CheckLedgerEntry.Get(EntryNo);
+            CheckLedgerEntry.TestField("Statement Status", CheckLedgerEntry."Statement Status"::"Check Entry Applied");
+            CheckLedgerEntry.TestField("Statement No.", BankAccReconciliationLine."Statement No.");
+            CheckLedgerEntry.TestField("Statement Line No.", BankAccReconciliationLine."Statement Line No.");
+            AppliedEntries += 1;
+            AppliedAmount += CheckLedgerEntry.Amount;
+        end;
+
+        BankAccReconciliationLine.TestField("Applied Amount", -AppliedAmount);
+        BankAccReconciliationLine.TestField("Applied Entries", AppliedEntries);
+        BankAccReconciliationLine.TestField("Check No.", '');
+    end;
+
+    local procedure VerifyEntryPartiallyApplied(BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; AppliedCheckLedgerEntryNos: List of [Integer]; UnppliedCheckLedgerEntryNos: List of [Integer])
+    var
+        CheckLedgerEntry: Record "Check Ledger Entry";
+        EntryNo: Integer;
+        AppliedEntries: Integer;
+        AppliedAmount: Decimal;
+    begin
+        BankAccReconciliationLine.Get(
+            BankAccReconciliationLine."Statement Type", BankAccReconciliationLine."Bank Account No.",
+            BankAccReconciliationLine."Statement No.", BankAccReconciliationLine."Statement Line No.");
+
+        foreach EntryNo in UnppliedCheckLedgerEntryNos do begin
+            CheckLedgerEntry.Get(EntryNo);
+            CheckLedgerEntry.TestField("Statement Status", CheckLedgerEntry."Statement Status"::Open);
+            CheckLedgerEntry.TestField("Statement No.", '');
+            CheckLedgerEntry.TestField("Statement Line No.", 0);
+        end;
+
+        foreach EntryNo in AppliedCheckLedgerEntryNos do begin
+            CheckLedgerEntry.Get(EntryNo);
+            CheckLedgerEntry.TestField("Statement Status", CheckLedgerEntry."Statement Status"::"Check Entry Applied");
+            CheckLedgerEntry.TestField("Statement No.", BankAccReconciliationLine."Statement No.");
+            CheckLedgerEntry.TestField("Statement Line No.", BankAccReconciliationLine."Statement Line No.");
+            AppliedEntries += 1;
+            AppliedAmount += CheckLedgerEntry.Amount;
+        end;
+
+        BankAccReconciliationLine.TestField("Applied Amount", -AppliedAmount);
+        BankAccReconciliationLine.TestField("Applied Entries", AppliedEntries);
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure TransferToGenJnlReqPageHandler(var TransBankRecToGenJnl: TestRequestPage "Trans. Bank Rec. to Gen. Jnl.")
@@ -497,6 +951,20 @@ codeunit 134253 "Match Bank Rec. Scenarios"
     procedure MatchRecLinesReqPageHandler(var MatchBankAccReconciliation: TestRequestPage "Match Bank Entries")
     begin
         MatchBankAccReconciliation.OK.Invoke;
+    end;
+
+    [ReportHandler]
+    [Scope('OnPrem')]
+    procedure CheckSaveAsPdfReportHandler(var Check: Report Check)
+    var
+        BankAccount: Record "Bank Account";
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        BankAccount.Get(LibraryVariableStorage.DequeueText());
+        GenJournalLine.SetView(LibraryVariableStorage.DequeueText());
+        Check.InitializeRequest(BankAccount."No.", BankAccount."Last Check No.", false, false, false, false);
+        Check.SetTableView(GenJournalLine);
+        Check.SaveAsPdf(FileMgt.ServerTempFileName('.pdf'));
     end;
 
     [ConfirmHandler]

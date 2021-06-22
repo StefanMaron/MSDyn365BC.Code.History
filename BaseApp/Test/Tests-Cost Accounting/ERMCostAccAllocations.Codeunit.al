@@ -863,12 +863,41 @@ codeunit 134813 "ERM Cost Acc. Allocations"
         VerifyCostCenterBalance(CostAllocationSource."Cost Center Code", 0);
     end;
 
+    [Test]
+    [HandlerFunctions('AllocateCostsForVariant,ConfirmHandlerYes,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure TestAllocationWithTargetBlockedCostCenter()
+    var
+        CostAllocationSource: Record "Cost Allocation Source";
+        CostAllocationTarget: Record "Cost Allocation Target";
+        CostCenter: Record "Cost Center";
+        TotalShare: Decimal;
+    begin
+        // [SCENARIO 344609] Stan can call "Cost Allocation" report with blocked Cost Center as target. System does not generate entries for such Cost Center.
+        Initialize();
+
+        CreateAllocSourceWithCCenter(CostAllocationSource, TypeOfID::Custom);
+
+        TotalShare := LibraryRandom.RandIntInRange(50, 100);
+        CreateAllocTargetWithCCenter(CostAllocationSource, CostAllocationTarget, TotalShare);
+        CostCenter.Get(CostAllocationTarget."Target Cost Center");
+        CostCenter.Blocked := true;
+        CostCenter.Modify();
+
+        Commit();
+
+        MaxLevel := CostAllocationSource.Level;
+        REPORT.Run(REPORT::"Cost Allocation");
+
+        VerifyCostCenterBalance(CostAllocationTarget."Target Cost Center", 0);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Cost Acc. Allocations");
-        LibraryVariableStorage.Clear;
-        ResetGlobalVariables;
-        LibraryCostAccounting.InitializeCASetup;
+        LibraryVariableStorage.Clear();
+        ResetGlobalVariables();
+        LibraryCostAccounting.InitializeCASetup();
     end;
 
     local procedure CreateAllocSourceWithCCenter(var CostAllocationSource: Record "Cost Allocation Source"; TypeOfID: Option "Auto Generated",Custom)

@@ -28,8 +28,11 @@
         TempVATAmountLine: Record "VAT Amount Line" temporary;
         TempVATAmountLineRemainder: Record "VAT Amount Line" temporary;
         TempDropShptPostBuffer: Record "Drop Shpt. Post. Buffer" temporary;
+        ErrorContextElementProcessLines: Codeunit "Error Context Element";
+        ErrorContextElementPostLine: Codeunit "Error Context Element";
         UpdateAnalysisView: Codeunit "Update Analysis View";
         UpdateItemAnalysisView: Codeunit "Update Item Analysis View";
+        ZeroPurchLineRecID: RecordId;
         EverythingInvoiced: Boolean;
         SavedPreviewMode: Boolean;
         SavedSuppressCommit: Boolean;
@@ -66,6 +69,8 @@
         EverythingInvoiced := true;
 
         // Lines
+        GetZeroPurchLineRecID(PurchHeader, ZeroPurchLineRecID);
+        ErrorMessageMgt.PushContext(ErrorContextElementProcessLines, ZeroPurchLineRecID, 0, PostDocumentLinesMsg);
         OnBeforePostLines(TempPurchLineGlobal, PurchHeader, PreviewMode, SuppressCommit);
 
         LineCount := 0;
@@ -78,6 +83,7 @@
         PurchaseLinesProcessed := false;
         if TempPurchLineGlobal.FindSet then
             repeat
+                ErrorMessageMgt.PushContext(ErrorContextElementPostLine, TempPurchLineGlobal.RecordId, 0, PostDocumentLinesMsg);
                 ItemJnlRollRndg := false;
                 LineCount := LineCount + 1;
                 if GuiAllowed and not HideProgressWindow then
@@ -100,6 +106,7 @@
         OnAfterPostPurchLines(
           PurchHeader, PurchRcptHeader, PurchInvHeader, PurchCrMemoHeader, ReturnShptHeader, WhseShip, WhseReceive, PurchaseLinesProcessed,
           SuppressCommit, EverythingInvoiced);
+        ErrorMessageMgt.Finish(ZeroPurchLineRecID);
 
         if PurchHeader.IsCreditDocType then begin
             ReverseAmount(TotalPurchLine);
@@ -262,6 +269,7 @@
         WhseShip: Boolean;
         InvtPickPutaway: Boolean;
         PositiveWhseEntrycreated: Boolean;
+        PostDocumentLinesMsg: Label 'Post document lines.';
         PrepAmountToDeductToBigErr: Label 'The total %1 cannot be more than %2.', Comment = '%1 = Prepmt Amt to Deduct, %2 = Max Amount';
         PrepAmountToDeductToSmallErr: Label 'The total %1 must be at least %2.', Comment = '%1 = Prepmt Amt to Deduct, %2 = Max Amount';
         UnpostedInvoiceDuplicateQst: Label 'An unposted invoice for order %1 exists. To avoid duplicate postings, delete order %1 or invoice %2.\Do you still want to post order %1?', Comment = '%1 = Order No.,%2 = Invoice No.';
@@ -286,6 +294,16 @@
         SuppressCommit: Boolean;
         CheckPurchHeaderMsg: Label 'Check purchase document fields.';
         HideProgressWindow: Boolean;
+
+    local procedure GetZeroPurchLineRecID(PurchHeader: Record "Purchase Header"; var PurchLineRecID: RecordId)
+    var
+        ZeroPurchLine: Record "Purchase Line";
+    begin
+        ZeroPurchLine."Document Type" := PurchHeader."Document Type";
+        ZeroPurchLine."Document No." := PurchHeader."No.";
+        ZeroPurchLine."Line No." := 0;
+        PurchLineRecID := ZeroPurchLine.RecordId;
+    end;
 
     procedure CopyToTempLines(PurchHeader: Record "Purchase Header"; var TempPurchLine: Record "Purchase Line" temporary)
     var

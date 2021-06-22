@@ -4588,6 +4588,145 @@ codeunit 134920 "ERM General Journal UT"
         GeneralJournalBatches.Close;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('SimpleMessageHandler')]
+    procedure ValidateBlankDocumentTypeOnGeneralJournalPage()
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        GeneralJournalSimple: TestPage "General Journal";
+        GeneralJournalClassic: TestPage "General Journal";
+        VendorNo: Code[20];
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 346835] Stan can set "Blank" type as document type on General Journal Page
+        Initialize();
+
+        GenJournalTemplate.DeleteAll();
+        GenJournalBatch.DeleteAll();
+        LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
+
+        VendorNo := LibraryPurchase.CreateVendorNo();
+        GenJournalLine.SetRange("Account No.", VendorNo);
+
+        GeneralJournalSimple.OpenEdit();
+        GeneralJournalClassic.Trap();
+        GeneralJournalSimple.ClassicView.Invoke();
+        GeneralJournalClassic."Document Type".SetValue(Format(GenJournalLine."Document Type"::Invoice));
+        GeneralJournalClassic."Account Type".SetValue(Format(GenJournalLine."Account Type"::Vendor));
+        GeneralJournalClassic."Account No.".SetValue(VendorNo);
+        GeneralJournalClassic.Close();
+
+        GenJournalLine.FindFirst();
+        GenJournalLine.TestField("Document Type", GenJournalLine."Document Type"::Invoice);
+
+        GeneralJournalSimple.OpenEdit();
+        GeneralJournalClassic.Trap();
+        GeneralJournalSimple.ClassicView.Invoke();
+        GeneralJournalClassic."Document Type".SetValue(Format(GenJournalLine."Document Type"::" "));
+        GeneralJournalClassic.Close();
+
+        GenJournalLine.FindFirst();
+        GenJournalLine.TestField("Document Type", GenJournalLine."Document Type"::" ");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateBlankDocumentTypeOnPurchaselJournalPage()
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        PurchaseJournalSimple: TestPage "Purchase Journal";
+        PurchaseJournalClassic: TestPage "Purchase Journal";
+        VendorNo: Code[20];
+    begin
+        // [FEATURE] [Purchase Journal] [UI]
+        // [SCENARIO 346835] Stan can set "Blank" type as document type on Purchase Journal Page
+        Initialize();
+
+        GenJournalTemplate.DeleteAll();
+        GenJournalBatch.DeleteAll();
+        VendorNo := LibraryPurchase.CreateVendorNo();
+
+        PurchaseJournalSimple.OpenEdit();
+        PurchaseJournalClassic.Trap();
+        PurchaseJournalSimple.ClassicView.Invoke();
+        PurchaseJournalClassic."Document Type".SetValue(GenJournalLine."Document Type"::Invoice);
+        PurchaseJournalClassic."Account Type".SetValue(GenJournalLine."Account Type"::Vendor);
+        PurchaseJournalClassic."Account No.".SetValue(VendorNo);
+        PurchaseJournalClassic.Close();
+
+        GenJournalLine.SetRange("Account No.", VendorNo);
+
+        GenJournalLine.FindFirst();
+        GenJournalLine.TestField("Document Type", GenJournalLine."Document Type"::Invoice);
+
+        PurchaseJournalSimple.OpenEdit();
+        PurchaseJournalClassic.Trap();
+        PurchaseJournalSimple.ClassicView.Invoke();
+        PurchaseJournalClassic."Document Type".SetValue(Format(GenJournalLine."Document Type"::" "));
+        PurchaseJournalClassic.DocumentAmount.SETVALUE(LibraryRandom.RandIntInRange(100, 200));
+        PurchaseJournalClassic.Close();
+
+        GenJournalLine.FindFirst();
+        GenJournalLine.TestField("Document Type", GenJournalLine."Document Type"::" ");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CannotChangeOnModePurchaseJournalWhenWrongAccountTypeExisted()
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        PurchaseJournalSimple: TestPage "Purchase Journal";
+        PurchaseJournalClassic: TestPage "Purchase Journal";
+        VendorNo: Code[20];
+        GLAccountNo: Code[20];
+        ExpectedErrorText: Text;
+    begin
+        // [FEATURE] [Purchase Journal] [UI]
+        // [SCENARIO 346835] Stan can set "Blank" type as document type on Purchase Journal Page
+        Initialize();
+
+        GenJournalTemplate.DeleteAll();
+        GenJournalBatch.DeleteAll();
+
+        VendorNo := LibraryPurchase.CreateVendorNo();
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
+
+        PurchaseJournalSimple.OpenEdit();
+        PurchaseJournalClassic.Trap();
+        PurchaseJournalSimple.ClassicView.Invoke();
+        PurchaseJournalClassic."Document Type".SetValue(GenJournalLine."Document Type"::Invoice);
+        PurchaseJournalClassic."Account Type".SetValue(GenJournalLine."Account Type"::Vendor);
+        PurchaseJournalClassic."Account No.".SetValue(VendorNo);
+        PurchaseJournalClassic.Amount.SetValue(LibraryRandom.RandIntInRange(10, 100));
+        PurchaseJournalClassic.Next();
+        PurchaseJournalClassic."Document Type".SetValue(GenJournalLine."Document Type"::Invoice);
+        PurchaseJournalClassic."Account Type".SetValue(GenJournalLine."Account Type"::"G/L Account");
+        PurchaseJournalClassic."Account No.".SetValue(GLAccountNo);
+        PurchaseJournalClassic.Amount.SetValue(LibraryRandom.RandIntInRange(10, 100));
+        PurchaseJournalClassic.Close();
+        Commit();
+
+        GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::"G/L Account");
+        GenJournalLine.SetRange("Account No.", GLAccountNo);
+        GenJournalLine.FindFirst();
+
+        asserterror GenJournalLine.TestField("Account Type", GenJournalLine."Account Type"::Vendor);
+        ExpectedErrorText := GetLastErrorText();
+
+        ClearLastError();
+        PurchaseJournalClassic.OpenEdit();
+        asserterror PurchaseJournalClassic.SimpleView.Invoke();
+
+        Assert.ExpectedError(ExpectedErrorText);
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;
@@ -5547,6 +5686,12 @@ codeunit 134920 "ERM General Journal UT"
     procedure YesConfirmHandler(ConfirmMessage: Text[1024]; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure SimpleMessageHandler(Message: Text[1024])
+    begin
     end;
 }
 

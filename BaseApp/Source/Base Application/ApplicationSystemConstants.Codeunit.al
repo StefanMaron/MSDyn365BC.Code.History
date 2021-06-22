@@ -11,7 +11,7 @@ codeunit 9015 "Application System Constants"
     procedure OriginalApplicationVersion() ApplicationVersion: Text[248]
     begin
         // Should be 'Build Version' with ! on both sides.
-        ApplicationVersion := 'W1 15.4';
+        ApplicationVersion := 'W1 15.5';
     end;
 
     procedure ApplicationVersion() ApplicationVersion: Text[248]
@@ -47,21 +47,21 @@ codeunit 9015 "Application System Constants"
     begin
         // Should be 'Build branch' with ! on both sides.
         // Will return a string representing the name of the internal branch that generated the build.
-        exit('NAV154');
+        exit('NAV15x');
     end;
 
     procedure PlatformProductVersion(): Text[80]
     begin
         // Should be 'Platform Product Version' with ! on both sides.
         // Will return a string similar to '13.4.98761.98765'.
-        exit('15.0.40939.41271');
+        exit('15.0.41893.0');
     end;
 
     procedure PlatformFileVersion(): Text[80]
     begin
         // Should be 'Platform File Version' with ! on both sides.
         // Will return a string similar to '13.4.98761.98765'.
-        exit('15.0.40939.41271');
+        exit('15.0.41893.0');
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 2000000001, 'GetApplicationVersion', '', false, false)]

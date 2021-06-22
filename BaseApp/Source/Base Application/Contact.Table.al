@@ -386,7 +386,7 @@ table 5050 Contact
         field(5052; "Company Name"; Text[100])
         {
             Caption = 'Company Name';
-            TableRelation = Contact WHERE(Type = CONST(Company));
+            TableRelation = Contact.Name WHERE(Type = CONST(Company));
             ValidateTableRelation = false;
 
             trigger OnValidate()

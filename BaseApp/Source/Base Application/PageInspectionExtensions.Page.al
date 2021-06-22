@@ -116,6 +116,9 @@ page 9633 "Page Inspection Extensions"
         NavAppObjectMetadata: Record "NAV App Object Metadata";
         TempGuid: Guid;
     begin
+        if (PageId = CurrentPageId) and (TableId = CurrentTableId) then
+            exit;
+
         CurrentPageId := PageId;
         CurrentTableId := TableId;
         FilterConditions := '';

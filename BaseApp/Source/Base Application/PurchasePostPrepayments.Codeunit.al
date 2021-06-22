@@ -30,6 +30,7 @@ codeunit 444 "Purchase-Post Prepayments"
         PurchSetup: Record "Purchases & Payables Setup";
         GenPostingSetup: Record "General Posting Setup";
         TempGlobalPrepmtInvLineBuf: Record "Prepayment Inv. Line Buffer" temporary;
+        TempPurchaseLine: Record "Purchase Line" temporary;
         ErrorMessageMgt: Codeunit "Error Message Management";
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
         Text013: Label 'It is not possible to assign a prepayment amount of %1 to the purchase lines.';
@@ -202,6 +203,14 @@ codeunit 444 "Purchase-Post Prepayments"
                 InsertExtendedText(
                   PostedDocTabNo, GenJnlLineDocNo, TempPrepmtInvLineBuffer."G/L Account No.", "Document Date", "Language Code", PrevLineNo);
             until TempPrepmtInvLineBuffer.Next = 0;
+
+            if "Compress Prepayment" then
+                case DocumentType of
+                    DocumentType::Invoice:
+                        CopyLineCommentLinesCompressedPrepayment("No.", DATABASE::"Purch. Inv. Header", PurchInvHeader."No.");
+                    DocumentType::"Credit Memo":
+                        CopyLineCommentLinesCompressedPrepayment("No.", DATABASE::"Purch. Cr. Memo Hdr.", PurchCrMemoHeader."No.");
+                end;
 
             OnAfterCreateLinesOnBeforeGLPosting(PurchHeader, PurchInvHeader, PurchCrMemoHeader, TempPrepmtInvLineBuffer, DocumentType, LineNo);
 
@@ -793,6 +802,8 @@ codeunit 444 "Purchase-Post Prepayments"
         with PurchHeader do begin
             TempGlobalPrepmtInvLineBuf.Reset;
             TempGlobalPrepmtInvLineBuf.DeleteAll;
+            TempPurchaseLine.Reset();
+            TempPurchaseLine.DeleteAll();
             PurchSetup.Get;
             ApplyFilter(PurchHeader, DocumentType, PurchLine);
             if PurchLine.Find('-') then
@@ -805,6 +816,8 @@ codeunit 444 "Purchase-Post Prepayments"
                         if PurchSetup."Invoice Rounding" then
                             RoundAmounts(
                               PurchHeader, PrepmtInvLineBuf2, TotalPrepmtInvLineBuffer, TotalPrepmtInvLineBufferDummy);
+                        TempPurchaseLine := PurchLine;
+                        TempPurchaseLine.Insert();
                     end;
                 until PurchLine.Next = 0;
             if PurchSetup."Invoice Rounding" then
@@ -972,6 +985,24 @@ codeunit 444 "Purchase-Post Prepayments"
                     CopyLineComments("Document Type"::Order, "Document Type"::"Posted Invoice", FromNumber, ToNumber, FromLineNo, ToLineNo);
                 DATABASE::"Purch. Cr. Memo Hdr.":
                     CopyLineComments("Document Type"::Order, "Document Type"::"Posted Credit Memo", FromNumber, ToNumber, FromLineNo, ToLineNo);
+            end;
+    end;
+
+    local procedure CopyLineCommentLinesCompressedPrepayment(FromNumber: Code[20]; ToDocType: Integer; ToNumber: Code[20])
+    var
+        PurchCommentLine: Record "Purch. Comment Line";
+    begin
+        if not PurchSetup."Copy Comments Order to Invoice" then
+            exit;
+
+        with PurchCommentLine do
+            case ToDocType of
+                DATABASE::"Purch. Inv. Header":
+                    CopyLineCommentsFromPurchaseLines(
+                      "Document Type"::Order, "Document Type"::"Posted Invoice", FromNumber, ToNumber, TempPurchaseLine);
+                DATABASE::"Purch. Cr. Memo Hdr.":
+                    CopyLineCommentsFromPurchaseLines(
+                      "Document Type"::Order, "Document Type"::"Posted Credit Memo", FromNumber, ToNumber, TempPurchaseLine);
             end;
     end;
 
@@ -1388,8 +1419,9 @@ codeunit 444 "Purchase-Post Prepayments"
             PurchInvLine."Job Task No." := "Job Task No.";
             OnBeforePurchInvLineInsert(PurchInvLine, PurchInvHeader, PrepmtInvLineBuffer, SuppressCommit);
             PurchInvLine.Insert;
-            CopyLineCommentLines(
-              PurchaseHeader."No.", DATABASE::"Purch. Inv. Header", PurchInvHeader."No.", "Line No.", LineNo);
+            if not PurchaseHeader."Compress Prepayment" then
+                CopyLineCommentLines(
+                  PurchaseHeader."No.", DATABASE::"Purch. Inv. Header", PurchInvHeader."No.", "Line No.", LineNo);
             OnAfterPurchInvLineInsert(PurchInvLine, PurchInvHeader, PrepmtInvLineBuffer, SuppressCommit);
         end;
     end;
@@ -1434,8 +1466,9 @@ codeunit 444 "Purchase-Post Prepayments"
             PurchCrMemoLine."Job Task No." := "Job Task No.";
             OnBeforePurchCrMemoLineInsert(PurchCrMemoLine, PurchCrMemoHdr, PrepmtInvLineBuffer, SuppressCommit);
             PurchCrMemoLine.Insert;
-            CopyLineCommentLines(
-              PurchaseHeader."No.", DATABASE::"Purch. Cr. Memo Hdr.", PurchCrMemoHdr."No.", "Line No.", LineNo);
+            if not PurchaseHeader."Compress Prepayment" then
+                CopyLineCommentLines(
+                  PurchaseHeader."No.", DATABASE::"Purch. Cr. Memo Hdr.", PurchCrMemoHdr."No.", "Line No.", LineNo);
             OnAfterPurchCrMemoLineInsert(PurchCrMemoLine, PurchCrMemoHdr, PrepmtInvLineBuffer, SuppressCommit);
         end;
     end;

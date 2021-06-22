@@ -12,6 +12,7 @@ codeunit 135156 "Data Class Import/Export Tests"
     var
         DataClassImportExportTests: Codeunit "Data Class Import/Export Tests";
         Assert: Codeunit Assert;
+        LibraryRandom: Codeunit "Library - Random";
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -24,7 +25,7 @@ codeunit 135156 "Data Class Import/Export Tests"
     begin
         BindSubscription(DataClassImportExportTests);
         // [GIVEN] There are some Entries in Data Sensitivity Table
-        DataSensitivity.DeleteAll;
+        DataSensitivity.DeleteAll();
 
         DataClassificationMgt.InsertDataSensitivityForField(3, 1, DataSensitivity."Data Sensitivity"::Unclassified);
         DataClassificationMgt.InsertDataSensitivityForField(3, 2, DataSensitivity."Data Sensitivity"::Unclassified);
@@ -60,14 +61,15 @@ codeunit 135156 "Data Class Import/Export Tests"
         DataClassificationMgt: Codeunit "Data Classification Mgt.";
         DataClassifImportExport: Codeunit "Data Classif. Import/Export";
     begin
-        // [SCENARIO] An Excel Sheet can be generated with the contents of Data Sensitivity Table
+        // [SCENARIO] An Excel Sheet can be generated with the contents of Data Sensitivity Table for current company
 
         BindSubscription(DataClassImportExportTests);
         // [GIVEN] There are some Entries in Data Sensitivity Table
-        DataSensitivity.DeleteAll;
+        DataSensitivity.DeleteAll();
 
         DataClassificationMgt.InsertDataSensitivityForField(3, 1, DataSensitivity."Data Sensitivity"::Normal);
         DataClassificationMgt.InsertDataSensitivityForField(3, 2, DataSensitivity."Data Sensitivity"::Personal);
+        InsertDataSensitivityFieldForAnotherCompany(3, 1, DataSensitivity."Data Sensitivity"::Unclassified);
 
         // [WHEN] ExportToExcelSheet function is called
         DataClassifImportExport.ExportToExcelSheet;
@@ -76,6 +78,20 @@ codeunit 135156 "Data Class Import/Export Tests"
         // Verify on the Event Subscriber OnOpenExcelSheetSubscriber
 
         UnbindSubscription(DataClassImportExportTests);
+    end;
+
+    local procedure InsertDataSensitivityFieldForAnotherCompany(TableNo: Integer; FieldNo: Integer; DataSensitivityOption: Option)
+    var
+        DataSensitivity: Record "Data Sensitivity";
+        CompanyNameLen: Integer;
+    begin
+        DataSensitivity.Init();
+        CompanyNameLen := MaxStrLen(DataSensitivity."Company Name");
+        DataSensitivity."Company Name" := CopyStr(LibraryRandom.RandText(CompanyNameLen), 1, CompanyNameLen);
+        DataSensitivity."Table No" := TableNo;
+        DataSensitivity."Field No" := FieldNo;
+        DataSensitivity."Data Sensitivity" := DataSensitivityOption;
+        DataSensitivity.Insert();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 1754, 'OnOpenExcelSheet', '', false, false)]
@@ -87,7 +103,7 @@ codeunit 135156 "Data Class Import/Export Tests"
         AllObjWithCaption: Record AllObjWithCaption;
     begin
         ShouldOpenFile := false;
-        Assert.RecordCount(ExcelBuffer, 18); // 3 rows * 6 columns
+        Assert.RecordCount(ExcelBuffer, 21); // 3 rows * 7 columns
         ExcelBuffer.Get(2, 1);
         Assert.AreEqual('3', ExcelBuffer."Cell Value as Text", 'Table Number was expected to be 3.');
         ExcelBuffer.Get(2, 2);
@@ -108,6 +124,12 @@ codeunit 135156 "Data Class Import/Export Tests"
           Format(DataSensitivity."Data Sensitivity"::Normal),
           ExcelBuffer."Cell Value as Text",
           'A different field sensitivity was expected.');
+        ExcelBuffer.Get(2, 7);
+        Assert.AreEqual(
+          Format(DataSensitivity."Data Classification"::CustomerContent),
+          ExcelBuffer."Cell Value as Text",
+          'A different data classification was expected'
+        );
 
         ExcelBuffer.Get(3, 1);
         Assert.AreEqual('3', ExcelBuffer."Cell Value as Text", 'Table Number was expected to be 3.');
@@ -129,6 +151,12 @@ codeunit 135156 "Data Class Import/Export Tests"
           Format(DataSensitivity."Data Sensitivity"::Personal),
           ExcelBuffer."Cell Value as Text",
           'A different field sensitivity was expected.');
+        ExcelBuffer.Get(3, 7);
+        Assert.AreEqual(
+          Format(DataSensitivity."Data Classification"::CustomerContent),
+          ExcelBuffer."Cell Value as Text",
+          'A different data classification was expected'
+        );
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 1754, 'OnUploadExcelSheet', '', false, false)]
@@ -171,7 +199,7 @@ codeunit 135156 "Data Class Import/Export Tests"
         ExcelBuffer."Row No." := RowNo;
         ExcelBuffer."Column No." := ColumnNo;
         ExcelBuffer."Cell Value as Text" := Value;
-        ExcelBuffer.Insert;
+        ExcelBuffer.Insert();
     end;
 }
 

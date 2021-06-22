@@ -34,6 +34,16 @@ page 9812 "Set Web Service Access Key"
     {
     }
 
+    trigger OnInit()
+    var
+        UserPermissions: Codeunit "User Permissions";
+        EnvironmentInfo: Codeunit "Environment Information";
+    begin
+        if ("User Security ID" <> UserSecurityId()) and EnvironmentInfo.IsSaaS() then
+            if not UserPermissions.CanManageUsersOnTenant(UserSecurityID()) then
+                error(CannotEditForOtherUsersErr);
+    end;
+
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
         if CloseAction = ACTION::OK then begin
@@ -48,5 +58,6 @@ page 9812 "Set Web Service Access Key"
         IdentityManagement: Codeunit "Identity Management";
         ExpirationDate: DateTime;
         NeverExpires: Boolean;
+        CannotEditForOtherUsersErr: Label 'You can only change your own web service access keys.';
 }
 

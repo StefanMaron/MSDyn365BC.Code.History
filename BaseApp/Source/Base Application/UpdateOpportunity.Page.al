@@ -40,7 +40,6 @@ page 5129 "Update Opportunity"
             field("Sales Cycle Stage"; "Sales Cycle Stage")
             {
                 ApplicationArea = RelationshipMgmt;
-                CaptionClass = Format("Sales Cycle Stage Description");
                 Editable = SalesCycleStageEditable;
                 ToolTip = 'Specifies the sales cycle stage currently of the opportunity.';
 
@@ -55,6 +54,12 @@ page 5129 "Update Opportunity"
                     WizardSalesCycleStageValidate2;
                     SalesCycleStageOnAfterValidate;
                 end;
+            }
+            field("Sales Cycle Stage Description"; "Sales Cycle Stage Description")
+            {
+                ApplicationArea = RelationshipMgmt;
+                Editable = false;
+                ToolTip = 'Specifies a description of the sales cycle stage.';
             }
             field("Date of Change"; "Date of Change")
             {
@@ -163,6 +168,11 @@ page 5129 "Update Opportunity"
         UpdateEstimatedValues;
     end;
 
+    trigger OnAfterGetCurrRecord()
+    begin
+        Validate("Sales Cycle Stage");
+    end;
+
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
         if CloseAction in [ACTION::OK, ACTION::LookupOK] then
@@ -256,7 +266,7 @@ page 5129 "Update Opportunity"
                     CancelOldTaskEnable := true;
                 end;
         end;
-        Task.Reset;
+        Task.Reset();
         Task.SetCurrentKey("Opportunity No.");
         Task.SetRange("Opportunity No.", "Opportunity No.");
         if Task.FindFirst then

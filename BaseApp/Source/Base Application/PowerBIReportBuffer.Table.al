@@ -21,6 +21,7 @@ table 6302 "Power BI Report Buffer"
             ObsoleteReason = 'The field has been extended to a bigger field. Use ReportEmbedUrl field instead.';
             Caption = 'EmbedUrl';
             DataClassification = SystemMetadata;
+            ObsoleteTag = '16.0';
         }
         field(4; Enabled; Boolean)
         {

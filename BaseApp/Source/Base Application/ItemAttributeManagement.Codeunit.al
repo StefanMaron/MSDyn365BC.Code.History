@@ -221,12 +221,10 @@ codeunit 7500 "Item Attribute Management"
     begin
         if TempFirstItemAttributeValue.FindFirst then
             repeat
-                TempSecondItemAttributeValue.SetRange("Attribute ID", TempFirstItemAttributeValue."Attribute ID");
-                if TempSecondItemAttributeValue.IsEmpty then begin
+                if not TempSecondItemAttributeValue.Get(TempFirstItemAttributeValue."Attribute ID", TempFirstItemAttributeValue.ID) then begin
                     TempResultingItemAttributeValue.TransferFields(TempFirstItemAttributeValue);
-                    TempResultingItemAttributeValue.Insert;
+                    TempResultingItemAttributeValue.Insert();
                 end;
-                TempSecondItemAttributeValue.Reset;
             until TempFirstItemAttributeValue.Next = 0;
     end;
 

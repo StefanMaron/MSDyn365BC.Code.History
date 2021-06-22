@@ -6,6 +6,7 @@ codeunit 9316 "Sync.Dep.Fld-PowerBIReportUpl"
     ObsoleteState = Pending;
     ObsoleteReason = 'This codeunit will be removed once the fields are marked as removed.';
     Access = Internal;
+    ObsoleteTag = '16.0';
 
     [EventSubscriber(ObjectType::Table, Database::"Power BI Report Uploads", 'OnAfterValidateEvent', 'Embed Url', false, false)]
     local procedure SyncOnAfterValidateEmbedUrlInPBIReportBuffer(var Rec: Record "Power BI Report Uploads"; var xRec: Record "Power BI Report Uploads"; CurrFieldNo: Integer)

@@ -654,6 +654,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
                     SalesLine."Quantity (Base)" := ItemLedgerEntry.Quantity;
                     SalesLine."Outstanding Qty. (Base)" := SalesLine."Quantity (Base)";
                     SalesLine."Shipment Date" := RefDate;
+                    SalesLine.Insert();
 
                     WarehouseShipmentHeader.Init;
                     WarehouseShipmentHeader."No." := LibraryUtility.GenerateGUID;
@@ -717,7 +718,7 @@ codeunit 137504 "SCM Warehouse Unit Tests"
                     ProdOrderComponent."Bin Code" := PlaceBinCode;
                     ProdOrderComponent."Quantity (Base)" := ItemLedgerEntry.Quantity;
                     ProdOrderComponent."Expected Qty. (Base)" := ProdOrderComponent."Quantity (Base)";
-                    ProdOrderComponent."Remaining Qty. (Base)" := AssemblyLine."Quantity (Base)";
+                    ProdOrderComponent."Remaining Qty. (Base)" := ProdOrderComponent."Quantity (Base)";
                     ProdOrderComponent."Due Date" := RefDate;
                     ProdOrderComponent.Insert;
 

@@ -41,11 +41,11 @@ codeunit 132523 "Discount Setup Notifications"
           GeneralPostingSetup[1].FieldNo("Sales Inv. Disc. Account"),
           GeneralPostingSetup[1].FieldNo("Sales Line Disc. Account"));
         // [GIVEN] Admin user changes "Discount Posting" from "No Discounts" to 'All Discounts'
-        GeneralPostingSetupPage.Trap;
+        GeneralPostingSetupPage.Trap();
         LibrarySales.SetDiscountPosting(SalesSetup."Discount Posting"::"All Discounts");
 
         // [WHEN] Notification: "G/L accounts for discounts are missing... | Open page |" and user click on 'Open page'
-        Assert.AreEqual(MissingDiscountAccountMsg, LibraryVariableStorage.DequeueText, 'sent notification message');
+        Assert.AreEqual(MissingDiscountAccountMsg, LibraryVariableStorage.DequeueText(), 'sent notification message');
 
         // [THEN] Gen. Posting Setup page is open, where are 2 records: A' and 'B'.
         Assert.IsTrue(GeneralPostingSetupPage.First, 'missing the 1st line');
@@ -58,7 +58,7 @@ codeunit 132523 "Discount Setup Notifications"
         GeneralPostingSetupPage.Close;
 
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesSetup);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -81,13 +81,13 @@ codeunit 132523 "Discount Setup Notifications"
         LibrarySales.SetDiscountPosting(SalesSetup."Discount Posting"::"Line Discounts");
 
         // [THEN] Notification is recalled and
-        Assert.AreEqual('', LibraryVariableStorage.DequeueText, 'recall #1 notification message');
+        Assert.AreEqual('', LibraryVariableStorage.DequeueText(), 'recall #1 notification message');
         // [THEN] Notification: "G/L accounts for discounts are missing... | Open page |"
-        Assert.AreEqual(MissingDiscountAccountMsg, LibraryVariableStorage.DequeueText, 'notification #2 message');
+        Assert.AreEqual(MissingDiscountAccountMsg, LibraryVariableStorage.DequeueText(), 'notification #2 message');
 
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesSetup);
-        Assert.AreEqual('', LibraryVariableStorage.DequeueText, 'recall #2 notification message');
-        LibraryVariableStorage.AssertEmpty;
+        Assert.AreEqual('', LibraryVariableStorage.DequeueText(), 'recall #2 notification message');
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -107,10 +107,10 @@ codeunit 132523 "Discount Setup Notifications"
         LibrarySales.SetDiscountPosting(SalesSetup."Discount Posting"::"Line Discounts");
 
         // [THEN] Notification is recalled and no new notification shown
-        Assert.AreEqual('', LibraryVariableStorage.DequeueText, 'recall #1 notification message');
+        Assert.AreEqual('', LibraryVariableStorage.DequeueText(), 'recall #1 notification message');
 
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesSetup);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -130,10 +130,10 @@ codeunit 132523 "Discount Setup Notifications"
         LibrarySales.SetDiscountPosting(SalesSetup."Discount Posting"::"No Discounts");
 
         // [THEN] Notification is recalled and no new notification shown
-        Assert.AreEqual('', LibraryVariableStorage.DequeueText, 'recall #1 notification message');
+        Assert.AreEqual('', LibraryVariableStorage.DequeueText(), 'recall #1 notification message');
 
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesSetup);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -155,17 +155,17 @@ codeunit 132523 "Discount Setup Notifications"
           GeneralPostingSetup[1].FieldNo("Sales Inv. Disc. Account"),
           GeneralPostingSetup[2].FieldNo("Sales Line Disc. Account"));
         // [GIVEN] Admin user changes "Discount Posting" from "No Discounts" to 'Line Discounts'
-        GeneralPostingSetupPage.Trap;
+        GeneralPostingSetupPage.Trap();
         LibrarySales.SetDiscountPosting(SalesSetup."Discount Posting"::"Line Discounts");
 
         // [WHEN] Notification: "G/L accounts for discounts are missing... | Open page |" and user click on 'Open page'
-        Assert.AreEqual(MissingDiscountAccountMsg, LibraryVariableStorage.DequeueText, 'sent notification message');
+        Assert.AreEqual(MissingDiscountAccountMsg, LibraryVariableStorage.DequeueText(), 'sent notification message');
 
         // [THEN] Gen. Posting Setup page is open, where is one record 'B'.
         VerifyGenPostingSetupInPage(GeneralPostingSetupPage, GeneralPostingSetup[2]);
 
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesSetup);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -187,17 +187,17 @@ codeunit 132523 "Discount Setup Notifications"
           GeneralPostingSetup[1].FieldNo("Sales Inv. Disc. Account"),
           GeneralPostingSetup[2].FieldNo("Sales Line Disc. Account"));
         // [GIVEN] Admin user changes "Discount Posting" from "No Discounts" to 'Invoice Discounts'
-        GeneralPostingSetupPage.Trap;
+        GeneralPostingSetupPage.Trap();
         LibrarySales.SetDiscountPosting(SalesSetup."Discount Posting"::"Invoice Discounts");
 
         // [WHEN] Notification: "G/L accounts for discounts are missing... | Open page |" and user click on 'Open page'
-        Assert.AreEqual(MissingDiscountAccountMsg, LibraryVariableStorage.DequeueText, 'sent notification message');
+        Assert.AreEqual(MissingDiscountAccountMsg, LibraryVariableStorage.DequeueText(), 'sent notification message');
 
         // [THEN] Gen. Posting Setup page is open, where is one record 'A'.
         VerifyGenPostingSetupInPage(GeneralPostingSetupPage, GeneralPostingSetup[1]);
 
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesSetup);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -215,7 +215,7 @@ codeunit 132523 "Discount Setup Notifications"
         // [SCENARIO] User enters a line discount while there is the posting setup, where line discount account is blank
         Initialize;
         // [GIVEN] Sales Setup, where "Discount Posting" is 'Line Discounts'
-        DefineAllDiscountAccounts;
+        DefineAllDiscountAccounts();
         LibrarySales.SetDiscountPosting(SalesSetup."Discount Posting"::"Line Discounts");
         // [GIVEN] Created the Order and one item line, where the posting setup is 'A'
         CreateSalesInvoiceWithOneLine(SalesLine);
@@ -223,25 +223,25 @@ codeunit 132523 "Discount Setup Notifications"
         BlankSalesDiscAccount(GeneralPostingSetup[1], SalesLine, GeneralPostingSetup[1].FieldNo("Sales Line Disc. Account"));
         // [GIVEN] Gen. Posting Setup record 'B', where "Sales Line Disc. Account" is blank, "Gen. Bus. Posting Group" is 'Y'
         GeneralPostingSetup[2] := GeneralPostingSetup[1];
-        GeneralPostingSetup[2]."Gen. Bus. Posting Group" := LibraryUtility.GenerateGUID;
-        GeneralPostingSetup[2].Insert;
+        GeneralPostingSetup[2]."Gen. Bus. Posting Group" := LibraryUtility.GenerateGUID();
+        GeneralPostingSetup[2].Insert();
         // [GIVEN] Entered new "Line Discount %" = 10
-        GeneralPostingSetupPage.Trap;
-        SalesInvoicePage.OpenEdit;
+        GeneralPostingSetupPage.Trap();
+        SalesInvoicePage.OpenEdit();
         SalesInvoicePage.FILTER.SetFilter("No.", SalesLine."Document No.");
         SalesInvoicePage.SalesLines."Line Discount %".Value('10');
 
         // [WHEN] Notification: "G/L accounts for discounts are missing... | Open page |" and user click on 'Open page'
-        Assert.AreEqual(MissingDiscountAccountMsg, LibraryVariableStorage.DequeueText, 'sent notification message');
+        Assert.AreEqual(MissingDiscountAccountMsg, LibraryVariableStorage.DequeueText(), 'sent notification message');
 
         // [THEN] Gen. Posting Setup page is open, where is one record 'A'.
         VerifyGenPostingSetupInPage(GeneralPostingSetupPage, GeneralPostingSetup[1]);
         // [THEN] "Line Discount %" is 10
         SalesInvoicePage.SalesLines."Line Discount %".AssertEquals('10');
 
-        GeneralPostingSetup[2].Delete;
+        GeneralPostingSetup[2].Delete();
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesSetup);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -258,27 +258,27 @@ codeunit 132523 "Discount Setup Notifications"
         // [SCENARIO] User enters the blank "Line Discount %" while the notification is shown
         Initialize;
         // [GIVEN] Sales Setup, where "Discount Posting" is 'Line Discounts'
-        DefineAllDiscountAccounts;
+        DefineAllDiscountAccounts();
         LibrarySales.SetDiscountPosting(SalesSetup."Discount Posting"::"Line Discounts");
         // [GIVEN] Created the Order and one item line, where the posting setup is 'A'.
         CreateSalesInvoiceWithOneLine(SalesLine);
         // [GIVEN] Gen. Posting Setup record 'A', where "Sales Line Disc. Account" is blank.
         BlankSalesDiscAccount(GeneralPostingSetup, SalesLine, GeneralPostingSetup.FieldNo("Sales Line Disc. Account"));
         // [GIVEN] Entered new "Line Discount %" = 10
-        SalesInvoicePage.OpenEdit;
+        SalesInvoicePage.OpenEdit();
         SalesInvoicePage.FILTER.SetFilter("No.", SalesLine."Document No.");
         SalesInvoicePage.SalesLines."Line Discount %".Value('10');
         // [GIVEN] Notification: "G/L accounts for discounts are missing... | Open page |"
-        Assert.AreEqual(MissingDiscountAccountMsg, LibraryVariableStorage.DequeueText, 'sent notification message');
+        Assert.AreEqual(MissingDiscountAccountMsg, LibraryVariableStorage.DequeueText(), 'sent notification message');
 
         // [WHEN] Entered new "Line Discount %" = 0
         SalesInvoicePage.SalesLines."Line Discount %".Value('0');
 
         // [THEN] Notification is recalled, no new notification shown.
-        Assert.AreEqual('', LibraryVariableStorage.DequeueText, 'recall notification message');
+        Assert.AreEqual('', LibraryVariableStorage.DequeueText(), 'recall notification message');
 
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesSetup);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -296,28 +296,28 @@ codeunit 132523 "Discount Setup Notifications"
         // [SCENARIO] User restores the "Line Amount" that caused the line discount, while the notification is shown
         Initialize;
         // [GIVEN] Sales Setup, where "Discount Posting" is 'Line Discounts'
-        DefineAllDiscountAccounts;
+        DefineAllDiscountAccounts();
         LibrarySales.SetDiscountPosting(SalesSetup."Discount Posting"::"Line Discounts");
         // [GIVEN] Created the Order and one item line, where the posting setup is 'A'.
         CreateSalesInvoiceWithOneLine(SalesLine);
         // [GIVEN] Gen. Posting Setup record 'A', where "Sales Line Disc. Account" is blank.
         BlankSalesDiscAccount(GeneralPostingSetup, SalesLine, GeneralPostingSetup.FieldNo("Sales Line Disc. Account"));
         // [GIVEN] Entered new "Line Discount Amount" = 1
-        SalesInvoicePage.OpenEdit;
+        SalesInvoicePage.OpenEdit();
         SalesInvoicePage.FILTER.SetFilter("No.", SalesLine."Document No.");
         LineAmt := SalesInvoicePage.SalesLines."Line Amount".AsDEcimal;
         SalesInvoicePage.SalesLines."Line Amount".Value(Format(LineAmt - 1));
         // [GIVEN] Notification: "G/L accounts for discounts are missing... | Open page |"
-        Assert.AreEqual(MissingDiscountAccountMsg, LibraryVariableStorage.DequeueText, 'sent notification message');
+        Assert.AreEqual(MissingDiscountAccountMsg, LibraryVariableStorage.DequeueText(), 'sent notification message');
 
         // [WHEN] Entered new "Line Discount Amount" = 0
         SalesInvoicePage.SalesLines."Line Amount".Value(Format(LineAmt));
 
         // [THEN] Notification is recalled, no new notification shown.
-        Assert.AreEqual('', LibraryVariableStorage.DequeueText, 'recall notification message');
+        Assert.AreEqual('', LibraryVariableStorage.DequeueText(), 'recall notification message');
 
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesSetup);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -334,31 +334,31 @@ codeunit 132523 "Discount Setup Notifications"
         // [SCENARIO] User enters new "Line Discount %" while the "Discount Posting" is "No Discounts"
         Initialize;
         // [GIVEN] Sales Setup, where "Discount Posting" is 'Line Discounts'
-        DefineAllDiscountAccounts;
+        DefineAllDiscountAccounts();
         LibrarySales.SetDiscountPosting(SalesSetup."Discount Posting"::"Line Discounts");
         // [GIVEN] Created the Order and one item line, where the posting setup is 'A'.
         CreateSalesInvoiceWithOneLine(SalesLine);
         // [GIVEN] Gen. Posting Setup record 'A', where "Sales Line Disc. Account" is blank.
         BlankSalesDiscAccount(GeneralPostingSetup, SalesLine, GeneralPostingSetup.FieldNo("Sales Line Disc. Account"));
         // [GIVEN] Entered new "Line Discount %" = 10
-        SalesInvoicePage.OpenEdit;
+        SalesInvoicePage.OpenEdit();
         SalesInvoicePage.FILTER.SetFilter("No.", SalesLine."Document No.");
         SalesInvoicePage.SalesLines."Line Discount %".Value('10');
         // [GIVEN] Notification: "G/L accounts for discounts are missing... | Open page |"
-        Assert.AreEqual(MissingDiscountAccountMsg, LibraryVariableStorage.DequeueText, 'sent notification message');
+        Assert.AreEqual(MissingDiscountAccountMsg, LibraryVariableStorage.DequeueText(), 'sent notification message');
         // [GIVEN] Sales Setup, where "Discount Posting" is 'No Discounts'
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup."Discount Posting" := SalesSetup."Discount Posting"::"No Discounts";
-        SalesSetup.Modify;
+        SalesSetup.Modify();
 
         // [WHEN] Entered new "Line Discount %" = 20
         SalesInvoicePage.SalesLines."Line Discount %".Value('20');
 
         // [THEN] Notification is recalled, no new notification shown.
-        Assert.AreEqual('', LibraryVariableStorage.DequeueText, 'recall notification message');
+        Assert.AreEqual('', LibraryVariableStorage.DequeueText(), 'recall notification message');
 
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesSetup);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -373,7 +373,7 @@ codeunit 132523 "Discount Setup Notifications"
         // [SCENARIO] Notification is not shown if "Line Discount %" validated through code, not on the page.
         Initialize;
         // [GIVEN] Sales Setup, where "Discount Posting" is 'Line Discounts'
-        DefineAllDiscountAccounts;
+        DefineAllDiscountAccounts();
         LibrarySales.SetDiscountPosting(SalesSetup."Discount Posting"::"Line Discounts");
         // [GIVEN] Created the Order and one item line, where the posting setup is 'A'.
         CreateSalesInvoiceWithOneLine(SalesLine);
@@ -382,11 +382,11 @@ codeunit 132523 "Discount Setup Notifications"
 
         // [WHEN] Validate "Line Discount %" = 10
         SalesLine.Validate("Line Discount %", 10);
-        SalesLine.Modify;
+        SalesLine.Modify();
 
         // [THEN] "Line Discount %" is 10
         SalesLine.TestField("Line Discount %", 10);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -404,7 +404,7 @@ codeunit 132523 "Discount Setup Notifications"
         // [SCENARIO] User enters a invoice discount for the posting setup where invoice discount account is blank
         Initialize;
         // [GIVEN] Sales Setup, where "Discount Posting" is 'Invoice Discounts'
-        DefineAllDiscountAccounts;
+        DefineAllDiscountAccounts();
         LibrarySales.SetDiscountPosting(SalesSetup."Discount Posting"::"Invoice Discounts");
         // [GIVEN] Created the Order and one item line, where the posting setup is 'A'.
         CreateSalesInvoiceWithOneLine(SalesLine);
@@ -412,25 +412,25 @@ codeunit 132523 "Discount Setup Notifications"
         BlankSalesDiscAccount(GeneralPostingSetup[1], SalesLine, GeneralPostingSetup[1].FieldNo("Sales Inv. Disc. Account"));
         // [GIVEN] Gen. Posting Setup record 'B', where "Sales Inv. Disc. Account" is blank, "Gen. Bus. Posting Group" is 'Y'
         GeneralPostingSetup[2] := GeneralPostingSetup[1];
-        GeneralPostingSetup[2]."Gen. Bus. Posting Group" := LibraryUtility.GenerateGUID;
-        GeneralPostingSetup[2].Insert;
+        GeneralPostingSetup[2]."Gen. Bus. Posting Group" := LibraryUtility.GenerateGUID();
+        GeneralPostingSetup[2].Insert();
         // [GIVEN] Entered new "Invoice Discount Amount" = '10'
-        GeneralPostingSetupPage.Trap;
-        SalesInvoicePage.OpenEdit;
+        GeneralPostingSetupPage.Trap();
+        SalesInvoicePage.OpenEdit();
         SalesInvoicePage.FILTER.SetFilter("No.", SalesLine."Document No.");
         SalesInvoicePage.SalesLines."Invoice Discount Amount".Value(Format(10));
 
         // [WHEN] Notification: "G/L accounts for discounts are missing... | Open page |" and user click on 'Open page'
-        Assert.AreEqual(MissingDiscountAccountMsg, LibraryVariableStorage.DequeueText, 'sent notification message');
+        Assert.AreEqual(MissingDiscountAccountMsg, LibraryVariableStorage.DequeueText(), 'sent notification message');
 
         // [THEN] Gen. Posting Setup page is open, where is one record 'A'.
         VerifyGenPostingSetupInPage(GeneralPostingSetupPage, GeneralPostingSetup[1]);
         // [THEN] "Invoice Discount Amount" is 10
         Assert.AreEqual(10, SalesInvoicePage.SalesLines."Invoice Discount Amount".AsDEcimal, 'Invoice Discount Amount');
 
-        GeneralPostingSetup[2].Delete;
+        GeneralPostingSetup[2].Delete();
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesSetup);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -448,20 +448,20 @@ codeunit 132523 "Discount Setup Notifications"
         // [SCENARIO] User runs 'Calculate Invoice Discount' action the posting setup where invoice discount account is blank
         Initialize;
         // [GIVEN] Sales Setup, where "Discount Posting" is 'Invoice Discounts'
-        DefineAllDiscountAccounts;
+        DefineAllDiscountAccounts();
         LibrarySales.SetDiscountPosting(SalesSetup."Discount Posting"::"Invoice Discounts");
         // [GIVEN] Created the Order and one item line, where the posting setup is 'A'.
         CreateSalesInvoiceWithOneLine(SalesLine);
         // [GIVEN] Gen. Posting Setup record 'A', where "Sales Inv Disc. Account" is blank.
         BlankSalesDiscAccount(GeneralPostingSetup, SalesLine, GeneralPostingSetup.FieldNo("Sales Inv. Disc. Account"));
         // [GIVEN] Run "Calculate Invoice Discount" action
-        GeneralPostingSetupPage.Trap;
-        SalesInvoicePage.OpenEdit;
+        GeneralPostingSetupPage.Trap();
+        SalesInvoicePage.OpenEdit();
         SalesInvoicePage.FILTER.SetFilter("No.", SalesLine."Document No.");
         SalesInvoicePage.CalculateInvoiceDiscount.Invoke;
 
         // [WHEN] Notification: "G/L accounts for discounts are missing... | Open page |" and user click on 'Open page'
-        Assert.AreEqual(MissingDiscountAccountMsg, LibraryVariableStorage.DequeueText, 'sent notification message');
+        Assert.AreEqual(MissingDiscountAccountMsg, LibraryVariableStorage.DequeueText(), 'sent notification message');
 
         // [THEN] Gen. Posting Setup page is open, where is one record 'A'.
         VerifyGenPostingSetupInPage(GeneralPostingSetupPage, GeneralPostingSetup);
@@ -469,7 +469,7 @@ codeunit 132523 "Discount Setup Notifications"
         Assert.AreNotEqual(0, SalesInvoicePage.SalesLines."Invoice Discount Amount".AsDEcimal, 'Invoice Discount Amount');
 
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesSetup);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -482,11 +482,11 @@ codeunit 132523 "Discount Setup Notifications"
     begin
         // [FEATURE] [Sales] [Setup] [UT]
         // [GIVEN] 2 GeneralPostingSetup records have all blank discount accounts
-        DefineAllDiscountAccounts;
-        GeneralPostingSetup."Gen. Bus. Posting Group" := LibraryUtility.GenerateGUID;
-        GeneralPostingSetup.Insert;
-        GeneralPostingSetup."Gen. Bus. Posting Group" := LibraryUtility.GenerateGUID;
-        GeneralPostingSetup.Insert;
+        DefineAllDiscountAccounts();
+        GeneralPostingSetup."Gen. Bus. Posting Group" := LibraryUtility.GenerateGUID();
+        GeneralPostingSetup.Insert();
+        GeneralPostingSetup."Gen. Bus. Posting Group" := LibraryUtility.GenerateGUID();
+        GeneralPostingSetup.Insert();
         // [WHEN] run FindSetupMissingSalesDiscountAccount("All Discounts")
         Assert.IsTrue(
           GeneralPostingSetup.FindSetupMissingSalesDiscountAccount(SalesSetup."Discount Posting"::"All Discounts", FieldNumber),
@@ -495,7 +495,7 @@ codeunit 132523 "Discount Setup Notifications"
         Assert.RecordCount(GeneralPostingSetup, 2);
         // [THEN] FieldNumber is "Sales Line Disc. Account"
         Assert.AreEqual(GeneralPostingSetup.FieldNo("Sales Line Disc. Account"), FieldNumber, 'wrong FieldNumer');
-        GeneralPostingSetup.DeleteAll;
+        GeneralPostingSetup.DeleteAll();
     end;
 
     [Test]
@@ -508,7 +508,7 @@ codeunit 132523 "Discount Setup Notifications"
     begin
         // [FEATURE] [Sales] [Setup] [UT]
         // [GIVEN] All GeneralPostingSetup records have discount acocunts defined
-        DefineAllDiscountAccounts;
+        DefineAllDiscountAccounts();
 
         // [WHEN] run FindSetupMissingSalesDiscountAccount("All Discounts")
         Assert.IsFalse(
@@ -529,7 +529,7 @@ codeunit 132523 "Discount Setup Notifications"
     begin
         // [FEATURE] [Sales] [Setup] [UT]
         // [GIVEN] All GeneralPostingSetup records have discount acocunts defined
-        DefineAllDiscountAccounts;
+        DefineAllDiscountAccounts();
         // [GIVEN] Gen. Posting Setup 'A' where "Sales Inv. Disc. Account" is blank
         ExpectedRecID := CreateGeneralPostingSetup(GeneralPostingSetup, GeneralPostingSetup.FieldNo("Sales Inv. Disc. Account"));
         // [GIVEN] Gen. Posting Setup 'B' where "Purch. Inv. Disc. Account" is blank
@@ -557,7 +557,7 @@ codeunit 132523 "Discount Setup Notifications"
     begin
         // [FEATURE] [Sales] [Setup] [UT]
         // [GIVEN] All GeneralPostingSetup records have discount acocunts defined
-        DefineAllDiscountAccounts;
+        DefineAllDiscountAccounts();
         // [GIVEN] Gen. Posting Setup 'A' where "Sales Line Disc. Account" is blank
         ExpectedRecID := CreateGeneralPostingSetup(GeneralPostingSetup, GeneralPostingSetup.FieldNo("Sales Line Disc. Account"));
         // [GIVEN] Gen. Posting Setup 'B' where "Purch. Line Disc. Account" is blank
@@ -585,7 +585,7 @@ codeunit 132523 "Discount Setup Notifications"
     begin
         // [FEATURE] [Sales] [Setup] [UT]
         // [GIVEN] All GeneralPostingSetup records have discount acocunts defined
-        DefineAllDiscountAccounts;
+        DefineAllDiscountAccounts();
         // [GIVEN] Gen. Posting Setup 'A' where "Sales Inv. Disc. Account" is blank
         ExpectedRecID[1] := CreateGeneralPostingSetup(GeneralPostingSetup, GeneralPostingSetup.FieldNo("Sales Inv. Disc. Account"));
         // [GIVEN] Gen. Posting Setup 'B' where "Sales Line Disc. Account" is blank
@@ -615,7 +615,7 @@ codeunit 132523 "Discount Setup Notifications"
     begin
         // [FEATURE] [Sales] [Setup] [UT]
         // [GIVEN] All GeneralPostingSetup records have discount acocunts defined
-        DefineAllDiscountAccounts;
+        DefineAllDiscountAccounts();
         // [GIVEN] Gen. Posting Setup 'A' where "Sales Line Disc. Account" is blank
         CreateGeneralPostingSetup(GeneralPostingSetup, GeneralPostingSetup.FieldNo("Sales Line Disc. Account"));
         // [GIVEN] Gen. Posting Setup 'B' where "Sales Inv. Disc. Account" is blank
@@ -653,11 +653,11 @@ codeunit 132523 "Discount Setup Notifications"
           GeneralPostingSetup[1].FieldNo("Purch. Inv. Disc. Account"),
           GeneralPostingSetup[1].FieldNo("Purch. Line Disc. Account"));
         // [GIVEN] Admin user changes "Discount Posting" from "No Discounts" to 'All Discounts'
-        GeneralPostingSetupPage.Trap;
+        GeneralPostingSetupPage.Trap();
         LibraryPurchase.SetDiscountPosting(PurchSetup."Discount Posting"::"All Discounts");
 
         // [WHEN] Notification: "G/L accounts for discounts are missing... | Open page |" and user click on 'Open page'
-        Assert.AreEqual(MissingDiscountAccountMsg, LibraryVariableStorage.DequeueText, 'notification message');
+        Assert.AreEqual(MissingDiscountAccountMsg, LibraryVariableStorage.DequeueText(), 'notification message');
 
         // [THEN] Gen. Posting Setup page is open, where are 2 records: A' and 'B'.
         Assert.IsTrue(GeneralPostingSetupPage.First, 'missing the 1st line');
@@ -670,7 +670,7 @@ codeunit 132523 "Discount Setup Notifications"
         GeneralPostingSetupPage.Close;
 
         LibraryNotificationMgt.RecallNotificationsForRecord(PurchSetup);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -693,13 +693,13 @@ codeunit 132523 "Discount Setup Notifications"
         LibraryPurchase.SetDiscountPosting(PurchSetup."Discount Posting"::"Line Discounts");
 
         // [THEN] Notification is recalled and
-        Assert.AreEqual('', LibraryVariableStorage.DequeueText, 'recall #1 notification message');
+        Assert.AreEqual('', LibraryVariableStorage.DequeueText(), 'recall #1 notification message');
         // [THEN] Notification: "G/L accounts for discounts are missing... | Open page |"
-        Assert.AreEqual(MissingDiscountAccountMsg, LibraryVariableStorage.DequeueText, 'notification #2 message');
+        Assert.AreEqual(MissingDiscountAccountMsg, LibraryVariableStorage.DequeueText(), 'notification #2 message');
 
         LibraryNotificationMgt.RecallNotificationsForRecord(PurchSetup);
-        Assert.AreEqual('', LibraryVariableStorage.DequeueText, 'recall #2 notification message');
-        LibraryVariableStorage.AssertEmpty;
+        Assert.AreEqual('', LibraryVariableStorage.DequeueText(), 'recall #2 notification message');
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -719,10 +719,10 @@ codeunit 132523 "Discount Setup Notifications"
         LibraryPurchase.SetDiscountPosting(PurchSetup."Discount Posting"::"Line Discounts");
 
         // [THEN] Notification is recalled and no new notification shown
-        Assert.AreEqual('', LibraryVariableStorage.DequeueText, 'recall #1 notification message');
+        Assert.AreEqual('', LibraryVariableStorage.DequeueText(), 'recall #1 notification message');
 
         LibraryNotificationMgt.RecallNotificationsForRecord(PurchSetup);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -742,10 +742,10 @@ codeunit 132523 "Discount Setup Notifications"
         LibraryPurchase.SetDiscountPosting(PurchSetup."Discount Posting"::"No Discounts");
 
         // [THEN] Notification is recalled and no new notification shown
-        Assert.AreEqual('', LibraryVariableStorage.DequeueText, 'recall #1 notification message');
+        Assert.AreEqual('', LibraryVariableStorage.DequeueText(), 'recall #1 notification message');
 
         LibraryNotificationMgt.RecallNotificationsForRecord(PurchSetup);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -767,17 +767,17 @@ codeunit 132523 "Discount Setup Notifications"
           GeneralPostingSetup[1].FieldNo("Purch. Inv. Disc. Account"),
           GeneralPostingSetup[2].FieldNo("Purch. Line Disc. Account"));
         // [GIVEN] Admin user changes "Discount Posting" from "No Discounts" to 'Line Discounts'
-        GeneralPostingSetupPage.Trap;
+        GeneralPostingSetupPage.Trap();
         LibraryPurchase.SetDiscountPosting(PurchSetup."Discount Posting"::"Line Discounts");
 
         // [WHEN] Notification: "G/L accounts for discounts are missing... | Open page |" and user click on 'Open page'
-        Assert.AreEqual(MissingDiscountAccountMsg, LibraryVariableStorage.DequeueText, 'notification message');
+        Assert.AreEqual(MissingDiscountAccountMsg, LibraryVariableStorage.DequeueText(), 'notification message');
 
         // [THEN] Gen. Posting Setup page is open, where is one record 'B'.
         VerifyGenPostingSetupInPage(GeneralPostingSetupPage, GeneralPostingSetup[2]);
 
         LibraryNotificationMgt.RecallNotificationsForRecord(PurchSetup);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -799,17 +799,17 @@ codeunit 132523 "Discount Setup Notifications"
           GeneralPostingSetup[1].FieldNo("Purch. Inv. Disc. Account"),
           GeneralPostingSetup[2].FieldNo("Purch. Line Disc. Account"));
         // [GIVEN] Admin user changes "Discount Posting" from "No Discounts" to 'Invoice Discounts'
-        GeneralPostingSetupPage.Trap;
+        GeneralPostingSetupPage.Trap();
         LibraryPurchase.SetDiscountPosting(PurchSetup."Discount Posting"::"Invoice Discounts");
 
         // [WHEN] Notification: "G/L accounts for discounts are missing... | Open page |" and user click on 'Open page'
-        Assert.AreEqual(MissingDiscountAccountMsg, LibraryVariableStorage.DequeueText, 'notification message');
+        Assert.AreEqual(MissingDiscountAccountMsg, LibraryVariableStorage.DequeueText(), 'notification message');
 
         // [THEN] Gen. Posting Setup page is open, where is one record 'A'.
         VerifyGenPostingSetupInPage(GeneralPostingSetupPage, GeneralPostingSetup[1]);
 
         LibraryNotificationMgt.RecallNotificationsForRecord(PurchSetup);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -827,7 +827,7 @@ codeunit 132523 "Discount Setup Notifications"
         // [SCENARIO] User enters a line discount for the posting setup where line discount account is blank
         Initialize;
         // [GIVEN] Purch Setup, where "Discount Posting" is 'Line Discounts'
-        DefineAllDiscountAccounts;
+        DefineAllDiscountAccounts();
         LibraryPurchase.SetDiscountPosting(PurchSetup."Discount Posting"::"Line Discounts");
         // [GIVEN] Created the Order and one item line, where the posting setup is 'A'.
         CreatePurchInvoiceWithOneLine(PurchLine);
@@ -835,25 +835,25 @@ codeunit 132523 "Discount Setup Notifications"
         BlankPurchDiscAccount(GeneralPostingSetup[1], PurchLine, GeneralPostingSetup[1].FieldNo("Purch. Line Disc. Account"));
         // [GIVEN] Gen. Posting Setup record 'B', where "Sales Line Disc. Account" is blank, "Gen. Bus. Posting Group" is 'Y'
         GeneralPostingSetup[2] := GeneralPostingSetup[1];
-        GeneralPostingSetup[2]."Gen. Bus. Posting Group" := LibraryUtility.GenerateGUID;
-        GeneralPostingSetup[2].Insert;
+        GeneralPostingSetup[2]."Gen. Bus. Posting Group" := LibraryUtility.GenerateGUID();
+        GeneralPostingSetup[2].Insert();
         // [GIVEN] Entered new "Line Discount %" = 10
-        GeneralPostingSetupPage.Trap;
-        PurchaseInvoicePage.OpenEdit;
+        GeneralPostingSetupPage.Trap();
+        PurchaseInvoicePage.OpenEdit();
         PurchaseInvoicePage.FILTER.SetFilter("No.", PurchLine."Document No.");
         PurchaseInvoicePage.PurchLines."Line Discount %".Value('10');
 
         // [WHEN] Notification: "G/L accounts for discounts are missing... | Open page |" and user click on 'Open page'
-        Assert.AreEqual(MissingDiscountAccountMsg, LibraryVariableStorage.DequeueText, 'sent notification message');
+        Assert.AreEqual(MissingDiscountAccountMsg, LibraryVariableStorage.DequeueText(), 'sent notification message');
 
         // [THEN] Gen. Posting Setup page is open, where is one record 'A'.
         VerifyGenPostingSetupInPage(GeneralPostingSetupPage, GeneralPostingSetup[1]);
         // [THEN] "Line Discount %" is 10
         PurchaseInvoicePage.PurchLines."Line Discount %".AssertEquals('10');
 
-        GeneralPostingSetup[2].Delete;
+        GeneralPostingSetup[2].Delete();
         LibraryNotificationMgt.RecallNotificationsForRecord(PurchSetup);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -870,27 +870,27 @@ codeunit 132523 "Discount Setup Notifications"
         // [SCENARIO] User enters the blank "Line Discount %" while the notification is shown
         Initialize;
         // [GIVEN] Purch Setup, where "Discount Posting" is 'Line Discounts'
-        DefineAllDiscountAccounts;
+        DefineAllDiscountAccounts();
         LibraryPurchase.SetDiscountPosting(PurchSetup."Discount Posting"::"Line Discounts");
         // [GIVEN] Created the Order and one item line, where the posting setup is 'A'.
         CreatePurchInvoiceWithOneLine(PurchLine);
         // [GIVEN] Gen. Posting Setup record 'A', where "Purch. Line Disc. Account" is blank.
         BlankPurchDiscAccount(GeneralPostingSetup, PurchLine, GeneralPostingSetup.FieldNo("Purch. Line Disc. Account"));
         // [GIVEN] Entered new "Line Discount %" = 10
-        PurchaseInvoicePage.OpenEdit;
+        PurchaseInvoicePage.OpenEdit();
         PurchaseInvoicePage.FILTER.SetFilter("No.", PurchLine."Document No.");
         PurchaseInvoicePage.PurchLines."Line Discount %".Value('10');
         // [GIVEN] Notification: "G/L accounts for discounts are missing... | Open page |"
-        Assert.AreEqual(MissingDiscountAccountMsg, LibraryVariableStorage.DequeueText, 'sent notification message');
+        Assert.AreEqual(MissingDiscountAccountMsg, LibraryVariableStorage.DequeueText(), 'sent notification message');
 
         // [WHEN] Entered new "Line Discount %" = 0
         PurchaseInvoicePage.PurchLines."Line Discount %".Value('0');
 
         // [THEN] Notification is recalled, no new notification shown.
-        Assert.AreEqual('', LibraryVariableStorage.DequeueText, 'recall notification message');
+        Assert.AreEqual('', LibraryVariableStorage.DequeueText(), 'recall notification message');
 
         LibraryNotificationMgt.RecallNotificationsForRecord(PurchSetup);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -908,28 +908,28 @@ codeunit 132523 "Discount Setup Notifications"
         // [SCENARIO] User restores the "Line Amount" that caused the line discount, while the notification is shown
         Initialize;
         // [GIVEN] Purch Setup, where "Discount Posting" is 'Line Discounts'
-        DefineAllDiscountAccounts;
+        DefineAllDiscountAccounts();
         LibraryPurchase.SetDiscountPosting(PurchSetup."Discount Posting"::"Line Discounts");
         // [GIVEN] Created the Order and one item line, where the posting setup is 'A'.
         CreatePurchInvoiceWithOneLine(PurchLine);
         // [GIVEN] Gen. Posting Setup record 'A', where "Purch. Line Disc. Account" is blank.
         BlankPurchDiscAccount(GeneralPostingSetup, PurchLine, GeneralPostingSetup.FieldNo("Purch. Line Disc. Account"));
         // [GIVEN] Entered new "Line Discount Amount" = 1
-        PurchaseInvoicePage.OpenEdit;
+        PurchaseInvoicePage.OpenEdit();
         PurchaseInvoicePage.FILTER.SetFilter("No.", PurchLine."Document No.");
         LineAmt := PurchaseInvoicePage.PurchLines."Line Amount".AsDEcimal;
         PurchaseInvoicePage.PurchLines."Line Amount".Value(Format(LineAmt - 1));
         // [GIVEN] Notification: "G/L accounts for discounts are missing... | Open page |"
-        Assert.AreEqual(MissingDiscountAccountMsg, LibraryVariableStorage.DequeueText, 'sent notification message');
+        Assert.AreEqual(MissingDiscountAccountMsg, LibraryVariableStorage.DequeueText(), 'sent notification message');
 
         // [WHEN] Entered new "Line Discount Amount" = 0
         PurchaseInvoicePage.PurchLines."Line Amount".Value(Format(LineAmt));
 
         // [THEN] Notification is recalled, no new notification shown.
-        Assert.AreEqual('', LibraryVariableStorage.DequeueText, 'recall notification message');
+        Assert.AreEqual('', LibraryVariableStorage.DequeueText(), 'recall notification message');
 
         LibraryNotificationMgt.RecallNotificationsForRecord(PurchSetup);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -946,31 +946,31 @@ codeunit 132523 "Discount Setup Notifications"
         // [SCENARIO] User enters new "Line Discount %" while the "Discount Posting" is "No Discounts"
         Initialize;
         // [GIVEN] Purch Setup, where "Discount Posting" is 'Line Discounts'
-        DefineAllDiscountAccounts;
+        DefineAllDiscountAccounts();
         LibraryPurchase.SetDiscountPosting(PurchSetup."Discount Posting"::"Line Discounts");
         // [GIVEN] Created the Order and one item line, where the posting setup is 'A'.
         CreatePurchInvoiceWithOneLine(PurchLine);
         // [GIVEN] Gen. Posting Setup record 'A', where "Purch. Line Disc. Account" is blank.
         BlankPurchDiscAccount(GeneralPostingSetup, PurchLine, GeneralPostingSetup.FieldNo("Purch. Line Disc. Account"));
         // [GIVEN] Entered new "Line Discount %" = 10
-        PurchaseInvoicePage.OpenEdit;
+        PurchaseInvoicePage.OpenEdit();
         PurchaseInvoicePage.FILTER.SetFilter("No.", PurchLine."Document No.");
         PurchaseInvoicePage.PurchLines."Line Discount %".Value('10');
         // [GIVEN] Notification: "G/L accounts for discounts are missing... | Open page |"
-        Assert.AreEqual(MissingDiscountAccountMsg, LibraryVariableStorage.DequeueText, 'sent notification message');
+        Assert.AreEqual(MissingDiscountAccountMsg, LibraryVariableStorage.DequeueText(), 'sent notification message');
         // [GIVEN] Purch Setup, where "Discount Posting" is 'No Discounts'
-        PurchSetup.Get;
+        PurchSetup.Get();
         PurchSetup."Discount Posting" := PurchSetup."Discount Posting"::"No Discounts";
-        PurchSetup.Modify;
+        PurchSetup.Modify();
 
         // [WHEN] Entered new "Line Discount %" = 20
         PurchaseInvoicePage.PurchLines."Line Discount %".Value('20');
 
         // [THEN] Notification is recalled, no new notification shown.
-        Assert.AreEqual('', LibraryVariableStorage.DequeueText, 'recall notification message');
+        Assert.AreEqual('', LibraryVariableStorage.DequeueText(), 'recall notification message');
 
         LibraryNotificationMgt.RecallNotificationsForRecord(PurchSetup);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -985,7 +985,7 @@ codeunit 132523 "Discount Setup Notifications"
         // [SCENARIO] Notification is not shown if "Line Discount %" validated through code, not on the page.
         Initialize;
         // [GIVEN] Purch Setup, where "Discount Posting" is 'Line Discounts'
-        DefineAllDiscountAccounts;
+        DefineAllDiscountAccounts();
         LibraryPurchase.SetDiscountPosting(PurchSetup."Discount Posting"::"Line Discounts");
         // [GIVEN] Created the Order and one item line, where the posting setup is 'A'.
         CreatePurchInvoiceWithOneLine(PurchLine);
@@ -994,11 +994,11 @@ codeunit 132523 "Discount Setup Notifications"
 
         // [WHEN] Validate "Line Discount %" = 10
         PurchLine.Validate("Line Discount %", 10);
-        PurchLine.Modify;
+        PurchLine.Modify();
 
         // [THEN] "Line Discount %" is 10
         PurchLine.TestField("Line Discount %", 10);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1016,7 +1016,7 @@ codeunit 132523 "Discount Setup Notifications"
         // [SCENARIO] User enters a invoice discount for the posting setup where invoice discount account is blank
         Initialize;
         // [GIVEN] Purch Setup, where "Discount Posting" is 'Invoice Discounts'
-        DefineAllDiscountAccounts;
+        DefineAllDiscountAccounts();
         LibraryPurchase.SetDiscountPosting(PurchSetup."Discount Posting"::"Invoice Discounts");
         // [GIVEN] Created the Order and one item line, where the posting setup is 'A'.
         CreatePurchInvoiceWithOneLine(PurchLine);
@@ -1024,25 +1024,25 @@ codeunit 132523 "Discount Setup Notifications"
         BlankPurchDiscAccount(GeneralPostingSetup[1], PurchLine, GeneralPostingSetup[1].FieldNo("Purch. Inv. Disc. Account"));
         // [GIVEN] Gen. Posting Setup record 'B', where "Sales Line Disc. Account" is blank, "Gen. Bus. Posting Group" is 'Y'
         GeneralPostingSetup[2] := GeneralPostingSetup[1];
-        GeneralPostingSetup[2]."Gen. Bus. Posting Group" := LibraryUtility.GenerateGUID;
-        GeneralPostingSetup[2].Insert;
+        GeneralPostingSetup[2]."Gen. Bus. Posting Group" := LibraryUtility.GenerateGUID();
+        GeneralPostingSetup[2].Insert();
         // [GIVEN] Entered new "Inv. Discount Amount" = 10
-        GeneralPostingSetupPage.Trap;
-        PurchaseInvoicePage.OpenEdit;
+        GeneralPostingSetupPage.Trap();
+        PurchaseInvoicePage.OpenEdit();
         PurchaseInvoicePage.FILTER.SetFilter("No.", PurchLine."Document No.");
         PurchaseInvoicePage.PurchLines.InvoiceDiscountAmount.Value('10');
 
         // [WHEN] Notification: "G/L accounts for discounts are missing... | Open page |" and user click on 'Open page'
-        Assert.AreEqual(MissingDiscountAccountMsg, LibraryVariableStorage.DequeueText, 'sent notification message');
+        Assert.AreEqual(MissingDiscountAccountMsg, LibraryVariableStorage.DequeueText(), 'sent notification message');
 
         // [THEN] Gen. Posting Setup page is open, where is one record 'A'.
         VerifyGenPostingSetupInPage(GeneralPostingSetupPage, GeneralPostingSetup[1]);
         // [THEN] "Inv. Discount Amount" is 10
         Assert.AreEqual(10, PurchaseInvoicePage.PurchLines.InvoiceDiscountAmount.AsDEcimal, 'InvoiceDiscountAmount subpage');
 
-        GeneralPostingSetup[2].Delete;
+        GeneralPostingSetup[2].Delete();
         LibraryNotificationMgt.RecallNotificationsForRecord(PurchSetup);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1060,27 +1060,27 @@ codeunit 132523 "Discount Setup Notifications"
         // [SCENARIO] User runs 'Calculate Invoice Discount' action the posting setup where invoice discount account is blank
         Initialize;
         // [GIVEN] Purch Setup, where "Discount Posting" is 'Invoice Discounts'
-        DefineAllDiscountAccounts;
+        DefineAllDiscountAccounts();
         LibraryPurchase.SetDiscountPosting(PurchSetup."Discount Posting"::"Invoice Discounts");
         // [GIVEN] Created the Order and one item line, where the posting setup is 'A'.
         CreatePurchInvoiceWithOneLine(PurchLine);
         // [GIVEN] Gen. Posting Setup record 'A', where "Purch. Inv. Disc. Account" is blank.
         BlankPurchDiscAccount(GeneralPostingSetup, PurchLine, GeneralPostingSetup.FieldNo("Purch. Inv. Disc. Account"));
         // [GIVEN] Run "Calculate Invoice Discount" action
-        GeneralPostingSetupPage.Trap;
-        PurchaseInvoicePage.OpenEdit;
+        GeneralPostingSetupPage.Trap();
+        PurchaseInvoicePage.OpenEdit();
         PurchaseInvoicePage.FILTER.SetFilter("No.", PurchLine."Document No.");
         PurchaseInvoicePage.CalculateInvoiceDiscount.Invoke;
 
         // [WHEN] Notification: "G/L accounts for discounts are missing... | Open page |" and user click on 'Open page'
-        Assert.AreEqual(MissingDiscountAccountMsg, LibraryVariableStorage.DequeueText, 'sent notification message');
+        Assert.AreEqual(MissingDiscountAccountMsg, LibraryVariableStorage.DequeueText(), 'sent notification message');
 
         // [THEN] Gen. Posting Setup page is open, where is one record 'A'.
         VerifyGenPostingSetupInPage(GeneralPostingSetupPage, GeneralPostingSetup);
         // [THEN] "Invoice Discount Amount" is not 0
         Assert.AreNotEqual(0, PurchaseInvoicePage.PurchLines.InvoiceDiscountAmount.AsDEcimal, 'InvoiceDiscountAmount subpage');
         LibraryNotificationMgt.RecallNotificationsForRecord(PurchSetup);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1093,11 +1093,11 @@ codeunit 132523 "Discount Setup Notifications"
     begin
         // [FEATURE] [Purchase] [Setup] [UT]
         // [GIVEN] 2 GeneralPostingSetup records have all blank discount accounts
-        DefineAllDiscountAccounts;
-        GeneralPostingSetup."Gen. Bus. Posting Group" := LibraryUtility.GenerateGUID;
-        GeneralPostingSetup.Insert;
-        GeneralPostingSetup."Gen. Bus. Posting Group" := LibraryUtility.GenerateGUID;
-        GeneralPostingSetup.Insert;
+        DefineAllDiscountAccounts();
+        GeneralPostingSetup."Gen. Bus. Posting Group" := LibraryUtility.GenerateGUID();
+        GeneralPostingSetup.Insert();
+        GeneralPostingSetup."Gen. Bus. Posting Group" := LibraryUtility.GenerateGUID();
+        GeneralPostingSetup.Insert();
         // [WHEN] run FindSetupMissingPurchDiscountAccount("All Discounts")
         Assert.IsTrue(
           GeneralPostingSetup.FindSetupMissingPurchDiscountAccount(PurchSetup."Discount Posting"::"All Discounts", FieldNumber),
@@ -1106,7 +1106,7 @@ codeunit 132523 "Discount Setup Notifications"
         Assert.RecordCount(GeneralPostingSetup, 2);
         // [THEN] FieldNumber is "Purch. Line Disc. Account"
         Assert.AreEqual(GeneralPostingSetup.FieldNo("Purch. Line Disc. Account"), FieldNumber, 'wrong FieldNumer');
-        GeneralPostingSetup.DeleteAll;
+        GeneralPostingSetup.DeleteAll();
     end;
 
     [Test]
@@ -1119,7 +1119,7 @@ codeunit 132523 "Discount Setup Notifications"
     begin
         // [FEATURE] [Purchase] [Setup] [UT]
         // [GIVEN] All GeneralPostingSetup records have discount acocunts defined
-        DefineAllDiscountAccounts;
+        DefineAllDiscountAccounts();
 
         // [WHEN] run FindSetupMissingPurchDiscountAccount("All Discounts")
         Assert.IsFalse(
@@ -1140,7 +1140,7 @@ codeunit 132523 "Discount Setup Notifications"
     begin
         // [FEATURE] [Purchase] [Setup] [UT]
         // [GIVEN] All GeneralPostingSetup records have discount acocunts defined
-        DefineAllDiscountAccounts;
+        DefineAllDiscountAccounts();
         // [GIVEN] Gen. Posting Setup 'A' where "Purch. Inv. Disc. Account" is blank
         ExpectedRecID := CreateGeneralPostingSetup(GeneralPostingSetup, GeneralPostingSetup.FieldNo("Purch. Inv. Disc. Account"));
         // [GIVEN] Gen. Posting Setup 'B' where "Sales Inv. Disc. Account" is blank
@@ -1168,7 +1168,7 @@ codeunit 132523 "Discount Setup Notifications"
     begin
         // [FEATURE] [Purchase] [Setup] [UT]
         // [GIVEN] All GeneralPostingSetup records have discount acocunts defined
-        DefineAllDiscountAccounts;
+        DefineAllDiscountAccounts();
         // [GIVEN] Gen. Posting Setup 'A' where "Purch. Line Disc. Account" is blank
         ExpectedRecID := CreateGeneralPostingSetup(GeneralPostingSetup, GeneralPostingSetup.FieldNo("Purch. Line Disc. Account"));
         // [GIVEN] Gen. Posting Setup 'B' where "Sales Line Disc. Account" is blank
@@ -1196,7 +1196,7 @@ codeunit 132523 "Discount Setup Notifications"
     begin
         // [FEATURE] [Purchase] [Setup] [UT]
         // [GIVEN] All GeneralPostingSetup records have discount acocunts defined
-        DefineAllDiscountAccounts;
+        DefineAllDiscountAccounts();
         // [GIVEN] Gen. Posting Setup 'A' where "Purch. Inv. Disc. Account" is blank
         ExpectedRecID[1] := CreateGeneralPostingSetup(GeneralPostingSetup, GeneralPostingSetup.FieldNo("Purch. Inv. Disc. Account"));
         // [GIVEN] Gen. Posting Setup 'B' where "Purch. Line Disc. Account" is blank
@@ -1226,7 +1226,7 @@ codeunit 132523 "Discount Setup Notifications"
     begin
         // [FEATURE] [Purchase] [Setup] [UT]
         // [GIVEN] All GeneralPostingSetup records have discount acocunts defined
-        DefineAllDiscountAccounts;
+        DefineAllDiscountAccounts();
         // [GIVEN] Gen. Posting Setup 'A' where "Purch. Line Disc. Account" is blank
         CreateGeneralPostingSetup(GeneralPostingSetup, GeneralPostingSetup.FieldNo("Purch. Line Disc. Account"));
         // [GIVEN] Gen. Posting Setup 'B' where "Purch. Inv. Disc. Account" is blank
@@ -1260,7 +1260,7 @@ codeunit 132523 "Discount Setup Notifications"
         // [SCENARIO] User enters a line discount while there is the posting setup, where line discount account is blank
         Initialize;
         // [GIVEN] Sales Setup, where "Discount Posting" is 'Line Discounts'
-        DefineAllDiscountAccounts;
+        DefineAllDiscountAccounts();
         LibrarySales.SetDiscountPosting(SalesSetup."Discount Posting"::"Line Discounts");
         // [GIVEN] Created the Invoice and one item line, where the posting setup is 'A'
         CreateServiceInvoiceWithOneLine(ServiceLine);
@@ -1268,25 +1268,25 @@ codeunit 132523 "Discount Setup Notifications"
         BlankServiceDiscAccount(GeneralPostingSetup[1], ServiceLine, GeneralPostingSetup[1].FieldNo("Sales Line Disc. Account"));
         // [GIVEN] Gen. Posting Setup record 'B', where "Sales Line Disc. Account" is blank, "Gen. Bus. Posting Group" is 'Y'
         GeneralPostingSetup[2] := GeneralPostingSetup[1];
-        GeneralPostingSetup[2]."Gen. Bus. Posting Group" := LibraryUtility.GenerateGUID;
-        GeneralPostingSetup[2].Insert;
+        GeneralPostingSetup[2]."Gen. Bus. Posting Group" := LibraryUtility.GenerateGUID();
+        GeneralPostingSetup[2].Insert();
         // [GIVEN] Entered new "Line Discount %" = 10
-        GeneralPostingSetupPage.Trap;
-        ServiceInvoicePage.OpenEdit;
+        GeneralPostingSetupPage.Trap();
+        ServiceInvoicePage.OpenEdit();
         ServiceInvoicePage.FILTER.SetFilter("No.", ServiceLine."Document No.");
         ServiceInvoicePage.ServLines."Line Discount %".Value('10');
 
         // [WHEN] Notification: "G/L accounts for discounts are missing... | Open page |" and user click on 'Open page'
-        Assert.AreEqual(MissingDiscountAccountMsg, LibraryVariableStorage.DequeueText, 'sent notification message');
+        Assert.AreEqual(MissingDiscountAccountMsg, LibraryVariableStorage.DequeueText(), 'sent notification message');
 
         // [THEN] Gen. Posting Setup page is open, where is one record 'A'.
         VerifyGenPostingSetupInPage(GeneralPostingSetupPage, GeneralPostingSetup[1]);
         // [THEN] "Line Discount %" is 10
         ServiceInvoicePage.ServLines."Line Discount %".AssertEquals('10');
 
-        GeneralPostingSetup[2].Delete;
+        GeneralPostingSetup[2].Delete();
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesSetup);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1304,28 +1304,28 @@ codeunit 132523 "Discount Setup Notifications"
         // [SCENARIO] User restores the "Line Amount" that caused the line discount, while the notification is shown
         Initialize;
         // [GIVEN] Sales Setup, where "Discount Posting" is 'Line Discounts'
-        DefineAllDiscountAccounts;
+        DefineAllDiscountAccounts();
         LibrarySales.SetDiscountPosting(SalesSetup."Discount Posting"::"Line Discounts");
         // [GIVEN] Created the Invoice and one item line, where the posting setup is 'A'.
         CreateServiceInvoiceWithOneLine(ServiceLine);
         // [GIVEN] Gen. Posting Setup record 'A', where "Sales Line Disc. Account" is blank.
         BlankServiceDiscAccount(GeneralPostingSetup, ServiceLine, GeneralPostingSetup.FieldNo("Sales Line Disc. Account"));
         // [GIVEN] Entered new "Line Discount Amount" = 1
-        ServiceInvoicePage.OpenEdit;
+        ServiceInvoicePage.OpenEdit();
         ServiceInvoicePage.FILTER.SetFilter("No.", ServiceLine."Document No.");
         LineAmt := ServiceInvoicePage.ServLines."Line Amount".AsDEcimal;
         ServiceInvoicePage.ServLines."Line Amount".Value(Format(LineAmt - 1));
         // [GIVEN] Notification: "G/L accounts for discounts are missing... | Open page |"
-        Assert.AreEqual(MissingDiscountAccountMsg, LibraryVariableStorage.DequeueText, 'sent notification message');
+        Assert.AreEqual(MissingDiscountAccountMsg, LibraryVariableStorage.DequeueText(), 'sent notification message');
 
         // [WHEN] Entered new "Line Discount Amount" = 0
         ServiceInvoicePage.ServLines."Line Amount".Value(Format(LineAmt));
 
         // [THEN] Notification is recalled, no new notification shown.
-        Assert.AreEqual('', LibraryVariableStorage.DequeueText, 'recall notification message');
+        Assert.AreEqual('', LibraryVariableStorage.DequeueText(), 'recall notification message');
 
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesSetup);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1343,20 +1343,20 @@ codeunit 132523 "Discount Setup Notifications"
         // [SCENARIO] User runs 'Calculate Invoice Discount' action the posting setup where invoice discount account is blank
         Initialize;
         // [GIVEN] Sales Setup, where "Discount Posting" is 'Invoice Discounts'
-        DefineAllDiscountAccounts;
+        DefineAllDiscountAccounts();
         LibrarySales.SetDiscountPosting(SalesSetup."Discount Posting"::"Invoice Discounts");
         // [GIVEN] Created the Invoice and one item line, where the posting setup is 'A'.
         CreateServiceInvoiceWithOneLine(ServiceLine);
         // [GIVEN] Gen. Posting Setup record 'A', where "Sales Inv Disc. Account" is blank.
         BlankServiceDiscAccount(GeneralPostingSetup, ServiceLine, GeneralPostingSetup.FieldNo("Sales Inv. Disc. Account"));
         // [GIVEN] Run "Calculate Invoice Discount" action
-        GeneralPostingSetupPage.Trap;
-        ServiceInvoicePage.OpenEdit;
+        GeneralPostingSetupPage.Trap();
+        ServiceInvoicePage.OpenEdit();
         ServiceInvoicePage.FILTER.SetFilter("No.", ServiceLine."Document No.");
         ServiceInvoicePage."Calculate Invoice Discount".Invoke;
 
         // [WHEN] Notification: "G/L accounts for discounts are missing... | Open page |" and user click on 'Open page'
-        Assert.AreEqual(MissingDiscountAccountMsg, LibraryVariableStorage.DequeueText, 'sent notification message');
+        Assert.AreEqual(MissingDiscountAccountMsg, LibraryVariableStorage.DequeueText(), 'sent notification message');
 
         // [THEN] Gen. Posting Setup page is open, where is one record 'A'.
         VerifyGenPostingSetupInPage(GeneralPostingSetupPage, GeneralPostingSetup);
@@ -1365,7 +1365,130 @@ codeunit 132523 "Discount Setup Notifications"
         Assert.AreNotEqual(0, ServiceLine."Inv. Discount Amount", 'Invoice Discount Amount');
 
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesSetup);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('SendNotificationActionHandler')]
+    [Scope('OnPrem')]
+    procedure NotifyAboutMissingSalesSetupRespectsProductPostingGroup()
+    var
+        GeneralPostingSetup: array[2] of Record "General Posting Setup";
+        SalesLine: Record "Sales Line";
+        SalesSetup: Record "Sales & Receivables Setup";
+        GeneralPostingSetupPage: TestPage "General Posting Setup";
+        SalesOrder: TestPage "Sales Order";
+    begin
+        // [FEATURE] [Sales] [UI]
+        // [SCENARIO 343954] User enters a line discount while there another posting setups, where line discount account is blank.
+        Initialize();
+        // [GIVEN] Sales Setup, where "Discount Posting" is 'Line Discounts'
+        LibrarySales.SetDiscountPosting(SalesSetup."Discount Posting"::"Line Discounts");
+        // [GIVEN] Gen. Posting Setups 'A' and 'B' where "Gen. Bus. Posting Group" is the same and "Sales Line Disc. Account" is blank.
+        CreateGeneralPostingSetups(
+          GeneralPostingSetup,
+          GeneralPostingSetup[1].FieldNo("Sales Line Disc. Account"),
+          GeneralPostingSetup[1].FieldNo("Sales Line Disc. Account"));
+        GeneralPostingSetup[2].Validate("Gen. Bus. Posting Group", GeneralPostingSetup[1]."Gen. Bus. Posting Group");
+        GeneralPostingSetup[2].Insert(true);
+        // [GIVEN] Sales Order with Gen. Posting Setups 'A'.
+        CreateSalesOrderWithOneLine(SalesLine, GeneralPostingSetup[1]."Gen. Bus. Posting Group", GeneralPostingSetup[1]."Gen. Prod. Posting Group");
+        // [GIVEN] Entered new "Line Discount %" = 10.
+        GeneralPostingSetupPage.Trap();
+        SalesOrder.OpenEdit();
+        SalesOrder.Filter.SetFilter("No.", SalesLine."Document No.");
+        SalesOrder.SalesLines."Line Discount %".SetValue(LibraryRandom.RandInt(10));
+
+        // [WHEN] Notification: "G/L accounts for discounts are missing... | Open page |" and user click on 'Open page'.
+        Assert.AreEqual(MissingDiscountAccountMsg, LibraryVariableStorage.DequeueText(), 'sent notification message');
+
+        // [THEN] Gen. Posting Setup page is open, where is one record 'A'.
+        VerifyGenPostingSetupInPage(GeneralPostingSetupPage, GeneralPostingSetup[1]);
+
+        LibraryNotificationMgt.RecallNotificationsForRecord(SalesSetup);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('SendNotificationActionHandler')]
+    [Scope('OnPrem')]
+    procedure NotifyAboutMissingPurchaseSetupRespectsProductPostingGroup()
+    var
+        GeneralPostingSetup: array[2] of Record "General Posting Setup";
+        PurchLine: Record "Purchase Line";
+        PurchSetup: Record "Purchases & Payables Setup";
+        GeneralPostingSetupPage: TestPage "General Posting Setup";
+        PurchOrder: TestPage "Purchase Order";
+    begin
+        // [FEATURE] [Purchase] [UI]
+        // [SCENARIO 343954] User enters a line discount while there are multiple posting setups, where line discount account is blank.
+        Initialize();
+        // [GIVEN] Purch Setup, where "Discount Posting" is 'Line Discounts'
+        LibraryPurchase.SetDiscountPosting(PurchSetup."Discount Posting"::"Line Discounts");
+        // [GIVEN] Gen. Posting Setups 'A' and 'B' where "Gen. Bus. Posting Group" is the same and "Purchase Line Disc. Account" is blank.
+        CreateGeneralPostingSetups(
+          GeneralPostingSetup,
+          GeneralPostingSetup[1].FieldNo("Purch. Line Disc. Account"),
+          GeneralPostingSetup[1].FieldNo("Purch. Line Disc. Account"));
+        GeneralPostingSetup[2].Validate("Gen. Bus. Posting Group", GeneralPostingSetup[1]."Gen. Bus. Posting Group");
+        GeneralPostingSetup[2].Insert(true);
+        // [GIVEN] Purhcase Order with Gen. Posting Setups 'A'.
+        CreatePurchOrderWithOneLine(PurchLine, GeneralPostingSetup[1]."Gen. Bus. Posting Group", GeneralPostingSetup[1]."Gen. Prod. Posting Group");
+        // [GIVEN] Entered new "Qty. to Invoice = 1.
+        GeneralPostingSetupPage.Trap();
+        PurchOrder.OpenEdit();
+        PurchOrder.Filter.SetFilter("No.", PurchLine."Document No.");
+        PurchOrder.PurchLines."Qty. to Invoice".SetValue(PurchLine.Quantity - 1);
+
+        // [WHEN] Notification: "G/L accounts for discounts are missing... | Open page |" and user click on 'Open page'.
+        Assert.AreEqual(MissingDiscountAccountMsg, LibraryVariableStorage.DequeueText(), 'sent notification message');
+
+        // [THEN] Gen. Posting Setup page is open, where is one record 'A'.
+        VerifyGenPostingSetupInPage(GeneralPostingSetupPage, GeneralPostingSetup[1]);
+
+        LibraryNotificationMgt.RecallNotificationsForRecord(PurchSetup);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('SendNotificationActionHandler')]
+    [Scope('OnPrem')]
+    procedure NotifyAboutMissingSalesSetupRespectsProductPostingGroupOnServiceLine()
+    var
+        GeneralPostingSetup: array[2] of Record "General Posting Setup";
+        ServiceLine: Record "Service Line";
+        SalesSetup: Record "Sales & Receivables Setup";
+        GeneralPostingSetupPage: TestPage "General Posting Setup";
+        ServiceInvoice: TestPage "Service Invoice";
+    begin
+        // [FEATURE] [Service] [UI]
+        // [SCENARIO 343954] User enters a line discount while there another posting setups, where line discount account is blank.
+        Initialize();
+        // [GIVEN] Sales Setup, where "Discount Posting" is 'Line Discounts'
+        LibrarySales.SetDiscountPosting(SalesSetup."Discount Posting"::"Line Discounts");
+        // [GIVEN] Gen. Posting Setups 'A' and 'B' where "Gen. Bus. Posting Group" is the same and "Sales Line Disc. Account" is blank.
+        CreateGeneralPostingSetups(
+          GeneralPostingSetup,
+          GeneralPostingSetup[1].FieldNo("Sales Line Disc. Account"),
+          GeneralPostingSetup[1].FieldNo("Sales Line Disc. Account"));
+        GeneralPostingSetup[2].Validate("Gen. Bus. Posting Group", GeneralPostingSetup[1]."Gen. Bus. Posting Group");
+        GeneralPostingSetup[2].Insert(true);
+        // [GIVEN] Service Invoice with Gen. Posting Setups 'A'.
+        CreateServiceInvoiceWithOneLine(ServiceLine, GeneralPostingSetup[1]."Gen. Bus. Posting Group", GeneralPostingSetup[1]."Gen. Prod. Posting Group");
+        // [GIVEN] Entered new "Line Discount %" = 10.
+        GeneralPostingSetupPage.Trap();
+        ServiceInvoice.OpenEdit();
+        ServiceInvoice.Filter.SetFilter("No.", ServiceLine."Document No.");
+        ServiceInvoice.ServLines."Line Discount %".SetValue(LibraryRandom.RandInt(10));
+
+        // [WHEN] Notification: "G/L accounts for discounts are missing... | Open page |" and user click on 'Open page'.
+        Assert.AreEqual(MissingDiscountAccountMsg, LibraryVariableStorage.DequeueText(), 'sent notification message');
+
+        // [THEN] Gen. Posting Setup page is open, where is one record 'A'.
+        VerifyGenPostingSetupInPage(GeneralPostingSetupPage, GeneralPostingSetup[1]);
+
+        LibraryNotificationMgt.RecallNotificationsForRecord(SalesSetup);
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
@@ -1387,7 +1510,7 @@ codeunit 132523 "Discount Setup Notifications"
         LibraryERM.FindGeneralPostingSetupInvtFull(GeneralPostingSetup);
         GLAccount."Gen. Bus. Posting Group" := GeneralPostingSetup."Gen. Bus. Posting Group";
         GLAccount."Gen. Prod. Posting Group" := GeneralPostingSetup."Gen. Prod. Posting Group";
-        GLAccount.Modify;
+        GLAccount.Modify();
         exit(AccNo);
     end;
 
@@ -1400,7 +1523,7 @@ codeunit 132523 "Discount Setup Notifications"
             GeneralPostingSetup.FieldNo("Purch. Inv. Disc. Account"):
                 GeneralPostingSetup."Purch. Inv. Disc. Account" := '';
         end;
-        GeneralPostingSetup.Modify;
+        GeneralPostingSetup.Modify();
     end;
 
     local procedure BlankSalesDiscAccount(var GeneralPostingSetup: Record "General Posting Setup"; SalesLine: Record "Sales Line"; FieldNumber: Integer)
@@ -1412,7 +1535,7 @@ codeunit 132523 "Discount Setup Notifications"
             GeneralPostingSetup.FieldNo("Sales Inv. Disc. Account"):
                 GeneralPostingSetup."Sales Inv. Disc. Account" := '';
         end;
-        GeneralPostingSetup.Modify;
+        GeneralPostingSetup.Modify();
     end;
 
     local procedure BlankServiceDiscAccount(var GeneralPostingSetup: Record "General Posting Setup"; ServiceLine: Record "Service Line"; FieldNumber: Integer)
@@ -1424,7 +1547,7 @@ codeunit 132523 "Discount Setup Notifications"
             GeneralPostingSetup.FieldNo("Sales Inv. Disc. Account"):
                 GeneralPostingSetup."Sales Inv. Disc. Account" := '';
         end;
-        GeneralPostingSetup.Modify;
+        GeneralPostingSetup.Modify();
     end;
 
     local procedure CreateGeneralPostingSetup(var GeneralPostingSetup: Record "General Posting Setup"; BlankAccFieldNo: Integer): Text
@@ -1446,14 +1569,14 @@ codeunit 132523 "Discount Setup Notifications"
                 GeneralPostingSetup."Purch. Inv. Disc. Account" := GLAccNo;
             if BlankAccFieldNo <> GeneralPostingSetup.FieldNo("Purch. Line Disc. Account") then
                 GeneralPostingSetup."Purch. Line Disc. Account" := GLAccNo;
-            GeneralPostingSetup.Modify;
+            GeneralPostingSetup.Modify();
         end;
         exit(Format(GeneralPostingSetup.RecordId));
     end;
 
     local procedure CreateGeneralPostingSetups(var GeneralPostingSetup: array[2] of Record "General Posting Setup"; BlankAccFieldNo1: Integer; BlankAccFieldNo2: Integer)
     begin
-        DefineAllDiscountAccounts;
+        DefineAllDiscountAccounts();
         CreateGeneralPostingSetup(GeneralPostingSetup[1], BlankAccFieldNo1);
         CreateGeneralPostingSetup(GeneralPostingSetup[2], BlankAccFieldNo2);
     end;
@@ -1469,11 +1592,31 @@ codeunit 132523 "Discount Setup Notifications"
           AdjustGenPostingSetupOnGLAcc(LibraryERM.CreateGLAccountWithPurchSetup), 1);
         PurchLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2) + 10);
         PurchLine."Allow Invoice Disc." := true;
-        PurchLine.Modify;
+        PurchLine.Modify();
 
         LibraryERM.CreateInvDiscForVendor(VendInvoiceDisc, PurchLine."Buy-from Vendor No.", '', 0);
         VendInvoiceDisc."Discount %" := 3 + LibraryRandom.RandInt(10);
-        VendInvoiceDisc.Modify;
+        VendInvoiceDisc.Modify();
+    end;
+
+    local procedure CreatePurchOrderWithOneLine(var PurchLine: Record "Purchase Line"; GenBusPstGrp: Code[20]; GenProdPstGrpNo: Code[20])
+    var
+        Vendor: Record Vendor;
+        GenProdPstGrp: Record "Gen. Product Posting Group";
+        GLAccount: Record "G/L Account";
+        PurchHeader: Record "Purchase Header";
+    begin
+        GenProdPstGrp.Get(GenProdPstGrpNo);
+        GenProdPstGrp.Validate("Auto Insert Default", false);
+        GenProdPstGrp.Modify(true);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
+        GLAccount.Validate("Gen. Prod. Posting Group", GenProdPstGrpNo);
+        GLAccount.Modify(true);
+        Vendor.Get(LibraryPurchase.CreateVendorWithBusPostingGroups(GenBusPstGrp, GLAccount."VAT Bus. Posting Group"));
+        LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Order, Vendor."No.");
+        LibraryPurchase.CreatePurchaseLine(PurchLine, PurchHeader, PurchLine.Type::"G/L Account", GLAccount."No.", LibraryRandom.RandInt(10));
+        PurchLine.Validate("Unit Cost", LibraryRandom.RandInt(100));
+        PurchLine.Modify(true);
     end;
 
     local procedure CreateSalesInvoiceWithOneLine(var SalesLine: Record "Sales Line")
@@ -1488,12 +1631,56 @@ codeunit 132523 "Discount Setup Notifications"
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2) + 10);
         SalesLine."Allow Line Disc." := true;
         SalesLine."Allow Invoice Disc." := true;
-        SalesLine.Modify;
+        SalesLine.Modify();
 
         LibraryERM.CreateInvDiscForCustomer(CustInvoiceDisc, SalesLine."Sell-to Customer No.", '', 0);
         CustInvoiceDisc."Discount %" := 3 + LibraryRandom.RandInt(10);
-        CustInvoiceDisc.Modify;
+        CustInvoiceDisc.Modify();
     end;
+
+    local procedure CreateSalesOrderWithOneLine(var SalesLine: Record "Sales Line"; GenBusPstGrp: Code[20]; GenProdPstGrpNo: Code[20])
+    var
+        Customer: Record Customer;
+        GenProdPstGrp: Record "Gen. Product Posting Group";
+        GLAccount: Record "G/L Account";
+        SalesHeader: Record "Sales Header";
+    begin
+        GenProdPstGrp.Get(GenProdPstGrpNo);
+        GenProdPstGrp.Validate("Auto Insert Default", false);
+        GenProdPstGrp.Modify(true);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
+        GLAccount.Validate("Gen. Prod. Posting Group", GenProdPstGrpNo);
+        GLAccount.Modify(true);
+        Customer.Get(LibrarySales.CreateCustomerWithBusPostingGroups(GenBusPstGrp, GLAccount."VAT Bus. Posting Group"));
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", GLAccount."No.", LibraryRandom.RandInt(10));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandInt(100));
+        SalesLine.Modify(true);
+    end;
+
+    local procedure CreateServiceInvoiceWithOneLine(var ServiceLine: Record "Service Line"; GenBusPstGrp: Code[20]; GenProdPstGrpNo: Code[20])
+    var
+        Customer: Record Customer;
+        GenProdPstGrp: Record "Gen. Product Posting Group";
+        GLAccount: Record "G/L Account";
+        ServiceHeader: Record "Service Header";
+    begin
+        GenProdPstGrp.Get(GenProdPstGrpNo);
+        GenProdPstGrp.Validate("Auto Insert Default", false);
+        GenProdPstGrp.Modify(true);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
+        GLAccount.Validate("Gen. Prod. Posting Group", GenProdPstGrpNo);
+        GLAccount.Modify(true);
+        Customer.Get(LibrarySales.CreateCustomerWithBusPostingGroups(GenBusPstGrp, GLAccount."VAT Bus. Posting Group"));
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, Customer."No.");
+        LibraryService.CreateServiceLineWithQuantity(
+          ServiceLine, ServiceHeader, ServiceLine.Type::"G/L Account", GLAccount."No.", LibraryRandom.RandInt(10));
+        ServiceLine."Unit Price" := LibraryRandom.RandInt(100);
+        ServiceLine."Allow Line Disc." := true;
+        ServiceLine."Allow Invoice Disc." := true;
+        ServiceLine.Modify();
+    end;
+
 
     local procedure CreateServiceInvoiceWithOneLine(var ServiceLine: Record "Service Line")
     var
@@ -1507,11 +1694,11 @@ codeunit 132523 "Discount Setup Notifications"
         ServiceLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2) + 10);
         ServiceLine."Allow Line Disc." := true;
         ServiceLine."Allow Invoice Disc." := true;
-        ServiceLine.Modify;
+        ServiceLine.Modify();
 
         LibraryERM.CreateInvDiscForCustomer(CustInvoiceDisc, ServiceHeader."Customer No.", '', 0);
         CustInvoiceDisc."Discount %" := 3 + LibraryRandom.RandInt(10);
-        CustInvoiceDisc.Modify;
+        CustInvoiceDisc.Modify();
     end;
 
     local procedure DefineAllDiscountAccounts()
@@ -1531,20 +1718,20 @@ codeunit 132523 "Discount Setup Notifications"
     var
         GeneralPostingSetup: Record "General Posting Setup";
     begin
-        DefineAllDiscountAccounts;
+        DefineAllDiscountAccounts();
         CreateGeneralPostingSetup(GeneralPostingSetup, GeneralPostingSetup.FieldNo("Sales Inv. Disc. Account"));
         LibrarySales.SetDiscountPosting(DiscountPosting); // Notification is shown
-        Assert.AreEqual(MissingDiscountAccountMsg, LibraryVariableStorage.DequeueText, 'notification #1 message');
+        Assert.AreEqual(MissingDiscountAccountMsg, LibraryVariableStorage.DequeueText(), 'notification #1 message');
     end;
 
     local procedure ShowPurchNotificationForDiscountPosting(DiscountPosting: Option)
     var
         GeneralPostingSetup: Record "General Posting Setup";
     begin
-        DefineAllDiscountAccounts;
+        DefineAllDiscountAccounts();
         CreateGeneralPostingSetup(GeneralPostingSetup, GeneralPostingSetup.FieldNo("Purch. Inv. Disc. Account"));
         LibraryPurchase.SetDiscountPosting(DiscountPosting); // Notification is shown
-        Assert.AreEqual(MissingDiscountAccountMsg, LibraryVariableStorage.DequeueText, 'notification #1 message');
+        Assert.AreEqual(MissingDiscountAccountMsg, LibraryVariableStorage.DequeueText(), 'notification #1 message');
     end;
 
     local procedure VerifyGenPostingSetupInPage(GeneralPostingSetupPage: TestPage "General Posting Setup"; GeneralPostingSetup: Record "General Posting Setup")

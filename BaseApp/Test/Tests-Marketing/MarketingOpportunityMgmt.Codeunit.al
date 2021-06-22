@@ -613,7 +613,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
 
         // 3. Verify: Verify error occurs on Make Order from Create Sales Quote to Active Opportunity.
         SalesHeader.Get(SalesHeader."Document Type"::Quote, SalesQuoteNo);
-        Commit;
+        Commit();
         asserterror CODEUNIT.Run(CODEUNIT::"Sales-Quote to Order", SalesHeader);
     end;
 
@@ -644,7 +644,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         Opportunity.SetRange("Contact No.", Contact."No.");
         Opportunity.FindFirst;
         Opportunity.CreateQuote;
-        Commit;
+        Commit();
 
         SalesHeader.Get(SalesHeader."Document Type"::Quote, SalesQuoteNo);
         CODEUNIT.Run(CODEUNIT::"Sales-Quote to Order", SalesHeader);
@@ -1143,7 +1143,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         // [GIVEN] Close Opportunity Code "COP"
         LibraryMarketing.CreateCloseOpportunityCode(CloseOpportunityCode);
         CloseOpportunityCode.Validate(Type, CloseOpportunityCode.Type::Won);
-        CloseOpportunityCode.Modify;
+        CloseOpportunityCode.Modify();
 
         // [GIVEN] Opportunity for Contact "C"
         OpenOpportunityCardForContact(OpportunityCard, ContactNo);
@@ -1160,7 +1160,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
           LibraryInventory.CreateItemNoWithPostingSetup(GenProductPostingGroup.Code, VATPostingSetup."VAT Prod. Posting Group"),
           LibraryRandom.RandInt(10));
         SalesLine.Validate("Unit Price", LibraryRandom.RandInt(100));
-        SalesLine.Modify;
+        SalesLine.Modify();
 
         LibraryVariableStorage.Enqueue(CloseOpportunityCode.Code);
         LibraryVariableStorage.Enqueue(GetSalesDocValue(SalesHeader));
@@ -1530,10 +1530,10 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         SalesCycleStage.Get(SalesCycleStage."Sales Cycle Code", SalesCycleStage.Stage);
 
         // [GIVEN] "Opportunity Entry" with "Sales Cycle Stage Description" = "DESCR2" and "Sales Cycle Code" = "SCC"
-        OpportunityEntry.Init;
+        OpportunityEntry.Init();
         OpportunityEntry."Entry No." := LibraryUtility.GetNewRecNo(OpportunityEntry, OpportunityEntry.FieldNo("Entry No."));
         OpportunityEntry."Sales Cycle Code" := SalesCycleStage."Sales Cycle Code";
-        OpportunityEntry.Insert;
+        OpportunityEntry.Insert();
         LibraryUtility.FillFieldMaxText(OpportunityEntry, OpportunityEntry.FieldNo("Sales Cycle Stage Description"));
         OpportunityEntry.Get(OpportunityEntry."Entry No.");
 
@@ -1664,12 +1664,12 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         LibraryMarketing.CreateSegmentHeader(SegmentHeader);
         LibraryMarketing.CreateSegmentLine(SegmentLine, SegmentHeader."No.");
         SegmentLine.Validate("Contact No.", Contact."No.");
-        SegmentLine.Modify;
+        SegmentLine.Modify();
 
         // [GIVEN] Opportunity created from Segment with Sales Cycle assigned
         Opportunity.CreateFromSegmentLine(SegmentLine);
         Opportunity."Sales Cycle Code" := SalesCycleStage."Sales Cycle Code";
-        Opportunity.Modify;
+        Opportunity.Modify();
 
         // [WHEN] Opportunity First Stage is activated
         Opportunity.StartActivateFirstStage;
@@ -1713,6 +1713,33 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         Assert.IsTrue(Result = true, 'Expected LookupOK');
     end;
 
+    [Test]
+    [HandlerFunctions('UpdateOpportunityModalPageHandler,ConfirmMessageHandler')]
+    [Scope('OnPrem')]
+    procedure UpdateOppotunityPageFieldSalesCycleDescription();
+    var
+        Opportunity: Record Opportunity;
+        OpportunityEntry: Record "Opportunity Entry";
+        SalesCycle: Record "Sales Cycle";
+        SalesCycleStage: Record "Sales Cycle Stage";
+        UpdateOpportunity: TestPage "Update Opportunity";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 346726] Page "Update Entry" field "Sales Cycle Description" shows Description of Sales Cycle Stage.
+        Initialize;
+
+        // [GIVEN] Opportunity with Opportunity Entry.
+        LibraryMarketing.CreateOpportunity(Opportunity, LibraryMarketing.CreateCompanyContactNo());
+        Opportunity.StartActivateFirstStage();
+
+        // [WHEN] Page "Update Entry" is opened.
+        Opportunity.UpdateOpportunity();
+
+        // [THEN] Page "Update Entry" field "Sales Cycle Description" is equal to Description of Sales Cycle Stage.
+        SalesCycleStage.GET(Opportunity."Sales Cycle Code", LibraryVariableStorage.DequeueInteger);
+        Assert.AreEqual(SalesCycleStage.Description, LibraryVariableStorage.DequeueText(), '');
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Marketing Opportunity Mgmt");
@@ -1724,7 +1751,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         LibrarySales.SetCreditWarningsToNoWarnings;
         LibrarySales.SetStockoutWarning(false);
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Marketing Opportunity Mgmt");
     end;
 
@@ -1772,12 +1799,12 @@ codeunit 136209 "Marketing Opportunity Mgmt"
             LineNo := TempAttendee."Line No." + 10000
         else
             LineNo := 10000;
-        TempAttendee.Init;
+        TempAttendee.Init();
         TempAttendee.Validate("Attendance Type", AttendanceType);
         TempAttendee.Validate("Attendee Type", TempAttendee."Attendee Type"::Salesperson);
         TempAttendee.Validate("Line No.", LineNo);  // Use 10000 for Line No.
         TempAttendee.Validate("Attendee No.", AttendeeNo);
-        TempAttendee.Insert;
+        TempAttendee.Insert();
     end;
 
     local procedure CreateAndUpdateOpportunity(var Opportunity: Record Opportunity; var SalesCycleStage: Record "Sales Cycle Stage")
@@ -1793,7 +1820,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
 
         Opportunity.SetRange("Contact No.", Contact."No.");
         TempOpportunity.CreateOppFromOpp(Opportunity);
-        Commit;
+        Commit();
 
         // 2. Exercise: Update Opportunity.
         Opportunity.SetRange("Contact No.", Contact."No.");
@@ -1849,7 +1876,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         CustomerTemplate.Validate("Customer Posting Group", CustomerPostingGroup.Code);
         CustomerTemplate.Validate("Payment Terms Code", PaymentTerms.Code);
         CustomerTemplate.Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
-        CustomerTemplate.Modify;
+        CustomerTemplate.Modify();
         exit(CustomerTemplate.Code);
     end;
 
@@ -1950,10 +1977,10 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         Campaign.Validate("Ending Date", EndingDate);
         Campaign.Modify(true);
 
-        CampaignTargetGroup.Init;
+        CampaignTargetGroup.Init();
         CampaignTargetGroup."No." := Campaign."No.";
         CampaignTargetGroup."Campaign No." := Campaign."No.";
-        CampaignTargetGroup.Insert;
+        CampaignTargetGroup.Insert();
 
         exit(Campaign."No.");
     end;
@@ -1964,7 +1991,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
     begin
         LibraryMarketing.CreateSegmentHeader(SegmentHeader);
         SegmentHeader.Validate("Campaign No.", CampaignNo);
-        SegmentHeader.Modify;
+        SegmentHeader.Modify();
         exit(SegmentHeader."No.");
     end;
 
@@ -1974,9 +2001,9 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         SegmentHeader: Record "Segment Header";
         SegmentLine: Record "Segment Line";
     begin
-        Campaign.DeleteAll;
-        SegmentHeader.DeleteAll;
-        SegmentLine.DeleteAll;
+        Campaign.DeleteAll();
+        SegmentHeader.DeleteAll();
+        SegmentLine.DeleteAll();
     end;
 
     local procedure GetSalesDocValue(SalesHeader: Record "Sales Header"): Decimal
@@ -2001,7 +2028,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         MarketingSetup: Record "Marketing Setup";
         NoSeriesMgt: Codeunit NoSeriesManagement;
     begin
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         exit(NoSeriesMgt.GetNextNo(MarketingSetup."Opportunity Nos.", 0D, false));
     end;
 
@@ -2214,9 +2241,9 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         TempOpportunityEntry: Record "Opportunity Entry" temporary;
         CloseOpportunityCode: Record "Close Opportunity Code";
     begin
-        TempOpportunityEntry.Init;
+        TempOpportunityEntry.Init();
         CloseOpportunity.GetRecord(TempOpportunityEntry);
-        TempOpportunityEntry.Insert;
+        TempOpportunityEntry.Insert();
         TempOpportunityEntry.Validate("Action Taken", ActionTaken);
 
         if ActionTaken = ActionTaken::Won then
@@ -2237,9 +2264,9 @@ codeunit 136209 "Marketing Opportunity Mgmt"
     var
         TempOpportunity: Record Opportunity temporary;
     begin
-        TempOpportunity.Init;
+        TempOpportunity.Init();
         CreateOpportunity.GetRecord(TempOpportunity);
-        TempOpportunity.Insert;
+        TempOpportunity.Insert();
         TempOpportunity.Validate(
           Description, LibraryUtility.GenerateRandomCode(TempOpportunity.FieldNo(Description), DATABASE::Opportunity));
         TempOpportunity.Validate("Sales Cycle Code", SalesCycleCode);
@@ -2262,20 +2289,20 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         TempOpportunityEntry: Record "Opportunity Entry" temporary;
         SalesCycleStage: Record "Sales Cycle Stage";
     begin
-        TempOpportunityEntry.Init;
+        TempOpportunityEntry.Init();
         UpdateOpportunity.GetRecord(TempOpportunityEntry);
-        TempOpportunityEntry.Insert;
+        TempOpportunityEntry.Insert();
         TempOpportunityEntry.CreateStageList;
         TempOpportunityEntry.Validate("Action Type", ActionType);
         TempOpportunityEntry.Validate("Sales Cycle Stage", CurrentSalesCycleStage);
-        TempOpportunityEntry.Modify;
+        TempOpportunityEntry.Modify();
         TempOpportunityEntry.WizardSalesCycleStageValidate2;
 
         TempOpportunityEntry.Validate("Estimated Value (LCY)", WizardEstimatedValueLCY);
         SalesCycleStage.Get(TempOpportunityEntry."Sales Cycle Code", CurrentSalesCycleStage);
         TempOpportunityEntry.Validate("Chances of Success %", SalesCycleStage."Chances of Success %");
         TempOpportunityEntry.Validate("Estimated Close Date", CalcDate('<1D>', WorkDate));
-        TempOpportunityEntry.Modify;
+        TempOpportunityEntry.Modify();
 
         TempOpportunityEntry.CheckStatus2;
         TempOpportunityEntry.FinishWizard2;
@@ -2288,9 +2315,9 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         TempTask: Record "To-do" temporary;
         TempAttendee: Record Attendee temporary;
     begin
-        TempTask.Init;
+        TempTask.Init();
         CreateTask.GetRecord(TempTask);
-        TempTask.Insert;
+        TempTask.Insert();
         TempTask.Validate(Type, TempTask.Type::Meeting);
         TempTask.Validate(Description, TempTask."Opportunity No.");
         TempTask.Validate(Date, WorkDate);
@@ -2357,7 +2384,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         SalesHeader: Record "Sales Header";
         Customer: Record Customer;
     begin
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesQuote.GetRecord(SalesHeader);
         LibrarySales.CreateCustomer(Customer);
         SalesHeader."Sell-to Customer No." := Customer."No.";  // Assign value to avoid Confirmation Message.
@@ -2370,7 +2397,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
     [Scope('OnPrem')]
     procedure FormHandlerOpportunityStatis(var OpportunityStatistics: Page "Opportunity Statistics")
     begin
-        Opportunity2.Init;
+        Opportunity2.Init();
         OpportunityStatistics.GetRecord(Opportunity2);
     end;
 
@@ -2378,7 +2405,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
     [Scope('OnPrem')]
     procedure FormHandlerContactStatis(var ContactStatistics: Page "Contact Statistics")
     begin
-        Contact2.Init;
+        Contact2.Init();
         ContactStatistics.GetRecord(Contact2);
     end;
 
@@ -2386,7 +2413,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
     [Scope('OnPrem')]
     procedure FormHandlerSalesPersonStatis(var SalespersonStatistics: Page "Salesperson Statistics")
     begin
-        SalespersonPurchaser2.Init;
+        SalespersonPurchaser2.Init();
         SalespersonStatistics.GetRecord(SalespersonPurchaser2);
     end;
 
@@ -2394,7 +2421,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
     [Scope('OnPrem')]
     procedure FormHandlerSalesCycleStatis(var SalesCycleStatistics: Page "Sales Cycle Statistics")
     begin
-        SalesCycle2.Init;
+        SalesCycle2.Init();
         SalesCycleStatistics.GetRecord(SalesCycle2);
     end;
 
@@ -2402,7 +2429,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
     [Scope('OnPrem')]
     procedure FormHandlerSalesCycleStage(var SalesCycleStageStatistics: Page "Sales Cycle Stage Statistics")
     begin
-        SalesCycleStage2.Init;
+        SalesCycleStage2.Init();
         SalesCycleStageStatistics.GetRecord(SalesCycleStage2);
     end;
 
@@ -2501,6 +2528,15 @@ codeunit 136209 "Marketing Opportunity Mgmt"
     procedure SalesCycleStagesModalPageHandler(var SalesCycleStages: TestPage "Sales Cycle Stages")
     begin
         SalesCycleStages.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure UpdateOpportunityModalPageHandler(var UpdateOpportunity: TestPage "Update Opportunity");
+    begin
+        LibraryVariableStorage.Enqueue(UpdateOpportunity."Sales Cycle Stage".Value());
+        LibraryVariableStorage.Enqueue(UpdateOpportunity."Sales Cycle Stage Description".Value());
+        UpdateOpportunity.Cancel.Invoke();
     end;
 }
 

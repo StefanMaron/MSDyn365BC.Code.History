@@ -2,6 +2,7 @@ codeunit 139460 "User Access in SaaS Tests"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     begin
@@ -21,6 +22,7 @@ codeunit 139460 "User Access in SaaS Tests"
         WsInvokeCancelToEnter: Boolean;
         UserGroupO365FullAccessTxt: Label 'D365 FULL ACCESS';
         NewUsersCannotLoginQst: Label 'You have not specified a user group that will be assigned automatically to new users. If users are not assigned a user group, they cannot sign in. \\Do you want to continue?';
+        CannotEditForOtherUsersErr: Label 'You can only change your own web service access keys.';
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -163,22 +165,28 @@ codeunit 139460 "User Access in SaaS Tests"
         // [WHEN] The current user opens another user's card
         // [THEN] The user cannnot see the other user's current web service key
         // [THEN] The action to change the web service access key is disabled
-        TestWebServiceKeyAccessibility(UserEuropeDcst1FullTok, true);
+        asserterror TestWebServiceKeyAccessibility(UserEuropeDcst1FullTok, true);
+        Assert.AreEqual(CannotEditForOtherUsersErr, GetLastErrorText(), 'User should not access another user''s web service key.');
     end;
 
     [Test]
-    [HandlerFunctions('SetWebServiceAccessConfirmHandler')]
+    [HandlerFunctions('SetWebServiceAccessHandler,SetWebServiceAccessConfirmHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure CanAccessWebServiceKeyForSelfInSaaS()
+    var
+        TestUserPermissionsSubscbr: Codeunit "Test User Permissions Subscbr.";
     begin
         // [SCENARIO] In SaaS, a user can access his/her own web service key (read/edit)
         Initialize;
+        TestUserPermissionsSubscbr.SetCanManageUser(UserSecurityId()); // admin of one's own
+        BindSubscription(TestUserPermissionsSubscbr);
+        
         // [GIVEN] Running in SaaS
         // [WHEN] The current user opens another user's card
         // [THEN] The current user can see his/her own current web service key
         // [THEN] The action to change the web service access key is enabled
-        TestWebServiceKeyAccessibility(UserId, true);
+        TestWebServiceKeyAccessibility(UserId(), true);
     end;
 
     [Test]
@@ -208,7 +216,7 @@ codeunit 139460 "User Access in SaaS Tests"
         // [WHEN] The current user opens another user's card
         // [THEN] The current user can see his/her own current web service key
         // [THEN] The action to change the web service access key is enabled
-        TestWebServiceKeyAccessibility(UserId, false);
+        TestWebServiceKeyAccessibility(UserId(), false);
     end;
 
     [Test]
@@ -377,11 +385,11 @@ codeunit 139460 "User Access in SaaS Tests"
         Assert.ExpectedError('are supported in the online environment.');
     end;
 
-    local procedure CreateUser(UserName: Code[50])
+    local procedure CreateUser(UserName: Code[50]): Guid
     var
         User: Record User;
     begin
-        CreateUserWithLicenseType(UserName, User."License Type"::"Full User");
+        exit(CreateUserWithLicenseType(UserName, User."License Type"::"Full User"));
     end;
 
     local procedure CreateUserWithLicenseType(UserName: Text[250]; LicenseType: Option): Guid

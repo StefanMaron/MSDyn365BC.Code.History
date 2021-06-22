@@ -232,6 +232,7 @@ codeunit 5522 "Order Planning Mgt."
         Item.SetRange("Drop Shipment Filter", false);
         if DemandDate = 0D then
             DemandDate := WorkDate;
+        Evaluate(ODF, '<0D>');
 
         exit(AvailableToPromise.QtyAvailabletoPromise(Item, GrossRequirement, ScheduledRcpt, DemandDate, 0, ODF))
     end;
