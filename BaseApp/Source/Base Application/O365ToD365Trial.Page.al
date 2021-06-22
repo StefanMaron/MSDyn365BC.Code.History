@@ -72,7 +72,7 @@ page 2355 "O365 To D365 Trial"
     var
         O365SetupMgmt: Codeunit "O365 Setup Mgmt";
         EnablePopupsLbl: Label 'To see the Business Central window, make sure your browser allows pop-ups.';
-        IntroTelemetryTxt: Label 'Business Central introduction video was played from Invoicing.', Comment = '{LOCKED}';
+        IntroTelemetryTxt: Label 'Business Central introduction video was played from Invoicing.', Locked = true;
         InvToBusinessCentralCategoryLbl: Label 'AL Invoicing To Business Central', Locked = true;
 }
 

@@ -1349,6 +1349,10 @@ dotnet
         {
         }
 
+        type(System.Security.Cryptography.AsymmetricAlgorithm; "AsymmetricAlgorithm")
+        {
+        }
+
         type("System.Security.Cryptography.HashAlgorithm"; "HashAlgorithm")
         {
         }

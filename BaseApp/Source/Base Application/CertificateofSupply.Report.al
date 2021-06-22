@@ -37,7 +37,7 @@ report 780 "Certificate of Supply"
                 column(Standard_commercial_description___in_the_case_of_vehicles__including_vehicle_identification_number_Caption; Standard_commercial_description___in_the_case_of_vehicles__including_vehicle_identification_number_Lbl)
                 {
                 }
-                column(DataItem22; Date_the_object_of_the_supply_was_received_in_the_Member_State_of_entry_Lbl)
+                column(Date_the_object_of_the_supply_was_received_in_the_Member_State; Date_the_object_of_the_supply_was_received_in_the_Member_State_of_entry_Lbl)
                 {
                 }
                 column(Date_the_transportation_ended_if_the_customer_transported_the_object_of_the_supply_himself_or_herself_Caption; Date_the_transportation_ended_if_the_customer_transported_the_object_of_the_supply_himself_or_herself_Lbl)

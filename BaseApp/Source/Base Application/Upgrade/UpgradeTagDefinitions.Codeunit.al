@@ -51,11 +51,17 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerDatabaseUpgradeTags.Add(GetUpdateProfileReferencesForDatabaseTag());
         PerDatabaseUpgradeTags.Add(GetRemoveExtensionManagementFromPlanUpgradeTag());
         PerDatabaseUpgradeTags.Add(GetRemoveExtensionManagementFromUsersUpgradeTag());
+        PerDatabaseUpgradeTags.Add(GetHideBlankProfileUpgradeTag());
     end;
 
     procedure GetJobQueueEntryMergeErrorMessageFieldsUpgradeTag(): Code[250]
     begin
         exit('291121-JobQueueEntryMergingErrorMessageFields-20190307')
+    end;
+
+    procedure GetHideBlankProfileUpgradeTag(): Code[250]
+    begin
+        exit('322930-HideBlankProfile-20191023')
     end;
 
     procedure GetNotificationEntryMergeErrorMessageFieldsUpgradeTag(): Code[250]

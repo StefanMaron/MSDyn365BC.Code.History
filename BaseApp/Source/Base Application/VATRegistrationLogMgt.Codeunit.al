@@ -21,6 +21,7 @@ codeunit 249 "VAT Registration Log Mgt."
         NotVerifiedVATRegMsg: Label 'We couldn''t verify the VAT registration number. Try again later.';
         VATSrvDisclaimerUrlTok: Label 'https://go.microsoft.com/fwlink/?linkid=841741', Locked = true;
         DescriptionLbl: Label 'EU VAT Reg. No. Validation Service Setup';
+        UnexpectedResponseErr: Label 'The VAT registration number could not be verified because the VIES VAT Registration No. service may be currently unavailable for the selected EU state, %1.', Comment = '%1 - Country / Region Code';
 
     procedure LogCustomer(Customer: Record Customer)
     var
@@ -68,7 +69,7 @@ codeunit 249 "VAT Registration Log Mgt."
         FoundXmlNode: DotNet XmlNode;
     begin
         if not XMLDOMMgt.FindNodeWithNamespace(XMLDoc.DocumentElement, ValidPathTxt, 'vat', Namespace, FoundXmlNode) then
-            exit;
+            Error(UnexpectedResponseErr, VATRegistrationLog."Country/Region Code");
 
         case LowerCase(FoundXmlNode.InnerText) of
             'true':

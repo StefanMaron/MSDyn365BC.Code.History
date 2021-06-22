@@ -69,6 +69,11 @@
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the due date of the production order.';
+
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update(false);
+                    end;
                 }
                 field("Assigned User ID"; "Assigned User ID")
                 {
@@ -89,29 +94,57 @@
             group(Schedule)
             {
                 Caption = 'Schedule';
-                field("Starting Time"; "Starting Time")
+                field("Starting Time"; StartingTime)
                 {
                     ApplicationArea = Manufacturing;
+                    Caption = 'Starting Time';
                     Importance = Promoted;
                     ToolTip = 'Specifies the starting time of the production order.';
+
+                    trigger OnValidate()
+                    begin
+                        Validate("Starting Time", StartingTime);
+                        CurrPage.Update(true);
+                    end;
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; StartingDate)
                 {
                     ApplicationArea = Manufacturing;
+                    Caption = 'Starting Date';
                     Importance = Promoted;
                     ToolTip = 'Specifies the starting date of the production order.';
+
+                    trigger OnValidate()
+                    begin
+                        Validate("Starting Date", StartingDate);
+                        CurrPage.Update(true);
+                    end;
                 }
-                field("Ending Time"; "Ending Time")
+                field("Ending Time"; EndingTime)
                 {
                     ApplicationArea = Manufacturing;
+                    Caption = 'Ending Time';
                     Importance = Promoted;
                     ToolTip = 'Specifies the ending time of the production order.';
+
+                    trigger OnValidate()
+                    begin
+                        Validate("Ending Time", EndingTime);
+                        CurrPage.Update(true);
+                    end;
                 }
-                field("Ending Date"; "Ending Date")
+                field("Ending Date"; EndingDate)
                 {
                     ApplicationArea = Manufacturing;
+                    Caption = 'Ending Date';
                     Importance = Promoted;
                     ToolTip = 'Specifies the ending date of the production order.';
+
+                    trigger OnValidate()
+                    begin
+                        Validate("Ending Date", EndingDate);
+                        CurrPage.Update(true);
+                    end;
                 }
             }
             group(Posting)
@@ -333,8 +366,17 @@
         }
     }
 
+    trigger OnAfterGetRecord()
+    begin
+        GetStartingEndingDateAndTime(StartingTime, StartingDate, EndingTime, EndingDate);
+    end;
+
     var
         CopyProdOrderDoc: Report "Copy Production Order Document";
+        StartingTime: Time;
+        EndingTime: Time;
+        StartingDate: Date;
+        EndingDate: Date;
 
     local procedure ShortcutDimension1CodeOnAfterV()
     begin

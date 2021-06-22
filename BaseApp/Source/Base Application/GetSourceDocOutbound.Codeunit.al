@@ -434,7 +434,13 @@ codeunit 5752 "Get Source Doc. Outbound"
     local procedure ShowResult(WhseShipmentCreated: Boolean)
     var
         WarehouseRequest: Record "Warehouse Request";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowResult(WhseShipmentCreated, IsHandled);
+        if IsHandled then
+            exit;
+
         if WhseShipmentCreated then begin
             GetSourceDocuments.ShowShipmentDialog;
             OpenWarehouseShipmentPage;
@@ -483,12 +489,12 @@ codeunit 5752 "Get Source Doc. Outbound"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckSalesHeader(var SalesHeader: Record "Sales Header"; ShowError: Boolean)
+    local procedure OnBeforeCheckSalesHeader(var SalesHeader: Record "Sales Header"; var ShowError: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckTransferHeader(var TransferHeader: Record "Transfer Header"; ShowError: Boolean)
+    local procedure OnBeforeCheckTransferHeader(var TransferHeader: Record "Transfer Header"; var ShowError: Boolean)
     begin
     end;
 
@@ -519,6 +525,11 @@ codeunit 5752 "Get Source Doc. Outbound"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetSingleOutboundDoc(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowResult(WhseShipmentCreated: Boolean; var IsHandled: Boolean);
     begin
     end;
 

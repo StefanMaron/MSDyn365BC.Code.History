@@ -249,7 +249,13 @@ table 5741 "Transfer Line"
                 Item: Record Item;
                 ReturnValue: Text[50];
                 ItemDescriptionIsNo: Boolean;
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateDescription(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if (StrLen(Description) <= MaxStrLen(Item."No.")) and ("Item No." <> '') then
                     ItemDescriptionIsNo := Item.Get(Description);
 
@@ -1031,12 +1037,8 @@ table 5741 "Transfer Line"
     begin
         GetTransferHeaderNoVerification;
 
-        TransHeader.TestField("Shipment Date");
-        TransHeader.TestField("Receipt Date");
-        TransHeader.TestField("Transfer-from Code");
-        TransHeader.TestField("Transfer-to Code");
-        if not TransHeader."Direct Transfer" and ("Direct Transfer" = xRec."Direct Transfer") then
-            TransHeader.TestField("In-Transit Code");
+        CheckTransferHeader(TransHeader);
+
         "In-Transit Code" := TransHeader."In-Transit Code";
         "Transfer-from Code" := TransHeader."Transfer-from Code";
         "Transfer-to Code" := TransHeader."Transfer-to Code";
@@ -1051,6 +1053,23 @@ table 5741 "Transfer Line"
         "Direct Transfer" := TransHeader."Direct Transfer";
 
         OnAfterGetTransHeader(Rec, TransHeader);
+    end;
+
+    local procedure CheckTransferHeader(TransferHeader: Record "Transfer Header")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckTransferHeader(TransferHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        TransHeader.TestField("Shipment Date");
+        TransHeader.TestField("Receipt Date");
+        TransHeader.TestField("Transfer-from Code");
+        TransHeader.TestField("Transfer-to Code");
+        if not TransHeader."Direct Transfer" and ("Direct Transfer" = xRec."Direct Transfer") then
+            TransHeader.TestField("In-Transit Code");
     end;
 
     local procedure GetItem()
@@ -1315,6 +1334,7 @@ table 5741 "Transfer Line"
         end;
         SetFilter("Shortcut Dimension 1 Code", Item.GetFilter("Global Dimension 1 Filter"));
         SetFilter("Shortcut Dimension 2 Code", Item.GetFilter("Global Dimension 2 Filter"));
+        SetFilter("Unit of Measure Code", Item.GetFilter("Unit of Measure Filter"));
     end;
 
     procedure FindLinesWithItemToPlan(var Item: Record Item; IsReceipt: Boolean; IsSupplyForPlanning: Boolean): Boolean
@@ -1458,12 +1478,22 @@ table 5741 "Transfer Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckTransferHeader(TransferHeader: Record "Transfer Header"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckWarehouse(TransferLine: Record "Transfer Line"; Location: Record Location; Receive: Boolean; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTestStatusOpen(var TransferLine: Record "Transfer Line"; TransferHeader: Record "Transfer Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateDescription(var TransferLine: Record "Transfer Line"; xTransferLine: Record "Transfer Line"; CurrFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

@@ -15,7 +15,7 @@ codeunit 9651 "Document Report Mgt."
         UpgradeMessageMsg: Label 'The report upgrade process returned the following log messages:\%1.';
         NoReportLayoutUpgradeRequiredMsg: Label 'The layout upgrade process completed without detecting any required changes in the current application.';
         CompanyInformationPicErr: Label 'The document contains elements that cannot be converted to PDF. This may be caused by missing image data in the document.';
-        UnexpectedHexCharacterRegexErr: Label 'hexadecimal value 0x[0-9a-fA-F]*, is an invalid character', Comment = '{LOCKED}';
+        UnexpectedHexCharacterRegexErr: Label 'hexadecimal value 0x[0-9a-fA-F]*, is an invalid character', Locked = true;
         UnexpectedCharInDataErr: Label 'Cannot create the document because it includes garbled text. Make sure the text is readable and then try again.';
         FileTypeWordTxt: Label 'docx', Locked = true;
         FileTypePdfTxt: Label 'pdf', Locked = true;
@@ -104,7 +104,7 @@ codeunit 9651 "Document Report Mgt."
             ReportAction::SaveAsPdf:
                 begin
                     CurrentFileType := FileTypePdfTxt;
-                    ConvertToPdf(TempBlobOut);
+                    ConvertToPdf(TempBlobOut, ReportID);
                 end;
             ReportAction::SaveAsHtml:
                 begin
@@ -234,10 +234,12 @@ codeunit 9651 "Document Report Mgt."
         NAVWordXmlMerger.NewWordDocumentLayout(DocumentStream, REPORT.WordXmlPart(ReportId));
     end;
 
-    local procedure ConvertToPdf(var TempBlob: Codeunit "Temp Blob")
+    local procedure ConvertToPdf(var TempBlob: Codeunit "Temp Blob"; ReportID: Integer)
     begin
         if not TryConvertWordBlobToPdf(TempBlob) then
             Error(CompanyInformationPicErr);
+
+        OnAfterConvertToPdf(TempBlob, ReportID);
     end;
 
     [TryFunction]
@@ -277,7 +279,7 @@ codeunit 9651 "Document Report Mgt."
             PrintWordDocInWord(ReportID, TempBlob, PrinterName, Collate, 1)
         else
             if ClientTypeMgt.GetCurrentClientType in [CLIENTTYPE::Web, CLIENTTYPE::Phone, CLIENTTYPE::Tablet, CLIENTTYPE::Desktop] then begin
-                ConvertToPdf(TempBlob);
+                ConvertToPdf(TempBlob, ReportID);
                 FileMgt.BLOBExport(TempBlob, UserFileName(ReportID, FileTypePdfTxt), true);
             end else
                 PrintWordDocOnServer(TempBlob, PrinterName, Collate);
@@ -476,6 +478,11 @@ codeunit 9651 "Document Report Mgt."
         ReportUpgradeCollection := ReportUpgradeCollection.ReportUpgradeCollection;
         CalculateUpgradeChangeSet(ReportUpgradeCollection);
         ApplyUpgradeToReports(ReportUpgradeCollection, testMode);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterConvertToPdf(var TempBlob: Codeunit "Temp Blob"; ReportID: Integer);
+    begin
     end;
 
     [IntegrationEvent(false, false)]

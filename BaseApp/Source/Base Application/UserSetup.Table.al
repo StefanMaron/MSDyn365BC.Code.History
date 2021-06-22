@@ -205,7 +205,13 @@ table 91 "User Setup"
             trigger OnValidate()
             var
                 UserSetup: Record "User Setup";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateApprovalAdministrator(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Approval Administrator" then begin
                     UserSetup.SetRange("Approval Administrator", true);
                     if not UserSetup.IsEmpty then
@@ -398,6 +404,11 @@ table 91 "User Setup"
     begin
         UserSetupManagement.CheckAllowedPostingDatesRange(
           "Allow Posting From", "Allow Posting To", NotificationType, DATABASE::"User Setup");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateApprovalAdministrator(var UserSetup: Record "User Setup"; var IsHandled: Boolean)
+    begin
     end;
 }
 

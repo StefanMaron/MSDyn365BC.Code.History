@@ -1597,7 +1597,7 @@ codeunit 7307 "Whse.-Activity-Register"
 
     local procedure CheckLines()
     begin
-        OnBeforeCheckLines(WhseActivHeader, WhseActivLine);
+        OnBeforeCheckLines(WhseActivHeader, WhseActivLine, TempBinContentBuffer);
 
         with WhseActivHeader do begin
             TempBinContentBuffer.DeleteAll;
@@ -1871,7 +1871,7 @@ codeunit 7307 "Whse.-Activity-Register"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckLines(var WarehouseActivityHeader: Record "Warehouse Activity Header"; var WarehouseActivityLine: Record "Warehouse Activity Line")
+    local procedure OnBeforeCheckLines(var WarehouseActivityHeader: Record "Warehouse Activity Header"; var WarehouseActivityLine: Record "Warehouse Activity Line"; var TempBinContentBuffer: Record "Bin Content Buffer")
     begin
     end;
 

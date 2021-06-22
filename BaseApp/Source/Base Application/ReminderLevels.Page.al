@@ -164,7 +164,7 @@ page 432 "Reminder Levels"
                     Caption = 'View Additional Fee Chart';
                     Image = Forecast;
                     ToolTip = 'View additional fees in a chart.';
-                    Visible = NOT IsSaaS;
+                    Visible = IsWinClient;
 
                     trigger OnAction()
                     var
@@ -192,6 +192,8 @@ page 432 "Reminder Levels"
     end;
 
     trigger OnOpenPage()
+    var
+        ClientTypeManagement: Codeunit "Client Type Management";
     begin
         ReminderTerms.SetFilter(Code, GetFilter("Reminder Terms Code"));
         ShowColumn := true;
@@ -201,7 +203,7 @@ page 432 "Reminder Levels"
                 ShowColumn := false;
         end;
         ReminderTermsCodeVisible := ShowColumn;
-        IsSaaS := EnvironmentInfo.IsSaaS;
+        IsWinClient := ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::Windows;
     end;
 
     var
@@ -214,7 +216,7 @@ page 432 "Reminder Levels"
         AddFeeSetupEnabled: Boolean;
         AddFeeFieldsEnabled: Boolean;
         ChartNotAvailableInWebErr: Label 'The chart cannot be shown in the %1 Web client. To see the chart, use the %1 Windows client.', Comment = '%1 - product name';
-        IsSaaS: Boolean;
+        IsWinClient: Boolean;
 
     local procedure CheckAddFeeCalcType()
     begin

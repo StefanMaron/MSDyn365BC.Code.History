@@ -256,9 +256,11 @@ codeunit 99000889 AvailabilityManagement
 
     local procedure CalcAvailableToPromiseLine(var OrderPromisingLine: Record "Order Promising Line")
     var
+        SourceSalesLine: Record "Sales Line";
         NeededDate: Date;
         FeasibleDate: Date;
         AvailQty: Decimal;
+        FeasibleDateFound: Boolean;
     begin
         with OrderPromisingLine do begin
             Item.Get("Item No.");
@@ -275,10 +277,18 @@ codeunit 99000889 AvailabilityManagement
                         else
                             NeededDate := WorkDate;
                         AvailToPromise.SetPromisingReqShipDate(OrderPromisingLine);
-                        FeasibleDate :=
-                          AvailToPromise.EarliestAvailabilityDate(
-                            Item, Quantity, NeededDate, Quantity, "Requested Shipment Date", AvailQty,
-                            CompanyInfo."Check-Avail. Time Bucket", CompanyInfo."Check-Avail. Period Calc.");
+
+                        FeasibleDateFound := false;
+                        if "Source Type" = "Source Type"::Sales then
+                            if SourceSalesLine.Get("Source Subtype", "Source ID", "Source Line No.") then
+                                if SourceSalesLine."Special Order" then begin
+                                    FeasibleDate := GetExpectedReceiptDateFromSpecialOrder(SourceSalesLine);
+                                    FeasibleDateFound := true;
+                                end;
+                        if not FeasibleDateFound then
+                            FeasibleDate := AvailToPromise.EarliestAvailabilityDate(
+                                Item, Quantity, NeededDate, Quantity, "Requested Shipment Date", AvailQty,
+                                CompanyInfo."Check-Avail. Time Bucket", CompanyInfo."Check-Avail. Period Calc.");
 
                         if (FeasibleDate <> 0D) and (FeasibleDate < "Requested Shipment Date") then
                             if GetRequestedDeliveryDateFromOrderPromisingLineSource(OrderPromisingLine) <> 0D then
@@ -289,6 +299,17 @@ codeunit 99000889 AvailabilityManagement
             OnCalcAvailableToPromiseLineOnBeforeModify(OrderPromisingLine);
             Modify;
         end;
+    end;
+
+    local procedure GetExpectedReceiptDateFromSpecialOrder(SalesLine: Record "Sales Line"): Date
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        if PurchaseLine.Get(
+             PurchaseLine."Document Type"::Order, SalesLine."Special Order Purchase No.", SalesLine."Special Order Purch. Line No.")
+        then
+            exit(PurchaseLine."Expected Receipt Date");
+        exit(0D);
     end;
 
     local procedure GetRequestedDeliveryDateFromOrderPromisingLineSource(OrderPromisingLine: Record "Order Promising Line"): Date

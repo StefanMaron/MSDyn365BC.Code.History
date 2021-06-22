@@ -57,22 +57,10 @@ page 5755 "Transfer Statistics"
     }
 
     trigger OnAfterGetRecord()
-    var
-        TransLine: Record "Transfer Line";
     begin
         ClearAll;
 
-        TransLine.SetRange("Document No.", "No.");
-        TransLine.SetRange("Derived From Line No.", 0);
-        if TransLine.Find('-') then
-            repeat
-                LineQty := LineQty + TransLine.Quantity;
-                TotalNetWeight := TotalNetWeight + (TransLine.Quantity * TransLine."Net Weight");
-                TotalGrossWeight := TotalGrossWeight + (TransLine.Quantity * TransLine."Gross Weight");
-                TotalVolume := TotalVolume + (TransLine.Quantity * TransLine."Unit Volume");
-                if TransLine."Units per Parcel" > 0 then
-                    TotalParcels := TotalParcels + Round(TransLine.Quantity / TransLine."Units per Parcel", 1, '>');
-            until TransLine.Next = 0;
+        CalculateTotals();
     end;
 
     var
@@ -81,5 +69,41 @@ page 5755 "Transfer Statistics"
         TotalGrossWeight: Decimal;
         TotalVolume: Decimal;
         TotalParcels: Decimal;
+
+    local procedure CalculateTotals()
+    var
+        TransLine: Record "Transfer Line";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCalculateTotals(Rec, LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels, IsHandled);
+        if IsHandled then
+            exit;
+
+        TransLine.SetRange("Document No.", "No.");
+        TransLine.SetRange("Derived From Line No.", 0);
+        if TransLine.Find('-') then
+            repeat
+                LineQty += TransLine.Quantity;
+                TotalNetWeight += TransLine.Quantity * TransLine."Net Weight";
+                TotalGrossWeight += TransLine.Quantity * TransLine."Gross Weight";
+                TotalVolume += TransLine.Quantity * TransLine."Unit Volume";
+                if TransLine."Units per Parcel" > 0 then
+                    TotalParcels += Round(TransLine.Quantity / TransLine."Units per Parcel", 1, '>');
+
+                OnCalculateTotalsOnAfterAddLineTotals(
+                    TransLine, LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels)
+            until TransLine.Next = 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateTotals(TransferHeader: Record "Transfer Header"; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateTotalsOnAfterAddLineTotals(var TransferLine: Record "Transfer Line"; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal)
+    begin
+    end;
 }
 

@@ -4590,6 +4590,7 @@ table 5902 "Service Line"
         SetFilter("Shortcut Dimension 1 Code", Item.GetFilter("Global Dimension 1 Filter"));
         SetFilter("Shortcut Dimension 2 Code", Item.GetFilter("Global Dimension 2 Filter"));
         SetFilter("Outstanding Qty. (Base)", '<>0');
+        SetFilter("Unit of Measure Code", Item.GetFilter("Unit of Measure Filter"));
 
         OnAfterFilterLinesWithItemToPlan(Rec, Item);
     end;

@@ -124,6 +124,80 @@ codeunit 134068 "ECSL Suggest Line Test"
         Teardown;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ECSLDeleteLinesAndRelationsWhenDeleteECSLVATReportHeader()
+    var
+        VATEntry: Record "VAT Entry";
+        VATReportHeader: Record "VAT Report Header";
+        ECSLVATReportLine: Record "ECSL VAT Report Line";
+        ECSLVATReportLineRelation: Record "ECSL VAT Report Line Relation";
+        StartDate: Date;
+        EndDate: Date;
+    begin
+        // [FEATURE] [ECSL]
+        // [SCENARIO 330462] When delete ECSL VAT Report Header, corresponding ECSL VAT Report Lines and ECSL VAT Report Line Relations are also deleted
+        StartDate := DMY2Date(1, 1, 2017);
+        EndDate := DMY2Date(31, 1, 2017);
+
+        // [GIVEN] Created two VAT Entries
+        VATEntry.DeleteAll;
+        InitVatEntry(VATEntry, '100001', StartDate);
+        InitVatEntry(VATEntry, '100002', EndDate);
+
+        // [GIVEN] Created ECSL VAT Report Header and corresponding ECSL Lines
+        InitReportHeader(VATReportHeader, StartDate, EndDate);
+        CODEUNIT.Run(CODEUNIT::"EC Sales List Suggest Lines", VATReportHeader);
+
+        // [WHEN] Delete ECSL VAT Report Header
+        VATReportHeader.Delete(true);
+
+        // [THEN] ECSL VAT Report Lines and ECSL VAT Report Line Relations are also deleted
+        ECSLVATReportLine.SetRange("Report No.", VATReportHeader."No.");
+        Assert.RecordIsEmpty(ECSLVATReportLine);
+        ECSLVATReportLineRelation.SetRange("ECSL Report No.", VATReportHeader."No.");
+        Assert.RecordIsEmpty(ECSLVATReportLineRelation);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ECSLLeaveLinesAndRelationsWhenDeleteNonECSLVATReportHeader()
+    var
+        VATEntry: Record "VAT Entry";
+        VATReportHeader: Record "VAT Report Header";
+        VATReturnVATReportHeader: Record "VAT Report Header";
+        ECSLVATReportLine: Record "ECSL VAT Report Line";
+        ECSLVATReportLineRelation: Record "ECSL VAT Report Line Relation";
+        StartDate: Date;
+        EndDate: Date;
+    begin
+        // [FEATURE] [ECSL]
+        // [SCENARIO 330462] Deleting VAT Return VAT Report Header, does not affect ECSL VAT Report Lines and ECSL VAT Report Line Relations with the same Report No.
+        StartDate := DMY2Date(1, 1, 2017);
+        EndDate := DMY2Date(31, 1, 2017);
+
+        // [GIVEN] Created two VAT Entries
+        VATEntry.DeleteAll;
+        InitVatEntry(VATEntry, '100001', StartDate);
+        InitVatEntry(VATEntry, '100002', EndDate);
+
+        // [GIVEN] Created ECSL VAT Report Header and corresponding ECSL Lines
+        InitReportHeader(VATReportHeader, StartDate, EndDate);
+        CODEUNIT.Run(CODEUNIT::"EC Sales List Suggest Lines", VATReportHeader);
+
+        // [GIVEN] Created VAT Return VAT Report Header with the same "No."
+        InitVatReturnReportHeaderCopyNo(VATReturnVATReportHeader, StartDate, EndDate, VATReportHeader."No.");
+
+        // [WHEN] Delete VAT Return VAT Report Header
+        VATReturnVATReportHeader.Delete(true);
+
+        // [THEN] ECSL VAT Report Lines and ECSL VAT Report Line Relations still exist
+        ECSLVATReportLine.SetRange("Report No.", VATReportHeader."No.");
+        Assert.RecordIsNotEmpty(ECSLVATReportLine);
+        ECSLVATReportLineRelation.SetRange("ECSL Report No.", VATReportHeader."No.");
+        Assert.RecordIsNotEmpty(ECSLVATReportLineRelation);
+    end;
+
     local procedure InitReportHeader(var VATReportHeader: Record "VAT Report Header"; StartDate: Date; EndDate: Date)
     begin
         VATReportHeader.Init;
@@ -136,6 +210,21 @@ codeunit 134068 "ECSL Suggest Line Test"
         VATReportHeader."Period Year" := Date2DMY(StartDate, 3);
 
         VATReportHeader."VAT Report Config. Code" := VATReportHeader."VAT Report Config. Code"::"EC Sales List";
+        VATReportHeader.Insert;
+    end;
+
+    local procedure InitVatReturnReportHeaderCopyNo(var VATReportHeader: Record "VAT Report Header"; StartDate: Date; EndDate: Date; ReportNo: Code[20])
+    begin
+        VATReportHeader.Init;
+        VATReportHeader."Start Date" := StartDate;
+        VATReportHeader."End Date" := EndDate;
+        VATReportHeader."No." := ReportNo;
+
+        VATReportHeader."Period Type" := VATReportHeader."Period Type"::Month;
+        VATReportHeader."Period No." := Date2DMY(StartDate, 2);
+        VATReportHeader."Period Year" := Date2DMY(StartDate, 3);
+
+        VATReportHeader."VAT Report Config. Code" := VATReportHeader."VAT Report Config. Code"::"VAT Return";
         VATReportHeader.Insert;
     end;
 

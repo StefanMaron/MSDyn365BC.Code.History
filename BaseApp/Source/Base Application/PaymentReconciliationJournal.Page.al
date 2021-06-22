@@ -937,6 +937,7 @@
         BankAccReconciliation.Get("Statement Type", "Bank Account No.", "Statement No.");
         BankAccReconciliation."Post Payments Only" := OnlyPayments;
 
+        OnBeforeInvokePost(BankAccReconciliation);
         if BankAccReconPostYesNo.BankAccReconPostYesNo(BankAccReconciliation) then begin
             Reset;
             PageClosedByPosting := true;
@@ -1003,6 +1004,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var ShortcutDimCode: array[8] of Code[20]; DimIndex: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInvokePost(BankAccReconciliation: Record "Bank Acc. Reconciliation")
     begin
     end;
 }

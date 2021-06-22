@@ -1150,8 +1150,11 @@
     procedure DeltaUpdateTotals()
     begin
         DocumentTotals.PurchaseDeltaUpdateTotals(Rec, xRec, TotalPurchaseLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
-        CurrPage.SaveRecord;
-        SendLineInvoiceDiscountResetNotification;
+        if "Line Amount" <> xRec."Line Amount" then begin
+            CurrPage.SaveRecord;
+            SendLineInvoiceDiscountResetNotification;
+            CurrPage.Update(false);
+        end;
     end;
 
     procedure UpdateEditableOnRow()

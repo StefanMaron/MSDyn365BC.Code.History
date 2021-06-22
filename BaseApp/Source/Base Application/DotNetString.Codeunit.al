@@ -96,6 +96,11 @@ codeunit 3007 DotNet_String
         exit(DotNetString.IndexOf(Value, StartIndex));
     end;
 
+    procedure LastIndexOfString(Value: Text): Integer;
+    begin
+        exit(DotNetString.LastIndexOf(Value));
+    end;
+
     procedure Substring(StartIndex: Integer; Length: Integer): Text
     begin
         exit(DotNetString.Substring(StartIndex, Length));

@@ -332,6 +332,7 @@ codeunit 134030 "ERM VAT 2010"
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
         EUServiceOld := VATPostingSetup."EU Service";
         VATPostingSetup.Validate("EU Service", EUService);
+        VATPostingSetup.Validate("Adjust for Payment Discount", false);
         VATPostingSetup.Modify(true);
     end;
 

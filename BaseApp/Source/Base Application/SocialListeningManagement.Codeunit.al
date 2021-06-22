@@ -6,7 +6,7 @@ codeunit 871 "Social Listening Management"
     end;
 
     var
-        MslProductNameTxt: Label 'Microsoft Social Engagement', Comment = '{locked}';
+        MslProductNameTxt: Label 'Microsoft Social Engagement', Locked = true;
         FailedToConnectTxt: Label 'Failed to connect to %1.<br><br>Verify the configuration of %1 in %3.<br><br>Afterwards %2 to try connecting to %1 again.', Comment = '%1 = Microsoft Social Engagement, %2 = refresh, %3 - product name';
         HasNotBeenAuthenticatedTxt: Label '%1 has not been authenticated.<br><br>Go to %2 to open the authentication window.<br><br>Afterwards %3 to show data.', Comment = '%1 = Microsoft Social Engagement, %2= Microsoft Social Engagement,%3 = refresh';
         ExpectedValueErr: Label 'Expected value should be an integer or url path containing %2 in %1.';

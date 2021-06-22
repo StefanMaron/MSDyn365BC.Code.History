@@ -91,35 +91,69 @@
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the starting date and the starting time, which are combined in a format called "starting date-time".';
+
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update(false);
+                    end;
                 }
-                field("Starting Time"; "Starting Time")
+                field("Starting Time"; StartingTime)
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the entry''s starting time, which is retrieved from the production order routing.';
                     Visible = false;
+
+                    trigger OnValidate()
+                    begin
+                        Validate("Starting Time", StartingTime);
+                        CurrPage.Update(true);
+                    end;
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; StartingDate)
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the entry''s starting date, which is retrieved from the production order routing.';
                     Visible = false;
+
+                    trigger OnValidate()
+                    begin
+                        Validate("Starting Date", StartingDate);
+                        CurrPage.Update(true);
+                    end;
                 }
                 field("Ending Date-Time"; "Ending Date-Time")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the ending date and the ending time, which are combined in a format called "ending date-time".';
+
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update(false);
+                    end;
                 }
-                field("Ending Time"; "Ending Time")
+                field("Ending Time"; EndingTime)
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the entry''s ending time, which is retrieved from the production order routing.';
                     Visible = false;
+
+                    trigger OnValidate()
+                    begin
+                        Validate("Ending Time", EndingTime);
+                        CurrPage.Update(true);
+                    end;
                 }
-                field("Ending Date"; "Ending Date")
+                field("Ending Date"; EndingDate)
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the entry''s ending date, which is retrieved from the production order routing.';
                     Visible = false;
+
+                    trigger OnValidate()
+                    begin
+                        Validate("Ending Date", EndingDate);
+                        CurrPage.Update(true);
+                    end;
                 }
                 field("Scrap %"; "Scrap %")
                 {
@@ -131,6 +165,11 @@
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the quantity to be produced if you manually fill in this line.';
+
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update(true);
+                    end;
                 }
                 field("Reserved Quantity"; "Reserved Quantity")
                 {
@@ -142,6 +181,11 @@
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
+
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update(true);
+                    end;
                 }
                 field("Finished Quantity"; "Finished Quantity")
                 {
@@ -451,6 +495,7 @@
         DescriptionIndent := 0;
         ShowShortcutDimCode(ShortcutDimCode);
         DescriptionOnFormat;
+        GetStartingEndingDateAndTime(StartingTime, StartingDate, EndingTime, EndingDate);
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -472,6 +517,10 @@
         ShortcutDimCode: array[8] of Code[20];
         [InDataSet]
         DescriptionIndent: Integer;
+        StartingTime: Time;
+        EndingTime: Time;
+        StartingDate: Date;
+        EndingDate: Date;
 
     local procedure ShowComponents()
     var

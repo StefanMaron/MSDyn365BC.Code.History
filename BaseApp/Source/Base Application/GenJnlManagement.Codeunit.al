@@ -152,6 +152,17 @@ codeunit 230 GenJnlManagement
         GenJnlBatch.FilterGroup(2);
     end;
 
+    procedure IsBatchNoSeriesEmpty(var CurrentJnlBatchName: Code[10]; var GenJnlLine: Record "Gen. Journal Line"): Boolean
+    var
+        GenJnlBatch: Record "Gen. Journal Batch";
+    begin
+        if (GenJnlLine."Journal Template Name" <> '') and (GenJnlLine.GetFilter("Journal Template Name") = '') then
+            GenJnlBatch.get(GenJnlLine."Journal Template Name", CurrentJnlBatchName)
+        else
+            if GenJnlBatch.get(GenJnlLine.GetRangeMax("Journal Template Name"), CurrentJnlBatchName) then;
+        exit(GenJnlBatch."No. Series" = '');
+    end;
+
     local procedure CheckTemplateName(CurrentJnlTemplateName: Code[10]; var CurrentJnlBatchName: Code[10])
     var
         GenJnlBatch: Record "Gen. Journal Batch";

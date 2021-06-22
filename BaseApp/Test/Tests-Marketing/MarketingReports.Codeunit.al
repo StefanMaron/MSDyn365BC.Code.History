@@ -12,12 +12,13 @@ codeunit 136901 "Marketing Reports"
         LibraryService: Codeunit "Library - Service";
         LibraryRandom: Codeunit "Library - Random";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
+        LibraryReportValidation: Codeunit "Library - Report Validation";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryMarketing: Codeunit "Library - Marketing";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         isInitialized: Boolean;
-        SalesCycleCode: Code[10];
         CampaignNo2: Code[20];
         ContactNo2: Code[20];
         OpportunityNo: Code[20];
@@ -84,7 +85,7 @@ codeunit 136901 "Marketing Reports"
         LibraryMarketing.CreateActivity(Activity);
         LibraryMarketing.CreateActivityStep(ActivityStep, Activity.Code);
         CreateSalesCycleStage(SalesCycleStage, Activity.Code);
-        SalesCycleCode := SalesCycleStage."Sales Cycle Code";  // Assign Global Variable for page handler.
+        LibraryVariableStorage.Enqueue(SalesCycleStage."Sales Cycle Code");
         CreateOpportunity(Contact."No.");
 
         // 2. Exercise: Run Opportunity Details Report.
@@ -97,6 +98,8 @@ codeunit 136901 "Marketing Reports"
         LibraryReportDataset.GetNextRow;
         LibraryReportDataset.AssertCurrentRowValueEquals('Desc_SalescCycleStage', SalesCycleStage.Description);
         VerifyActivityStepOnReport(Activity.Code);
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -192,7 +195,7 @@ codeunit 136901 "Marketing Reports"
         LibraryMarketing.CreateActivity(Activity);
         LibraryMarketing.CreateActivityStep(ActivityStep, Activity.Code);
         CreateSalesCycleStage(SalesCycleStage, Activity.Code);
-        SalesCycleCode := SalesCycleStage."Sales Cycle Code";  // Assign Global Variable for page handler.
+        LibraryVariableStorage.Enqueue(SalesCycleStage."Sales Cycle Code");
         CreateOpportunity(Contact."No.");
         Opportunity.SetRange("Contact No.", Contact."No.");
         Opportunity.FindFirst;
@@ -211,6 +214,8 @@ codeunit 136901 "Marketing Reports"
         Task.FindFirst;
         VerifyTaskDetails(Task);
         LibraryReportDataset.AssertCurrentRowValueEquals('Task__Opportunity_No__', Task."Opportunity No.");
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -234,8 +239,8 @@ codeunit 136901 "Marketing Reports"
         LibraryMarketing.CreateActivity(Activity);
         LibraryMarketing.CreateActivityStep(ActivityStep, Activity.Code);
         CreateSalesCycleStage(SalesCycleStage, Activity.Code);
-        SalesCycleCode := SalesCycleStage."Sales Cycle Code";  // Assign Global Variable for page handler.
         CurrentSalesCycleStage := SalesCycleStage.Stage;  // Assign Global Variable for page handler.
+        LibraryVariableStorage.Enqueue(SalesCycleStage."Sales Cycle Code");
         CreateOpportunity(Contact."No.");
         UpdateOpportunity(Contact."No.");
 
@@ -248,6 +253,8 @@ codeunit 136901 "Marketing Reports"
 
         // 3. Verify: Verify Opportunity details on Salesperson Opportunities Report.
         VerifyOpportunityDetails(Contact."Salesperson Code");
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -820,9 +827,9 @@ codeunit 136901 "Marketing Reports"
         LibraryMarketing.CreateActivityStep(ActivityStep, Activity.Code);
         CreateSalesCycleStage(SalesCycleStage, Activity.Code);
 
-        SalesCycleCode := SalesCycleStage."Sales Cycle Code"; // Assign Global Variable for page handler.
         CurrentSalesCycleStage := SalesCycleStage.Stage; // Assign Global Variable for page handler.
 
+        LibraryVariableStorage.Enqueue(SalesCycleStage."Sales Cycle Code");
         CreateOpportunity(Contact."No.");
         UpdateOpportunity(Contact."No.");
 
@@ -835,10 +842,12 @@ codeunit 136901 "Marketing Reports"
 
         // 3. Verify: Verify Values on Contact List Report.
         VerifyValuesonContactList(Contact);
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
-    [HandlerFunctions('CreateInteractModalPageHandler,ModalPageHandlerOpportunity,PageHandlerUpdateOpportunity,OpportunityListReportHandler')]
+    [HandlerFunctions('CreateInteractModalPageHandler,ModalPageHandlerOpportunity,PageHandlerUpdateOpportunity,OpportunityListRequestPageHandler')]
     [Scope('OnPrem')]
     procedure OpportunityListReport()
     var
@@ -865,9 +874,9 @@ codeunit 136901 "Marketing Reports"
         LibraryMarketing.CreateActivityStep(ActivityStep, Activity.Code);
         CreateSalesCycleStage(SalesCycleStage, Activity.Code);
 
-        SalesCycleCode := SalesCycleStage."Sales Cycle Code"; // Assign Global Variable for page handler.
         CurrentSalesCycleStage := SalesCycleStage.Stage; // Assign Global Variable for page handler.
 
+        LibraryVariableStorage.Enqueue(SalesCycleStage."Sales Cycle Code");
         CreateOpportunity(Contact."No.");
         UpdateOpportunity(Contact."No.");
 
@@ -881,6 +890,43 @@ codeunit 136901 "Marketing Reports"
         // 3. Verify: Verify Values on Opportunity List Report.
         Opportunity.FindFirst;
         VerifyValuesonOpportunityList(Opportunity);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ModalPageHandlerOpportunity,OpportunityListToExcelRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure OpportunityListToExcel()
+    var
+        Activity: Record Activity;
+        Contact: Record Contact;
+        Opportunity: Record Opportunity;
+        SalesCycleStage: Record "Sales Cycle Stage";
+    begin
+        // [SCENARIO 332702] Run report "Opportunity - List" with saving results to Excel file.
+        Initialize;
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
+
+        // [GIVEN] Sales Cycle Stage, Opportunity.
+        CreateContactWithSalesperson(Contact);
+        LibraryMarketing.CreateActivity(Activity);
+        CreateSalesCycleStage(SalesCycleStage, Activity.Code);
+
+        LibraryVariableStorage.Enqueue(SalesCycleStage."Sales Cycle Code");
+        CreateOpportunity(Contact."No.");
+        Commit;
+
+        // [WHEN] Run report "Opportunity - List", save report output to Excel file.
+        Opportunity.SetRange("Contact No.", Contact."No.");
+        Report.Run(Report::"Opportunity - List", true, false, Opportunity);
+
+        // [THEN] Report output is saved to Excel file.
+        LibraryReportValidation.OpenExcelFile();
+        LibraryReportValidation.VerifyCellValue(1, 13, '1'); // page number
+        Assert.AreNotEqual(0, LibraryReportValidation.FindColumnNoFromColumnCaption('Opportunity - List'), '');
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -911,15 +957,16 @@ codeunit 136901 "Marketing Reports"
         LibraryMarketing.CreateSalesCycle(SalesCycle);
         CreateSalesCycleSingleStage(SalesCycleStage, SalesCycle.Code, Activity.Code);
 
-        SalesCycleCode := SalesCycle.Code; // Assign Global Variable for page handler.
         CurrentSalesCycleStage := SalesCycleStage.Stage; // Assign Global Variable for page handler.
         FirstSalesCycleStage := SalesCycleStage.Stage;
 
         CreateContactWithSalesperson(Contact);
+        LibraryVariableStorage.Enqueue(SalesCycleStage."Sales Cycle Code");
         CreateOpportunity(Contact."No.");
         UpdateOpportunity(Contact."No.");
 
         CreateContactWithSalesperson(Contact2);
+        LibraryVariableStorage.Enqueue(SalesCycleStage."Sales Cycle Code");
         CreateOpportunity(Contact2."No.");
         UpdateOpportunity(Contact2."No.");
 
@@ -946,6 +993,8 @@ codeunit 136901 "Marketing Reports"
 
         // 4. Tear Down: Cleanup the WorkDate.
         WorkDate := CurrentWorkDate;
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1085,7 +1134,6 @@ codeunit 136901 "Marketing Reports"
 
     local procedure InitGlobalVariables()
     begin
-        SalesCycleCode := '';
         CampaignNo2 := '';
         ContactNo2 := '';
         OpportunityNo := '';
@@ -1408,7 +1456,7 @@ codeunit 136901 "Marketing Reports"
         TempOpportunity.Validate(
           Description, LibraryUtility.GenerateRandomCode(TempOpportunity.FieldNo(Description), DATABASE::Opportunity));
 
-        TempOpportunity.Validate("Sales Cycle Code", SalesCycleCode);
+        TempOpportunity.Validate("Sales Cycle Code", LibraryVariableStorage.DequeueText());
         TempOpportunity.CheckStatus;
         TempOpportunity.FinishWizard;
     end;
@@ -1644,9 +1692,16 @@ codeunit 136901 "Marketing Reports"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
-    procedure OpportunityListReportHandler(var OpportunityList: TestRequestPage "Opportunity - List")
+    procedure OpportunityListRequestPageHandler(var OpportunityList: TestRequestPage "Opportunity - List")
     begin
         OpportunityList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure OpportunityListToExcelRequestPageHandler(var OpportunityList: TestRequestPage "Opportunity - List")
+    begin
+        OpportunityList.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 
     [RequestPageHandler]

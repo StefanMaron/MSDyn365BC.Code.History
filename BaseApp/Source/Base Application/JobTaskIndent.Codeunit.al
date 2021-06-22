@@ -13,7 +13,8 @@ codeunit 1003 "Job Task-Indent"
              Text003, true)
         then
             exit;
-        JT := Rec;
+
+        JobTask := Rec;
         Indent("Job No.");
     end;
 
@@ -25,16 +26,17 @@ codeunit 1003 "Job Task-Indent"
         Text004: Label 'Indenting the Job Tasks #1##########.';
         Text005: Label 'End-Total %1 is missing a matching Begin-Total.';
         ArrayExceededErr: Label 'You can only indent %1 levels for job tasks of the type Begin-Total.', Comment = '%1 = A number bigger than 1';
-        JT: Record "Job Task";
+        JobTask: Record "Job Task";
         Window: Dialog;
-        JTNo: array[10] of Code[20];
         i: Integer;
 
     procedure Indent(JobNo: Code[20])
+    var
+        JobTaskNo: array[10] of Code[20];
     begin
         Window.Open(Text004);
-        JT.SetRange("Job No.", JobNo);
-        with JT do
+        JobTask.SetRange("Job No.", JobNo);
+        with JobTask do
             if Find('-') then
                 repeat
                     Window.Update(1, "Job Task No.");
@@ -44,22 +46,28 @@ codeunit 1003 "Job Task-Indent"
                             Error(
                               Text005,
                               "Job Task No.");
-                        Totaling := JTNo[i] + '..' + "Job Task No.";
+                        Totaling := JobTaskNo[i] + '..' + "Job Task No.";
                         i := i - 1;
                     end;
 
                     Indentation := i;
+                    OnBeforeJobTaskModify(JobTask, JobNo);
                     Modify;
 
                     if "Job Task Type" = "Job Task Type"::"Begin-Total" then begin
                         i := i + 1;
-                        if i > ArrayLen(JTNo) then
-                            Error(ArrayExceededErr, ArrayLen(JTNo));
-                        JTNo[i] := "Job Task No.";
+                        if i > ArrayLen(JobTaskNo) then
+                            Error(ArrayExceededErr, ArrayLen(JobTaskNo));
+                        JobTaskNo[i] := "Job Task No.";
                     end;
                 until Next = 0;
 
         Window.Close;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeJobTaskModify(var JobTask: Record "Job Task"; JobNo: Code[20]);
+    begin
     end;
 }
 

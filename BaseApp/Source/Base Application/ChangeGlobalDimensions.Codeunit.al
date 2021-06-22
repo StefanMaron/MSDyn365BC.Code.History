@@ -1,6 +1,7 @@
 codeunit 483 "Change Global Dimensions"
 {
     Permissions = TableData "G/L Entry" = rm,
+                  TableData "VAT Entry" = rm,
                   TableData "Cust. Ledger Entry" = rm,
                   TableData "Vendor Ledger Entry" = rm,
                   TableData "Item Ledger Entry" = rm,
@@ -21,7 +22,10 @@ codeunit 483 "Change Global Dimensions"
                   TableData "Bank Account Ledger Entry" = rm,
                   TableData "Phys. Inventory Ledger Entry" = rm,
                   TableData "Issued Reminder Header" = rm,
+                  TableData "Issued Reminder Line" = rm,
+                  TableData "Reminder/Fin. Charge Entry" = rm,
                   TableData "Issued Fin. Charge Memo Header" = rm,
+                  TableData "Issued Fin. Charge Memo Line" = rm,
                   TableData "Detailed Cust. Ledg. Entry" = rm,
                   TableData "Detailed Vendor Ledg. Entry" = rm,
                   TableData "Posted Assembly Header" = rm,
@@ -50,6 +54,9 @@ codeunit 483 "Change Global Dimensions"
                   TableData "Service Line" = rm,
                   TableData "Service Ledger Entry" = rm,
                   TableData "Service Contract Header" = rm,
+                  TableData "Service Contract Line" = rm,
+                  TableData "Service Invoice Line" = rm,
+                  TableData "Warehouse Entry" = rm,
                   TableData "Filed Service Contract Header" = rm,
                   TableData "Return Shipment Header" = rm,
                   TableData "Return Shipment Line" = rm,
@@ -346,10 +353,15 @@ codeunit 483 "Change Global Dimensions"
     var
         GlobalDimFieldRef: array[2] of FieldRef;
         OldDimValueCode: array[2] of Code[20];
+        IsHandled: Boolean;
     begin
         with ChangeGlobalDimLogEntry do begin
             if ("Change Type 1" = "Change Type 1"::None) and ("Change Type 2" = "Change Type 2"::None) then
                 exit(false);
+
+            OnChangeDimsOnRecord(ChangeGlobalDimLogEntry, RecRef, IsHandled);
+            if IsHandled then
+                exit;
 
             GetFieldRefValues(RecRef, GlobalDimFieldRef, OldDimValueCode);
             ChangeDimOnRecord(RecRef, 1, GlobalDimFieldRef[1], OldDimValueCode[2]);
@@ -365,6 +377,7 @@ codeunit 483 "Change Global Dimensions"
         ParentKeyFieldRef: FieldRef;
         ParentDimValueCode: array[2] of Code[20];
         DimValueCode: array[2] of Code[20];
+        IsHandled: Boolean;
     begin
         ParentChangeGlobalDimLogEntry.GetFieldRefValues(ParentRecRef, GlobalDimFieldRef, ParentDimValueCode);
         ChangeGlobalDimLogEntry.GetPrimaryKeyFieldRef(ParentRecRef, ParentKeyFieldRef);
@@ -374,11 +387,14 @@ codeunit 483 "Change Global Dimensions"
         ParentKeyFieldRef.SetRange(ParentKeyValue);
         if RecRef.FindSet(true) then begin
             repeat
+                OnChangeDependentRecords(ChangeGlobalDimLogEntry, RecRef, IsHandled);
+                if not IsHandled then begin
                 ChangeGlobalDimLogEntry.GetFieldRefValues(RecRef, GlobalDimFieldRef, DimValueCode);
                 GlobalDimFieldRef[1].Value(ParentDimValueCode[1]);
                 GlobalDimFieldRef[2].Value(ParentDimValueCode[2]);
                 RecRef.Modify;
                 CurrentRecNo += 1;
+                end;
             until RecRef.Next = 0;
         end;
     end;
@@ -415,7 +431,6 @@ codeunit 483 "Change Global Dimensions"
                 StartTime += DeltaMsec;
                 ScheduleJobForTable(ChangeGlobalDimLogEntry, StartTime);
             until ChangeGlobalDimLogEntry.Next = 0;
-            OnAfterScheduleJobs;
         end;
     end;
 
@@ -559,7 +574,13 @@ codeunit 483 "Change Global Dimensions"
     end;
 
     local procedure TestDirectModifyPermission(var RecRef: RecordRef)
+    var
+        IsHandled: Boolean;
     begin
+        OnBeforeTestDirectModifyPermission(RecRef, IsHandled);
+        if IsHandled then
+            exit;
+
         if RecRef.FindFirst then
             RecRef.Modify;
     end;
@@ -695,8 +716,20 @@ codeunit 483 "Change Global Dimensions"
         end;
     end;
 
-    local procedure OnAfterScheduleJobs()
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestDirectModifyPermission(var RecRef: RecordRef; var IsHandled: Boolean)
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnChangeDependentRecords(ChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry"; var RecRef: RecordRef; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnChangeDimsOnRecord(ChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry"; var RecRef: RecordRef; var IsHandled: Boolean)
+    begin
+    end;
+
 }
 

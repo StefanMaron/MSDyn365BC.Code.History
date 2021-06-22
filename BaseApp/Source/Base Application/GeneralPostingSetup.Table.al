@@ -789,6 +789,8 @@ table 252 "General Posting Setup"
             SuggestAccount(RecRef, FieldNo("Sales Pmt. Tol. Debit Acc."));
         if "Sales Prepayments Account" = '' then
             SuggestAccount(RecRef, FieldNo("Sales Prepayments Account"));
+
+        OnAfterSuggestSalesAccounts(Rec, RecRef);
     end;
 
     local procedure SuggestPurchAccounts(var RecRef: RecordRef)
@@ -811,6 +813,8 @@ table 252 "General Posting Setup"
             SuggestAccount(RecRef, FieldNo("Purch. Pmt. Tol. Debit Acc."));
         if "Purch. Prepayments Account" = '' then
             SuggestAccount(RecRef, FieldNo("Purch. Prepayments Account"));
+
+        OnAfterSuggestPurchAccounts(Rec, RecRef);
     end;
 
     local procedure SuggestInvtAccounts(var RecRef: RecordRef)
@@ -829,6 +833,8 @@ table 252 "General Posting Setup"
             SuggestAccount(RecRef, FieldNo("Overhead Applied Account"));
         if "Purchase Variance Account" = '' then
             SuggestAccount(RecRef, FieldNo("Purchase Variance Account"));
+
+        OnAfterSuggestInvtAccounts(Rec, RecRef);
     end;
 
     local procedure SuggestAccount(var RecRef: RecordRef; AccountFieldNo: Integer)
@@ -862,6 +868,21 @@ table 252 "General Posting Setup"
             RecFieldRef := RecRef.Field(AccountFieldNo);
             RecFieldRef.Value(TempAccountUseBuffer."Account No.");
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSuggestInvtAccounts(var GeneralPostingSetup: Record "General Posting Setup"; RecRef: RecordRef);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSuggestSalesAccounts(var GeneralPostingSetup: Record "General Posting Setup"; RecRef: RecordRef);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSuggestPurchAccounts(var GeneralPostingSetup: Record "General Posting Setup"; RecRef: RecordRef);
+    begin
     end;
 }
 

@@ -55,6 +55,7 @@ codeunit 1248 "Process Bank Acc. Rec Lines"
         InsertNonReconciledNonImportedLines(TempBankAccReconLine, GetStatementLineNoOffset(BankAccRecon));
 
         ProgressWindow.Close;
+        OnAfterImportBankStatement(TempBankAccReconLine, DataExch);
         exit(true);
     end;
 
@@ -91,6 +92,11 @@ codeunit 1248 "Process Bank Acc. Rec Lines"
         if BankAccReconLine.FindLast then
             exit(BankAccReconLine."Statement Line No.");
         exit(0)
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterImportBankStatement(BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; DataExch: Record "Data Exch.")
+    begin
     end;
 }
 

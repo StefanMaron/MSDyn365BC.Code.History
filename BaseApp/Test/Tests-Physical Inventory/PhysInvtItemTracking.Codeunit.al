@@ -16,6 +16,7 @@ codeunit 137460 "Phys. Invt. Item Tracking"
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Assert: Codeunit Assert;
         isInitialized: Boolean;
         AlreadyExistsErr: Label 'already exists';
@@ -380,41 +381,41 @@ codeunit 137460 "Phys. Invt. Item Tracking"
 
         // [GIVEN] Location with Bins "B1" and B2"
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
-        Location.Validate("Bin Mandatory",true);
+        Location.Validate("Bin Mandatory", true);
         Location.Modify(true);
-        LibraryWarehouse.CreateNumberOfBins(Location.Code,'','',2,false);
+        LibraryWarehouse.CreateNumberOfBins(Location.Code, '', '', 2, false);
 
         // [GIVEN] Bin "B1" had 10 PCS of Item
-        LibraryWarehouse.FindBin(Bin,Location.Code,'',1);
-        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine,ItemNo,Location.Code,Bin.Code,ExpectedQty);
-        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name",ItemJournalLine."Journal Batch Name");
+        LibraryWarehouse.FindBin(Bin, Location.Code, '', 1);
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, ItemNo, Location.Code, Bin.Code, ExpectedQty);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
 
         // [GIVEN] Positive and Negative Adjustments each for 5 PCS of the Item and Bin "B2"
-        LibraryWarehouse.FindBin(Bin,Location.Code,'',2);
-        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine,ItemNo,Location.Code,Bin.Code,LibraryRandom.RandInt(10));
-        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name",ItemJournalLine."Journal Batch Name");
-        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine,ItemNo,Location.Code,Bin.Code,ItemJournalLine.Quantity);
-        ItemJournalLine.Validate("Entry Type",ItemJournalLine."Entry Type"::"Negative Adjmt.");
+        LibraryWarehouse.FindBin(Bin, Location.Code, '', 2);
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, ItemNo, Location.Code, Bin.Code, LibraryRandom.RandInt(10));
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, ItemNo, Location.Code, Bin.Code, ItemJournalLine.Quantity);
+        ItemJournalLine.Validate("Entry Type", ItemJournalLine."Entry Type"::"Negative Adjmt.");
         ItemJournalLine.Modify(true);
-        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name",ItemJournalLine."Journal Batch Name");
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
 
         // [GIVEN] Bin "B2" was deleted
-        LibraryWarehouse.FindBin(Bin,Location.Code,'',2); // required to prevent error when Bin is deleted
+        LibraryWarehouse.FindBin(Bin, Location.Code, '', 2); // required to prevent error when Bin is deleted
         Bin.Delete(true);
-        LibraryWarehouse.FindBin(Bin,Location.Code,'',1);
+        LibraryWarehouse.FindBin(Bin, Location.Code, '', 1);
 
         // [GIVEN] Phys. Invt. Order
         LibraryInventory.CreatePhysInvtOrderHeader(PhysInvtOrderHeader);
 
         // [WHEN] Run report Calc. Phys. Invt. Order Lines for the Item with Calc. Qty. Expected enabled
-        CalcPhysInvtOrderLinesWithCalcQtyExpected(PhysInvtOrderHeader,ItemNo,true);
+        CalcPhysInvtOrderLinesWithCalcQtyExpected(PhysInvtOrderHeader, ItemNo, true);
 
         // [THEN] Phys. Invt. Order Line is created with 10 PCS and Bin "B1"
-        PhysInvtOrderLine.SetRange("Document No.",PhysInvtOrderHeader."No.");
-        Assert.RecordCount(PhysInvtOrderLine,1);
+        PhysInvtOrderLine.SetRange("Document No.", PhysInvtOrderHeader."No.");
+        Assert.RecordCount(PhysInvtOrderLine, 1);
         PhysInvtOrderLine.FindFirst;
-        PhysInvtOrderLine.TestField("Bin Code",Bin.Code);
-        PhysInvtOrderLine.TestField("Qty. Expected (Base)",ExpectedQty);
+        PhysInvtOrderLine.TestField("Bin Code", Bin.Code);
+        PhysInvtOrderLine.TestField("Qty. Expected (Base)", ExpectedQty);
     end;
 
     [Test]
@@ -435,55 +436,58 @@ codeunit 137460 "Phys. Invt. Item Tracking"
 
         // [GIVEN] Location with Bins "B1" and B2"
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
-        Location.Validate("Bin Mandatory",true);
+        Location.Validate("Bin Mandatory", true);
         Location.Modify(true);
-        LibraryWarehouse.CreateNumberOfBins(Location.Code,'','',2,false);
+        LibraryWarehouse.CreateNumberOfBins(Location.Code, '', '', 2, false);
 
         // [GIVEN] Bin "B1" had 10 PCS of Item
-        LibraryWarehouse.FindBin(Bin,Location.Code,'',1);
-        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine,ItemNo,Location.Code,Bin.Code,LibraryRandom.RandInt(10));
-        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name",ItemJournalLine."Journal Batch Name");
+        LibraryWarehouse.FindBin(Bin, Location.Code, '', 1);
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, ItemNo, Location.Code, Bin.Code, LibraryRandom.RandInt(10));
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
 
         // [GIVEN] Positive and Negative Adjustments each for 5 PCS of the Item and Bin "B2"
-        LibraryWarehouse.FindBin(Bin,Location.Code,'',2);
-        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine,ItemNo,Location.Code,Bin.Code,LibraryRandom.RandInt(10));
-        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name",ItemJournalLine."Journal Batch Name");
-        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine,ItemNo,Location.Code,Bin.Code,ItemJournalLine.Quantity);
-        ItemJournalLine.Validate("Entry Type",ItemJournalLine."Entry Type"::"Negative Adjmt.");
+        LibraryWarehouse.FindBin(Bin, Location.Code, '', 2);
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, ItemNo, Location.Code, Bin.Code, LibraryRandom.RandInt(10));
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, ItemNo, Location.Code, Bin.Code, ItemJournalLine.Quantity);
+        ItemJournalLine.Validate("Entry Type", ItemJournalLine."Entry Type"::"Negative Adjmt.");
         ItemJournalLine.Modify(true);
-        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name",ItemJournalLine."Journal Batch Name");
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
 
         // [GIVEN] Bin "B2" was deleted
-        LibraryWarehouse.FindBin(Bin,Location.Code,'',2); // required to prevent error when Bin is deleted
+        LibraryWarehouse.FindBin(Bin, Location.Code, '', 2); // required to prevent error when Bin is deleted
         Bin.Delete(true);
-        LibraryWarehouse.FindBin(Bin,Location.Code,'',1);
+        LibraryWarehouse.FindBin(Bin, Location.Code, '', 1);
 
         // [GIVEN] Phys. Invt. Order
         LibraryInventory.CreatePhysInvtOrderHeader(PhysInvtOrderHeader);
 
         // [WHEN] Run report Calc. Phys. Invt. Order Bins for the Item with Calc. Qty. Expected enabled
-        CalcPhysInvtOrderBins(PhysInvtOrderHeader,Bin);
+        CalcPhysInvtOrderBins(PhysInvtOrderHeader, Bin);
 
         // [THEN] Phys. Invt. Order Line is created with Bin "B1"
-        PhysInvtOrderLine.SetRange("Document No.",PhysInvtOrderHeader."No.");
-        Assert.RecordCount(PhysInvtOrderLine,1);
+        PhysInvtOrderLine.SetRange("Document No.", PhysInvtOrderHeader."No.");
+        Assert.RecordCount(PhysInvtOrderLine, 1);
         PhysInvtOrderLine.FindFirst;
-        PhysInvtOrderLine.TestField("Bin Code",Bin.Code);
+        PhysInvtOrderLine.TestField("Bin Code", Bin.Code);
     end;
 
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Phys. Invt. Item Tracking");
         DeleteObjectOptionsIfNeeded;
 
         if isInitialized then
             exit;
 
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Phys. Invt. Item Tracking");
         LibraryVariableStorage.Clear;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         isInitialized := true;
         Commit;
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Phys. Invt. Item Tracking");
     end;
 
     local procedure CreateItemWithItemTrackingCode(var Item: Record Item; ItemTrackingCode: Code[10])
@@ -657,7 +661,7 @@ codeunit 137460 "Phys. Invt. Item Tracking"
         CreatePhysInventoryOrderWithRecording(PhysInvtOrderHeader, Location.Code, Item."No.");
     end;
 
-    local procedure CalcPhysInvtOrderLinesWithCalcQtyExpected(PhysInvtOrderHeader: Record "Phys. Invt. Order Header";ItemNo: Code[20];CalcQtyExpected: Boolean)
+    local procedure CalcPhysInvtOrderLinesWithCalcQtyExpected(PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; ItemNo: Code[20]; CalcQtyExpected: Boolean)
     var
         Item: Record Item;
         CalcPhysInvtOrderLines: Report "Calc. Phys. Invt. Order Lines";
@@ -666,13 +670,13 @@ codeunit 137460 "Phys. Invt. Item Tracking"
         Item.SetRecFilter;
         Clear(CalcPhysInvtOrderLines);
         CalcPhysInvtOrderLines.SetPhysInvtOrderHeader(PhysInvtOrderHeader);
-        CalcPhysInvtOrderLines.InitializeRequest(true,CalcQtyExpected);
+        CalcPhysInvtOrderLines.InitializeRequest(true, CalcQtyExpected);
         CalcPhysInvtOrderLines.UseRequestPage(false);
         CalcPhysInvtOrderLines.SetTableView(Item);
         CalcPhysInvtOrderLines.Run;
     end;
 
-    local procedure CalcPhysInvtOrderBins(PhysInvtOrderHeader: Record "Phys. Invt. Order Header";Bin: Record Bin)
+    local procedure CalcPhysInvtOrderBins(PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; Bin: Record Bin)
     var
         CalcPhysInvtOrderBins: Report "Calc. Phys. Invt. Order (Bins)";
     begin

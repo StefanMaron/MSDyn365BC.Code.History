@@ -711,10 +711,14 @@ table 901 "Assembly Line"
     begin
         "Remaining Quantity" := MaxValue(Quantity - "Consumed Quantity", 0);
         "Remaining Quantity (Base)" := MaxValue("Quantity (Base)" - "Consumed Quantity (Base)", 0);
+
+        OnAfterInitRemainingQty(Rec, xRec, CurrFieldNo);
     end;
 
     procedure InitQtyToConsume()
     begin
+        OnBeforeInitQtyToConsume(Rec, xRec, CurrFieldNo);
+
         GetHeader;
         "Quantity to Consume" :=
           MinValue(MaxQtyToConsume, CalcQuantity("Quantity per", AssemblyHeader."Quantity to Assemble"));
@@ -722,6 +726,8 @@ table 901 "Assembly Line"
           MinValue(
             MaxQtyToConsumeBase,
             CalcBaseQty(CalcQuantity("Quantity per", AssemblyHeader."Quantity to Assemble (Base)")));
+
+        OnAfterInitQtyToConsume(Rec, xRec, CurrFieldNo);
     end;
 
     procedure MaxQtyToConsume(): Decimal
@@ -1121,6 +1127,7 @@ table 901 "Assembly Line"
         SetFilter("Shortcut Dimension 1 Code", Item.GetFilter("Global Dimension 1 Filter"));
         SetFilter("Shortcut Dimension 2 Code", Item.GetFilter("Global Dimension 2 Filter"));
         SetFilter("Remaining Quantity (Base)", '<>0');
+        SetFilter("Unit of Measure Code", Item.GetFilter("Unit of Measure Filter"));
 
         OnAfterFilterLinesWithItemToPlan(Rec, Item, DocumentType);
     end;
@@ -1631,6 +1638,16 @@ table 901 "Assembly Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterInitRemainingQty(var AssemblyLine: Record "Assembly Line"; xAssemblyLine: Record "Assembly Line"; CurrentFieldNo: Integer);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitQtyToConsume(var AssemblyLine: Record "Assembly Line"; xAssemblyLine: Record "Assembly Line"; CurrentFieldNo: Integer);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var AssemblyLine: Record "Assembly Line"; var xAssemblyLine: Record "Assembly Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
     end;
@@ -1642,6 +1659,11 @@ table 901 "Assembly Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcQtyToPickBase(var AssemblyLine: Record "Assembly Line"; var QtyToPickBase: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitQtyToConsume(var AssemblyLine: Record "Assembly Line"; xAssemblyLine: Record "Assembly Line"; CurrentFieldNo: Integer);
     begin
     end;
 

@@ -68,7 +68,8 @@ codeunit 412 "SMTP Test Mail"
             SMTPMailSetup.Authentication,
             SMTPMailSetup."Secure Connection",
             ServiceInstanceId,
-            TenantId));
+            TenantId),
+            true);
 
         SMTPMail.SendShowError();
     end;

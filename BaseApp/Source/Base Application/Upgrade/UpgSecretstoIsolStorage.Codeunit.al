@@ -67,15 +67,24 @@ codeunit 104020 "Upg Secrets to Isol. Storage"
         ServicePassword: Record "Service Password";
         ServicePasswordValue: Text;
     begin
-        IF ServicePassword.Get(KeyGuid) THEN BEGIN
-            ServicePasswordValue := ServicePassword.GetPassword;
-            IF NOT ENCRYPTIONENABLED THEN
-                ISOLATEDSTORAGE.SET(ServicePassword.Key, ServicePasswordValue, DATASCOPE::Company)
-            ELSE
-                ISOLATEDSTORAGE.SETENCRYPTED(ServicePassword.Key, ServicePasswordValue, DATASCOPE::Company);
+        if not ServicePassword.Get(KeyGuid) then
+            exit;
 
-            ServicePassword.Delete();
-        END;
+        if not TryGetServicePasswordValue(ServicePassword, ServicePasswordValue) then
+            exit;
+
+        IF NOT ENCRYPTIONENABLED THEN
+            ISOLATEDSTORAGE.SET(ServicePassword.Key, ServicePasswordValue, DATASCOPE::Company)
+        ELSE
+            ISOLATEDSTORAGE.SETENCRYPTED(ServicePassword.Key, ServicePasswordValue, DATASCOPE::Company);
+
+        ServicePassword.Delete();
+    end;
+
+    [TryFunction]
+    local procedure TryGetServicePasswordValue(ServicePassword: Record "Service Password"; var ServicePasswordValue: Text)
+    begin
+        ServicePasswordValue := ServicePassword.GetPassword;
     end;
 
     local procedure MoveOCRServiceSecrets()

@@ -768,8 +768,8 @@ page 2310 "BC O365 Sales Invoice"
         TestInvTypeTxt: Label 'Test Invoice';
         DraftInvTypeTxt: Label 'Draft Invoice';
         IsCustomerBlocked: Boolean;
-        PaymentInstrCategoryLbl: Label 'AL Payment Instructions', Comment = '{LOCKED}';
-        PaymentInstrChangedTelemetryTxt: Label 'Payment instructions were changed for an invoice.', Comment = '{LOCKED}';
+        PaymentInstrCategoryLbl: Label 'AL Payment Instructions', Locked = true;
+        PaymentInstrChangedTelemetryTxt: Label 'Payment instructions were changed for an invoice.', Locked = true;
         DocumentDatePastWorkdateNotificationGuidTok: Label 'cfa9edd9-03d7-4bbb-ba07-a90660c28772', Locked = true;
         FieldsVisible: Boolean;
 

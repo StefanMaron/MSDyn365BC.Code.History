@@ -187,7 +187,14 @@ codeunit 170 "Standard Codes Mgt."
     procedure CanGetPurchRecurringLines(var PurchHeader: Record "Purchase Header"): Boolean
     var
         StandardVendorPurchaseCode: Record "Standard Vendor Purchase Code";
+        IsHandled: Boolean;
+        ReturnValue: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCanGetPurchRecurringLines(PurchHeader, ReturnValue, IsHandled);
+        if IsHandled then
+            exit(ReturnValue);
+
         if PurchHeader.IsTemporary then
             exit(false);
 
@@ -225,6 +232,11 @@ codeunit 170 "Standard Codes Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowGetPurchRecurringLinesNotification(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCanGetPurchRecurringLines(var PurchaseHeader: Record "Purchase Header"; var ReturnValue: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

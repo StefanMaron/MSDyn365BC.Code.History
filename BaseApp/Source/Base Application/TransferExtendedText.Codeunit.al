@@ -239,7 +239,7 @@ codeunit 378 "Transfer Extended Text"
         ToSalesLine: Record "Sales Line";
         IsHandled: Boolean;
     begin
-        OnBeforeInsertSalesExtText(SalesLine, TempExtTextLine, IsHandled);
+        OnBeforeInsertSalesExtText(SalesLine, TempExtTextLine, IsHandled, MakeUpdateRequired);
         if IsHandled then
             exit;
 
@@ -282,7 +282,7 @@ codeunit 378 "Transfer Extended Text"
         ToReminderLine: Record "Reminder Line";
         IsHandled: Boolean;
     begin
-        OnBeforeInsertReminderExtText(ReminderLine, TempExtTextLine, IsHandled);
+        OnBeforeInsertReminderExtText(ReminderLine, TempExtTextLine, IsHandled, MakeUpdateRequired);
         if IsHandled then
             exit;
 
@@ -323,7 +323,7 @@ codeunit 378 "Transfer Extended Text"
         ToFinChrgMemoLine: Record "Finance Charge Memo Line";
         IsHandled: Boolean;
     begin
-        OnBeforeInsertFinChrgMemoExtText(FinChrgMemoLine, TempExtTextLine, IsHandled);
+        OnBeforeInsertFinChrgMemoExtText(FinChrgMemoLine, TempExtTextLine, IsHandled, MakeUpdateRequired);
         if IsHandled then
             exit;
 
@@ -369,7 +369,7 @@ codeunit 378 "Transfer Extended Text"
         ToPurchLine: Record "Purchase Line";
         IsHandled: Boolean;
     begin
-        OnBeforeInsertPurchExtText(PurchLine, TempExtTextLine, IsHandled);
+        OnBeforeInsertPurchExtText(PurchLine, TempExtTextLine, IsHandled, MakeUpdateRequired);
         if IsHandled then
             exit;
 
@@ -633,7 +633,7 @@ codeunit 378 "Transfer Extended Text"
         ToServiceLine: Record "Service Line";
         IsHandled: Boolean;
     begin
-        OnBeforeInsertServExtText(ServiceLine, TempExtTextLine, IsHandled);
+        OnBeforeInsertServExtText(ServiceLine, TempExtTextLine, IsHandled, MakeUpdateRequired);
         if IsHandled then
             exit;
 
@@ -748,27 +748,27 @@ codeunit 378 "Transfer Extended Text"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertSalesExtText(var SalesLine: Record "Sales Line"; var TempExtTextLine: Record "Extended Text Line" temporary; var IsHandled: Boolean)
+    local procedure OnBeforeInsertSalesExtText(var SalesLine: Record "Sales Line"; var TempExtTextLine: Record "Extended Text Line" temporary; var IsHandled: Boolean; var MakeUpdateRequired: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertReminderExtText(var ReminderLine: Record "Reminder Line"; var TempExtTextLine: Record "Extended Text Line" temporary; var IsHandled: Boolean)
+    local procedure OnBeforeInsertReminderExtText(var ReminderLine: Record "Reminder Line"; var TempExtTextLine: Record "Extended Text Line" temporary; var IsHandled: Boolean; var MakeUpdateRequired: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertFinChrgMemoExtText(var FinChrgMemoLine: Record "Finance Charge Memo Line"; var TempExtTextLine: Record "Extended Text Line" temporary; var IsHandled: Boolean)
+    local procedure OnBeforeInsertFinChrgMemoExtText(var FinChrgMemoLine: Record "Finance Charge Memo Line"; var TempExtTextLine: Record "Extended Text Line" temporary; var IsHandled: Boolean; var MakeUpdateRequired: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertPurchExtText(var PurchLine: Record "Purchase Line"; var TempExtTextLine: Record "Extended Text Line" temporary; var IsHandled: Boolean)
+    local procedure OnBeforeInsertPurchExtText(var PurchLine: Record "Purchase Line"; var TempExtTextLine: Record "Extended Text Line" temporary; var IsHandled: Boolean; var MakeUpdateRequired: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertServExtText(var ServiceLine: Record "Service Line"; var TempExtTextLine: Record "Extended Text Line" temporary; var IsHandled: Boolean)
+    local procedure OnBeforeInsertServExtText(var ServiceLine: Record "Service Line"; var TempExtTextLine: Record "Extended Text Line" temporary; var IsHandled: Boolean; var MakeUpdateRequired: Boolean)
     begin
     end;
 

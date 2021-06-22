@@ -34,6 +34,7 @@ page 8639 "Copy Company Data"
                 trigger OnValidate()
                 begin
                     ValidateCompanyName;
+                    CurrPage.Update(false);
                 end;
             }
             repeater(Control1)

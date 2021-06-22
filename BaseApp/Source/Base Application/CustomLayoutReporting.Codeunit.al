@@ -222,6 +222,8 @@ codeunit 8800 "Custom Layout Reporting"
 
         CleanupTempFiles;
 
+        OnAfterProcessReport();
+
         if not (SupressOutput or AnyOutputExists) then
             LogSimpleError(NoOutputErr);
 
@@ -362,7 +364,16 @@ codeunit 8800 "Custom Layout Reporting"
     local procedure RunReportWithCustomReportSelection(var DataRecRef: RecordRef; ReportID: Integer; var CustomReportSelection: Record "Custom Report Selection"; EmailPrintIfEmailIsMissing: Boolean)
     var
         CustomReportLayoutCode: Code[20];
+        IsHandled: Boolean;
     begin
+        OnBeforeRunReportWithCustomReportSelection(
+            DataRecRef, ReportID, CustomReportSelection, EmailPrintIfEmailIsMissing, TempBlobIndicesNameValueBuffer, TempBlobList,
+            OutputType, AnyOutputExists, IsHandled);
+        if IsHandled then begin
+            LogAndClearLastError(CustomReportSelection."Report Caption", DataRecRef.RecordId);
+            exit;
+        end;
+
         // Set the custom report layout
         CustomReportLayoutCode := ResolveCustomReportLayoutCode(CustomReportSelection);
         ReportLayoutSelection.SetTempLayoutSelected(CustomReportLayoutCode);
@@ -618,7 +629,7 @@ codeunit 8800 "Custom Layout Reporting"
 
         if IncludeLayoutName then begin
             Caption := GetTempLayoutReportCaption(ReportID);
-            ObjectName := StrSubstNo('%1_%2', ObjectName, Caption);
+            ObjectName := StrSubstNo('%1_%2', CopyStr(ObjectName, 1, 50), Caption);
         end;
 
         exit(GenerateFileName(ObjectName, ReportID, Extension, FilePath));
@@ -1431,6 +1442,16 @@ codeunit 8800 "Custom Layout Reporting"
         ReportInbox."Created Date-Time" := RoundDateTime(CurrentDateTime, 60000);
         if not ReportInbox.Insert(true) then
             ReportInbox.Modify(true);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterProcessReport()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunReportWithCustomReportSelection(var DataRecRef: RecordRef; var ReportID: Integer; var CustomReportSelection: Record "Custom Report Selection"; var EmailPrintIfEmailIsMissing: Boolean; var TempBlobIndicesNameValueBuffer: Record "Name/Value Buffer" temporary; var TempBlobList: Codeunit "Temp Blob List"; var OutputType: Option; var AnyOutputExists: Boolean; var InHandled: Boolean)
+    begin
     end;
 }
 

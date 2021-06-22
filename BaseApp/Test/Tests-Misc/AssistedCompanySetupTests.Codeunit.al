@@ -621,6 +621,7 @@ codeunit 139301 "Assisted Company Setup Tests"
 
         // [THEN] Approval Workflow Setup Wizard is not visible in Assisted Setup
         CheckWizardVisibility(PAGE::"Approval Workflow Setup Wizard", false);
+        LibraryApplicationArea.DisableApplicationAreaSetup;
     end;
 
     [Test]

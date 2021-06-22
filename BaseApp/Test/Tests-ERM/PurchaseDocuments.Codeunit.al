@@ -18,6 +18,7 @@ codeunit 134099 "Purchase Documents"
         LibraryInventory: Codeunit "Library - Inventory";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryApplicationArea: Codeunit "Library - Application Area";
+        LibraryWarehouse: Codeunit "Library - Warehouse";
         Assert: Codeunit Assert;
         PurchaseAlreadyExistsTxt: Label 'Purchase %1 %2 already exists for this vendor.', Comment = '%1 = Document Type; %2 = Document No.';
         IsInitialized: Boolean;
@@ -885,6 +886,39 @@ codeunit 134099 "Purchase Documents"
             LibraryPurchase.FindFirstPurchLine(PurchaseLine, PurchaseHeader);
             PurchaseLine.TestField("Order Date", WorkDate);
         end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure LocationCodeOnInsert()
+    var
+        VendorWithLocation: Record Vendor;
+        VendorWithoutLocation: Record Vendor;
+        Location: Record Location;
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [FEATURE] [Location]
+        // [SCENARIO 333156] Location Code is not reset on record insertion
+        Initialize;
+
+        // [GIVEN] Vendor "V1" with blank "Location Code"
+        LibraryPurchase.CreateVendorWithLocationCode(VendorWithoutLocation, '');
+
+        // [GIVEN] Vendor "V2" with "Location Code" = "WHITE" and "Pay-to Vendor No." = "V1"
+        LibraryWarehouse.CreateLocation(Location);
+        LibraryPurchase.CreateVendorWithLocationCode(VendorWithLocation, Location.Code);
+        VendorWithLocation.Validate("Pay-to Vendor No.", VendorWithoutLocation."No.");
+        VendorWithLocation.Modify(true);
+
+        // [GIVEN] New Purchase Order with "Buy-from Vendor No." set to "V2"
+        PurchaseHeader.Init;
+        PurchaseHeader.Validate("Buy-from Vendor No.", VendorWithLocation."No.");
+
+        // [WHEN] Insert Purchase Order
+        PurchaseHeader.Insert(true);
+
+        // [THEN] "Location Code" = "WHITE" on the Purchase Order
+        PurchaseHeader.TestField("Location Code", Location.Code);
     end;
 
     local procedure Initialize()

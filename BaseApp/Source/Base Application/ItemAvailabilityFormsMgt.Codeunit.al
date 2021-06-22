@@ -9,7 +9,8 @@ codeunit 353 "Item Availability Forms Mgt"
         Text012: Label 'Do you want to change %1 from %2 to %3?', Comment = '%1=FieldCaption, %2=OldDate, %3=NewDate';
         ItemAvailByBOMLevel: Page "Item Availability by BOM Level";
         ForecastName: Code[10];
-        AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM;
+        AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM;
+        QtyByUnitOfMeasure: Decimal;
 
     local procedure CalcItemPlanningFields(var Item: Record Item; CalculateTransferQuantities: Boolean)
     var
@@ -223,15 +224,18 @@ codeunit 353 "Item Availability Forms Mgt"
     begin
         ItemCopy.Copy(Item);
         CalcItemPlanningFields(ItemCopy, ItemCopy.GetFilter("Location Filter") <> '');
+        IF QtyByUnitOfMeasure <> 0 THEN
+            ItemAvailLineList.SetQtyByUnitOfMeasure(QtyByUnitOfMeasure);
         ItemAvailLineList.Init(What, ItemCopy);
         ItemAvailLineList.RunModal;
     end;
 
-    procedure ShowItemAvailFromItem(var Item: Record Item; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM)
+    procedure ShowItemAvailFromItem(var Item: Record Item; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
     var
         NewDate: Date;
         NewVariantCode: Code[10];
         NewLocationCode: Code[10];
+        NewUnitOfMeasureCode: Code[10];
     begin
         with Item do begin
             TestField("No.");
@@ -248,11 +252,13 @@ codeunit 353 "Item Availability Forms Mgt"
                     ShowItemAvailByEvent(Item, '', NewDate, NewDate, false);
                 AvailabilityType::BOM:
                     ShowItemAvailByBOMLevel(Item, '', NewDate, NewDate);
+                AvailabilityType::UOM:
+                    ShowItemAvailByUOM(Item, '', NewUnitOfMeasureCode, NewUnitOfMeasureCode);
             end;
         end;
     end;
 
-    procedure ShowItemAvailFromSalesLine(var SalesLine: Record "Sales Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM)
+    procedure ShowItemAvailFromSalesLine(var SalesLine: Record "Sales Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
     var
         Item: Record Item;
         AsmHeader: Record "Assembly Header";
@@ -260,6 +266,8 @@ codeunit 353 "Item Availability Forms Mgt"
         NewDate: Date;
         NewVariantCode: Code[10];
         NewLocationCode: Code[10];
+        NewUnitOfMeasureCode: Code[10];
+        IsHandled: Boolean;
     begin
         with SalesLine do begin
             TestField(Type, Type::Item);
@@ -268,7 +276,11 @@ codeunit 353 "Item Availability Forms Mgt"
             Item.Get("No.");
             FilterItem(Item, "Location Code", "Variant Code", "Shipment Date");
 
-            OnBeforeShowItemAvailFromSalesLine(Item, SalesLine);
+            IsHandled := false;
+            OnBeforeShowItemAvailFromSalesLine(Item, SalesLine, IsHandled);
+            if IsHandled then
+                exit;
+
             case AvailabilityType of
                 AvailabilityType::Date:
                     if ShowItemAvailByDate(Item, FieldCaption("Shipment Date"), "Shipment Date", NewDate) then
@@ -292,16 +304,21 @@ codeunit 353 "Item Availability Forms Mgt"
                     else
                         if ShowItemAvailByBOMLevel(Item, FieldCaption("Shipment Date"), "Shipment Date", NewDate) then
                             Validate("Shipment Date", NewDate);
+                AvailabilityType::UOM:
+                    if ShowItemAvailByUOM(Item, FieldCaption("Unit of Measure Code"), "Unit of Measure Code", NewUnitOfMeasureCode) then
+                        Validate("Unit of Measure Code", NewUnitOfMeasureCode);
             end;
         end;
     end;
 
-    procedure ShowItemAvailFromPurchLine(var PurchLine: Record "Purchase Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM)
+    procedure ShowItemAvailFromPurchLine(var PurchLine: Record "Purchase Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
     var
         Item: Record Item;
         NewDate: Date;
         NewVariantCode: Code[10];
         NewLocationCode: Code[10];
+        NewUnitOfMeasureCode: Code[10];
+        IsHandled: Boolean;
     begin
         with PurchLine do begin
             TestField(Type, Type::Item);
@@ -310,7 +327,11 @@ codeunit 353 "Item Availability Forms Mgt"
             Item.Get("No.");
             FilterItem(Item, "Location Code", "Variant Code", "Expected Receipt Date");
 
-            OnBeforeShowItemAvailFromPurchLine(Item, PurchLine);
+            IsHandled := false;
+            OnBeforeShowItemAvailFromPurchLine(Item, PurchLine, IsHandled);
+            if IsHandled then
+                exit;
+
             case AvailabilityType of
                 AvailabilityType::Date:
                     if ShowItemAvailByDate(Item, FieldCaption("Expected Receipt Date"), "Expected Receipt Date", NewDate) then
@@ -327,16 +348,20 @@ codeunit 353 "Item Availability Forms Mgt"
                 AvailabilityType::BOM:
                     if ShowItemAvailByBOMLevel(Item, FieldCaption("Expected Receipt Date"), "Expected Receipt Date", NewDate) then
                         Validate("Expected Receipt Date", NewDate);
+                AvailabilityType::UOM:
+                    if ShowItemAvailByUOM(Item, FieldCaption("Unit of Measure Code"), "Unit of Measure Code", NewUnitOfMeasureCode) then
+                        Validate("Unit of Measure Code", NewUnitOfMeasureCode);
             end;
         end;
     end;
 
-    procedure ShowItemAvailFromReqLine(var ReqLine: Record "Requisition Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM)
+    procedure ShowItemAvailFromReqLine(var ReqLine: Record "Requisition Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
     var
         Item: Record Item;
         NewDate: Date;
         NewVariantCode: Code[10];
         NewLocationCode: Code[10];
+        NewUnitOfMeasureCode: Code[10];
     begin
         with ReqLine do begin
             TestField(Type, Type::Item);
@@ -369,16 +394,20 @@ codeunit 353 "Item Availability Forms Mgt"
                 AvailabilityType::BOM:
                     if ShowItemAvailByBOMLevel(Item, FieldCaption("Due Date"), "Due Date", NewDate) then
                         Validate("Due Date", NewDate);
+                AvailabilityType::UOM:
+                    if ShowItemAvailByUOM(Item, FieldCaption("Unit of Measure Code"), "Unit of Measure Code", NewUnitOfMeasureCode) then
+                        Validate("Unit of Measure Code", NewUnitOfMeasureCode);
             end;
         end;
     end;
 
-    procedure ShowItemAvailFromProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM)
+    procedure ShowItemAvailFromProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
     var
         Item: Record Item;
         NewDate: Date;
         NewVariantCode: Code[10];
         NewLocationCode: Code[10];
+        NewUnitOfMeasureCode: Code[10];
     begin
         with ProdOrderLine do begin
             TestField("Item No.");
@@ -403,16 +432,20 @@ codeunit 353 "Item Availability Forms Mgt"
                 AvailabilityType::BOM:
                     if ShowCustomProdItemAvailByBOMLevel(ProdOrderLine, FieldCaption("Due Date"), "Due Date", NewDate) then
                         Validate("Due Date", NewDate);
+                AvailabilityType::UOM:
+                    if ShowItemAvailByUOM(Item, FieldCaption("Unit of Measure Code"), "Unit of Measure Code", NewUnitOfMeasureCode) then
+                        Validate("Unit of Measure Code", NewUnitOfMeasureCode);
             end;
         end;
     end;
 
-    procedure ShowItemAvailFromProdOrderComp(var ProdOrderComp: Record "Prod. Order Component"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM)
+    procedure ShowItemAvailFromProdOrderComp(var ProdOrderComp: Record "Prod. Order Component"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
     var
         Item: Record Item;
         NewDate: Date;
         NewVariantCode: Code[10];
         NewLocationCode: Code[10];
+        NewUnitOfMeasureCode: Code[10];
     begin
         with ProdOrderComp do begin
             TestField("Item No.");
@@ -437,16 +470,20 @@ codeunit 353 "Item Availability Forms Mgt"
                 AvailabilityType::BOM:
                     if ShowItemAvailByBOMLevel(Item, FieldCaption("Due Date"), "Due Date", NewDate) then
                         Validate("Due Date", NewDate);
+                AvailabilityType::UOM:
+                    if ShowItemAvailByUOM(Item, FieldCaption("Unit of Measure Code"), "Unit of Measure Code", NewUnitOfMeasureCode) then
+                        Validate("Unit of Measure Code", NewUnitOfMeasureCode);
             end;
         end;
     end;
 
-    procedure ShowItemAvailFromTransLine(var TransLine: Record "Transfer Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM)
+    procedure ShowItemAvailFromTransLine(var TransLine: Record "Transfer Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
     var
         Item: Record Item;
         NewDate: Date;
         NewVariantCode: Code[10];
         NewLocationCode: Code[10];
+        NewUnitOfMeasureCode: Code[10];
     begin
         with TransLine do begin
             TestField("Item No.");
@@ -471,16 +508,20 @@ codeunit 353 "Item Availability Forms Mgt"
                 AvailabilityType::BOM:
                     if ShowItemAvailByBOMLevel(Item, FieldCaption("Shipment Date"), "Shipment Date", NewDate) then
                         Validate("Shipment Date", NewDate);
+                AvailabilityType::UOM:
+                    if ShowItemAvailByUOM(Item, FieldCaption("Unit of Measure Code"), "Unit of Measure Code", NewUnitOfMeasureCode) then
+                        Validate("Unit of Measure Code", NewUnitOfMeasureCode);
             end;
         end;
     end;
 
-    procedure ShowItemAvailFromWhseActivLine(var WhseActivLine: Record "Warehouse Activity Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM)
+    procedure ShowItemAvailFromWhseActivLine(var WhseActivLine: Record "Warehouse Activity Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
     var
         Item: Record Item;
         NewDate: Date;
         NewVariantCode: Code[10];
         NewLocationCode: Code[10];
+        NewUnitOfMeasureCode: Code[10];
     begin
         with WhseActivLine do begin
             TestField("Item No.");
@@ -500,17 +541,20 @@ codeunit 353 "Item Availability Forms Mgt"
                     ShowItemAvailByEvent(Item, FieldCaption("Due Date"), "Due Date", NewDate, false);
                 AvailabilityType::BOM:
                     ShowItemAvailByBOMLevel(Item, FieldCaption("Due Date"), "Due Date", NewDate);
+                AvailabilityType::UOM:
+                    ShowItemAvailByUOM(Item, FieldCaption("Unit of Measure Code"), "Unit of Measure Code", NewUnitOfMeasureCode);
             end;
         end;
     end;
 
-    procedure ShowItemAvailFromServLine(var ServLine: Record "Service Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM)
+    procedure ShowItemAvailFromServLine(var ServLine: Record "Service Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
     var
         ServHeader: Record "Service Header";
         Item: Record Item;
         NewDate: Date;
         NewVariantCode: Code[10];
         NewLocationCode: Code[10];
+        NewUnitOfMeasureCode: Code[10];
     begin
         with ServLine do begin
             ServHeader.Get("Document Type", "Document No.");
@@ -534,16 +578,20 @@ codeunit 353 "Item Availability Forms Mgt"
                     ShowItemAvailByEvent(Item, ServHeader.FieldCaption("Response Date"), ServHeader."Response Date", NewDate, false);
                 AvailabilityType::BOM:
                     ShowItemAvailByBOMLevel(Item, ServHeader.FieldCaption("Response Date"), ServHeader."Response Date", NewDate);
+                AvailabilityType::UOM:
+                    if ShowItemAvailByUOM(Item, FieldCaption("Unit of Measure Code"), "Unit of Measure Code", NewUnitOfMeasureCode) then
+                        Validate("Unit of Measure Code", NewUnitOfMeasureCode);
             end;
         end;
     end;
 
-    procedure ShowItemAvailFromWhseRcptLine(var WhseRcptLine: Record "Warehouse Receipt Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM)
+    procedure ShowItemAvailFromWhseRcptLine(var WhseRcptLine: Record "Warehouse Receipt Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
     var
         Item: Record Item;
         NewDate: Date;
         NewVariantCode: Code[10];
         NewLocationCode: Code[10];
+        NewUnitOfMeasureCode: Code[10];
     begin
         with WhseRcptLine do begin
             TestField("Item No.");
@@ -563,16 +611,19 @@ codeunit 353 "Item Availability Forms Mgt"
                     ShowItemAvailByEvent(Item, FieldCaption("Due Date"), "Due Date", NewDate, false);
                 AvailabilityType::BOM:
                     ShowItemAvailByBOMLevel(Item, FieldCaption("Due Date"), "Due Date", NewDate);
+                AvailabilityType::UOM:
+                    ShowItemAvailByUOM(Item, FieldCaption("Unit of Measure Code"), "Unit of Measure Code", NewUnitOfMeasureCode);
             end;
         end;
     end;
 
-    procedure ShowItemAvailFromItemJnlLine(var ItemJnlLine: Record "Item Journal Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM)
+    procedure ShowItemAvailFromItemJnlLine(var ItemJnlLine: Record "Item Journal Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
     var
         Item: Record Item;
         NewDate: Date;
         NewVariantCode: Code[10];
         NewLocationCode: Code[10];
+        NewUnitOfMeasureCode: Code[10];
     begin
         with ItemJnlLine do begin
             TestField("Item No.");
@@ -597,16 +648,20 @@ codeunit 353 "Item Availability Forms Mgt"
                 AvailabilityType::BOM:
                     if ShowItemAvailByBOMLevel(Item, FieldCaption("Posting Date"), "Posting Date", NewDate) then
                         Validate("Posting Date", NewDate);
+                AvailabilityType::UOM:
+                    if ShowItemAvailByUOM(Item, FieldCaption("Unit of Measure Code"), "Unit of Measure Code", NewUnitOfMeasureCode) then
+                        Validate("Unit of Measure Code", NewUnitOfMeasureCode);
             end;
         end;
     end;
 
-    procedure ShowItemAvailFromAsmHeader(var AsmHeader: Record "Assembly Header"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM)
+    procedure ShowItemAvailFromAsmHeader(var AsmHeader: Record "Assembly Header"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
     var
         Item: Record Item;
         NewDate: Date;
         NewVariantCode: Code[10];
         NewLocationCode: Code[10];
+        NewUnitOfMeasureCode: Code[10];
     begin
         with AsmHeader do begin
             TestField("Item No.");
@@ -631,16 +686,20 @@ codeunit 353 "Item Availability Forms Mgt"
                 AvailabilityType::BOM:
                     if ShowCustomAsmItemAvailByBOMLevel(AsmHeader, FieldCaption("Due Date"), "Due Date", NewDate) then
                         Validate("Due Date", NewDate);
+                AvailabilityType::UOM:
+                    if ShowItemAvailByUOM(Item, FieldCaption("Unit of Measure Code"), "Unit of Measure Code", NewUnitOfMeasureCode) then
+                        Validate("Unit of Measure Code", NewUnitOfMeasureCode);
             end;
         end;
     end;
 
-    procedure ShowItemAvailFromAsmLine(var AsmLine: Record "Assembly Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM)
+    procedure ShowItemAvailFromAsmLine(var AsmLine: Record "Assembly Line"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
     var
         Item: Record Item;
         NewDate: Date;
         NewVariantCode: Code[10];
         NewLocationCode: Code[10];
+        NewUnitOfMeasureCode: Code[10];
     begin
         with AsmLine do begin
             TestField(Type, Type::Item);
@@ -666,16 +725,20 @@ codeunit 353 "Item Availability Forms Mgt"
                 AvailabilityType::BOM:
                     if ShowItemAvailByBOMLevel(Item, FieldCaption("Due Date"), "Due Date", NewDate) then
                         Validate("Due Date", NewDate);
+                AvailabilityType::UOM:
+                    if ShowItemAvailByUOM(Item, FieldCaption("Unit of Measure Code"), "Unit of Measure Code", NewUnitOfMeasureCode) then
+                        Validate("Unit of Measure Code", NewUnitOfMeasureCode);
             end;
         end;
     end;
 
-    procedure ShowItemAvailFromPlanningComp(var PlanningComp: Record "Planning Component"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM)
+    procedure ShowItemAvailFromPlanningComp(var PlanningComp: Record "Planning Component"; AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM,UOM)
     var
         Item: Record Item;
         NewDate: Date;
         NewVariantCode: Code[10];
         NewLocationCode: Code[10];
+        NewUnitOfMeasureCode: Code[10];
     begin
         with PlanningComp do begin
             TestField("Item No.");
@@ -705,6 +768,9 @@ codeunit 353 "Item Availability Forms Mgt"
                 AvailabilityType::BOM:
                     if ShowItemAvailByBOMLevel(Item, FieldCaption("Due Date"), "Due Date", NewDate) then
                         Validate("Due Date", NewDate);
+                AvailabilityType::UOM:
+                    if ShowItemAvailByUOM(Item, FieldCaption("Unit of Measure Code"), "Unit of Measure Code", NewUnitOfMeasureCode) then
+                        Validate("Unit of Measure Code", NewUnitOfMeasureCode);
             end;
         end;
     end;
@@ -835,6 +901,32 @@ codeunit 353 "Item Availability Forms Mgt"
         exit(ShowBOMLevelAbleToMake(FieldCaption, OldDate, NewDate));
     end;
 
+    procedure ShowItemAvailByUOM(var Item: Record Item; FieldCaption: Text[80]; OldUoMCode: Code[10]; var NewUoMCode: Code[10]): Boolean
+    var
+        ItemAvailByUOM: Page "Item Availability by UOM";
+        IsHandled: Boolean;
+        Result: Boolean;
+    begin
+        // Do not make global
+        // Request to make function global has been rejected as it is a skeleton function of the codeunit
+        IsHandled := false;
+        OnBeforeShowItemAvailByUOM(Item, FieldCaption, OldUoMCode, NewUoMCode, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        Item.SetRange("Base Unit of Measure");
+        if FieldCaption <> '' then
+            ItemAvailByUOM.LookupMode(true);
+        ItemAvailByUOM.SetRecord(Item);
+        ItemAvailByUOM.SetTableView(Item);
+        if ItemAvailByUOM.RunModal = ACTION::LookupOK then begin
+            NewUoMCode := ItemAvailByUOM.GetLastUOM;
+            if OldUoMCode <> NewUoMCode then
+                if Confirm(Text012, true, FieldCaption, OldUoMCode, NewUoMCode) then
+                    exit(true);
+        end;
+    end;
+
     local procedure ShowCustomAsmItemAvailByBOMLevel(var AsmHeader: Record "Assembly Header"; FieldCaption: Text[80]; OldDate: Date; var NewDate: Date): Boolean
     begin
         Clear(ItemAvailByBOMLevel);
@@ -861,6 +953,11 @@ codeunit 353 "Item Availability Forms Mgt"
                 if Confirm(Text012, true, FieldCaption, OldDate, NewDate) then
                     exit(true);
         end;
+    end;
+
+    procedure SetQtyByUnitOfMeasure(NewQtyByUnitOfMeasure: Decimal);
+    begin
+        QtyByUnitOfMeasure := NewQtyByUnitOfMeasure;
     end;
 
     procedure FilterItem(var Item: Record Item; LocationCode: Code[20]; VariantCode: Code[20]; Date: Date)
@@ -896,6 +993,11 @@ codeunit 353 "Item Availability Forms Mgt"
     procedure ByBOM(): Integer
     begin
         exit(AvailabilityType::BOM);
+    end;
+
+    procedure ByUOM(): Integer
+    begin
+        exit(AvailabilityType::UOM);
     end;
 
     [IntegrationEvent(false, false)]
@@ -934,6 +1036,11 @@ codeunit 353 "Item Availability Forms Mgt"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowItemAvailByUOM(var Item: Record Item; FieldCaption: Text[80]; OldUoMCode: Code[20]; var NewUoMCode: Code[20]; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeShowItemAvailFromItem(var Item: Record Item)
     begin
     end;
@@ -944,12 +1051,12 @@ codeunit 353 "Item Availability Forms Mgt"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeShowItemAvailFromSalesLine(var Item: Record Item; var SalesLine: Record "Sales Line")
+    local procedure OnBeforeShowItemAvailFromSalesLine(var Item: Record Item; var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeShowItemAvailFromPurchLine(var Item: Record Item; var PurchLine: Record "Purchase Line")
+    local procedure OnBeforeShowItemAvailFromPurchLine(var Item: Record Item; var PurchLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 

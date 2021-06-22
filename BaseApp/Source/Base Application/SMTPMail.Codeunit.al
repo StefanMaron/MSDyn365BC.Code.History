@@ -10,6 +10,7 @@ codeunit 400 "SMTP Mail"
         SmtpAddress: DotNet MimeMailboxAddress;
         CancellationToken: DotNet CancellationToken;
         ITransferProgress: Dotnet ITransferProgress;
+        HtmlFormattedBody: Boolean;
         SendResult: Text;
         SendErr: Label 'The email couldn''t be sent. %1', Comment = '%1 = a more detailed error message';
         RecipientErr: Label 'Could not add recipient %1.', Comment = '%1 = email address';
@@ -22,8 +23,8 @@ codeunit 400 "SMTP Mail"
         EmailFailedWithErrorCodeMsg: Label 'We received the following error code: %1.', Comment = '%1=the SMTP error code returned';
         EmailFailedCheckSendAsMsg: Label 'Check your smtp Send As permissions.';
         SendAsTroubleshootingUrlTxt: Label 'https://aka.ms/EmailSetupHelp', Locked = true;
-        InvoicingTroubleshootingUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2082472', Comment = '{LOCKED}';
-        BusinessCentralTroubleshootingUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2082540', Comment = '{LOCKED}';
+        InvoicingTroubleshootingUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2082472', Locked = true;
+        BusinessCentralTroubleshootingUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2082540', Locked = true;
         SmtpConnectTelemetryErrorMsg: Label 'Unable to connect to SMTP server. Authentication email from: %1, send as: %2, %3, smtp server: %4, server port: %5, error code: %6', Comment = '%1=the from address, %2=is send as enabled, %3=the send as email, %4=the smtp server, %5=the server port, %6=error code';
         SmtpAuthenticateTelemetryErrorMsg: Label 'Unable to connect to SMTP server. Authentication email from: %1, smtp server: %2, server port: %3, error code: %4', Comment = '%1=the from address, %2=the smtp server, %3=the server port, %4=error code';
         SmtpSendTelemetryErrorMsg: Label 'Unable to send email. Send from: %1. Send to: %2, send as: %3, %4, subject: %5, error code: %6', Comment = '%1=the from address, %2=the to address, %3=is send as enabled, %4=the send as email, %5=the subject of the email, %6=error code';
@@ -44,6 +45,7 @@ codeunit 400 "SMTP Mail"
         SmtpClient := SmtpClient.SmtpClient();
         BodyBuilder := BodyBuilder.BodyBuilder();
         Email := MimeMessage.MimeMessage();
+        HtmlFormattedBody := false;
     end;
 
     /// <summary>
@@ -149,8 +151,7 @@ codeunit 400 "SMTP Mail"
     end;
 
     /// <summary>
-    /// Adds the body of this email.
-    /// This can be both html and non-html text.
+    /// Adds the html text to the body of this email.
     /// </summary>
     /// <param name="Body">The body</param>
     procedure AddBody(Body: Text)
@@ -158,11 +159,21 @@ codeunit 400 "SMTP Mail"
         BodyBuilder.HtmlBody := Body;
 
         ConvertBase64ImagesToContentId();
+        HtmlFormattedBody := true;
     end;
 
     /// <summary>
-    /// Appends additional text to the body of this email.
-    /// This can be both html and non-html text.
+    /// Adds the plain text to the body of this email.
+    /// </summary>
+    /// <param name="Body">The body</param>
+    procedure AddTextBody(Body: Text)
+    begin
+        BodyBuilder.TextBody := Body;
+        HtmlFormattedBody := false;
+    end;
+
+    /// <summary>
+    /// Appends additional html text to the body of this email.
     /// </summary>
     /// <param name="BodyPart">The body part to append</param>
     procedure AppendBody(BodyPart: Text)
@@ -170,6 +181,17 @@ codeunit 400 "SMTP Mail"
         BodyBuilder.HtmlBody := BodyBuilder.HtmlBody + BodyPart;
 
         ConvertBase64ImagesToContentId();
+        HtmlFormattedBody := true;
+    end;
+
+    /// <summary>
+    /// Appends additional plain text to the body of this email.
+    /// </summary>
+    /// <param name="BodyPart">The body part to append</param>
+    procedure AppendTextBody(BodyPart: Text)
+    begin
+        BodyBuilder.TextBody := BodyBuilder.TextBody + BodyPart;
+        HtmlFormattedBody := false;
     end;
 
     /// <summary>
@@ -238,7 +260,10 @@ codeunit 400 "SMTP Mail"
     /// <returns>The body</returns>
     procedure GetBody(): Text
     begin
-        exit(BodyBuilder.HtmlBody);
+        if IsBodyHtmlFormatted() then
+            exit(BodyBuilder.HtmlBody)
+        else
+            exit(BodyBuilder.TextBody);
     end;
 
     /// <summary>
@@ -255,6 +280,15 @@ codeunit 400 "SMTP Mail"
     end;
 
     /// <summary>
+    /// Get if the body is HTML formatted.
+    /// </summary>
+    /// <returns>True if the body is HTML formatted.</returns>
+    procedure IsBodyHtmlFormatted(): Boolean
+    begin
+        exit(HtmlFormattedBody);
+    end;
+
+    /// <summary>
     /// Creates the email with the name and address it is being sent from, the recipient, subject, and body.
     /// </summary>
     /// <param name="FromName">The name of the email sender</param>
@@ -263,14 +297,16 @@ codeunit 400 "SMTP Mail"
     /// <param name="Subject">The subject of the mail</param>
     /// <param name="Body">The body of the mail</param>
     /// <param name="HtmlFormatted">Whether the body is html formatted</param>
-    [Obsolete('This method is obsolete. Call the other CreateMessage instead.')]
+    [Obsolete('This method is obsolete. A new CreateMessage overload is available, with the following parameters (FromName: Text; FromAddress: Text; Recipients: List of [Text]; Subject: Text; Body: Text).')]
     [TryFunction]
     procedure CreateMessage(FromName: Text; FromAddress: Text; Recipient: Text; Subject: Text; Body: Text; HtmlFormatted: Boolean)
     var
         Recipients: List of [Text];
+        Seperators: Text;
     begin
-        Recipients.Add(Recipient);
-        CreateMessage(FromName, FromAddress, Recipients, Subject, Body);
+        Seperators := '; ,';
+        Recipients := Recipient.Split(Seperators.Split());
+        CreateMessage(FromName, FromAddress, Recipients, Subject, Body, HtmlFormatted);
     end;
 
     /// <summary>
@@ -283,6 +319,21 @@ codeunit 400 "SMTP Mail"
     /// <param name="Body">The body of the mail</param>
     [TryFunction]
     procedure CreateMessage(FromName: Text; FromAddress: Text; Recipients: List of [Text]; Subject: Text; Body: Text)
+    begin
+        CreateMessage(FromName, FromAddress, Recipients, Subject, Body, false);
+    end;
+
+    /// <summary>
+    /// Creates the email with the name and address it is being sent from, the recipients, subject, and body.
+    /// </summary>
+    /// <param name="FromName">The name of the email sender</param>
+    /// <param name="FromAddress">The address of the default sender or, when using the Send As or Send on Behalf functionality, the address of the substitute sender</param>
+    /// <param name="Recipients">The recipient(s) of the mail</param>
+    /// <param name="Subject">The subject of the mail</param>
+    /// <param name="Body">The body of the mail</param>
+    /// <param name="HtmlFormatted">Whether the body is html formatted</param>
+    [TryFunction]
+    procedure CreateMessage(FromName: Text; FromAddress: Text; Recipients: List of [Text]; Subject: Text; Body: Text; HtmlFormatted: Boolean)
     var
         MailboxAddress: DotNet MimeMailboxAddress;
     begin
@@ -291,7 +342,7 @@ codeunit 400 "SMTP Mail"
 
         SendResult := '';
 
-        if Recipients.Count() = 0 then
+        if Recipients.Count() <> 0 then
             CheckValidEmailAddresses(FormatListToString(Recipients, ';'));
         CheckValidEmailAddresses(FromAddress);
         SmtpMailSetup.GetSetup;
@@ -300,7 +351,13 @@ codeunit 400 "SMTP Mail"
         AddFrom(FromName, FromAddress);
         AddRecipients(Recipients);
         AddSubject(Subject);
-        AddBody(Body);
+
+        if HtmlFormatted then
+            AddBody(Body)
+        else
+            AddTextBody(Body);
+
+        HtmlFormattedBody := HtmlFormatted;
     end;
 
     /// <summary>
@@ -393,9 +450,11 @@ codeunit 400 "SMTP Mail"
         SecureSocketOptions: DotNet SecureSocketOptions;
     begin
         if SMTPMailSetup."Secure Connection" then
-            SmtpClient.Connect(SMTPMailSetup."SMTP Server", SMTPMailSetup."SMTP Server Port", SecureSocketOptions.Auto, CancellationToken)
+            SecureSocketOptions := SecureSocketOptions.Auto
         else
-            SmtpClient.Connect(SMTPMailSetup."SMTP Server", SMTPMailSetup."SMTP Server Port", false, CancellationToken);
+            SecureSocketOptions := SecureSocketOptions.None;
+
+        SmtpClient.Connect(SMTPMailSetup."SMTP Server", SMTPMailSetup."SMTP Server Port", SecureSocketOptions, CancellationToken)
     end;
 
     /// <summary>
@@ -605,6 +664,7 @@ codeunit 400 "SMTP Mail"
 
                     ContentId := CreateGuid();
                     ContentId := ContentId.Replace('-', '');
+                    ContentId := DelChr(ContentId, '<>', '{}');
 
                     if TryAddLinkedResources(Filename, Base64Img, MimeContentType, MimeEntity) then begin
                         MimeEntity.ContentId := ContentId;
@@ -636,10 +696,7 @@ codeunit 400 "SMTP Mail"
     /// </summary>
     /// <returns>True if there is no error./returns>
     [TryFunction]
-    local procedure TryAddLinkedResources(Filename: Text; Base64Img: Text; ContentType: DotNet MimeContentType;
-
-    var
-        MimeEntity: DotNet MimeEntity)
+    local procedure TryAddLinkedResources(Filename: Text; Base64Img: Text; ContentType: DotNet MimeContentType; var MimeEntity: DotNet MimeEntity)
     var
         Convert: DotNet Convert;
     begin
@@ -953,4 +1010,3 @@ codeunit 400 "SMTP Mail"
     begin
     end;
 }
-

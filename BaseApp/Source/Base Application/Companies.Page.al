@@ -23,11 +23,13 @@ page 357 Companies
                 field("Display Name"; "Display Name")
                 {
                     ApplicationArea = Basic, Suite;
+                    Caption = 'Display Name';
                     ToolTip = 'Specifies the name to display for the company in the user interface instead of the text that is specified in the Name field.';
                 }
                 field("Evaluation Company"; "Evaluation Company")
                 {
                     ApplicationArea = Basic, Suite;
+                    Caption = 'Evaluation Company';
                     Editable = false;
                     ToolTip = 'Specifies that the company is for trial purposes only, and that a subscription has not been purchased. ';
                     Visible = IsFoundation;

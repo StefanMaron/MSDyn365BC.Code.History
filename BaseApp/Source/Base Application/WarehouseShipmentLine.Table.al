@@ -662,13 +662,23 @@ table 7321 "Warehouse Shipment Line"
                         FieldError(Quantity, StrSubstNo(Text002, CalcQty(ServiceLine."Outstanding Qty. (Base)" - WhseQtyOutstandingBase)));
                     QtyOutstandingBase := Abs(ServiceLine."Outstanding Qty. (Base)");
                 end;
+            else
+                OnCheckSourceDocLineQtyOnCaseSourceType(Rec, WhseQtyOutstandingBase, QtyOutstandingBase);
         end;
         if QuantityBase > QtyOutstandingBase then
             FieldError(Quantity, StrSubstNo(Text002, FieldCaption("Qty. Outstanding")));
     end;
 
     procedure CalcStatusShptLine(): Integer
+    var
+        NewStatus: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcStatusShptLine(Rec, NewStatus, IsHandled);
+        if IsHandled then
+            exit(NewStatus);
+
         if (Quantity = "Qty. Shipped") or ("Qty. (Base)" = "Qty. Shipped (Base)") then
             exit(Status::"Completely Shipped");
         if "Qty. Shipped" > 0 then
@@ -694,6 +704,7 @@ table 7321 "Warehouse Shipment Line"
                         Validate("Qty. to Ship (Base)", "Qty. Picked (Base)" - "Qty. Shipped (Base)")
                     else
                         Validate("Qty. to Ship (Base)", "Qty. Outstanding (Base)");
+                    OnAutoFillQtyToHandleOnBeforeModify(WhseShptLine);
                     Modify;
                     if not NotEnough then
                         if ("Qty. to Ship (Base)" < "Qty. Outstanding (Base)") and
@@ -981,6 +992,16 @@ table 7321 "Warehouse Shipment Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAutoFillQtyToHandleOnBeforeModify(var WarehouseShipmentLine: Record "Warehouse Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcStatusShptLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var NewStatus: Integer; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCreatePickDoc(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; WarehouseShipmentHeader: Record "Warehouse Shipment Header"; HideValidationDialog: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -1007,6 +1028,11 @@ table 7321 "Warehouse Shipment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTestReleased(var WhseShptHeader: Record "Warehouse Shipment Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckSourceDocLineQtyOnCaseSourceType(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; WhseQtyOutstandingBase: Decimal; QtyOutstandingBase: Decimal)
     begin
     end;
 

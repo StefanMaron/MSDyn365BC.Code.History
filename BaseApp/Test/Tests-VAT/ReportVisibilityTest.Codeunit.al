@@ -128,6 +128,7 @@ codeunit 134095 "Report Visibility Test"
           LibraryVariableStorage.DequeueBoolean and LibraryVariableStorage.DequeueBoolean and LibraryVariableStorage.DequeueBoolean and
           LibraryVariableStorage.DequeueBoolean and LibraryVariableStorage.DequeueBoolean, '');
         LibraryVariableStorage.AssertEmpty;
+        LibraryApplicationArea.DisableApplicationAreaSetup;
     end;
 
     [Test]
@@ -151,6 +152,7 @@ codeunit 134095 "Report Visibility Test"
           LibraryVariableStorage.DequeueBoolean and LibraryVariableStorage.DequeueBoolean and
           LibraryVariableStorage.DequeueBoolean and LibraryVariableStorage.DequeueBoolean, '');
         LibraryVariableStorage.AssertEmpty;
+        LibraryApplicationArea.DisableApplicationAreaSetup;
     end;
 
     [Scope('OnPrem')]

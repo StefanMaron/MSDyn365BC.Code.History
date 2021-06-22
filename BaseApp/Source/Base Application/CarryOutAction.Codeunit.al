@@ -179,6 +179,7 @@ codeunit 99000813 "Carry Out Action"
             ReqLine2."Qty. per UOM (Demand)" := 0;
             ReqLine2."Unit Of Measure Code (Demand)" := '';
         end;
+        OnCarryOutToReqWkshOnBeforeReqLineInsert(ReqLine2);
         ReqLine2.Insert;
 
         ReqLineReserve.TransferReqLineToReqLine(ReqLine, ReqLine2, 0, true);
@@ -312,11 +313,8 @@ codeunit 99000813 "Carry Out Action"
         PurchHeader: Record "Purchase Header";
     begin
         ReqLine.TestField("Ref. Order Type", ReqLine."Ref. Order Type"::Purchase);
-        if PurchLine.Get(
-             PurchLine."Document Type"::Order,
-             ReqLine."Ref. Order No.",
-             ReqLine."Ref. Line No.")
-        then begin
+        if PurchLine.Get(PurchLine."Document Type"::Order, ReqLine."Ref. Order No.", ReqLine."Ref. Line No.") then begin
+            OnPurchOrderChgAndResheduleOnAfterGetPurchLine(PurchLine);
             PurchLine.BlockDynamicTracking(true);
             PurchLine.Validate(Quantity, ReqLine.Quantity);
             PurchLine.Validate("Expected Receipt Date", ReqLine."Due Date");
@@ -331,6 +329,7 @@ codeunit 99000813 "Carry Out Action"
             ReservMgt.AutoTrack(PurchLine."Outstanding Qty. (Base)");
 
             PurchHeader.Get(PurchLine."Document Type", PurchLine."Document No.");
+            OnPurchOrderChgAndResheduleOnAfterGetPurchHeader(PurchHeader);
             PrintPurchaseOrder(PurchHeader);
         end else
             Error(CouldNotChangeSupplyTxt, ReqLine."Ref. Order No.", ReqLine."Ref. Line No.");
@@ -416,69 +415,108 @@ codeunit 99000813 "Carry Out Action"
     end;
 
     procedure DeleteOrderLines(ReqLine: Record "Requisition Line")
-    var
-        ProdOrder: Record "Production Order";
-        ProdOrderLine: Record "Prod. Order Line";
-        PurchHeader: Record "Purchase Header";
-        PurchLine: Record "Purchase Line";
-        TransHeader: Record "Transfer Header";
-        TransLine: Record "Transfer Line";
-        AsmHeader: Record "Assembly Header";
     begin
         OnBeforeDeleteOrderLines(ReqLine);
 
         case ReqLine."Ref. Order Type" of
             ReqLine."Ref. Order Type"::"Prod. Order":
-                begin
-                    ProdOrderLine.SetCurrentKey(Status, "Prod. Order No.", "Line No.");
-                    ProdOrderLine.SetFilter("Item No.", '<>%1', '');
-                    ProdOrderLine.SetRange(Status, ReqLine."Ref. Order Status");
-                    ProdOrderLine.SetRange("Prod. Order No.", ReqLine."Ref. Order No.");
-                    if ProdOrderLine.Count in [0, 1] then begin
-                        if ProdOrder.Get(ReqLine."Ref. Order Status", ReqLine."Ref. Order No.") then
-                            ProdOrder.Delete(true);
-                    end else begin
-                        ProdOrderLine.SetRange("Line No.", ReqLine."Ref. Line No.");
-                        if ProdOrderLine.FindFirst then
-                            ProdOrderLine.Delete(true);
-                    end;
-                end;
+                DeleteProdOrderLines(ReqLine);
             ReqLine."Ref. Order Type"::Purchase:
-                begin
-                    PurchLine.SetCurrentKey("Document Type", "Document No.", "Line No.");
-                    PurchLine.SetFilter(Type, '<>%1', PurchLine.Type::" ");
-                    PurchLine.SetRange("Document Type", PurchLine."Document Type"::Order);
-                    PurchLine.SetRange("Document No.", ReqLine."Ref. Order No.");
-                    if PurchLine.Count in [0, 1] then begin
-                        if PurchHeader.Get(PurchHeader."Document Type"::Order, ReqLine."Ref. Order No.") then
-                            PurchHeader.Delete(true);
-                    end else begin
-                        PurchLine.SetRange("Line No.", ReqLine."Ref. Line No.");
-                        if PurchLine.FindFirst then
-                            PurchLine.Delete(true);
-                    end;
-                end;
+                DeletePurchaseOrderLines(ReqLine);
             ReqLine."Ref. Order Type"::Transfer:
-                begin
-                    TransLine.SetCurrentKey("Document No.", "Line No.");
-                    TransLine.SetRange("Document No.", ReqLine."Ref. Order No.");
-                    if TransLine.Count in [0, 1] then begin
-                        if TransHeader.Get(ReqLine."Ref. Order No.") then
-                            TransHeader.Delete(true);
-                    end else begin
-                        TransLine.SetRange("Line No.", ReqLine."Ref. Line No.");
-                        if TransLine.FindFirst then
-                            TransLine.Delete(true);
-                    end;
-                end;
+                DeleteTransferOrderLines(ReqLine);
             ReqLine."Ref. Order Type"::Assembly:
-                begin
-                    AsmHeader.Get(AsmHeader."Document Type"::Order, ReqLine."Ref. Order No.");
-                    AsmHeader.Delete(true);
-                end;
+                DeleteAssemblyOrderLines(ReqLine);
         end;
 
         OnAfterDeleteOrderLines(ReqLine);
+    end;
+
+    local procedure DeleteProdOrderLines(ReqLine: Record "Requisition Line")
+    var
+        ProdOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeDeleteProdOrderLines(ReqLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        ProdOrderLine.SetCurrentKey(Status, "Prod. Order No.", "Line No.");
+        ProdOrderLine.SetFilter("Item No.", '<>%1', '');
+        ProdOrderLine.SetRange(Status, ReqLine."Ref. Order Status");
+        ProdOrderLine.SetRange("Prod. Order No.", ReqLine."Ref. Order No.");
+        if ProdOrderLine.Count in [0, 1] then begin
+            if ProdOrder.Get(ReqLine."Ref. Order Status", ReqLine."Ref. Order No.") then
+                ProdOrder.Delete(true);
+        end else begin
+            ProdOrderLine.SetRange("Line No.", ReqLine."Ref. Line No.");
+            if ProdOrderLine.FindFirst then
+                ProdOrderLine.Delete(true);
+        end;
+    end;
+
+    local procedure DeletePurchaseOrderLines(ReqLine: Record "Requisition Line")
+    var
+        PurchHeader: Record "Purchase Header";
+        PurchLine: Record "Purchase Line";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeDeletePurchaseLines(ReqLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        PurchLine.SetCurrentKey("Document Type", "Document No.", "Line No.");
+        PurchLine.SetFilter(Type, '<>%1', PurchLine.Type::" ");
+        PurchLine.SetRange("Document Type", PurchLine."Document Type"::Order);
+        PurchLine.SetRange("Document No.", ReqLine."Ref. Order No.");
+        if PurchLine.Count in [0, 1] then begin
+            if PurchHeader.Get(PurchHeader."Document Type"::Order, ReqLine."Ref. Order No.") then
+                PurchHeader.Delete(true);
+        end else begin
+            PurchLine.SetRange("Line No.", ReqLine."Ref. Line No.");
+            if PurchLine.FindFirst then
+                PurchLine.Delete(true);
+        end;
+    end;
+
+    local procedure DeleteTransferOrderLines(ReqLine: Record "Requisition Line")
+    var
+        TransHeader: Record "Transfer Header";
+        TransLine: Record "Transfer Line";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeDeleteTransferLines(ReqLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        TransLine.SetCurrentKey("Document No.", "Line No.");
+        TransLine.SetRange("Document No.", ReqLine."Ref. Order No.");
+        if TransLine.Count in [0, 1] then begin
+            if TransHeader.Get(ReqLine."Ref. Order No.") then
+                TransHeader.Delete(true);
+        end else begin
+            TransLine.SetRange("Line No.", ReqLine."Ref. Line No.");
+            if TransLine.FindFirst then
+                TransLine.Delete(true);
+        end;
+    end;
+
+    local procedure DeleteAssemblyOrderLines(ReqLine: Record "Requisition Line")
+    var
+        AsmHeader: Record "Assembly Header";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeDeleteAssemblyLines(ReqLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        AsmHeader.Get(AsmHeader."Document Type"::Order, ReqLine."Ref. Order No.");
+        AsmHeader.Delete(true);
     end;
 
     procedure InsertProdOrder(ReqLine: Record "Requisition Line"; ProdOrderChoice: Option " ",Planned,"Firm Planned","Firm Planned & Print")
@@ -1343,6 +1381,26 @@ codeunit 99000813 "Carry Out Action"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteAssemblyLines(RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteProdOrderLines(RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeletePurchaseLines(RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteTransferLines(RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePrintPurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
@@ -1363,6 +1421,11 @@ codeunit 99000813 "Carry Out Action"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCarryOutToReqWkshOnBeforeReqLineInsert(var ReqLine: Record "Requisition Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnInsertProdOrderWithReqLine(var ProductionOrder: Record "Production Order"; var RequisitionLine: Record "Requisition Line")
     begin
     end;
@@ -1379,6 +1442,16 @@ codeunit 99000813 "Carry Out Action"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertProdOrderLineOnAfterTransferRouting(var ProdOrderLine: Record "Prod. Order Line"; var RefreshProdOrderLine: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPurchOrderChgAndResheduleOnAfterGetPurchHeader(var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPurchOrderChgAndResheduleOnAfterGetPurchLine(var PurchaseLine: Record "Purchase Line")
     begin
     end;
 

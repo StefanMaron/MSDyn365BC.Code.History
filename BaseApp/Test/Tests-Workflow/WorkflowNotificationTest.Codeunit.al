@@ -952,7 +952,7 @@ codeunit 134301 "Workflow Notification Test"
 
     [Test]
     [Scope('OnPrem')]
-    procedure TestSenderNotificationOnAprovalRequestRejection()
+    procedure TestSenderNotificationOnReject_DirectApprover()
     var
         SalesHeader: Record "Sales Header";
         CurrentUserSetup: Record "User Setup";
@@ -960,14 +960,14 @@ codeunit 134301 "Workflow Notification Test"
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         ExpectedValues: array[20] of Text;
     begin
-        // [SCENARIO 205129] When approval request is rejected, a notification is sent to both approver and request sender.
+        // [SCENARIO 205129] One notification entry created for request sender if request was rejected and Approver Limit Type used = "Direct Approver"
         Initialize;
 
         // [GIVEN] Two users for approval process where the second one is a Direct Approver for the first one.
         // [GIVEN] Sales Document Approval Workflow "WF" where notification should be sent on a document rejection.
-        // [GIVEN] "WF" has Approver as Approver Type and Direct Approver as Approver Limit Type.
+        // [GIVEN] "WF" has Approver Type = "Approver" and Approver Limit Type = "Direct Approver".
         // [GIVEN] Sales Invoice "SI" created by initial user send for approval.
-        PrepareRejectScenario(CurrentUserSetup, SalesHeader);
+        PrepareSalesDocRejectScenarioDirectApprover(CurrentUserSetup, SalesHeader);
 
         // [WHEN] "SI" is rejected by the second user.
         ApprovalsMgmt.RejectRecordApprovalRequest(SalesHeader.RecordId);
@@ -980,6 +980,102 @@ codeunit 134301 "Workflow Notification Test"
 
         Assert.RecordCount(NotificationEntry, 1);
         VerifyNotificationsForRecipient(CurrentUserSetup."Approver ID", ExpectedValues);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestSenderNotificationOnReject_ApproverChain()
+    var
+        SalesHeader: Record "Sales Header";
+        CurrentUserSetup: Record "User Setup";
+        NotificationEntry: Record "Notification Entry";
+        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+        ExpectedValues: array[20] of Text;
+    begin
+        // [SCENARIO 327544] One notification entry created for request sender if request was rejected by the following approver and Approver Limit Type used = "Approver Chain"
+        Initialize;
+
+        // [GIVEN] Two users for approval process where the second one is Approver for the first one
+        // [GIVEN] Sales Document Approval Workflow "WF" where notification should be sent on a document rejection
+        // [GIVEN] "WF" has Approver Type = "Approver" and Approver Limit Type = "Approver Chain"
+        // [GIVEN] Sales Invoice "SI" created by initial user and send for approval
+        PrepareSalesDocRejectScenarioApproverChain(CurrentUserSetup, SalesHeader);
+
+        // [WHEN] "SI" is rejected by the second user
+        ApprovalsMgmt.RejectRecordApprovalRequest(SalesHeader.RecordId);
+
+        // [THEN] Only one Notication sent to approval Sender about rejection
+        ExpectedValues[1] := 'Sales Invoice';
+        ExpectedValues[2] := Format(SalesHeader."No.");
+        ExpectedValues[3] := 'approval has been rejected.';
+
+        Assert.RecordCount(NotificationEntry, 1);
+        VerifyNotificationsForRecipient(CurrentUserSetup."Approver ID", ExpectedValues);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestSenderNotificationOnReject_WorkflowUserGroup()
+    var
+        SalesHeader: Record "Sales Header";
+        NotificationEntry: Record "Notification Entry";
+        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+        ExpectedValues: array[20] of Text;
+        RequestSenderUserCode: Code[50];
+    begin
+        // [SCENARIO 327544] One notification entry created for request sender if request was rejected by the next sequence approver
+        Initialize;
+
+        // [GIVEN] Three users "User1", "User2" and "User3" added to Workflow User Group "GR" with incremental sequence no.
+        // [GIVEN] Sales Document Approval Workflow "WF" where notification should be sent on a document rejection
+        // [GIVEN] "WF" has Approver Type = "Workflow User Group", "GR" selected
+        // [GIVEN] Sales Invoice "SI" created and sent for approval by "User1"
+        PrepareSalesDocRejectScenarioWorkflowUserGroup(RequestSenderUserCode, SalesHeader);
+
+        // [WHEN] "SI" is rejected by the "User2"
+        ApprovalsMgmt.RejectRecordApprovalRequest(SalesHeader.RecordId);
+
+        // [THEN] The only rejection Notication is sent to "User1"
+        ExpectedValues[1] := 'Sales Invoice';
+        ExpectedValues[2] := Format(SalesHeader."No.");
+        ExpectedValues[3] := 'approval has been rejected.';
+
+        Assert.RecordCount(NotificationEntry, 1);
+        VerifyNotificationsForRecipient(RequestSenderUserCode, ExpectedValues);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestSenderNotificationOnReject_WorkflowUserGroupLastSeq()
+    var
+        SalesHeader: Record "Sales Header";
+        NotificationEntry: Record "Notification Entry";
+        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+        ExpectedValues: array[20] of Text;
+        RequestSenderUserCode: Code[50];
+        IntermediateApproverUserCode: Code[50];
+    begin
+        // [SCENARIO 327544] Two notification entries created for request sender and intermediate approver if request was rejected by the final sequence approver
+        Initialize;
+
+        // [GIVEN] Three users "User1", "User2" and "User3" added to Workflow User Group "GR" with incremental sequence no.
+        // [GIVEN] Sales Document Approval Workflow "WF" where notification should be sent on a document rejection
+        // [GIVEN] "WF" has Approver Type = "Workflow User Group", "GR" selected
+        // [GIVEN] Sales Invoice "SI" created and sent for approval by "User1" and approved by "User2"
+        PrepareSalesDocRejectScenarioWorkflowUserGroupWithLastSeqApprover(
+          RequestSenderUserCode, IntermediateApproverUserCode, SalesHeader);
+
+        // [WHEN] "SI" is rejected by "User3"
+        ApprovalsMgmt.RejectRecordApprovalRequest(SalesHeader.RecordId);
+
+        // [THEN] Rejection Notication is sent to "User1" and "User2"
+        ExpectedValues[1] := 'Sales Invoice';
+        ExpectedValues[2] := Format(SalesHeader."No.");
+        ExpectedValues[3] := 'approval has been rejected.';
+
+        Assert.RecordCount(NotificationEntry, 2);
+        VerifyNotificationsForRecipient(RequestSenderUserCode, ExpectedValues);
+        VerifyNotificationsForRecipient(IntermediateApproverUserCode, ExpectedValues);
     end;
 
     [Test]
@@ -1000,7 +1096,7 @@ codeunit 134301 "Workflow Notification Test"
         // [GIVEN] "WF" has Approver as Approver Type and Direct Approver as Approver Limit Type.
         // [GIVEN] Sales Invoice "SI" created by initial user send for approval.
         // [GIVEN] User setup for approval sender has been deleted
-        PrepareRejectScenario(CurrentUserSetup, SalesHeader);
+        PrepareSalesDocRejectScenarioDirectApprover(CurrentUserSetup, SalesHeader);
         DeletedUserSetup.Get(CurrentUserSetup."Approver ID");
         DeletedUserSetup.Delete;
 
@@ -2232,6 +2328,11 @@ codeunit 134301 "Workflow Notification Test"
         NotificationSetup: Record "Notification Setup";
     begin
         LibraryDocumentApprovals.SetupUserWithApprover(CurrentUserSetup);
+        LibraryDocumentApprovals.UpdateApprovalLimits(
+          CurrentUserSetup, false, false, false,
+          LibraryRandom.RandIntInRange(10, 20),
+          LibraryRandom.RandIntInRange(10, 20),
+          LibraryRandom.RandIntInRange(10, 20));
 
         LibraryWorkflow.CreateNotificationSetup(
           NotificationSetup, UserId,
@@ -2243,21 +2344,143 @@ codeunit 134301 "Workflow Notification Test"
           NotificationSetup."Notification Method"::Note);
     end;
 
-    local procedure PrepareRejectScenario(var CurrentUserSetup: Record "User Setup"; var SalesHeader: Record "Sales Header")
+    local procedure SetupWorkflowUserGroupWithUsers(var CurrentUserCode: Code[50]; var IntermediateUserCode: Code[50]; var FinalUserCode: Code[50]; var WorkflowGroupCode: Code[20]; SequenceNoCurrentUser: Integer; SequenceNoIntermediateUser: Integer; SequenceNoFinalUser: Integer)
     var
-        JobQueueEntry: Record "Job Queue Entry";
+        CurrentUserSetup: Record "User Setup";
+        IntermediateUserSetup: Record "User Setup";
+        FinalUserSetup: Record "User Setup";
+        WorkflowUserGroup: Record "Workflow User Group";
+        NotificationSetup: Record "Notification Setup";
+    begin
+        LibraryDocumentApprovals.CreateOrFindUserSetup(CurrentUserSetup, UserId);
+        LibraryDocumentApprovals.CreateMockupUserSetup(IntermediateUserSetup);
+        LibraryDocumentApprovals.CreateMockupUserSetup(FinalUserSetup);
+        LibraryDocumentApprovals.CreateWorkflowUserGroup(WorkflowUserGroup);
+
+        LibraryDocumentApprovals.CreateWorkflowUserGroupMember(
+          WorkflowUserGroup.Code, CurrentUserSetup."User ID", SequenceNoCurrentUser);
+        LibraryDocumentApprovals.CreateWorkflowUserGroupMember(
+          WorkflowUserGroup.Code, IntermediateUserSetup."User ID", SequenceNoIntermediateUser);
+        LibraryDocumentApprovals.CreateWorkflowUserGroupMember(
+          WorkflowUserGroup.Code, FinalUserSetup."User ID", SequenceNoFinalUser);
+
+        LibraryWorkflow.CreateNotificationSetup(
+          NotificationSetup, CurrentUserSetup."User ID",
+          NotificationSetup."Notification Type"::Approval,
+          NotificationSetup."Notification Method"::Note);
+        LibraryWorkflow.CreateNotificationSetup(
+          NotificationSetup, IntermediateUserSetup."User ID",
+          NotificationSetup."Notification Type"::Approval,
+          NotificationSetup."Notification Method"::Note);
+        LibraryWorkflow.CreateNotificationSetup(
+          NotificationSetup, FinalUserSetup."User ID",
+          NotificationSetup."Notification Type"::Approval,
+          NotificationSetup."Notification Method"::Note);
+
+        CurrentUserCode := CurrentUserSetup."User ID";
+        IntermediateUserCode := IntermediateUserSetup."User ID";
+        FinalUserCode := FinalUserSetup."User ID";
+        WorkflowGroupCode := WorkflowUserGroup.Code;
+    end;
+
+    local procedure PrepareSalesDocRejectScenarioDirectApprover(var CurrentUserSetup: Record "User Setup"; var SalesHeader: Record "Sales Header")
+    var
+        DummyWorkflowStepArgument: Record "Workflow Step Argument";
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
     begin
         SetupCurrentUserAndApproverWithNotificationSetup(CurrentUserSetup);
-        CreateApprovalWorkflowForSalesDocWithRejectNotification;
+        CreateApprovalWorkflowForSalesDocWithRejectNotification(
+          DummyWorkflowStepArgument."Approver Type"::Approver,
+          DummyWorkflowStepArgument."Approver Limit Type"::"Direct Approver", '');
 
         LibrarySales.CreateSalesInvoice(SalesHeader);
         ApprovalsMgmt.OnSendSalesDocForApproval(SalesHeader);
 
         LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(SalesHeader.RecordId);
-        JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"Notification Entry Dispatcher");
-        JobQueueEntry.FindFirst;
-        CODEUNIT.Run(CODEUNIT::"Notification Entry Dispatcher", JobQueueEntry);
+        RunNotificationEntryDispatcher;
+    end;
+
+    local procedure PrepareSalesDocRejectScenarioApproverChain(var CurrentUserSetup: Record "User Setup"; var SalesHeader: Record "Sales Header")
+    var
+        DummyWorkflowStepArgument: Record "Workflow Step Argument";
+        ApprovalEntry: Record "Approval Entry";
+        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+    begin
+        SetupCurrentUserAndApproverWithNotificationSetup(CurrentUserSetup);
+        CreateApprovalWorkflowForSalesDocWithRejectNotification(
+          DummyWorkflowStepArgument."Approver Type"::Approver,
+          DummyWorkflowStepArgument."Approver Limit Type"::"Approver Chain", '');
+
+        LibrarySales.CreateSalesInvoice(SalesHeader);
+        ApprovalsMgmt.OnSendSalesDocForApproval(SalesHeader);
+
+        FindUpdateApprovalEntrySenderApprover(
+          SalesHeader.RecordId, ApprovalEntry.Status::Approved,
+          CurrentUserSetup."Approver ID", CurrentUserSetup."Approver ID");
+
+        FindUpdateApprovalEntrySenderApprover(
+          SalesHeader.RecordId, ApprovalEntry.Status::Open,
+          CurrentUserSetup."Approver ID", CurrentUserSetup."User ID");
+
+        RunNotificationEntryDispatcher;
+    end;
+
+    local procedure PrepareSalesDocRejectScenarioWorkflowUserGroup(var RequestSenderUserCode: Code[50]; var SalesHeader: Record "Sales Header")
+    var
+        DummyWorkflowStepArgument: Record "Workflow Step Argument";
+        ApprovalEntry: Record "Approval Entry";
+        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+        WorkflowGroupCode: Code[20];
+        NewSenderUserCode: Code[50];
+        NewApproverUserCode: Code[50];
+        DummyUserCode: Code[50];
+    begin
+        SetupWorkflowUserGroupWithUsers(NewApproverUserCode, NewSenderUserCode, DummyUserCode, WorkflowGroupCode, 2, 1, 3);
+        CreateApprovalWorkflowForSalesDocWithRejectNotification(
+          DummyWorkflowStepArgument."Approver Type"::"Workflow User Group",
+          DummyWorkflowStepArgument."Approver Limit Type"::"Approver Chain", WorkflowGroupCode);
+
+        LibrarySales.CreateSalesInvoice(SalesHeader);
+        ApprovalsMgmt.OnSendSalesDocForApproval(SalesHeader);
+
+        UpdateApprovalEntrySenderApproverForGroupMember(ApprovalEntry, SalesHeader.RecordId, 1, NewSenderUserCode, NewSenderUserCode);
+        UpdateApprovalEntryStatus(ApprovalEntry, ApprovalEntry.Status::Approved);
+        UpdateApprovalEntrySenderApproverForGroupMember(ApprovalEntry, SalesHeader.RecordId, 2, NewSenderUserCode, NewApproverUserCode);
+        UpdateApprovalEntryStatus(ApprovalEntry, ApprovalEntry.Status::Open);
+        RunNotificationEntryDispatcher;
+
+        RequestSenderUserCode := NewSenderUserCode;
+    end;
+
+    local procedure PrepareSalesDocRejectScenarioWorkflowUserGroupWithLastSeqApprover(var RequestSenderUserCode: Code[50]; var IntermediateApproverUserCode: Code[50]; var SalesHeader: Record "Sales Header")
+    var
+        DummyWorkflowStepArgument: Record "Workflow Step Argument";
+        ApprovalEntry: Record "Approval Entry";
+        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+        WorkflowGroupCode: Code[20];
+        CurrentUserCode: Code[50];
+        IntermediateUserCode: Code[50];
+        FinalUserCode: Code[50];
+    begin
+        SetupWorkflowUserGroupWithUsers(CurrentUserCode, IntermediateUserCode, FinalUserCode, WorkflowGroupCode, 3, 1, 2);
+        CreateApprovalWorkflowForSalesDocWithRejectNotification(
+          DummyWorkflowStepArgument."Approver Type"::"Workflow User Group",
+          DummyWorkflowStepArgument."Approver Limit Type"::"Approver Chain", WorkflowGroupCode);
+
+        LibrarySales.CreateSalesInvoice(SalesHeader);
+        ApprovalsMgmt.OnSendSalesDocForApproval(SalesHeader);
+
+        UpdateApprovalEntrySenderApproverForGroupMember(ApprovalEntry, SalesHeader.RecordId, 1, IntermediateUserCode, IntermediateUserCode);
+        UpdateApprovalEntryStatus(ApprovalEntry, ApprovalEntry.Status::Approved);
+        UpdateApprovalEntrySenderApproverForGroupMember(ApprovalEntry, SalesHeader.RecordId, 2, IntermediateUserCode, FinalUserCode);
+        UpdateApprovalEntryStatus(ApprovalEntry, ApprovalEntry.Status::Approved);
+        UpdateApprovalEntrySenderApproverForGroupMember(ApprovalEntry, SalesHeader.RecordId, 3, IntermediateUserCode, CurrentUserCode);
+        UpdateApprovalEntryStatus(ApprovalEntry, ApprovalEntry.Status::Open);
+
+        RunNotificationEntryDispatcher;
+
+        RequestSenderUserCode := IntermediateUserCode;
+        IntermediateApproverUserCode := IntermediateUserCode;
     end;
 
     local procedure CreatePurchaseApprovalEntry(var ApprovalEntry: Record "Approval Entry"; PurchaseHeader: Record "Purchase Header"; ApprovalStatus: Option)
@@ -2504,6 +2727,46 @@ codeunit 134301 "Workflow Notification Test"
         DataTypeBuffer.Insert;
     end;
 
+    local procedure RunNotificationEntryDispatcher()
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+    begin
+        JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"Notification Entry Dispatcher");
+        JobQueueEntry.FindFirst;
+        CODEUNIT.Run(CODEUNIT::"Notification Entry Dispatcher", JobQueueEntry);
+    end;
+
+    local procedure FindUpdateApprovalEntrySenderApprover(RecID: RecordID; StatusOption: Option; NewSenderUserCode: Code[50]; NewApproverUserCode: Code[50])
+    var
+        ApprovalEntry: Record "Approval Entry";
+    begin
+        ApprovalEntry.SetRange("Record ID to Approve", RecID);
+        ApprovalEntry.SetRange(Status, StatusOption);
+        ApprovalEntry.FindFirst;
+        UpdateApprovalEntrySenderApprover(ApprovalEntry, NewSenderUserCode, NewApproverUserCode);
+    end;
+
+    local procedure UpdateApprovalEntrySenderApproverForGroupMember(var ApprovalEntry: Record "Approval Entry"; RecID: RecordID; SequenceNo: Integer; NewSenderUserCode: Code[50]; NewApproverUserCode: Code[50])
+    begin
+        ApprovalEntry.SetRange("Record ID to Approve", RecID);
+        ApprovalEntry.SetRange("Sequence No.", SequenceNo);
+        ApprovalEntry.FindFirst;
+        UpdateApprovalEntrySenderApprover(ApprovalEntry, NewSenderUserCode, NewApproverUserCode);
+    end;
+
+    local procedure UpdateApprovalEntrySenderApprover(var ApprovalEntry: Record "Approval Entry"; NewSenderUserCode: Code[50]; NewApproverUserCode: Code[50])
+    begin
+        ApprovalEntry."Sender ID" := NewSenderUserCode;
+        ApprovalEntry."Approver ID" := NewApproverUserCode;
+        ApprovalEntry.Modify;
+    end;
+
+    local procedure UpdateApprovalEntryStatus(var ApprovalEntry: Record "Approval Entry"; NewStatusOption: Option)
+    begin
+        ApprovalEntry.Status := NewStatusOption;
+        ApprovalEntry.Modify;
+    end;
+
     [Scope('OnPrem')]
     procedure VerifyDataTypeBuffer(VerifyText: Text)
     var
@@ -2547,10 +2810,8 @@ codeunit 134301 "Workflow Notification Test"
         NotificationEntry: Record "Notification Entry";
     begin
         NotificationEntry.SetRange("Recipient User ID", RecipientID);
-        NotificationEntry.FindSet;
-        repeat
-            VerifyNotificationBodyText(NotificationEntry, ExpectedValues);
-        until NotificationEntry.Next = 0;
+        NotificationEntry.FindFirst;
+        VerifyNotificationBodyText(NotificationEntry, ExpectedValues);
     end;
 
     local procedure VerifyNotificationSetup(var NotificationSetup: Record "Notification Setup"; UserCode: Code[50]; NotificationMethod: Option)
@@ -2609,7 +2870,7 @@ codeunit 134301 "Workflow Notification Test"
         Assert.AreNotEqual(0, StrPos(RecordLink.URL1, LinkFilter), URLFilterNotFoundErr);
     end;
 
-    local procedure CreateApprovalWorkflowForSalesDocWithRejectNotification()
+    local procedure CreateApprovalWorkflowForSalesDocWithRejectNotification(ApproverType: Option; ApproverLimitType: Option; WorkflowUserGroupCode: Code[20])
     var
         Workflow: Record Workflow;
         WorkflowStep: Record "Workflow Step";
@@ -2636,8 +2897,11 @@ codeunit 134301 "Workflow Notification Test"
         WorkflowStep.SetRange(ID, FirstResponse);
         WorkflowStep.FindFirst;
         LibraryWorkflow.UpdateWorkflowStepArgumentApproverLimitType(
-          WorkflowStep.Argument, WorkflowStepArgument."Approver Type"::Approver,
-          WorkflowStepArgument."Approver Limit Type"::"Direct Approver", '', '');
+          WorkflowStep.Argument, ApproverType, ApproverLimitType, WorkflowUserGroupCode, '');
+
+        WorkflowStepArgument.Get(WorkflowStep.Argument);
+        WorkflowStepArgument."Notify Sender" := true;
+        WorkflowStepArgument.Modify();
 
         SecondStepID :=
           LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode, SecondResponse);

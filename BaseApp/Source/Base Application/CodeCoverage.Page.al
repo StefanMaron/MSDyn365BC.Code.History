@@ -209,7 +209,7 @@ page 9990 "Code Coverage"
 
                 trigger OnAction()
                 begin
-                    PAGE.Run(PAGE::"Code Coverage Object");
+                    PAGE.Run(PAGE::"Code Coverage AL Object");
                 end;
             }
             action("Load country objects")

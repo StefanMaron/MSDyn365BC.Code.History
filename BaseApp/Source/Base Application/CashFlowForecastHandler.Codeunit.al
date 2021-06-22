@@ -16,12 +16,12 @@ codeunit 850 "Cash Flow Forecast Handler"
         NumberOfPeriodsWithHistory: Integer;
         PeriodType: Integer;
         ForecastStartDate: Date;
-        XPAYABLESTxt: Label 'PAYABLES', Comment = '{locked}';
-        XRECEIVABLESTxt: Label 'RECEIVABLES', Comment = '{locked}';
+        XPAYABLESTxt: Label 'PAYABLES', Locked = true;
+        XRECEIVABLESTxt: Label 'RECEIVABLES', Locked = true;
         XPAYABLESCORRECTIONTxt: Label 'Payables Correction';
         XRECEIVABLESCORRECTIONTxt: Label 'Receivables Correction';
-        XTAXPAYABLESTxt: Label 'TAX TO RETURN', Comment = '{locked}';
-        XTAXRECEIVABLESTxt: Label 'TAX TO PAY', Comment = '{locked}';
+        XTAXPAYABLESTxt: Label 'TAX TO RETURN', Locked = true;
+        XTAXRECEIVABLESTxt: Label 'TAX TO PAY', Locked = true;
         XTAXPAYABLESCORRECTIONTxt: Label 'Tax from Purchase entries';
         XTAXRECEIVABLESCORRECTIONTxt: Label 'Tax from Sales entries';
         XTAXSALESORDERSTxt: Label 'Tax from Sales Orders';
@@ -447,6 +447,7 @@ codeunit 850 "Cash Flow Forecast Handler"
             until SourceTimeSeriesBuffer.Next = 0;
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure Initialize(): Boolean
     var

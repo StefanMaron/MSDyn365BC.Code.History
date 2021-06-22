@@ -115,7 +115,8 @@ table 849 "Cash Flow Manual Revenue"
         OnBeforeValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
 
         DimMgt.ValidateDimValueCode(FieldNumber, ShortcutDimCode);
-        DimMgt.SaveDefaultDim(DATABASE::"Cash Flow Manual Expense", Code, FieldNumber, ShortcutDimCode);
+        if not IsTemporary then
+            DimMgt.SaveDefaultDim(DATABASE::"Cash Flow Manual Expense", Code, FieldNumber, ShortcutDimCode);
 
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;

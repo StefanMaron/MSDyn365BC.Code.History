@@ -664,7 +664,7 @@
             <Width>18cm</Width>
             <ZIndex>1</ZIndex>
             <Visibility>
-              <Hidden>=IIF(Globals!PageNumber&gt;1,True,False)</Hidden>
+              <Hidden>=IIF(Code.PageNumber&gt;1,True,False)</Hidden>
             </Visibility>
             <DataElementOutput>NoOutput</DataElementOutput>
             <Style />
@@ -743,30 +743,6 @@
               <VerticalAlign>Middle</VerticalAlign>
             </Style>
           </Textbox>
-          <Textbox Name="textbox6">
-            <KeepTogether>true</KeepTogether>
-            <Paragraphs>
-              <Paragraph>
-                <TextRuns>
-                  <TextRun>
-                    <Value>=Fields!PageCaption.Value</Value>
-                    <Style>
-                      <FontSize>7pt</FontSize>
-                    </Style>
-                  </TextRun>
-                </TextRuns>
-                <Style />
-              </Paragraph>
-            </Paragraphs>
-            <Top>0.423cm</Top>
-            <Left>16.8cm</Left>
-            <Height>0.423cm</Height>
-            <Width>0.75cm</Width>
-            <ZIndex>5</ZIndex>
-            <Style>
-              <VerticalAlign>Middle</VerticalAlign>
-            </Style>
-          </Textbox>
           <Textbox Name="textbox5">
             <KeepTogether>true</KeepTogether>
             <Paragraphs>
@@ -824,42 +800,48 @@
               <VerticalAlign>Middle</VerticalAlign>
             </Style>
           </Textbox>
-          <Textbox Name="textbox3">
-            <KeepTogether>true</KeepTogether>
-            <Paragraphs>
-              <Paragraph>
-                <TextRuns>
-                  <TextRun>
-                    <Value>=Globals!PageNumber</Value>
-                    <Style>
-                      <FontSize>7pt</FontSize>
-                    </Style>
-                  </TextRun>
-                </TextRuns>
-                <Style>
-                  <TextAlign>Right</TextAlign>
-                </Style>
-              </Paragraph>
-            </Paragraphs>
-            <Top>0.423cm</Top>
-            <Left>17.55cm</Left>
-            <Height>0.423cm</Height>
-            <Width>0.45cm</Width>
-            <ZIndex>8</ZIndex>
-            <Visibility>
-              <Hidden>=IIF(Fields!PageCaption.Value="",True,False)</Hidden>
-            </Visibility>
-            <DataElementOutput>NoOutput</DataElementOutput>
-            <Style>
-              <VerticalAlign>Middle</VerticalAlign>
-            </Style>
-          </Textbox>
         </ReportItems>
         <Height>5.07937cm</Height>
-        <Style />
       </Body>
       <Width>18.5cm</Width>
       <Page>
+        <PageHeader>
+          <Height>0.423cm</Height>
+          <PrintOnFirstPage>true</PrintOnFirstPage>
+          <PrintOnLastPage>true</PrintOnLastPage>
+          <ReportItems>
+            <Textbox Name="textbox3">
+              <KeepTogether>true</KeepTogether>
+              <Paragraphs>
+                <Paragraph>
+                  <TextRuns>
+                    <TextRun>
+                      <Value>=Globals!PageNumber</Value>
+                      <Style>
+                        <FontSize>7pt</FontSize>
+                      </Style>
+                    </TextRun>
+                  </TextRuns>
+                  <Style>
+                    <TextAlign>Left</TextAlign>
+                  </Style>
+                </Paragraph>
+              </Paragraphs>
+              <Left>16.8cm</Left>
+              <Height>0.423cm</Height>
+              <Width>1.2cm</Width>
+              <DataElementOutput>NoOutput</DataElementOutput>
+              <Style>
+                <VerticalAlign>Middle</VerticalAlign>
+              </Style>
+            </Textbox>
+          </ReportItems>
+          <Style>
+            <Border>
+              <Style>None</Style>
+            </Border>
+          </Style>
+        </PageHeader>
         <PageHeight>29.7cm</PageHeight>
         <PageWidth>21cm</PageWidth>
         <InteractiveHeight>11in</InteractiveHeight>
@@ -961,6 +943,10 @@ Public Function CalcPct(ActAmount as Decimal, ExpAmount as Decimal) as Decimal
     end if
 
     Return ROUND(Pct)
+End Function
+
+Function PageNumber() As Integer
+    Return Me.Report.Globals!PageNumber
 End Function
 </Code>
   <Language>=User!Language</Language>

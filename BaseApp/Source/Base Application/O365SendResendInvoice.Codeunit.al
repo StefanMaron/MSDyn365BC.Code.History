@@ -8,7 +8,7 @@ codeunit 2104 "O365 Send + Resend Invoice"
     var
         ThereIsNothingToSellInvoiceErr: Label 'Please add at least one line item to the invoice.';
         ThereIsNothingToSellQuoteErr: Label 'Please add at least one line item to the estimate.';
-        ModifyFailedBeforePostingTelemetryMsg: Label 'Unable to set Sales Header parameters before posting.', Comment = '{LOCKED}';
+        ModifyFailedBeforePostingTelemetryMsg: Label 'Unable to set Sales Header parameters before posting.', Locked = true;
         InvoiceSendingMsg: Label 'Your invoice is being sent.';
         EstimateSendingMsg: Label 'Your estimate is being sent.';
         CannotSendCanceledDocErr: Label 'You can''t resend a canceled invoice.';

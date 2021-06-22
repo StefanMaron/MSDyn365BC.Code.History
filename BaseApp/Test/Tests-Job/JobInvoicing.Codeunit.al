@@ -2214,6 +2214,77 @@ codeunit 136306 "Job Invoicing"
         Assert.AreEqual(JobPlanningLine1.Quantity, SalesLine."Qty. to Invoice", '');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesArchiveJobTaskNo()
+    var
+        JobTask: Record "Job Task";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesLineArchive: Record "Sales Line Archive";
+        ArchiveManagement: Codeunit ArchiveManagement;
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 292637] Job related fields are copied to sales archive
+        Initialize;
+
+        // [GIVEN] Crated Job with Job task "JT"
+        CreateJobWithJobTask(JobTask);
+
+        // [GIVEN] Create sales order with Job task "JT"
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
+        SalesLine.Validate("Job No.", JobTask."Job No.");
+        SalesLine.Validate("Job Task No.", JobTask."Job Task No.");
+        SalesLine."Job Contract Entry No." := LibraryRandom.RandIntInRange(10, 100); // mock entry number
+        SalesLine.Modify();
+
+        // [WHEN] Sales order is being archived
+        ArchiveManagement.StoreSalesDocument(SalesHeader, false);
+
+        // [THEN] Sales Line Archive created with same job related fields
+        SalesLineArchive.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLineArchive.SetRange("Document No.", SalesHeader."No.");
+        SalesLineArchive.FindFirst();
+        SalesLineArchive.TestField("Job Task No.", JobTask."Job Task No.");
+        SalesLineArchive.TestField("Job Contract Entry No.", SalesLine."Job Contract Entry No.");
+    end;
+	
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseArchiveJobTaskNo()
+    var
+        JobTask: Record "Job Task";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseLineArchive: Record "Purchase Line Archive";
+        ArchiveManagement: Codeunit ArchiveManagement;
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 292637] Job Task No. field is copied to purchase archive
+        Initialize;
+
+        // [GIVEN] Crated Job with Job task "JT"
+        CreateJobWithJobTask(JobTask);
+
+        // [GIVEN] Create purchase order with Job task "JT"
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
+        PurchaseLine.Validate("Job No.", JobTask."Job No.");
+        PurchaseLine.Validate("Job Task No.", JobTask."Job Task No.");
+        MockPurchaseLineJobRelatedFields(PurchaseLine);
+        PurchaseLine.Modify();
+
+        // [WHEN] Purchase order is being archived
+        ArchiveManagement.StorePurchDocument(PurchaseHeader, false);
+
+        // [THEN] Purchase Line Archive created with same job related fields
+        PurchaseLineArchive.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLineArchive.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLineArchive.FindFirst();
+        VerifyPurchaseLineArchive(PurchaseLine, PurchaseLineArchive);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2260,6 +2331,27 @@ codeunit 136306 "Job Invoicing"
         Initialized := true;
         Commit;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Job Invoicing");
+    end;
+
+    local procedure MockPurchaseLineJobRelatedFields(var PurchaseLine: Record "Purchase Line")
+    begin
+        with PurchaseLine do begin
+            "Job Currency Code" := LibraryUtility.GenerateRandomCode(FieldNo("Job Currency Code"), Database::"Purchase Line");
+            "Job Currency Factor" := LibraryRandom.RandDec(100, 2);
+            "Job Line Amount" := LibraryRandom.RandDec(100, 2);
+            "Job Line Amount (LCY)" := LibraryRandom.RandDec(100, 2);
+            "Job Line Disc. Amount (LCY)" := LibraryRandom.RandDec(100, 2);
+            "Job Line Discount %" := LibraryRandom.RandDec(100, 2);
+            "Job Line Discount Amount" := LibraryRandom.RandDec(100, 2);
+            "Job Line Type" := "Job Line Type"::"Both Budget and Billable";
+            "Job Planning Line No." := LibraryRandom.RandInt(100);
+            "Job Remaining Qty." := LibraryRandom.RandDec(100, 2);
+            "Job Remaining Qty. (Base)" := LibraryRandom.RandDec(100, 2);
+            "Job Total Price" := LibraryRandom.RandDec(100, 2);
+            "Job Total Price (LCY)" := LibraryRandom.RandDec(100, 2);
+            "Job Unit Price" := LibraryRandom.RandDec(100, 2);
+            "Job Unit Price (LCY)" := LibraryRandom.RandDec(100, 2);
+        end;
     end;
 
     local procedure Plan(LineType: Option; ConsumableType: Option; var JobPlanningLine: Record "Job Planning Line")
@@ -3563,6 +3655,29 @@ codeunit 136306 "Job Invoicing"
         JobPostingGroup.Modify(true);
         LibraryJob.PostJobJournal(JobJournalLine);
         FindJobPlanningLine(JobPlanningLine, JobJournalLine."Job No.", JobJournalLine."Job Task No.");
+    end;
+
+    local procedure VerifyPurchaseLineArchive(PurchaseLine: Record "Purchase Line"; PurchaseLineArchive: Record "Purchase Line Archive")
+    begin
+        with PurchaseLine do begin
+            PurchaseLineArchive.TestField("Job Currency Code", "Job Currency Code");
+            PurchaseLineArchive.TestField("Job Currency Factor", "Job Currency Factor");
+            PurchaseLineArchive.TestField("Job Line Amount", "Job Line Amount");
+            PurchaseLineArchive.TestField("Job Line Amount (LCY)", "Job Line Amount (LCY)");
+            PurchaseLineArchive.TestField("Job Line Disc. Amount (LCY)", "Job Line Disc. Amount (LCY)");
+            PurchaseLineArchive.TestField("Job Line Discount %", "Job Line Discount %");
+            PurchaseLineArchive.TestField("Job Line Discount Amount", "Job Line Discount Amount");
+            PurchaseLineArchive.TestField("Job Line Type", "Job Line Type");
+            PurchaseLineArchive.TestField("Job No.", "Job No.");
+            PurchaseLineArchive.TestField("Job Planning Line No.", "Job Planning Line No.");
+            PurchaseLineArchive.TestField("Job Remaining Qty.", "Job Remaining Qty.");
+            PurchaseLineArchive.TestField("Job Remaining Qty. (Base)", "Job Remaining Qty. (Base)");
+            PurchaseLineArchive.TestField("Job Task No.", "Job Task No.");
+            PurchaseLineArchive.TestField("Job Total Price", "Job Total Price");
+            PurchaseLineArchive.TestField("Job Total Price (LCY)", "Job Total Price (LCY)");
+            PurchaseLineArchive.TestField("Job Unit Price", "Job Unit Price");
+            PurchaseLineArchive.TestField("Job Unit Price (LCY)", "Job Unit Price (LCY)");
+        end;
     end;
 
     [ConfirmHandler]

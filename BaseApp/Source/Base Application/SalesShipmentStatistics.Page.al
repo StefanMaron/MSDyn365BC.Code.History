@@ -60,25 +60,48 @@ page 396 "Sales Shipment Statistics"
     begin
         ClearAll;
 
-        SalesShptLine.SetRange("Document No.", "No.");
-
-        if SalesShptLine.Find('-') then
-            repeat
-                LineQty := LineQty + SalesShptLine.Quantity;
-                TotalNetWeight := TotalNetWeight + (SalesShptLine.Quantity * SalesShptLine."Net Weight");
-                TotalGrossWeight := TotalGrossWeight + (SalesShptLine.Quantity * SalesShptLine."Gross Weight");
-                TotalVolume := TotalVolume + (SalesShptLine.Quantity * SalesShptLine."Unit Volume");
-                if SalesShptLine."Units per Parcel" > 0 then
-                    TotalParcels := TotalParcels + Round(SalesShptLine.Quantity / SalesShptLine."Units per Parcel", 1, '>');
-            until SalesShptLine.Next = 0;
+        CalculateTotals();
     end;
 
     var
-        SalesShptLine: Record "Sales Shipment Line";
         LineQty: Decimal;
         TotalNetWeight: Decimal;
         TotalGrossWeight: Decimal;
         TotalVolume: Decimal;
         TotalParcels: Decimal;
+
+    local procedure CalculateTotals()
+    var
+        SalesShptLine: Record "Sales Shipment Line";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCalculateTotals(Rec, LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels, IsHandled);
+        if IsHandled then
+            exit;
+
+        SalesShptLine.SetRange("Document No.", "No.");
+        if SalesShptLine.Find('-') then
+            repeat
+                LineQty += SalesShptLine.Quantity;
+                TotalNetWeight += SalesShptLine.Quantity * SalesShptLine."Net Weight";
+                TotalGrossWeight += SalesShptLine.Quantity * SalesShptLine."Gross Weight";
+                TotalVolume += SalesShptLine.Quantity * SalesShptLine."Unit Volume";
+                if SalesShptLine."Units per Parcel" > 0 then
+                    TotalParcels += Round(SalesShptLine.Quantity / SalesShptLine."Units per Parcel", 1, '>');
+                OnCalculateTotalsOnAfterAddLineTotals(
+                    SalesShptLine, LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels)
+            until SalesShptLine.Next = 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateTotals(SalesShipmentHeader: Record "Sales Shipment Header"; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateTotalsOnAfterAddLineTotals(var SalesShipmentLine: Record "Sales Shipment Line"; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal)
+    begin
+    end;
 }
 

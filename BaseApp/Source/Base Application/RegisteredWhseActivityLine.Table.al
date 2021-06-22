@@ -361,7 +361,13 @@ table 5773 "Registered Whse. Activity Line"
         WhseInternalPickCard: Page "Whse. Internal Pick";
         WhseInternalPutawayCard: Page "Whse. Internal Put-away";
         RelProdOrderCard: Page "Released Production Order";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowWhseDoc(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         case "Whse. Document Type" of
             "Whse. Document Type"::Shipment:
                 begin
@@ -480,6 +486,11 @@ table 5773 "Registered Whse. Activity Line"
     begin
         SetRange("Serial No.", WhseItemTrackingLine."Serial No.");
         SetRange("Lot No.", WhseItemTrackingLine."Lot No.");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowWhseDoc(RegisteredWhseActivityLine: Record "Registered Whse. Activity Line"; var IsHandled: Boolean);
+    begin
     end;
 }
 

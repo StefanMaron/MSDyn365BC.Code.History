@@ -121,6 +121,8 @@ codeunit 5704 "TransferOrder-Post Shipment"
                     CopyTransLine(TransLine2, TransLine, NextLineNo, TransHeader);
                     TransferTracking(TransLine, TransLine2, TransLine."Qty. to Ship (Base)");
                     TransLine.Validate("Quantity Shipped", TransLine."Quantity Shipped" + TransLine."Qty. to Ship");
+
+                    OnBeforeUpdateWithWarehouseShipReceive(TransLine);
                     TransLine.UpdateWithWarehouseShipReceive;
                     TransLine.Modify;
                     OnAfterTransLineModify(TransLine);
@@ -766,6 +768,11 @@ codeunit 5704 "TransferOrder-Post Shipment"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeReleaseDocument(var TransferHeader: Record "Transfer Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateWithWarehouseShipReceive(TransferLine: Record "Transfer Line")
     begin
     end;
 

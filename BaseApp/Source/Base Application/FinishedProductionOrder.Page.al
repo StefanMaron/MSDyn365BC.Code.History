@@ -83,30 +83,34 @@
             group(Schedule)
             {
                 Caption = 'Schedule';
-                field("Starting Time"; "Starting Time")
+                field("Starting Time"; StartingTime)
                 {
                     ApplicationArea = Manufacturing;
+                    Caption = 'Starting Time';
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies the starting time of the production order.';
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; StartingDate)
                 {
                     ApplicationArea = Manufacturing;
+                    Caption = 'Starting Date';
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies the starting date of the production order.';
                 }
-                field("Ending Time"; "Ending Time")
+                field("Ending Time"; EndingTime)
                 {
                     ApplicationArea = Manufacturing;
+                    Caption = 'Ending Time';
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies the ending time of the production order.';
                 }
-                field("Ending Date"; "Ending Date")
+                field("Ending Date"; EndingDate)
                 {
                     ApplicationArea = Manufacturing;
+                    Caption = 'Ending Date';
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies the ending date of the production order.';
@@ -300,5 +304,16 @@
             }
         }
     }
+
+    trigger OnAfterGetRecord()
+    begin
+        GetStartingEndingDateAndTime(StartingTime, StartingDate, EndingTime, EndingDate);
+    end;
+
+    var
+        StartingTime: Time;
+        EndingTime: Time;
+        StartingDate: Date;
+        EndingDate: Date;
 }
 

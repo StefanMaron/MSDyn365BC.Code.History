@@ -497,7 +497,7 @@ page 403 "Purchase Order Statistics"
         AllowVATDifference :=
           PurchSetup."Allow VAT Difference" and
           not ("Document Type" in ["Document Type"::Quote, "Document Type"::"Blanket Order"]);
-        OnOpenPageOnBeforeSetEditable(AllowInvDisc, AllowVATDifference);
+        OnOpenPageOnBeforeSetEditable(AllowInvDisc, AllowVATDifference, Rec);
         VATLinesFormIsEditable := AllowVATDifference or AllowInvDisc;
         CurrPage.Editable := VATLinesFormIsEditable;
     end;
@@ -867,7 +867,7 @@ page 403 "Purchase Order Statistics"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnOpenPageOnBeforeSetEditable(var AllowInvDisc: Boolean; var AllowVATDifference: Boolean)
+    local procedure OnOpenPageOnBeforeSetEditable(var AllowInvDisc: Boolean; var AllowVATDifference: Boolean; PurchaseHeader: Record "Purchase Header")
     begin
     end;
 }

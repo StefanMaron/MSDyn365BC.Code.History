@@ -507,7 +507,7 @@ codeunit 134401 "ERM KPI Web Service"
             Init;
             "G/L Budget Name" := GetBudgetName;
             "Web Service Name" := 'kpi';
-            "View By" := "View By"::Month;
+            "View By" := "View By"::Day;
             Insert;
         end;
 

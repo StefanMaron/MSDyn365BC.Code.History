@@ -690,6 +690,8 @@ codeunit 134456 "ERM Fixed Asset Card"
         FASubclass: array[2] of Record "FA Subclass";
         FAPostingGroup: array[2] of Record "FA Posting Group";
         DepreciationBook: Record "Depreciation Book";
+        FADepreciationBook: Record "FA Depreciation Book";
+        FASetup: Record "FA Setup";
         FixedAssetCard: TestPage "Fixed Asset Card";
     begin
         // [FEATURE] [Posting Group]
@@ -706,8 +708,11 @@ codeunit 134456 "ERM Fixed Asset Card"
         LibraryFixedAsset.CreateFixedAsset(FixedAsset);
         FixedAsset.Validate("FA Class Code", FAClass.Code);
         FixedAsset.Validate("FA Subclass Code", FASubclass[1].Code);
-        FixedAsset.Validate("FA Posting Group", FAPostingGroup[1].Code);
         FixedAsset.Modify(true);
+
+        // [GIVEN] FA Depreciation Book was created with first variant of FA Posting Group.
+        FASetup.Get;
+        CreateFADepreciationBookEmpty(FADepreciationBook, FixedAsset."No.", FASetup."Default Depr. Book", FAPostingGroup[1].Code);
 
         // [GIVEN] Field "Allow Changes in Depr. Fields" in  table DepreciationBook =TRUE
         CreateDepreciationBookWithAllowChangesInDeprField(DepreciationBook, true);
@@ -718,10 +723,11 @@ codeunit 134456 "ERM Fixed Asset Card"
         FixedAssetCard."FA Subclass Code".SetValue(FASubclass[2].Code);
         FixedAssetCard.OK.Invoke;
 
-        // [THEN] The FA Subclass Code was changed, FA Posting Group was not changed
+        // [THEN] The FA Subclass Code was changed, FADepreciationBook."FA Posting Group" was not changed
         FixedAsset.Find;
+        FADepreciationBook.Find;
         FixedAsset.TestField("FA Subclass Code", FASubclass[2].Code);
-        FixedAsset.TestField("FA Posting Group", FAPostingGroup[1].Code);
+        FADepreciationBook.TestField("FA Posting Group", FAPostingGroup[1].Code);
     end;
 
     [Test]
@@ -733,6 +739,8 @@ codeunit 134456 "ERM Fixed Asset Card"
         FASubclass: array[2] of Record "FA Subclass";
         FAPostingGroup: array[2] of Record "FA Posting Group";
         DepreciationBook: Record "Depreciation Book";
+        FADepreciationBook: Record "FA Depreciation Book";
+        FASetup: Record "FA Setup";
         FixedAssetCard: TestPage "Fixed Asset Card";
     begin
         // [FEATURE] [Posting Group]
@@ -749,8 +757,11 @@ codeunit 134456 "ERM Fixed Asset Card"
         LibraryFixedAsset.CreateFixedAsset(FixedAsset);
         FixedAsset.Validate("FA Class Code", FAClass.Code);
         FixedAsset.Validate("FA Subclass Code", FASubclass[1].Code);
-        FixedAsset.Validate("FA Posting Group", FAPostingGroup[1].Code);
         FixedAsset.Modify(true);
+
+        // [GIVEN] FA Depreciation Book was created with first variant of FA Posting Group.
+        FASetup.Get;
+        CreateFADepreciationBookEmpty(FADepreciationBook, FixedAsset."No.", FASetup."Default Depr. Book", FAPostingGroup[1].Code);
 
         // [GIVEN] Field "Allow Changes in Depr. Fields" in  table DepreciationBook = FALSE
         CreateDepreciationBookWithAllowChangesInDeprField(DepreciationBook, false);
@@ -761,10 +772,55 @@ codeunit 134456 "ERM Fixed Asset Card"
         FixedAssetCard."FA Subclass Code".SetValue(FASubclass[2].Code);
         FixedAssetCard.OK.Invoke;
 
-        // [THEN] The FA Subclass Code was changed, FA Posting Group was not changed
+        // [THEN] The FA Subclass Code was changed, FADepreciationBook."FA Posting Group" was not changed
         FixedAsset.Find;
+        FADepreciationBook.Find;
         FixedAsset.TestField("FA Subclass Code", FASubclass[2].Code);
-        FixedAsset.TestField("FA Posting Group", FAPostingGroup[1].Code);
+        FADepreciationBook.TestField("FA Posting Group", FAPostingGroup[1].Code);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestFACardBookDisposalValueOnDrillDown()
+    var
+        FixedAsset: Record "Fixed Asset";
+        FAClass: Record "FA Class";
+        FASubclass: Record "FA Subclass";
+        FAPostingGroup: Record "FA Posting Group";
+        FASetup: Record "FA Setup";
+        FADepreciationBook: Record "FA Depreciation Book";
+        FixedAssetStatistics: TestPage "Fixed Asset Statistics";
+        FixedAssetCard: TestPage "Fixed Asset Card";
+        FALedgerEntries: TestPage "FA Ledger Entries";
+        DisposalValue: Decimal;
+    begin
+        // [FEATURE] [Disposal] [Disposal Value]
+        // [SCENARIO 330253] It should be no lines in FA Ledger Entries when drilldown Disposal Value from FA Statistics page for FA Document that was not disposed.
+        // [GIVEN] FA Setup in place, and a disposed fixed asset with
+        // [GIVEN] FA Posting Type = Book Value on Disposal
+        FASetup.Get;
+        CreateFAWithClassPostingGroupAndSubclass(FAPostingGroup, FAClass, FASubclass, FixedAsset);
+        DisposalValue := LibraryRandom.RandDecInRange(10, 1000, 2);
+        CreateFADepreciationBookWithValue(
+          FADepreciationBook, FixedAsset."No.", FASetup."Default Depr. Book", FAPostingGroup.Code, DisposalValue);
+
+        // [GIVEN] Page FixedAssetStatistics is opened.
+        FixedAssetCard.OpenEdit;
+        FixedAssetCard.FILTER.SetFilter("No.", FixedAsset."No.");
+        FixedAssetStatistics.Trap;
+        FixedAssetCard.Statistics.Invoke;
+        FALedgerEntries.OpenView;
+        FALedgerEntries.Trap;
+
+        // [WHEN] User press DrillDown on the DisposalValue field.
+        FixedAssetStatistics.DisposalValue.DrillDown;
+
+        // [THEN] There are no lines in opened page FALedgerEntries.
+        Assert.IsFalse(FALedgerEntries.First, 'FA Ledger Entry exists after drilldown DispovalValue');
+
+        FALedgerEntries.Close;
+        FixedAssetCard.Close;
+        FixedAssetStatistics.Close;
     end;
 
     local procedure FixedAssetAndDeprecationBookSetup(var FASubclass: Record "FA Subclass")

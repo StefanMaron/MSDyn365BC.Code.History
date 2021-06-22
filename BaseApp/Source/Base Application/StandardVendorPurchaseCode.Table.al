@@ -78,6 +78,14 @@ table 175 "Standard Vendor Purchase Code"
     {
     }
 
+    trigger OnRename()
+    begin
+        Error(RenameErr);
+    end;
+
+    var
+        RenameErr: Label 'You cannot rename the line.';
+
     procedure InsertPurchLines(PurchHeader: Record "Purchase Header")
     var
         StdVendPurchCode: Record "Standard Vendor Purchase Code";
@@ -89,6 +97,8 @@ table 175 "Standard Vendor Purchase Code"
         StdVendPurchCode.FilterGroup := 2;
         StdVendPurchCode.SetRange("Vendor No.", PurchHeader."Buy-from Vendor No.");
         StdVendPurchCode.FilterGroup := 0;
+
+        OnInsertPurchLinesOnBeforeApplyStdVendPurchCodes(StdVendPurchCode);
 
         StdVendPurchCodes.SetTableView(StdVendPurchCode);
         StdVendPurchCodes.LookupMode(true);
@@ -181,7 +191,7 @@ table 175 "Standard Vendor Purchase Code"
             DimensionSetIDArr, PurchaseLine."Shortcut Dimension 1 Code", PurchaseLine."Shortcut Dimension 2 Code");
     end;
 
-    local procedure InsertExtendedText(PurchLine: Record "Purchase Line")
+    procedure InsertExtendedText(PurchLine: Record "Purchase Line")
     var
         TransferExtendedText: Codeunit "Transfer Extended Text";
     begin
@@ -189,7 +199,7 @@ table 175 "Standard Vendor Purchase Code"
             TransferExtendedText.InsertPurchExtText(PurchLine);
     end;
 
-    local procedure GetNextLineNo(PurchLine: Record "Purchase Line"): Integer
+    procedure GetNextLineNo(PurchLine: Record "Purchase Line"): Integer
     begin
         PurchLine.SetRange("Document Type", PurchLine."Document Type");
         PurchLine.SetRange("Document No.", PurchLine."Document No.");
@@ -252,6 +262,11 @@ table 175 "Standard Vendor Purchase Code"
 
     [IntegrationEvent(false, false)]
     local procedure OnApplyStdCodesToPurchaseLinesOnBeforeStdPurchLineFind(var StandardVendorPurchaseCode: Record "Standard Vendor Purchase Code"; var StandardPurchaseLine: Record "Standard Purchase Line"; var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; StandardPurchaseCode: Record "Standard Purchase Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertPurchLinesOnBeforeApplyStdVendPurchCodes(var StandardVendorPurchaseCode: Record "Standard Vendor Purchase Code")
     begin
     end;
 }

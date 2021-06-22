@@ -1155,6 +1155,101 @@ codeunit 137157 "SCM Order Promising II"
         OrderPromisingLine.TestField("Requested Shipment Date", JobPlanningLine."Requested Delivery Date");
     end;
 
+    [Test]
+    [HandlerFunctions('SalesListModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure ATPEarliestShipDateEqualExpectedReceiptDateWhenSpecialOrder()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        OrderPromisingLine: Record "Order Promising Line";
+        AvailabilityManagement: Codeunit AvailabilityManagement;
+    begin
+        // [FEATURE] [Available to Promise] [Earliest Shipment Date] [Special Order]
+        // [SCENARIO 320770] When Special Order pair exists, then ATP shows Earliest Shipment Date = Expected Receipt Date
+        Initialize;
+
+        // [GIVEN] Special Order Sales Order with <blank> Requested Delivery Date
+        CreateSpecialOrderSalesOrder(
+          SalesHeader, SalesLine, WorkDate, 0D, LibraryInventory.CreateItemNo, CreateLocationCode, LibraryRandom.RandInt(10));
+
+        // [GIVEN] Special Order Purchase Order for the Sales Order with Expected Receipt Date = 10/1/2021
+        CreateSpecialOrderPurchaseOrderForSalesOrder(PurchaseLine, SalesHeader."Sell-to Customer No.", CalcDate('<1W>', WorkDate));
+
+        // [GIVEN] Purchase Order with similar Purchase Line and with Expected Receipt Date = 1/1/2021
+        CreatePurchaseOrder(PurchaseHeader, WorkDate, PurchaseLine."No.", PurchaseLine."Location Code", PurchaseLine.Quantity);
+        AvailabilityManagement.SetSalesHeader(OrderPromisingLine, SalesHeader);
+
+        // [WHEN] Calculate Available to Promise for the Sales Line
+        AvailabilityManagement.CalcAvailableToPromise(OrderPromisingLine);
+
+        // [THEN] Order Promising Line has Earliest Shipment Date = 10/1/2021
+        OrderPromisingLine.TestField("Earliest Shipment Date", PurchaseLine."Expected Receipt Date");
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesListModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure ATPEarliestShipDateWhenSpecialOrderWithRequestedDeliveryDate()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseLine: Record "Purchase Line";
+        OrderPromisingLine: Record "Order Promising Line";
+        AvailabilityManagement: Codeunit AvailabilityManagement;
+    begin
+        // [FEATURE] [Available to Promise] [Earliest Shipment Date] [Special Order]
+        // [SCENARIO 320770] Requested Delivery Date in Sales Special Order overrides Expected Receipt Date
+        Initialize;
+
+        // [GIVEN] Special Order Sales Order with Requested Delivery Date = 20/1/2021
+        CreateSpecialOrderSalesOrder(
+          SalesHeader, SalesLine, WorkDate, CalcDate('<2W>', WorkDate), LibraryInventory.CreateItemNo, CreateLocationCode,
+          LibraryRandom.RandInt(10));
+
+        // [GIVEN] Special Order Purchase Order for the Sales Order with Expected Receipt Date = 10/1/2021
+        CreateSpecialOrderPurchaseOrderForSalesOrder(PurchaseLine, SalesHeader."Sell-to Customer No.", CalcDate('<1W>', WorkDate));
+        AvailabilityManagement.SetSalesHeader(OrderPromisingLine, SalesHeader);
+
+        // [WHEN] Calculate Available to Promise for the Sales Line
+        AvailabilityManagement.CalcAvailableToPromise(OrderPromisingLine);
+
+        // [THEN] Order Promising Line has Earliest Shipment Date = 20/1/2021
+        OrderPromisingLine.TestField("Earliest Shipment Date", SalesLine."Planned Shipment Date");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ATPEarliestShipDateBlankWhenSpecialOrderNotLinked()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseHeader: Record "Purchase Header";
+        OrderPromisingLine: Record "Order Promising Line";
+        AvailabilityManagement: Codeunit AvailabilityManagement;
+    begin
+        // [FEATURE] [Available to Promise] [Earliest Shipment Date] [Special Order]
+        // [SCENARIO 320770] When Special Order Sales is not linked to Purchase, then ATP shows <blank> Earliest Shipment Date
+        Initialize;
+
+        // [GIVEN] Special Order Sales Order
+        CreateSpecialOrderSalesOrder(
+          SalesHeader, SalesLine, WorkDate, CalcDate('<2W>', WorkDate), LibraryInventory.CreateItemNo, CreateLocationCode,
+          LibraryRandom.RandInt(10));
+
+        // [GIVEN] Purchase Order with same Item, Location, Qunatity and with Expected Receipt Date = 1/1/2021
+        CreatePurchaseOrder(PurchaseHeader, WorkDate, SalesLine."No.", SalesLine."Location Code", SalesLine.Quantity);
+        AvailabilityManagement.SetSalesHeader(OrderPromisingLine, SalesHeader);
+
+        // [WHEN] Calculate Available to Promise for the Sales Line
+        AvailabilityManagement.CalcAvailableToPromise(OrderPromisingLine);
+
+        // [THEN] Order Promising Line has <blank> Earliest Shipment Date
+        OrderPromisingLine.TestField("Earliest Shipment Date", 0D);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1311,6 +1406,21 @@ codeunit 137157 "SCM Order Promising II"
         exit(Item."No.");
     end;
 
+    local procedure CreateSpecialOrderPurchaseOrderForSalesOrder(var PurchaseLine: Record "Purchase Line"; CustNo: Code[20]; ExpectedReceiptDate: Date)
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        PurchaseHeader.Validate("Sell-to Customer No.", CustNo);
+        PurchaseHeader.Modify(true);
+        LibraryPurchase.GetSpecialOrder(PurchaseHeader);
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.FindFirst;
+        PurchaseLine.Validate("Expected Receipt Date", ExpectedReceiptDate);
+        PurchaseLine.Modify(true);
+    end;
+
     local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; ExpectedReceiptDate: Date)
     var
         Vendor: Record Vendor;
@@ -1352,6 +1462,16 @@ codeunit 137157 "SCM Order Promising II"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
         if LocationCode <> '' then
             SalesLine.Validate("Location Code", LocationCode);
+        SalesLine.Modify(true);
+    end;
+
+    local procedure CreateSpecialOrderSalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; PostingDate: Date; RequestedDeliveryDate: Date; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
+    var
+        Purchasing: Record Purchasing;
+    begin
+        CreateSalesOrder(SalesHeader, SalesLine, PostingDate, RequestedDeliveryDate, ItemNo, LocationCode, Quantity);
+        LibraryPurchase.CreateSpecialOrderPurchasingCode(Purchasing);
+        SalesLine.Validate("Purchasing Code", Purchasing.Code);
         SalesLine.Modify(true);
     end;
 
@@ -1759,6 +1879,13 @@ codeunit 137157 "SCM Order Promising II"
             OrderPromisingLines.AcceptButton.Invoke
         else
             OrderPromisingLines.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SalesListModalPageHandler(var SalesList: TestPage "Sales List")
+    begin
+        SalesList.OK.Invoke;
     end;
 
     [ConfirmHandler]

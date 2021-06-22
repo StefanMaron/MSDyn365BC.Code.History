@@ -924,7 +924,7 @@ report 202 "Sales Document - Test"
                                     if "Prepmt. Line Amount" > "Prepmt. Amt. Inv." then
                                         AddError(StrSubstNo(Text046, FieldCaption("Prepmt. Line Amount")));
 
-                                CheckType("Sales Line");
+                                CheckSalesLine("Sales Line");
 
                                 if "Line No." > OrigMaxLineNo then begin
                                     AddDimToTempLine("Sales Line");
@@ -2066,7 +2066,9 @@ report 202 "Sales Document - Test"
         ShowCostAssignment := NewShowCostAssignment;
     end;
 
-    local procedure CheckType(SalesLine2: Record "Sales Line")
+    local procedure CheckSalesLine(SalesLine2: Record "Sales Line")
+    var
+        ErrorText: Text[250];
     begin
         with SalesLine2 do
             case Type of
@@ -2178,6 +2180,11 @@ report 202 "Sales Document - Test"
                                     Text008,
                                     FA.TableCaption, "No."));
                     end;
+                else begin
+                        OnCheckSalesLineCaseTypeElse(Type, "No.", ErrorText);
+                        if ErrorText <> '' then
+                            AddError(ErrorText);
+                    end;
             end;
     end;
 
@@ -2275,6 +2282,11 @@ report 202 "Sales Document - Test"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var SalesLine: Record "Sales Line"; TableID: array[10] of Integer; No: array[10] of Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckSalesLineCaseTypeElse(LineType: Option; "No.": Code[20]; var ErrorText: Text[250])
     begin
     end;
 }

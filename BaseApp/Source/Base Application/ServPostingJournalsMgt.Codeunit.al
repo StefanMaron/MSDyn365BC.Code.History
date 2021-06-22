@@ -609,6 +609,8 @@ codeunit 5987 "Serv-Posting Journals Mgt."
                     end;
             end; // Case Type
 
+            OnPostJobJnlLineOnBeforeValidateNo(JobJnlLine, ServLine);
+
             JobJnlLine.Validate("No.");
             JobJnlLine.Description := Description;
             JobJnlLine."Description 2" := "Description 2";
@@ -715,6 +717,11 @@ codeunit 5987 "Serv-Posting Journals Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostJobJnlLine(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; QtyToBeConsumed: Decimal; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostJobJnlLineOnBeforeValidateNo(var JobJournalLine: Record "Job Journal Line"; ServiceLine: Record "Service Line");
     begin
     end;
 }

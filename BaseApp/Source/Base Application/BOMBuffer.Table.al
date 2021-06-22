@@ -626,7 +626,13 @@ table 5870 "BOM Buffer"
         SKU: Record "Stockkeeping Unit";
         VersionMgt: Codeunit VersionManagement;
         VersionCode: Code[20];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInitFromItem(Rec, Item, IsHandled);
+        if IsHandled then
+            exit;
+
         Type := Type::Item;
         "No." := Item."No.";
         Description := Item.Description;
@@ -654,22 +660,40 @@ table 5870 "BOM Buffer"
 
         SetRange("Location Code");
         SetRange("Variant Code");
+
+        OnAfterInitFromItem(Rec, Item);
     end;
 
-    procedure InitFromRes(Res: Record Resource)
+    procedure InitFromRes(Resourse: Record Resource)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInitFromRes(Rec, Resourse, IsHandled);
+        if IsHandled then
+            exit;
+
         Type := Type::Resource;
-        "No." := Res."No.";
-        Description := Res.Name;
-        "Unit of Measure Code" := Res."Base Unit of Measure";
+        "No." := Resourse."No.";
+        Description := Resourse.Name;
+        "Unit of Measure Code" := Resourse."Base Unit of Measure";
+
         "Replenishment System" := "Replenishment System"::Transfer;
         "Is Leaf" := true;
+
+        OnAfterInitFromRes(Rec, Resourse);
     end;
 
     procedure InitFromMachineCenter(MachineCenter: Record "Machine Center")
     var
         WorkCenter: Record "Work Center";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInitFromMachineCenter(Rec, MachineCenter, IsHandled);
+        if IsHandled then
+            exit;
+
         Type := Type::"Machine Center";
         "No." := MachineCenter."No.";
         Description := MachineCenter.Name;
@@ -680,10 +704,19 @@ table 5870 "BOM Buffer"
 
         "Replenishment System" := "Replenishment System"::Transfer;
         "Is Leaf" := true;
+
+        OnAfterInitFromMachineCenter(Rec, MachineCenter);
     end;
 
     procedure InitFromWorkCenter(WorkCenter: Record "Work Center")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInitFromWorkCenter(Rec, WorkCenter, IsHandled);
+        if IsHandled then
+            exit;
+
         Type := Type::"Work Center";
         "No." := WorkCenter."No.";
         Description := WorkCenter.Name;
@@ -691,6 +724,8 @@ table 5870 "BOM Buffer"
 
         "Replenishment System" := "Replenishment System"::Transfer;
         "Is Leaf" := true;
+
+        OnAfterInitFromWorkCenter(Rec, WorkCenter);
     end;
 
     local procedure SetAbleToMakeToZeroIfNegative()
@@ -1151,6 +1186,47 @@ table 5870 "BOM Buffer"
         SetFilter("Location Code", ItemFilter.GetFilter("Location Filter"));
         SetFilter("Variant Code", ItemFilter.GetFilter("Variant Filter"));
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitFromItem(var BOMBuffer: Record "BOM Buffer"; Item: Record Item);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitFromRes(var BOMBuffer: Record "BOM Buffer"; Resource: Record Resource);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitFromMachineCenter(var BOMBuffer: Record "BOM Buffer"; MachineCenter: Record "Machine Center");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitFromWorkCenter(var BOMBuffer: Record "BOM Buffer"; WorkCenter: Record "Work Center");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitFromItem(var BOMBuffer: Record "BOM Buffer"; Item: Record Item; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitFromRes(var BOMBuffer: Record "BOM Buffer"; Resource: Record Resource; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitFromMachineCenter(var BOMBuffer: Record "BOM Buffer"; MachineCenter: Record "Machine Center"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnbeforeInitFromWorkCenter(var BOMBuffer: Record "BOM Buffer"; WorkCenter: Record "Work Center"; var IsHandled: Boolean);
+    begin
+    end;
+
 
     [IntegrationEvent(false, false)]
     local procedure OnTransferFromItemCopyFields(var BOMBuffer: Record "BOM Buffer"; Item: Record Item)

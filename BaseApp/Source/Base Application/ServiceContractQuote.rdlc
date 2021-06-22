@@ -420,32 +420,6 @@
                                 <VerticalAlign>Middle</VerticalAlign>
                               </Style>
                             </Textbox>
-                            <Textbox Name="PageNumberTextBox">
-                              <KeepTogether>true</KeepTogether>
-                              <Paragraphs>
-                                <Paragraph>
-                                  <TextRuns>
-                                    <TextRun>
-                                      <Value>=Globals!PageNumber</Value>
-                                      <Style>
-                                        <FontSize>9pt</FontSize>
-                                      </Style>
-                                    </TextRun>
-                                  </TextRuns>
-                                  <Style>
-                                    <TextAlign>Left</TextAlign>
-                                  </Style>
-                                </Paragraph>
-                              </Paragraphs>
-                              <Top>0.50084cm</Top>
-                              <Left>11.7cm</Left>
-                              <Height>0.423cm</Height>
-                              <Width>6.07778cm</Width>
-                              <ZIndex>17</ZIndex>
-                              <Style>
-                                <VerticalAlign>Middle</VerticalAlign>
-                              </Style>
-                            </Textbox>
                             <Textbox Name="ServContractQuote1">
                               <KeepTogether>true</KeepTogether>
                               <Paragraphs>
@@ -4459,6 +4433,42 @@
       </Body>
       <Width>18.3cm</Width>
       <Page>
+        <PageHeader>
+          <Height>0.423cm</Height>
+          <PrintOnFirstPage>true</PrintOnFirstPage>
+          <PrintOnLastPage>true</PrintOnLastPage>
+          <ReportItems>
+            <Textbox Name="PageNumberTextBox">
+              <KeepTogether>true</KeepTogether>
+              <Paragraphs>
+                <Paragraph>
+                  <TextRuns>
+                    <TextRun>
+                      <Value>=Globals!PageNumber</Value>
+                      <Style>
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </TextRun>
+                  </TextRuns>
+                  <Style>
+                    <TextAlign>Left</TextAlign>
+                  </Style>
+                </Paragraph>
+              </Paragraphs>
+              <Left>11.7cm</Left>
+              <Height>0.423cm</Height>
+              <Width>6.07778cm</Width>
+              <Style>
+                <VerticalAlign>Middle</VerticalAlign>
+              </Style>
+            </Textbox>
+          </ReportItems>
+          <Style>
+            <Border>
+              <Style>None</Style>
+            </Border>
+          </Style>
+        </PageHeader>
         <PageHeight>29.7cm</PageHeight>
         <PageWidth>21cm</PageWidth>
         <InteractiveHeight>11in</InteractiveHeight>

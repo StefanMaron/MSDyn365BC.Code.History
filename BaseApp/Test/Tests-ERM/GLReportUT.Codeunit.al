@@ -12,8 +12,22 @@ codeunit 134774 "G/L Report UT"
         LibrarySales: Codeunit "Library - Sales";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Assert: Codeunit Assert;
         LibraryERM: Codeunit "Library - ERM";
+        isInitialized: Boolean;
+
+    local procedure Initialize()
+    begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"G/L Report UT");
+
+        if isInitialized then
+            exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"G/L Report UT");
+
+        isInitialized := true;
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"G/L Report UT");
+    end;
 
     [Test]
     [HandlerFunctions('GLRgisterRequestPageHandler')]
@@ -47,6 +61,7 @@ codeunit 134774 "G/L Report UT"
     begin
         // [SCENARIO] G/L Register can show and Compact all the lines that are posted against a G/L account based on the options.
 
+        Initialize();
         CreateCustomer(Customer);
         CreateSalesInvoiceHeader(SalesHeader, Customer);
         VATPostingGroup := CreateNoVATPostingGLAccount(Customer."VAT Bus. Posting Group");

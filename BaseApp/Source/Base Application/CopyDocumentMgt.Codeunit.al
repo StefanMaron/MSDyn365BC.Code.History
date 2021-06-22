@@ -819,6 +819,7 @@ codeunit 6620 "Copy Document Mgt."
             FromPurchLine.SetRange("Document No.", FromPurchHeader."No.");
             if MoveNegLines then
                 FromPurchLine.SetFilter(Quantity, '<=0');
+            OnCopyPurchDocPurchLineOnAfterSetFilters(FromPurchHeader, FromPurchLine, ToPurchHeader);
             if FromPurchLine.Find('-') then
                 repeat
                     if not ExtTxtAttachedToPosPurchLine(FromPurchHeader, MoveNegLines, FromPurchLine."Attached to Line No.") then
@@ -845,6 +846,7 @@ codeunit 6620 "Copy Document Mgt."
             FromPurchRcptLine.SetRange("Document No.", FromPurchRcptHeader."No.");
             if MoveNegLines then
                 FromPurchRcptLine.SetFilter(Quantity, '<=0');
+            OnCopyPurchDocRcptLineOnAfterSetFilters(ToPurchHeader, FromPurchRcptHeader, FromPurchRcptLine);
             CopyPurchRcptLinesToDoc(ToPurchHeader, FromPurchRcptLine, LinesNotCopied, MissingExCostRevLink);
         end;
     end;
@@ -6095,6 +6097,8 @@ codeunit 6620 "Copy Document Mgt."
         FromSalesLine2."Shipment Line No." := 0;
         FromSalesLine2."Return Receipt No." := '';
         FromSalesLine2."Return Receipt Line No." := 0;
+
+        OnAfterInitFromSalesLine(FromSalesLine2, FromSalesLineBuf);
     end;
 
     local procedure CleanSpecialOrderDropShipmentInSalesLine(var SalesLine: Record "Sales Line")
@@ -6103,6 +6107,8 @@ codeunit 6620 "Copy Document Mgt."
         SalesLine."Purch. Order Line No." := 0;
         SalesLine."Special Order Purchase No." := '';
         SalesLine."Special Order Purch. Line No." := 0;
+
+        OnAfterCleanSpecialOrderDropShipmentInSalesLine(SalesLine);
     end;
 
     local procedure CleanSpecialOrderDropShipmentInPurchLine(var PurchaseLine: Record "Purchase Line")
@@ -7470,6 +7476,11 @@ codeunit 6620 "Copy Document Mgt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterInitFromSalesLine(var FromSalesLine2: Record "Sales Line"; var FromSalesLineBuf: Record "Sales Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterProcessServContractLine(var ToServContractLine: Record "Service Contract Line"; FromServContractLine: Record "Service Contract Line")
     begin
     end;
@@ -7636,6 +7647,11 @@ codeunit 6620 "Copy Document Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopySalesHeader(var ToSalesHeader: Record "Sales Header"; OldSalesHeader: Record "Sales Header"; FromSalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCleanSpecialOrderDropShipmentInSalesLine(var SalesLine: Record "Sales Line");
     begin
     end;
 
@@ -7930,12 +7946,22 @@ codeunit 6620 "Copy Document Mgt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCopyPurchDocRcptLineOnAfterSetFilters(var ToPurchHeader: Record "Purchase Header"; var FromPurchRcptHeader: Record "Purch. Rcpt. Header"; var FromPurchRcptLine: Record "Purch. Rcpt. Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCopySalesDocReturnRcptLineOnAfterSetFilters(var ToSalesHeader: Record "Sales Header"; var FromReturnReceiptHeader: Record "Return Receipt Header"; var FromReturnReceiptLine: Record "Return Receipt Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnCopySalesDocSalesLineOnAfterSetFilters(FromSalesHeader: Record "Sales Header"; var FromSalesLine: Record "Sales Line"; var ToSalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyPurchDocPurchLineOnAfterSetFilters(FromPurchHeader: Record "Purchase Header"; var FromPurchLine: Record "Purchase Line"; var ToPurchHeader: Record "Purchase Header")
     begin
     end;
 

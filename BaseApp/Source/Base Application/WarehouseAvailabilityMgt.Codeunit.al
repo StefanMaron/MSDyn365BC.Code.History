@@ -229,6 +229,30 @@ codeunit 7314 "Warehouse Availability Mgt."
         end;
     end;
 
+    [Scope('OnPrem')]
+    procedure CalcQtyAssignedToMove(WhseWorksheetLine: Record "Whse. Worksheet Line"; WhseItemTrackingLine: Record "Whse. Item Tracking Line"): Decimal
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        with WarehouseActivityLine do begin
+            SetCurrentKey(
+              "Item No.", "Location Code", "Activity Type", "Bin Type Code", "Unit of Measure Code", "Variant Code", "Breakbulk No.",
+              "Action Type");
+            SetRange("Item No.", WhseWorksheetLine."Item No.");
+            SetRange("Location Code", WhseWorksheetLine."Location Code");
+            SetRange("Activity Type", "Activity Type"::Movement);
+            SetRange("Variant Code", WhseWorksheetLine."Variant Code");
+            SetRange("Action Type", "Action Type"::Take);
+            SetRange("Bin Code", WhseWorksheetLine."From Bin Code");
+            if WhseItemTrackingLine."Lot No." <> '' then
+                SetRange("Lot No.", WhseItemTrackingLine."Lot No.");
+            if WhseItemTrackingLine."Serial No." <> '' then
+                SetRange("Serial No.", WhseItemTrackingLine."Serial No.");
+            CalcSums("Qty. Outstanding (Base)");
+            exit("Qty. Outstanding (Base)");
+        end;
+    end;
+
     procedure CalcQtyAssgndOnWksh(DefWhseWkshLine: Record "Whse. Worksheet Line"; RespectUOMCode: Boolean; ExcludeLine: Boolean): Decimal
     var
         WhseWkshLine: Record "Whse. Worksheet Line";

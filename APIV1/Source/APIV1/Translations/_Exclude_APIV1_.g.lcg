@@ -338,6 +338,24 @@
       <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Page APIV1 - Aut. Extensions - Control versionMinor - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Page 2435319090 - Control 4256479544 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[versionBuild]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Page APIV1 - Aut. Extensions - Control versionBuild - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 2435319090 - Control 1065569955 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[versionRevision]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Page APIV1 - Aut. Extensions - Control versionRevision - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Page 2435319090 - Control 1729288206 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[scope]]></Val>
@@ -6168,6 +6186,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Page APIV1 - Time Registr. Entries - NamedType CannotChangeEmployeeNumberErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 2305153529 - NamedType 999223684" ItemType=";Page - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You must specify a Employee ID or Employee number to get the time registration entries.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Page APIV1 - Time Registr. Entries - NamedType EmployeeIdOrNumberShouldBeSpecifiedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1789293813 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">

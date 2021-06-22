@@ -993,7 +993,13 @@ codeunit 7302 "WMS Management"
         WhseInternalPutawayLine: Record "Whse. Internal Put-away Line";
         ProdOrderLine: Record "Prod. Order Line";
         AssemblyLine: Record "Assembly Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowWhseDocLine(WhseDocType, WhseDocNo, WhseDocLineNo, IsHandled);
+        if IsHandled then
+            exit;
+
         case WhseDocType of
             WhseDocType::Receipt:
                 begin
@@ -1923,6 +1929,11 @@ codeunit 7302 "WMS Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeLocationIsAllowed(LocationCode: Code[10]; var LocationAllowed: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowWhseDocLine(WhseDocType: Option; WhseDocNo: Code[20]; WhseDocLineNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

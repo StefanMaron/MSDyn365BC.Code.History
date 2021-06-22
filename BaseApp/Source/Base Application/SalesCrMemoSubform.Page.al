@@ -978,7 +978,7 @@
         DocumentTotals.SalesDocTotalsNotUpToDate;
     end;
 
-    local procedure InsertExtendedText(Unconditionally: Boolean)
+    procedure InsertExtendedText(Unconditionally: Boolean)
     begin
         OnBeforeInsertExtendedText(Rec);
         if TransferExtendedText.SalesCheckIfAnyExtText(Rec, Unconditionally) then begin
@@ -1058,6 +1058,8 @@
         CurrPageIsEditable := CurrPage.Editable;
         IsBlankNumber := ("No." = '') or IsCommentLine;
         InvDiscAmountEditable := CurrPageIsEditable and not SalesSetup."Calc. Inv. Discount";
+
+        OnAfterUpdateEditableOnRow(Rec, IsCommentLine, IsBlankNumber);
     end;
 
     local procedure CalculateTotals()
@@ -1070,8 +1072,11 @@
     procedure DeltaUpdateTotals()
     begin
         DocumentTotals.SalesDeltaUpdateTotals(Rec, xRec, TotalSalesLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
-        CurrPage.SaveRecord;
-        SendLineInvoiceDiscountResetNotification;
+        if "Line Amount" <> xRec."Line Amount" then begin
+            CurrPage.SaveRecord;
+            SendLineInvoiceDiscountResetNotification;
+            CurrPage.Update(false);
+        end;
     end;
 
     procedure RedistributeTotalsOnAfterValidate()
@@ -1133,6 +1138,11 @@
           DimVisible1, DimVisible2, DimVisible3, DimVisible4, DimVisible5, DimVisible6, DimVisible7, DimVisible8);
 
         Clear(DimMgt);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateEditableOnRow(SalesLine: Record "Sales Line"; var IsCommentLine: Boolean; var IsBlankNumber: Boolean);
+    begin
     end;
 
     [IntegrationEvent(false, false)]

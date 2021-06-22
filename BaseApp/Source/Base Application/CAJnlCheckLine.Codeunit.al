@@ -58,6 +58,13 @@ codeunit 1101 "CA Jnl.-Check Line"
             if GenJnlCheckLine.DateNotAllowed("Posting Date") then
                 FieldError("Posting Date", Text005);
         end;
+
+        OnAfterCheckCostJnlLine(CostJnlLine);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckCostJnlLine(var CostJnlLine: Record "Cost Journal Line");
+    begin
     end;
 }
 

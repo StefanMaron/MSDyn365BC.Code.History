@@ -513,7 +513,14 @@ codeunit 1002 "Job Create-Invoice"
     end;
 
     local procedure TestTransferred(JobPlanningLine: Record "Job Planning Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTestTransferred(JobPlanningLine, SalesHeader2, IsHandled);
+        if IsHandled then
+            exit;
+
         with JobPlanningLine do begin
             CalcFields("Qty. Transferred to Invoice");
             if Quantity > 0 then begin
@@ -859,12 +866,12 @@ codeunit 1002 "Job Create-Invoice"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetInvoiceNo(JobPlanningLine: Record "Job Planning Line"; Done: Boolean; NewInvoice: Boolean; PostingDate: Date; var InvoiceNo: Code[20]; var IsHandled: Boolean)
+    local procedure OnBeforeGetInvoiceNo(var JobPlanningLine: Record "Job Planning Line"; Done: Boolean; NewInvoice: Boolean; PostingDate: Date; var InvoiceNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetCrMemoNo(JobPlanningLine: Record "Job Planning Line"; Done: Boolean; NewInvoice: Boolean; PostingDate: Date; var InvoiceNo: Code[20]; var IsHandled: Boolean)
+    local procedure OnBeforeGetCrMemoNo(var JobPlanningLine: Record "Job Planning Line"; Done: Boolean; NewInvoice: Boolean; PostingDate: Date; var InvoiceNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 
@@ -920,6 +927,11 @@ codeunit 1002 "Job Create-Invoice"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFindInvoices(var TempJobPlanningLineInvoice: Record "Job Planning Line Invoice" temporary; JobNo: Code[20]; JobTaskNo: Code[20]; JobPlanningLineNo: Integer; DetailLevel: Option; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestTransferred(var JobPlanningLine: Record "Job Planning Line"; SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 

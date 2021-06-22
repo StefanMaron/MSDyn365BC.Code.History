@@ -18,6 +18,9 @@ codeunit 137931 "SCM - Movement"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
+        TotalPendingMovQtyExceedsBinAvailErr: Label 'Item tracking defined for line %1, lot number %2, serial number %3';
+        DialogCodeErr: Label 'Dialog';
+        LinesExistErr: Label 'You cannot change %1 because one or more lines exist.';
 
     [Test]
     [Scope('OnPrem')]
@@ -179,6 +182,208 @@ codeunit 137931 "SCM - Movement"
         Assert.RecordCount(WarehouseActivityLine, 1);
     end;
 
+    [Test]
+    [HandlerFunctions('WhseItemTrackingLinesModalPageHandlerMultipleEntries,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure MovementWithTrackingWhenPendingMovementExistsAndMoreQtyInTrkg()
+    var
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
+        Item: Record Item;
+        Bin: Record Bin;
+        ToBin: Record Bin;
+        LocationCode: Code[10];
+        ItemNo: Code[20];
+        LotNo: array[2] of Code[50];
+        QtyLot: array[2] of Integer;
+        Index: Integer;
+    begin
+        // [FEATURE] [Worksheet] [Item Tracking] [Bin]
+        // [SCENARIO 325576] When pending Movements present then Movement is not created from Movement Worksheet if Lot Tracked Item has not enough PCS in the Bin
+        Initialize;
+        LotNo[1] := LibraryUtility.GenerateGUID;
+        LotNo[2] := LibraryUtility.GenerateGUID;
+        QtyLot[1] := 1 + LibraryRandom.RandInt(10);
+        QtyLot[2] := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Location with 2 Bins
+        LocationCode := CreateFullWMSLocation(2, false);
+
+        // [GIVEN] Item with Lot Warehouse Tracking enabled
+        ItemNo := CreateItemWithItemTrackingCode(true, true, false);
+
+        // [GIVEN] Bin "B" had 4 PCS with Lot "L1" and 6 PCS with Lot "L2"
+        LibraryWarehouse.FindBin(Bin, LocationCode, FindZone(LocationCode, FindBinType(false, true, false, false)), 1);
+        LibraryWarehouse.FindBin(ToBin, LocationCode, FindZone(LocationCode, FindBinType(false, true, false, false)), 2);
+        LibraryVariableStorage.Enqueue(ArrayLen(LotNo));
+        for Index := 1 to ArrayLen(LotNo) do begin
+            LibraryVariableStorage.Enqueue(LotNo[Index]);
+            LibraryVariableStorage.Enqueue(QtyLot[Index]);
+        end;
+        LibraryWarehouse.UpdateWarehouseStockOnBin(Bin, ItemNo, QtyLot[1] + QtyLot[2], true);
+        Item.Get(ItemNo);
+        LibraryWarehouse.CalculateWhseAdjustmentItemJournal(Item, WorkDate, '');
+
+        // [GIVEN] Warehouse Movement Worksheet Line with 1 PCS of the Item with From-Bin = "B" and Lot "L1"
+        LibraryWarehouse.CreateMovementWorksheetLine(WhseWorksheetLine, Bin, ToBin, ItemNo, '', 1);
+        LibraryVariableStorage.Enqueue(1);
+        LibraryVariableStorage.Enqueue(LotNo[1]);
+        LibraryVariableStorage.Enqueue(WhseWorksheetLine."Qty. (Base)");
+        WhseWorksheetLine.OpenItemTrackingLines;
+
+        // [GIVEN] Created Movement from Worksheet
+        LibraryWarehouse.CreateWhseMovement(WhseWorksheetLine.Name, WhseWorksheetLine."Location Code", 0, false, false);
+
+        // [GIVEN] Warehouse Movement Worksheet Line with 10 PCS of the Item with From-Bin = "B"
+        // [GIVEN] Warehouse Item Tracking was specified as follows: 4 PCS with Lot "L1" and 6 PCS with Lot "L2"
+        LibraryWarehouse.CreateMovementWorksheetLine(WhseWorksheetLine, Bin, ToBin, ItemNo, '', QtyLot[1] + QtyLot[2]);
+        LibraryVariableStorage.Enqueue(ArrayLen(LotNo));
+        for Index := 1 to ArrayLen(LotNo) do begin
+            LibraryVariableStorage.Enqueue(LotNo[Index]);
+            LibraryVariableStorage.Enqueue(QtyLot[Index]);
+        end;
+        WhseWorksheetLine.OpenItemTrackingLines;
+
+        // [WHEN] Create Movement from Worksheet
+        asserterror LibraryWarehouse.CreateWhseMovement(WhseWorksheetLine.Name, WhseWorksheetLine."Location Code", 0, false, false);
+
+        // [THEN] Error 'Item tracking defined for line 10000, lot number L1, serial number cannot be applied.'
+        Assert.ExpectedError(StrSubstNo(TotalPendingMovQtyExceedsBinAvailErr, WhseWorksheetLine."Line No.", LotNo[1], ''));
+        Assert.ExpectedErrorCode(DialogCodeErr);
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('WhseItemTrackingLinesModalPageHandlerMultipleEntries,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure MovementWithTrackingWhenPendingMovementExists()
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
+        Item: Record Item;
+        Bin: Record Bin;
+        ToBin: Record Bin;
+        LocationCode: Code[10];
+        ItemNo: Code[20];
+        LotNo: array[2] of Code[50];
+        QtyLot: array[2] of Integer;
+        Index: Integer;
+    begin
+        // [FEATURE] [Worksheet] [Item Tracking] [Bin]
+        // [SCENARIO 325576] When pending Movements present then Movement is created from Movement Worksheet if Lot Tracked Item has enough PCS in the Bin
+        Initialize;
+        LotNo[1] := LibraryUtility.GenerateGUID;
+        LotNo[2] := LibraryUtility.GenerateGUID;
+        QtyLot[1] := 1 + LibraryRandom.RandInt(10);
+        QtyLot[2] := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Location with 2 Bins
+        LocationCode := CreateFullWMSLocation(2, false);
+
+        // [GIVEN] Item with Lot Warehouse Tracking enabled
+        ItemNo := CreateItemWithItemTrackingCode(true, true, false);
+
+        // [GIVEN] Bin "B" had 4 PCS with Lot "L1" and 6 PCS with Lot "L2"
+        LibraryWarehouse.FindBin(Bin, LocationCode, FindZone(LocationCode, FindBinType(false, true, false, false)), 1);
+        LibraryWarehouse.FindBin(ToBin, LocationCode, FindZone(LocationCode, FindBinType(false, true, false, false)), 2);
+        LibraryVariableStorage.Enqueue(ArrayLen(LotNo));
+        for Index := 1 to ArrayLen(LotNo) do begin
+            LibraryVariableStorage.Enqueue(LotNo[Index]);
+            LibraryVariableStorage.Enqueue(QtyLot[Index]);
+        end;
+        LibraryWarehouse.UpdateWarehouseStockOnBin(Bin, ItemNo, QtyLot[1] + QtyLot[2], true);
+        Item.Get(ItemNo);
+        LibraryWarehouse.CalculateWhseAdjustmentItemJournal(Item, WorkDate, '');
+
+        // [GIVEN] Warehouse Movement Worksheet Line with 1 PCS of the Item with From-Bin = "B" and Lot "L1"
+        LibraryWarehouse.CreateMovementWorksheetLine(WhseWorksheetLine, Bin, ToBin, ItemNo, '', 1);
+        LibraryVariableStorage.Enqueue(1);
+        LibraryVariableStorage.Enqueue(LotNo[1]);
+        LibraryVariableStorage.Enqueue(WhseWorksheetLine."Qty. (Base)");
+        WhseWorksheetLine.OpenItemTrackingLines;
+
+        // [GIVEN] Created Movement from Worksheet
+        LibraryWarehouse.CreateWhseMovement(WhseWorksheetLine.Name, WhseWorksheetLine."Location Code", 0, false, false);
+
+        // [GIVEN] Warehouse Movement Worksheet Line with 9 PCS of the Item with From-Bin = "B"
+        // [GIVEN] Warehouse Item Tracking was specified as follows: 3 PCS with Lot "L1" and 6 PCS with Lot "L2"
+        QtyLot[1] -= WhseWorksheetLine."Qty. (Base)";
+        LibraryWarehouse.CreateMovementWorksheetLine(WhseWorksheetLine, Bin, ToBin, ItemNo, '', QtyLot[1] + QtyLot[2]);
+        LibraryVariableStorage.Enqueue(ArrayLen(LotNo));
+        for Index := 1 to ArrayLen(LotNo) do begin
+            LibraryVariableStorage.Enqueue(LotNo[Index]);
+            LibraryVariableStorage.Enqueue(QtyLot[Index]);
+        end;
+        WhseWorksheetLine.OpenItemTrackingLines;
+
+        // [WHEN] Create Movement from Worksheet
+        LibraryWarehouse.CreateWhseMovement(WhseWorksheetLine.Name, WhseWorksheetLine."Location Code", 0, false, false);
+
+        // [THEN] Movement is created
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::Movement);
+        WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Take);
+        WarehouseActivityLine.SetRange("Item No.");
+        WarehouseActivityLine.SetRange("Bin Code", Bin.Code);
+        WarehouseActivityLine.SetRange("Lot No.", LotNo[2]);
+        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.SetRange("No.", WarehouseActivityLine."No.");
+        for Index := 1 to ArrayLen(LotNo) do begin
+            WarehouseActivityLine.SetRange("Lot No.", LotNo[Index]);
+            WarehouseActivityLine.FindFirst;
+            WarehouseActivityLine.TestField("Qty. (Base)", QtyLot[Index]);
+        end;
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ErrWhenValidateLocationCodeIntMovementWithLine()
+    var
+        InternalMovementHeader: Record "Internal Movement Header";
+        InternalMovementLine: Record "Internal Movement Line";
+        Location: Record Location;
+    begin
+        // [FEATURE] [UT] [Internal Movement]
+        // [SCENARIO 311310] Location Code cannot be changed in Internal Movement if Lines present.
+        Initialize;
+
+        // [GIVEN] Internal Movement with Location 'BLUE' had Internal Movement Line
+        CreateLocationWithBinMandatory(Location, true);
+        LibraryWarehouse.CreateInternalMovementHeader(InternalMovementHeader, Location.Code, '');
+        LibraryWarehouse.CreateInternalMovementLine(
+          InternalMovementHeader, InternalMovementLine, LibraryInventory.CreateItemNo, '', '', LibraryRandom.RandInt(10));
+        CreateLocationWithBinMandatory(Location, true);
+
+        // [WHEN] Validate Location Code = 'SILVER' in Internal Movement Header
+        asserterror InternalMovementHeader.Validate("Location Code", Location.Code);
+
+        // [THEN] Error 'You cannot change Location Code because one or more lines exist.'
+        Assert.ExpectedError(StrSubstNo(LinesExistErr, InternalMovementHeader.FieldCaption("Location Code")));
+        Assert.ExpectedErrorCode(DialogCodeErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateLocationCodeIntMovementWithoutLines()
+    var
+        InternalMovementHeader: Record "Internal Movement Header";
+        Location: Record Location;
+    begin
+        // [FEATURE] [UT] [Internal Movement]
+        // [SCENARIO 311310] Location Code can be changed in Internal Movement Header when Lines do not present.
+        Initialize;
+
+        // [GIVEN] Internal Movement Header with Location 'BLUE'
+        CreateLocationWithBinMandatory(Location, true);
+        LibraryWarehouse.CreateInternalMovementHeader(InternalMovementHeader, Location.Code, '');
+        CreateLocationWithBinMandatory(Location, true);
+
+        // [WHEN] Validate Location Code = 'SILVER' in Internal Movement Header
+        InternalMovementHeader.Validate("Location Code", Location.Code);
+
+        // [THEN] Internal Movement Header has Location Code 'SILVER'
+        InternalMovementHeader.TestField("Location Code", Location.Code);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -277,6 +482,15 @@ codeunit 137931 "SCM - Movement"
         Location.Validate("Pick According to FEFO", PickAccordingToFEFO);
         Location.Modify(true);
         exit(Location.Code);
+    end;
+
+    local procedure CreateLocationWithBinMandatory(var Location: Record Location; BinMandatory: Boolean)
+    var
+        WarehouseEmployee: Record "Warehouse Employee";
+    begin
+        LibraryWarehouse.CreateLocationWMS(Location, BinMandatory, false, false, false, false);
+        WarehouseEmployee.DeleteAll;
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
     end;
 
     local procedure CreatePurchaseOrderWithLocationAndItem(var PurchaseHeader: Record "Purchase Header"; LocationCode: Code[10]; ItemNo: Code[20]; Qty: Decimal)
@@ -440,6 +654,27 @@ codeunit 137931 "SCM - Movement"
             ItemTrackingLines.Next;
         end;
         ItemTrackingLines.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure WhseItemTrackingLinesModalPageHandlerMultipleEntries(var WhseItemTrackingLines: TestPage "Whse. Item Tracking Lines")
+    var
+        Index: Integer;
+    begin
+        WhseItemTrackingLines.First;
+        for Index := 1 to LibraryVariableStorage.DequeueInteger do begin
+            WhseItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
+            WhseItemTrackingLines.Quantity.SetValue(LibraryVariableStorage.DequeueDecimal);
+            WhseItemTrackingLines.Next;
+        end;
+        WhseItemTrackingLines.OK.Invoke;
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandler(Message: Text)
+    begin
     end;
 }
 

@@ -316,6 +316,8 @@ table 1303 "Mini Vendor Template"
         ConfigTemplateHeader: Record "Config. Template Header";
         ConfigTemplates: Page "Config Templates";
     begin
+        OnBeforeNewVendorFromTemplate(ConfigTemplateHeader, Vendor);
+
         ConfigTemplateHeader.SetRange("Table ID", DATABASE::Vendor);
         ConfigTemplateHeader.SetRange(Enabled, true);
 
@@ -411,6 +413,11 @@ table 1303 "Mini Vendor Template"
         if ConfigTemplateHeader."Instance No. Series" = '' then
             exit;
         NoSeriesMgt.InitSeries(ConfigTemplateHeader."Instance No. Series", '', 0D, Vendor."No.", Vendor."No. Series");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeNewVendorFromTemplate(var ConfigTemplateHeader: Record "Config. Template Header"; Vendor: Record Vendor)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

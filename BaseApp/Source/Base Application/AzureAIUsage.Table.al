@@ -90,6 +90,7 @@ table 2004 "Azure AI Usage"
             exit("Total Resource Usage");
     end;
 
+    [NonDebuggable]
     procedure GetSingleInstance(ServiceOption: Option): Boolean
     var
         ImageAnalysisSetup: Record "Image Analysis Setup";

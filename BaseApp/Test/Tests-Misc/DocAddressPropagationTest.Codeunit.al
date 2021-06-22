@@ -1184,6 +1184,27 @@ codeunit 134772 "Doc. Address Propagation Test"
         SalesHeader.TestField("Ship-to Code", SellToCustomer."Ship-to Code");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ServiceShipToCodePropagateFromCustomer()
+    var
+        Customer: Record Customer;
+        ServiceHeader: Record "Service Header";
+    begin
+        // [FEATURE] [Service]
+        // [SCENARIO 331966] Ship-to Code should propagate from Customer
+        Initialize;
+
+        // [GIVEN] Created customer C1 with "Ship-to Code"=X
+        CreateCustomerWithShipToCode(Customer);
+
+        // [WHEN] Create Service Order for customer C1
+        CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
+
+        // [THEN] "Ship-to Code" is "X"
+        ServiceHeader.TestField("Ship-to Code", Customer."Ship-to Code");
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Doc. Address Propagation Test");

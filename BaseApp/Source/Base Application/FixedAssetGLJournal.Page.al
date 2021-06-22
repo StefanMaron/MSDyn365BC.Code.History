@@ -508,6 +508,18 @@
                 fixed(Control1901776101)
                 {
                     ShowCaption = false;
+                    group("Number of Lines")
+                    {
+                        Caption = 'Number of Lines';
+                        field(NumberOfJournalRecords; Count)
+                        {
+                            ApplicationArea = All;
+                            AutoFormatType = 1;
+                            ShowCaption = false;
+                            Editable = false;
+                            ToolTip = 'Specifies the number of lines in the current journal batch.';
+                        }
+                    }
                     group("Account Name")
                     {
                         Caption = 'Account Name';

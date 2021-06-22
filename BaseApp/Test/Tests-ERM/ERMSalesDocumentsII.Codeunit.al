@@ -48,6 +48,7 @@ codeunit 134386 "ERM Sales Documents II"
         WorkStartingDateRecIsNotFoundErr: Label 'The record with specified starting date (%1) is not found.';
         EmptyStartingDateIsFoundErr: Label 'The record''s starting date (%1) is not equal to date within filter field (%2).';
         WorkStartingDateRecIsFoundErr: Label 'The record''s startings date (%1) is not empty. Only records with empty starting date should be found.';
+        ExpectedRenameErr: Label 'You cannot rename the line.';
 
     [Test]
     [Scope('OnPrem')]
@@ -3637,6 +3638,56 @@ codeunit 134386 "ERM Sales Documents II"
         Assert.IsTrue(SalesPrices.GotoRecord(SalesPrice2), StrSubstNo(WorkStartingDateRecIsNotFoundErr, WorkDate));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckErrorForRenameInStandardCustomerSalesCode()
+    var
+        StandardCustomerSalesCode: Record "Standard Customer Sales Code";
+        StandardSalesCode: array[2] of Record "Standard Sales Code";
+    begin
+        // [FEATURE] [Customer] [Standard Code]
+        // [SCENARIO 305079] Rename field Code in table StandardCustomerSalesCode with running OnRename trigger.
+        Initialize;
+
+        // [GIVEN] Two lines in Standard Sales Code was created.
+        CreateStandardSalesCode(StandardSalesCode[1]);
+        CreateStandardSalesCode(StandardSalesCode[2]);
+
+        // [GIVEN] Standard Customer Sales Code was created for first line of Standard Sales Code.
+        CreateStandardCustomerSalesCode(StandardCustomerSalesCode, StandardSalesCode[1].Code);
+
+        // [WHEN] Rename Standard Customer Sales Code to field Code of second variant of Standard Sales Code
+        asserterror StandardCustomerSalesCode.Rename('', StandardSalesCode[2].Code);
+
+        // [THEN] The error about trying rename Standard Customer Sales Code was shown.
+        Assert.ExpectedError(ExpectedRenameErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckErrorForRenameInStandardVendorPurchaseCode()
+    var
+        StandardVendorPurchaseCode: Record "Standard Vendor Purchase Code";
+        StandardPurchaseCode: array[2] of Record "Standard Purchase Code";
+    begin
+        // [FEATURE] [Vendor] [Standard Code]
+        // [SCENARIO 305079] Rename field Code in table Standard Vendor Purchase Code with running OnRename trigger.
+        Initialize;
+
+        // [GIVEN] Two lines in Standard Purchase Code was created.
+        CreateStandardPurchaseCode(StandardPurchaseCode[1]);
+        CreateStandardPurchaseCode(StandardPurchaseCode[2]);
+
+        // [GIVEN] Standard Vendor Purchase Code was created for first line of Standard Purchase Code.
+        CreateStandardVendorPurchaseCode(StandardVendorPurchaseCode, StandardPurchaseCode[1].Code);
+
+        // [WHEN] Rename Standard Vendor Purchase Code to field Code of second variant of Standard Purchase Code
+        asserterror StandardVendorPurchaseCode.Rename('', StandardPurchaseCode[2].Code);
+
+        // [THEN] The error about trying rename Standard Customer Sales Code was shown.
+        Assert.ExpectedError(ExpectedRenameErr);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -5381,6 +5432,43 @@ codeunit 134386 "ERM Sales Documents II"
         TotalSalesLine.SetRange("Document No.", SalesHeader."No.");
         TotalSalesLine.CalcSums("Line Amount", Amount, "Amount Including VAT", "Inv. Discount Amount");
         exit(TotalSalesLine."Amount Including VAT");
+    end;
+
+    local procedure CreateStandardSalesCode(var StandardSalesCode: Record "Standard Sales Code")
+    begin
+        StandardSalesCode.Init;
+        StandardSalesCode.Code := LibraryUtility.GenerateRandomCode(StandardSalesCode.FieldNo(Code), DATABASE::"Standard Sales Code");
+        StandardSalesCode.Validate(Description, LibraryUtility.GenerateRandomText(MaxStrLen(StandardSalesCode.Description)));
+        StandardSalesCode.Insert;
+    end;
+
+    local procedure CreateStandardCustomerSalesCode(var StandardCustomerSalesCode: Record "Standard Customer Sales Code"; CodeStandardSalesCode: Code[10])
+    var
+        StandardSalesCode: Record "Standard Sales Code";
+    begin
+        StandardSalesCode.Get(CodeStandardSalesCode);
+        StandardSalesCode.Init;
+        StandardCustomerSalesCode.Code := StandardSalesCode.Code;
+        StandardCustomerSalesCode.Insert(true);
+    end;
+
+    local procedure CreateStandardPurchaseCode(var StandardPurchaseCode: Record "Standard Purchase Code")
+    begin
+        StandardPurchaseCode.Init;
+        StandardPurchaseCode.Code :=
+          LibraryUtility.GenerateRandomCode(StandardPurchaseCode.FieldNo(Code), DATABASE::"Standard Purchase Code");
+        StandardPurchaseCode.Validate(Description, LibraryUtility.GenerateRandomText(MaxStrLen(StandardPurchaseCode.Description)));
+        StandardPurchaseCode.Insert;
+    end;
+
+    local procedure CreateStandardVendorPurchaseCode(var StandardVendorPurchaseCode: Record "Standard Vendor Purchase Code"; CodeStandardPurchaseCode: Code[10])
+    var
+        StandardPurchaseCode: Record "Standard Purchase Code";
+    begin
+        StandardPurchaseCode.Get(CodeStandardPurchaseCode);
+        StandardPurchaseCode.Init;
+        StandardVendorPurchaseCode.Code := StandardPurchaseCode.Code;
+        StandardVendorPurchaseCode.Insert(true);
     end;
 
     [ModalPageHandler]

@@ -29,8 +29,11 @@ table 7346 "Internal Movement Header"
                     Error(Text003, "Location Code");
 
                 CheckLocationSettings("Location Code");
-                if "Location Code" <> xRec."Location Code" then
+                if "Location Code" <> xRec."Location Code" then begin
+                    if LineExist then
+                        Error(LinesExistErr, FieldCaption("Location Code"));
                     "To Bin Code" := '';
+                end;
 
                 FilterGroup := 2;
                 SetRange("Location Code", "Location Code");
@@ -172,6 +175,7 @@ table 7346 "Internal Movement Header"
         Text003: Label 'You cannot use Location Code %1.';
         Text004: Label 'You have changed the %1 on the %2, but it has not been changed on the existing internal movement lines.\You must update the existing internal movement lines manually.';
         NoAllowedLocationsErr: Label 'Internal movement is not possible at any locations where you are a warehouse employee.';
+        LinesExistErr: Label 'You cannot change %1 because one or more lines exist.', Comment = '%1=Location Code';
 
     local procedure SortWhseDoc()
     var
@@ -223,6 +227,14 @@ table 7346 "Internal Movement Header"
         else
             if Location.Code <> LocationCode then
                 Location.Get(LocationCode);
+    end;
+
+    local procedure LineExist(): Boolean
+    var
+        InternalMovementLine: Record "Internal Movement Line";
+    begin
+        InternalMovementLine.SetRange("No.", "No.");
+        exit(not InternalMovementLine.IsEmpty);
     end;
 
     procedure OpenInternalMovementHeader(var InternalMovementHeader: Record "Internal Movement Header")

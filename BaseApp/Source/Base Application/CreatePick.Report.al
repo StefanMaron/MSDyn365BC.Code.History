@@ -10,6 +10,8 @@ report 5754 "Create Pick"
             DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
 
             trigger OnAfterGetRecord()
+            var
+                IsHandled: Boolean;
             begin
                 PickWhseWkshLine.SetFilter("Qty. to Handle (Base)", '>%1', 0);
                 PickWhseWkshLineFilter.CopyFilters(PickWhseWkshLine);
@@ -42,8 +44,12 @@ report 5754 "Create Pick"
                         PickWhseWkshLineFilter.CopyFilter("Whse. Document No.", PickWhseWkshLine."Whse. Document No.");
                     until not PickWhseWkshLine.Find('-');
                     CheckPickActivity;
-                end else
-                    Error(Text000);
+                end else begin
+                    IsHandled := false;
+                    OnBeforeNothingToHandedErr(IsHandled);
+                    if not IsHandled then
+                        Error(NothingToHandedErr);
+                end;
             end;
 
             trigger OnPreDataItem()
@@ -202,7 +208,7 @@ report 5754 "Create Pick"
     }
 
     var
-        Text000: Label 'There is nothing to handle.';
+        NothingToHandedErr: Label 'There is nothing to handle.';
         Text001: Label 'Pick activity no. %1 has been created.';
         Text002: Label 'Pick activities no. %1 to %2 have been created.';
         Location: Record Location;
@@ -484,6 +490,11 @@ report 5754 "Create Pick"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreatePickWhseDocument(var WhseWorksheetLine: Record "Whse. Worksheet Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeNothingToHandedErr(var IsHandled: Boolean);
     begin
     end;
 

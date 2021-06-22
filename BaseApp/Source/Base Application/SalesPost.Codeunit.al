@@ -430,6 +430,9 @@ codeunit 80 "Sales-Post"
                   ForwardLinkMgt.GetHelpCodeForAllowedPostingDate);
 
             SetPostingFlags(SalesHeader);
+
+            OnCheckAndUpdateOnAfterSetPostingFlags(SalesHeader, TempSalesLineGlobal);
+
             if not HideProgressWindow then
                 InitProgressWindow(SalesHeader);
 
@@ -1367,7 +1370,7 @@ codeunit 80 "Sales-Post"
         PurchOrderLine.Get(
           PurchOrderLine."Document Type"::Order, SalesLine."Purchase Order No.", SalesLine."Purch. Order Line No.");
 
-        InitAssocItemJnlLine(ItemJnlLine, PurchOrderHeader, PurchOrderLine, SalesHeader, QtyToBeShipped, QtyToBeShippedBase);
+        InitAssocItemJnlLine(ItemJnlLine, PurchOrderHeader, PurchOrderLine, SalesHeader, SalesLine, QtyToBeShipped, QtyToBeShippedBase);
 
         IsHandled := false;
         OnPostAssocItemJnlLineOnBeforePost(ItemJnlLine, PurchOrderLine, IsHandled);
@@ -1395,9 +1398,9 @@ codeunit 80 "Sales-Post"
         exit(ItemJnlLine."Item Shpt. Entry No.");
     end;
 
-    local procedure InitAssocItemJnlLine(var ItemJnlLine: Record "Item Journal Line"; PurchOrderHeader: Record "Purchase Header"; PurchOrderLine: Record "Purchase Line"; SalesHeader: Record "Sales Header"; QtyToBeShipped: Decimal; QtyToBeShippedBase: Decimal)
+    local procedure InitAssocItemJnlLine(var ItemJnlLine: Record "Item Journal Line"; PurchOrderHeader: Record "Purchase Header"; PurchOrderLine: Record "Purchase Line"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; QtyToBeShipped: Decimal; QtyToBeShippedBase: Decimal)
     begin
-        OnBeforeInitAssocItemJnlLine(ItemJnlLine, PurchOrderHeader, PurchOrderLine, SalesHeader);
+        OnBeforeInitAssocItemJnlLine(ItemJnlLine, PurchOrderHeader, PurchOrderLine, SalesHeader, SalesLine);
 
         with ItemJnlLine do begin
             Init;
@@ -1422,7 +1425,7 @@ codeunit 80 "Sales-Post"
             "Applies-to Entry" := 0;
         end;
 
-        OnAfterInitAssocItemJnlLine(ItemJnlLine, PurchOrderHeader, PurchOrderLine, SalesHeader);
+        OnAfterInitAssocItemJnlLine(ItemJnlLine, PurchOrderHeader, PurchOrderLine, SalesHeader, SalesLine);
     end;
 
     local procedure ReleaseSalesDocument(var SalesHeader: Record "Sales Header")
@@ -1432,6 +1435,7 @@ codeunit 80 "Sales-Post"
         ReleaseSalesDocument: Codeunit "Release Sales Document";
         LinesWereModified: Boolean;
         SavedStatus: Option;
+        IsHandled: Boolean;
     begin
         with SalesHeader do begin
             if not (Status = Status::Open) or (Status = Status::"Pending Prepayment") then
@@ -1453,7 +1457,10 @@ codeunit 80 "Sales-Post"
                 Modify;
                 Commit;
             end;
-            Status := Status::Released;
+            IsHandled := false;
+            OnReleaseSalesDocumentOnBeforeSetStatus(SalesHeader, IsHandled);
+            if not IsHandled then
+                Status := Status::Released;
         end;
     end;
 
@@ -1983,7 +1990,8 @@ codeunit 80 "Sales-Post"
             InsertValueEntryRelation;
 
             OnAfterFinalizePostingOnBeforeCommit(
-              SalesHeader, SalesShptHeader, SalesInvHeader, SalesCrMemoHeader, ReturnRcptHeader, GenJnlPostLine, SuppressCommit, PreviewMode);
+              SalesHeader, SalesShptHeader, SalesInvHeader, SalesCrMemoHeader, ReturnRcptHeader, GenJnlPostLine,
+              SuppressCommit, PreviewMode, WhseShip, WhseReceive);
 
             if PreviewMode then begin
                 if not HideProgressWindow then
@@ -6761,7 +6769,7 @@ codeunit 80 "Sales-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitAssocItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; SalesHeader: Record "Sales Header")
+    local procedure OnAfterInitAssocItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line")
     begin
     end;
 
@@ -6886,7 +6894,7 @@ codeunit 80 "Sales-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterFinalizePostingOnBeforeCommit(var SalesHeader: Record "Sales Header"; var SalesShipmentHeader: Record "Sales Shipment Header"; var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var ReturnReceiptHeader: Record "Return Receipt Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; CommitIsSuppressed: Boolean; PreviewMode: Boolean)
+    local procedure OnAfterFinalizePostingOnBeforeCommit(var SalesHeader: Record "Sales Header"; var SalesShipmentHeader: Record "Sales Shipment Header"; var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var ReturnReceiptHeader: Record "Return Receipt Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; CommitIsSuppressed: Boolean; PreviewMode: Boolean; WhseShip: Boolean; WhseReceive: Boolean)
     begin
     end;
 
@@ -6946,7 +6954,7 @@ codeunit 80 "Sales-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInitAssocItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; SalesHeader: Record "Sales Header")
+    local procedure OnBeforeInitAssocItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line")
     begin
     end;
 
@@ -7696,6 +7704,11 @@ codeunit 80 "Sales-Post"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCheckAndUpdateOnAfterSetPostingFlags(var SalesHeader: Record "Sales Header"; var TempSalesLineGlobal: Record "Sales Line" temporary);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCheckAndUpdateOnBeforeCalcInvDiscount(var SalesHeader: Record "Sales Header"; WarehouseReceiptHeader: Record "Warehouse Receipt Header"; WarehouseShipmentHeader: Record "Warehouse Shipment Header"; WhseReceive: Boolean; WhseShip: Boolean; var RefreshNeeded: Boolean)
     begin
     end;
@@ -7872,6 +7885,11 @@ codeunit 80 "Sales-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostItemTrackingForReceiptOnBeforeReturnRcptLineModify(SalesHeader: Record "Sales Header"; var ReturnRcptLine: Record "Return Receipt Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReleaseSalesDocumentOnBeforeSetStatus(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean);
     begin
     end;
 
